@@ -11,7 +11,7 @@
 			return app;
 		}
 
-		public static IApplicationBuilder UseApplicationInsightsTelemetry(this IApplicationBuilder app)
+		public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
 		{
 			app.UseMiddleware<ApplicationInsightsMiddleware>();
 			return app;

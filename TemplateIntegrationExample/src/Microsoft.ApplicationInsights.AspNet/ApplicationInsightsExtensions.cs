@@ -8,7 +8,7 @@
 
 	public static class ApplicationInsightsExtensions
     {
-		public static void AddTelemetry(this IServiceCollection services, IConfiguration config)
+		public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
 		{
 			TelemetryConfiguration.Active.InstrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
 
