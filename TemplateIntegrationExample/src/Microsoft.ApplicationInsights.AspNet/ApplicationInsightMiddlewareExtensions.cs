@@ -5,19 +5,19 @@
 
 	public static class ApplicationInsightMiddlewareExtensions
     {
-		public static IApplicationBuilder UseRequestTelemetry(this IApplicationBuilder app)
+		public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
 		{
 			app.UseMiddleware<ApplicationInsightsMiddleware>();
 			return app;
 		}
 
-		public static IApplicationBuilder UseExceptionsTelemetry(this IApplicationBuilder app)
+		public static IApplicationBuilder UseApplicationInsightsTelemetry(this IApplicationBuilder app)
 		{
 			app.UseMiddleware<ApplicationInsightsMiddleware>();
 			return app;
 		}
 
-		public static IApplicationBuilder SetTelemetryDeveloperMode(this IApplicationBuilder app)
+		public static IApplicationBuilder SetApplicationInsightsTelemetryDeveloperMode(this IApplicationBuilder app)
 		{
 			//do something
 			return app;
