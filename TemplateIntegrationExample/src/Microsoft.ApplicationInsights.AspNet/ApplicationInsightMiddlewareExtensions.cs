@@ -7,13 +7,13 @@
     {
 		public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
 		{
-			app.UseMiddleware<ApplicationInsightsMiddleware>();
+			app.UseMiddleware<ApplicationInsightsRequestMiddleware>();
 			return app;
 		}
 
 		public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
 		{
-			app.UseMiddleware<ApplicationInsightsMiddleware>();
+			app.UseMiddleware<ApplicationInsightsExceptionMiddleware>();
 			return app;
 		}
 

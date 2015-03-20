@@ -22,9 +22,14 @@
 		{
 		}
 
-		public void TrackRequest()
+		public void TrackRequest(string path)
 		{
-			Debug.WriteLine("Track Request " + this.config.InstrumentationKey);
+			Debug.WriteLine("Track Request (instrumentation key = " + (this.config.InstrumentationKey ?? "") + "): " + (path ?? ""));
+		}
+
+		public void TrackException(string ex)
+		{
+			Debug.WriteLine("Track Exception (instrumentation key = " + (this.config.InstrumentationKey ?? "") + "):" + (ex ?? ""));
 		}
 
 		private readonly TelemetryContext context;
