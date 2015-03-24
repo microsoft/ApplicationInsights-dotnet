@@ -64,15 +64,15 @@ And insert HtmlHelper to the end of ```<head>``` section:
 
 Developing
 ----------
-Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
-Asp.Net information: https://github.com/aspnet/home
-VS 2015 installation: 
-            (recommended by Anastasia): http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
-            You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
+1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
+2. Asp.Net information: https://github.com/aspnet/home
+3. VS 2015 installation: 
+ a. (recommended by Anastasia): http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
+ b. You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
 
-Make sure you have these (and only these) feeds configured in Visual Studio:
 
-1. https://www.myget.org/F/aspnetvnext
-2. http://appinsights-aspnet.azurewebsites.net/nuget/
+4. Make sure you have these (and only these) feeds configured in Visual Studio:
+ - https://www.myget.org/F/aspnetvnext
+ - http://appinsights-aspnet.azurewebsites.net/nuget/
 
 
