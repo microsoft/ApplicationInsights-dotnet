@@ -67,8 +67,8 @@ Developing
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
 3. VS 2015 installation: 
- a. (recommended by Anastasia): http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
- b. You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
+ - *(recommended by [Anastasia](https://github.com/abaranch))*: http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
+ - You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
 
 
 4. Make sure you have these (and only these) feeds configured in Visual Studio:
