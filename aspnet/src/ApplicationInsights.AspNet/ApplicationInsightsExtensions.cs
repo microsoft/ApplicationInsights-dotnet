@@ -1,155 +1,58 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.RequestContainer;
-using Microsoft.Framework.ConfigurationModel;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
-using System;
-using System.Threading.Tasks;
-
-namespace Microsoft.ApplicationInsights.Middleware
+﻿namespace Microsoft.ApplicationInsights.AspNet
 {
-    public static class ApplicationInsightsExtensions
-    {
-        public static void AddTelemetryClient(this IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            serviceCollection.AddScoped(sp => RegisterClient(sp, configuration));
-        }
+	using Microsoft.ApplicationInsights.DataContracts;
+	using Microsoft.ApplicationInsights.Extensibility;
+	using Microsoft.AspNet.Builder;
+	using Microsoft.Framework.ConfigurationModel;
+	using Microsoft.Framework.DependencyInjection;
+	using System;
+	using Microsoft.AspNet.Mvc;
+	using Microsoft.AspNet.Mvc.Rendering;
 
-        public static void UseApplicationInsightsForRequests(this IApplicationBuilder app)
-        {
-            app.UseMiddleware<AppInsightsRequestMiddleware>();
-        }
+	public static class ApplicationInsightsExtensions
+	{
+		public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
+		{
+			app.UseMiddleware<ApplicationInsightsRequestMiddleware>();
+			return app;
+		}
 
-        public static void UseApplicationInsightsForExceptions(this IApplicationBuilder app)
-        {
-            app.UseMiddleware<AppInsightsExceptionMiddleware>();
-        }
+		public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
+		{
+			app.UseMiddleware<ApplicationInsightsExceptionMiddleware>();
+			return app;
+		}
 
-        private static TelemetryClient RegisterClient(IServiceProvider serviceProvider, IConfiguration configuration)
-        {
-            TelemetryClient client = null;
-            try
-            {
-                string key = configuration.Get("InstrumentationKey");
+		public static IApplicationBuilder SetApplicationInsightsTelemetryDeveloperMode(this IApplicationBuilder app)
+		{
+			TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
+			return app;
+		}
 
-                if (string.IsNullOrEmpty(key))
-                {
-                    // TODO; check logger for null
-                    serviceProvider.GetService<ILogger>().WriteError("InstrumentationKey not registered");
-                    return null;
-                }
+		public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
+		{
+			TelemetryConfiguration.Active.InstrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
 
-                var aiConfig = new TelemetryConfiguration();
-                aiConfig.InstrumentationKey = key;
-                var channel = new Channel.InProcessTelemetryChannel();
-                aiConfig.TelemetryChannel = channel;
+			services.AddInstance<TelemetryClient>(new TelemetryClient());
+			services.AddScoped<RequestTelemetry>();
+		}
 
-                var env = serviceProvider.GetService<IHostingEnvironment>();
-
-                if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
-                {
-                    aiConfig.TelemetryChannel.DeveloperMode = true;
-                }
-
-                client = new TelemetryClient(aiConfig);
-                channel.Initialize(aiConfig);
-            }
-            catch (Exception e)
-            {
-                serviceProvider.GetService<ILogger>().WriteError(e.ToString());
-            }
-
-            return client;
-        }
-
-        private class AppInsightsRequestMiddleware
-        {
-            private readonly RequestDelegate _next;
-            private readonly IServiceProvider _services;
-
-            public AppInsightsRequestMiddleware(RequestDelegate next, IServiceProvider services)
-            {
-                _services = services;
-                _next = next;
-            }
-
-            public async Task Invoke(HttpContext httpContext)
-            {
-                using (var container = RequestServicesContainer.EnsureRequestServices(httpContext, _services))
-                {
-                    var client = httpContext.RequestServices.GetService<TelemetryClient>();
-
-                    if (client == null)
-                    {
-                        _services.GetService<ILogger>().WriteError("AI TelemetryClient is not registered.");
-                    }
-
-                    var now = DateTime.UtcNow;
-
-                    try
-                    {
-                        await _next.Invoke(httpContext);
-                    }
-                    finally
-                    {
-                        if (client != null)
-                        {
-                            var telemetry = new RequestTelemetry(
-                                httpContext.Request.Method + " " + httpContext.Request.Path.Value,
-                                now,
-                                DateTime.UtcNow - now,
-                                httpContext.Response.StatusCode.ToString(),
-                                httpContext.Response.StatusCode < 400);
-
-                            client.TrackRequest(telemetry);
-                        }
-                    }
-                }
-            }
-        }
-
-        private class AppInsightsExceptionMiddleware
-        {
-            private readonly RequestDelegate _next;
-            private readonly IServiceProvider _services;
-
-            public AppInsightsExceptionMiddleware(RequestDelegate next, IServiceProvider services)
-            {
-                _services = services;
-                _next = next;
-            }
-
-            public async Task Invoke(HttpContext httpContext)
-            {
-                using (var container = RequestServicesContainer.EnsureRequestServices(httpContext, _services))
-                {
-                    var client = httpContext.RequestServices.GetService<TelemetryClient>();
-
-                    if (client == null)
-                    {
-                        _services.GetService<ILogger>().WriteWarning("AI TelemetryClient is not registered.");
-                    }
-
-                    try
-                    {
-                        await _next.Invoke(httpContext);
-                    }
-                    catch (Exception exp)
-                    {
-                        if (client != null)
-                        {
-                            client.TrackException(exp);
-                        }
-
-                        throw;
-                    }
-                }
-            }
-        }
-    }
+		public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)
+		{
+			//see: https://github.com/aspnet/Mvc/issues/2056
+			//var client = (TelemetryClient)helper.ViewContext.HttpContext.ApplicationServices.GetService(typeof(TelemetryClient));
+			return new HtmlString(@"<script language='javascript'> 
+ 				var appInsights = window.appInsights || function(config){ 
+ 					function s(config){t[config]=function(){var i=arguments; t.queue.push(function(){ t[config].apply(t, i)})} 
+ 					} 
+ 					var t = { config:config }, r = document, f = window, e = ""script"", o = r.createElement(e), i, u;for(o.src=config.url||""//az416426.vo.msecnd.net/scripts/a/ai.0.js"",r.getElementsByTagName(e)[0].parentNode.appendChild(o),t.cookie=r.cookie,t.queue=[],i=[""Event"",""Exception"",""Metric"",""PageView"",""Trace""];i.length;)s(""track""+i.pop());return config.disableExceptionTracking||(i=""onerror"",s(""_""+i),u=f[i],f[i]=function(config, r, f, e, o) { var s = u && u(config, r, f, e, o); return s !== !0 && t[""_"" + i](config, r, f, e, o),s}),t 
+                 }({ 
+ 					instrumentationKey:""" + instrumentationKey + @""" 
+ 				}); 
+  
+ 				window.appInsights=appInsights; 
+ 				appInsights.trackPageView(); 
+</script>");
+		}
+	}
 }
