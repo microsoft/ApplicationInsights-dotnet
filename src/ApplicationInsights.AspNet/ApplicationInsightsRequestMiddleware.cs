@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
 	using Microsoft.ApplicationInsights;
+	using Microsoft.ApplicationInsights.AspNet.Implementation;
 	using Microsoft.ApplicationInsights.DataContracts;
 	using Microsoft.ApplicationInsights.Extensibility;
 	using Microsoft.AspNet.Builder;
@@ -29,6 +30,8 @@
 
 		public async Task Invoke(HttpContext httpContext)
 		{
+			this.serviceProvider.GetService<HttpContextHolder>().Context = httpContext;
+
 			var sw = new Stopwatch();
 			sw.Start();
 
