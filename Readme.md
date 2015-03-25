@@ -71,8 +71,7 @@ Developing
  - You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
 
 
-4. Make sure you have these (and only these) feeds configured in Visual Studio:
+4. Make sure you have these (only these and in this order) feeds configured in Visual Studio. You may need to restart Visual Studio to allow packages to be restored correctly:
  - https://www.myget.org/F/aspnetvnext
  - http://appinsights-aspnet.azurewebsites.net/nuget/
-
-
+ - https://www.nuget.org/api/v2/
