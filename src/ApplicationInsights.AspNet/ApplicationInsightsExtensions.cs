@@ -8,6 +8,8 @@
 	using System;
 	using Microsoft.AspNet.Mvc;
 	using Microsoft.AspNet.Mvc.Rendering;
+	using Microsoft.ApplicationInsights.AspNet.DataCollection;
+	using Microsoft.ApplicationInsights.AspNet.Implementation;
 
 	public static class ApplicationInsightsExtensions
 	{
@@ -33,13 +35,19 @@
 		{
 			TelemetryConfiguration.Active.InstrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
 
-			services.AddInstance<TelemetryClient>(new TelemetryClient());
+			services.AddSingleton<TelemetryClient>((svcs) => {
+				TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebClientIpHeaderTelemetryInitializer(svcs));
+                return new TelemetryClient();
+            });
+
 			services.AddScoped<RequestTelemetry>((svcs) => {
 				var rt = new RequestTelemetry();
 				// this is workaround to inject proper instrumentation key into javascript:
 				rt.Context.InstrumentationKey = svcs.GetService<TelemetryClient>().Context.InstrumentationKey;
 				return rt;
 			});
+
+			services.AddScoped<HttpContextHolder>();
 		}
 
 		public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)
