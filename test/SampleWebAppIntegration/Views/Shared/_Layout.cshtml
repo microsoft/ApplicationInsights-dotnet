@@ -1,5 +1,5 @@
 ﻿@using Microsoft.ApplicationInsights.AspNet
-@inject Microsoft.ApplicationInsights.TelemetryClient TelemetryClient
+@inject Microsoft.ApplicationInsights.DataContracts.RequestTelemetry RequestTelemetry 
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-touch-carousel/css/bootstrap-touch-carousel.css" />
-	@Html.ApplicationInsightsJavaScriptSnippet(TelemetryClient.Context.InstrumentationKey);
+	@Html.ApplicationInsightsJavaScriptSnippet(RequestTelemetry.Context.InstrumentationKey);
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">

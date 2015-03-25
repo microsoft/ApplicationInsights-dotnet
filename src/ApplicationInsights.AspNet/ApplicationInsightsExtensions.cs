@@ -34,7 +34,12 @@
 			TelemetryConfiguration.Active.InstrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
 
 			services.AddInstance<TelemetryClient>(new TelemetryClient());
-			services.AddScoped<RequestTelemetry>();
+			services.AddScoped<RequestTelemetry>((svcs) => {
+				var rt = new RequestTelemetry();
+				// this is workaround to inject proper instrumentation key into javascript:
+				rt.Context.InstrumentationKey = svcs.GetService<TelemetryClient>().Context.InstrumentationKey;
+				return rt;
+			});
 		}
 
 		public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)

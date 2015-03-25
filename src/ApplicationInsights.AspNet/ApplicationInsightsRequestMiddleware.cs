@@ -18,10 +18,12 @@
 	{
 		private readonly RequestDelegate next;
 		private readonly TelemetryClient telemetryClient;
+		private readonly IServiceProvider serviceProvider;
 
-		public ApplicationInsightsRequestMiddleware(RequestDelegate next, TelemetryClient client)
+		public ApplicationInsightsRequestMiddleware(IServiceProvider svcs, RequestDelegate next, TelemetryClient client)
 		{
-			this.telemetryClient = client;
+			this.serviceProvider = svcs;
+            this.telemetryClient = client;
 			this.next = next;
 		}
 
@@ -42,12 +44,12 @@
 				{
 					sw.Stop();
 
-					var telemetry = new RequestTelemetry(
-							httpContext.Request.Method + " " + httpContext.Request.Path.Value,
-							now,
-							sw.Elapsed,
-							httpContext.Response.StatusCode.ToString(),
-							httpContext.Response.StatusCode < 400);
+					var telemetry = this.serviceProvider.GetService<RequestTelemetry>();
+					telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
+					telemetry.Timestamp = now;
+					telemetry.Duration = sw.Elapsed;
+					telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
+					telemetry.Success = httpContext.Response.StatusCode < 400;
 
 					this.telemetryClient.TrackRequest(telemetry);
 				}
