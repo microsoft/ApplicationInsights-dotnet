@@ -1,8 +1,10 @@
 ﻿{
-	"dependencies": {
-		"Microsoft.ApplicationInsights.AspNet": "1.0.0-*",
-		"xunit": "2.0.0.0-*",
-		"xunit.runner.aspnet": "2.0.0.0-*",
-		"xunit.runner.visualstudio": "2.0.0.0-*"
-	}
+    "dependencies": {
+       "xunit": "2.1.0.0-beta1-build2945",
+        "xunit.runner.aspnet": "2.1.0.0-beta1-build60",
+        "xunit.runner.visualstudio": "2.1.0.0-beta1-build1051"
+    },
+    "commands": {
+        "test": "xunit.runner.aspnet"
+    }
 }
