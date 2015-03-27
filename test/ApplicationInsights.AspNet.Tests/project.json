@@ -11,5 +11,5 @@
     "frameworks": {
         "aspnet50": { },
         "aspnetcore50": { }
-    },
+    }
 }

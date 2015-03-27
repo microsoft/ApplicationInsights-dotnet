@@ -13,7 +13,7 @@
 			"dependencies": {
 				"Microsoft.ApplicationInsights": "0.13.4-build00460"
 			}
-		},
+		},	
 		"aspnetcore50": {
 			"dependencies": {
 				"System.Runtime": "4.0.20-*",

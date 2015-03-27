@@ -14,6 +14,7 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.Logging.Console;
 using SampleWebAppIntegration.Models;
+using FunctionalTestUtils;
 
 namespace SampleWebAppIntegration
 {
@@ -34,6 +35,8 @@ namespace SampleWebAppIntegration
         {
 			// Add Application Insights services to the services container.
 			services.AddApplicationInsightsTelemetry(Configuration);
+
+			services.AddFunctionalTestTelemetryChannel();
 
 			// Add EF services to the services container.
 			services.AddEntityFramework(Configuration)

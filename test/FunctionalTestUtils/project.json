@@ -1,0 +1,27 @@
+﻿{
+	"version": "1.0.0-*",
+	"dependencies": {
+		"Microsoft.AspNet.Diagnostics": "1.0.0-beta3",
+		"Microsoft.AspNet.Hosting": "1.0.0-beta3",
+		"Microsoft.AspNet.Mvc": "6.0.0-beta3",
+		"Microsoft.AspNet.Server.WebListener": "1.0.0-beta3",
+		"xunit": "2.1.0.0-beta1-build2945",
+		"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
+		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
+		"Microsoft.Net.Http.Client": "1.0.0-*"
+	},
+
+	"frameworks": {
+		"aspnet50": {
+			"dependencies": {
+				"Microsoft.ApplicationInsights": "0.13.4-build00460"
+			}
+		},
+		"aspnetcore50": {
+			"dependencies": {
+				"System.Runtime": "4.0.20-beta-22523",
+				"Microsoft.ApplicationInsights.Portable": "0.30.0.0-beta"
+			}
+		}
+	}
+}
