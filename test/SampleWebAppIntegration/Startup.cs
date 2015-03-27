@@ -33,13 +33,13 @@ namespace SampleWebAppIntegration
         // This method gets called by the runtime.
         public void ConfigureServices(IServiceCollection services)
         {
-			// Add Application Insights services to the services container.
-			services.AddApplicationInsightsTelemetry(Configuration);
+            // Add Application Insights services to the services container.
+            services.AddApplicationInsightsTelemetry(Configuration);
 
-			services.AddFunctionalTestTelemetryChannel();
+            services.AddFunctionalTestTelemetryChannel();
 
-			// Add EF services to the services container.
-			services.AddEntityFramework(Configuration)
+            // Add EF services to the services container.
+            services.AddEntityFramework(Configuration)
                 .AddSqlServer()
                 .AddDbContext<ApplicationDbContext>();
 
@@ -50,42 +50,42 @@ namespace SampleWebAppIntegration
             // Add MVC services to the services container.
             services.AddMvc();
 
-			// Uncomment the following line to add Web API servcies which makes it easier to port Web API 2 controllers.
-			// You need to add Microsoft.AspNet.Mvc.WebApiCompatShim package to project.json
-			// services.AddWebApiConventions();
-		}
+            // Uncomment the following line to add Web API servcies which makes it easier to port Web API 2 controllers.
+            // You need to add Microsoft.AspNet.Mvc.WebApiCompatShim package to project.json
+            // services.AddWebApiConventions();
+        }
 
-		// Configure is called after ConfigureServices is called.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerfactory)
+        // Configure is called after ConfigureServices is called.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerfactory)
         {
             // Configure the HTTP request pipeline.
             // Add the console logger.
             loggerfactory.AddConsole();
 
-			// Add Application Insights monitoring to the request pipeline as a very first middleware.
-			app.UseApplicationInsightsRequestTelemetry();
+            // Add Application Insights monitoring to the request pipeline as a very first middleware.
+            app.UseApplicationInsightsRequestTelemetry();
 
-			// Add the following to the request pipeline only in development environment.
-			if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
+            // Add the following to the request pipeline only in development environment.
+            if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
             {
                 app.UseBrowserLink();
                 app.UseErrorPage(ErrorPageOptions.ShowAll);
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
-				// Set immediate delivery for Application Insights events.
-				app.SetApplicationInsightsTelemetryDeveloperMode();
-			}
-			else
+                // Set immediate delivery for Application Insights events.
+                app.SetApplicationInsightsTelemetryDeveloperMode();
+            }
+            else
             {
                 // Add Error handling middleware which catches all application specific errors and
                 // send the request to the following path or controller action.
                 app.UseErrorHandler("/Home/Error");
             }
 
-			// Add Application Insights exceptions handling to the request pipeline.
-			app.UseApplicationInsightsExceptionTelemetry();
+            // Add Application Insights exceptions handling to the request pipeline.
+            app.UseApplicationInsightsExceptionTelemetry();
 
-			// Add static files to the request pipeline.
-			app.UseStaticFiles();
+            // Add static files to the request pipeline.
+            app.UseStaticFiles();
 
             // Add cookie-based authentication to the request pipeline.
             app.UseIdentity();

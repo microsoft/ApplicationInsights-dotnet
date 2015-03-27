@@ -1,15 +1,15 @@
 ﻿
 namespace Microsoft.ApplicationInsights.AspNet.Tests
 {
-	using System;
-	using Xunit;
+    using System;
+    using Xunit;
 
-	public class Sample
+    public class Sample
     {
         [Fact]
         public void TrueIsTrue()
         {
-			Assert.True(true);
+            Assert.True(true);
         }
     }
 }
