@@ -5,8 +5,6 @@
 	using Microsoft.AspNet.Builder;
 	using Microsoft.Framework.ConfigurationModel;
 	using Microsoft.Framework.DependencyInjection;
-	using System;
-	using Microsoft.AspNet.Mvc;
 	using Microsoft.AspNet.Mvc.Rendering;
 	using Microsoft.ApplicationInsights.AspNet.DataCollection;
 	using Microsoft.ApplicationInsights.AspNet.Implementation;
@@ -37,7 +35,8 @@
 
 			services.AddSingleton<TelemetryClient>((svcs) => {
 				TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebClientIpHeaderTelemetryInitializer(svcs));
-                return new TelemetryClient();
+				TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebUserAgentTelemetryInitializer(svcs));
+				return new TelemetryClient();
             });
 
 			services.AddScoped<RequestTelemetry>((svcs) => {
