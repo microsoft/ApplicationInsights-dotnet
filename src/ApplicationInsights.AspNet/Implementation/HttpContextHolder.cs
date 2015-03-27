@@ -5,6 +5,6 @@ namespace Microsoft.ApplicationInsights.AspNet.Implementation
 {
     public class HttpContextHolder
     {
-		public HttpContext Context;
+        public HttpContext Context;
     }
 }
