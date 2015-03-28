@@ -1,15 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
+    using Microsoft.ApplicationInsights.AspNet.Implementation;
+    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Mvc.Rendering;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
-    using System;
-    using Microsoft.AspNet.Mvc;
-    using Microsoft.AspNet.Mvc.Rendering;
-    using Microsoft.ApplicationInsights.AspNet.DataCollection;
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
 
     public static class ApplicationInsightsExtensions
     {

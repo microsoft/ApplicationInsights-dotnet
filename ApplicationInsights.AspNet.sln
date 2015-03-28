@@ -14,7 +14,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ApplicationInsights.AspNet"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8B5230E5-8138-44D6-839F-DF9248F195EE}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ApplicationInsights.AspNet.Tests", "test\ApplicationInsights.AspNet.Tests\ApplicationInsights.AspNet.Tests.kproj", "{2766D8AF-C20B-4F3A-8260-6C2D39B7A8A0}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ApplicationInsights.AspNet.UnitTests", "test\ApplicationInsights.AspNet.Tests\ApplicationInsights.AspNet.UnitTests.kproj", "{2766D8AF-C20B-4F3A-8260-6C2D39B7A8A0}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SampleWebAppIntegration", "test\SampleWebAppIntegration\SampleWebAppIntegration.kproj", "{330152EC-1092-41F0-9F96-C3438E07FCC2}"
 EndProject
