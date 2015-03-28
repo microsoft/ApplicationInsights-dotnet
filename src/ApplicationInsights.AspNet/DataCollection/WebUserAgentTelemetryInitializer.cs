@@ -1,35 +1,29 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.DataCollection
 {
     using System;
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.Framework.DependencyInjection;
-
+    using Microsoft.AspNet.Http;
+    
     /// <summary>
     /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for 
     /// all telemetry data items.
     /// </summary>
-    public class WebUserAgentTelemetryInitializer : ITelemetryInitializer
+    public class WebUserAgentTelemetryInitializer : TelemetryInitializerBase
     {
-        private IServiceProvider serviceProvider;
-
-        public WebUserAgentTelemetryInitializer(IServiceProvider serviceProvider)
+        public WebUserAgentTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
         }
 
-        public void Initialize(ITelemetry telemetry)
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
-            var request = this.serviceProvider.GetService<RequestTelemetry>();
-            if (string.IsNullOrEmpty(request.Context.User.UserAgent))
+            if (string.IsNullOrEmpty(requestTelemetry.Context.User.UserAgent))
             {
-                var context = this.serviceProvider.GetService<HttpContextHolder>().Context;
-                var userAgent = context.Request.Headers["User-Agent"];
-                request.Context.User.UserAgent = userAgent;
+                var userAgent = platformContext.Request.Headers["User-Agent"];
+                requestTelemetry.Context.User.UserAgent = userAgent;
             }
-            telemetry.Context.User.UserAgent = request.Context.User.UserAgent;
+
+            telemetry.Context.User.UserAgent = requestTelemetry.Context.User.UserAgent;
         }
     }
 }
