@@ -16,10 +16,8 @@
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
     /// Lot's of code reuse from Microsoft.ApplicationInsights.Extensibility.Web.TelemetryInitializers.WebClientIpHeaderTelemetryInitializer
     /// </summary>
-    public class WebClientIpHeaderTelemetryInitializer : ITelemetryInitializer
+    public class WebClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
-        private IServiceProvider serviceProvider;
-
         private readonly char[] HeaderValuesSeparatorDefault = new char[] { ',' };
         private const string HeaderNameDefault = "X-Forwarded-For";
 
@@ -29,8 +27,8 @@
 
 
         public WebClientIpHeaderTelemetryInitializer(IServiceProvider serviceProvider)
+             : base(serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
             this.headerNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);
             this.UseFirstIp = true;
@@ -72,48 +70,6 @@
         /// </summary>
         public bool UseFirstIp { get; set; }
 
-        public void Initialize(ITelemetry telemetry)
-        {
-            var request = this.serviceProvider.GetService<RequestTelemetry>();
-            if (!string.IsNullOrEmpty(request.Context.Location.Ip))
-            {
-                telemetry.Context.Location.Ip = request.Context.Location.Ip;
-            }
-            else
-            {
-                var context = this.serviceProvider.GetService<HttpContextHolder>().Context;
-
-                string resultIp = null;
-                foreach (var name in this.HeaderNames)
-                {
-                    var headerValue = context.Request.Headers[name];
-                    if (!string.IsNullOrEmpty(headerValue))
-                    {
-                        var ip = GetIpFromHeader(headerValue);
-                        ip = CutPort(ip);
-                        if (IsCorrectIpAddress(ip))
-                        {
-                            resultIp = ip;
-                            break;
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(resultIp))
-                {
-                    var connectionFeature = context.GetFeature<IHttpConnectionFeature>();
-
-                    if (connectionFeature != null)
-                    {
-                        resultIp = connectionFeature.RemoteIpAddress.ToString();
-                    }
-                }
-
-                request.Context.Location.Ip = resultIp;
-                telemetry.Context.Location.Ip = resultIp;
-            }
-        }
-
         private static string CutPort(string address)
         {
             // For Web sites in Azure header contains ip address with port e.g. 50.47.87.223:54464
@@ -151,5 +107,45 @@
             return this.UseFirstIp ? ips[0].Trim() : ips[ips.Length - 1].Trim();
         }
 
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+        {
+            if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
+            {
+                //already populated
+                return;
+            }
+
+            if (string.IsNullOrEmpty(requestTelemetry.Context.Location.Ip))
+            {
+                string resultIp = null;
+                foreach (var name in this.HeaderNames)
+                {
+                    var headerValue = platformContext.Request.Headers[name];
+                    if (!string.IsNullOrEmpty(headerValue))
+                    {
+                        var ip = GetIpFromHeader(headerValue);
+                        ip = CutPort(ip);
+                        if (IsCorrectIpAddress(ip))
+                        {
+                            resultIp = ip;
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(resultIp))
+                {
+                    var connectionFeature = platformContext.GetFeature<IHttpConnectionFeature>();
+
+                    if (connectionFeature != null)
+                    {
+                        resultIp = connectionFeature.RemoteIpAddress.ToString();
+                    }
+                }
+
+                requestTelemetry.Context.Location.Ip = resultIp;
+            }
+            telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
+        }
     }
 }
