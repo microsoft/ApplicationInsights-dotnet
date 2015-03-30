@@ -31,10 +31,25 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
-            TelemetryConfiguration.Active.InstrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
+            // Do not initialize key if customer has already set it.
+            if (string.IsNullOrWhiteSpace(TelemetryConfiguration.Active.InstrumentationKey))
+            {
+                // Read from configuration
+                // Config.json will look like this:
+                //
+                //      "ApplicationInsights": {
+                //            "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+                //      }
+                var instrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
+                if (!string.IsNullOrWhiteSpace(instrumentationKey))
+                {
+                    TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
+                }
+            }
 
             services.AddSingleton<TelemetryClient>((svcs) => {
                 TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebClientIpHeaderTelemetryInitializer(svcs));
+                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebUserAgentTelemetryInitializer(svcs));
                 return new TelemetryClient();
             });
 
@@ -50,8 +65,6 @@
 
         public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)
         {
-            //see: https://github.com/aspnet/Mvc/issues/2056
-            //var client = (TelemetryClient)helper.ViewContext.HttpContext.ApplicationServices.GetService(typeof(TelemetryClient));
             return new HtmlString(@"<script language='javascript'> 
                  var appInsights = window.appInsights || function(config){ 
                      function s(config){t[config]=function(){var i=arguments; t.queue.push(function(){ t[config].apply(t, i)})} 
