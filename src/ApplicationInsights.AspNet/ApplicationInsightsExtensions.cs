@@ -65,7 +65,10 @@
 
         public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)
         {
-            return new HtmlString(@"<script language='javascript'> 
+            HtmlString result = HtmlString.Empty;
+            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            {
+                result = new HtmlString(@"<script language='javascript'> 
                  var appInsights = window.appInsights || function(config){ 
                      function s(config){t[config]=function(){var i=arguments; t.queue.push(function(){ t[config].apply(t, i)})} 
                      } 
@@ -77,6 +80,12 @@
                  window.appInsights=appInsights; 
                  appInsights.trackPageView(); 
 </script>");
+            }
+            else
+            {
+                // TODO: Diagnostics
+            }
+            return result;
         }
     }
 }
