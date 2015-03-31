@@ -106,6 +106,30 @@
         }
 
         [Fact]
+        public void AddTelemetryWillAddOperationIdTelelemtryInitializerInConfigurationActive()
+        {
+            try
+            {
+                var serviceCollection = HostingServices.Create(null);
+                IConfiguration config = new Configuration().AddJsonFile("content\\config.json");
+
+                serviceCollection.AddApplicationInsightsTelemetry(config);
+
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+
+                var items = TelemetryConfiguration.Active.TelemetryInitializers
+                    .Select(i => i is WebOperationIdTelemetryInitializer)
+                    .ToList();
+
+                Assert.Equal(1, items.Count);
+            }
+            finally
+            {
+                CleanActiveConfiguration();
+            }
+        }
+
+        [Fact]
         public void JSSnippetWillNotThrowWithoutInstrumentationKey()
         {
             HtmlHelperMock helper = new HtmlHelperMock();

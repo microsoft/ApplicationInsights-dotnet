@@ -39,6 +39,22 @@
         }
 
         [Fact]
+        public void InitializeDoesNotOverrideOperationNameProvidedInline()
+        {
+            var telemetry = new EventTelemetry();
+            telemetry.Context.Operation.Name = "Name";
+
+            var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
+            
+            var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, new RequestTelemetry() });
+            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("Name", telemetry.Context.Operation.Name);
+        }
+
+        [Fact]
         public void InitializeSetsTelemetryOperationNameToMethodAndPath()
         {
             var telemetry = new EventTelemetry();
