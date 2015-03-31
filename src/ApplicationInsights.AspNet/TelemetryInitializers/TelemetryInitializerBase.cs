@@ -11,22 +11,27 @@
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
-        IServiceProvider serviceProvider;
+        private IServiceProvider serviceProvider;
 
         public TelemetryInitializerBase(IServiceProvider serviceProvider)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException("serviceProvider");
-            }
-
             this.serviceProvider = serviceProvider;
+
+            if (this.serviceProvider == null)
+            {
+                // TODO: Diagnostics
+            }
         }
 
         public void Initialize(ITelemetry telemetry)
         {
             try
             {
+                if (serviceProvider == null)
+                {
+                    return;
+                }
+
                 var contextHolder = this.serviceProvider.GetService<HttpContextHolder>();
                 
                 if (contextHolder == null)

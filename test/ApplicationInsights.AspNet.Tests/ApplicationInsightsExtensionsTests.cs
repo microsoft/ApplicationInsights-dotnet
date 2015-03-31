@@ -14,6 +14,8 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using System.IO;
+    using System.Linq;
+    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
 
     public class ApplicationInsightsExtensionsTests
     {
@@ -72,6 +74,54 @@
                 Assert.NotNull(telemetryClient);
                 Assert.Equal("11111111-2222-3333-4444-555555555555", telemetryClient.Context.InstrumentationKey);
 
+            }
+            finally
+            {
+                CleanActiveConfiguration();
+            }
+        }
+
+        [Fact]
+        public void AddTelemetryWillAddOperationNameTelelemtryInitializerInConfigurationActive()
+        {
+            try
+            {
+                var serviceCollection = HostingServices.Create(null);
+                IConfiguration config = new Configuration().AddJsonFile("content\\config.json");
+
+                serviceCollection.AddApplicationInsightsTelemetry(config);
+
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+
+                var items = TelemetryConfiguration.Active.TelemetryInitializers
+                    .Select(i => i is WebOperationNameTelemetryInitializer)
+                    .ToList();
+
+                Assert.Equal(1, items.Count);
+            }
+            finally
+            {
+                CleanActiveConfiguration();
+            }
+        }
+
+        [Fact]
+        public void AddTelemetryWillAddOperationIdTelelemtryInitializerInConfigurationActive()
+        {
+            try
+            {
+                var serviceCollection = HostingServices.Create(null);
+                IConfiguration config = new Configuration().AddJsonFile("content\\config.json");
+
+                serviceCollection.AddApplicationInsightsTelemetry(config);
+
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+
+                var items = TelemetryConfiguration.Active.TelemetryInitializers
+                    .Select(i => i is WebOperationIdTelemetryInitializer)
+                    .ToList();
+
+                Assert.Equal(1, items.Count);
             }
             finally
             {
