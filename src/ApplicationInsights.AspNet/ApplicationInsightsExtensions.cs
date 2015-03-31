@@ -50,6 +50,8 @@
             services.AddSingleton<TelemetryClient>((svcs) => {
                 TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebClientIpHeaderTelemetryInitializer(svcs));
                 TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebUserAgentTelemetryInitializer(svcs));
+                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebOperationNameTelemetryInitializer(svcs));
+
                 return new TelemetryClient();
             });
 

@@ -48,7 +48,6 @@
                     sw.Stop();
 
                     var telemetry = this.serviceProvider.GetService<RequestTelemetry>();
-                    telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
                     telemetry.Timestamp = now;
                     telemetry.Duration = sw.Elapsed;
                     telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
