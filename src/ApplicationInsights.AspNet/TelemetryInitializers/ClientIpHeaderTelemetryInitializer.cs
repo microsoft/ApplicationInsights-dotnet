@@ -1,22 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-    using Microsoft.ApplicationInsights.Extensibility;
     using System;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.Framework.DependencyInjection;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Interfaces;
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
     using System.Collections.Generic;
     using System.Net.Sockets;
     using System.Net;
 
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
-    /// Lot's of code reuse from Microsoft.ApplicationInsights.Extensibility.Web.TelemetryInitializers.WebClientIpHeaderTelemetryInitializer
+    /// Lot's of code reuse from Microsoft.ApplicationInsights.Extensibility.Web.TelemetryInitializers.ClientIpHeaderTelemetryInitializer
     /// </summary>
-    public class WebClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
+    public class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
         private readonly char[] HeaderValuesSeparatorDefault = new char[] { ',' };
         private const string HeaderNameDefault = "X-Forwarded-For";
@@ -26,7 +23,7 @@
         private readonly ICollection<string> headerNames;
 
 
-        public WebClientIpHeaderTelemetryInitializer(IServiceProvider serviceProvider)
+        public ClientIpHeaderTelemetryInitializer(IServiceProvider serviceProvider)
              : base(serviceProvider)
         {
             this.headerNames = new List<string>();

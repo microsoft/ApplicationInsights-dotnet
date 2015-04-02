@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
+    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.Implementation;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -8,6 +9,7 @@
     using Microsoft.AspNet.Mvc.Rendering;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
+    using System;
 
     public static class ApplicationInsightsExtensions
     {
@@ -31,27 +33,11 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
-            // Do not initialize key if customer has already set it.
-            if (string.IsNullOrWhiteSpace(TelemetryConfiguration.Active.InstrumentationKey))
-            {
-                // Read from configuration
-                // Config.json will look like this:
-                //
-                //      "ApplicationInsights": {
-                //            "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
-                //      }
-                var instrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
-                if (!string.IsNullOrWhiteSpace(instrumentationKey))
-                {
-                    TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-                }
-            }
+            ActiveConfigurationManager.AddInstrumentationKey(TelemetryConfiguration.Active, config);
 
-            services.AddSingleton<TelemetryClient>((svcs) => {
-                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebClientIpHeaderTelemetryInitializer(svcs));
-                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebUserAgentTelemetryInitializer(svcs));
-                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebOperationNameTelemetryInitializer(svcs));
-                TelemetryConfiguration.Active.TelemetryInitializers.Add(new WebOperationIdTelemetryInitializer(svcs));
+            services.AddSingleton((svcs) => {
+                ActiveConfigurationManager.AddTelemetryInitializers(TelemetryConfiguration.Active, svcs);
+                ActiveConfigurationManager.AddContextInitializers(TelemetryConfiguration.Active);
 
                 return new TelemetryClient();
             });
@@ -89,6 +75,6 @@
                 // TODO: Diagnostics
             }
             return result;
-        }
+        }        
     }
 }

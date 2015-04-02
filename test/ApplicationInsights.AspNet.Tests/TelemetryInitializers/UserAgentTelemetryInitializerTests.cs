@@ -9,12 +9,12 @@
     using System.Collections.Generic;
     using Xunit;
 
-    public class WebOperationIdTelemetryInitializerTest
+    public class UserAgentTelemetryInitializerTests
     {
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextHolderIsUnavailable()
         {
-            var initializer = new WebOperationIdTelemetryInitializer(new TestServiceProvider());
+            var initializer = new UserAgentTelemetryInitializer(new TestServiceProvider());
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -23,7 +23,7 @@
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var serviceProvider = new TestServiceProvider(new List<object>() { new HttpContextHolder() });
-            var initializer = new WebOperationIdTelemetryInitializer(serviceProvider);
+            var initializer = new UserAgentTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -34,40 +34,42 @@
             var contextHolder = new HttpContextHolder();
             contextHolder.Context = new DefaultHttpContext();
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder });
-            var initializer = new WebOperationIdTelemetryInitializer(serviceProvider);
+            var initializer = new UserAgentTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
 
         [Fact]
-        public void InitializeDoesNotOverrideOperationIdProvidedInline()
+        public void InitializeSetsUserAgentFromHeader()
         {
-            var telemetry = new EventTelemetry();
-            telemetry.Context.Operation.Id = "123";
             var requestTelemetry = new RequestTelemetry();
-            var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
-
+            var contextHolder = new HttpContextHolder();
+            contextHolder.Context = new DefaultHttpContext();
+            contextHolder.Context.Request.Headers.Add("User-Agent", new[] { "test" });
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new WebOperationIdTelemetryInitializer(serviceProvider);
+            var initializer = new UserAgentTelemetryInitializer(serviceProvider);
+            
 
-            initializer.Initialize(telemetry);
+            initializer.Initialize(requestTelemetry);
 
-            Assert.Equal("123", telemetry.Context.Operation.Id);
+            Assert.Equal("test", requestTelemetry.Context.User.UserAgent);
         }
 
         [Fact]
-        public void InitializeSetsTelemetryOperationIdToRequestId()
+        public void InitializeDoesNotOverrideUserAgentProvidedInline()
         {
-            var telemetry = new EventTelemetry();
             var requestTelemetry = new RequestTelemetry();
-            var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
-            
+            requestTelemetry.Context.User.UserAgent = "Inline";
+            var contextHolder = new HttpContextHolder();
+            contextHolder.Context = new DefaultHttpContext();
+            contextHolder.Context.Request.Headers.Add("User-Agent", new[] { "test" });
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new WebOperationIdTelemetryInitializer(serviceProvider);
+            var initializer = new UserAgentTelemetryInitializer(serviceProvider);
 
-            initializer.Initialize(telemetry);
 
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.Id);
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Equal("Inline", requestTelemetry.Context.User.UserAgent);
         }
     }
 }

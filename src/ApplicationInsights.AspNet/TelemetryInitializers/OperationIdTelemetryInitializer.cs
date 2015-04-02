@@ -5,9 +5,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Http;
 
-    public class WebOperationIdTelemetryInitializer : TelemetryInitializerBase
+    public class OperationIdTelemetryInitializer : TelemetryInitializerBase
     {
-        public WebOperationIdTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
+        public OperationIdTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
         { }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
