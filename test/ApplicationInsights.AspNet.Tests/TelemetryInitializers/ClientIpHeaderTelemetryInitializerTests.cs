@@ -9,12 +9,12 @@
     using System.Collections.Generic;
     using Xunit;
 
-    public class WebClientIpHeaderTelemetryInitializerTests
+    public class ClientIpHeaderTelemetryInitializerTests
     {
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextHolderIsUnavailable()
         {
-            var initializer = new WebClientIpHeaderTelemetryInitializer(new TestServiceProvider());
+            var initializer = new ClientIpHeaderTelemetryInitializer(new TestServiceProvider());
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -23,7 +23,7 @@
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var serviceProvider = new TestServiceProvider(new List<object>() { new HttpContextHolder() });
-            var initializer = new WebClientIpHeaderTelemetryInitializer(serviceProvider);
+            var initializer = new ClientIpHeaderTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -34,7 +34,7 @@
             var contextHolder = new HttpContextHolder();
             contextHolder.Context = new DefaultHttpContext();
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder });
-            var initializer = new WebClientIpHeaderTelemetryInitializer(serviceProvider);
+            var initializer = new ClientIpHeaderTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -47,7 +47,7 @@
             contextHolder.Context = new DefaultHttpContext();
             contextHolder.Context.Request.Headers.Add("X-Forwarded-For", new string[] { "127.0.0.3" });
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new WebClientIpHeaderTelemetryInitializer(serviceProvider);
+            var initializer = new ClientIpHeaderTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(requestTelemetry);
 
@@ -62,7 +62,7 @@
             contextHolder.Context = new DefaultHttpContext();
             contextHolder.Context.Request.Headers.Add("HEADER", new string[] { "127.0.0.3;127.0.0.4" });
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new WebClientIpHeaderTelemetryInitializer(serviceProvider);
+            var initializer = new ClientIpHeaderTelemetryInitializer(serviceProvider);
             initializer.HeaderNames.Add("HEADER");
             initializer.HeaderValueSeparators = ",;";
 
@@ -80,7 +80,7 @@
             contextHolder.Context = new DefaultHttpContext();
             contextHolder.Context.Request.Headers.Add("X-Forwarded-For", new string[] { "127.0.0.3" });
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new WebClientIpHeaderTelemetryInitializer(serviceProvider);
+            var initializer = new ClientIpHeaderTelemetryInitializer(serviceProvider);
 
 
             initializer.Initialize(requestTelemetry);

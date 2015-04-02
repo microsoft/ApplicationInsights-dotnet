@@ -8,12 +8,12 @@
     using System.Collections.Generic;
     using Xunit;
 
-    public class WebOperationNameTelemetryInitializerTests
+    public class OperationNameTelemetryInitializerTests
     {
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextHolderIsUnavailable()
         {
-            var initializer = new WebOperationNameTelemetryInitializer(new TestServiceProvider());
+            var initializer = new OperationNameTelemetryInitializer(new TestServiceProvider());
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -22,7 +22,7 @@
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var serviceProvider = new TestServiceProvider(new List<object>() { new HttpContextHolder() });
-            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+            var initializer = new OperationNameTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -33,7 +33,7 @@
             var contextHolder = new HttpContextHolder();
             contextHolder.Context = new DefaultHttpContext();
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder });
-            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+            var initializer = new OperationNameTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -47,7 +47,7 @@
             var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
             
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, new RequestTelemetry() });
-            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+            var initializer = new OperationNameTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(telemetry);
 
@@ -66,7 +66,7 @@
             contextHolder.Context = request.HttpContext;
 
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, new RequestTelemetry() });
-            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+            var initializer = new OperationNameTelemetryInitializer(serviceProvider);
             
             initializer.Initialize(telemetry);
 
@@ -85,7 +85,7 @@
             contextHolder.Context = request.HttpContext;
 
             var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, new RequestTelemetry() });
-            var initializer = new WebOperationNameTelemetryInitializer(serviceProvider);
+            var initializer = new OperationNameTelemetryInitializer(serviceProvider);
 
             initializer.Initialize(telemetry);
 

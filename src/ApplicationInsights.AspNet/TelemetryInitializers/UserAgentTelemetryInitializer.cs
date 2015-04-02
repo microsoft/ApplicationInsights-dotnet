@@ -11,9 +11,9 @@
     /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for 
     /// all telemetry data items.
     /// </summary>
-    public class WebUserAgentTelemetryInitializer : TelemetryInitializerBase
+    public class UserAgentTelemetryInitializer : TelemetryInitializerBase
     {
-        public WebUserAgentTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
+        public UserAgentTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
         {
         }
 

@@ -5,7 +5,8 @@
         "Microsoft.Framework.Logging": "1.0.0-beta3",
         "Microsoft.AspNet.Http.Extensions": "1.0.0-beta3",
         "Microsoft.AspNet.RequestContainer": "1.0.0-beta3",
-        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta3"
+        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta3",
+        "System.Net.NameResolution": "4.0.0-beta-*"
     },
 
     "frameworks": {
@@ -13,7 +14,7 @@
             "dependencies": {
                 "Microsoft.ApplicationInsights": "0.13.4-build00460"
             }
-        },    
+        },
         "aspnetcore50": {
             "dependencies": {
                 "System.Runtime": "4.0.20-*",
