@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.Framework.DependencyInjection;
     using System;
@@ -11,36 +11,23 @@
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
-        private IServiceProvider serviceProvider;
+        private IHttpContextAccessor httpContextAccessor;
 
-        public TelemetryInitializerBase(IServiceProvider serviceProvider)
+        public TelemetryInitializerBase(IHttpContextAccessor httpContextAccessor)
         {
-            this.serviceProvider = serviceProvider;
-
-            if (this.serviceProvider == null)
+            if (httpContextAccessor == null)
             {
-                // TODO: Diagnostics
+                throw new ArgumentNullException("httpContextAccessor");
             }
+
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         public void Initialize(ITelemetry telemetry)
         {
             try
             {
-                if (serviceProvider == null)
-                {
-                    return;
-                }
-
-                var contextHolder = this.serviceProvider.GetService<HttpContextHolder>();
-                
-                if (contextHolder == null)
-                {
-                    //TODO: Diagnostics!
-                    return;
-                }
-
-                var context = contextHolder.Context;
+                var context = this.httpContextAccessor.Value;
 
                 if (context == null)
                 {
@@ -48,7 +35,13 @@
                     return;
                 }
 
-                var request = this.serviceProvider.GetService<RequestTelemetry>();
+                if (context.RequestServices == null)
+                {
+                    //TODO: Diagnostics!
+                    return;
+                }
+
+                var request = context.RequestServices.GetService<RequestTelemetry>();
 
                 if (request == null)
                 {

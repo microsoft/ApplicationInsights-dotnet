@@ -8,6 +8,8 @@
     using System.Collections.Generic;
     using System.Net.Sockets;
     using System.Net;
+    using Microsoft.AspNet.Hosting;
+
 
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
@@ -23,8 +25,8 @@
         private readonly ICollection<string> headerNames;
 
 
-        public ClientIpHeaderTelemetryInitializer(IServiceProvider serviceProvider)
-             : base(serviceProvider)
+        public ClientIpHeaderTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
+             : base(httpContextAccessor)
         {
             this.headerNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);

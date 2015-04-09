@@ -2,6 +2,7 @@
 {
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
     using Microsoft.Net.Http.Headers;
@@ -13,7 +14,7 @@
     /// </summary>
     public class UserAgentTelemetryInitializer : TelemetryInitializerBase
     {
-        public UserAgentTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
+        public UserAgentTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
         }
 

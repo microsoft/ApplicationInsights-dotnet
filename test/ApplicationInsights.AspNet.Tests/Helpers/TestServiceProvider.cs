@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.Helpers
 {
     using System;
+    using System.Reflection;
     using System.Collections.Generic;
 
-    // TODO: REPLACE ON MOQ
     public class TestServiceProvider : IServiceProvider
     {
         private IList<object> knownInstances;
@@ -19,9 +19,19 @@
             {
                 foreach (object instance in this.knownInstances)
                 {
-                    if (instance.GetType() == serviceType)
+                    var instanceType = instance.GetType();
+
+                    if (instanceType == serviceType)
                     {
                         return instance;
+                    }
+
+                    foreach (var interfaceType in instanceType.GetTypeInfo().ImplementedInterfaces)
+                    {
+                        if (interfaceType == serviceType)
+                        {
+                            return instance;
+                        }
                     }
                 }
             }

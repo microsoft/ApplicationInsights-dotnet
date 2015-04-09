@@ -4,10 +4,11 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Hosting;
 
     public class OperationIdTelemetryInitializer : TelemetryInitializerBase
     {
-        public OperationIdTelemetryInitializer(IServiceProvider serviceProvider) : base(serviceProvider)
+        public OperationIdTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         { }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)

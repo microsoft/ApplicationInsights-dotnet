@@ -3,6 +3,7 @@
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using System;
 
@@ -47,10 +48,12 @@
                 return;
             }
 
-            aiConfig.TelemetryInitializers.Add(new ClientIpHeaderTelemetryInitializer(serviceProvider));
-            aiConfig.TelemetryInitializers.Add(new UserAgentTelemetryInitializer(serviceProvider));
-            aiConfig.TelemetryInitializers.Add(new OperationNameTelemetryInitializer(serviceProvider));
-            aiConfig.TelemetryInitializers.Add(new OperationIdTelemetryInitializer(serviceProvider));
+            var httpAccessor = serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+
+            aiConfig.TelemetryInitializers.Add(new ClientIpHeaderTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new UserAgentTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new OperationNameTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new OperationIdTelemetryInitializer(httpAccessor));
         }
 
         public static void AddContextInitializers(TelemetryConfiguration aiConfig)

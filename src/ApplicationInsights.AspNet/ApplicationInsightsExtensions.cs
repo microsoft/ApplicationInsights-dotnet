@@ -1,20 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
-    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
-    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Mvc.Rendering;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
-    using System;
 
     public static class ApplicationInsightsExtensions
     {
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
+            // TODO: Register if customer did not register
+            app.UseRequestServices();
+
             app.UseMiddleware<ApplicationInsightsRequestMiddleware>();
             return app;
         }
@@ -48,8 +47,6 @@
                 rt.Context.InstrumentationKey = svcs.GetService<TelemetryClient>().Context.InstrumentationKey;
                 return rt;
             });
-
-            services.AddScoped<HttpContextHolder>();
         }
 
         public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)

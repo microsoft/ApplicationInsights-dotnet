@@ -7,6 +7,8 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.AspNet.Hosting;
+    using System.Collections.Generic;
 
     public class ActiveConfigurationManagerTests
     {
@@ -33,7 +35,7 @@
         {
             var config = new TelemetryConfiguration();
 
-            ActiveConfigurationManager.AddTelemetryInitializers(config, new TestServiceProvider());
+            ActiveConfigurationManager.AddTelemetryInitializers(config, new TestServiceProvider(new List<object>() { new HttpContextAccessor()}));
 
             var items = config.TelemetryInitializers
                 .OfType<OperationNameTelemetryInitializer>()
@@ -47,7 +49,7 @@
         {
             var config = new TelemetryConfiguration();
 
-            ActiveConfigurationManager.AddTelemetryInitializers(config, new TestServiceProvider());
+            ActiveConfigurationManager.AddTelemetryInitializers(config, new TestServiceProvider(new List<object>() { new HttpContextAccessor() }));
 
             var items = config.TelemetryInitializers
                     .OfType<OperationIdTelemetryInitializer>()

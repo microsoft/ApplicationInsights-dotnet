@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
-    using Microsoft.ApplicationInsights.AspNet.Implementation;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http.Core;
     using System;
     using System.Collections.Generic;
@@ -12,18 +12,17 @@
     public class OperationIdTelemetryInitializerTest
     {
         [Fact]
-        public void InitializeDoesNotThrowIfHttpContextHolderIsUnavailable()
+        public void InitializeThrowIfHttpContextAccessorIsNull()
         {
-            var initializer = new OperationIdTelemetryInitializer(new TestServiceProvider());
-
-            initializer.Initialize(new RequestTelemetry());
+            Assert.Throws<ArgumentNullException>(() => { var initializer = new OperationIdTelemetryInitializer(null); });
         }
 
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var serviceProvider = new TestServiceProvider(new List<object>() { new HttpContextHolder() });
-            var initializer = new OperationIdTelemetryInitializer(serviceProvider);
+            var ac = new HttpContextAccessor() { Value = null };
+
+            var initializer = new OperationIdTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -31,10 +30,9 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var contextHolder = new HttpContextHolder();
-            contextHolder.Context = new DefaultHttpContext();
-            var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder });
-            var initializer = new OperationIdTelemetryInitializer(serviceProvider);
+            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+
+            var initializer = new OperationIdTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -44,11 +42,9 @@
         {
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Id = "123";
-            var requestTelemetry = new RequestTelemetry();
-            var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
-
-            var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new OperationIdTelemetryInitializer(serviceProvider);
+            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
+            var initializer = new OperationIdTelemetryInitializer(ac);
 
             initializer.Initialize(telemetry);
 
@@ -60,10 +56,9 @@
         {
             var telemetry = new EventTelemetry();
             var requestTelemetry = new RequestTelemetry();
-            var contextHolder = new HttpContextHolder() { Context = new DefaultHttpContext() };
-            
-            var serviceProvider = new TestServiceProvider(new List<object>() { contextHolder, requestTelemetry });
-            var initializer = new OperationIdTelemetryInitializer(serviceProvider);
+            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            var initializer = new OperationIdTelemetryInitializer(ac);
 
             initializer.Initialize(telemetry);
 
