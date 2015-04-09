@@ -62,6 +62,22 @@ And insert HtmlHelper to the end of ```<head>``` section:
 </head>
 ```
 
+Repository structure
+--------------------
+
+```
+root\
+    ApplicationInsights.AspNet.sln - Main Solution
+
+    src\
+        ApplicationInsights.AspNet - Application Insights package
+
+    test\
+        ApplicationInsights.AspNet.Tests - Unit tests
+        FunctionalTestUtils - test utilities for functional tests
+        SampleWebAppIntegration  - functional MVC test application
+```
+
 Developing
 ----------
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
@@ -75,3 +91,40 @@ Developing
  - https://www.myget.org/F/aspnetvnext
  - http://appinsights-aspnet.azurewebsites.net/nuget/
  - https://www.nuget.org/api/v2/
+
+Running and writing tests
+-------------------------
+There are two sets of tests unit tests and functional tests. Please use unit tests for all features testing. The purpose of functional tests is just end-to-end validation of functionality on sample applications.
+
+
+*Functional tests*
+Functional tests are regular web applications with unit tests integrated into them. Application can be compiled as a regular web application as well as set of tests. Typical functional test will do the following:
+
+1. Host the current project in In-Proc server.
+2. Initialize application insights telemetry channel.
+3. Initiate request to self hosted web application using HttpClient.
+4. Check data received in telemetry channel.
+
+Those are modifications made for regular web application to make it work this way:
+
+Add dependencies to project.json:
+
+
+```
+"FunctionalTestUtils": "1.0.0-*",
+"xunit": "2.1.0.0-beta1-build2945",
+"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
+"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051"
+```
+
+and test command:
+
+```
+"test": "xunit.runner.aspnet"
+```
+
+Add this initialization logic to Startup.cs:
+
+```
+services.AddFunctionalTestTelemetryChannel();
+```

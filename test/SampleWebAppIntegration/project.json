@@ -23,7 +23,7 @@
 		"FunctionalTestUtils": "1.0.0-*",
 		"xunit": "2.1.0.0-beta1-build2945",
 		"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
+		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051"
     },
     "commands": {
         /* Change the port number when you are self hosting this application */
@@ -34,7 +34,7 @@
     },
     "frameworks": {
         "aspnet50": { },
-        "aspnetcore50": { }
+        "aspnetcore50": { }	
     },
     "exclude": [
         "wwwroot",
