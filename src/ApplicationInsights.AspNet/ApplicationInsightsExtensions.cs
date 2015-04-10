@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
+    using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
@@ -34,12 +36,16 @@
         {
             ActiveConfigurationManager.AddInstrumentationKey(TelemetryConfiguration.Active, config);
 
-            services.AddScoped((svcs) => {
-                ActiveConfigurationManager.AddTelemetryInitializers(TelemetryConfiguration.Active, svcs);
-                ActiveConfigurationManager.AddContextInitializers(TelemetryConfiguration.Active);
-
-                return new TelemetryClient();
+            services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
+            {
+                var telemetryConfiguration = new TelemetryConfiguration();
+                ActiveConfigurationManager.AddInstrumentationKey(telemetryConfiguration, config);
+                AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
+                AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
+                return telemetryConfiguration;
             });
+
+            services.AddScoped<TelemetryClient>();
 
             services.AddScoped<RequestTelemetry>((svcs) => {
                 var rt = new RequestTelemetry();
@@ -72,6 +78,15 @@
                 // TODO: Diagnostics
             }
             return result;
-        }        
+        }
+
+        private static void AddServicesToCollection<T>(IServiceProvider serviceProvider, ICollection<T> collection)
+        {
+            var services = serviceProvider.GetService<IEnumerable<T>>();
+            foreach (T service in services)
+            {
+                collection.Add(service);
+            }
+        }
     }
 }
