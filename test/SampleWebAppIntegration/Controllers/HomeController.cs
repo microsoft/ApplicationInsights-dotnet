@@ -13,10 +13,12 @@ namespace SampleWebAppIntegration.Controllers
     public class HomeController : Controller
     {
         private TelemetryClient telemetryClient;
+        private IApplicationEnvironment applicationEnvironment;
 
-        public HomeController(TelemetryClient telemetryClient)
+        public HomeController(TelemetryClient telemetryClient, IApplicationEnvironment applicationEnvironment)
         {
             this.telemetryClient = telemetryClient;
+            this.applicationEnvironment = applicationEnvironment;
         }
 
         public IActionResult Index()
@@ -45,8 +47,7 @@ namespace SampleWebAppIntegration.Controllers
 
         private async Task<string> GetContactDetails()
         {
-            var applicationEnvironment = (IApplicationEnvironment)this.Resolver.GetService(typeof(IApplicationEnvironment));
-            var contactFilePath = Path.Combine(applicationEnvironment.ApplicationBasePath, "contact.txt");
+            var contactFilePath = Path.Combine(this.applicationEnvironment.ApplicationBasePath, "contact.txt");
             this.telemetryClient.TrackEvent("GetContact");
 
             using (var reader = System.IO.File.OpenText(contactFilePath))
