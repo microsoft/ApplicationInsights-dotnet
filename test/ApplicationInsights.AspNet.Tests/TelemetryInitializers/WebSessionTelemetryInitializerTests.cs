@@ -1,16 +1,16 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
+    using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http.Core;
-    using System;
-    using System.Collections.Generic;
     using Xunit;
 
     public class WebSessionTelemetryInitializerTests
-	{
+    {
         [Fact]
         public void InitializeThrowIfHttpContextAccessorIsNull()
         {
@@ -36,28 +36,28 @@
 
             initializer.Initialize(new RequestTelemetry());
         }
-                
+
         [Fact]
-        public void InitializeSetsUserFromCookie()
+        public void InitializeSetsSessionFromCookie()
         {
             var requestTelemetry = new RequestTelemetry();
             var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-			ac.Value.Request.Headers["Cookie"] = "ai_session=test";
-			ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            ac.Value.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
+            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebSessionTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);
 
             Assert.Equal("test", requestTelemetry.Context.Session.Id);
         }
-
+       
         [Fact]
-        public void InitializeDoesNotOverrideUserProvidedInline()
+        public void InitializeDoesNotOverrideSessionProvidedInline()
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Session.Id = "Inline";
             var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-			ac.Value.Request.Headers["Cookie"] = "ai_session=test";
+            ac.Value.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
             var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebSessionTelemetryInitializer(ac);
 

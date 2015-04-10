@@ -12,6 +12,13 @@ namespace SampleWebAppIntegration.Controllers
 {
     public class HomeController : Controller
     {
+        private TelemetryClient telemetryClient;
+
+        public HomeController(TelemetryClient telemetryClient)
+        {
+            this.telemetryClient = telemetryClient;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -36,20 +43,19 @@ namespace SampleWebAppIntegration.Controllers
             return View("~/Views/Shared/Error.cshtml");
         }
 
-		private async Task<string> GetContactDetails()
-		{
-			var applicationEnvironment = (IApplicationEnvironment)this.Resolver.GetService(typeof(IApplicationEnvironment));
-			var contactFilePath = Path.Combine(applicationEnvironment.ApplicationBasePath, "contact.txt");
-			var telemetryClient = (TelemetryClient)this.Resolver.GetService(typeof(TelemetryClient));
-			telemetryClient.TrackEvent("GetContact");
+        private async Task<string> GetContactDetails()
+        {
+            var applicationEnvironment = (IApplicationEnvironment)this.Resolver.GetService(typeof(IApplicationEnvironment));
+            var contactFilePath = Path.Combine(applicationEnvironment.ApplicationBasePath, "contact.txt");
+            this.telemetryClient.TrackEvent("GetContact");
 
-			using (var reader = System.IO.File.OpenText(contactFilePath))
-			{
-				var contactDetails = await reader.ReadToEndAsync();
-				telemetryClient.TrackMetric("ContactFile", 1);
-				telemetryClient.TrackTrace("Fetched contact details.", SeverityLevel.Information);
-				return contactDetails;
-			}
-		}
-	}
+            using (var reader = System.IO.File.OpenText(contactFilePath))
+            {
+                var contactDetails = await reader.ReadToEndAsync();
+                this.telemetryClient.TrackMetric("ContactFile", 1);
+                this.telemetryClient.TrackTrace("Fetched contact details.", SeverityLevel.Information);
+                return contactDetails;
+            }
+        }
+    }
 }

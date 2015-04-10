@@ -1,51 +1,54 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-	using System;
-	using Microsoft.ApplicationInsights.Channel;
-	using Microsoft.ApplicationInsights.DataContracts;
-	using Microsoft.AspNet.Hosting;
-	using Microsoft.AspNet.Http;
+    using System;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Http;
 
-	public class WebSessionTelemetryInitializer : TelemetryInitializerBase
-	{
-		private const string WebSessionCookieName = "ai_session";
+    public class WebSessionTelemetryInitializer : TelemetryInitializerBase
+    {
+        private const string WebSessionCookieName = "ai_session";
 
-		public WebSessionTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
+        public WebSessionTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
-		}
+        }
 
-		protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
-		{
-			if (!string.IsNullOrEmpty(telemetry.Context.Session.Id))
-			{
-				return;
-			}
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+        {
+            if (!string.IsNullOrEmpty(telemetry.Context.Session.Id))
+            {
+                return;
+            }
 
-			if (string.IsNullOrEmpty(requestTelemetry.Context.Session.Id))
-			{
-				var userId = GetSessionIdFromPlatformContext(platformContext);
-				if (!string.IsNullOrEmpty(userId))
-				{
-					requestTelemetry.Context.Session.Id = userId;
-				}
-			}
+            if (string.IsNullOrEmpty(requestTelemetry.Context.Session.Id))
+            {
+                UpdateRequestTelemetryFromPlatformContext(requestTelemetry, platformContext);
+            }
 
-			telemetry.Context.Session.Id = requestTelemetry.Context.Session.Id;
-			if (requestTelemetry.Context.Session.IsFirst.HasValue)
-			{
-				telemetry.Context.Session.IsFirst = requestTelemetry.Context.Session.IsFirst;
-			}
-		}
+            if (!string.IsNullOrEmpty(requestTelemetry.Context.Session.Id))
+            {
+                telemetry.Context.Session.Id = requestTelemetry.Context.Session.Id;
+            }
+        }
 
-		private static string GetSessionIdFromPlatformContext(HttpContext platformContext)
-		{
-			if (platformContext.Request.Cookies != null && platformContext.Request.Cookies.ContainsKey(WebSessionCookieName))
-			{
-				return platformContext.Request.Cookies[WebSessionCookieName];
-			}
-
-			return null;
-		}
-	}
+        private static void UpdateRequestTelemetryFromPlatformContext(RequestTelemetry requestTelemetry, HttpContext platformContext)
+        {
+            if (platformContext.Request.Cookies != null && platformContext.Request.Cookies.ContainsKey(WebSessionCookieName))
+            {
+                var sessionCookieValue = platformContext.Request.Cookies[WebSessionCookieName];
+                if (!string.IsNullOrEmpty(sessionCookieValue))
+                {
+                    var sessionCookieParts = sessionCookieValue.Split('|');
+                    if (sessionCookieParts.Length > 0)
+                    {
+                        // Currently SessionContext takes in only SessionId. 
+                        // The cookies has SessionAcquisitionDate and SessionRenewDate as well that we are not picking for now.
+                        requestTelemetry.Context.Session.Id = sessionCookieParts[0];
+                    }
+                }
+            }
+        }
+    }
 }

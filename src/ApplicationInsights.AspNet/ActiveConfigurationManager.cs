@@ -54,8 +54,8 @@
             aiConfig.TelemetryInitializers.Add(new UserAgentTelemetryInitializer(httpAccessor));
             aiConfig.TelemetryInitializers.Add(new OperationNameTelemetryInitializer(httpAccessor));
             aiConfig.TelemetryInitializers.Add(new OperationIdTelemetryInitializer(httpAccessor));
-			aiConfig.TelemetryInitializers.Add(new WebUserTelemetryInitializer(httpAccessor));
-			aiConfig.TelemetryInitializers.Add(new WebSessionTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new WebUserTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new WebSessionTelemetryInitializer(httpAccessor));
         }
 
         public static void AddContextInitializers(TelemetryConfiguration aiConfig)
