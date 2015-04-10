@@ -34,7 +34,7 @@
         {
             ActiveConfigurationManager.AddInstrumentationKey(TelemetryConfiguration.Active, config);
 
-            services.AddSingleton((svcs) => {
+            services.AddScoped((svcs) => {
                 ActiveConfigurationManager.AddTelemetryInitializers(TelemetryConfiguration.Active, svcs);
                 ActiveConfigurationManager.AddContextInitializers(TelemetryConfiguration.Active);
 

@@ -7,6 +7,7 @@
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.DependencyInjection.Fallback;
     using System.IO;
+    using System.Linq;
     using Xunit;
 
     public class ApplicationInsightsExtensionsTests
@@ -48,28 +49,14 @@
         }
 
         [Fact]
-        public void AddTelemetryWillCreateTelemetryClientSingleton()
+        public void AddTelemetryRegistersTelemetryClientServiceWithScopedLifecycleToPreventSharingOfRequestSpecificProperties()
         {
-            try
-            {
-                var serviceCollection = HostingServices.Create(null);
-                IConfiguration config = new Configuration()
-                    .AddJsonFile("content\\config.json");
+            var services = new ServiceCollection();
 
-                serviceCollection.AddApplicationInsightsTelemetry(config);
+            services.AddApplicationInsightsTelemetry(new Configuration());
 
-                Assert.Equal("11111111-2222-3333-4444-555555555555", TelemetryConfiguration.Active.InstrumentationKey);
-                var serviceProvider = serviceCollection.BuildServiceProvider();
-
-                var telemetryClient = serviceProvider.GetService<TelemetryClient>();
-                Assert.NotNull(telemetryClient);
-                Assert.Equal("11111111-2222-3333-4444-555555555555", telemetryClient.Context.InstrumentationKey);
-
-            }
-            finally
-            {
-                CleanActiveConfiguration();
-            }
+            var service = services.Single(s => s.ServiceType == typeof(TelemetryClient));
+            Assert.Equal(LifecycleKind.Scoped, service.Lifecycle);
         }
 
         [Fact]
