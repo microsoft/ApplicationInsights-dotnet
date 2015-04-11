@@ -49,11 +49,12 @@
                     var userCookieParts = userCookieValue.Split('|');
                     if (userCookieParts.Length >= 2)
                     {
-                        requestTelemetry.Context.User.Id = userCookieParts[0];
+                        // todo: add tracing
                         DateTimeOffset acquisitionDate;
                         if (!string.IsNullOrEmpty(userCookieParts[1]) 
                             && DateTimeOffset.TryParse(userCookieParts[1], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out acquisitionDate))
                         {
+                            requestTelemetry.Context.User.Id = userCookieParts[0];
                             requestTelemetry.Context.User.AcquisitionDate = acquisitionDate;
                         }
                     }

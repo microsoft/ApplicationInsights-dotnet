@@ -92,7 +92,7 @@
             var initializer = new WebUserTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);
-            Assert.Equal("test", requestTelemetry.Context.User.Id);
+            Assert.Equal(null, requestTelemetry.Context.User.Id);
             Assert.Equal(false, requestTelemetry.Context.User.AcquisitionDate.HasValue);
         }
     }
