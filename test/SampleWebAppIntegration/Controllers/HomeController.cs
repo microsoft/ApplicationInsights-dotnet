@@ -19,9 +19,9 @@ namespace SampleWebAppIntegration.Controllers
             return View();
         }
 
-        public IActionResult Contact()
+        public IActionResult Contact(int i)
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Your contact page #" + i;
 
             return View();
         }
