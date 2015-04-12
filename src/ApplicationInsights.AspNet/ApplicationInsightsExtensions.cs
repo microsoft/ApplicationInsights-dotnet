@@ -36,13 +36,13 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
-            ActiveConfigurationManager.AddInstrumentationKey(TelemetryConfiguration.Active, config);
-
             services.AddSingleton<IContextInitializer, DomainNameRoleInstanceContextInitializer>();
+
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
+
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = new TelemetryConfiguration();
