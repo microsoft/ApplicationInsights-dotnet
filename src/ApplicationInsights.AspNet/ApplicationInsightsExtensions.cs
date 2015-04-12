@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
@@ -36,6 +38,11 @@
         {
             ActiveConfigurationManager.AddInstrumentationKey(TelemetryConfiguration.Active, config);
 
+            services.AddSingleton<IContextInitializer, DomainNameRoleInstanceContextInitializer>();
+            services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = new TelemetryConfiguration();

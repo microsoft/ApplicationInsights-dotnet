@@ -16,15 +16,22 @@
 
     public class ApplicationInsightsExtensionsTests
     {
-        [Fact]
-        public void AddTelemetryRegistersTelemetryConfigurationServiceWithSingletonLifecycleToBeSharedByAllTelemetryClientInstances()
+        [Theory]
+        [InlineData(typeof(IContextInitializer), typeof(DomainNameRoleInstanceContextInitializer), LifecycleKind.Singleton)]
+        [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), LifecycleKind.Singleton)]
+        [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), LifecycleKind.Singleton)]
+        [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), LifecycleKind.Singleton)]
+        [InlineData(typeof(ITelemetryInitializer), typeof(UserAgentTelemetryInitializer), LifecycleKind.Singleton)]
+        [InlineData(typeof(TelemetryConfiguration), null, LifecycleKind.Singleton)]
+        [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), LifecycleKind.Scoped)]
+        public void AddTelemetryRegistersExpectedServices(Type serviceType, Type implementationType, LifecycleKind lifecycle)
         {
             var services = new ServiceCollection();
 
             services.AddApplicationInsightsTelemetry(new Configuration());
 
-            IServiceDescriptor service = services.Single(s => s.ServiceType == typeof(TelemetryConfiguration));
-            Assert.Equal(LifecycleKind.Singleton, service.Lifecycle);
+            IServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
+            Assert.Equal(lifecycle, service.Lifecycle);
         }
 
         [Fact]
@@ -41,7 +48,7 @@
         [Fact]
         public void AddTelemetryRegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
         {
-            var services = new ServiceCollection();
+            IServiceCollection services = HostingServices.Create();
             var config = new Configuration().AddJsonFile("content\\config.json");
 
             services.AddApplicationInsightsTelemetry(config);
@@ -55,7 +62,7 @@
         public void AddTelemetryRegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithContextInitializersFromContainer()
         {
             var contextInitializer = new FakeContextInitializer();
-            var services = new ServiceCollection();
+            IServiceCollection services = HostingServices.Create();
             services.AddInstance<IContextInitializer>(contextInitializer);
 
             services.AddApplicationInsightsTelemetry(new Configuration());
@@ -69,7 +76,7 @@
         public void AddTelemetryRegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryInitializersFromContainer()
         {
             var telemetryInitializer = new FakeTelemetryInitializer();
-            var services = new ServiceCollection();
+            IServiceCollection services = HostingServices.Create();
             services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
             services.AddApplicationInsightsTelemetry(new Configuration());
@@ -80,20 +87,9 @@
         }
 
         [Fact]
-        public void AddTelemetryRegistersTelemetryClientServiceWithScopedLifecycleToPreventSharingOfRequestSpecificProperties()
-        {
-            var services = new ServiceCollection();
-
-            services.AddApplicationInsightsTelemetry(new Configuration());
-
-            var service = services.Single(s => s.ServiceType == typeof(TelemetryClient));
-            Assert.Equal(LifecycleKind.Scoped, service.Lifecycle);
-        }
-
-        [Fact]
         public void AddTelemetryRegistersTelemetryClientToGetTelemetryConfigurationFromContainerAndNotGlobalInstance()
         {
-            var services = new ServiceCollection();
+            IServiceCollection services = HostingServices.Create();
 
             services.AddApplicationInsightsTelemetry(new Configuration());
 
