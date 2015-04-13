@@ -21,11 +21,10 @@
         /// <param name="services"></param>
         public static void UseFunctionalTestTelemetryChannel(this IApplicationBuilder app)
         {
-            if (channel != null)
-            {
-                var telemetryConfiguration = app.ApplicationServices.GetRequiredService<TelemetryConfiguration>();
-                telemetryConfiguration.TelemetryChannel = channel;
-            }
+            channel = new BackTelemetryChannel();
+
+            var telemetryConfiguration = app.ApplicationServices.GetRequiredService<TelemetryConfiguration>();
+            telemetryConfiguration.TelemetryChannel = channel;
         }
 
         /// <summary>
@@ -36,7 +35,7 @@
         /// <param name="buffer"></param>
         public static void InitializeFunctionalTestTelemetryChannel(IList<ITelemetry> buffer)
         {
-            channel = new BackTelemetryChannel(buffer);
+            channel.buffer = buffer;
         }
     }
 }
