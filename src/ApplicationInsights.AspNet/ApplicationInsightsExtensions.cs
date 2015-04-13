@@ -46,7 +46,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
-                ActiveConfigurationManager.AddInstrumentationKey(telemetryConfiguration, config);
+                AddInstrumentationKey(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
                 return telemetryConfiguration;
@@ -85,6 +85,21 @@
                 // TODO: Diagnostics
             }
             return result;
+        }
+
+        private static void AddInstrumentationKey(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
+        {
+            // Read from configuration
+            // Config.json will look like this:
+            //
+            //      "ApplicationInsights": {
+            //            "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+            //      }
+            string instrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
+            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            {
+                telemetryConfiguration.InstrumentationKey = instrumentationKey;
+            }
         }
 
         private static void AddServicesToCollection<T>(IServiceProvider serviceProvider, ICollection<T> collection)
