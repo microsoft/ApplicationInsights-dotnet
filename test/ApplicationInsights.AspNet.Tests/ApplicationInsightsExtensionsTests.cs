@@ -12,10 +12,27 @@
     using Xunit;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
-    using System.Collections.Generic;
+    using Microsoft.AspNet.Builder;
 
-    public class ApplicationInsightsExtensionsTests
+    public static class ApplicationInsightsExtensionsTests
     {
+        public static class SetApplicationInsightsTelemetryDeveloperMode
+        {
+            [Fact]
+            public static void ChangesDeveloperModeOfTelemetryChannelInTelemetryConfigurationInContainerToTrue()
+            {
+                var telemetryChannel = new FakeTelemetryChannel();
+                var telemetryConfiguration = new TelemetryConfiguration { TelemetryChannel = telemetryChannel };
+                var services = new ServiceCollection();
+                services.AddInstance(telemetryConfiguration);
+                var app = new ApplicationBuilder(services.BuildServiceProvider());
+
+                app.SetApplicationInsightsTelemetryDeveloperMode();
+
+                Assert.True(telemetryChannel.DeveloperMode);
+            }
+        }
+
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]

@@ -30,7 +30,8 @@
 
         public static IApplicationBuilder SetApplicationInsightsTelemetryDeveloperMode(this IApplicationBuilder app)
         {
-            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
+            var telemetryConfiguration = app.ApplicationServices.GetRequiredService<TelemetryConfiguration>();
+            telemetryConfiguration.TelemetryChannel.DeveloperMode = true;
             return app;
         }
 
