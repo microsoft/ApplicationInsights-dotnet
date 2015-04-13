@@ -33,38 +33,5 @@
                 }
             }
         }
-
-        public static void AddTelemetryInitializers(TelemetryConfiguration aiConfig, IServiceProvider serviceProvider)
-        {
-            if (aiConfig == null)
-            {
-                // TODO: Diagnostics
-                return;
-            }
-
-            if (serviceProvider == null)
-            {
-                // TODO: Diagnostics
-                return;
-            }
-
-            var httpAccessor = serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
-
-            aiConfig.TelemetryInitializers.Add(new ClientIpHeaderTelemetryInitializer(httpAccessor));
-            aiConfig.TelemetryInitializers.Add(new UserAgentTelemetryInitializer(httpAccessor));
-            aiConfig.TelemetryInitializers.Add(new OperationNameTelemetryInitializer(httpAccessor));
-            aiConfig.TelemetryInitializers.Add(new OperationIdTelemetryInitializer(httpAccessor));
-        }
-
-        public static void AddContextInitializers(TelemetryConfiguration aiConfig)
-        {
-            if (aiConfig == null)
-            {
-                // TODO: Diagnostics
-                return;
-            }
-
-            aiConfig.ContextInitializers.Add(new DomainNameRoleInstanceContextInitializer());
-        }
     }
 }
