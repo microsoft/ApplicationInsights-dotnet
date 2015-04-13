@@ -5,6 +5,7 @@
     using Microsoft.Framework.DependencyInjection;
     using System;
     using System.Collections.Generic;
+    using Microsoft.AspNet.Builder;
 
     public static class BackTelemetryChannelExtensions
     {
@@ -18,12 +19,12 @@
         /// Otherwise - regular channel will be used
         /// </summary>
         /// <param name="services"></param>
-        public static void AddFunctionalTestTelemetryChannel(this IServiceCollection services)
+        public static void UseFunctionalTestTelemetryChannel(this IApplicationBuilder app)
         {
-            if (channel != null)
-            {
-                TelemetryConfiguration.Active.TelemetryChannel = channel;
-            }
+            channel = new BackTelemetryChannel();
+
+            var telemetryConfiguration = app.ApplicationServices.GetRequiredService<TelemetryConfiguration>();
+            telemetryConfiguration.TelemetryChannel = channel;
         }
 
         /// <summary>
@@ -34,7 +35,7 @@
         /// <param name="buffer"></param>
         public static void InitializeFunctionalTestTelemetryChannel(IList<ITelemetry> buffer)
         {
-            channel = new BackTelemetryChannel(buffer);
+            channel.buffer = buffer;
         }
     }
 }

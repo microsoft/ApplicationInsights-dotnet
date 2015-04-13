@@ -17,7 +17,6 @@
         {
             this.server = new InProcessServer(assemblyName);
             BackTelemetryChannelExtensions.InitializeFunctionalTestTelemetryChannel(buffer);
-            BackTelemetryChannelExtensions.AddFunctionalTestTelemetryChannel(null);
         }
 
         public IList<ITelemetry> Buffer

@@ -6,11 +6,10 @@ namespace FunctionalTestUtils
 
     internal class BackTelemetryChannel : ITelemetryChannel
     {
-        IList<ITelemetry> buffer;
+        internal IList<ITelemetry> buffer;
 
-        public BackTelemetryChannel(IList<ITelemetry> buffer)
+        public BackTelemetryChannel()
         {
-            this.buffer = buffer;
         }
 
         public bool DeveloperMode { get; set; }
@@ -21,7 +20,10 @@ namespace FunctionalTestUtils
 
         public void Send(ITelemetry item)
         {
-            this.buffer.Add(item);
+            if (this.buffer != null)
+            {
+                this.buffer.Add(item);
+            }
         }
     }
 }
