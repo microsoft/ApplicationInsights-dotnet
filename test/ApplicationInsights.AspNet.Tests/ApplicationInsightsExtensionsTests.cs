@@ -46,6 +46,18 @@
         }
 
         [Fact]
+        public void AddTelemetryRegistersTelemetryConfigurationFactoryMethodThatCreatesDefaultInstance()
+        {
+            IServiceCollection services = HostingServices.Create();
+
+            services.AddApplicationInsightsTelemetry(new Configuration());
+
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+            Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is TimestampPropertyInitializer);
+        }
+
+        [Fact]
         public void AddTelemetryRegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
         {
             IServiceCollection services = HostingServices.Create();

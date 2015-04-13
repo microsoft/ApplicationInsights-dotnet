@@ -45,7 +45,7 @@
 
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
-                var telemetryConfiguration = new TelemetryConfiguration();
+                var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
                 ActiveConfigurationManager.AddInstrumentationKey(telemetryConfiguration, config);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
