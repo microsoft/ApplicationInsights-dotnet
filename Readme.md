@@ -86,12 +86,6 @@ Developing
  - *(recommended by [Anastasia](https://github.com/abaranch))*: http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
  - You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
 
-
-4. Make sure you have these (only these and in this order) feeds configured in Visual Studio. You may need to restart Visual Studio to allow packages to be restored correctly:
- - https://www.myget.org/F/aspnetvnext
- - http://appinsights-aspnet.azurewebsites.net/nuget/
- - https://www.nuget.org/api/v2/
-
 Running and writing tests
 -------------------------
 There are two sets of tests unit tests and functional tests. Please use unit tests for all features testing. The purpose of functional tests is just end-to-end validation of functionality on sample applications.
