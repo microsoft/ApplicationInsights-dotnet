@@ -1,18 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.DependencyInjection.Fallback;
-    using System;
-    using System.IO;
-    using System.Linq;
     using Xunit;
-    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
-    using Microsoft.AspNet.Builder;
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -117,6 +118,32 @@
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Contains(telemetryInitializer, telemetryConfiguration.TelemetryInitializers);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryChannelFromContainer()
+            {
+                var telemetryChannel = new FakeTelemetryChannel();
+                IServiceCollection services = HostingServices.Create();
+                services.AddInstance<ITelemetryChannel>(telemetryChannel);
+
+                services.AddApplicationInsightsTelemetry(new Configuration());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Same(telemetryChannel, telemetryConfiguration.TelemetryChannel);
+            }
+
+            [Fact]
+            public static void DoesNotOverrideDefaultTelemetryChannelIfTelemetryChannelServiceIsNotRegistered()
+            {
+                IServiceCollection services = HostingServices.Create();
+
+                services.AddApplicationInsightsTelemetry(new Configuration());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.NotNull(telemetryConfiguration.TelemetryChannel);
             }
 
             [Fact]
