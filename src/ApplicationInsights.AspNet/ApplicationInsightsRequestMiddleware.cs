@@ -53,7 +53,8 @@
                     telemetry.Duration = sw.Elapsed;
                     telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
                     telemetry.Success = httpContext.Response.StatusCode < 400;
-
+                    telemetry.HttpMethod = httpContext.Request.Method;
+                    
                     this.telemetryClient.TrackRequest(telemetry);
                 }
             }
