@@ -6,14 +6,14 @@
     using Microsoft.Framework.DependencyInjection.Fallback;
     using System;
 
-    public class InProcessServer
+    public class InProcessServer : IDisposable
     {
+        private IDisposable hostingEngine;
         private string url = "http://localhost:" + (new Random(239).Next(5000, 8000)).ToString();
-        private string assemblyName = "ConsoleTest";
-
-        public InProcessServer(string currentAssemblyName)
+        
+        public InProcessServer(string assemblyName)
         {
-            this.assemblyName = currentAssemblyName;
+            this.Start(assemblyName);
         }
 
         public string BaseHost
@@ -24,7 +24,7 @@
             }
         }
 
-        public IDisposable Start()
+        private void Start(string assemblyName)
         {
             var customConfig = new NameValueConfigurationSource();
             customConfig.Set("server.urls", this.BaseHost);
@@ -39,7 +39,7 @@
                 Services = services,
                 Configuration = config,
                 ServerName = "Microsoft.AspNet.Server.WebListener",
-                ApplicationName = this.assemblyName,
+                ApplicationName = assemblyName,
                 EnvironmentName = "Production"
             };
 
@@ -49,7 +49,15 @@
                 throw new Exception("TODO: IHostingEngine service not available exception");
             }
 
-            return hostingEngine.Start(context);
+            this.hostingEngine = hostingEngine.Start(context);
+        }
+
+        public void Dispose()
+        {
+            if (this.hostingEngine != null)
+            {
+                this.hostingEngine.Dispose();
+            }
         }
     }
 }

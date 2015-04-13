@@ -6,6 +6,7 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using System;
+    using Microsoft.Framework.DependencyInjection;
 
     public static class ActiveConfigurationManager
     {
@@ -48,12 +49,14 @@
                 return;
             }
 
-            var httpAccessor = serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+            var httpAccessor = serviceProvider.GetService<IHttpContextAccessor>();
 
             aiConfig.TelemetryInitializers.Add(new ClientIpHeaderTelemetryInitializer(httpAccessor));
             aiConfig.TelemetryInitializers.Add(new UserAgentTelemetryInitializer(httpAccessor));
             aiConfig.TelemetryInitializers.Add(new OperationNameTelemetryInitializer(httpAccessor));
             aiConfig.TelemetryInitializers.Add(new OperationIdTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new WebUserTelemetryInitializer(httpAccessor));
+            aiConfig.TelemetryInitializers.Add(new WebSessionTelemetryInitializer(httpAccessor));
         }
 
         public static void AddContextInitializers(TelemetryConfiguration aiConfig)
