@@ -36,8 +36,6 @@ namespace SampleWebAppIntegration
             // Add Application Insights services to the services container.
             services.AddApplicationInsightsTelemetry(Configuration);
 
-            services.AddFunctionalTestTelemetryChannel();
-
             // Add EF services to the services container.
             services.AddEntityFramework(Configuration)
                 .AddSqlServer()
@@ -64,6 +62,8 @@ namespace SampleWebAppIntegration
 
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
+
+            app.UseFunctionalTestTelemetryChannel();
 
             // Add the following to the request pipeline only in development environment.
             if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
