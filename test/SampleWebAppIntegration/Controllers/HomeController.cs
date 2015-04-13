@@ -26,9 +26,9 @@ namespace SampleWebAppIntegration.Controllers
             return View();
         }
 
-        public IActionResult About()
+        public IActionResult About(int index)
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Your application description page # " + index;
 
             return View();
         }

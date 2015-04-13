@@ -1,10 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-    using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNet.Mvc.Routing;
+    using Microsoft.Framework.DependencyInjection;
+    using System;
+    using System.Linq;
 
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
@@ -15,7 +19,14 @@
         {
             if (string.IsNullOrEmpty(telemetry.Context.Operation.Name))
             {
-                var name = platformContext.Request.Method + " " + platformContext.Request.Path.Value; // Test potential dangerous request;
+                string name = this.GetNameFromRouteContext(platformContext.RequestServices);                
+
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = platformContext.Request.Path.Value;
+                }
+
+                name = platformContext.Request.Method + " " + name; 
                 
                 var telemetryType = telemetry as RequestTelemetry;
                 if (telemetryType != null && string.IsNullOrEmpty(telemetryType.Name))
@@ -25,6 +36,60 @@
 
                 telemetry.Context.Operation.Name = name;
             }
+        }
+
+        private string GetNameFromRouteContext(IServiceProvider requestServices)
+        {
+            string name = null;
+
+            if (requestServices != null)
+            {
+                var actionContextAccessor = requestServices.GetService<IScopedInstance<ActionContext>>();
+
+                if (actionContextAccessor != null && actionContextAccessor.Value != null &&
+                    actionContextAccessor.Value.RouteData != null && actionContextAccessor.Value.RouteData.Values.Count > 0)
+                {
+                    var routeValues = actionContextAccessor.Value.RouteData.Values;
+
+                    object controller;
+                    routeValues.TryGetValue("controller", out controller);
+                    string controllerString = (controller == null) ? string.Empty : controller.ToString();
+
+                    if (!string.IsNullOrEmpty(controllerString))
+                    {
+                        name = controllerString;
+
+                        object action;
+                        routeValues.TryGetValue("action", out action);
+                        string actionString = (action == null) ? string.Empty : action.ToString();
+                                                
+                        if (!string.IsNullOrEmpty(actionString))
+                        {
+                            name += "/" + actionString;
+                        }
+
+                        if (routeValues.Keys.Count > 2)
+                        {
+                            // Add parameters
+                            var sortedKeys = routeValues.Keys
+                                .Where(key => 
+                                    !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase) && 
+                                    !string.Equals(key, "action", StringComparison.OrdinalIgnoreCase) &&
+                                    !string.Equals(key, AttributeRouting.RouteGroupKey, StringComparison.OrdinalIgnoreCase))
+                                .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                                .ToArray();
+
+                            if (sortedKeys.Length > 0)
+                            {
+                                string arguments = string.Join(@"/", sortedKeys);
+                                name += " [" + arguments + "]";
+                            }
+                        }
+                    }
+                }
+            }
+
+            return name;
         }
     }
 }
