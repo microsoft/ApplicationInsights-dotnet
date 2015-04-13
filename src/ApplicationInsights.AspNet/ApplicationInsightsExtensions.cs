@@ -43,6 +43,8 @@
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
 
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {

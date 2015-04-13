@@ -41,6 +41,8 @@
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), LifecycleKind.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), LifecycleKind.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(UserAgentTelemetryInitializer), LifecycleKind.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), LifecycleKind.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), LifecycleKind.Singleton)]
             [InlineData(typeof(TelemetryConfiguration), null, LifecycleKind.Singleton)]
             [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), LifecycleKind.Scoped)]
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, LifecycleKind lifecycle)
