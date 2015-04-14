@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
@@ -50,6 +51,7 @@
             {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
                 AddInstrumentationKey(config, telemetryConfiguration);
+                telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
                 return telemetryConfiguration;
