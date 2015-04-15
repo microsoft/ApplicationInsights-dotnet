@@ -19,7 +19,7 @@
         "Microsoft.Framework.Logging": "1.0.0-beta3",
         "Microsoft.Framework.Logging.Console": "1.0.0-beta3",
         "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta3",
-        "ApplicationInsights.AspNet": "0.30.0.1-beta",
+        "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta",
         "FunctionalTestUtils": "1.0.0-*",
         "xunit": "2.1.0.0-beta1-build2945",
         "xunit.runner.aspnet": "2.1.0.0-beta1-build60",
