@@ -1,7 +1,7 @@
 ﻿{
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
-    "version": "0.30.0.1-beta",
+    "version": "1.0.0-*",
     "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
     /* TODO: Include and verify additional properties after upgrading to VS2015 RC and beta 5. 
@@ -20,23 +20,26 @@
         "owners": ["AppInsightsSdk"],
     */
     "dependencies": {
-        "Microsoft.AspNet.Hosting": "1.0.0-beta3",
-        "Microsoft.Framework.Logging": "1.0.0-beta3",
-        "Microsoft.AspNet.Http.Extensions": "1.0.0-beta3",
-        "Microsoft.AspNet.RequestContainer": "1.0.0-beta3",
-        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta3",
+        "Microsoft.AspNet.Hosting": "1.0.0-beta5-*",
+        "Microsoft.Framework.Logging": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Http": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Http.Extensions": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta5-*",
         "System.Net.NameResolution": "4.0.0-beta-*"
     },
 
     "frameworks": {
-        "aspnet50": {
+        "dnx451": {
             "dependencies": {
                 "Microsoft.ApplicationInsights": "0.13.4-build00460"
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
-                "System.Runtime": "4.0.20-*",
+                "System.Collections": "4.0.10-beta-22807",
+                "System.Linq": "4.0.0-beta-22807",
+                "System.Threading": "4.0.10-beta-22807",
+                "Microsoft.CSharp": "4.0.0-beta-22807",
                 "Microsoft.ApplicationInsights.Portable": "0.30.0.0-beta"
             }
         }

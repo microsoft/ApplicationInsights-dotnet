@@ -20,7 +20,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = null };
+            var ac = new HttpContextAccessor() { HttpContext = null };
 
             var initializer = new UserAgentTelemetryInitializer(ac);
 
@@ -30,7 +30,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
             var initializer = new UserAgentTelemetryInitializer(ac);
 
@@ -41,9 +41,9 @@
         public void InitializeSetsUserAgentFromHeader()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers.Add("User-Agent", new[] { "test" });
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers.Add("User-Agent", new[] { "test" });
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new UserAgentTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);
@@ -56,8 +56,8 @@
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.User.UserAgent = "Inline";
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers.Add("User-Agent", new[] { "test" });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers.Add("User-Agent", new[] { "test" });
             var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new UserAgentTelemetryInitializer(ac);
 

@@ -21,7 +21,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = null };
+            var ac = new HttpContextAccessor() { HttpContext = null };
 
             var initializer = new WebUserTelemetryInitializer(ac);
 
@@ -31,7 +31,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
             var initializer = new WebUserTelemetryInitializer(ac);
 
@@ -42,9 +42,9 @@
         public void InitializeSetsUserFromCookie()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebUserTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);
@@ -58,8 +58,8 @@
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.User.Id = "Inline";
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
             var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebUserTelemetryInitializer(ac);
 
@@ -72,8 +72,8 @@
         public void InitializeDoesNotThrowOnMalformedUserCookie()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_user=test";
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_user=test";
             var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebUserTelemetryInitializer(ac);
 
@@ -86,9 +86,9 @@
         public void InitializeDoesNotNotThrowOnMalformedAcquisitionDate()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_user=test|malformeddate";
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_user=test|malformeddate";
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebUserTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);

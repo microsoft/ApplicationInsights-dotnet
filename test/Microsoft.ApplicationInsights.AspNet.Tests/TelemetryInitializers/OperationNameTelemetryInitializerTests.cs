@@ -20,7 +20,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = null };
+            var ac = new HttpContextAccessor() { HttpContext = null };
 
             var initializer = new OperationNameTelemetryInitializer(ac);
 
@@ -30,7 +30,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
             var initializer = new OperationNameTelemetryInitializer(ac);
 
@@ -42,8 +42,8 @@
         {
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Name = "Name";
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
             var initializer = new OperationNameTelemetryInitializer(ac);
 
             initializer.Initialize(telemetry);
@@ -58,8 +58,8 @@
             var request = new DefaultHttpContext().Request;
             request.Method = "GET";
             request.Path = new Microsoft.AspNet.Http.PathString("/Test");
-            var ac = new HttpContextAccessor() { Value = request.HttpContext };
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
+            var ac = new HttpContextAccessor() { HttpContext = request.HttpContext };
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
             var initializer = new OperationNameTelemetryInitializer(ac);
 
             initializer.Initialize(telemetry);
@@ -74,8 +74,8 @@
             var request = new DefaultHttpContext().Request;
             request.Method = "GET";
             request.Path = new Microsoft.AspNet.Http.PathString("/Test");
-            var ac = new HttpContextAccessor() { Value = request.HttpContext };
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
+            var ac = new HttpContextAccessor() { HttpContext = request.HttpContext };
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
             var initializer = new OperationNameTelemetryInitializer(ac);
 
             initializer.Initialize(telemetry);

@@ -2,30 +2,31 @@
     /* Click to learn more about project.json  http://go.microsoft.com/fwlink/?LinkID=517074 */
     "webroot": "wwwroot",
     "version": "1.0.0-*",
-    "dependencies": {
-        "EntityFramework.SqlServer": "7.0.0-beta3",
-        "EntityFramework.Commands": "7.0.0-beta3",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta3",
-        /* "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta3", */
-        "Microsoft.AspNet.Diagnostics": "1.0.0-beta3",
-        "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta3",
-        "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta3",
-        "Microsoft.AspNet.Security.Cookies": "1.0.0-beta3",
-        "Microsoft.AspNet.Server.IIS": "1.0.0-beta3",
-        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta3",
-        "Microsoft.AspNet.StaticFiles": "1.0.0-beta3",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta3",
-        "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta3",
-        "Microsoft.Framework.Logging": "1.0.0-beta3",
-        "Microsoft.Framework.Logging.Console": "1.0.0-beta3",
-        "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta3",
-        "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta",
-        "FunctionalTestUtils": "1.0.0-*",
-        "xunit": "2.1.0.0-beta1-build2945",
-        "xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-        "xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
-        "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta3"
-    },
+	"dependencies": {
+		"EntityFramework.SqlServer": "7.0.0-beta5-*",
+		"EntityFramework.SqlServer.Design": "7.0.0-beta5-*",
+		"EntityFramework.Core": "7.0.0-beta5-*",
+		"EntityFramework.Commands": "7.0.0-beta5-*",
+		"Microsoft.AspNet.Mvc": "6.0.0-beta5-*",
+		"Microsoft.AspNet.Diagnostics": "1.0.0-beta5-*",
+		"Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta5-*",
+		"Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta5-*",
+		"Microsoft.AspNet.Server.IIS": "1.0.0-beta5-*",
+		"Microsoft.AspNet.Server.WebListener": "1.0.0-beta5-*",
+		"Microsoft.AspNet.StaticFiles": "1.0.0-beta5-*",
+		"Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta5-*",
+		"Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta5-*",
+		"Microsoft.Framework.Logging": "1.0.0-beta5-*",
+		"Microsoft.Framework.Logging.Console": "1.0.0-beta5-*",
+		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta3",
+		"ApplicationInsights.AspNet": "0.30.0.1-beta",
+		"FunctionalTestUtils": "1.0.0-*",
+		"xunit": "2.1.0.0-beta1-build2945",
+		"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
+		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
+		"Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta5-*",
+		"System.Runtime": "4.0.20-beta-*"
+	},
     "commands": {
         /* Change the port number when you are self hosting this application */
         "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
@@ -34,21 +35,26 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "aspnet50": { },
-        "aspnetcore50": { }
-    },
-    "exclude": [
-        "wwwroot",
-        "node_modules",
-        "bower_components"
-    ],
-    "bundleExclude": [
-        "node_modules",
-        "bower_components",
-        "**.kproj",
-        "**.user",
-        "**.vspscc"
-    ],
+		"dnx451": {
+			"dependencies": {
+				"System.Runtime": "4.0.20-beta-*"
+			}
+		},
+		"dnxcore50": {
+		}
+	},
+	"exclude": [
+		"wwwroot",
+		"node_modules",
+		"bower_components"
+	],
+	"publishExclude": [
+		"node_modules",
+		"bower_components",
+		"**.kproj",
+		"**.user",
+		"**.vspscc"
+	],
     "scripts": {
         "postrestore": [ "npm install" ],
         "prepare": [ "grunt bower:install" ]

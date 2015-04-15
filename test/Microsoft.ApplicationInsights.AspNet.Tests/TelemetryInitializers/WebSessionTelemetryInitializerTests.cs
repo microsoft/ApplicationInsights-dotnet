@@ -20,7 +20,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = null };
+            var ac = new HttpContextAccessor() { HttpContext = null };
 
             var initializer = new WebSessionTelemetryInitializer(ac);
 
@@ -30,7 +30,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
             var initializer = new WebSessionTelemetryInitializer(ac);
 
@@ -41,9 +41,9 @@
         public void InitializeSetsSessionFromCookie()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
-            ac.Value.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebSessionTelemetryInitializer(ac);
 
             initializer.Initialize(requestTelemetry);
@@ -56,8 +56,8 @@
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Session.Id = "Inline";
-            var ac = new HttpContextAccessor() { Value = new DefaultHttpContext() };
-            ac.Value.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
+            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            ac.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
             var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
             var initializer = new WebSessionTelemetryInitializer(ac);
 

@@ -27,7 +27,7 @@
         {
             try
             {
-                var context = this.httpContextAccessor.Value;
+                var context = this.httpContextAccessor.HttpContext;
 
                 if (context == null)
                 {
