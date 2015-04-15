@@ -12,7 +12,6 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Fallback;
     using Xunit;
 
     public static class ApplicationInsightsExtensionsTests
@@ -52,8 +51,8 @@
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
-                IServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
-                Assert.Equal(lifecycle, service.Lifecycle);
+                ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
+                Assert.Equal(lifecycle, service.Lifetime);
             }
 
             [Fact]
