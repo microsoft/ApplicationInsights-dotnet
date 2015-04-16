@@ -16,6 +16,14 @@
 
     public static class ApplicationInsightsExtensionsTests
     {
+        public static ServiceCollection GetServiceCollectionWithContextAccessor()
+        {
+            var services = new ServiceCollection();
+            IHttpContextAccessor contextAccessor = new HttpContextAccessor();
+            services.AddInstance<IHttpContextAccessor>(contextAccessor);
+            return services;
+        }
+
         public static class SetApplicationInsightsTelemetryDeveloperMode
         {
             [Fact]
@@ -23,7 +31,7 @@
             {
                 var telemetryChannel = new FakeTelemetryChannel();
                 var telemetryConfiguration = new TelemetryConfiguration { TelemetryChannel = telemetryChannel };
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance(telemetryConfiguration);
                 var app = new ApplicationBuilder(services.BuildServiceProvider());
 
@@ -47,7 +55,7 @@
             [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Scoped)]
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
@@ -58,7 +66,7 @@
             [Fact]
             public static void DoesNotThrowWithoutInstrumentationKey()
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 //Empty configuration that doesn't have instrumentation key
                 IConfiguration config = new Configuration();
@@ -69,7 +77,7 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatCreatesDefaultInstance()
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
@@ -81,8 +89,8 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
-                var services = new ServiceCollection();
-                var config = new Configuration().AddJsonFile("content\\config.json");
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration(".").AddJsonFile("content\\config.json");
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -95,7 +103,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithContextInitializersFromContainer()
             {
                 var contextInitializer = new FakeContextInitializer();
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<IContextInitializer>(contextInitializer);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -109,7 +117,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryInitializersFromContainer()
             {
                 var telemetryInitializer = new FakeTelemetryInitializer();
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -123,7 +131,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryChannelFromContainer()
             {
                 var telemetryChannel = new FakeTelemetryChannel();
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryChannel>(telemetryChannel);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -136,7 +144,7 @@
             [Fact]
             public static void DoesNotOverrideDefaultTelemetryChannelIfTelemetryChannelServiceIsNotRegistered()
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
@@ -148,7 +156,7 @@
             [Fact]
             public static void RegistersTelemetryClientToGetTelemetryConfigurationFromContainerAndNotGlobalInstance()
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 

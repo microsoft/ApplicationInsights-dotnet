@@ -20,7 +20,7 @@ namespace SampleWebAppIntegration
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            Configuration = new Configuration()
+            Configuration = new Configuration(".")
                 .AddJsonFile("config.json")
                 .AddEnvironmentVariables();
         }

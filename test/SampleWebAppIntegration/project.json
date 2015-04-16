@@ -21,11 +21,12 @@
 		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta3",
 		"ApplicationInsights.AspNet": "0.30.0.1-beta",
 		"FunctionalTestUtils": "1.0.0-*",
-		"xunit": "2.1.0.0-beta1-build2945",
-		"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
+		/*"xunit": "2.1.0.0-beta1-build2945",*/
+		"xunit.runner.aspnet": "2.0.0-aspnet-beta5-*",
+		/*"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",*/
 		"Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta5-*",
-		"System.Runtime": "4.0.20-beta-*"
+    "System.Runtime": "4.0.20-beta-*",
+    "Microsoft.Framework.Runtime": "1.0.0-beta5-*"
 	},
     "commands": {
         /* Change the port number when you are self hosting this application */

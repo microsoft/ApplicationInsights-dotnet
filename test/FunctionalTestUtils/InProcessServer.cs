@@ -3,6 +3,7 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.Runtime;
     using System;
 
     public class InProcessServer : IDisposable
@@ -30,10 +31,7 @@
             var config = new Configuration();
             config.Add(customConfig);
 
-            var serviceCollection = new ServiceCollection();
-            var services = serviceCollection.BuildServiceProvider();
-
-            var engine = WebHost.CreateEngine(services, config)
+            var engine = WebHost.CreateEngine(null, config)
                 .UseEnvironment("Production")
                 .UseServer("Microsoft.AspNet.Server.WebListener")
                 .UseStartup(assemblyName);
