@@ -82,9 +82,13 @@ Developing
 ----------
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
-3. VS 2015 installation: 
- - *(recommended by [Anastasia](https://github.com/abaranch))*: http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
- - You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
+3. VS 2015 RC installation: 
+ - Run Preinstall.cmd, if not already run earlier
+     \\vspreinstall\preinstall\preinstall.cmd (from admin command prompt)
+ - Install VS from \\cpvsbuild\Drops\dev14\D14Rel\layouts\x86ret\<buildnumber>\enu\vs\enterprise\dvd where <buildnumber> is picked based on http://ddweb/RIFIDashboardService/Integration/BranchHistory?BranchPath=$/devdiv/Rel/D14Rel/&pioneer=False (currently, using 22808.1)
+ - Please delete packages under \users\<alias>\.dnx folder. This step will make sure that latest packages are being used
+ - Update with latest WTE build \\vwdbuild01\drops\WTE\Dev14-RC2.Nightly\Dev14\Latest-Successful\Release\Signed\MSI\InstallWTE.cmd (from admin command prompt)
+
 
 Running and writing tests
 -------------------------
@@ -106,9 +110,7 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit": "2.1.0.0-beta1-build2945",
-"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051"
+"xunit.runner.aspnet": "2.0.0-aspnet-beta5-*",
 ```
 
 and test command:
@@ -122,3 +124,10 @@ Add this initialization logic to Startup.cs:
 ```
 services.AddFunctionalTestTelemetryChannel();
 ```
+
+*Running Test*
+Open a developer command prompt, navigate to project folder and run:
+```
+dnx . test
+```
+
