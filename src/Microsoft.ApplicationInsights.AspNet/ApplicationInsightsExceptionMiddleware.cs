@@ -1,4 +1,4 @@
-namespace Microsoft.ApplicationInsights.AspNet
+﻿namespace Microsoft.ApplicationInsights.AspNet
 {
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
