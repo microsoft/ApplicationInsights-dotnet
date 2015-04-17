@@ -4,7 +4,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Interfaces;
     using System.Collections.Generic;
     using System.Net.Sockets;
     using System.Net;

@@ -12,11 +12,18 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Fallback;
     using Xunit;
 
     public static class ApplicationInsightsExtensionsTests
     {
+        public static ServiceCollection GetServiceCollectionWithContextAccessor()
+        {
+            var services = new ServiceCollection();
+            IHttpContextAccessor contextAccessor = new HttpContextAccessor();
+            services.AddInstance<IHttpContextAccessor>(contextAccessor);
+            return services;
+        }
+
         public static class SetApplicationInsightsTelemetryDeveloperMode
         {
             [Fact]
@@ -24,7 +31,7 @@
             {
                 var telemetryChannel = new FakeTelemetryChannel();
                 var telemetryConfiguration = new TelemetryConfiguration { TelemetryChannel = telemetryChannel };
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance(telemetryConfiguration);
                 var app = new ApplicationBuilder(services.BuildServiceProvider());
 
@@ -37,29 +44,29 @@
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(IContextInitializer), typeof(DomainNameRoleInstanceContextInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(UserAgentTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), LifecycleKind.Singleton)]
-            [InlineData(typeof(TelemetryConfiguration), null, LifecycleKind.Singleton)]
-            [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), LifecycleKind.Scoped)]
-            public static void RegistersExpectedServices(Type serviceType, Type implementationType, LifecycleKind lifecycle)
+            [InlineData(typeof(IContextInitializer), typeof(DomainNameRoleInstanceContextInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(UserAgentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(TelemetryConfiguration), null, ServiceLifetime.Singleton)]
+            [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Scoped)]
+            public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
-                IServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
-                Assert.Equal(lifecycle, service.Lifecycle);
+                ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
+                Assert.Equal(lifecycle, service.Lifetime);
             }
 
             [Fact]
             public static void DoesNotThrowWithoutInstrumentationKey()
             {
-                var services = new ServiceCollection();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 //Empty configuration that doesn't have instrumentation key
                 IConfiguration config = new Configuration();
@@ -70,7 +77,7 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatCreatesDefaultInstance()
             {
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
@@ -82,8 +89,8 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
-                IServiceCollection services = HostingServices.Create();
-                var config = new Configuration().AddJsonFile("content\\config.json");
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration(".").AddJsonFile("content\\config.json");
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -96,7 +103,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithContextInitializersFromContainer()
             {
                 var contextInitializer = new FakeContextInitializer();
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<IContextInitializer>(contextInitializer);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -110,7 +117,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryInitializersFromContainer()
             {
                 var telemetryInitializer = new FakeTelemetryInitializer();
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -124,7 +131,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryChannelFromContainer()
             {
                 var telemetryChannel = new FakeTelemetryChannel();
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryChannel>(telemetryChannel);
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -137,7 +144,7 @@
             [Fact]
             public static void DoesNotOverrideDefaultTelemetryChannelIfTelemetryChannelServiceIsNotRegistered()
             {
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 
@@ -149,7 +156,7 @@
             [Fact]
             public static void RegistersTelemetryClientToGetTelemetryConfigurationFromContainerAndNotGlobalInstance()
             {
-                IServiceCollection services = HostingServices.Create();
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
 

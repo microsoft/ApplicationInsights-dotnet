@@ -6,6 +6,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.AspNet.Mvc.ModelBinding.Validation;
+    using Microsoft.Framework.Internal;
+    using Microsoft.Framework.WebEncoders;
 
     internal class HtmlHelperMock : IHtmlHelper
     {
@@ -17,6 +20,14 @@
             }
 
             set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public IHtmlEncoder HtmlEncoder
+        {
+            get
             {
                 throw new NotImplementedException();
             }
@@ -35,7 +46,31 @@
             }
         }
 
+        public IJavaScriptStringEncoder JavaScriptStringEncoder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public IModelMetadataProvider MetadataProvider
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public ITempDataDictionary TempData
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public IUrlEncoder UrlEncoder
         {
             get
             {
@@ -142,7 +177,17 @@
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, string name)
+        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelExplorer modelExplorer, string expression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<SelectListItem> GetEnumSelectList(Type enumType)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public IEnumerable<SelectListItem> GetEnumSelectList<TEnum>() where TEnum : struct
         {
             throw new NotImplementedException();
         }
