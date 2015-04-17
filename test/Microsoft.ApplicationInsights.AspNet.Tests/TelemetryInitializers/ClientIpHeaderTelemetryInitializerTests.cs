@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Http.Core;
     using System;
     using System.Collections.Generic;
     using Xunit;

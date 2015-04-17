@@ -8,6 +8,7 @@
     using Microsoft.AspNet.Hosting;
     using Xunit;
     using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Http.Core;
 
     public class WebSessionTelemetryInitializerTests
     {

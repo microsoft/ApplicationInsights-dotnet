@@ -1,30 +1,29 @@
 ﻿{
-	"version": "1.0.0-*",
-	"dependencies": {
-		"Microsoft.AspNet.Diagnostics": "1.0.0-beta5-*",
-		"Microsoft.AspNet.Hosting": "1.0.0-beta5-*",
-		"Microsoft.AspNet.Mvc": "6.0.0-beta5-*",
-		"Microsoft.AspNet.Server.WebListener": "1.0.0-beta5-*",
-		"xunit": "2.1.0.0-beta1-build2945",
-		"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-		"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
-		"Microsoft.Net.Http.Client": "1.0.0-*"
-	},
+    "version": "1.0.0-*",
+    "dependencies": {
+        "Microsoft.AspNet.Diagnostics": "1.0.0-beta4-*",
+        "Microsoft.AspNet.Hosting": "1.0.0-beta4-*",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta4-*",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4-*",
+        "Microsoft.Net.Http.Client": "1.0.0-*",
+        "xunit": "2.0.0-beta4-build2738",
+        "Microsoft.Framework.Runtime": "1.0.0-beta4-*"
+    },
 
-	"frameworks": {
-		"dnx451": {
-			"dependencies": {
-				"Microsoft.ApplicationInsights": "0.13.4-build00460"
-			}
-		},
-		"dnxcore50": {
-			"dependencies": {
-				"System.Collections": "4.0.10-beta-22807",
-				"System.Linq": "4.0.0-beta-22807",
-				"System.Threading": "4.0.10-beta-22807",
-				"Microsoft.CSharp": "4.0.0-beta-22807",
-				"Microsoft.ApplicationInsights.Portable": "0.30.0.0-beta"
-			}
-		}
-	}
+    "frameworks": {
+        "dnx451": {
+            "dependencies": {
+                "Microsoft.ApplicationInsights": "0.13.4-build00460"
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Collections": "4.0.10-beta-22807",
+                "System.Linq": "4.0.0-beta-22807",
+                "System.Threading": "4.0.10-beta-22807",
+                "Microsoft.CSharp": "4.0.0-beta-22807",
+                "Microsoft.ApplicationInsights.Portable": "0.30.0.0-beta"
+            }
+        }
+    }
 }

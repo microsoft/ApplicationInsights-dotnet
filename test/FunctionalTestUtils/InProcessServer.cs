@@ -1,9 +1,9 @@
 ﻿namespace FunctionalTestUtils
 {
     using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Server.WebListener;
     using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.Runtime;
+    using Microsoft.Framework.Logging;
     using System;
 
     public class InProcessServer : IDisposable
@@ -30,12 +30,15 @@
             customConfig.Set("server.urls", this.BaseHost);
             var config = new Configuration();
             config.Add(customConfig);
+            
+            var context = new HostingContext
+            {
+                Configuration = config,
+                ServerFactory = new ServerFactory(new LoggerFactory()),
+                ApplicationName = assemblyName
+            };
 
-            var engine = WebHost.CreateEngine(null, config)
-                .UseEnvironment("Production")
-                .UseServer("Microsoft.AspNet.Server.WebListener")
-                .UseStartup(assemblyName);
-            this.hostingEngine = engine.Start();
+            this.hostingEngine = new HostingEngine().Start(context);
         }
 
         public void Dispose()

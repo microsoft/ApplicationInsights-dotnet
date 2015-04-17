@@ -90,7 +90,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration(".").AddJsonFile("content\\config.json");
+                var config = new Configuration().AddJsonFile("content\\config.json");
 
                 services.AddApplicationInsightsTelemetry(config);
 
