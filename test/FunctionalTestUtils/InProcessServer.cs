@@ -3,7 +3,7 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Fallback;
+    using Microsoft.Framework.Runtime;
     using System;
 
     public class InProcessServer : IDisposable
@@ -31,25 +31,11 @@
             var config = new Configuration();
             config.Add(customConfig);
 
-            var serviceCollection = HostingServices.Create(null);
-            var services = serviceCollection.BuildServiceProvider();
-
-            var context = new HostingContext()
-            {
-                Services = services,
-                Configuration = config,
-                ServerName = "Microsoft.AspNet.Server.WebListener",
-                ApplicationName = assemblyName,
-                EnvironmentName = "Production"
-            };
-
-            var hostingEngine = services.GetService<IHostingEngine>();
-            if (hostingEngine == null)
-            {
-                throw new Exception("TODO: IHostingEngine service not available exception");
-            }
-
-            this.hostingEngine = hostingEngine.Start(context);
+            var engine = WebHost.CreateEngine(null, config)
+                .UseEnvironment("Production")
+                .UseServer("Microsoft.AspNet.Server.WebListener")
+                .UseStartup(assemblyName);
+            this.hostingEngine = engine.Start();
         }
 
         public void Dispose()

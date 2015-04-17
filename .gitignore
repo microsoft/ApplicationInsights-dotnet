@@ -24,3 +24,5 @@ nuget.exe
 *.ipch
 bower_components/
 node_modules/
+.vs/
+project.lock.json

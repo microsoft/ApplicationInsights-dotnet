@@ -50,7 +50,7 @@
                     if (userCookieParts.Length >= 2)
                     {
                         // todo: add tracing
-                        DateTimeOffset acquisitionDate;
+                        DateTimeOffset acquisitionDate = DateTimeOffset.MinValue;
                         if (!string.IsNullOrEmpty(userCookieParts[1]) 
                             && DateTimeOffset.TryParse(userCookieParts[1], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out acquisitionDate))
                         {

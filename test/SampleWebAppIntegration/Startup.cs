@@ -1,16 +1,17 @@
-﻿using FunctionalTestUtils;
+﻿using System;
+using FunctionalTestUtils;
 using Microsoft.ApplicationInsights.AspNet;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Diagnostics;
 using Microsoft.AspNet.Diagnostics.Entity;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.Logging.Console;
 using SampleWebAppIntegration.Models;
-using System;
 
 namespace SampleWebAppIntegration
 {
@@ -19,7 +20,7 @@ namespace SampleWebAppIntegration
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            Configuration = new Configuration()
+            Configuration = new Configuration(".")
                 .AddJsonFile("config.json")
                 .AddEnvironmentVariables();
         }
@@ -33,12 +34,12 @@ namespace SampleWebAppIntegration
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add EF services to the services container.
-            services.AddEntityFramework(Configuration)
+            services.AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<ApplicationDbContext>();
 
             // Add Identity services to the services container.
-            services.AddIdentity<ApplicationUser, IdentityRole>(Configuration)
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             // Add MVC services to the services container.
@@ -64,7 +65,7 @@ namespace SampleWebAppIntegration
             // Add the following to the request pipeline only in development environment.
             if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
             {
-                app.UseBrowserLink();
+                //app.UseBrowserLink();
                 app.UseErrorPage(ErrorPageOptions.ShowAll);
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
                 // Set immediate delivery for Application Insights events.

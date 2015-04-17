@@ -24,14 +24,14 @@ namespace SampleWebAppIntegration.Models
             // are supported in ASP.NET 5
             if (!_created)
             {
-                Database.AsMigrationsEnabled().ApplyMigrations();
+                Database.AsSqlServer().ApplyMigrations();
                 _created = true;
             }
         }
-        
-        protected override void OnConfiguring(DbContextOptions options)
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            options.UseSqlServer();
+            optionsBuilder.UseSqlServer(this.Database.AsSqlServer().Connection.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

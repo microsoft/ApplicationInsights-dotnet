@@ -82,9 +82,8 @@ Developing
 ----------
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
-3. VS 2015 installation: 
- - *(recommended by [Anastasia](https://github.com/abaranch))*: http://blogs.msdn.com/b/visualstudioalm/archive/2014/06/04/visual-studio-14-ctp-now-available-in-the-virtual-machine-azure-gallery.aspx
- - You can just install it on your machine: https://www.visualstudio.com/en-us/news/vs2015-vs.aspx
+3. Install VS 2015 RC.  
+
 
 Running and writing tests
 -------------------------
@@ -106,9 +105,7 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit": "2.1.0.0-beta1-build2945",
-"xunit.runner.aspnet": "2.1.0.0-beta1-build60",
-"xunit.runner.visualstudio": "2.1.0.0-beta1-build1051"
+"xunit.runner.aspnet": "2.0.0-aspnet-beta5-*",
 ```
 
 and test command:
@@ -122,3 +119,10 @@ Add this initialization logic to Startup.cs:
 ```
 services.AddFunctionalTestTelemetryChannel();
 ```
+
+*Running Tests*
+Open a developer command prompt, navigate to project folder and run:
+```
+dnx . test
+```
+
