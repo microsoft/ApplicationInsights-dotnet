@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DateTimeOffset? AcquisitionDate { get; set; }
     }
 
-    public class RequestTelemetry
+    public class RequestTelemetry : ITelemetry
     {
         public ITelemetryChannel TelemetryChannel { get; set; }
         public TelemetryContext Context { get; }
@@ -111,22 +111,47 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public Uri Url { get; set; }
     }
 
-    public class EventTelemetry
+    public class EventTelemetry : ITelemetry
     {
+        private TelemetryContext context = new TelemetryContext();
         public DateTimeOffset Timestamp { get; set; }
         public string Sequence { get; set; }
+
+        public TelemetryContext Context
+        {
+            get
+            {
+                return this.context;
+            }
+        }
     }
 
-    public class MetricTelemetry
+    public class MetricTelemetry : ITelemetry
     {
+        private TelemetryContext context = new TelemetryContext();
         public DateTimeOffset Timestamp { get; set; }
         public string Sequence { get; set; }
+        public TelemetryContext Context
+        {
+            get
+            {
+                return this.context;
+            }
+        }
     }
 
-    public class TraceTelemetry
+    public class TraceTelemetry : ITelemetry
     {
+        private TelemetryContext context = new TelemetryContext();
         public DateTimeOffset Timestamp { get; set; }
         public string Sequence { get; set; }
+        public TelemetryContext Context
+        {
+            get
+            {
+                return this.context;
+            }
+        }
     }
 
     public enum SeverityLevel
@@ -151,6 +176,10 @@ namespace Microsoft.ApplicationInsights.Extensibility
         {
             return new TelemetryConfiguration();
         }
+    }
+
+    public class TimestampPropertyInitializer
+    {
     }
 
     public interface IContextInitializer
