@@ -1,7 +1,7 @@
 ﻿{
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
-    "version": "1.0.0-*",
+    "version": "0.30.0.1-beta",
     "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
     /* TODO: Include and verify additional properties after upgrading to VS2015 RC and beta 5. 
@@ -32,6 +32,11 @@
         "dnx451": {
             "dependencies": {
                 "Microsoft.ApplicationInsights": "0.13.4-build00460"
+            }
+        },
+        "dnxcore50": {
+            "compilationOptions": {
+                "define": [ "fakeportable" ]
             }
         }
     }

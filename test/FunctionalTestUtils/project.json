@@ -15,6 +15,11 @@
             "dependencies": {
                 "Microsoft.ApplicationInsights": "0.13.4-build00460"
             }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
+            }
         }
     }
 }
