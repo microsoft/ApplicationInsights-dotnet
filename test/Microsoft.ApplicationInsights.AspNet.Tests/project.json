@@ -19,7 +19,6 @@
                 "System.Runtime": "4.0.20-beta-*"
             }
         },
-        "dnxcore50": {
-        }
+        "dnxcore50": { }
     }
 }
