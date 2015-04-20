@@ -1,24 +1,14 @@
 ﻿{
+    "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
     "version": "0.30.0.1-beta",
+    "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
+    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
+    "requireLicenseAcceptance": true,
+    "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
-    /* TODO: Include and verify additional properties after upgrading to VS2015 RC and beta 5. 
-     * For details, see: 
-     *  https://github.com/aspnet/dnx/issues/1302 
-     *  https://github.com/aspnet/dnx/blob/dev/src/Microsoft.Framework.PackageManager/Building/BuildManager.cs#L237
-
-        "title": "Application Insights for ASP.NET 5 Web Applications",
-        "copyright": "Copyright © Microsoft. All Rights Reserved.",
-        "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
-        "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
-        "requireLicenseAcceptance": true,
-
-     * Do we need these?
-        "summary": "Application Insights for ASP.NET 5 Web Applications", 
-        "owners": ["AppInsightsSdk"],
-    */
     "dependencies": {
         "Microsoft.AspNet.Hosting": "1.0.0-beta4-*",
         "Microsoft.Framework.Logging": "1.0.0-beta4-*",
