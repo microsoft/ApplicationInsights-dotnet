@@ -82,7 +82,7 @@ Developing
 ----------
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
-3. Install VS 2015 RC.  
+3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
 
 
 Running and writing tests
