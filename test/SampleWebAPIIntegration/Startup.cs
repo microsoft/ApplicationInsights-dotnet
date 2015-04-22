@@ -9,6 +9,7 @@ using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Routing;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.ConfigurationModel;
+using FunctionalTestUtils;
 
 namespace SampleWebAPIIntegration
 {
@@ -40,6 +41,8 @@ namespace SampleWebAPIIntegration
         // Configure is called after ConfigureServices is called.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseFunctionalTestTelemetryChannel();
+
             // Add the following to the request pipeline only in development environment.
             if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
             {
