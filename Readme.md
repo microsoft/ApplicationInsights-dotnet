@@ -7,14 +7,12 @@ This repository has a code for [Application Insights monitoring](http://azure.mi
 Getting Started
 ---------------
 
-Add NuGet feed http://appinsights-aspnet.azurewebsites.net/nuget/. It has NuGet: Microsoft.ApplicationInsights.AspNet.
-
 For standard Asp.Net template you need to modify four files (this will be the default template instrumentation in future).
 
 ***project.json*** 
 Add new reference:
 ```
-"Microsoft.ApplicationInsights.AspNet": "1.0.0.0-alpha"
+"Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
 ```
 
 ***config.json*** 
