@@ -7,7 +7,7 @@
 
     public class RequestTelemetryTests : RequestTelemetryTestsBase
     {
-        public RequestTelemetryTests() : base("SampleWebAppIntegration")
+        public RequestTelemetryTests() : base("Mvc6Framework45.FunctionalTests")
         { }
 
         [Fact]
