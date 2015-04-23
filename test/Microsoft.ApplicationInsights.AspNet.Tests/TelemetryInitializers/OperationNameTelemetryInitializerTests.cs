@@ -83,5 +83,22 @@
 
             Assert.Equal("GET /Test", telemetry.Name);
         }
+
+        [Fact]
+        public void InitializeSetsRequestNameToMethodAndPathForPostRequest()
+        {
+            var telemetry = new RequestTelemetry();
+            var request = new DefaultHttpContext().Request;
+            request.Method = "POST";
+            request.Path = new Microsoft.AspNet.Http.PathString("/Test");
+            var ac = new HttpContextAccessor() { HttpContext = request.HttpContext };
+            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
+            var initializer = new OperationNameTelemetryInitializer(ac);
+
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("POST /Test", telemetry.Name);
+        }
+
     }
 }
