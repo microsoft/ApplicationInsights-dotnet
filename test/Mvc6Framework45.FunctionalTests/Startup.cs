@@ -1,16 +1,13 @@
 ﻿using System;
 using FunctionalTestUtils;
-using Microsoft.ApplicationInsights.AspNet;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Diagnostics;
 using Microsoft.AspNet.Diagnostics.Entity;
 using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Microsoft.Framework.Logging.Console;
 using SampleWebAppIntegration.Models;
 
 namespace SampleWebAppIntegration
