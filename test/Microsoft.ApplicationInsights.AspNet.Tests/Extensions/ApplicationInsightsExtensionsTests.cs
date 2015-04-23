@@ -1,17 +1,18 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet.Tests
+﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
     using System.IO;
     using System.Linq;
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.AspNet.Tests;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
     using Xunit;
 
     public static class ApplicationInsightsExtensionsTests

@@ -1,7 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet
+﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
@@ -10,7 +12,6 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Mvc.Rendering;
     using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
 
     public static class ApplicationInsightsExtensions
     {
