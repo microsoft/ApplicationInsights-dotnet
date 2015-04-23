@@ -7,7 +7,7 @@
 
     public class RequestTelemetryTests : RequestTelemetryTestsBase
     {
-        public RequestTelemetryTests() : base("SampleWebAPIIntegration")
+        public RequestTelemetryTests() : base("WebApiShimFw46.FunctionalTests")
         { }
 
         [Fact]
@@ -32,6 +32,18 @@
             expectedRequestTelemetry.Success = false;
 
             this.ValidateBasicRequest("/api/notexistingcontroller", expectedRequestTelemetry);
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
+        {
+            var expectedRequestTelemetry = new RequestTelemetry();
+            expectedRequestTelemetry.HttpMethod = "GET";
+            expectedRequestTelemetry.Name = "GET Values/Get [id]";
+            expectedRequestTelemetry.ResponseCode = "200";
+            expectedRequestTelemetry.Success = true;
+
+            this.ValidateBasicRequest("/api/values/1", expectedRequestTelemetry);
         }
 
     }
