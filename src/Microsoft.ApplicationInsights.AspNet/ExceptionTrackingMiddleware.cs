@@ -26,14 +26,11 @@
             {
                 await this.next.Invoke(httpContext);
             }
-            catch (Exception exp)
+            catch (Exception exception)
             {
-                if (this.telemetryClient != null)
-                {
-                    var exceptionTelemetry = new ExceptionTelemetry(exp);
-                    exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
-                    this.telemetryClient.Track(exceptionTelemetry);
-                }
+                var exceptionTelemetry = new ExceptionTelemetry(exception);
+                exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                this.telemetryClient.Track(exceptionTelemetry);
 
                 throw;
             }
