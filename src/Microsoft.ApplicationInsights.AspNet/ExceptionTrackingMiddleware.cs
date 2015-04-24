@@ -1,10 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
-    using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Http;
     using System;
     using System.Threading.Tasks;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Http;
 
+    /// <summary>
+    /// Sends telemetry about exceptions thrown by the application to the Microsoft Application Insights service.
+    /// </summary>
     public sealed class ExceptionTrackingMiddleware
     {
         private readonly RequestDelegate next;
