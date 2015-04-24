@@ -17,17 +17,12 @@
     {
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
-            // TODO: Register if customer did not register
-            //app.UseRequestServices();
-
-            app.UseMiddleware<ApplicationInsightsRequestMiddleware>();
-            return app;
+            return app.UseMiddleware<RequestTrackingMiddleware>();
         }
 
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
-            app.UseMiddleware<ApplicationInsightsExceptionMiddleware>();
-            return app;
+            return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
         public static IApplicationBuilder SetApplicationInsightsTelemetryDeveloperMode(this IApplicationBuilder app)
