@@ -1,6 +1,7 @@
 ﻿#if fakeportable
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using System;
 using System.Collections.Generic;
 
@@ -8,6 +9,14 @@ namespace Microsoft.ApplicationInsights
 {
     public class TelemetryClient
     {
+        public TelemetryClient()
+        {
+        }
+
+        public TelemetryClient(TelemetryConfiguration telemetryConfiguration)
+        {
+        }
+
         public TelemetryContext Context { get; }
         public void TrackEvent(string eventName)
         {
@@ -37,6 +46,9 @@ namespace Microsoft.ApplicationInsights
         {
         }
         public void TrackTrace(string message, SeverityLevel? severityLevel, IDictionary<string, string> properties)
+        {
+        }
+        public void Track(ITelemetry telemetry)
         {
         }
     }
@@ -124,6 +136,27 @@ namespace Microsoft.ApplicationInsights.DataContracts
                 return this.context;
             }
         }
+    }
+
+    public enum ExceptionHandledAt
+    {
+        Unhandled,
+        UserCode,
+        Platform
+    }
+
+    public class ExceptionTelemetry : ITelemetry
+    {
+        public ExceptionTelemetry() {}
+        public ExceptionTelemetry(Exception exception) {}
+        public DateTimeOffset Timestamp { get; set; }
+        public string Sequence { get; set; }
+        public TelemetryContext Context { get; set; }
+        public ExceptionHandledAt HandledAt { get; set; }
+        public Exception Exception { get; set; }
+        public IDictionary<string, double> Metrics { get; set; }
+        public IDictionary<string, string> Properties { get; set; }
+        public SeverityLevel? SeverityLevel { get; set; }
     }
 
     public class MetricTelemetry : ITelemetry

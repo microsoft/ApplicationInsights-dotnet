@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
-    using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Http;
     using System;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Http;
 
     public sealed class ApplicationInsightsExceptionMiddleware
     {
@@ -26,7 +27,9 @@
             {
                 if (this.telemetryClient != null)
                 {
-                    this.telemetryClient.TrackException(exp);
+                    var exceptionTelemetry = new ExceptionTelemetry(exp);
+                    exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                    this.telemetryClient.Track(exceptionTelemetry);
                 }
 
                 throw;
