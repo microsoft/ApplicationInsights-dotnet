@@ -18,11 +18,7 @@
         },
         "dnxcore50": {
             "dependencies": {
-                "System.Collections": "4.0.10-beta-22807",
-                "System.Linq": "4.0.0-beta-22807",
-                "System.Threading": "4.0.10-beta-22807",
-                "Microsoft.CSharp": "4.0.0-beta-22807",
-                "Microsoft.ApplicationInsights.Portable": "0.30.0.0-beta"
+                "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
             }
         }
     }

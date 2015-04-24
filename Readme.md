@@ -7,14 +7,12 @@ This repository has a code for [Application Insights monitoring](http://azure.mi
 Getting Started
 ---------------
 
-Add NuGet feed http://appinsights-aspnet.azurewebsites.net/nuget/. It has NuGet: Microsoft.ApplicationInsights.AspNet.
-
 For standard Asp.Net template you need to modify four files (this will be the default template instrumentation in future).
 
 ***project.json*** 
 Add new reference:
 ```
-"Microsoft.ApplicationInsights.AspNet": "1.0.0.0-alpha"
+"Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
 ```
 
 ***config.json*** 
@@ -82,7 +80,7 @@ Developing
 ----------
 1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
-3. Install VS 2015 RC.  
+3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
 
 
 Running and writing tests
