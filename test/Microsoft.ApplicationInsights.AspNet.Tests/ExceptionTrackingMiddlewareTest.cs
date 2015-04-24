@@ -9,7 +9,7 @@
     using Microsoft.AspNet.Builder;
     using Xunit;
 
-    public class ApplicationInsightsExceptionMiddlewareTest
+    public class ExceptionTrackingMiddlewareTest
     {
         private ITelemetry sentTelemetry;
 
@@ -17,7 +17,7 @@
         public async Task InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
             RequestDelegate nextMiddleware = httpContext => { throw new Exception(); };
-            var middleware = new ApplicationInsightsExceptionMiddleware(nextMiddleware, MockTelemetryClient());
+            var middleware = new ExceptionTrackingMiddleware(nextMiddleware, MockTelemetryClient());
 
             await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
 

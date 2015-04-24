@@ -1,20 +1,23 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
+    using System;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.Framework.DependencyInjection;
-    using System;
-    using System.Diagnostics;
-    using System.Threading.Tasks;
 
-    public sealed class ApplicationInsightsRequestMiddleware
+    /// <summary>
+    /// Sends telemetry about requests handled by the application to the Microsoft Application Insights service.
+    /// </summary>
+    public sealed class RequestTrackingMiddleware
     {
         private readonly RequestDelegate next;
         private readonly TelemetryClient telemetryClient;
         
-        public ApplicationInsightsRequestMiddleware(RequestDelegate next, TelemetryClient client)
+        public RequestTrackingMiddleware(RequestDelegate next, TelemetryClient client)
         {
             this.telemetryClient = client;
             this.next = next;
