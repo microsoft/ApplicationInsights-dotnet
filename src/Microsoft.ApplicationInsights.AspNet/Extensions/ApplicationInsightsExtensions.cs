@@ -26,7 +26,7 @@
 
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
-            app.UseMiddleware<ApplicationInsightsExceptionMiddleware>();
+            app.UseMiddleware<ExceptionTrackingMiddleware>();
             return app;
         }
 

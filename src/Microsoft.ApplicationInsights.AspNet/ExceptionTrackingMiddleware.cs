@@ -5,12 +5,12 @@
     using System;
     using System.Threading.Tasks;
 
-    public sealed class ApplicationInsightsExceptionMiddleware
+    public sealed class ExceptionTrackingMiddleware
     {
         private readonly RequestDelegate next;
         private readonly TelemetryClient telemetryClient;
 
-        public ApplicationInsightsExceptionMiddleware(RequestDelegate next, TelemetryClient client)
+        public ExceptionTrackingMiddleware(RequestDelegate next, TelemetryClient client)
         {
             this.next = next;
             this.telemetryClient = client;
