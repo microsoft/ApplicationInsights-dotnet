@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
 
@@ -25,12 +26,11 @@
             {
                 await this.next.Invoke(httpContext);
             }
-            catch (Exception exp)
+            catch (Exception exception)
             {
-                if (this.telemetryClient != null)
-                {
-                    this.telemetryClient.TrackException(exp);
-                }
+                var exceptionTelemetry = new ExceptionTelemetry(exception);
+                exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                this.telemetryClient.Track(exceptionTelemetry);
 
                 throw;
             }
