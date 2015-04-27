@@ -1,64 +1,23 @@
 Microsoft Application Insights for Asp.Net vNext applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [Asp.Net vNext](https://github.com/aspnet/home) applications. Read about contrubution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [Asp.Net vNext](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
 
 
 Getting Started
 ---------------
 
-For standard Asp.Net template you need to modify four files (this will be the default template instrumentation in future).
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Getting-Started) guide shows how you can onboard your Asp.Net v5 web application to use Application Insights SDK.
 
-***project.json*** 
-Add new reference:
-```
-"Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
-```
+Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
-***config.json*** 
-Configure instrumentation key:
-```
- "ApplicationInsights": {
- 	"InstrumentationKey": "11111111-2222-3333-4444-555555555555"
- }
-```
 
-***Startup.cs***
-Add service:
-```
-services.AddApplicationInsightsTelemetry(Configuration);
-```
+Release notes
+-------------
 
-Add middleware and configure developer mode: 
+**[0.30.0.1-beta]**(https://github.com/Microsoft/ApplicationInsights-aspnetv5/releases/tag/v0.30.0.1-beta)
 
-```
-// Add Application Insights monitoring to the request pipeline as a very first middleware.
-app.UseApplicationInsightsRequestTelemetry();
-...
-// Add the following to the request pipeline only in development environment.
-if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
-{
-	app.SetApplicationInsightsTelemetryDeveloperMode();
-}
-...
-// Add Application Insights exceptions handling to the request pipeline.
-app.UseApplicationInsightsExceptionTelemetry();
-```
-
-***_Layout.cshtml***
-Define using and injection:
-
-```
-@using Microsoft.ApplicationInsights.AspNet
-@inject Microsoft.ApplicationInsights.DataContracts.RequestTelemetry RequestTelelemtry
-```
-
-And insert HtmlHelper to the end of ```<head>``` section:
-
-```
-	@Html.ApplicationInsightsJavaScriptSnippet(RequestTelelemtry.Context.InstrumentationKey);
-</head>
-```
+Preview of Application Insights. Works only with full framework. Will compile for Core framework, but will not work for it.
 
 Repository structure
 --------------------
@@ -73,15 +32,18 @@ root\
     test\
         ApplicationInsights.AspNet.Tests - Unit tests
         FunctionalTestUtils - test utilities for functional tests
-        SampleWebAppIntegration  - functional MVC test application
+        Mvc6Framework45.FunctionalTests - functional tests for MVC application
+        WebApiShimFw46.FunctionalTests - functional tests for Web API application
+        PerfTest - performance test
 ```
 
 Developing
 ----------
-1. Repository (private now): https://github.com/microsoft/AppInsights-aspnetv5
+1. Repository: https://github.com/microsoft/AppInsights-aspnetv5
 2. Asp.Net information: https://github.com/aspnet/home
 3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
 
+Development is in [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) branch. Master branch has latest stable release.
 
 Running and writing tests
 -------------------------
@@ -123,4 +85,3 @@ Open a developer command prompt, navigate to project folder and run:
 ```
 dnx . test
 ```
-
