@@ -4,11 +4,10 @@
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
     using Microsoft.AspNet.Mvc;
     using Microsoft.AspNet.Mvc.Routing;
-    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.AspNet.Routing;
     using System;
     using Xunit;
 
@@ -84,7 +83,7 @@
         public void InitializeSetsTelemetryOperationNameToControllerFromActionContext()
         {
             var actionContext = new ActionContext();
-            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData = new RouteData();
             actionContext.RouteData.Values.Add("controller", "home");
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
@@ -101,7 +100,7 @@
         public void InitializeSetsTelemetryOperationNameToControllerAndActionFromActionContext()
         {
             var actionContext = new ActionContext();
-            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData = new RouteData();
             actionContext.RouteData.Values.Add("controller", "account");
             actionContext.RouteData.Values.Add("action", "login");
 
@@ -119,7 +118,7 @@
         public void InitializeSetsTelemetryOperationNameToControllerAndActionAndParameterFromActionContext()
         {
             var actionContext = new ActionContext();
-            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData = new RouteData();
             actionContext.RouteData.Values.Add("controller", "account");
             actionContext.RouteData.Values.Add("action", "login");
             actionContext.RouteData.Values.Add("parameter", "myName");
@@ -138,7 +137,7 @@
         public void InitializeSortsParameters()
         {
             var actionContext = new ActionContext();
-            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData = new RouteData();
             actionContext.RouteData.Values.Add("controller", "account");
             actionContext.RouteData.Values.Add("action", "login");
             actionContext.RouteData.Values.Add("parameterZ", "myName1");
@@ -159,7 +158,7 @@
         public void InitializeDoesNotIncludeRouteGroupKeyInParametersList()
         {
             var actionContext = new ActionContext();
-            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData = new RouteData();
             actionContext.RouteData.Values.Add("controller", "account");
             actionContext.RouteData.Values.Add("action", "login");
             actionContext.RouteData.Values.Add(AttributeRouting.RouteGroupKey, "RouteGroupKey");
