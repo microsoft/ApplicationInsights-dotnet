@@ -22,7 +22,9 @@ nuget.exe
 *.ncrunchsolution
 *.*sdf
 *.ipch
-bower_components/
-node_modules/
 .vs/
 project.lock.json
+
+bower_components/
+node_modules/
+**/wwwroot/lib
