@@ -43,9 +43,9 @@
         {
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Id = "123";
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
-            var initializer = new OperationIdTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor();
+
+            var initializer = new OperationIdTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 
@@ -57,9 +57,9 @@
         {
             var telemetry = new EventTelemetry();
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
-            var initializer = new OperationIdTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
+            var initializer = new OperationIdTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 

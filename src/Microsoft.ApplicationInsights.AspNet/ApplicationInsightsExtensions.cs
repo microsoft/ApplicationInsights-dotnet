@@ -65,8 +65,6 @@
                 rt.Context.InstrumentationKey = svcs.GetService<TelemetryClient>().Context.InstrumentationKey;
                 return rt;
             });
-
-            //services.AddScoped<RouteContext>
         }
 
         public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)

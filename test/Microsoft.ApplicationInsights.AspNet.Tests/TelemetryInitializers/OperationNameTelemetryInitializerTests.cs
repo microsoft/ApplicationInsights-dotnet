@@ -6,8 +6,10 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
+    using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNet.Mvc.Routing;
+    using Microsoft.Framework.DependencyInjection;
     using System;
-    using System.Collections.Generic;
     using Xunit;
 
     public class OperationNameTelemetryInitializerTests
@@ -41,12 +43,12 @@
         [Fact]
         public void InitializeDoesNotOverrideOperationNameProvidedInline()
         {
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Name = "Name";
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
-            var initializer = new OperationNameTelemetryInitializer(ac);
-
             initializer.Initialize(telemetry);
 
             Assert.Equal("Name", telemetry.Context.Operation.Name);
@@ -55,14 +57,11 @@
         [Fact]
         public void InitializeSetsTelemetryOperationNameToMethodAndPath()
         {
-            var telemetry = new EventTelemetry();
-            var request = new DefaultHttpContext().Request;
-            request.Method = "GET";
-            request.Path = new Microsoft.AspNet.Http.PathString("/Test");
-            var ac = new HttpContextAccessor() { HttpContext = request.HttpContext };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
-            var initializer = new OperationNameTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
 
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
             initializer.Initialize(telemetry);
 
             Assert.Equal("GET /Test", telemetry.Context.Operation.Name);
@@ -72,16 +71,107 @@
         public void InitializeSetsRequestNameToMethodAndPath()
         {
             var telemetry = new RequestTelemetry();
-            var request = new DefaultHttpContext().Request;
-            request.Method = "GET";
-            request.Path = new Microsoft.AspNet.Http.PathString("/Test");
-            var ac = new HttpContextAccessor() { HttpContext = request.HttpContext };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
-            var initializer = new OperationNameTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry, null);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 
             Assert.Equal("GET /Test", telemetry.Name);
         }
+
+        [Fact]
+        public void InitializeSetsTelemetryOperationNameToControllerFromActionContext()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData.Values.Add("controller", "home");
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("GET home", telemetry.Context.Operation.Name);
+        }
+
+        [Fact]
+        public void InitializeSetsTelemetryOperationNameToControllerAndActionFromActionContext()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData.Values.Add("controller", "account");
+            actionContext.RouteData.Values.Add("action", "login");
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("GET account/login", telemetry.Context.Operation.Name);
+        }
+
+        [Fact]
+        public void InitializeSetsTelemetryOperationNameToControllerAndActionAndParameterFromActionContext()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData.Values.Add("controller", "account");
+            actionContext.RouteData.Values.Add("action", "login");
+            actionContext.RouteData.Values.Add("parameter", "myName");
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("GET account/login [parameter]", telemetry.Context.Operation.Name);
+        }
+
+        [Fact]
+        public void InitializeSortsParameters()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData.Values.Add("controller", "account");
+            actionContext.RouteData.Values.Add("action", "login");
+            actionContext.RouteData.Values.Add("parameterZ", "myName1");
+            actionContext.RouteData.Values.Add("parameterA", "myName2");
+            actionContext.RouteData.Values.Add("parameterN", "myName1");
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("GET account/login [parameterA/parameterN/parameterZ]", telemetry.Context.Operation.Name);
+        }
+
+        [Fact]
+        public void InitializeDoesNotIncludeRouteGroupKeyInParametersList()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new Microsoft.AspNet.Routing.RouteData();
+            actionContext.RouteData.Values.Add("controller", "account");
+            actionContext.RouteData.Values.Add("action", "login");
+            actionContext.RouteData.Values.Add(AttributeRouting.RouteGroupKey, "RouteGroupKey");
+            
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("GET account/login", telemetry.Context.Operation.Name);
+        }        
     }
 }
