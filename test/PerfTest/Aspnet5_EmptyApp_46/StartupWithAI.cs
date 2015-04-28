@@ -6,9 +6,9 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Aspnet5_EmptyApp_46
 {
-    public class Startup
+    public class Startup2
     {
-        public Startup(IHostingEnvironment env)
+        public Startup2(IHostingEnvironment env)
         {
             // Setup configuration sources.
             Configuration = new Configuration()
@@ -37,14 +37,14 @@ namespace Aspnet5_EmptyApp_46
             // Add MVC to the request pipeline.
             app.UseMvc(routes =>
             {
-                //routes.MapRoute(
-                //    name: "default",
-                //    template: "{controller}/{action}/{id?}",
-                //    defaults: new { controller = "Home", action = "Index" });
-
                 routes.MapRoute(
                     name: "Request",
                     template: "{controller}/{action}/{loadTimeInMs}");
+
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action}/{id?}");
+                    //defaults: new { controller = "Home", action = "Index" });
             });
         }
     }

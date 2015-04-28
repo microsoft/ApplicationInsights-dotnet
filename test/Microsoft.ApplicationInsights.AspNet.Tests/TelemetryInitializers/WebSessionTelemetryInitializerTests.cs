@@ -3,12 +3,11 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Xunit;
-    using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
+    using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
 
     public class WebSessionTelemetryInitializerTests
     {
@@ -42,10 +41,9 @@
         public void InitializeSetsSessionFromCookie()
         {
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
-            var initializer = new WebSessionTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
+            var initializer = new WebSessionTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
 
@@ -57,10 +55,9 @@
         {
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Session.Id = "Inline";
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
-            var serviceProvider = new TestServiceProvider(new List<object>() { requestTelemetry });
-            var initializer = new WebSessionTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_session=test|2015-04-10T17:11:38.378Z|2015-04-10T17:11:39.180Z";
+            var initializer = new WebSessionTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
 
