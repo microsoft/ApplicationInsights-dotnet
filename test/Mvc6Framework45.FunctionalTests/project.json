@@ -21,7 +21,7 @@
         "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta3",
         "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta",
         "FunctionalTestUtils": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta4-10239",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*",
         "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta4-*",
         "System.Runtime": "4.0.20-beta-*",
         "Microsoft.Framework.Runtime": "1.0.0-beta4-*"
