@@ -11,7 +11,7 @@
     "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4",
     "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta4",
     "FunctionalTestUtils": "1.0.0-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-beta4-10239"
+    "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
   },
 
   "commands": {
