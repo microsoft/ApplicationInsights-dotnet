@@ -12,7 +12,7 @@ For standard Asp.Net template you need to modify four files (this will be the de
 ***project.json*** 
 Add new reference:
 ```
-"Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
+"Microsoft.ApplicationInsights.AspNet": "0.31.0-beta4"
 ```
 
 ***config.json*** 
