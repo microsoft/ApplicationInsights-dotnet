@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta",
+        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
         "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*",
         "Microsoft.AspNet.FeatureModel": "1.0.0-beta4-*",
         "Microsoft.AspNet.Http": "1.0.0-beta4-*",

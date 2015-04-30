@@ -1,15 +1,13 @@
 {
-	"Data": {
-		"DefaultConnection": {
-			"ConnectionString": "Server=(localdb)\\mssqllocaldb;Database=aspnet5-SampleWebAppIntegration-9fef37e9-6d8a-4db9-9961-276f67c99d76;Trusted_Connection=True;MultipleActiveResultSets=true"
-		}
-	},
-	"EntityFramework": {
-		"ApplicationDbContext": {
-			"ConnectionString": "Data:DefaultConnection:ConnectionString"
-		}
-	},
-	"ApplicationInsights": {
-		"InstrumentationKey": "11111111-2222-3333-4444-555555555555"
-	}
+  "AppSettings": {
+    "SiteTitle": "Mvc6Framework45.FunctionalTests"
+  },
+  "Data": {
+    "DefaultConnection": {
+      "ConnectionString": "Server=(localdb)\\mssqllocaldb;Database=aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96;Trusted_Connection=True;MultipleActiveResultSets=true"
+    }
+  },
+  "ApplicationInsights": {
+      "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+  }
 }

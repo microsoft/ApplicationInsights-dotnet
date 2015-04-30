@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Framework.Runtime;
 
-namespace SampleWebAppIntegration.Controllers
+namespace Mvc6Framework45.FunctionalTests.Controllers
 {
     public class HomeController : Controller
     {
