@@ -59,6 +59,7 @@
             services.AddScoped<TelemetryClient>();
 
             services.AddScoped<RequestTelemetry>((svcs) => {
+                // Default constructor need to be used
                 var rt = new RequestTelemetry();
                 return rt;
             });

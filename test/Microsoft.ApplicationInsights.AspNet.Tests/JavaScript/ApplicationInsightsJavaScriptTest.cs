@@ -21,15 +21,19 @@
         [Fact]
         public static void SnippetWillBeEmptyWhenInstrumentationKeyIsNotDefined()
         {
-            var telemetryConfigurationWithEmptyKey = new TelemetryConfiguration { InstrumentationKey = string.Empty };
-            var snippet1 = new ApplicationInsightsJavaScript(telemetryConfigurationWithEmptyKey);
-            Assert.Equal(string.Empty, snippet1.Write());
-
             var telemetryConfigurationWithNullKey = new TelemetryConfiguration();
-            var snippet2 = new ApplicationInsightsJavaScript(telemetryConfigurationWithNullKey);
-            Assert.Equal(string.Empty, snippet2.Write());
-
+            var snippet = new ApplicationInsightsJavaScript(telemetryConfigurationWithNullKey);
+            Assert.Equal(string.Empty, snippet.Write());
         }
+
+        [Fact]
+        public static void SnippetWillBeEmptyWhenInstrumentationKeyIsEmpty()
+        {
+            var telemetryConfigurationWithEmptyKey = new TelemetryConfiguration { InstrumentationKey = string.Empty };
+            var snippet = new ApplicationInsightsJavaScript(telemetryConfigurationWithEmptyKey);
+            Assert.Equal(string.Empty, snippet.Write());
+        }
+
 
         [Fact]
         public static void SnippetWillIncludeInstrumentationKeyAsSubstring()
@@ -37,7 +41,7 @@
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
             var snippet = new ApplicationInsightsJavaScript(telemetryConfiguration);
-            Assert.True(snippet.Write().Contains("'" + unittestkey + "'"));
+            Assert.Contains("'" + unittestkey + "'", snippet.Write());
         }
     }
 }
