@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22808.1
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2E6DDE9E-8C75-4F9C-8906-08EBDD6E73EF}"
 EndProject
@@ -23,6 +23,11 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FunctionalTestUtils", "test\FunctionalTestUtils\FunctionalTestUtils.xproj", "{B7217A00-66FA-49A8-8EF3-39C07E1F7E33}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "WebApiShimFw46.FunctionalTests", "test\WebApiShimFw46.FunctionalTests\WebApiShimFw46.FunctionalTests.xproj", "{11FB2EE6-7199-4AFF-BC73-25F35675F233}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StartupPerf", "StartupPerf", "{16B44D67-6214-4DDE-B419-93EF073E2E69}"
+	ProjectSection(SolutionItems) = preProject
+		test\StartupPerf\startupPerf.ps1 = test\StartupPerf\startupPerf.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,5 +65,6 @@ Global
 		{330152EC-1092-41F0-9F96-C3438E07FCC2} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{B7217A00-66FA-49A8-8EF3-39C07E1F7E33} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 		{11FB2EE6-7199-4AFF-BC73-25F35675F233} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
+		{16B44D67-6214-4DDE-B419-93EF073E2E69} = {8B5230E5-8138-44D6-839F-DF9248F195EE}
 	EndGlobalSection
 EndGlobal
