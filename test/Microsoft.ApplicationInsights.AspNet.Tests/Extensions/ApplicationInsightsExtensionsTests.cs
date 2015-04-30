@@ -1,13 +1,11 @@
 ﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
-    using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests;
-    using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
@@ -166,30 +164,6 @@
                 configuration.InstrumentationKey = Guid.NewGuid().ToString();
                 var telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
                 Assert.Equal(configuration.InstrumentationKey, telemetryClient.Context.InstrumentationKey);
-            }
-        }
-
-        public static class ApplicationInsightsJavaScriptSnippet
-        {
-            [Fact]
-            public static void DoesNotThrowWithoutInstrumentationKey()
-            {
-                var helper = new HtmlHelperMock();
-                helper.ApplicationInsightsJavaScriptSnippet(null);
-                helper.ApplicationInsightsJavaScriptSnippet("");
-            }
-
-            [Fact]
-            public static void UsesInstrumentationKey()
-            {
-                var key = "1236543";
-                HtmlHelperMock helper = new HtmlHelperMock();
-                var result = helper.ApplicationInsightsJavaScriptSnippet(key);
-                using (StringWriter sw = new StringWriter())
-                {
-                    result.WriteTo(sw);
-                    Assert.Contains(key, sw.ToString());
-                }
             }
         }
     }
