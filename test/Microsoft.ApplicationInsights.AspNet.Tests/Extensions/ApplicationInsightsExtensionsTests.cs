@@ -23,23 +23,6 @@
             return services;
         }
 
-        public static class SetApplicationInsightsTelemetryDeveloperMode
-        {
-            [Fact]
-            public static void ChangesDeveloperModeOfTelemetryChannelInTelemetryConfigurationInContainerToTrue()
-            {
-                var telemetryChannel = new FakeTelemetryChannel();
-                var telemetryConfiguration = new TelemetryConfiguration { TelemetryChannel = telemetryChannel };
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance(telemetryConfiguration);
-                var app = new ApplicationBuilder(services.BuildServiceProvider());
-
-                app.SetApplicationInsightsTelemetryDeveloperMode();
-
-                Assert.True(telemetryChannel.DeveloperMode);
-            }
-        }
-
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
@@ -96,6 +79,130 @@
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal("11111111-2222-3333-4444-555555555555", telemetryConfiguration.InstrumentationKey);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration().AddJsonFile("content\\config.json");
+
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration().AddJsonFile("content\\config.json");
+
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", "11111111-2222-3333-4444-555555555555");
+                var config = new Configuration().AddEnvironmentVariables();
+                try
+                {
+                    services.AddApplicationInsightsTelemetry(config);
+
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                    Assert.Equal("11111111-2222-3333-4444-555555555555", telemetryConfiguration.InstrumentationKey);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+                }
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
+                var config = new Configuration().AddEnvironmentVariables();
+                try
+                {
+                    services.AddApplicationInsightsTelemetry(config);
+
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                    Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", null);
+                }
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
+                var config = new Configuration().AddEnvironmentVariables();
+                try
+                {
+                    services.AddApplicationInsightsTelemetry(config);
+
+                    IServiceProvider serviceProvider = services.BuildServiceProvider();
+                    var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                    Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", null);
+                }
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromSettings()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                var config = new Configuration().AddApplicaitonInsightsSettings(instrumentationKey: "11111111-2222-3333-4444-555555555555");
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal("11111111-2222-3333-4444-555555555555", telemetryConfiguration.InstrumentationKey);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromSettings()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration().AddApplicaitonInsightsSettings(developerMode: true);
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(true, telemetryConfiguration.TelemetryChannel.DeveloperMode);
+            }
+
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromSettings()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new Configuration().AddApplicaitonInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/");
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
             }
 
             [Fact]

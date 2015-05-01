@@ -235,5 +235,24 @@ namespace System.Net.NetworkInformation
         }
     }
 }
+
+namespace Microsoft.ApplicationInsights.Channel
+{
+    public sealed class InProcessTelemetryChannel : ITelemetryChannel
+    {
+        public string EndpointAddress { get; set; }
+        public bool DeveloperMode { get; set; }
+        public void Dispose()
+        {
+        }
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+        }
+        public void Send(ITelemetry item)
+        {
+        }
+    }
+}
+
 #endif
 

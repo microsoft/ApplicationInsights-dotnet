@@ -1,5 +1,9 @@
 ﻿{
-	"ApplicationInsights": {
-		"InstrumentationKey": "11111111-2222-3333-4444-555555555555"
-	}
+  "ApplicationInsights": {
+    "InstrumentationKey": "11111111-2222-3333-4444-555555555555",
+    "TelemetryChannel": {
+      "DeveloperMode": true,
+      "EndpointAddress":  "http://localhost:1234/v2/track/"
+    }
+  }
 }
