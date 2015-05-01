@@ -34,7 +34,7 @@
   "commands": {
     "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
     "gen": "Microsoft.Framework.CodeGeneration",
-    "ef":  "EntityFramework.Commands"
+    "ef": "EntityFramework.Commands"
   },
 
   "frameworks": {
@@ -55,7 +55,13 @@
     "**.vspscc"
   ],
   "scripts": {
-    "postrestore": [ "npm install", "bower install" ],
-    "prepare": [ "gulp copy" ]
+    "postrestore": [
+      "npm install",
+      "node_modules/.bin/flatten-packages",
+      "node_modules/.bin/bower install"
+    ],
+    "prepare": [
+      "node_modules/.bin/gulp copy" 
+    ]
   }
 }
