@@ -1,9 +1,9 @@
 ﻿namespace FunctionalTestUtils.Tests
 {
-    using Microsoft.ApplicationInsights.Channel;
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
+    using Microsoft.ApplicationInsights.Channel;
 
     public abstract class TelemetryTestsBase : IDisposable
     {

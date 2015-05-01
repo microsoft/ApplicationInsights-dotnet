@@ -41,7 +41,7 @@ namespace Mvc6Framework45.FunctionalTests
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
                 configuration.AddUserSecrets();
 
-                configuration.AddApplicaitonInsightsSettings(developerMode: true);
+                configuration.AddApplicationInsightsSettings(developerMode: true);
             }
             configuration.AddEnvironmentVariables();
             Configuration = configuration;

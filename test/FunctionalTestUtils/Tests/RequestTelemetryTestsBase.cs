@@ -1,11 +1,11 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using System;
-using System.Net;
-using Xunit;
-
+﻿
 namespace FunctionalTestUtils.Tests
 {
+    using System;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Xunit;
+
     public abstract class RequestTelemetryTestsBase : TelemetryTestsBase
     {
         public RequestTelemetryTestsBase(string assemblyName) : base(assemblyName)

@@ -1,13 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
+    using System;
+    using System.Diagnostics;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.Framework.DependencyInjection;
-    using System;
-    using System.Diagnostics;
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {

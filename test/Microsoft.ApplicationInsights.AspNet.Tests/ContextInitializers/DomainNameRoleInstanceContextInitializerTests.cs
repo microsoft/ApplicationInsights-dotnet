@@ -1,11 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.ContextInitializers
 {
-    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Globalization;
     using System.Net;
     using System.Net.NetworkInformation;
+    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
     public class DomainNameRoleInstanceContextInitializerTests
