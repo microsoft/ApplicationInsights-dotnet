@@ -28,4 +28,5 @@
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.Props" />
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" />
+  <Import Project="..\..\Common.targets" />
 </Project>
