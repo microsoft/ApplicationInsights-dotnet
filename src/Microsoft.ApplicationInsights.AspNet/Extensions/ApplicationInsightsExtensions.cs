@@ -58,7 +58,7 @@
             services.AddScoped<RequestTelemetry>((svcs) => {
                 var rt = new RequestTelemetry();
                 // this is workaround to inject proper instrumentation key into javascript:
-                rt.Context.InstrumentationKey = svcs.GetService<TelemetryClient>().Context.InstrumentationKey;
+                rt.Context.InstrumentationKey = svcs.GetService<TelemetryConfiguration>().InstrumentationKey;
                 return rt;
             });
         }

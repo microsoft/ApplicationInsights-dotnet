@@ -14,7 +14,7 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.Framework.ConfigurationModel;
     using Xunit;
-
+    
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -157,6 +157,9 @@
             [Fact]
             public static void RegistersTelemetryClientToGetTelemetryConfigurationFromContainerAndNotGlobalInstance()
             {
+                ITelemetry sentTelemetry = null;
+                var telemetryChannel = new FakeTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 services.AddApplicationInsightsTelemetry(new Configuration());
@@ -164,8 +167,14 @@
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var configuration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 configuration.InstrumentationKey = Guid.NewGuid().ToString();
+                configuration.TelemetryChannel = telemetryChannel;
+
                 var telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
-                Assert.Equal(configuration.InstrumentationKey, telemetryClient.Context.InstrumentationKey);
+                telemetryClient.TrackEvent("myevent");
+
+                // We want to check that configuration from contaier was used but configuration is a private field so we check
+                // instrumentation key instead
+                Assert.Equal(configuration.InstrumentationKey, sentTelemetry.Context.InstrumentationKey);
             }
         }
 

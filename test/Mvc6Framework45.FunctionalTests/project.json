@@ -24,7 +24,7 @@
         "xunit.runner.aspnet": "2.0.0-aspnet-beta4-10239",
         "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta4-*",
         "System.Runtime": "4.0.20-beta-*",
-        "Microsoft.Framework.Runtime": "1.0.0-beta4-*"
+        "Microsoft.Framework.Runtime": "1.0.0-beta4-*",
     },
     "commands": {
         /* Change the port number when you are self hosting this application */
@@ -36,14 +36,10 @@
     "frameworks": {
         "dnx451": {
             "dependencies": {
-                "Microsoft.ApplicationInsights": "0.13.4-build00460",
                 "System.Runtime": "4.0.20-beta-*"
             }
         },
         "dnxcore50": {
-            "dependencies": {
-                "Microsoft.ApplicationInsights.AspNet": "0.30.0.1-beta"
-            }
         }
     },
     "exclude": [

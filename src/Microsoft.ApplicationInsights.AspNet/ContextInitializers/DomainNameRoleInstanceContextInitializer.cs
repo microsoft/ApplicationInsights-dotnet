@@ -34,17 +34,16 @@
 
         private string GetMachineName()
         {
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             string hostName = Dns.GetHostName();
-
+            
+#if !dnxcore50
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
             {
                 hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
             }
-
+#endif
             return hostName;
         }
-
-
     }
 }

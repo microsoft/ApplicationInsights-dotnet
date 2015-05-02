@@ -1,11 +1,11 @@
-﻿{
+{
     "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
     "version": "0.30.0.1-beta",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
-    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
+    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
     "requireLicenseAcceptance": true,
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
@@ -15,18 +15,15 @@
         "Microsoft.AspNet.Http": "1.0.0-beta4-*",
         "Microsoft.AspNet.Http.Extensions": "1.0.0-beta4-*",
         "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4-*",
-        "System.Net.NameResolution": "4.0.0-beta-*"
+        "System.Net.NameResolution": "4.0.0-beta-*",
+        "Microsoft.ApplicationInsights": "0.16.1-build00185"
     },
 
     "frameworks": {
-        "dnx451": {
-            "dependencies": {
-                "Microsoft.ApplicationInsights": "0.13.4-build00460"
-            }
-        },
+        "dnx451": { },
         "dnxcore50": {
             "compilationOptions": {
-                "define": [ "fakeportable" ]
+                "define": [ "dnxcore50" ]
             }
         }
     }
