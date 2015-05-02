@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
+    using System;
+    using System.Linq;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
@@ -7,8 +10,6 @@
     using Microsoft.AspNet.Mvc;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.Framework.DependencyInjection;
-    using System;
-    using System.Linq;
 
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {

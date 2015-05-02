@@ -1,13 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
     using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Sockets;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Http;
-    using System.Collections.Generic;
-    using System.Net.Sockets;
-    using System.Net;
     using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Http;
 
 
     /// <summary>

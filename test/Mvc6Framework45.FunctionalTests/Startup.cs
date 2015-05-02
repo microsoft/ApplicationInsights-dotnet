@@ -40,6 +40,8 @@ namespace Mvc6Framework45.FunctionalTests
                 // This reads the configuration keys from the secret store.
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
                 configuration.AddUserSecrets();
+
+                configuration.AddApplicationInsightsSettings(developerMode: true);
             }
             configuration.AddEnvironmentVariables();
             Configuration = configuration;
@@ -108,8 +110,6 @@ namespace Mvc6Framework45.FunctionalTests
                 app.UseBrowserLink();
                 app.UseErrorPage(ErrorPageOptions.ShowAll);
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
-                // Set immediate delivery for Application Insights events.
-                app.SetApplicationInsightsTelemetryDeveloperMode();
             }
             else
             {

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
+    using System;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -8,7 +9,6 @@
     using Microsoft.AspNet.Mvc;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
-    using System;
     using Xunit;
 
     public class OperationNameTelemetryInitializerTests

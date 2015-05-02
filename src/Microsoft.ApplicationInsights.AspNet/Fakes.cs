@@ -1,9 +1,9 @@
 ﻿#if fakeportable
+using System;
+using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
-using System;
-using System.Collections.Generic;
 
 namespace Microsoft.ApplicationInsights
 {
@@ -235,5 +235,24 @@ namespace System.Net.NetworkInformation
         }
     }
 }
+
+namespace Microsoft.ApplicationInsights.Channel
+{
+    public sealed class InProcessTelemetryChannel : ITelemetryChannel
+    {
+        public string EndpointAddress { get; set; }
+        public bool DeveloperMode { get; set; }
+        public void Dispose()
+        {
+        }
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+        }
+        public void Send(ITelemetry item)
+        {
+        }
+    }
+}
+
 #endif
 
