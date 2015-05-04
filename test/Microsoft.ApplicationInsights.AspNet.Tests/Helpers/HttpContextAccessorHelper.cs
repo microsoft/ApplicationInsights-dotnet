@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.Helpers
 {
+    using System;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
     using Microsoft.AspNet.Mvc;
     using Microsoft.Framework.DependencyInjection;
-    using System;
 
     public static class HttpContextAccessorHelper
     {

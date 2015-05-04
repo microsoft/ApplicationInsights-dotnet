@@ -1,12 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.ContextInitializers
 {
-    using Microsoft.ApplicationInsights.Extensibility;
     using System;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using System.Threading;
-    using System.Net.NetworkInformation;
-    using System.Net;
     using System.Globalization;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Threading;
+
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// A telemetry context initializer that populates device context role instance.

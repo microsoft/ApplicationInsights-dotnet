@@ -37,13 +37,6 @@ namespace SampleWebAPIIntegration
         {
             app.UseFunctionalTestTelemetryChannel();
 
-            // Add the following to the request pipeline only in development environment.
-            if (string.Equals(env.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase))
-            {
-                // Set immediate delivery for Application Insights events.
-                app.SetApplicationInsightsTelemetryDeveloperMode();
-            }
-
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
 

@@ -1,8 +1,8 @@
 ﻿namespace FunctionalTestUtils
 {
-    using Microsoft.Framework.ConfigurationModel;
     using System;
     using System.Collections.Generic;
+    using Microsoft.Framework.ConfigurationModel;
 
     public class NameValueConfigurationSource : IConfigurationSource
     {

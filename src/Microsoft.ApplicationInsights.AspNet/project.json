@@ -2,20 +2,20 @@
     "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
-    "version": "0.30.0.1-beta",
+    "version": "0.32.0-beta4",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
-    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
+    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
     "requireLicenseAcceptance": true,
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
     "dependencies": {
-        "Microsoft.AspNet.Hosting": "1.0.0-beta4-*",
-        "Microsoft.Framework.Logging": "1.0.0-beta4-*",
-        "Microsoft.AspNet.Http": "1.0.0-beta4-*",
-        "Microsoft.AspNet.Http.Extensions": "1.0.0-beta4-*",
-        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4-*",
-        "System.Net.NameResolution": "4.0.0-beta-*",
+        "Microsoft.AspNet.Hosting": "1.0.0-beta4",
+        "Microsoft.Framework.Logging": "1.0.0-beta4",
+        "Microsoft.AspNet.Http": "1.0.0-beta4",
+        "Microsoft.AspNet.Http.Extensions": "1.0.0-beta4",
+        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4",
+        "System.Net.NameResolution": "4.0.0-beta-*"
         "Microsoft.ApplicationInsights": "0.16.1-build00185"
     },
 

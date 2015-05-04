@@ -1,11 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
+    using System;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.Net.Http.Headers;
-    using System;
 
     /// <summary>
     /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for 

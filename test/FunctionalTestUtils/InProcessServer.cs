@@ -1,10 +1,10 @@
 ﻿namespace FunctionalTestUtils
 {
+    using System;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Server.WebListener;
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.Logging;
-    using System;
 
     public class InProcessServer : IDisposable
     {

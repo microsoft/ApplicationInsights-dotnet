@@ -2,19 +2,28 @@
 {
     using System;
     using System.Collections.Generic;
+
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.ApplicationInsights.AspNet.JavaScript;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Mvc.Rendering;
     using Microsoft.Framework.ConfigurationModel;
 
     public static class ApplicationInsightsExtensions
     {
+        private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
+        private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
+        private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
+
+        private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
+        private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
+        private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
+
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<RequestTrackingMiddleware>();
@@ -23,13 +32,6 @@
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
-        }
-
-        public static IApplicationBuilder SetApplicationInsightsTelemetryDeveloperMode(this IApplicationBuilder app)
-        {
-            var telemetryConfiguration = app.ApplicationServices.GetRequiredService<TelemetryConfiguration>();
-            telemetryConfiguration.TelemetryChannel.DeveloperMode = true;
-            return app;
         }
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
@@ -46,60 +48,109 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
-                AddInstrumentationKey(config, telemetryConfiguration);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
+                AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
                 return telemetryConfiguration;
             });
 
+            services.AddSingleton<IJavaScriptSnippet, ApplicationInsightsJavaScript>();
+
             services.AddScoped<TelemetryClient>();
 
             services.AddScoped<RequestTelemetry>((svcs) => {
+                // Default constructor need to be used
                 var rt = new RequestTelemetry();
-                // this is workaround to inject proper instrumentation key into javascript:
-                rt.Context.InstrumentationKey = svcs.GetService<TelemetryConfiguration>().InstrumentationKey;
                 return rt;
             });
         }
 
-        public static HtmlString ApplicationInsightsJavaScriptSnippet(this IHtmlHelper helper, string instrumentationKey)
+        public static IConfigurationSourceRoot AddApplicationInsightsSettings(this IConfigurationSourceRoot configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
         {
-            HtmlString result = HtmlString.Empty;
-            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            var telemetryConfigurationSource = new MemoryConfigurationSource();
+            bool wasAnythingSet = false;
+
+            if (developerMode != null)
             {
-                result = new HtmlString(@"<script language='javascript'> 
-                 var appInsights = window.appInsights || function(config){ 
-                     function s(config){t[config]=function(){var i=arguments; t.queue.push(function(){ t[config].apply(t, i)})} 
+                telemetryConfigurationSource.Set(DeveloperModeForWebSites, developerMode.Value.ToString());
+                wasAnythingSet = true;
                      } 
-                     var t = { config:config }, r = document, f = window, e = ""script"", o = r.createElement(e), i, u;for(o.src=config.url||""//az416426.vo.msecnd.net/scripts/a/ai.0.js"",r.getElementsByTagName(e)[0].parentNode.appendChild(o),t.cookie=r.cookie,t.queue=[],i=[""Event"",""Exception"",""Metric"",""PageView"",""Trace""];i.length;)s(""track""+i.pop());return config.disableExceptionTracking||(i=""onerror"",s(""_""+i),u=f[i],f[i]=function(config, r, f, e, o) { var s = u && u(config, r, f, e, o); return s !== !0 && t[""_"" + i](config, r, f, e, o),s}),t 
-                 }({ 
-                     instrumentationKey:""" + instrumentationKey + @""" 
-                 }); 
   
-                 window.appInsights=appInsights; 
-                 appInsights.trackPageView(); 
-</script>");
-            }
-            else
+            if (instrumentationKey != null)
             {
-                // TODO: Diagnostics
+                telemetryConfigurationSource.Set(InstrumentationKeyForWebSites, instrumentationKey);
+                wasAnythingSet = true;
             }
-            return result;
+
+            if (endpointAddress != null)
+            {
+                telemetryConfigurationSource.Set(EndpointAddressForWebSites, endpointAddress);
+                wasAnythingSet = true;
+            }
+
+            if (wasAnythingSet)
+            {
+                configurationSourceRoot.Add(telemetryConfigurationSource);
+            }
+
+            return configurationSourceRoot;
         }
 
-        private static void AddInstrumentationKey(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
+        /// <summary>
+        /// Read from configuration
+        /// Config.json will look like this:
+        ///
+        ///      "ApplicationInsights": {
+        ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
+        ///          "TelemetryChannel": {
+        ///              EndpointAddress: "http://dc.services.visualstudio.com/v2/track",
+        ///              DeveloperMode: true
+        ///          }
+        ///      }
+        /// Values can also be read from environment variables to support azure web sites configuration:
+        /// </summary>
+        /// <param name="config">Configuration to read variables from.</param>
+        /// <param name="telemetryConfiguration">Telemetry configuration to populate</param>
+        private static void AddTelemetryConfiguration(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
         {
-            // Read from configuration
-            // Config.json will look like this:
-            //
-            //      "ApplicationInsights": {
-            //            "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
-            //      }
-            string instrumentationKey = config.Get("ApplicationInsights:InstrumentationKey");
+            string instrumentationKey = config.Get(InstrumentationKeyForWebSites);
+            if (string.IsNullOrWhiteSpace(instrumentationKey))
+        {
+                instrumentationKey = config.Get(InstrumentationKeyFromConfig);
+            }
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
                 telemetryConfiguration.InstrumentationKey = instrumentationKey;
+            }
+
+            string developerModeValue = config.Get(DeveloperModeForWebSites);
+            if (string.IsNullOrWhiteSpace(developerModeValue))
+            {
+                developerModeValue = config.Get(DeveloperModeFromConfig);
+            }
+            if (!string.IsNullOrWhiteSpace(developerModeValue))
+            {
+                bool developerMode = false;
+                if (bool.TryParse(developerModeValue, out developerMode))
+                {
+                    telemetryConfiguration.TelemetryChannel.DeveloperMode = developerMode;
+                }
+            }
+
+            string endpointAddress = config.Get(EndpointAddressForWebSites);
+            if (string.IsNullOrWhiteSpace(endpointAddress))
+            {
+                endpointAddress = config.Get(EndpointAddressFromConfig);
+            }
+            if (!string.IsNullOrWhiteSpace(endpointAddress))
+            {
+                // TODO: Once moved to the new version of SDK - do not cast to InProcessTelemetryChannel anymore
+                var channel = telemetryConfiguration.TelemetryChannel as InProcessTelemetryChannel;
+                if (channel != null)
+                {
+                    channel.EndpointAddress = endpointAddress;
+                }
             }
         }
 

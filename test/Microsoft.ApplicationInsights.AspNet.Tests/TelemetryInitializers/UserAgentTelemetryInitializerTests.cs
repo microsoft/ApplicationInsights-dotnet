@@ -1,13 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
+    using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
-    using System;
-    using System.Collections.Generic;
     using Xunit;
 
     public class UserAgentTelemetryInitializerTests
