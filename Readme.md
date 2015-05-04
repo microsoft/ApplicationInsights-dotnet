@@ -39,11 +39,34 @@ root\
 
 Developing
 ----------
-1. Repository: https://github.com/microsoft/AppInsights-aspnetv5
-2. Asp.Net information: https://github.com/aspnet/home
-3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
 
-Development is in [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) branch. Master branch has latest stable release.
+## Pre-requisites
+- [Visual Studio 2015 RC](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Node.js](https://nodejs.org/download).
+- [Git](http://git-scm.com/download).
+- Source Code.
+```
+git clone https://github.com/Microsoft/ApplicationInsights-aspnetv5.git
+```
+
+## Building
+From Visual Studio 2015
+```
+devenv ApplicationInsights.AspNet.sln
+```
+
+From Visual Studio 2015 Developer Command Prompt.
+```
+msbuild ApplicationInsights.AspNet.sln
+```
+- If you get NPM package restore errors, make sure Node and NPM are added to PATH.
+- If you get Bower pacakge restore errors, make sure Git is added to PATH.
+- If you get Dnu package restore errors, make sure [Dnx is installed](https://github.com/dotnet/coreclr/blob/master/Documentation/get-dotnetcore-dnx-windows.md) or open the solution in Visual Studio 2015, which will take care of this.
+
+## Branches
+- We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
+- [master](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNet).
+- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) has the code for the _next_ release.
 
 Running and writing tests
 -------------------------
