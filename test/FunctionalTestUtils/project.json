@@ -1,14 +1,14 @@
 ﻿{
     "version": "1.0.0-*",
     "dependencies": {
+        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta",
         "Microsoft.AspNet.Diagnostics": "1.0.0-beta4",
         "Microsoft.AspNet.Hosting": "1.0.0-beta4",
         "Microsoft.AspNet.Mvc": "6.0.0-beta4",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
-        "Microsoft.Net.Http.Client": "1.0.0-*",
-        "xunit": "2.0.0-beta4-build2738",
         "Microsoft.Framework.Runtime": "1.0.0-beta4",
-        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta"
+        "Microsoft.Net.Http.Client": "1.0.0-*",
+        "xunit": "2.0.0-beta4-build2738"
     },
 
     "frameworks": {

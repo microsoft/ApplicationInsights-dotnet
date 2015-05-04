@@ -75,7 +75,7 @@
             {
                 telemetryConfigurationSource.Set(DeveloperModeForWebSites, developerMode.Value.ToString());
                 wasAnythingSet = true;
-                     } 
+            } 
   
             if (instrumentationKey != null)
             {

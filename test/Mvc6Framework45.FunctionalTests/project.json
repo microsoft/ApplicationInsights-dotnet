@@ -4,31 +4,31 @@
     "version": "1.0.0-*",
 
     "dependencies": {
-    "EntityFramework.SqlServer": "7.0.0-beta4",
-    "EntityFramework.Commands": "7.0.0-beta4",
-    "Microsoft.AspNet.Mvc": "6.0.0-beta4",
-    "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Facebook": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Google": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Twitter": "1.0.0-beta4",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-beta4",
-    "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta4",
-    "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta4",
-    "Microsoft.AspNet.Server.IIS": "1.0.0-beta4",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-beta4",
-    "Microsoft.AspNet.Tooling.Razor": "1.0.0-beta4",
-    "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4",
-    "Microsoft.Framework.ConfigurationModel.UserSecrets": "1.0.0-beta4",
-    "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta4",
-    "Microsoft.Framework.Logging": "1.0.0-beta4",
-    "Microsoft.Framework.Logging.Console": "1.0.0-beta4",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta4",
-    "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
-    "FunctionalTestUtils": "1.0.0-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
+        "EntityFramework.SqlServer": "7.0.0-beta4",
+        "EntityFramework.Commands": "7.0.0-beta4",
+        "FunctionalTestUtils": "1.0.0-*",
+        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta4",
+        "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Cookies": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Facebook": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Google": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Twitter": "1.0.0-beta4",
+        "Microsoft.AspNet.Diagnostics": "1.0.0-beta4",
+        "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta4",
+        "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta4",
+        "Microsoft.AspNet.Server.IIS": "1.0.0-beta4",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
+        "Microsoft.AspNet.StaticFiles": "1.0.0-beta4",
+        "Microsoft.AspNet.Tooling.Razor": "1.0.0-beta4",
+        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4",
+        "Microsoft.Framework.ConfigurationModel.UserSecrets": "1.0.0-beta4",
+        "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta4",
+        "Microsoft.Framework.Logging": "1.0.0-beta4",
+        "Microsoft.Framework.Logging.Console": "1.0.0-beta4",
+        "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta4",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
     },
 
     "commands": {
@@ -39,8 +39,8 @@
     },
 
     "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+        "dnx451": { },
+        "dnxcore50": { }
     },
 
     "exclude": [
@@ -51,18 +51,18 @@
     "publishExclude": [
         "node_modules",
         "bower_components",
-    "**.xproj",
+        "**.xproj",
         "**.user",
         "**.vspscc"
     ],
     "scripts": {
-    "postrestore": [
-      "npm install",
-      "node_modules/.bin/flatten-packages",
-      "node_modules/.bin/bower install"
-    ],
-    "prepare": [
-      "node_modules/.bin/gulp copy" 
-    ]
+        "postrestore": [
+            "npm install",
+            "node_modules/.bin/flatten-packages",
+            "node_modules/.bin/bower install"
+        ],
+        "prepare": [
+            "node_modules/.bin/gulp copy"
+        ]
     }
 }
