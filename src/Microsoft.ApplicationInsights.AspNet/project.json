@@ -15,7 +15,7 @@
         "Microsoft.AspNet.Http": "1.0.0-beta4",
         "Microsoft.AspNet.Http.Extensions": "1.0.0-beta4",
         "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4",
-        "System.Net.NameResolution": "4.0.0-beta-*"
+        "System.Net.NameResolution": "4.0.0-beta-*",
         "Microsoft.ApplicationInsights": "0.16.1-build00185"
     },
 

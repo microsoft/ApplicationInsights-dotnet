@@ -1,6 +1,6 @@
 {
     "webroot": "wwwroot",
-  "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
+    "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
     "version": "1.0.0-*",
 
     "dependencies": {
@@ -27,14 +27,15 @@
     "Microsoft.Framework.Logging.Console": "1.0.0-beta4",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta4",
     "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
-        "FunctionalTestUtils": "1.0.0-*",
+    "FunctionalTestUtils": "1.0.0-*",
     "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
     },
 
     "commands": {
         "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
         "gen": "Microsoft.Framework.CodeGeneration",
-    "ef": "EntityFramework.Commands"
+        "ef": "EntityFramework.Commands",
+        "test": "xunit.runner.aspnet"
     },
 
     "frameworks": {

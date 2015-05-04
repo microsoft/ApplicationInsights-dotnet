@@ -104,8 +104,7 @@
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                // TODO: Once moved to the new version of SDK - do not cast to InProcessTelemetryChannel anymore
-                Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
+                Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
 
             [Fact]
@@ -161,8 +160,7 @@
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                    // TODO: Once moved to the new version of SDK - do not cast to InProcessTelemetryChannel anymore
-                    Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
+                    Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
                 }
                 finally
                 {
@@ -284,8 +282,7 @@
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                // TODO: Once moved to the new version of SDK - do not cast to InProcessTelemetryChannel anymore
-                Assert.Equal("http://localhost:1234/v2/track/", ((InProcessTelemetryChannel)telemetryConfiguration.TelemetryChannel).EndpointAddress);
+                Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
         }
     }
