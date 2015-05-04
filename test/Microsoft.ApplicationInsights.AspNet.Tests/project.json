@@ -1,14 +1,14 @@
 {
     "dependencies": {
-        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*",
+        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",        
         "Microsoft.AspNet.FeatureModel": "1.0.0-beta4-*",
         "Microsoft.AspNet.Http": "1.0.0-beta4-*",
         "Microsoft.AspNet.Http.Extensions": "1.0.0-beta4-*",
         "Microsoft.AspNet.Hosting": "1.0.0-beta4-*",
-        "Microsoft.Framework.Logging": "1.0.0-beta4-*",
         "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4-*",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4-*"
+        "Microsoft.Framework.Logging": "1.0.0-beta4-*",        
+        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4-*",        
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
     },
     "commands": {
         "test": "xunit.runner.aspnet"
@@ -19,6 +19,10 @@
                 "System.Runtime": "4.0.20-beta-*"
             }
         },
-        "dnxcore50": { }
+        "dnxcore50": {
+            "compilationOptions": {
+                "define": [ "dnxcore50" ]
+            }
+        }
     }
 }
