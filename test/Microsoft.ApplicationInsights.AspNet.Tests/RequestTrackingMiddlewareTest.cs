@@ -1,37 +1,29 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
-    using System;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNet.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNet.Builder;
-    using Xunit;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Http.Core;
+    using Xunit;
 
-    public class ExceptionTrackingMiddlewareTest
+    public class RequestTrackingMiddlewareTest
     {
         private ITelemetry sentTelemetry;
 
         [Fact]
-        public async Task InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
-        {
-            RequestDelegate nextMiddleware = httpContext => { throw new Exception(); };
-            var middleware = new ExceptionTrackingMiddleware(nextMiddleware, MockTelemetryClient());
-
-            await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
-
-            Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)sentTelemetry).HandledAt);
-        }
-
-        [Fact]
         public async Task SdkVersionIsPopulatedByMiddleware()
         {
-            RequestDelegate nextMiddleware = httpContext => { throw new Exception(); };
-            var middleware = new ExceptionTrackingMiddleware(nextMiddleware, MockTelemetryClient());
+            RequestDelegate nextMiddleware = async httpContext => {
+                httpContext.Response.StatusCode = 200;
+                await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
+            };
+            var middleware = new RequestTrackingMiddleware(nextMiddleware, MockTelemetryClient());
 
-            await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
+            await middleware.Invoke(new DefaultHttpContext(), new RequestTelemetry());
 
             Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains("aspnetv5", sentTelemetry.Context.GetInternalContext().SdkVersion);
