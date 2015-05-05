@@ -25,7 +25,8 @@
                 "define": [ "dnxcore50" ]
             },
             "dependencies": {
-                "System.Net.NameResolution": "4.0.0-beta-*"
+              "System.Net.NameResolution": "4.0.0-beta-22816",
+              "System.Reflection": "4.0.10-beta-22816"
             }
         }
     }
