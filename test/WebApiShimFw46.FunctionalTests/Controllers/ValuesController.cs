@@ -20,6 +20,10 @@ namespace SampleWebAPIIntegration.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
+            if (id == 42)
+            {
+                throw new InvalidOperationException();
+            }
             return "value";
         }
 
