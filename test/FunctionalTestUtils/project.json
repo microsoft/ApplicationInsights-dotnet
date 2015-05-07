@@ -8,7 +8,7 @@
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
         "Microsoft.Framework.Runtime": "1.0.0-beta4",
         "Microsoft.Net.Http.Client": "1.0.0-*",
-        "xunit": "2.0.0-beta4-build2738"
+        "xunit": "2.1.0-beta2-*"
     },
 
     "frameworks": {
