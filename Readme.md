@@ -1,7 +1,7 @@
 Microsoft Application Insights for ASP.NET 5 applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
 
 Getting Started
@@ -32,7 +32,7 @@ root\
 
 Developing
 ----------
-1. Repository: https://github.com/microsoft/AppInsights-aspnet5
+1. Repository: https://github.com/microsoft/ApplicationInsights-aspnet5
 2. ASP.NET information: https://github.com/aspnet/home
 3. SDK is build with beta4 ASP.NET nuget packages.
 

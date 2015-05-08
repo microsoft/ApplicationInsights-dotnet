@@ -4,7 +4,7 @@
     "authors": [ "Microsoft" ],
     "version": "0.32.0-beta4",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
-    "projectUrl": "https://github.com/Microsoft/AppInsights-aspnet5",
+    "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
     "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
     "requireLicenseAcceptance": true,
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
