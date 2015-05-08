@@ -1,19 +1,15 @@
 ﻿
-namespace Microsoft.ApplicationInsights.AspNet.JavaScript
+namespace Microsoft.ApplicationInsights.AspNet
 {
     using System;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Mvc.Rendering;
+
 
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into applicaiton code.
-    /// Usage:
-    ///     Inject an instance of the class into your razor code using code:
-    ///         @inject Microsoft.ApplicationInsights.AspNet.JavaScript.IJavaScriptSnippet ApplicationInsightsJavaScript
-    ///     Place this code fragment just before closing "head" tag
-    ///         @Html.Raw(ApplicationInsightsJavaScript.Write())
-    ///     &lt;/head&gt;
     /// </summary>
-    public class ApplicationInsightsJavaScript : IJavaScriptSnippet
+    public class JavaScriptSnippet
     {
         /// <summary>
         /// Prefix of the code snippet. Use it if you need to initialize additional properties in javascript configuration.
@@ -41,7 +37,7 @@ namespace Microsoft.ApplicationInsights.AspNet.JavaScript
 
         private TelemetryConfiguration telemetryConfiguration;
 
-        public ApplicationInsightsJavaScript(TelemetryConfiguration telemetryConfiguration)
+        public JavaScriptSnippet(TelemetryConfiguration telemetryConfiguration)
         {
             this.telemetryConfiguration = telemetryConfiguration;
         }
@@ -50,17 +46,20 @@ namespace Microsoft.ApplicationInsights.AspNet.JavaScript
         /// Returns code snippet with instrumentation key initialized from TelemetryConfiguration.
         /// </summary>
         /// <returns>JavaScript code snippet with instrumentation key or empty if instrumentation key was not set for the applicaiton.</returns>
-        public string Write()
+        public string FullScript
         {
-            if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+            get
             {
-                return ScriptPrefix + @"{
+                if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
+                {
+                    return ScriptPrefix + @"{
   instrumentationKey: '" + this.telemetryConfiguration.InstrumentationKey + @"'
 }" + ScriptPostfix;
-            }
-            else
-            {
-                return string.Empty;
+                }
+                else
+                {
+                    return string.Empty;
+                }
             }
         }
     }
