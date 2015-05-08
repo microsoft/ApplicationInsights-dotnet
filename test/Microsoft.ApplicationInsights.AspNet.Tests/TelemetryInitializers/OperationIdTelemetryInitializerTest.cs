@@ -1,13 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
+    using System;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
-    using System;
-    using System.Collections.Generic;
     using Xunit;
 
     public class OperationIdTelemetryInitializerTest
@@ -43,9 +41,9 @@
         {
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Id = "123";
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { new RequestTelemetry() });
-            var initializer = new OperationIdTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor();
+
+            var initializer = new OperationIdTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 
@@ -57,9 +55,9 @@
         {
             var telemetry = new EventTelemetry();
             var requestTelemetry = new RequestTelemetry();
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
-            ac.HttpContext.RequestServices = new TestServiceProvider(new List<object>() { requestTelemetry });
-            var initializer = new OperationIdTelemetryInitializer(ac);
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
+            var initializer = new OperationIdTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 

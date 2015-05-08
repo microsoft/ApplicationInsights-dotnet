@@ -1,12 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.ContextInitializers
 {
-    using Microsoft.ApplicationInsights.Extensibility;
     using System;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using System.Threading;
-    using System.Net.NetworkInformation;
-    using System.Net;
     using System.Globalization;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Threading;
+
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// A telemetry context initializer that populates device context role instance.
@@ -34,17 +35,17 @@
 
         private string GetMachineName()
         {
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             string hostName = Dns.GetHostName();
 
+            // Issue #61: For dnxcore machine name does not have domain name like in full framework 
+#if !dnxcore50
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
             {
                 hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
             }
-
+#endif
             return hostName;
         }
-
-
     }
 }

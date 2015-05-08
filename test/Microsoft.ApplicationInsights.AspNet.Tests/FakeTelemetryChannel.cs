@@ -6,16 +6,36 @@
     // TODO: Remove FakeTelemetryChannel when we can use a dynamic test isolation framework, like NSubstitute or Moq
     internal class FakeTelemetryChannel : ITelemetryChannel
     {
+        public Action<ITelemetry> OnSend = t => { };
+
         public bool DeveloperMode { get; set; }
+
+        public string EndpointAddress
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public void Dispose()
         {
             throw new NotImplementedException();
         }
 
-        public void Send(ITelemetry item)
+        public void Flush()
         {
             throw new NotImplementedException();
+        }
+
+        public void Send(ITelemetry item)
+        {
+            this.OnSend(item);
         }
     }
 }

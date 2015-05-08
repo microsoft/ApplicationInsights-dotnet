@@ -1,11 +1,10 @@
 ﻿namespace FunctionalTestUtils
 {
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.Framework.DependencyInjection;
-    using System;
-    using System.Collections.Generic;
     using Microsoft.AspNet.Builder;
+    using Microsoft.Framework.DependencyInjection;
 
     public static class BackTelemetryChannelExtensions
     {

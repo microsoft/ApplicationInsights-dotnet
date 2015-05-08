@@ -1,11 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.ContextInitializers
 {
-    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Globalization;
     using System.Net;
     using System.Net.NetworkInformation;
+    using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
     public class DomainNameRoleInstanceContextInitializerTests
@@ -17,14 +17,16 @@
             var telemetryContext = new TelemetryContext();
 
             source.Initialize(telemetryContext);
-
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            
             string hostName = Dns.GetHostName();
 
+#if !dnxcore50
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase) == false)
             {
                 hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
             }
+#endif
 
             Assert.Equal(hostName, telemetryContext.Device.RoleInstance);
         }
