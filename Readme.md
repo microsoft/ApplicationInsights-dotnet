@@ -1,15 +1,15 @@
-Microsoft Application Insights for Asp.Net vNext applications
+Microsoft Application Insights for ASP.NET 5 applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [Asp.Net vNext](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
 
 
 Getting Started
 ---------------
 
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Getting-Started) guide shows how you can onboard your Asp.Net v5 web application to use Application Insights SDK.
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET 5 web application to use Application Insights SDK.
 
-Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
+Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
 
 Repository structure
@@ -32,11 +32,11 @@ root\
 
 Developing
 ----------
-1. Repository: https://github.com/microsoft/AppInsights-aspnetv5
-2. Asp.Net information: https://github.com/aspnet/home
-3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
+1. Repository: https://github.com/microsoft/AppInsights-aspnet5
+2. ASP.NET information: https://github.com/aspnet/home
+3. SDK is build with beta4 ASP.NET nuget packages.
 
-Development is in [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) branch. Master branch has latest stable release.
+Development is in [develop](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/develop) branch. Master branch has latest stable release.
 
 Running and writing tests
 -------------------------

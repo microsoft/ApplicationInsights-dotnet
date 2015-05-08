@@ -4,11 +4,11 @@
     "authors": [ "Microsoft" ],
     "version": "0.32.0-beta4",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
-    "projectUrl": "https://github.com/Microsoft/AppInsights-aspnetv5",
+    "projectUrl": "https://github.com/Microsoft/AppInsights-aspnet5",
     "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
     "requireLicenseAcceptance": true,
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
-    "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights" ],
+    "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
     "dependencies": {
         "Microsoft.ApplicationInsights": "0.16.1-build00185",
         "Microsoft.AspNet.Hosting": "1.0.0-beta4",        
