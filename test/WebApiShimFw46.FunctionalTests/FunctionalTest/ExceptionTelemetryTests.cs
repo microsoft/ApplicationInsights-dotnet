@@ -1,12 +1,12 @@
 ﻿namespace SampleWebAppIntegration.FunctionalTest
 {
-    using FunctionalTestUtils.Tests;
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Linq;
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class ExceptionTelemetryTests : RequestTelemetryTestsBase
+    public class ExceptionTelemetryTests : TelemetryTestsBase
     {
         public ExceptionTelemetryTests() : base("WebApiShimFw46.FunctionalTests")
         { }
@@ -16,14 +16,14 @@
         {
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
-            expectedRequestTelemetry.Name = "GET Values/Get [id]";
+            expectedRequestTelemetry.Name = "GET Exception/Get";
             //TODO: default template of Web API applicaiton doesn't have error handling middleware 
             //that will set appropriate status code
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
             // expectedRequestTelemetry.Url ???
 
-            this.ValidateBasicRequest("/api/values/42", expectedRequestTelemetry);
+            this.ValidateBasicRequest("/api/exception", expectedRequestTelemetry);
         }
 
         [Fact]
@@ -33,7 +33,7 @@
             expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
             expectedExceptionTelemetry.Exception = new InvalidOperationException();
 
-            this.ValidateBasicException("/api/values/42", expectedExceptionTelemetry);
+            this.ValidateBasicException("/api/exception", expectedExceptionTelemetry);
         }
     }
 }

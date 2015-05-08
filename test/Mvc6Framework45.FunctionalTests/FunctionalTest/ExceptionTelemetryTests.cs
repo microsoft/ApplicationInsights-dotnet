@@ -1,12 +1,12 @@
 ﻿namespace SampleWebAppIntegration.FunctionalTest
 {
-    using FunctionalTestUtils.Tests;
-    using Microsoft.ApplicationInsights.DataContracts;
     using System;
     using System.Linq;
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class ExceptionTelemetryTests : RequestTelemetryTestsBase
+    public class ExceptionTelemetryTests : TelemetryTestsBase
     {
         public ExceptionTelemetryTests() : base("Mvc6Framework45.FunctionalTests")
         { }
