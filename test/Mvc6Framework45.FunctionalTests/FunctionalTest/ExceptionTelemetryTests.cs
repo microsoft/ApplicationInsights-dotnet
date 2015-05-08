@@ -14,13 +14,14 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
+            const string RequestPath = "/Home/Exception";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Home/Exception";
             expectedRequestTelemetry.ResponseCode = "500";
             expectedRequestTelemetry.Success = false;
-            // expectedRequestTelemetry.Url ???
-
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
             this.ValidateBasicRequest("/Home/Exception", expectedRequestTelemetry);
         }
 

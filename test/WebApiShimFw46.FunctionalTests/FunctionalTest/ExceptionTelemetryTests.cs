@@ -14,6 +14,8 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
+            const string RequestPath = "/api/exception";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Exception/Get";
@@ -21,9 +23,9 @@
             //that will set appropriate status code
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
-            // expectedRequestTelemetry.Url ???
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/api/exception", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]
