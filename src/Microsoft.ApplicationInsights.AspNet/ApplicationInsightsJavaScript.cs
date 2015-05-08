@@ -8,12 +8,6 @@ namespace Microsoft.ApplicationInsights.AspNet
 
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into applicaiton code.
-    /// Usage:
-    ///     Inject an instance of the class into your razor code using code:
-    ///         @inject Microsoft.ApplicationInsights.AspNet.JavaScript.IJavaScriptSnippet ApplicationInsightsJavaScript
-    ///     Place this code fragment just before closing "head" tag
-    ///         @Html.Raw(ApplicationInsightsJavaScript.Write())
-    ///     &lt;/head&gt;
     /// </summary>
     public class JavaScriptSnippet
     {
