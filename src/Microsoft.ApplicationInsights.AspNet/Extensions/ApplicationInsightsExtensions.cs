@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.AspNet.JavaScript;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -54,8 +53,6 @@
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
                 return telemetryConfiguration;
             });
-
-            services.AddSingleton<IJavaScriptSnippet, ApplicationInsightsJavaScript>();
 
             services.AddScoped<TelemetryClient>();
 
