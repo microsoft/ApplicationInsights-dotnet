@@ -13,39 +13,46 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
+            const string RequestPath = "/";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Home/Index";
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
-            // expectedRequestTelemetry.Url ???
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
         {
+            const string RequestPath = "/Home/About/5";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Home/About [id]";
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
-            // expectedRequestTelemetry.Url ???
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/Home/About/5", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
+            const string RequestPath = "/not/existing/controller";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET /not/existing/controller";
             expectedRequestTelemetry.ResponseCode = "404";
             expectedRequestTelemetry.Success = false;
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/not/existing/controller", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]

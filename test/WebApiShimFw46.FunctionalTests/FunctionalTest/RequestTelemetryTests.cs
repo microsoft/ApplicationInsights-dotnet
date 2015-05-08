@@ -13,37 +13,46 @@
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()
         {
+            const string RequestPath = "/api/values";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Values/Get";
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/api/values", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
+            const string RequestPath = "/api/notexistingcontroller";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET /api/notexistingcontroller";
             expectedRequestTelemetry.ResponseCode = "404";
             expectedRequestTelemetry.Success = false;
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/api/notexistingcontroller", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
         {
+            const string RequestPath = "/api/values/1";
+
             var expectedRequestTelemetry = new RequestTelemetry();
             expectedRequestTelemetry.HttpMethod = "GET";
             expectedRequestTelemetry.Name = "GET Values/Get [id]";
             expectedRequestTelemetry.ResponseCode = "200";
             expectedRequestTelemetry.Success = true;
+            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
 
-            this.ValidateBasicRequest("/api/values/1", expectedRequestTelemetry);
+            this.ValidateBasicRequest(RequestPath, expectedRequestTelemetry);
         }
 
     }

@@ -11,6 +11,8 @@
     using Microsoft.AspNet.Http;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.AspNet.Extensions;
+
 
     /// <summary>
     /// Sends telemetry about requests handled by the application to the Microsoft Application Insights service.
@@ -50,6 +52,7 @@
                     telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
                     telemetry.Success = httpContext.Response.StatusCode < 400;
                     telemetry.HttpMethod = httpContext.Request.Method;
+                    telemetry.Url = httpContext.Request.GetUri();
                     telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                     
                     this.telemetryClient.TrackRequest(telemetry);

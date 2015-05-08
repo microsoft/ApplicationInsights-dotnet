@@ -8,24 +8,64 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http.Core;
     using Xunit;
+    using Microsoft.AspNet.Http;
+    using System;
 
     public class RequestTrackingMiddlewareTest
     {
+        private const string HttpRequestScheme = "http";
+        private readonly HostString httpRequestHost = new HostString("testHost");
+        private readonly PathString httpRequestPath = new PathString("/path/path");
+        private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
+
+        private const string ExpectedSdkVersion = "aspnet5";
+
         private ITelemetry sentTelemetry;
 
-        [Fact]
-        public async Task SdkVersionIsPopulatedByMiddleware()
+        private readonly RequestDelegate nextMiddleware = async httpContext => {
+            httpContext.Response.StatusCode = 200;
+            await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
+        };
+
+        private readonly RequestTrackingMiddleware middleware;
+
+        public RequestTrackingMiddlewareTest()
         {
-            RequestDelegate nextMiddleware = async httpContext => {
-                httpContext.Response.StatusCode = 200;
-                await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
-            };
-            var middleware = new RequestTrackingMiddleware(nextMiddleware, CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            this.middleware = new RequestTrackingMiddleware(
+                this.nextMiddleware,
+                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+        }
 
-            await middleware.Invoke(new DefaultHttpContext(), new RequestTelemetry());
+        [Fact]
+        public async Task TestSdkVersionIsPopulatedByMiddleware()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Host = this.httpRequestHost;
 
-            Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains("aspnet5", sentTelemetry.Context.GetInternalContext().SdkVersion);
+            await middleware.Invoke(context, new RequestTelemetry());
+
+            Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(ExpectedSdkVersion, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+        }
+
+        [Fact]
+        public async Task TestRequestUriIsPopulatedByMiddleware()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Host = this.httpRequestHost;
+            context.Request.Path = this.httpRequestPath;
+            context.Request.QueryString = this.httpRequestQueryString;
+
+            var telemetry = new RequestTelemetry();
+            await middleware.Invoke(context, telemetry);
+
+            Assert.NotNull(telemetry.Url);
+
+            Assert.Equal(
+                new Uri(string.Format("{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
+                telemetry.Url);
         }
     }
 }
