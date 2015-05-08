@@ -12,13 +12,6 @@ Getting Started
 Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
 
-Release notes
--------------
-
-**[0.30.0.1-beta]**(https://github.com/Microsoft/ApplicationInsights-aspnetv5/releases/tag/v0.30.0.1-beta)
-
-Preview of Application Insights. Works only with full framework. Will compile for Core framework, but will not work for it.
-
 Repository structure
 --------------------
 
