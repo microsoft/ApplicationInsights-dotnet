@@ -1,19 +1,37 @@
 ﻿
 namespace FunctionalTestUtils
 {
-    using Microsoft.ApplicationInsights.Channel;
-    using System.Collections.Generic;
     using System;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Channel;
 
-    internal class BackTelemetryChannel : ITelemetryChannel
+    public class BackTelemetryChannel : ITelemetryChannel
     {
-        internal IList<ITelemetry> buffer;
+        private IList<ITelemetry> buffer;
 
         public BackTelemetryChannel()
         {
+            this.buffer = new List<ITelemetry>();
         }
 
-        public bool DeveloperMode { get; set; }
+        public IList<ITelemetry> Buffer
+        {
+            get
+            {
+                return this.buffer;
+            }
+        }
+
+        public bool DeveloperMode
+        {
+            get
+            {
+                return true;
+            }
+            set
+            {
+            }
+        }
 
         public string EndpointAddress
         {
@@ -39,10 +57,7 @@ namespace FunctionalTestUtils
 
         public void Send(ITelemetry item)
         {
-            if (this.buffer != null)
-            {
-                this.buffer.Add(item);
-            }
+            this.buffer.Add(item);
         }
     }
 }

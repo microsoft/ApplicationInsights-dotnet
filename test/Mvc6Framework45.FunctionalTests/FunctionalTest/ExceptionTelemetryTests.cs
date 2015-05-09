@@ -1,38 +1,42 @@
 ﻿namespace SampleWebAppIntegration.FunctionalTest
 {
     using System;
-    using System.Linq;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
     public class ExceptionTelemetryTests : TelemetryTestsBase
     {
-        public ExceptionTelemetryTests() : base("Mvc6Framework45.FunctionalTests")
-        { }
+        private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
-            const string RequestPath = "/Home/Exception";
+            using (var server = new InProcessServer(assemblyName))
+            {
+                const string RequestPath = "/Home/Exception";
 
-            var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.HttpMethod = "GET";
-            expectedRequestTelemetry.Name = "GET Home/Exception";
-            expectedRequestTelemetry.ResponseCode = "500";
-            expectedRequestTelemetry.Success = false;
-            expectedRequestTelemetry.Url = new System.Uri(this.Server.BaseHost + RequestPath);
-            this.ValidateBasicRequest("/Home/Exception", expectedRequestTelemetry);
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.HttpMethod = "GET";
+                expectedRequestTelemetry.Name = "GET Home/Exception";
+                expectedRequestTelemetry.ResponseCode = "500";
+                expectedRequestTelemetry.Success = false;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+                this.ValidateBasicRequest(server, "/Home/Exception", expectedRequestTelemetry);
+            }
         }
 
         [Fact]
         public void TestBasicExceptionPropertiesAfterRequestingControllerThatThrows()
         {
-            var expectedExceptionTelemetry = new ExceptionTelemetry();
-            expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
-            expectedExceptionTelemetry.Exception = new InvalidOperationException();
+            using (var server = new InProcessServer(assemblyName))
+            {
+                var expectedExceptionTelemetry = new ExceptionTelemetry();
+                expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
+                expectedExceptionTelemetry.Exception = new InvalidOperationException();
 
-            this.ValidateBasicException("/Home/Exception", expectedExceptionTelemetry);
+                this.ValidateBasicException(server, "/Home/Exception", expectedExceptionTelemetry);
+            }
         }
     }
 }
