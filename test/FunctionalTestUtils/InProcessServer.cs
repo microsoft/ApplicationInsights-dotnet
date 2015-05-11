@@ -1,19 +1,34 @@
 ﻿namespace FunctionalTestUtils
 {
     using System;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Server.WebListener;
     using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.Logging;
 
     public class InProcessServer : IDisposable
     {
+        private static Random random = new Random();
+
         private IDisposable hostingEngine;
-        private string url = "http://localhost:" + (new Random(239).Next(5000, 8000)).ToString();
+        private string url;
+
+        private readonly BackTelemetryChannel backChannel;
+
+        public BackTelemetryChannel BackChannel
+        {
+            get
+            {
+                return this.backChannel;
+            }
+        }
         
         public InProcessServer(string assemblyName)
         {
-            this.Start(assemblyName);
+            this.url = "http://localhost:" + random.Next(5000, 14000).ToString();
+            this.backChannel = this.Start(assemblyName);
         }
 
         public string BaseHost
@@ -24,9 +39,9 @@
             }
         }
 
-        private void Start(string assemblyName)
+        private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new NameValueConfigurationSource();
+            var customConfig = new MemoryConfigurationSource();
             customConfig.Set("server.urls", this.BaseHost);
             var config = new Configuration();
             config.Add(customConfig);
@@ -39,6 +54,8 @@
             };
 
             this.hostingEngine = new HostingEngine().Start(context);
+
+            return (BackTelemetryChannel)context.ApplicationServices.GetService<ITelemetryChannel>();
         }
 
         public void Dispose()

@@ -1,67 +1,69 @@
 {
-  "webroot": "wwwroot",
-  "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
-  "version": "1.0.0-*",
+    "webroot": "wwwroot",
+    "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
+    "version": "1.0.0-*",
 
-  "dependencies": {
-    "EntityFramework.SqlServer": "7.0.0-beta4",
-    "EntityFramework.Commands": "7.0.0-beta4",
-    "Microsoft.AspNet.Mvc": "6.0.0-beta4",
-    "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Facebook": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Google": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-beta4",
-    "Microsoft.AspNet.Authentication.Twitter": "1.0.0-beta4",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-beta4",
-    "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta4",
-    "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta4",
-    "Microsoft.AspNet.Server.IIS": "1.0.0-beta4",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-beta4",
-    "Microsoft.AspNet.Tooling.Razor": "1.0.0-beta4",
-    "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4",
-    "Microsoft.Framework.ConfigurationModel.UserSecrets": "1.0.0-beta4",
-    "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta4",
-    "Microsoft.Framework.Logging": "1.0.0-beta4",
-    "Microsoft.Framework.Logging.Console": "1.0.0-beta4",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta4",
-    "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
-    "FunctionalTestUtils": "1.0.0-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-beta4-*"
-  },
+    "dependencies": {
+        "EntityFramework.SqlServer": "7.0.0-beta4",
+        "EntityFramework.Commands": "7.0.0-beta4",
+        "FunctionalTestUtils": "1.0.0-*",
+        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta4",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta4",
+        "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Cookies": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Facebook": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Google": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-beta4",
+        "Microsoft.AspNet.Authentication.Twitter": "1.0.0-beta4",
+        "Microsoft.AspNet.Diagnostics": "1.0.0-beta4",
+        "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-beta4",
+        "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-beta4",
+        "Microsoft.AspNet.Server.IIS": "1.0.0-beta4",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta4",
+        "Microsoft.AspNet.StaticFiles": "1.0.0-beta4",
+        "Microsoft.AspNet.Tooling.Razor": "1.0.0-beta4",
+        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta4",
+        "Microsoft.Framework.ConfigurationModel.UserSecrets": "1.0.0-beta4",
+        "Microsoft.Framework.CodeGenerators.Mvc": "1.0.0-beta4",
+        "Microsoft.Framework.Logging": "1.0.0-beta4",
+        "Microsoft.Framework.Logging.Console": "1.0.0-beta4",
+        "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-beta4",
+        "xunit": "2.1.0-beta2-*",
+        "xunit.runner.dnx": "2.1.0-beta2-*"
+    },
 
-  "commands": {
-    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
-    "gen": "Microsoft.Framework.CodeGeneration",
-    "ef": "EntityFramework.Commands"
-  },
+    "commands": {
+        "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
+        "gen": "Microsoft.Framework.CodeGeneration",
+        "ef": "EntityFramework.Commands",
+        "test": "xunit.runner.dnx"
+    },
 
-  "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
-  },
+    "frameworks": {
+        "dnx451": { },
+        "dnxcore50": { }
+    },
 
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ],
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
-  "scripts": {
-    "postrestore": [
-      "npm install",
-      "node_modules/.bin/flatten-packages",
-      "node_modules/.bin/bower install"
+    "exclude": [
+        "wwwroot",
+        "node_modules",
+        "bower_components"
     ],
-    "prepare": [
-      "node_modules/.bin/gulp copy" 
-    ]
-  }
+    "publishExclude": [
+        "node_modules",
+        "bower_components",
+        "**.xproj",
+        "**.user",
+        "**.vspscc"
+    ],
+    "scripts": {
+        "postrestore": [
+            "npm install",
+            "node_modules/.bin/flatten-packages",
+            "node_modules/.bin/bower install"
+        ],
+        "prepare": [
+            "node_modules/.bin/gulp copy"
+        ]
+    }
 }

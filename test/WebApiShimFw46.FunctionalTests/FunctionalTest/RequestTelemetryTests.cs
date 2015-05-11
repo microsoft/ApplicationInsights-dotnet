@@ -1,50 +1,66 @@
 ﻿namespace SampleWebAppIntegration.FunctionalTest
 {
-    using FunctionalTestUtils.Tests;
+    using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
-    using System.Linq;
     using Xunit;
 
-    public class RequestTelemetryTests : RequestTelemetryTestsBase
+    public class RequestTelemetryTests : TelemetryTestsBase
     {
-        public RequestTelemetryTests() : base("WebApiShimFw46.FunctionalTests")
-        { }
+        private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()
         {
-            var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.HttpMethod = "GET";
-            expectedRequestTelemetry.Name = "GET Values/Get";
-            expectedRequestTelemetry.ResponseCode = "200";
-            expectedRequestTelemetry.Success = true;
+            using (var server = new InProcessServer(assemblyName))
+            {
+                const string RequestPath = "/api/values";
 
-            this.ValidateBasicRequest("/api/values", expectedRequestTelemetry);
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.HttpMethod = "GET";
+                expectedRequestTelemetry.Name = "GET Values/Get";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+            }
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
-            var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.HttpMethod = "GET";
-            expectedRequestTelemetry.Name = "GET /api/notexistingcontroller";
-            expectedRequestTelemetry.ResponseCode = "404";
-            expectedRequestTelemetry.Success = false;
+            using (var server = new InProcessServer(assemblyName))
+            {
+                const string RequestPath = "/api/notexistingcontroller";
 
-            this.ValidateBasicRequest("/api/notexistingcontroller", expectedRequestTelemetry);
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.HttpMethod = "GET";
+                expectedRequestTelemetry.Name = "GET /api/notexistingcontroller";
+                expectedRequestTelemetry.ResponseCode = "404";
+                expectedRequestTelemetry.Success = false;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+            }
         }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
         {
-            var expectedRequestTelemetry = new RequestTelemetry();
-            expectedRequestTelemetry.HttpMethod = "GET";
-            expectedRequestTelemetry.Name = "GET Values/Get [id]";
-            expectedRequestTelemetry.ResponseCode = "200";
-            expectedRequestTelemetry.Success = true;
+            using (var server = new InProcessServer(assemblyName))
+            {
+                const string RequestPath = "/api/values/1";
 
-            this.ValidateBasicRequest("/api/values/1", expectedRequestTelemetry);
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.HttpMethod = "GET";
+                expectedRequestTelemetry.Name = "GET Values/Get [id]";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+            }
         }
-
     }
 }
+

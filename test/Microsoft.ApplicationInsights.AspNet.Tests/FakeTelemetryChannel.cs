@@ -10,7 +10,25 @@
 
         public bool DeveloperMode { get; set; }
 
+        public string EndpointAddress
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Flush()
         {
             throw new NotImplementedException();
         }

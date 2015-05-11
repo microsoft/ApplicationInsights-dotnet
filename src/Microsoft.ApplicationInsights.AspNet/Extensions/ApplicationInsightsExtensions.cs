@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
-    using Microsoft.ApplicationInsights.AspNet.JavaScript;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -55,8 +54,6 @@
                 return telemetryConfiguration;
             });
 
-            services.AddSingleton<IJavaScriptSnippet, ApplicationInsightsJavaScript>();
-
             services.AddScoped<TelemetryClient>();
 
             services.AddScoped<RequestTelemetry>((svcs) => {
@@ -75,8 +72,8 @@
             {
                 telemetryConfigurationSource.Set(DeveloperModeForWebSites, developerMode.Value.ToString());
                 wasAnythingSet = true;
-            }
-
+            } 
+  
             if (instrumentationKey != null)
             {
                 telemetryConfigurationSource.Set(InstrumentationKeyForWebSites, instrumentationKey);
@@ -119,6 +116,7 @@
             {
                 instrumentationKey = config.Get(InstrumentationKeyFromConfig);
             }
+
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
                 telemetryConfiguration.InstrumentationKey = instrumentationKey;
@@ -129,6 +127,7 @@
             {
                 developerModeValue = config.Get(DeveloperModeFromConfig);
             }
+
             if (!string.IsNullOrWhiteSpace(developerModeValue))
             {
                 bool developerMode = false;
@@ -143,14 +142,10 @@
             {
                 endpointAddress = config.Get(EndpointAddressFromConfig);
             }
+
             if (!string.IsNullOrWhiteSpace(endpointAddress))
             {
-                // TODO: Once moved to the new version of SDK - do not cast to InProcessTelemetryChannel anymore
-                var channel = telemetryConfiguration.TelemetryChannel as InProcessTelemetryChannel;
-                if (channel != null)
-                {
-                    channel.EndpointAddress = endpointAddress;
-                }
+                telemetryConfiguration.TelemetryChannel.EndpointAddress = endpointAddress;
             }
         }
 

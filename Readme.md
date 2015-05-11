@@ -1,23 +1,16 @@
-Microsoft Application Insights for Asp.Net vNext applications
+Microsoft Application Insights for ASP.NET 5 applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [Asp.Net vNext](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
 
 Getting Started
 ---------------
 
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Getting-Started) guide shows how you can onboard your Asp.Net v5 web application to use Application Insights SDK.
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET 5 web application to use Application Insights SDK.
 
-Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
+Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
-
-Release notes
--------------
-
-**[0.30.0.1-beta]**(https://github.com/Microsoft/ApplicationInsights-aspnetv5/releases/tag/v0.30.0.1-beta)
-
-Preview of Application Insights. Works only with full framework. Will compile for Core framework, but will not work for it.
 
 Repository structure
 --------------------
@@ -46,7 +39,7 @@ Developing
 - [Git](http://git-scm.com/download).
 - Source Code.
 ```
-git clone https://github.com/Microsoft/ApplicationInsights-aspnetv5.git
+git clone https://github.com/Microsoft/ApplicationInsights-aspnet5.git
 ```
 
 ## Building
@@ -65,8 +58,8 @@ msbuild ApplicationInsights.AspNet.sln
 
 ## Branches
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
-- [master](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNet).
-- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) has the code for the _next_ release.
+- [master](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNet).
+- [develop](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/develop) has the code for the _next_ release.
 
 Running and writing tests
 -------------------------

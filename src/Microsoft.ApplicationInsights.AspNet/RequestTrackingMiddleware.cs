@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights;
@@ -8,6 +10,9 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.Framework.DependencyInjection;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.AspNet.Extensions;
+
 
     /// <summary>
     /// Sends telemetry about requests handled by the application to the Microsoft Application Insights service.
@@ -16,14 +21,16 @@
     {
         private readonly RequestDelegate next;
         private readonly TelemetryClient telemetryClient;
+        private readonly string sdkVersion;
         
         public RequestTrackingMiddleware(RequestDelegate next, TelemetryClient client)
         {
             this.telemetryClient = client;
             this.next = next;
+            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext, RequestTelemetry telemetry)
         {
             var sw = new Stopwatch();
             sw.Start();
@@ -40,23 +47,13 @@
                 {
                     sw.Stop();
 
-                    RequestTelemetry telemetry;
-                    if (httpContext.RequestServices == null)
-                    {
-                        // TODO: diagnostics
-                        // TELEMETRY INITIALIZERS WON'T WORK
-                        telemetry = new RequestTelemetry();
-                    }
-                    else
-                    {
-                        telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
-                    }
-
                     telemetry.Timestamp = now;
                     telemetry.Duration = sw.Elapsed;
                     telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
                     telemetry.Success = httpContext.Response.StatusCode < 400;
                     telemetry.HttpMethod = httpContext.Request.Method;
+                    telemetry.Url = httpContext.Request.GetUri();
+                    telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                     
                     this.telemetryClient.TrackRequest(telemetry);
                 }

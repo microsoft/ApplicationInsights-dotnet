@@ -17,14 +17,16 @@
             var telemetryContext = new TelemetryContext();
 
             source.Initialize(telemetryContext);
-
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            
             string hostName = Dns.GetHostName();
 
+#if !dnxcore50
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase) == false)
             {
                 hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
             }
+#endif
 
             Assert.Equal(hostName, telemetryContext.Device.RoleInstance);
         }
