@@ -79,7 +79,8 @@
                 httpContext => { throw new InvalidOperationException(); },
                 CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
-            await requestMiddleware.Invoke(context, new RequestTelemetry());
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => { await requestMiddleware.Invoke(context, new RequestTelemetry()); } );
 
             Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
         }

@@ -43,6 +43,7 @@
             catch (Exception)
             {
                 requestFailed = true;
+                throw;
             }
             finally
             {
