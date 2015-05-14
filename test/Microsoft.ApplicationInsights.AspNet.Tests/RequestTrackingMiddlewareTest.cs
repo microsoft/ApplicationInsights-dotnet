@@ -1,15 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
+    using System;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Core;
     using Xunit;
-    using Microsoft.AspNet.Http;
-    using System;
 
     public class RequestTrackingMiddlewareTest
     {
@@ -66,6 +66,22 @@
             Assert.Equal(
                 new Uri(string.Format("{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
                 telemetry.Url);
+        }
+
+        [Fact]
+        public async Task RequestWillBeMarkedAsFailedForRunawayException()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Host = this.httpRequestHost;
+
+            var requestMiddleware = new RequestTrackingMiddleware(
+                httpContext => { throw new InvalidOperationException(); },
+                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+
+            await requestMiddleware.Invoke(context, new RequestTelemetry());
+
+            Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
         }
     }
 }

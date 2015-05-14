@@ -25,7 +25,7 @@
                 //TODO: default template of Web API applicaiton doesn't have error handling middleware 
                 //that will set appropriate status code
                 expectedRequestTelemetry.ResponseCode = "200";
-                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
 
                 this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
