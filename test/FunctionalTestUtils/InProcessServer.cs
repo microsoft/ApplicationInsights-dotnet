@@ -45,17 +45,18 @@
             customConfig.Set("server.urls", this.BaseHost);
             var config = new Configuration();
             config.Add(customConfig);
-            
-            var context = new HostingContext
-            {
-                Configuration = config,
-                ServerFactory = new ServerFactory(new LoggerFactory()),
-                ApplicationName = assemblyName
-            };
 
-            this.hostingEngine = new HostingEngine().Start(context);
+            var services = new ServiceCollection();
 
-            return (BackTelemetryChannel)context.ApplicationServices.GetService<ITelemetryChannel>();
+            this.hostingEngine = new HostingEngine(
+                appServices: services,
+                startupLoader: null,
+                config: config,
+                hostingEnv: null,
+                appName: assemblyName
+                ).Start();
+
+            return (BackTelemetryChannel)services.BuildServiceProvider().GetService<ITelemetryChannel>();
         }
 
         public void Dispose()
