@@ -7,8 +7,8 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Core;
     using Xunit;
+    using Microsoft.AspNet.Http.Internal;
 
     public class UserAgentTelemetryInitializerTests
     {

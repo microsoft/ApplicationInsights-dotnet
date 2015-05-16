@@ -7,6 +7,7 @@
     using Microsoft.Framework.ConfigurationModel;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.Logging;
+    using Microsoft.AspNet.Hosting.Internal;
 
     public class InProcessServer : IDisposable
     {
@@ -51,9 +52,7 @@
             this.hostingEngine = new HostingEngine(
                 appServices: services,
                 startupLoader: null,
-                config: config,
-                hostingEnv: null,
-                appName: assemblyName
+                config: config
                 ).Start();
 
             return (BackTelemetryChannel)services.BuildServiceProvider().GetService<ITelemetryChannel>();

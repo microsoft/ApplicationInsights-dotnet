@@ -4,9 +4,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Core;
     using Microsoft.AspNet.Mvc;
     using Microsoft.Framework.DependencyInjection;
+    using Microsoft.AspNet.Http.Internal;
 
     public static class HttpContextAccessorHelper
     {

@@ -8,8 +8,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Core;
     using Xunit;
+    using Microsoft.AspNet.Http.Internal;
 
     public class RequestTrackingMiddlewareTest
     {
