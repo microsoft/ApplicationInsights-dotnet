@@ -11,10 +11,10 @@
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
     "dependencies": {
         "Microsoft.ApplicationInsights": "0.16.1-build00185",
-        "Microsoft.AspNet.Hosting": "1.0.0-*",        
-        "Microsoft.AspNet.Http": "1.0.0-*",
+        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",        
+        "Microsoft.AspNet.Http.Abstractions": "1.0.0-*",
         "Microsoft.AspNet.Mvc": "6.0.0-*",
-        "Microsoft.Framework.Logging": "1.0.0-*",
+        "Microsoft.Framework.Logging.Abstractions": "1.0.0-*",
         "Microsoft.Framework.ConfigurationModel": "1.0.0-*"
     },
 
