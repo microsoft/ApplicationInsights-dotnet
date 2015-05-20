@@ -5,6 +5,9 @@
     <PropertyGroup>
       <Dnu>$(RuntimeToolingDirectory)\bin\dnu.cmd</Dnu>
     </PropertyGroup>
-    <Exec Command="$(Dnu) restore" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="$(Dnu) restore" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true">
+	<Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
+    </Exec>
+    <Message Text="OutputOfExec"/>
   </Target>
 </Project>
