@@ -1,15 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
 {
     using System;
-    using System.Linq;
-    using System.Reflection;
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
-    using Microsoft.Framework.DependencyInjection;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.AspNet.Extensions;
 
@@ -32,31 +29,34 @@
 
         public async Task Invoke(HttpContext httpContext, RequestTelemetry telemetry)
         {
+            telemetry.Timestamp = DateTimeOffset.UtcNow;
+
             var sw = new Stopwatch();
             sw.Start();
 
-            var now = DateTimeOffset.UtcNow;
+            bool requestFailed = false;
 
             try
             {
                 await this.next.Invoke(httpContext);
             }
+            catch (Exception)
+            {
+                requestFailed = true;
+                throw;
+            }
             finally
             {
-                if (this.telemetryClient != null)
-                {
-                    sw.Stop();
+                sw.Stop();
 
-                    telemetry.Timestamp = now;
-                    telemetry.Duration = sw.Elapsed;
-                    telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
-                    telemetry.Success = httpContext.Response.StatusCode < 400;
-                    telemetry.HttpMethod = httpContext.Request.Method;
-                    telemetry.Url = httpContext.Request.GetUri();
-                    telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
+                telemetry.Duration = sw.Elapsed;
+                telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
+                telemetry.Success = (!requestFailed) && (httpContext.Response.StatusCode < 400);
+                telemetry.HttpMethod = httpContext.Request.Method;
+                telemetry.Url = httpContext.Request.GetUri();
+                telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
                     
-                    this.telemetryClient.TrackRequest(telemetry);
-                }
+                this.telemetryClient.TrackRequest(telemetry);
             }
         }
     }

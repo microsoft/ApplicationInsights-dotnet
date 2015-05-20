@@ -1,23 +1,16 @@
-Microsoft Application Insights for Asp.Net vNext applications
+Microsoft Application Insights for ASP.NET 5 applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [Asp.Net vNext](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/appInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
 
 Getting Started
 ---------------
 
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Getting-Started) guide shows how you can onboard your Asp.Net v5 web application to use Application Insights SDK.
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET 5 web application to use Application Insights SDK.
 
-Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnetv5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
+Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
-
-Release notes
--------------
-
-**[0.30.0.1-beta]**(https://github.com/Microsoft/ApplicationInsights-aspnetv5/releases/tag/v0.30.0.1-beta)
-
-Preview of Application Insights. Works only with full framework. Will compile for Core framework, but will not work for it.
 
 Repository structure
 --------------------
@@ -39,11 +32,34 @@ root\
 
 Developing
 ----------
-1. Repository: https://github.com/microsoft/AppInsights-aspnetv5
-2. Asp.Net information: https://github.com/aspnet/home
-3. SDK is build with beta4 asp.net nuget packages so it cannot run with Visual Studio 2015 CTP6. You'll need to use dnx directly like explained in this [article](http://www.dzone.com/articles/developing-and-self-hosting). Please note, that recently "k" was renamed to "dnx" - you'll need to adjust instructions accordingly.
 
-Development is in [develop](https://github.com/Microsoft/ApplicationInsights-aspnetv5/tree/develop) branch. Master branch has latest stable release.
+## Pre-requisites
+- [Visual Studio 2015 RC](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Node.js](https://nodejs.org/download).
+- [Git](http://git-scm.com/download).
+- Source Code.
+```
+git clone https://github.com/Microsoft/ApplicationInsights-aspnet5.git
+```
+
+## Building
+From Visual Studio 2015
+```
+devenv ApplicationInsights.AspNet.sln
+```
+
+From Visual Studio 2015 Developer Command Prompt.
+```
+msbuild ApplicationInsights.AspNet.sln
+```
+- If you get NPM package restore errors, make sure Node and NPM are added to PATH.
+- If you get Bower pacakge restore errors, make sure Git is added to PATH.
+- If you get Dnu package restore errors, make sure [Dnx is installed](https://github.com/dotnet/coreclr/blob/master/Documentation/get-dotnetcore-dnx-windows.md) or open the solution in Visual Studio 2015, which will take care of this.
+
+## Branches
+- We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
+- [master](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNet).
+- [develop](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/develop) has the code for the _next_ release.
 
 Running and writing tests
 -------------------------

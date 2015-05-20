@@ -26,6 +26,11 @@ namespace Mvc6Framework45.FunctionalTests.Controllers
             return View();
         }
 
+        public IActionResult Exception()
+        {
+            throw new InvalidOperationException("Do not call the method called Exception");
+        }
+
         public IActionResult About(int index)
         {
             ViewBag.Message = "Your application description page # " + index;

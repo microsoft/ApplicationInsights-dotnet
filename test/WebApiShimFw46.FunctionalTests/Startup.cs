@@ -4,6 +4,7 @@ using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.ApplicationInsights.Channel;
 
 namespace SampleWebAPIIntegration
 {
@@ -23,7 +24,7 @@ namespace SampleWebAPIIntegration
         // Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add Application Insights services to the services container.
+            services.AddInstance<ITelemetryChannel>(new BackTelemetryChannel());
             services.AddApplicationInsightsTelemetry(Configuration);
 
             services.AddMvc();
@@ -35,8 +36,6 @@ namespace SampleWebAPIIntegration
         // Configure is called after ConfigureServices is called.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseFunctionalTestTelemetryChannel();
-
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
 
