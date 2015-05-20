@@ -8,8 +8,6 @@
     <Exec Command="$(Dnu) restore" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true">
 	<Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
     </Exec>
-    <Message Text="==== DNU Output:" Importance="high"/>
-    <Message Text="$(OutputOfExec)" Importance="high"/>
-    <Message Text="==== End of DNU Output" Importance="high"/>
+    <Message Text="DNU Output: $(OutputOfExec)" Importance="high"/>
   </Target>
 </Project>
