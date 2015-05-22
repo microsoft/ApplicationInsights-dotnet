@@ -11,13 +11,14 @@ $TestProjects = @(
 
 Function Execute-Process {
 	Param (
+		[Parameter(Mandatory=$True)]
 		[String]$RuntimePath,
+		[Parameter(Mandatory=$True)]
 		[String]$Arguments
 	)
 
 	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
 	$pinfo.FileName = $dnxPath;
-	$pinfo.RedirectStandardError = $true;
 	$pinfo.RedirectStandardOutput = $true;
 	$pinfo.UseShellExecute = $false;
 	$pinfo.Arguments = $arguments;
@@ -32,6 +33,7 @@ Function Execute-Process {
 
 Function Get-OutputSummary {
 	Param (
+		[Parameter(Mandatory=$True)]
 		[String]$Data
 	)
 
@@ -51,7 +53,7 @@ $DnxRuntimes |% {
 	$dnxPath = [System.Environment]::ExpandEnvironmentVariables($dnxPath);
 
 	$TestProjects |% {
-		[String]$arguments = "$_ test -nologo -diagnostics";
+		[String]$arguments = "$_ test -diagnostics";
 
 		Write-Host "=========================================================";
 		Write-Host "== Executing tests";
