@@ -1,7 +1,5 @@
-
-$DnxRuntimes = @(
-	'dnx-clr-win-x86.1.0.0-beta4', 
-	'dnx-coreclr-win-x86.1.0.0-beta4');
+#enable verbose mode
+$VerbosePreference = "Continue";
 
 $TestProjects = @(
 	'.\test\Microsoft.ApplicationInsights.AspNet.Tests',
@@ -9,12 +7,14 @@ $TestProjects = @(
 	'.\test\WebApiShimFw46.FunctionalTests'
 )
 
-Function Execute-Process {
+Function Execute-DnxProcess {
 	Param (
 		[Parameter(Mandatory=$True)]
 		[String]$RuntimePath,
 		[Parameter(Mandatory=$True)]
-		[String]$Arguments
+		[String]$Arguments,
+		[Parameter(Mandatory=$True)]
+		[String]$WorkingDirectory
 	)
 
 	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
@@ -22,56 +22,81 @@ Function Execute-Process {
 	$pinfo.RedirectStandardOutput = $true;
 	$pinfo.UseShellExecute = $false;
 	$pinfo.Arguments = $arguments;
+	$pinfo.WorkingDirectory = $WorkingDirectory;
 
 	$p = New-Object System.Diagnostics.Process;
 	$p.StartInfo = $pinfo;
 	$p.Start() | Out-Null;
 	$p.WaitForExit();
-	
-	Return $p.StandardOutput.ReadToEnd();
+
+	Return New-Object PSObject -Property @{
+		RuntimePath =  [String]$RuntimePath;
+		Arguments = [String]$Arguments;
+		WorkingDirectory = [String]$WorkingDirectory;
+		Output = [String]$p.StandardOutput.ReadToEnd();
+		ExitCode = [int]$p.ExitCode;
+	};
 }
 
-Function Get-OutputSummary {
-	Param (
-		[Parameter(Mandatory=$True)]
-		[String]$Data
-	)
+Function Get-DnxRuntimePaths {
+	[String]$runtimesRoot = [System.Environment]::ExpandEnvironmentVariables(
+		'%USERPROFILE%\.dnx\runtimes');
 
-	If ($Data -match '\W*Errors:\W*(?<Errors>\d+),\W*Failed:\W*(?<Failed>\d+)') {
-		Return New-Object PSObject -Property @{
-			Errors = [int]$matches['Errors'];
-			Failed = [int]$matches['Failed'];
-		};	
-	} Else {
-		Throw "Input string is not wellformet to extract summary data";
-	}
+	Write-Verbose "Start discovering DNX runtimes, rutimeRoot:$runtimesRoot";
+
+	[string[]]$results = @();
+	# lists folders only
+	Get-ChildItem $runtimesRoot | ?{ $_.PSIsContainer } |%{
+		$runtimePath = """$runtimesRoot\$($_.Name)\bin\dnx.exe""";
+
+		Write-Verbose "DNX runtime path discovered, path:$runtimePath";
+
+		$results += $runtimePath;
+	};
+
+	Write-Verbose "Stop discovering DNX runtimes";
+
+	Return $results;
 }
 
 [PSObject[]]$global:failed = @();
-$DnxRuntimes |% {
-	$dnxPath = "%USERPROFILE%\.dnx\runtimes\$($_)\bin\dnx.exe";
-	$dnxPath = [System.Environment]::ExpandEnvironmentVariables($dnxPath);
+$global:WorkingDirectory = (pwd).Path;
+
+$dnxRuntimePaths = Get-DnxRuntimePaths;
+
+If ($dnxRuntimePaths.Count -ne 4){
+	Throw "Unexpected number of DNX runtimes were desicovered, $($dnxRuntimePaths.Count)";
+}
+
+$dnxRuntimePaths |% {
+	
+	$dnxPath = $_;
 
 	$TestProjects |% {
 		[String]$arguments = "$_ test -diagnostics";
 
 		Write-Host "=========================================================";
 		Write-Host "== Executing tests";
-		Write-Host "== Working Folder: $((pwd).Path)";
+		Write-Host "== Working Folder: $global:WorkingDirectory";
 		Write-Host "== Runtime:$dnxPath";
 		Write-Host "== Args:$arguments";
 		Write-Host "=========================================================";
 
-		[String]$out = Execute-Process $dnxPath $arguments;
-		Write-Host $out;
+		$executeResult = Execute-DnxProcess `
+			-RuntimePath $dnxPath `
+			-Arguments $arguments `
+			-WorkingDirectory $global:WorkingDirectory;
 
-		$summary = Get-OutputSummary $Out;
-		If (($summary.Failed -ne 0) -or ($summary.Errors -ne 0)){
-			$global:failed += $summary;
+		Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
+		Write-Host "Output:";
+		Write-Host $executeResult.Output;
+
+		If ($executeResult.Code -ne 0) {
+			$global:failed += $executeResult;
 		}
 	}
 }
 
-If ($global:failed.Count -gt 0){
+If ($global:failed.Count -gt 0) {
 	Throw "Test execution failed";
 }
