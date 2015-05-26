@@ -2,7 +2,7 @@
 using FunctionalTestUtils;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.ApplicationInsights.Channel;
 
@@ -13,7 +13,7 @@ namespace SampleWebAPIIntegration
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            Configuration = new Configuration()
+            Configuration = new ConfigurationSection(env.MapPath(@"..\"))
                 .AddJsonFile("config.json")
                 .AddEnvironmentVariables();
         }
