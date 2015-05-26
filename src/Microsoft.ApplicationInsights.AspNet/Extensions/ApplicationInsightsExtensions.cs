@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
-    using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.Configuration;
 
     public static class ApplicationInsightsExtensions
     {
@@ -63,7 +63,7 @@
             });
         }
 
-        public static IConfigurationSourceRoot AddApplicationInsightsSettings(this IConfigurationSourceRoot configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
+        public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
         {
             var telemetryConfigurationSource = new MemoryConfigurationSource();
             bool wasAnythingSet = false;

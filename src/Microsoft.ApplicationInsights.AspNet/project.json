@@ -15,7 +15,7 @@
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta5",
         "Microsoft.AspNet.Mvc": "6.0.0-beta5",
         "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta5",
-        "Microsoft.Framework.ConfigurationModel": "1.0.0-beta5"
+        "Microsoft.Framework.Configuration": "1.0.0-beta5"
     },
 
     "frameworks": {
