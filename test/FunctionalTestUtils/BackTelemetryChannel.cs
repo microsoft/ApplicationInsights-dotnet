@@ -22,7 +22,7 @@ namespace FunctionalTestUtils
             }
         }
 
-        public bool DeveloperMode
+        public bool? DeveloperMode
         {
             get
             {

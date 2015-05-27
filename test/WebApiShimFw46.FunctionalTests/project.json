@@ -4,7 +4,7 @@
 
     "dependencies": {
         "FunctionalTestUtils": "1.0.0-beta5",        
-        "Microsoft.ApplicationInsights.AspNet": "0.32.0-beta5",
+        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta5",
         "Microsoft.AspNet.Mvc": "6.0.0-beta5",
         "Microsoft.AspNet.Server.IIS": "1.0.0-beta5",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta5",
