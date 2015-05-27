@@ -53,8 +53,9 @@
         {
             var customConfig = new MemoryConfigurationSource();
             customConfig.Set("server.urls", this.BaseHost);
-            var config = new ConfigurationSection();
-            config.Add(customConfig);
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.Add(customConfig);
+            var config = configBuilder.Build();
 
             var services = new ServiceCollection();
             services.AddTransient<IApplicationEnvironment, ApplicationEnvironment>();

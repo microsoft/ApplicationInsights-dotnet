@@ -32,7 +32,7 @@ namespace Mvc6Framework45.FunctionalTests
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            var configuration = new ConfigurationSection(env.MapPath(@"..\"))
+            var builder = new ConfigurationBuilder(env.MapPath(@"..\"))
                 .AddJsonFile("config.json", optional: true)
                 .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
 
@@ -40,12 +40,12 @@ namespace Mvc6Framework45.FunctionalTests
             {
                 // This reads the configuration keys from the secret store.
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                configuration.AddUserSecrets();
+                builder.AddUserSecrets();
 
-                configuration.AddApplicationInsightsSettings(developerMode: true);
+                builder.AddApplicationInsightsSettings(developerMode: true);
             }
-            configuration.AddEnvironmentVariables();
-            Configuration = configuration;
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; set; }
