@@ -5,17 +5,18 @@
     "version": "1.0.0-beta5",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
-    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709", 
+    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
     "requireLicenseAcceptance": true,
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
     "dependencies": {
         "Microsoft.ApplicationInsights": "0.17.1-beta",
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-beta5",        
-        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta5",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta5",
-        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta5",
-        "Microsoft.Framework.Configuration": "1.0.0-beta5"
+        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Http.Features": "1.0.0-beta5-*",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta5-*",
+        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta5-*",
+        "Microsoft.Framework.Configuration": "1.0.0-beta5-*"
     },
 
     "frameworks": {
