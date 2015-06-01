@@ -16,12 +16,12 @@
     "ef": "EntityFramework.Commands",
     "test": "xunit.runner.aspnet"
   },
-    "frameworks": {
-        "dnx451": { },
-        "dnxcore50": {
-            "compilationOptions": {
-                "define": [ "dnxcore50" ]
-            }
-        }
+  "frameworks": {
+    "dnx451": { },
+    "dnxcore50": {
+      "compilationOptions": {
+        "define": [ "dnxcore50" ]
+      }
     }
+  }
 }
