@@ -1,20 +1,17 @@
 ﻿namespace FunctionalTestUtils
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.AspNet.FeatureModel;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Server.WebListener;
+    using Microsoft.AspNet.Hosting.Server;
     using Microsoft.Framework.Configuration;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.Logging;
-    using Microsoft.AspNet.Hosting.Internal;
     using Microsoft.Framework.Runtime;
-    using Microsoft.AspNet.Hosting.Server;
-    using Microsoft.AspNet.FeatureModel;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
     using Microsoft.Framework.Runtime.Infrastructure;
-
+    
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable, IServerFactory
     {
