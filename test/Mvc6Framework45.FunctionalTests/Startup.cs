@@ -15,7 +15,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Routing;
 using Microsoft.Data.Entity;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.Logging.Console;
@@ -32,20 +32,20 @@ namespace Mvc6Framework45.FunctionalTests
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            var configuration = new Configuration()
-                .AddJsonFile("config.json")
+            var builder = new ConfigurationBuilder(env.MapPath(@"..\"))
+                .AddJsonFile("config.json", optional: true)
                 .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
 
             if (env.IsEnvironment("Development"))
             {
                 // This reads the configuration keys from the secret store.
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                configuration.AddUserSecrets();
+                builder.AddUserSecrets();
 
-                configuration.AddApplicationInsightsSettings(developerMode: true);
+                builder.AddApplicationInsightsSettings(developerMode: true);
             }
-            configuration.AddEnvironmentVariables();
-            Configuration = configuration;
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; set; }
@@ -57,7 +57,7 @@ namespace Mvc6Framework45.FunctionalTests
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add Application settings to the services container.
-            services.Configure<AppSettings>(Configuration.GetSubKey("AppSettings"));
+            services.Configure<AppSettings>(Configuration.GetConfigurationSection("AppSettings"));
 
             // Add EF services to the services container.
             services.AddEntityFramework()
@@ -106,7 +106,7 @@ namespace Mvc6Framework45.FunctionalTests
             // Add the following to the request pipeline only in development environment.
             if (env.IsEnvironment("Development"))
             {
-                app.UseBrowserLink();
+                //app.UseBrowserLink();
                 app.UseErrorPage(ErrorPageOptions.ShowAll);
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
             }

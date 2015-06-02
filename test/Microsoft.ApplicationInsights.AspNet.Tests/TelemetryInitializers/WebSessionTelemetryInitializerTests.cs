@@ -6,8 +6,8 @@
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Http.Core;
     using Xunit;
+    using Microsoft.AspNet.Http.Internal;
 
     public class WebSessionTelemetryInitializerTests
     {
