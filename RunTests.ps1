@@ -73,7 +73,7 @@ $dnxRuntimePaths |% {
 	$dnxPath = $_;
 
 	$TestProjects |% {
-		[String]$arguments = "$_ test -diagnostics";
+		[String]$arguments = "$_ test";
 
 		Write-Host "=========================================================";
 		Write-Host "== Executing tests";
