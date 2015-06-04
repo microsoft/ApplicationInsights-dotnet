@@ -65,7 +65,7 @@ $global:WorkingDirectory = (pwd).Path;
 $dnxRuntimePaths = Get-DnxRuntimePaths;
 
 If ($dnxRuntimePaths.Count -ne 4){
-	Throw "Unexpected number of DNX runtimes were desicovered, $($dnxRuntimePaths.Count)";
+	Throw "Unexpected number of DNX runtimes were discovered, $($dnxRuntimePaths.Count)";
 }
 
 $dnxRuntimePaths |% {
@@ -73,11 +73,12 @@ $dnxRuntimePaths |% {
 	$dnxPath = $_;
 
 	$TestProjects |% {
-		[String]$arguments = "$_ test";
+		[String]$arguments = ". test";
+		[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
 
 		Write-Host "=========================================================";
 		Write-Host "== Executing tests";
-		Write-Host "== Working Folder: $global:WorkingDirectory";
+		Write-Host "== Working Folder: $currentWorkingDirectory";
 		Write-Host "== Runtime:$dnxPath";
 		Write-Host "== Args:$arguments";
 		Write-Host "=========================================================";
@@ -85,13 +86,13 @@ $dnxRuntimePaths |% {
 		$executeResult = Execute-DnxProcess `
 			-RuntimePath $dnxPath `
 			-Arguments $arguments `
-			-WorkingDirectory $global:WorkingDirectory;
+			-WorkingDirectory $currentWorkingDirectory;
 
 		Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
 		Write-Host "Output:";
 		Write-Host $executeResult.Output;
 
-		If ($executeResult.Code -ne 0) {
+		If ($executeResult.ExitCode -ne 0) {
 			$global:failed += $executeResult;
 		}
 	}

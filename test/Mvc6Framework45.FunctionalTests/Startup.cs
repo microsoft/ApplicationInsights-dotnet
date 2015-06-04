@@ -98,14 +98,14 @@ namespace Mvc6Framework45.FunctionalTests
         {
             // Configure the HTTP request pipeline.
 
-            // Add the console logger.
-            loggerfactory.AddConsole(minLevel: LogLevel.Warning);
-
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
             // Add the following to the request pipeline only in development environment.
             if (env.IsEnvironment("Development"))
             {
+                // Add the console logger.
+                loggerfactory.AddConsole(minLevel: LogLevel.Warning);
+
                 //app.UseBrowserLink();
                 app.UseErrorPage(ErrorPageOptions.ShowAll);
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
