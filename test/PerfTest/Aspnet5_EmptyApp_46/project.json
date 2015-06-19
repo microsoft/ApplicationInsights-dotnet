@@ -2,10 +2,10 @@
     "webroot": "wwwroot",
     "version": "1.0.0-*",
     "dependencies": {
-        "Microsoft.AspNet.Server.IIS": "1.0.0-beta3",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta3",
-        "ApplicationInsights.AspNet": "0.30.0.1-beta",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-beta3",
+        "Microsoft.AspNet.Server.IIS": "1.0.0-*",
+        "Microsoft.AspNet.Mvc": "6.0.0-*",
+        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta5",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
     },
     "frameworks": {
         "aspnet50": { },

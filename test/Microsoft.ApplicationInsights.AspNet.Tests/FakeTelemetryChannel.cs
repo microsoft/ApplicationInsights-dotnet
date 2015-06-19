@@ -8,8 +8,6 @@
     {
         public Action<ITelemetry> OnSend = t => { };
 
-        public bool DeveloperMode { get; set; }
-
         public string EndpointAddress
         {
             get
@@ -22,6 +20,8 @@
                 throw new NotImplementedException();
             }
         }
+
+        public bool? DeveloperMode { get; set; }
 
         public void Dispose()
         {

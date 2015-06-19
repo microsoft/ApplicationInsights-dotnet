@@ -1,19 +1,41 @@
 ﻿namespace FunctionalTestUtils
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.AspNet.FeatureModel;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Server.WebListener;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.Logging;
-
-    public class InProcessServer : IDisposable
+    using Microsoft.AspNet.Hosting.Server;
+    using Microsoft.Framework.Configuration;
+    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.Runtime;
+    using Microsoft.Framework.Runtime.Infrastructure;
+    
+    // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
+    public class InProcessServer : IDisposable, IServerFactory
     {
+        private readonly IList<StartInstance> _startInstances = new List<StartInstance>();
+        private static Random random = new Random();
+        
+        private IFeatureCollection _featuresSupportedByThisHost = new FeatureCollection();
         private IDisposable hostingEngine;
-        private string url = "http://localhost:" + (new Random(239).Next(5000, 8000)).ToString();
+        private string url;
+
+        private readonly BackTelemetryChannel backChannel;
+
+        public BackTelemetryChannel BackChannel
+        {
+            get
+            {
+                return this.backChannel;
+            }
+        }
         
         public InProcessServer(string assemblyName)
         {
-            this.Start(assemblyName);
+            this.url = "http://localhost:" + random.Next(5000, 14000).ToString();
+            this.backChannel = this.Start(assemblyName);
         }
 
         public string BaseHost
@@ -24,21 +46,26 @@
             }
         }
 
-        private void Start(string assemblyName)
+        private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new NameValueConfigurationSource();
+            var customConfig = new MemoryConfigurationSource();
             customConfig.Set("server.urls", this.BaseHost);
-            var config = new Configuration();
-            config.Add(customConfig);
-            
-            var context = new HostingContext
-            {
-                Configuration = config,
-                ServerFactory = new ServerFactory(new LoggerFactory()),
-                ApplicationName = assemblyName
-            };
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.Add(customConfig);
+            var config = configBuilder.Build();
 
-            this.hostingEngine = new HostingEngine().Start(context);
+            var services = new ServiceCollection();
+            services.AddTransient<IApplicationEnvironment, ApplicationEnvironment>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var engine = CreateBuilder(config)
+                .UseServer("Microsoft.AspNet.Server.WebListener")
+                .UseStartup(assemblyName)
+                .UseEnvironment("Production")
+                .Build();
+            this.hostingEngine = engine.Start();
+            
+            return (BackTelemetryChannel)engine.ApplicationServices.GetService<ITelemetryChannel>();
         }
 
         public void Dispose()
@@ -46,6 +73,41 @@
             if (this.hostingEngine != null)
             {
                 this.hostingEngine.Dispose();
+            }
+        }
+
+        public IServerInformation Initialize(IConfiguration configuration)
+        {
+            return null;
+        }
+
+        public IDisposable Start(IServerInformation serverInformation, Func<IFeatureCollection, Task> application)
+        {
+            var startInstance = new StartInstance(application);
+            _startInstances.Add(startInstance);
+            application(_featuresSupportedByThisHost);
+            return startInstance;
+        }
+
+        private WebHostBuilder CreateBuilder(IConfiguration config)
+        {
+            return new WebHostBuilder(CallContextServiceLocator.Locator.ServiceProvider, config);
+        }
+
+        public class StartInstance : IDisposable
+        {
+            private readonly Func<IFeatureCollection, Task> _application;
+
+            public StartInstance(Func<IFeatureCollection, Task> application)
+            {
+                _application = application;
+            }
+
+            public int DisposeCalls { get; set; }
+
+            public void Dispose()
+            {
+                DisposeCalls += 1;
             }
         }
     }

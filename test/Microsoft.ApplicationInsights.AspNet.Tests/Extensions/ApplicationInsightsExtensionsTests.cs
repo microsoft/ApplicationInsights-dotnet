@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
+    using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -10,9 +11,9 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Hosting;
-    using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.Configuration;
     using Xunit;
-    
+
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -39,7 +40,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
                 Assert.Equal(lifecycle, service.Lifetime);
@@ -51,7 +52,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 //Empty configuration that doesn't have instrumentation key
-                IConfiguration config = new Configuration();
+                IConfiguration config = new ConfigurationBuilder().Build();
 
                 services.AddApplicationInsightsTelemetry(config);
             }
@@ -61,7 +62,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -72,7 +73,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration().AddJsonFile("content\\config-instrumentation-key.json");
+                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-instrumentation-key.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -85,7 +86,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration().AddJsonFile("content\\config-developer-mode.json");
+                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-developer-mode.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -98,7 +99,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration().AddJsonFile("content\\config-endpoint-address.json");
+                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-endpoint-address.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -113,7 +114,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", "11111111-2222-3333-4444-555555555555");
-                var config = new Configuration().AddEnvironmentVariables();
+                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -133,7 +134,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
-                var config = new Configuration().AddEnvironmentVariables();
+                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -153,7 +154,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
-                var config = new Configuration().AddEnvironmentVariables();
+                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -175,7 +176,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<IContextInitializer>(contextInitializer);
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -189,7 +190,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -203,7 +204,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryChannel>(telemetryChannel);
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -215,7 +216,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -230,7 +231,7 @@
 
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
-                services.AddApplicationInsightsTelemetry(new Configuration());
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var configuration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -253,7 +254,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
-                var config = new Configuration().AddApplicationInsightsSettings(instrumentationKey: "11111111-2222-3333-4444-555555555555");
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(instrumentationKey: "11111111-2222-3333-4444-555555555555").Build();
                 services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -265,7 +266,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration().AddApplicationInsightsSettings(developerMode: true);
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(developerMode: true).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -277,7 +278,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new Configuration().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/");
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
                 services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();

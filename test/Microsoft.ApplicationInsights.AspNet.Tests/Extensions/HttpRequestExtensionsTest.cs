@@ -2,7 +2,7 @@
 {
     using Microsoft.ApplicationInsights.AspNet.Extensions;
     using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Core;
+    using Microsoft.AspNet.Http.Internal;
     using System;
     using Xunit;
 
