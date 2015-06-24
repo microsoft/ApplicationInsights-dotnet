@@ -1,1 +1,1 @@
-# ApplictionInsights-dotnet
+# ApplicationInsights-dotnet
