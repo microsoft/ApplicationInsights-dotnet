@@ -3,15 +3,16 @@
     "version": "1.0.0-beta6",
 
     "dependencies": {
-        "FunctionalTestUtils": "1.0.0-beta6",        
+        "FunctionalTestUtils": "1.0.0-beta6",
         "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6",
         "Microsoft.AspNet.Mvc": "6.0.0-beta6-*",
         "Microsoft.AspNet.Server.IIS": "1.0.0-beta6-*",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta6-*",
         "Microsoft.AspNet.StaticFiles": "1.0.0-beta6-*",
-        "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta6-*",
         "Microsoft.Framework.Configuration.Json": "1.0.0-beta6-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta6-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta6-*",
+        "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta6-*",
+        "Microsoft.AspNet.WebApi.Client": "5.2.0"
     },
 
     "commands": {
