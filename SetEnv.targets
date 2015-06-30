@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
  	<Import Project=".\build\SetEnv.tasks"/>
-	<Target Name="SetEnvironmentVariables" Condition="'$(IsOfficialBuild)' != 'True'" BeforeTargets="BeforeBuild">	
-		<SetEnv Name="DNX_BUILD_VERSION" Value="$(TF_BUILD_BUILDNUMBER)"/>
-		<DumpEnvVariables />
-		<Message Importance="high" Text=" SetEnvironmentVariables executed on $(ProjectName)"></Message>
+	<Import Project=".\ReleaseVersion.props"/>
+    <Target Name="SetEnvironmentVariables" Condition="'$(IsOfficialBuild)' != 'True'" BeforeTargets="BeforeBuild">	
+	    <SetEnv Name="DNX_BUILD_VERSION" Value="$(PreReleaseVersion)"/>
+	    <DisplayEnvVariables />
+	    <Message Importance="high" Text=" SetEnvironmentVariables executed on $(ProjectName)"></Message>
 	</Target>
 </Project>

@@ -18,20 +18,12 @@
 						"Environment varible is set, name={0}, value:{1}", 
                         Name, 
 						Value);
-						
-					foreach (DictionaryEntry envvar in  Environment.GetEnvironmentVariables())
-					{
-						Log.LogMessage (
-							"Environment varible, name={0}, value:{1}", 
-							envvar.Key, 
-							envvar.Value);
-					}
               ]]>
 			</Code>
 		</Task>
 	</UsingTask>
 
-	<UsingTask  TaskName="DumpEnvVariables"
+	<UsingTask  TaskName="DisplayEnvVariables"
 			TaskFactory="CodeTaskFactory"
 			AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
 		<Task>
