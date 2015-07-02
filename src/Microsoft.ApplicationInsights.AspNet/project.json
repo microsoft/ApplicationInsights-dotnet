@@ -3,9 +3,6 @@
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
     "version": "1.0.0-beta6-*",
-    "compilationOptions": {
-        "warningsAsErrors": true
-    },
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
     "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
@@ -18,10 +15,10 @@
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta6-*",
         "Microsoft.AspNet.Http.Features": "1.0.0-beta6-*",
         "Microsoft.AspNet.Mvc": "6.0.0-beta6-*",
-        "Microsoft.Framework.Configuration": "1.0.0-beta6-*",
-        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta6-*"
+        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta6-*",
+        "Microsoft.Framework.Configuration": "1.0.0-beta6-*"
     },
-    
+
     "frameworks": {
         "dnx451": { },
         "dnxcore50": {
@@ -29,8 +26,8 @@
                 "define": [ "dnxcore50" ]
             },
             "dependencies": {
-                "System.Net.NameResolution": "4.0.0-beta-22816",
-                "System.Reflection": "4.0.10-beta-22816"
+              "System.Net.NameResolution": "4.0.0-beta-22816",
+              "System.Reflection": "4.0.10-beta-22816"
             }
         }
     }
