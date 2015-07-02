@@ -56,12 +56,8 @@
   ],
   "scripts": {
     "postrestore": [
-      "npm install",
-      "node_modules/.bin/flatten-packages", 
-      "node_modules/.bin/bower install"
     ],
     "prepare": [
-      "node_modules/.bin/gulp copy"
     ]
   }
 }

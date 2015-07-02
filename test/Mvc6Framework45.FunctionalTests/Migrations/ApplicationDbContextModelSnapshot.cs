@@ -6,9 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Mvc6Framework45.FunctionalTests.Models;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 
 namespace Mvc6Framework45.FunctionalTests.Migrations
 {

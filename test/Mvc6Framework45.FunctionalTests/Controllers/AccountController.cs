@@ -117,7 +117,7 @@ namespace Mvc6Framework45.FunctionalTests.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult LogOff()
         {
-            SignInManager.SignOut();
+            SignInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
