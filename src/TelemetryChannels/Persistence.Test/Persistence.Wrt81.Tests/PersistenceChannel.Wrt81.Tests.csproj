@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4CAD12EE-32A9-4206-8379-7857F093BA2D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <PackageCertificateKeyFile>TemporaryKey.pfx</PackageCertificateKeyFile>
+    <AppxBundle>Never</AppxBundle>
+    <AppXPackage>True</AppXPackage>
+    <AppxPackageIncludePrivateSymbols>true</AppxPackageIncludePrivateSymbols>
+    <AllowCrossPlatformRetargeting>False</AllowCrossPlatformRetargeting>
+    <DefineConstants>$(DefineConstants);WINRT;WINDOWS_STORE</DefineConstants>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <!-- Disable FxCop due to errors it encounters while resolving internal types from Microsoft.ApplicationInsights.winmd -->
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <PackageCertificateThumbprint>499A3B296891E38FE0021F842E4E5BD66C1BAB58</PackageCertificateThumbprint>
+    <NuGetPackageImportStamp>03e31619</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>Microsoft.ApplicationInsights.PersistenceChannel.Wrt81.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights.PersistenceChannel.Net40.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--A reference to the entire .Net Framework and Windows SDK are automatically included-->
+    <SDKReference Include="MSTestFramework, Version=11.0" />
+    <SDKReference Include="TestPlatform, Version=11.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Moq, Version=4.2.1402.2112, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
+    </Reference>    
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\Managed\Wrt81\Core.Wrt81.csproj">
+      <Project>{50368b2b-a526-460e-8ad9-ab2e7951dab2}</Project>
+      <Name>Core.Wrt81</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PersistenceChannel\Wrt81\PersistenceChannel.Wrt81.csproj">
+      <Project>{48d96f13-d9f7-4db8-a738-e03f82e45bbb}</Project>
+      <Name>PersistenceChannel.Wrt81</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TestFramework\Wrt81\TestFramework.Wrt81.csproj">
+      <Project>{9f9c3d52-abb9-461a-b1b6-a01bb5cecd93}</Project>
+      <Name>TestFramework.Wrt81</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SmallLogo.png" />
+    <Content Include="SplashScreen.png" />
+    <Content Include="StoreLogo.png" />
+    <Content Include="TitleLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="StorageTests.cs" />
+  </ItemGroup>
+  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+</Project>

@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="SharedProjectFile_SccProperties">
+    <SharedProjectFile_ProjectGuid>{775f88f7-23bf-4df6-85d9-7dc9822d29f4}</SharedProjectFile_ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>c1aaa703-5e32-45c0-a69d-f46d1c659ae4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryTransmitter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetryChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\TelemetryBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\Transmission.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionHandledAt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\IJsonSerializable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\IJsonWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\InnerExceptionCountExceededException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportSampling.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\MetricTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PerformanceCounterTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\DependencyTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\RequestTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionStateTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SeverityLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IContextInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\StackFrame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SessionStateData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\FixedSizeQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IClock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InternalContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IRandomNumberBatchGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\LocationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformSingleton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Property.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SamplingScoreGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SeverityLevelExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Telemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryContextExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryItemExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AjaxCallData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\EventData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ExceptionData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ExceptionDetails.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\DataPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PageViewPerfData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MetricData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PageViewData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RemoteDependencyData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RequestData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MessageData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ApplicationNameProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventCounters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottling.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingDefaults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\EventMetaData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\EventSourceKeywords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\F5DiagnosticsSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottling.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottlingManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottlingScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnosticsSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\PortalDiagnosticsQueueSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\PortalDiagnosticsSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\SpinWait.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\TraceEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TypeExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\XorshiftRandomBatchGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
+  </ItemGroup>
+</Project>

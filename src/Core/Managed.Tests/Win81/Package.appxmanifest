@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest"> 
+  <Identity Name="979f53d1-8860-45b7-b068-572f52aeb4e8" Publisher="CN=olegsych" Version="1.0.0.0" />
+  
+  <Properties>
+    <DisplayName>Core.Win81.Tests</DisplayName>
+    <PublisherDisplayName>olegsych</PublisherDisplayName>
+    <Logo>StoreLogo.png</Logo>
+    <Description>Core.Win81.Tests</Description>
+  </Properties>
+  
+  <Prerequisites>
+    <OSMinVersion>6.3.0</OSMinVersion>
+    <OSMaxVersionTested>6.3.0</OSMaxVersionTested>
+  </Prerequisites>
+  
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+  
+  <Applications>
+    <Application Id="vstest.executionengine.x86.App" 
+        Executable="vstest.executionengine.appcontainer.x86.exe" 
+        EntryPoint="vstest.executionengine.x86.App">
+        <VisualElements 
+            DisplayName="NoUIEntryPoints"
+            Logo="TitleLogo.png"
+            SmallLogo="SmallLogo.png"
+            Description="vstest.executionengine.x86.App"
+            ForegroundText="light"
+            BackgroundColor="#0084FF">
+            <SplashScreen Image="SplashScreen.png" />
+        </VisualElements>
+    </Application>
+  </Applications>
+  
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

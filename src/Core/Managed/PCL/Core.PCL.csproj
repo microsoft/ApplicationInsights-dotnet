@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{862B97AF-F620-43FD-9B65-7E5423F3B7E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <NuGetPackageImportStamp>e6e5e8c5</NuGetPackageImportStamp>
+    <DefineConstants>$(DefineConstants);CORE_PCL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
+      <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
+    </Compile>
+    <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />
+    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\DependencyKind.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\DeviceContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\InternalContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\LocationContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\OperationContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\SessionContextData.cs" />
+    <Compile Include="Extensibility\Implementation\External\SessionStateData.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\SeverityLevel.g.cs" />
+    <Compile Include="Extensibility\Implementation\External\Tags.cs" />
+    <Compile Include="Extensibility\Implementation\External\UserContextData.cs" />
+    <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
+    <Compile Include="TimeSpanEx.cs" />
+  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets'))" />
+  </Target>
+</Project>

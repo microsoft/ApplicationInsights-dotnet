@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<package>
+  <metadata minClientVersion="2.8.50313">
+    <id>Microsoft.ApplicationInsights</id>
+    <version>$version$</version>
+    <title>Application Insights API</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkID=510710</projectUrl>
+    <iconUrl>$image$</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Application Insights Core API. This package provides core functionality for transmission of all Application Insights Telemetry Types and is a dependent package for all other Application Insights packages. Please install the platform specific package for the best experience.</description>
+    <copyright>$copyright$</copyright>
+    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.24"/>
+      </group>
+      <group targetFramework="net45">
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+      </group>      
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- Binaries for .NET 4.0 projects -->
+    <file src="$configuration$\Core\Managed\Net40\Microsoft.ApplicationInsights.dll" target="lib\net40" />
+    <file src="$configuration$\Core\Managed\Net40\Microsoft.ApplicationInsights.pdb" target="lib\net40" />
+    <file src="$configuration$\Core\Managed\Net40\Microsoft.ApplicationInsights.xml" target="lib\net40" />
+    
+    <!-- Binaries for .NET 4.5 projects -->
+    <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.dll" target="lib\net45" />
+    <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.pdb" target="lib\net45" />
+    <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.xml" target="lib\net45" />
+
+    <!-- wp8: Binaries for Windows Phone 8.0 and 8.1 (Silverlight Runtime) projects -->
+    <file src="$configuration$\Core\Managed\Wp80\Microsoft.ApplicationInsights.dll" target="lib\wp8" />
+    <file src="$configuration$\Core\Managed\Wp80\Microsoft.ApplicationInsights.pdb" target="lib\wp8" />
+    <file src="$configuration$\Core\Managed\Wp80\Microsoft.ApplicationInsights.xml" target="lib\wp8" />
+
+    <!-- portable-win81+wpa81: Windows Runtime projects (Phone & Store, Managed)-->
+    <file src="$configuration$\Core\Managed\Wrt81\Microsoft.ApplicationInsights.dll" target="lib\portable-win81+wpa81" />
+    <file src="$configuration$\Core\Managed\Wrt81\Microsoft.ApplicationInsights.pdb" target="lib\portable-win81+wpa81" />
+    <file src="$configuration$\Core\Managed\Wrt81\Microsoft.ApplicationInsights.xml" target="lib\portable-win81+wpa81" />   
+  </files>
+</package>

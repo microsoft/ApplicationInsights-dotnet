@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6c612e46-985e-47c2-a90e-507b5c2e7905</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssertExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryChannelTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryTransmitterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\TelemetryBufferTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Channel\TransmissionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportSamplingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\MetricTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PerformanceCounterTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\DependencyTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\RequestTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SessionStateTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ClockTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SamplingScoreGeneratorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverterTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InternalContextTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonWriterTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\LocationContextTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\PlatformTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformImplementationTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\PropertyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SeverityLevelExtensionsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollectionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingDictionaryTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingListTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TagsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingInitializationTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManagerInitializationTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingSchedulerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsListenerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\F5DiagnosticsSenderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingManagerMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingSchedulerMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsEventCollectingMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsTelemetryModuleMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\F5DiagnosticsSenderMock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\PortalDiagnosticsSenderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLockTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContextTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandomTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Thread.cs" />
+  </ItemGroup>
+</Project>

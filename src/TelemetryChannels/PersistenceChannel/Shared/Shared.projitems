@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="SharedProjectFile_SccProperties">
+    <SharedProjectFile_ProjectGuid>{168753ff-2aa1-4d14-93c1-a5ad939d8dbb}</SharedProjectFile_ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>3f212c88-4c51-4b4d-8e8d-7512b791e4bf</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FlushManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PersistenceChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PersistenceTransmitter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageTransmission.cs" />
+  </ItemGroup>
+</Project>
