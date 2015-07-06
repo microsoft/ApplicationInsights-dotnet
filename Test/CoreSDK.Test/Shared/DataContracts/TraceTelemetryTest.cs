@@ -93,6 +93,17 @@
         }
 
         [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            TraceTelemetry original = new TraceTelemetry();
+            original.Message = null;
+            original.SeverityLevel = null;
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, DataPlatformModel.MessageData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             TraceTelemetry telemetry = new TraceTelemetry();
