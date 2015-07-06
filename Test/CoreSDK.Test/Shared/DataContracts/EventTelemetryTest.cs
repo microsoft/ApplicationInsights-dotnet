@@ -76,6 +76,16 @@
         }
 
         [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            EventTelemetry original = new EventTelemetry();
+            original.Name = null;
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, DataPlatformModel.EventData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
+        }
+
+        [TestMethod]
         public void SanitizeWillTrimAppropriateFields()
         {
             EventTelemetry telemetry = new EventTelemetry();

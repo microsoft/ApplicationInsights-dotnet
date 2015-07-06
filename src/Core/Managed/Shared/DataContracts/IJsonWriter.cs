@@ -46,14 +46,29 @@
         void WriteProperty(string name, string value);
 
         /// <summary>
+        /// Writes a <see cref="String"/> property. Will write empty string in case value is null or empty.
+        /// </summary>
+        void WriteRequiredProperty(string name, string value);
+
+        /// <summary>
         /// Writes a <see cref="Boolean"/> property.
         /// </summary>
         void WriteProperty(string name, bool? value);
 
         /// <summary>
+        /// Writes a required <see cref="Boolean"/> property.
+        /// </summary>
+        void WriteRequiredProperty(string name, bool value);
+
+        /// <summary>
         /// Writes a <see cref="Int32"/> property.
         /// </summary>
         void WriteProperty(string name, int? value);
+
+        /// <summary>
+        /// Writes a required <see cref="Int32"/> property.
+        /// </summary>
+        void WriteRequiredProperty(string name, int value);
 
         /// <summary>
         /// Writes a <see cref="Double"/> property.
@@ -66,9 +81,19 @@
         void WriteProperty(string name, TimeSpan? value);
 
         /// <summary>
+        /// Writes a required <see cref="TimeSpan"/> property.
+        /// </summary>
+        void WriteRequiredProperty(string name, TimeSpan value);
+
+        /// <summary>
         /// Writes a <see cref="DateTimeOffset"/> property.
         /// </summary>
         void WriteProperty(string name, DateTimeOffset? value);
+
+        /// <summary>
+        /// Writes a required <see cref="DateTimeOffset"/> property.
+        /// </summary>
+        void WriteRequiredProperty(string name, DateTimeOffset value);
 
         /// <summary>
         /// Writes a <see cref="IDictionary{String, Double}"/> property.

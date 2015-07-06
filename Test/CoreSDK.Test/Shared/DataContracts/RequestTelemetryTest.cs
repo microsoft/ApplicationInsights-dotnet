@@ -70,6 +70,20 @@
         }
 
         [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            RequestTelemetry original = new RequestTelemetry();
+            original.HttpMethod = null;
+            original.Id = null;
+            original.Name = null;
+            original.ResponseCode = null;
+            original.Url = null;
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
+        }
+
+        [TestMethod]
         public void RequestTelemetrySerializesToJson()
         {
             var expected = new RequestTelemetry();
