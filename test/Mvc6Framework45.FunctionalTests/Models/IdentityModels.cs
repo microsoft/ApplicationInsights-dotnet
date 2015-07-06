@@ -25,7 +25,6 @@ namespace Mvc6Framework45.FunctionalTests.Models
             if (!_created)
             {
                 Database.ApplyMigrations();
-                //Database.AsRelational().ApplyMigrations();
                 _created = true;
             }
         }
