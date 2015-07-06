@@ -35,8 +35,6 @@
             Assert.Equal(expected.Name, item.Data.BaseData.Name);
             Assert.Equal(DataPlatformModel.DataPointType.Aggregation, item.Data.BaseData.Kind);
             Assert.Equal(expected.Duration.TotalMilliseconds, item.Data.BaseData.Value);
-            Assert.True(item.Data.BaseData.Count.HasValue);
-            Assert.Equal(expected.Count, item.Data.BaseData.Count.Value);
             Assert.Equal(expected.DependencyKind.ToString(), item.Data.BaseData.DependencyKind.ToString());
             Assert.Equal(expected.DependencyTypeName, item.Data.BaseData.DependencyTypeName);
 
@@ -44,6 +42,21 @@
             Assert.Equal(expected.Async, item.Data.BaseData.Async);
             
             Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+        }
+
+        [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            DependencyTelemetry original = new DependencyTelemetry();
+            original.Name = null;
+            original.CommandName = null;
+            original.DependencyTypeName = null;
+            original.Success = null;
+            original.Async = null;
+            original.DependencyKind = null;
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
         }
 
         [TestMethod]
@@ -180,7 +193,6 @@
                                                 Name = "MyWebServer.cloudapp.net",
                                                 DependencyKind = BondDependencyKind.SQL.ToString(),
                                                 Duration = TimeSpan.FromMilliseconds(42),
-                                                Count = 68,
                                                 Async = false,
                                                 Success = true,
                                                 DependencyTypeName = "external call"
