@@ -20,6 +20,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxNameLength = 1024;
         public const int MaxMessageLength = 32768;
         public const int MaxUrlLength = 2048;
+        public const int MaxCommandNameLength = 2 * 1024;
 
         private const RegexOptions SanitizeOptions = 
 #if WINRT || CORE_PCL
@@ -69,6 +70,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public static string SanitizeMessage(this string message)
         {
             return TrimAndTruncate(message, Property.MaxMessageLength);
+        }
+
+        public static string SanitizeCommandName(this string message)
+        {
+            return TrimAndTruncate(message, Property.MaxCommandNameLength);
         }
 
         public static Uri SanitizeUri(this Uri uri)

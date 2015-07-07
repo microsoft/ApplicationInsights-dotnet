@@ -197,6 +197,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         void ITelemetry.Sanitize()
         {
             this.Name = this.Name.SanitizeName();
+            this.DependencyTypeName = this.DependencyTypeName.SanitizeValue();
+            this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }
     }
