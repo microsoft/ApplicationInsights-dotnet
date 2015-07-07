@@ -1,7 +1,7 @@
 ﻿{
     "sources": [ "src", "test" ],
     "sdk": {
-            "version": "1.0.0-beta6-12100",
+            "version": "1.0.0-beta6-12174",
             "architecture": "x86",
             "runtime": "clr"
     }
