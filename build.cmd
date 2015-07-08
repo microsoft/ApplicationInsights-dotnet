@@ -2,8 +2,9 @@
 
 call "%VS140COMNTOOLS%\VsDevCmd.bat"
 SET ProjectName=Msbuild.All
-REM Set the configuration to either release or debug based on the requirement.
+REM Set the configuration to either release or debug based on the requirement. Accepts this as a parameter to build.cmd. By default it is chosen to be Release.
 SET Configuration=Release
+if NOT "%1"=="" (SET Configuration=%1)  
 SET Platform=Any CPU
 SET NugetOrg_Feed=https://www.nuget.org/api/v2/
 SET IsOfficialBuild=False
