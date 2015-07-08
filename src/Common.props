@@ -26,9 +26,4 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <PartitionPropertiesFile>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Partition.props'))\Partition.props</PartitionPropertiesFile>
-  </PropertyGroup>
-  <Import Project="$(PartitionPropertiesFile)" Condition="Exists($(PartitionPropertiesFile))" />
 </Project>
