@@ -11,7 +11,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
-    <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{76F1466A-8B6D-4E39-A767-685A06062A39};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>Wpa81.Tests_TemporaryKey.pfx</PackageCertificateKeyFile>
@@ -37,8 +37,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'" />
   <ItemGroup>
-    <SDKReference Include="MSTestFramework, Version=12.0" />
-    <SDKReference Include="TestPlatform, Version=12.0" />
+    <SDKReference Include="MSTestFramework, Version=14.0" />
+    <SDKReference Include="TestPlatform, Version=14.0" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
