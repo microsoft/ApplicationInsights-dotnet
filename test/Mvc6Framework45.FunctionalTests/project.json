@@ -1,7 +1,7 @@
 {
   "webroot": "wwwroot",
   "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
-  "version": "1.0.0-beta6",
+  "version": "1.0.0-beta6-*",
 
   "dependencies": {
     "EntityFramework.SqlServer": "7.0.0-beta6-*",
