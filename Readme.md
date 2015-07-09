@@ -81,7 +81,7 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit.runner.aspnet": "2.0.0-aspnet-beta5-*",
+"xunit.runner.aspnet": "2.0.0-aspnet-beta6-*",
 ```
 
 and test command:
