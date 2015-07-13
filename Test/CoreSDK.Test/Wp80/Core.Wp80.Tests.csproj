@@ -96,11 +96,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Managed\Wp80\Core.Wp80.csproj">
+    <ProjectReference Include="..\..\..\src\Core\Managed\Wp80\Core.Wp80.csproj">
       <Project>{3a820d7a-f63c-460d-b2bd-ddac9433b4e9}</Project>
       <Name>Core.Wp80</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TestFramework\Wp80\TestFramework.Wp80.csproj">
+    <ProjectReference Include="..\TestFramework\Wp80\TestFramework.Wp80.csproj">
       <Project>{b3ad9230-7e7a-4c82-8a7e-f297eeef8bb8}</Project>
       <Name>TestFramework.Wp80</Name>
     </ProjectReference>
