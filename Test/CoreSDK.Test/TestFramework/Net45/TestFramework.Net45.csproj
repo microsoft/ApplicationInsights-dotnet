@@ -27,7 +27,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Managed\Net45\Core.Net45.csproj">
+    <ProjectReference Include="..\..\..\..\src\core\Managed\Net45\Core.Net45.csproj">
       <Project>{412659ca-49b0-4834-bfbf-8183055083c8}</Project>
       <Name>Core.Net45</Name>
     </ProjectReference>
