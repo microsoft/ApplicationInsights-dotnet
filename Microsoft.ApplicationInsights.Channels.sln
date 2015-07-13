@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13F02CEF-09E5-4E55-B467-FBBD8880E302}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,39 +14,39 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{6AF2BDAF-C97E-4923-8644-DB62552F269B}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Shared", "..\Core\Managed\Shared\Core.Shared.shproj", "{C1AAA703-5E32-45C0-A69D-F46D1C659AE4}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Shared", "src\Core\Managed\Shared\Core.Shared.shproj", "{C1AAA703-5E32-45C0-A69D-F46D1C659AE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net40", "..\Core\Managed\Net40\Core.Net40.csproj", "{CD752CD2-6711-4AD7-B5C8-F8C23CF076B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net40", "src\Core\Managed\Net40\Core.Net40.csproj", "{CD752CD2-6711-4AD7-B5C8-F8C23CF076B1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramework", "{51D6AF30-CD12-4BED-8B84-48489F9766FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Wrt81", "..\Core\Managed\Wrt81\Core.Wrt81.csproj", "{50368B2B-A526-460E-8AD9-AB2E7951DAB2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Wrt81", "src\Core\Managed\Wrt81\Core.Wrt81.csproj", "{50368B2B-A526-460E-8AD9-AB2E7951DAB2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGets", "NuGets", "{F3E1B574-37ED-4787-8EBF-0A272CAC891B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Wp80", "..\Core\Managed\Wp80\Core.Wp80.csproj", "{3A820D7A-F63C-460D-B2BD-DDAC9433B4E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Wp80", "src\Core\Managed\Wp80\Core.Wp80.csproj", "{3A820D7A-F63C-460D-B2BD-DDAC9433B4E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Net40", "TestFramework\Net40\TestFramework.Net40.csproj", "{804AF8FD-87F5-48AE-90C8-70433018B76E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Net40", "Test\Persistence.Test\TestFramework\Net40\TestFramework.Net40.csproj", "{804AF8FD-87F5-48AE-90C8-70433018B76E}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "TestFramework\Shared\TestFramework.Shared.shproj", "{F76C6CBD-29B0-4564-BDCB-C969F8FEC136}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TestFramework.Shared", "Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.shproj", "{F76C6CBD-29B0-4564-BDCB-C969F8FEC136}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Wp80", "TestFramework\Wp80\TestFramework.Wp80.csproj", "{B3AD9230-7E7A-4C82-8A7E-F297EEEF8BB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Wp80", "Test\Persistence.Test\TestFramework\Wp80\TestFramework.Wp80.csproj", "{B3AD9230-7E7A-4C82-8A7E-F297EEEF8BB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Wrt81", "TestFramework\Wrt81\TestFramework.Wrt81.csproj", "{9F9C3D52-ABB9-461A-B1B6-A01BB5CECD93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFramework.Wrt81", "Test\Persistence.Test\TestFramework\Wrt81\TestFramework.Wrt81.csproj", "{9F9C3D52-ABB9-461A-B1B6-A01BB5CECD93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Net40", "PersistenceChannel\Net40\PersistenceChannel.Net40.csproj", "{1EFA40A6-A835-4668-A41F-CB2660B93BFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Net40", "src\TelemetryChannels\PersistenceChannel\Net40\PersistenceChannel.Net40.csproj", "{1EFA40A6-A835-4668-A41F-CB2660B93BFC}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "PersistenceChannel\Shared\Shared.shproj", "{3F212C88-4C51-4B4D-8E8D-7512B791E4BF}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "src\TelemetryChannels\PersistenceChannel\Shared\Shared.shproj", "{3F212C88-4C51-4B4D-8E8D-7512B791E4BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wp80", "PersistenceChannel\Wp80\PersistenceChannel.Wp80.csproj", "{27BF043B-B716-44CF-940E-33A106CDE314}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wp80", "src\TelemetryChannels\PersistenceChannel\Wp80\PersistenceChannel.Wp80.csproj", "{27BF043B-B716-44CF-940E-33A106CDE314}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wrt81", "PersistenceChannel\Wrt81\PersistenceChannel.Wrt81.csproj", "{48D96F13-D9F7-4DB8-A738-E03F82E45BBB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wrt81", "src\TelemetryChannels\PersistenceChannel\Wrt81\PersistenceChannel.Wrt81.csproj", "{48D96F13-D9F7-4DB8-A738-E03F82E45BBB}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared.Tests", "Persistence.Test\Shared.Tests\Shared.Tests.shproj", "{BF0AC726-DE9A-4DA2-8A24-E8B8BC4B2479}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared.Tests", "Test\Persistence.Test\Shared.Tests\Shared.Tests.shproj", "{BF0AC726-DE9A-4DA2-8A24-E8B8BC4B2479}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Net40.Tests", "Persistence.Test\Persistence.Net40.Tests\PersistenceChannel.Net40.Tests.csproj", "{726DF739-178A-457E-8466-A35EE616365A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Net40.Tests", "Test\Persistence.Test\Persistence.Net40.Tests\PersistenceChannel.Net40.Tests.csproj", "{726DF739-178A-457E-8466-A35EE616365A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.NuGet", "NuGets\PersistenceChannel.NuGet\PersistenceChannel.NuGet.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.NuGet", "src\TelemetryChannels\NuGets\PersistenceChannel.NuGet\PersistenceChannel.NuGet.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 	ProjectSection(ProjectDependencies) = postProject
 		{48D96F13-D9F7-4DB8-A738-E03F82E45BBB} = {48D96F13-D9F7-4DB8-A738-E03F82E45BBB}
 		{27BF043B-B716-44CF-940E-33A106CDE314} = {27BF043B-B716-44CF-940E-33A106CDE314}
@@ -57,31 +57,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PersistenceChannel", "Persi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PersistenceChannel.Tests", "PersistenceChannel.Tests", "{50F0A6B8-2946-4E1C-90EF-97D457267EE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wrt81.Tests", "Persistence.Test\Persistence.Wrt81.Tests\PersistenceChannel.Wrt81.Tests.csproj", "{4CAD12EE-32A9-4206-8379-7857F093BA2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wrt81.Tests", "Test\Persistence.Test\Persistence.Wrt81.Tests\PersistenceChannel.Wrt81.Tests.csproj", "{4CAD12EE-32A9-4206-8379-7857F093BA2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wp80.Tests", "Persistence.Test\Persistence.Wp80.Tests\PersistenceChannel.Wp80.Tests.csproj", "{4CD8227F-AFAA-425E-8C49-276167053110}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceChannel.Wp80.Tests", "Test\Persistence.Test\Persistence.Wp80.Tests\PersistenceChannel.Wp80.Tests.csproj", "{4CD8227F-AFAA-425E-8C49-276167053110}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net45", "..\Core\Managed\Net45\Core.Net45.csproj", "{412659CA-49B0-4834-BFBF-8183055083C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net45", "src\Core\Managed\Net45\Core.Net45.csproj", "{412659CA-49B0-4834-BFBF-8183055083C8}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Persistence.Test\Shared.Tests\Shared.Tests.projitems*{bf0ac726-de9a-4da2-8a24-e8b8bc4b2479}*SharedItemsImports = 13
-		..\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
-		TestFramework\Shared\TestFramework.Shared.projitems*{9f9c3d52-abb9-461a-b1b6-a01bb5cecd93}*SharedItemsImports = 4
-		PersistenceChannel\Shared\Shared.projitems*{27bf043b-b716-44cf-940e-33a106cde314}*SharedItemsImports = 4
-		Persistence.Test\Shared.Tests\Shared.Tests.projitems*{4cd8227f-afaa-425e-8c49-276167053110}*SharedItemsImports = 4
-		Persistence.Test\Shared.Tests\Shared.Tests.projitems*{726df739-178a-457e-8466-a35ee616365a}*SharedItemsImports = 4
-		Persistence.Test\Shared.Tests\Shared.Tests.projitems*{4cad12ee-32a9-4206-8379-7857f093ba2d}*SharedItemsImports = 4
-		PersistenceChannel\Shared\Shared.projitems*{3f212c88-4c51-4b4d-8e8d-7512b791e4bf}*SharedItemsImports = 13
-		..\Core\Managed\Shared\Shared.projitems*{3a820d7a-f63c-460d-b2bd-ddac9433b4e9}*SharedItemsImports = 4
-		TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
-		TestFramework\Shared\TestFramework.Shared.projitems*{b3ad9230-7e7a-4c82-8a7e-f297eeef8bb8}*SharedItemsImports = 4
-		..\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
-		..\Core\Managed\Shared\Shared.projitems*{50368b2b-a526-460e-8ad9-ab2e7951dab2}*SharedItemsImports = 4
-		..\Core\Managed\Shared\Shared.projitems*{c1aaa703-5e32-45c0-a69d-f46d1c659ae4}*SharedItemsImports = 13
-		PersistenceChannel\Shared\Shared.projitems*{48d96f13-d9f7-4db8-a738-e03f82e45bbb}*SharedItemsImports = 4
-		TestFramework\Shared\TestFramework.Shared.projitems*{804af8fd-87f5-48ae-90c8-70433018b76e}*SharedItemsImports = 4
-		PersistenceChannel\Shared\Shared.projitems*{1efa40a6-a835-4668-a41f-cb2660b93bfc}*SharedItemsImports = 4
+		Test\Persistence.Test\Shared.Tests\Shared.Tests.projitems*{bf0ac726-de9a-4da2-8a24-e8b8bc4b2479}*SharedItemsImports = 13
+		src\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
+		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{9f9c3d52-abb9-461a-b1b6-a01bb5cecd93}*SharedItemsImports = 4
+		src\TelemetryChannels\PersistenceChannel\Shared\Shared.projitems*{27bf043b-b716-44cf-940e-33a106cde314}*SharedItemsImports = 4
+		Test\Persistence.Test\Shared.Tests\Shared.Tests.projitems*{4cd8227f-afaa-425e-8c49-276167053110}*SharedItemsImports = 4
+		Test\Persistence.Test\Shared.Tests\Shared.Tests.projitems*{726df739-178a-457e-8466-a35ee616365a}*SharedItemsImports = 4
+		Test\Persistence.Test\Shared.Tests\Shared.Tests.projitems*{4cad12ee-32a9-4206-8379-7857f093ba2d}*SharedItemsImports = 4
+		src\TelemetryChannels\PersistenceChannel\Shared\Shared.projitems*{3f212c88-4c51-4b4d-8e8d-7512b791e4bf}*SharedItemsImports = 13
+		src\Core\Managed\Shared\Shared.projitems*{3a820d7a-f63c-460d-b2bd-ddac9433b4e9}*SharedItemsImports = 4
+		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
+		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{b3ad9230-7e7a-4c82-8a7e-f297eeef8bb8}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{50368b2b-a526-460e-8ad9-ab2e7951dab2}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{c1aaa703-5e32-45c0-a69d-f46d1c659ae4}*SharedItemsImports = 13
+		src\TelemetryChannels\PersistenceChannel\Shared\Shared.projitems*{48d96f13-d9f7-4db8-a738-e03f82e45bbb}*SharedItemsImports = 4
+		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{804af8fd-87f5-48ae-90c8-70433018b76e}*SharedItemsImports = 4
+		src\TelemetryChannels\PersistenceChannel\Shared\Shared.projitems*{1efa40a6-a835-4668-a41f-cb2660b93bfc}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -8,6 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0451BAEF-DF2E-4B98-8644-94EE9415E389}</ProjectGuid>
     <OutputType>Library</OutputType>
+	<OutputPath>$(BinRoot)\$(Configuration)\TelemetryChannels\NuGet\PersistenceChannel.NuGet</OutputPath>
     <RootNamespace>Microsoft.ApplicationInsights.NuGet</RootNamespace>
     <AssemblyName>Microsoft.ApplicationInsights.NuGet</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
