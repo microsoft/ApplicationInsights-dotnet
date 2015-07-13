@@ -9,6 +9,13 @@
   </ImportGroup>     
   
   <PropertyGroup>
+    <!--Removing the SRC folder from the output directory-->
+    <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
+    <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <RootNamespace>Microsoft.ApplicationInsights.PersistenceChannel</RootNamespace>
     <AssemblyName>$(RootNamespace)</AssemblyName>
     <ErrorReport>prompt</ErrorReport>
