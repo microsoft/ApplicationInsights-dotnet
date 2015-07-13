@@ -70,17 +70,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform, Version=2.0.43.141, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform, Version=2.0.43.145, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.2.0.43-build00141\lib\portable-net40+wp8+win81+wpa81\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.dll</HintPath>
+      <HintPath>..\..\External\DataPlatform\portable-net40+wp8+win81+wpa81\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1, Version=1.0.43.141, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1, Version=1.0.43.145, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.2.0.43-build00141\lib\portable-net40+wp8+win81+wpa81\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
+      <HintPath>..\..\External\DataPlatform\portable-net40+wp8+win81+wpa81\\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2, Version=2.0.43.141, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2, Version=2.0.43.145, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.2.0.43-build00141\lib\portable-net40+wp8+win81+wpa81\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
+      <HintPath>..\..\External\DataPlatform\portable-net40+wp8+win81+wpa81\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
