@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6-*",
     "Microsoft.AspNet.FeatureModel": "1.0.0-beta6-*",
     "Microsoft.AspNet.Http": "1.0.0-beta6-*",
     "Microsoft.AspNet.Http.Extensions": "1.0.0-beta6-*",

@@ -10,7 +10,7 @@
     "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
     "dependencies": {
-        "Microsoft.ApplicationInsights": "0.17.1-beta",
+        "Microsoft.ApplicationInsights": "1.1.1-beta",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-beta6-*",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta6-*",
         "Microsoft.AspNet.Http.Features": "1.0.0-beta6-*",
@@ -27,7 +27,7 @@
             },
             "dependencies": {
               "System.Net.NameResolution": "4.0.0-beta-22816",
-              "System.Reflection": "4.0.10-beta-22816"
+              "System.Reflection": "4.0.10-beta-23109"
             }
         }
     }
