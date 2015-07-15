@@ -4,8 +4,8 @@
   "version": "1.0.0-beta6-*",
 
   "dependencies": {
-    "EntityFramework.SqlServer": "7.0.0-beta6-*",
-    "EntityFramework.Commands": "7.0.0-beta6-*",
+    "EntityFramework7.SqlServer": "7.0.0-beta6-*",
+    "EntityFramework7.Commands": "7.0.0-beta6-*",
     "FunctionalTestUtils": "1.0.0-beta6-*",
     "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6",
     "Microsoft.AspNet.Mvc": "6.0.0-beta6-*",
