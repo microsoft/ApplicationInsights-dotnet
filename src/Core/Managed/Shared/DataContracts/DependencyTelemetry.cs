@@ -197,6 +197,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         void ITelemetry.Sanitize()
         {
             this.Name = this.Name.SanitizeName();
+            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.DependencyTypeName = this.DependencyTypeName.SanitizeValue();
             this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
