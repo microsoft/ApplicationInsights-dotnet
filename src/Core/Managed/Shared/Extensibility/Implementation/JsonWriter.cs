@@ -61,19 +61,6 @@
             }
         }
 
-        public void WriteRequiredProperty(string name, string value)
-        {
-            this.WritePropertyName(name);
-            if (!string.IsNullOrEmpty(value))
-            {
-                this.WriteString(value);
-            }
-            else
-            {
-                this.WriteString(string.Empty);
-            }
-        }
-
         public void WriteProperty(string name, bool? value)
         {
             if (value.HasValue)
@@ -81,11 +68,6 @@
                 this.WritePropertyName(name);
                 this.textWriter.Write(value.Value ? "true" : "false");
             }
-        }
-
-        public void WriteRequiredProperty(string name, bool value)
-        {
-            this.WriteProperty(name, value);
         }
 
         public void WriteProperty(string name, int? value)
@@ -97,11 +79,6 @@
             }
         }
 
-        public void WriteRequiredProperty(string name, int value)
-        {
-            this.WriteProperty(name, value);
-        }
-
         public void WriteProperty(string name, double? value)
         {
             if (value.HasValue)
@@ -109,11 +86,6 @@
                 this.WritePropertyName(name);
                 this.textWriter.Write(value.Value.ToString(CultureInfo.InvariantCulture));
             }
-        }
-
-        public void WriteRequiredProperty(string name, double value)
-        {
-            this.WriteProperty(name, value);
         }
 
         public void WriteProperty(string name, TimeSpan? value)
@@ -128,22 +100,12 @@
             }
         }
 
-        public void WriteRequiredProperty(string name, TimeSpan value)
-        {
-            this.WriteProperty(name, value);
-        }
-
         public void WriteProperty(string name, DateTimeOffset? value)
         {
             if (value.HasValue)
             {
                 this.WriteProperty(name, value.Value.ToString("o", CultureInfo.InvariantCulture));
             }
-        }
-
-        public void WriteRequiredProperty(string name, DateTimeOffset value)
-        {
-            this.WriteProperty(name, value);
         }
 
         public void WriteProperty(string name, IJsonSerializable value)
@@ -306,22 +268,12 @@
                 }
             }
 
-            public void WriteRequiredProperty(string name, string value)
-            {
-                this.IsEmpty = false;
-            }
-
             public void WriteProperty(string name, bool? value)
             {
                 if (value.HasValue)
                 {
                     this.IsEmpty = false;
                 }
-            }
-
-            public void WriteRequiredProperty(string name, bool value)
-            {
-                this.WriteProperty(name, value);
             }
 
             public void WriteProperty(string name, int? value)
@@ -332,22 +284,12 @@
                 }
             }
 
-            public void WriteRequiredProperty(string name, int value)
-            {
-                this.WriteProperty(name, value);
-            }
-
             public void WriteProperty(string name, double? value)
             {
                 if (value.HasValue)
                 {
                     this.IsEmpty = false;
                 }
-            }
-
-            public void WriteRequiredProperty(string name, double value)
-            {
-                this.WriteProperty(name, value);
             }
 
             public void WriteProperty(string name, TimeSpan? value)
@@ -357,11 +299,6 @@
                     this.IsEmpty = false;
                 }
             }
-
-            public void WriteRequiredProperty(string name, TimeSpan value)
-            {
-                this.WriteProperty(name, value);
-            }
             
             public void WriteProperty(string name, DateTimeOffset? value)
             {
@@ -369,11 +306,6 @@
                 {
                     this.IsEmpty = false;
                 }
-            }
-
-            public void WriteRequiredProperty(string name, DateTimeOffset value)
-            {
-                this.WriteProperty(name, value);
             }
 
             public void WriteProperty(string name, IJsonSerializable value)

@@ -140,10 +140,10 @@
                     writer.WriteProperty("outerId", exceptionDetails.outerId);
                 }
 
-                writer.WriteRequiredProperty(
+                writer.WriteProperty(
                     "typeName",
                     Utils.PopulateRequiredStringValue(exceptionDetails.typeName, "typeName", typeof(ExceptionTelemetry).FullName));
-                writer.WriteRequiredProperty(
+                writer.WriteProperty(
                     "message",
                     Utils.PopulateRequiredStringValue(exceptionDetails.message, "message", typeof(ExceptionTelemetry).FullName));
 
@@ -183,8 +183,8 @@
 
         private static void SerializeStackFrame(StackFrame frame, IJsonWriter writer)
         {
-            writer.WriteRequiredProperty("level", frame.level);
-            writer.WriteRequiredProperty(
+            writer.WriteProperty("level", frame.level);
+            writer.WriteProperty(
                 "method",
                 Utils.PopulateRequiredStringValue(frame.method, "StackFrameMethod", typeof(ExceptionTelemetry).FullName));
             writer.WriteProperty("assembly", frame.assembly);
@@ -301,8 +301,8 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", eventTelemetry.Data.ver);
-                    writer.WriteRequiredProperty("name", eventTelemetry.Data.name);
+                    writer.WriteProperty("ver", eventTelemetry.Data.ver);
+                    writer.WriteProperty("name", eventTelemetry.Data.name);
                     writer.WriteProperty("measurements", eventTelemetry.Data.measurements);
                     writer.WriteProperty("properties", eventTelemetry.Data.properties);
 
@@ -330,8 +330,8 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", exceptionTelemetry.Data.ver);
-                    writer.WriteRequiredProperty(
+                    writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
+                    writer.WriteProperty(
                         "handledAt",
                         Utils.PopulateRequiredStringValue(exceptionTelemetry.Data.handledAt, "handledAt", typeof(ExceptionTelemetry).FullName));
                     writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
@@ -380,9 +380,9 @@
                     {
                         writer.WriteStartArray();
                         writer.WriteStartObject();
-                        writer.WriteRequiredProperty("name", metricTelemetry.Metric.name);
+                        writer.WriteProperty("name", metricTelemetry.Metric.name);
                         writer.WriteProperty("kind", metricTelemetry.Metric.kind.ToString());
-                        writer.WriteRequiredProperty("value", metricTelemetry.Metric.value);
+                        writer.WriteProperty("value", metricTelemetry.Metric.value);
                         writer.WriteProperty("count", metricTelemetry.Metric.count);
                         writer.WriteProperty("min", metricTelemetry.Metric.min);
                         writer.WriteProperty("max", metricTelemetry.Metric.max);
@@ -418,8 +418,8 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", pageViewTelemetry.Data.ver);
-                    writer.WriteRequiredProperty("name", pageViewTelemetry.Data.name);
+                    writer.WriteProperty("ver", pageViewTelemetry.Data.ver);
+                    writer.WriteProperty("name", pageViewTelemetry.Data.name);
                     writer.WriteProperty("url", pageViewTelemetry.Data.url);
                     writer.WriteProperty("duration", pageViewTelemetry.Data.duration);
                     writer.WriteProperty("measurements", pageViewTelemetry.Data.measurements);
@@ -450,14 +450,14 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", dependencyTelemetry.Data.ver);
-                    writer.WriteRequiredProperty("name", dependencyTelemetry.Data.name);
+                    writer.WriteProperty("ver", dependencyTelemetry.Data.ver);
+                    writer.WriteProperty("name", dependencyTelemetry.Data.name);
 
                     writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
                     writer.WriteProperty("kind", (int)dependencyTelemetry.Data.kind);
-                    writer.WriteRequiredProperty("value", dependencyTelemetry.Data.value);
+                    writer.WriteProperty("value", dependencyTelemetry.Data.value);
 
-                    writer.WriteRequiredProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
+                    writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
                     writer.WriteProperty("async", dependencyTelemetry.Data.async);
                     writer.WriteProperty("dependencySource", (int)dependencyTelemetry.Data.dependencySource);
@@ -489,13 +489,13 @@
                 {
                     jsonWriter.WriteStartObject();
 
-                    jsonWriter.WriteRequiredProperty("ver", requestTelemetry.Data.ver);
-                    jsonWriter.WriteRequiredProperty("id", requestTelemetry.Data.id);
+                    jsonWriter.WriteProperty("ver", requestTelemetry.Data.ver);
+                    jsonWriter.WriteProperty("id", requestTelemetry.Data.id);
                     jsonWriter.WriteProperty("name", requestTelemetry.Data.name);
-                    jsonWriter.WriteRequiredProperty("startTime", requestTelemetry.Timestamp);
-                    jsonWriter.WriteRequiredProperty("duration", requestTelemetry.Duration);
-                    jsonWriter.WriteRequiredProperty("success", requestTelemetry.Data.success);
-                    jsonWriter.WriteRequiredProperty("responseCode", requestTelemetry.Data.responseCode);
+                    jsonWriter.WriteProperty("startTime", requestTelemetry.Timestamp);
+                    jsonWriter.WriteProperty("duration", requestTelemetry.Duration);
+                    jsonWriter.WriteProperty("success", requestTelemetry.Data.success);
+                    jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
                     jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
                     jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
                     jsonWriter.WriteProperty("httpMethod", requestTelemetry.Data.httpMethod);
@@ -525,8 +525,8 @@
                 {
                     jsonWriter.WriteStartObject();
 
-                    jsonWriter.WriteRequiredProperty("ver", 2);
-                    jsonWriter.WriteRequiredProperty("state", sessionStateTelemetry.State.ToString());
+                    jsonWriter.WriteProperty("ver", 2);
+                    jsonWriter.WriteProperty("state", sessionStateTelemetry.State.ToString());
 
                     jsonWriter.WriteEndObject();
                 }
@@ -553,8 +553,8 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", traceTelemetry.Data.ver);
-                    writer.WriteRequiredProperty("message", traceTelemetry.Message);
+                    writer.WriteProperty("ver", traceTelemetry.Data.ver);
+                    writer.WriteProperty("message", traceTelemetry.Message);
 
                     if (traceTelemetry.SeverityLevel.HasValue)
                     {
@@ -590,11 +590,11 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteRequiredProperty("ver", performanceCounter.Data.ver);
-                    writer.WriteRequiredProperty("categoryName", performanceCounter.Data.categoryName);
-                    writer.WriteRequiredProperty("counterName", performanceCounter.Data.counterName);
+                    writer.WriteProperty("ver", performanceCounter.Data.ver);
+                    writer.WriteProperty("categoryName", performanceCounter.Data.categoryName);
+                    writer.WriteProperty("counterName", performanceCounter.Data.counterName);
                     writer.WriteProperty("instanceName", performanceCounter.Data.instanceName);
-                    writer.WriteRequiredProperty("value", performanceCounter.Data.value);
+                    writer.WriteProperty("value", performanceCounter.Data.value);
                     writer.WriteProperty("properties", performanceCounter.Data.properties);
 
                     writer.WriteEndObject();

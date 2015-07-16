@@ -78,6 +78,7 @@
             original.Name = null;
             original.ResponseCode = null;
             original.Url = null;
+            ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(original);
 
             Assert.Equal(2, item.Data.BaseData.Ver);

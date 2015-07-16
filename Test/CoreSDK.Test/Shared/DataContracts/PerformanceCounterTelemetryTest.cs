@@ -28,6 +28,7 @@
             original.CategoryName = null;
             original.CounterName = null;
             original.InstanceName = null;
+            ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, DataPlatformModel.PerformanceCounterData>(original);
 
             Assert.Equal(2, item.Data.BaseData.Ver);

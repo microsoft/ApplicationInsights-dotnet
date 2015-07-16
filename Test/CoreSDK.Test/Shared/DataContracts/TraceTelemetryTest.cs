@@ -98,6 +98,7 @@
             TraceTelemetry original = new TraceTelemetry();
             original.Message = null;
             original.SeverityLevel = null;
+            ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, DataPlatformModel.MessageData>(original);
 
             Assert.Equal(2, item.Data.BaseData.Ver);

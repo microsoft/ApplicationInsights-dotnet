@@ -54,6 +54,7 @@
             original.Success = null;
             original.Async = null;
             original.DependencyKind = null;
+            ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(original);
 
             Assert.Equal(2, item.Data.BaseData.Ver);
