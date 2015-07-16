@@ -12,7 +12,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [DebuggerDisplay(@"CategoryName={CategoryName}; CounterName={CounterName}; InstanceName={InstanceName}; Value={Value}; Timestamp={Timestamp}")]
-    internal class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
+    public class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "PerformanceCounter";
         internal readonly string BaseType = typeof(PerformanceCounterData).Name;
