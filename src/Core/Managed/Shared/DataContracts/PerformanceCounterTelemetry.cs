@@ -12,7 +12,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [DebuggerDisplay(@"CategoryName={CategoryName}; CounterName={CounterName}; InstanceName={InstanceName}; Value={Value}; Timestamp={Timestamp}")]
-    public class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "PerformanceCounter";
         internal readonly string BaseType = typeof(PerformanceCounterData).Name;
@@ -20,11 +20,21 @@
 
         private TelemetryContext context;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceCounterTelemetry"/> class.
+        /// </summary>
         public PerformanceCounterTelemetry()
         {
             this.Data = new PerformanceCounterData();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceCounterTelemetry"/> class.
+        /// </summary>
+        /// <param name="categoryName">Category name.</param>
+        /// <param name="counterName">Performance counter name.</param>
+        /// <param name="instanceName">Instance name.</param>
+        /// <param name="value">Performance counter value.</param>
         public PerformanceCounterTelemetry(string categoryName, string counterName, string instanceName, double value) : this()
         {
             this.CategoryName = categoryName;
