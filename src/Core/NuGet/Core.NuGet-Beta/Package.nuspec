@@ -2,7 +2,7 @@
 <package>
   <metadata minClientVersion="2.8.50313">
     <id>Microsoft.ApplicationInsights</id>
-    <version>1.1.1-beta</version>
+    <version>1.2.1-beta</version>
     <title>Application Insights API</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
