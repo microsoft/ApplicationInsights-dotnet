@@ -161,6 +161,21 @@
         }
 
         [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            MetricTelemetry original = new MetricTelemetry();
+            original.Name = null;
+            original.Max = null;
+            original.Min = null;
+            original.Count = null;
+            original.StandardDeviation = null;
+            ((ITelemetry)original).Sanitize();
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
+        }
+
+        [TestMethod]
         public void MetricTelemetryIsNotSubjectToSampling()
         {
             var sentTelemetry = new List<ITelemetry>();
