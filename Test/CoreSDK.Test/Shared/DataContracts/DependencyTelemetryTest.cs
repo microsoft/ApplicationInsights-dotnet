@@ -35,8 +35,6 @@
             Assert.Equal(expected.Name, item.Data.BaseData.Name);
             Assert.Equal(DataPlatformModel.DataPointType.Aggregation, item.Data.BaseData.Kind);
             Assert.Equal(expected.Duration.TotalMilliseconds, item.Data.BaseData.Value);
-            Assert.True(item.Data.BaseData.Count.HasValue);
-            Assert.Equal(expected.Count, item.Data.BaseData.Count.Value);
             Assert.Equal(expected.DependencyKind.ToString(), item.Data.BaseData.DependencyKind.ToString());
             Assert.Equal(expected.DependencyTypeName, item.Data.BaseData.DependencyTypeName);
 
@@ -44,6 +42,22 @@
             Assert.Equal(expected.Async, item.Data.BaseData.Async);
             
             Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+        }
+
+        [TestMethod]
+        public void SerializeWritesNullValuesAsExpectedByEndpoint()
+        {
+            DependencyTelemetry original = new DependencyTelemetry();
+            original.Name = null;
+            original.CommandName = null;
+            original.DependencyTypeName = null;
+            original.Success = null;
+            original.Async = null;
+            original.DependencyKind = null;
+            ((ITelemetry)original).Sanitize();
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(original);
+
+            Assert.Equal(2, item.Data.BaseData.Ver);
         }
 
         [TestMethod]
@@ -123,12 +137,16 @@
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
+            telemetry.CommandName = new string('Y', Property.MaxCommandNameLength + 1);
+            telemetry.DependencyTypeName = new string('D', Property.MaxValueLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
             
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
+            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.CommandName);
+            Assert.Equal(new string('D', Property.MaxValueLength), telemetry.DependencyTypeName);
 
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
@@ -180,7 +198,6 @@
                                                 Name = "MyWebServer.cloudapp.net",
                                                 DependencyKind = BondDependencyKind.SQL.ToString(),
                                                 Duration = TimeSpan.FromMilliseconds(42),
-                                                Count = 68,
                                                 Async = false,
                                                 Success = true,
                                                 DependencyTypeName = "external call"
