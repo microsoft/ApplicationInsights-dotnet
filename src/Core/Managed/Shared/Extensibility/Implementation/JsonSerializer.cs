@@ -456,7 +456,6 @@
                     writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
                     writer.WriteProperty("kind", (int)dependencyTelemetry.Data.kind);
                     writer.WriteProperty("value", dependencyTelemetry.Data.value);
-                    writer.WriteProperty("count", dependencyTelemetry.Data.count);
 
                     writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
