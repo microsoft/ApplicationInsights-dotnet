@@ -299,7 +299,7 @@
                     this.IsEmpty = false;
                 }
             }
-            
+
             public void WriteProperty(string name, DateTimeOffset? value)
             {
                 if (value.HasValue)
