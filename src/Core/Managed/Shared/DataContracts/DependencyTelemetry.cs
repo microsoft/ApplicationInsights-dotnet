@@ -14,7 +14,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    [DebuggerDisplay(@"Value={Value}; Name={Name}; Count={Count}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
+    [DebuggerDisplay(@"Value={Value}; Name={Name}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
     public sealed class DependencyTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "RemoteDependency";
@@ -114,12 +114,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets request count.
+        /// Gets or sets request count. Obsolete, use SamplingPercentage instead.
         /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int? Count
         {
-            get { return this.Data.count; }
-            set { this.Data.count = value; }
+            get { return 1; }
+            set { }
         }
 
         /// <summary>
@@ -195,6 +197,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
         void ITelemetry.Sanitize()
         {
             this.Name = this.Name.SanitizeName();
+            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
+            this.DependencyTypeName = this.DependencyTypeName.SanitizeValue();
+            this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }
     }

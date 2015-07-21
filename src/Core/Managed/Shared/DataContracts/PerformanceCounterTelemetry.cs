@@ -141,6 +141,8 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
+            this.CategoryName = Utils.PopulateRequiredStringValue(this.CategoryName, "CategoryName", typeof(PerformanceCounterTelemetry).FullName);
+            this.CounterName = Utils.PopulateRequiredStringValue(this.CounterName, "CounterName", typeof(PerformanceCounterTelemetry).FullName);
         }
     }
 }
