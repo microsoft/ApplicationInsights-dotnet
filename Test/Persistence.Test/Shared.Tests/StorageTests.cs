@@ -157,6 +157,34 @@
             Assert.IsNull(storage.Peek());
         }
 
+        [TestMethod]
+        public void WhenStorageFolderIsNullPeekReturnsNothing()
+        {
+            // Setup - create a storage with 2 items
+            Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
+            storage.StorageFolderInitialized = true;
+            
+            // Act - Enqueue twice
+            CreateTransmissionAndEnqueueIt(storage);
+            
+            // Asserts - Second Peek should be null             
+            Assert.IsNull(storage.Peek());
+        }
+
+        [TestMethod]
+        public void WhenStorageFolderIsNullDeleteDoNothing()
+        {
+            // Setup - create a storage with 2 items
+            Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
+            storage.StorageFolderInitialized = true;
+
+            // Act - Enqueue twice
+            CreateTransmissionAndEnqueueIt(storage);
+
+            // Asserts - Second Peek should be null             
+            Assert.IsNull(storage.Peek());
+        }
+
         private static Transmission CreateTransmission(ITelemetry telemetry)
         {
             byte[] data = JsonSerializer.Serialize(telemetry);
