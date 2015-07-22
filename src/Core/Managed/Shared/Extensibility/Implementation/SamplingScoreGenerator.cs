@@ -34,21 +34,21 @@
             return samplingScore * 100;
         }
 
-        private static int GetSamplingHashCode(this string input)
+        internal static int GetSamplingHashCode(this string input)
         {
             if (input == null)
             {
                 return 0;
             }
 
-            long hash = 5381;
+            int hash = 5381;
 
             for (int i = 0; i < input.Length; i++)
             {
                 hash = ((hash << 5) + hash) + (int)input[i];
             }
 
-            return Math.Abs((int)hash);
+            return hash == int.MinValue ? int.MaxValue : Math.Abs(hash);
         }
     }
 }
