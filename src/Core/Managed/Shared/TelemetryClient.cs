@@ -27,8 +27,6 @@
         private TelemetryContext context;
         private ITelemetryChannel channel;
 
-        private double? samplingPercentage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
         /// </summary>
@@ -59,29 +57,6 @@
         {
             get { return LazyInitializer.EnsureInitialized(ref this.context, this.CreateInitializedContext); }
             internal set { this.context = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100) for all <see cref="ITelemetry"/> 
-        /// objects logged in this <see cref="TelemetryClient"/>.
-        /// </summary>
-        /// <remarks>
-        /// All sampling percentage must be in a ratio of 100/N where N is a whole number (2, 3, 4, …). E.g. 50 for 1/2 or 33.33 for 1/3. 
-        /// Failure to follow this pattern can result in unexpected / incorrect computation of values in the portal. 
-        /// </remarks>
-        public double SamplingPercentage
-        {
-            get
-            {
-                return this.samplingPercentage.HasValue
-                    ? this.samplingPercentage.Value
-                    : this.configuration.SamplingPercentage;
-            }
-
-            set
-            {
-                this.samplingPercentage = value;
-            }
         }
 
         /// <summary>
@@ -395,22 +370,6 @@
 
                 telemetry.Sanitize();
 
-                if (this.SamplingPercentage < 100.0 - 1.0E-12)
-                {
-                    // set sampling percentage on telemetry item
-                    var samplingSupportingTelemetry = telemetry as ISupportSampling;
-
-                    if (samplingSupportingTelemetry != null)
-                    {
-                        samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
-                    }
-
-                    if (!this.IsSampledIn(telemetry))
-                    {
-                        return;
-                    }
-                }
-
                 this.Channel.Send(telemetry);
 
                 if (System.Diagnostics.Debugger.IsAttached)
@@ -488,31 +447,6 @@
             }
 
             return context;
-        }
-
-        private bool IsSampledIn(ITelemetry telemetry)
-        {
-            // check if telemetry supports sampling
-            var samplingSupportingTelemetry = telemetry as ISupportSampling;
-
-            if (samplingSupportingTelemetry == null)
-            {
-                return true;
-            }
-
-            // check sampling < 100% is specified
-            if (samplingSupportingTelemetry.SamplingPercentage >= 100.0)
-            {
-                return true;
-            }
-
-            // no sampling in dev mode
-            if (this.channel.DeveloperMode == true)
-            {
-                return true;
-            }
-
-            return SamplingScoreGenerator.GetSamplingScore(telemetry) < samplingSupportingTelemetry.SamplingPercentage;
         }
 
         private void WriteTelemetryToDebugOutput(ITelemetry telemetry)

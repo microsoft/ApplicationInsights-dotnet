@@ -25,7 +25,6 @@
 
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
         /// <summary>
         /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
@@ -114,29 +113,6 @@
                 }
 
                 this.disableTelemetry = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100) for the application.
-        /// </summary>
-        /// <remarks>
-        /// All sampling percentage must be in a ratio of 100/N where N is a whole number (2, 3, 4, …). E.g. 50 for 1/2 or 33.33 for 1/3. 
-        /// Failure to follow this pattern can result in unexpected / incorrect computation of values in the portal. 
-        /// This sampling percentage value is used by default by all <see cref="TelemetryClient"/> instances
-        /// created in the application. This value can be overwritten by setting the <see cref="TelemetryClient.SamplingPercentage"/>
-        /// property of the <see cref="TelemetryClient"/>.
-        /// </remarks>
-        public double SamplingPercentage
-        {
-            get
-            {
-                return this.samplingPercentage;
-            }
-
-            set
-            {
-                this.samplingPercentage = value;
             }
         }
 
