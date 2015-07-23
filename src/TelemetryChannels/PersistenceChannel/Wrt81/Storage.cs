@@ -178,11 +178,11 @@ namespace Microsoft.ApplicationInsights.Channel
                 this.EnsureSizeIsCalculatedAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
                 IStorageFile file = this.StorageFolder.GetFileAsync(item.FileName).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                long fileSize = this.GetSizeAsync(file).ConfigureAwait(false).GetAwaiter().GetResult();
                 file.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
                 this.deletedFilesQueue.Enqueue(item.FileName);
 
-                // calculate size
-                long fileSize = this.GetSizeAsync(file).ConfigureAwait(false).GetAwaiter().GetResult();
+                // calculate size                
                 Interlocked.Add(ref this.storageSize, -fileSize);
                 Interlocked.Decrement(ref this.storageCountFiles);
             }
@@ -310,7 +310,7 @@ namespace Microsoft.ApplicationInsights.Channel
 
                     // a low 'top' value might cause a bug if there are more then 50 tmp files. This is a trade off, 
                     // because reading all the files (no top) has a performance hit and there is no expectation to have 50 tmp files. 
-                    return files.Where((file) => Path.GetExtension(file.Name).Equals(".trn", StringComparison.OrdinalIgnoreCase));
+                    return files.Where((file) => Path.GetExtension(file.Name).Equals(filterByExtension, StringComparison.OrdinalIgnoreCase));
                 }
             }
             catch (Exception e)
