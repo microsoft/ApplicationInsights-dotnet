@@ -146,7 +146,7 @@
         {
             // Setup - create a storage with 2 items
             Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
-            storage.CapacityInBytes = 300; // Each file enqueued in CreateTransmissionAndEnqueueIt is ~300 bytes.
+            storage.CapacityInBytes = 200; // Each file enqueued in CreateTransmissionAndEnqueueIt is ~300 bytes.
 
             // Act - Enqueue twice
             CreateTransmissionAndEnqueueIt(storage);
