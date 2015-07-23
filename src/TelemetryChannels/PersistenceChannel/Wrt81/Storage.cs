@@ -26,6 +26,8 @@ namespace Microsoft.ApplicationInsights.Channel
         private long storageCountFiles = 0;
         private object peekLockObj = new object();
         private StorageFolder storageFolder;
+        private object storageFolderLock = new object();
+        private bool storageFolderInitialized = false;
         private uint transmissionsDropped = 0;
         private string storageFolderName;
 
@@ -65,40 +67,71 @@ namespace Microsoft.ApplicationInsights.Channel
         }
 
         /// <summary>
-        /// Gets the storage folder. 
+        /// Gets or sets a value indicating whether storage folder was already tried to be created. Only used for UTs. 
+        /// Once this value is true, StorageFolder will always return null, which mocks scenario that storage's folder 
+        /// couldn't be created.
         /// </summary>
+        internal bool StorageFolderInitialized
+        {
+            get
+            {
+                return this.storageFolderInitialized;
+            }
+
+            set
+            {
+                this.storageFolderInitialized = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the storage folder. If storage folder couldn't be created, null will be returned.
+        /// </summary>        
         private StorageFolder StorageFolder
         {
             get
             {
-                lock (this)
+                if (!this.storageFolderInitialized)
                 {
-                    return LazyInitializer.EnsureInitialized(
-                        ref this.storageFolder,
-                        () =>
+                    lock (this.storageFolderLock)
+                    {
+                        if (!this.storageFolderInitialized)
                         {
-                            StorageFolder folder = ApplicationData
-                                    .Current
-                                    .LocalFolder
-                                    .CreateFolderAsync(this.FolderName, CreationCollisionOption.OpenIfExists)
-                                    .AsTask()
-                                    .ConfigureAwait(false)
-                                    .GetAwaiter()
-                                    .GetResult();
-                            string msg = string.Format("Storage folder: {0}", folder == null ? "null" : folder.Path);
+                            try
+                            {
+                                this.storageFolder = ApplicationData
+                                                .Current
+                                                .LocalFolder
+                                                .CreateFolderAsync(this.FolderName, CreationCollisionOption.OpenIfExists)
+                                                .AsTask()
+                                                .ConfigureAwait(false)
+                                                .GetAwaiter()
+                                                .GetResult();
+                            }
+                            catch (Exception e)
+                            {   
+                                this.storageFolder = null;
+                                string error = string.Format("Failed to create storage folder: {0}", e);
+                                CoreEventSource.Log.LogVerbose(error);
+                            }
+
+                            this.storageFolderInitialized = true;
+                            string msg = string.Format("Storage folder: {0}", this.storageFolder == null ? "null" : this.storageFolder.Path);
                             CoreEventSource.Log.LogVerbose(msg);
-                            return folder;
-                        });
+                        }
+                    }
                 }
+
+                return this.storageFolder;
             }
         }
-        
+
         /// <summary>
         /// Reads an item from the storage. Order is Last-In-First-Out. 
         /// When the Transmission is no longer needed (it was either sent or failed with a non-retriable error) it should be disposed. 
         /// </summary>
         internal override StorageTransmission Peek()
-        {   
+        {
             IEnumerable<StorageFile> files = this.GetFiles(CommonFileQuery.OrderByName, ".trn", top: 50);
 
             lock (this.peekLockObj)
@@ -136,6 +169,11 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             try
             {
+                if (this.StorageFolder == null)
+                {
+                    return;
+                }
+
                 // Initial storage size calculation. 
                 this.EnsureSizeIsCalculatedAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -159,9 +197,9 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             try
             {   
-                if (transmission == null)
+                if (transmission == null || this.StorageFolder == null)
                 {
-                    throw new ArgumentNullException("transmission");
+                    return;
                 }
 
                 // Initial storage size calculation. 
@@ -202,7 +240,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 // Renames the file
                 await temporaryFile.RenameAsync(newFileName, NameCollisionOption.FailIfExists).AsTask().ConfigureAwait(false);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 CoreEventSource.Log.LogVerbose(string.Format(CultureInfo.InvariantCulture, "EnqueueAsync: Exception: {0}", e));
             }
@@ -261,16 +299,19 @@ namespace Microsoft.ApplicationInsights.Channel
 
             try
             {
-                files = this.StorageFolder
-                            .GetFilesAsync(CommonFileQuery.DefaultQuery, 0, top)
-                            .AsTask()
-                            .ConfigureAwait(false)
-                            .GetAwaiter()
-                            .GetResult();
+                if (this.StorageFolder != null)
+                {
+                    files = this.StorageFolder
+                                .GetFilesAsync(CommonFileQuery.DefaultQuery, 0, top)
+                                .AsTask()
+                                .ConfigureAwait(false)
+                                .GetAwaiter()
+                                .GetResult();
 
-                // a low 'top' value might cause a bug if there are more then 50 tmp files. This is a trade off, 
-                // because reading all the files (no top) has a performance hit and there is no expectation to have 50 tmp files. 
-                return files.Where((file) => Path.GetExtension(file.Name).Equals(".trn", StringComparison.OrdinalIgnoreCase));
+                    // a low 'top' value might cause a bug if there are more then 50 tmp files. This is a trade off, 
+                    // because reading all the files (no top) has a performance hit and there is no expectation to have 50 tmp files. 
+                    return files.Where((file) => Path.GetExtension(file.Name).Equals(".trn", StringComparison.OrdinalIgnoreCase));
+                }
             }
             catch (Exception e)
             {

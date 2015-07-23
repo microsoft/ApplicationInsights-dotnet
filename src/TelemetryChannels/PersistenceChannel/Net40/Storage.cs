@@ -28,6 +28,8 @@ namespace Microsoft.ApplicationInsights.Channel
         private DirectoryInfo storageFolder;
         private int transmissionsDropped = 0;
         private string storageFolderName;
+        private bool storageFolderInitialized;
+        private object storageFolderLock = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Storage"/> class.
@@ -66,24 +68,55 @@ namespace Microsoft.ApplicationInsights.Channel
         }
 
         /// <summary>
-        /// Gets the storage folder. 
+        /// Gets or sets a value indicating whether storage folder was already tried to be created. Only used for UTs. 
+        /// Once this value is true, StorageFolder will always return null, which mocks scenario that storage's folder 
+        /// couldn't be created.
         /// </summary>
+        internal bool StorageFolderInitialized
+        {
+            get
+            {
+                return this.storageFolderInitialized;
+            }
+
+            set
+            {
+                this.storageFolderInitialized = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the storage folder. If storage folder couldn't be created, null will be returned.
+        /// </summary>        
         internal DirectoryInfo StorageFolder
         {
             get
             {
-                lock (this)
+                if (!this.storageFolderInitialized)
                 {
-                    return LazyInitializer.EnsureInitialized(
-                        ref this.storageFolder,
-                        () =>
+                    lock (this.storageFolderLock)
+                    {
+                        if (!this.storageFolderInitialized)
                         {
-                            DirectoryInfo folder = this.GetApplicationFolder();
-                            string msg = string.Format("Storage folder: {0}", folder == null ? "null" : folder.FullName);
-                            CoreEventSource.Log.LogVerbose(msg);                            
-                            return folder;
-                        });
+                            try
+                            {
+                                this.storageFolder = this.GetApplicationFolder();
+                            }
+                            catch (Exception e)
+                            {
+                                this.storageFolder = null;
+                                string error = string.Format("Failed to create storage folder: {0}", e);
+                                CoreEventSource.Log.LogVerbose(error);
+                            }
+
+                            this.storageFolderInitialized = true;
+                            string msg = string.Format("Storage folder: {0}", this.storageFolder == null ? "null" : this.storageFolder.FullName);
+                            CoreEventSource.Log.LogVerbose(msg);
+                        }
+                    }
                 }
+
+                return this.storageFolder;
             }
         }
 
@@ -128,6 +161,11 @@ namespace Microsoft.ApplicationInsights.Channel
 
         internal override void Delete(StorageTransmission item)
         {
+            if (this.StorageFolder == null)
+            {
+                return;
+            }
+
             try
             {
                 File.Delete(item.FullFilePath);
@@ -149,6 +187,11 @@ namespace Microsoft.ApplicationInsights.Channel
         {   
             try
             {
+                if (this.StorageFolder == null)
+                {
+                    return;
+                }
+
                 if (transmission == null)
                 {
                     CoreEventSource.Log.LogVerbose("transmission is null. EnqueueAsync is skipped");
@@ -182,7 +225,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 // Renames the file
                 File.Move(tempFullFilePath, newFillFilePath);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 CoreEventSource.Log.LogVerbose(string.Format(CultureInfo.InvariantCulture, "EnqueueAsync: Exception: {0}", e));
             }
@@ -295,14 +338,19 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             IDictionary environment = Environment.GetEnvironmentVariables();
 
-            foreach (string rootPath in new[] { environment["LOCALAPPDATA"], environment["TEMP"] })
+            var folderOption1 = new { RootPath = environment["LOCALAPPDATA"] as string,   AISubFolder = @"Microsoft\ApplicationInsights" };
+            var folderOption2 = new { RootPath = environment["TEMP"] as string,           AISubFolder = @"Microsoft\ApplicationInsights" };
+            var folderOption3 = new { RootPath = environment["ProgramData"] as string,    AISubFolder = @"Microsoft ApplicationInsights" };
+
+            foreach (var folderOption in new[] { folderOption1, folderOption2, folderOption3 })
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(rootPath))
+                    if (!string.IsNullOrEmpty(folderOption.RootPath))
                     {
-                        var rootDirectory = new DirectoryInfo(rootPath);
-                        DirectoryInfo telemetryDirectory = this.CreateTelemetrySubdirectory(rootDirectory);
+                        var root = new DirectoryInfo(folderOption.RootPath);
+                        string subdirectoryPath = Path.Combine(folderOption.AISubFolder, this.storageFolderName);
+                        DirectoryInfo telemetryDirectory = root.CreateSubdirectory(subdirectoryPath);
                         CheckAccessPermissions(telemetryDirectory);
                         return telemetryDirectory;
                     }
@@ -314,12 +362,6 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             return null;
-        }
-
-        private DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
-        {
-            string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", this.storageFolderName);
-            return root.CreateSubdirectory(subdirectoryPath);
         }
 
         private bool IsStorageLimitsReached()
@@ -348,8 +390,11 @@ namespace Microsoft.ApplicationInsights.Channel
 
             try
             {
-                files = this.StorageFolder.GetFiles(filter, SearchOption.TopDirectoryOnly);
-                return files.OrderBy(fileInfo => fileInfo.Name);
+                if (this.StorageFolder != null)
+                {
+                    files = this.StorageFolder.GetFiles(filter, SearchOption.TopDirectoryOnly);
+                    return files.OrderBy(fileInfo => fileInfo.Name);
+                }
             }
             catch (Exception e)
             {
