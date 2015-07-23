@@ -121,32 +121,5 @@
             Assert.Contains("name", telemetry.Name, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.Name, StringComparison.OrdinalIgnoreCase);            
         }
-
-        [TestMethod]
-        public void EventTelemetryIsSubjectToSampling()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
-
-            var client = new TelemetryClient(configuration) { Channel = channel, SamplingPercentage = 10 };
-
-            const int ItemsToGenerate = 100;
-
-            for (int i = 0; i < 100; i++)
-            {
-                client.TrackEvent(new EventTelemetry("event"));
-            }
-
-            Assert.True(sentTelemetry.Count > 0);
-            Assert.True(sentTelemetry.Count < ItemsToGenerate);
-        }
-
-        [TestMethod]
-        public void EventTelemetryImplementsISupportSamplingContract()
-        {
-            var test = new ISupportSamplingTest<EventTelemetry, DataPlatformModel.EventData>();
-            test.Run();
-        }
     }
 }

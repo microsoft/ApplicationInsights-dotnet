@@ -199,25 +199,6 @@
 
         #endregion
 
-        #region SamplingPercentage
-
-        [TestMethod]
-        public void SamplingPercentageIs100ByDefault()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(100, configuration.SamplingPercentage);
-        }
-
-        [TestMethod]
-        public void SamplingPercentageCanBeSetToProgrammaticallyDefineSamplingPercentageForAllContextsInApplication()
-        {
-            var configuration = new TelemetryConfiguration();
-            configuration.SamplingPercentage = 50;
-            Assert.Equal(50, configuration.SamplingPercentage);
-        }
-
-        #endregion
-
         #region ContextInitializers
 
         [TestMethod]

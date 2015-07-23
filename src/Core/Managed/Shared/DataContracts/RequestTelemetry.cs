@@ -16,15 +16,13 @@
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
     /// </remarks>
-    public sealed class RequestTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class RequestTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Request";
 
         internal readonly string BaseType = typeof(RequestData).Name;
         internal readonly RequestData Data;
         private readonly TelemetryContext context;
-
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -174,15 +172,6 @@
         {
             get { return this.Data.httpMethod; }
             set { this.Data.httpMethod = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// </summary>
-        double ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
         }
 
         /// <summary>

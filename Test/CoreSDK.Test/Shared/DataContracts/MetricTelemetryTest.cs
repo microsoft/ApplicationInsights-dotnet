@@ -174,24 +174,5 @@
 
             Assert.Equal(2, item.Data.BaseData.Ver);
         }
-
-        [TestMethod]
-        public void MetricTelemetryIsNotSubjectToSampling()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
-
-            var client = new TelemetryClient(configuration) { Channel = channel, SamplingPercentage = 10 };
-
-            const int ItemsToGenerate = 100;
-
-            for (int i = 0; i < 100; i++)
-            {
-                client.TrackMetric(new MetricTelemetry("metric", 1.0));
-            }
-
-            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
-        }
     }
 }
