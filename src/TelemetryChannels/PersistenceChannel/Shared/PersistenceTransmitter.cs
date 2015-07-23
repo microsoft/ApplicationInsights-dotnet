@@ -40,9 +40,9 @@ namespace Microsoft.ApplicationInsights.Channel
         /// Cancels the sending. 
         /// </summary>
         private CancellationTokenSource sendingCancellationTokenSource;
-        
+
         /// <summary>
-        /// A mutex that will be used as a name mutex to synchronize transmitters even from different processes.
+        /// A mutex that will be used as a name mutex to synchronize transmitters from different channels and different processes.
         /// </summary>
         private Mutex mutex;
 
@@ -66,8 +66,16 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             this.storage = storage;
             this.sendingCancellationTokenSource = new CancellationTokenSource();
-            this.mutex = new Mutex(initiallyOwned: false, name: this.storage.FolderName);
             this.eventToKeepMutexThreadAlive = new AutoResetEvent(false);
+            try
+            {
+                this.mutex = new Mutex(initiallyOwned: false, name: this.storage.FolderName);
+            }
+            catch (Exception e)
+            {
+                string errorMsg = string.Format(CultureInfo.InvariantCulture, "PersistenceTransmitter: Failed to construct the mutex: {0}", e);
+                CoreEventSource.Log.LogVerbose(errorMsg);
+            }
 
             if (createSenders)
             {
@@ -106,22 +114,30 @@ namespace Microsoft.ApplicationInsights.Channel
         /// Disposes the object.
         /// </summary>
         public void Dispose()
-        {   
-           if (Interlocked.Increment(ref this.disposeCount) == 1)
-           {
-               this.sendingCancellationTokenSource.Cancel();
-               this.sendingCancellationTokenSource.Dispose();               
+        {
+            if (Interlocked.Increment(ref this.disposeCount) == 1)
+            {
+                this.sendingCancellationTokenSource.Cancel();
+                this.sendingCancellationTokenSource.Dispose();
 
 #if NET35
-               this.mutex.Close();
+               if (this.mutex != null)
+               {
+                    this.mutex.Close();
+               }
+
                this.eventToKeepMutexThreadAlive.Close();
 #else
-               this.mutex.Dispose();
-               this.eventToKeepMutexThreadAlive.Dispose();
+                if (this.mutex != null)
+                {
+                    this.mutex.Dispose();
+                }
+
+                this.eventToKeepMutexThreadAlive.Dispose();
 #endif
 
-               this.StopSenders();
-           }
+                this.StopSenders();
+            }
         }
 
         /// <summary>
@@ -152,6 +168,13 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <param name="action">The action to perform once the mutex is acquired.</param>
         private void AcquireMutex(Action action)
         {
+            if (this.mutex == null)
+            {
+                // if mutex is null, nothing will be sent. Telemetries will be enqueued and persisted 
+                // but nothing will be sent until app is reopened and Mutex is successfully constructed. 
+                return;
+            }
+
             while (!this.sendingCancellationTokenSource.IsCancellationRequested)
             {
                 try
@@ -168,8 +191,8 @@ namespace Microsoft.ApplicationInsights.Channel
                         action();
                     }
 
-                    // Prevent the thread for quiting. Once this thread ends the Mutex will be released and other transmitter 
-                    // (from different processes for example, will acquire the mutex)
+                    // Prevents the thread from quiting. Once this thread ends the Mutex will be released and another transmitter 
+                    // (from a different process for example) will acquire the mutex.
                     this.eventToKeepMutexThreadAlive.WaitOne();
                     return;
                 }

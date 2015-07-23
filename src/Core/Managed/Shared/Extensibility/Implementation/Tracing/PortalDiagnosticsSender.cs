@@ -42,10 +42,6 @@
 
             this.telemetryClient = new TelemetryClient(configuration);
 
-            // set sampling to 100% since there is additional throttling
-            // implemented differently
-            this.telemetryClient.SamplingPercentage = 100;
-
             this.throttlingManager = throttlingManager;
         }
 

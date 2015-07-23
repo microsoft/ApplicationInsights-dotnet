@@ -61,24 +61,5 @@
             Assert.Equal(DataPlatformModel.SessionState.End, envelope.Data.BaseData.State);
             Assert.Equal(2, envelope.Data.BaseData.Ver);
         }
-
-        [TestMethod]
-        public void SessionStateTelemetryIsNotSubjectToSampling()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
-
-            var client = new TelemetryClient(configuration) { Channel = channel, SamplingPercentage = 10 };
-
-            const int ItemsToGenerate = 100;
-
-            for (int i = 0; i < 100; i++)
-            {
-                client.Track(new SessionStateTelemetry());
-            }
-
-            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
-        }
     }
 }
