@@ -10,15 +10,13 @@
     /// <summary>
     /// Telemetry type used to track events.
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Event";
          
         internal readonly string BaseType = typeof(EventData).Name;
         internal readonly EventData Data;
         private readonly TelemetryContext context;
-
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="EventTelemetry"/> class.
@@ -79,15 +77,6 @@
         public IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// </summary>
-        double ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
         }
 
         /// <summary>

@@ -12,7 +12,7 @@
     /// <summary>
     /// Telemetry type used to track exceptions.
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
@@ -20,8 +20,6 @@
 
         private readonly TelemetryContext context;
         private Exception exception;
-
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class with empty properties.
@@ -115,15 +113,6 @@
         {
             get { return this.Data.severityLevel.TranslateSeverityLevel(); }
             set { this.Data.severityLevel = value.TranslateSeverityLevel(); }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// </summary>
-        double ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
         }
 
         internal IList<ExceptionDetails> Exceptions

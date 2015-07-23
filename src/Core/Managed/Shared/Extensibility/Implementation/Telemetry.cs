@@ -9,14 +9,6 @@
         public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
         {
             json.WriteProperty("time", telemetry.Timestamp);
-
-            var samplingSupportingTelemetry = telemetry as ISupportSampling;
-
-            if ((samplingSupportingTelemetry != null) && (samplingSupportingTelemetry.SamplingPercentage < 100.0 - 1.0E-12))
-            {
-                json.WriteProperty("sampleRate", samplingSupportingTelemetry.SamplingPercentage);
-            }
-
             json.WriteProperty("seq", telemetry.Sequence);
             ((IJsonSerializable)telemetry.Context).Serialize(json);
         }
