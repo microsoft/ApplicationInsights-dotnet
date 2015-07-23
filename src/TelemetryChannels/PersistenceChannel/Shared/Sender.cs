@@ -272,7 +272,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private static bool IsRetryable(int? httpStatusCode, WebExceptionStatus webExceptionStatus)
         {
-#if NET40 || NET35 // WINRT doesn't support ProxyNameResolutionFailure/NameResolutionFailure/Timeout/ConnectFailure, for WinPhone this seems like a corner scenario and we don't want to spend the effot to test it now.
+#if NET40 || NET45 // WINRT doesn't support ProxyNameResolutionFailure/NameResolutionFailure/Timeout/ConnectFailure, for WinPhone this seems like a corner scenario and we don't want to spend the effot to test it now.
             switch (webExceptionStatus)
             {
                 case WebExceptionStatus.ProxyNameResolutionFailure:

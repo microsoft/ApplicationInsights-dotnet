@@ -4,7 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-#if WINRT
+#if WINRT || NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
