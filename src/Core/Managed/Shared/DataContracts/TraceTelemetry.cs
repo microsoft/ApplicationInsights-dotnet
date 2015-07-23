@@ -11,15 +11,13 @@
     /// Telemetry type used for log messages.
     /// Contains a time and message and optionally some additional metadata.
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Message";
 
         internal readonly string BaseType = typeof(MessageData).Name;
         internal readonly MessageData Data;
         private readonly TelemetryContext context;
-
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceTelemetry"/> class.
@@ -88,15 +86,6 @@
         public IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
-        }
-
-        /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).
-        /// </summary>
-        double ISupportSampling.SamplingPercentage
-        {
-            get { return this.samplingPercentage; }
-            set { this.samplingPercentage = value; }
         }
 
         /// <summary>

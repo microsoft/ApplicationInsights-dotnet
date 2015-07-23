@@ -18,10 +18,5 @@
         internal const string EventSourceGroupTraitKey = "ETW_GROUP";
 
         internal const int MaxExceptionCountToSave = 10;
-
-        /// <summary>
-        /// Sampling percentage to use if none is specified.
-        /// </summary>
-        internal const double DefaultSamplingPercentage = 100.0;
     }
 }

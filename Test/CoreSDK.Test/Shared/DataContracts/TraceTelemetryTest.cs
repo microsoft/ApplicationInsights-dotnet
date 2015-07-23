@@ -132,32 +132,5 @@
             Assert.Contains("message", telemetry.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.Message, StringComparison.OrdinalIgnoreCase);
         }
-
-        [TestMethod]
-        public void TraceTelemetryIsSubjectToSampling()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
-
-            var client = new TelemetryClient(configuration) { Channel = channel, SamplingPercentage = 10 };
-
-            const int ItemsToGenerate = 100;
-
-            for (int i = 0; i < 100; i++)
-            {
-                client.TrackTrace("message");
-            }
-
-            Assert.True(sentTelemetry.Count > 0);
-            Assert.True(sentTelemetry.Count < ItemsToGenerate);
-        }
-
-        [TestMethod]
-        public void TraceTelemetryImplementsISupportSamplingContract()
-        {
-            var test = new ISupportSamplingTest<TraceTelemetry, DataPlatformModel.MessageData>();
-            test.Run();
-        }
     }
 }

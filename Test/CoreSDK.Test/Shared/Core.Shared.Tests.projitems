@@ -17,7 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Channel\TransmissionTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetryTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportSamplingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\MetricTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PerformanceCounterTelemetryTest.cs" />
@@ -28,7 +27,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ClockTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SamplingScoreGeneratorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
