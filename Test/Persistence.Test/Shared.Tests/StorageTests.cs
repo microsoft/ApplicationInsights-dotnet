@@ -11,7 +11,7 @@
 #if WINDOWS_PHONE || WINDOWS_STORE
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;    
 #else
-    using Microsoft.VisualStudio.TestTools.UnitTesting;    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
     /// <summary>
@@ -31,7 +31,7 @@
         {
             // Setup
             Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
-            Transmission transmissionToEnqueue = CreateTransmission(new TraceTelemetry("mock_item"));            
+            Transmission transmissionToEnqueue = CreateTransmission(new TraceTelemetry("mock_item"));
 
             // Act
             storage.EnqueueAsync(transmissionToEnqueue).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -55,8 +55,8 @@
 
             // if item is not disposed,peek will not return it (regardless of the call to delete). 
             // So for this test to actually test something, using 'using' is required.  
-            using (firstPeekedTransmission = storage.Peek()) 
-            {   
+            using (firstPeekedTransmission = storage.Peek())
+            {
                 storage.Delete(firstPeekedTransmission);
             }
 
@@ -72,10 +72,10 @@
         {
             // Setup - create a storage with one item
             Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
-            Transmission transmissionToEnqueue = CreateTransmissionAndEnqueueIt(storage);            
+            Transmission transmissionToEnqueue = CreateTransmissionAndEnqueueIt(storage);
 
             // Act
-            StorageTransmission firstPeekedTransmission = storage.Peek();            
+            StorageTransmission firstPeekedTransmission = storage.Peek();
             StorageTransmission secondPeekedTransmission = storage.Peek();
 
             // Asserts            
@@ -109,8 +109,8 @@
         {
             // Setup - create a storage with 2 items
             Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
-            Transmission firstTransmission = CreateTransmissionAndEnqueueIt(storage);            
-            Transmission secondTransmission = CreateTransmissionAndEnqueueIt(storage);            
+            Transmission firstTransmission = CreateTransmissionAndEnqueueIt(storage);
+            Transmission secondTransmission = CreateTransmissionAndEnqueueIt(storage);
 
             // Act
             StorageTransmission firstPeekedTransmission = storage.Peek();
@@ -154,6 +154,20 @@
 
             // Asserts - Second Peek should be null 
             Assert.IsNotNull(storage.Peek());
+            Assert.IsNull(storage.Peek());
+        }
+
+        [TestMethod]
+        public void WhenStorageFolderIsNullPeekReturnsNothing()
+        {
+            // Setup - create a storage with 2 items
+            Storage storage = new Storage("unittest" + Guid.NewGuid().ToString());
+            storage.StorageFolderInitialized = true;
+
+            // Act - Enqueue twice
+            CreateTransmissionAndEnqueueIt(storage);
+
+            // Asserts - Second Peek should be null             
             Assert.IsNull(storage.Peek());
         }
 
