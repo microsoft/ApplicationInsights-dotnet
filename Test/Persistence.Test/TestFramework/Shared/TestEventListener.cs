@@ -3,7 +3,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if WINRT
+#if WINRT || NET45
     using System.Diagnostics.Tracing;
 #endif
     using System.Threading;
