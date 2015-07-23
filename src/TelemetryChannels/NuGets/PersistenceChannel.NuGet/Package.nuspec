@@ -15,7 +15,19 @@
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry</tags>
     <dependencies>
-      <group>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.ApplicationInsights" version="$version$" />
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.24"/>
+      </group>  
+      <group targetFramework="net45">
+        <dependency id="Microsoft.ApplicationInsights" version="$version$" />
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+        <dependency id="Microsoft.ApplicationInsights" version="$version$" />
+      </group>
+      <group targetFramework="portable-win81+wpa81">
         <dependency id="Microsoft.ApplicationInsights" version="$version$" />
       </group>
     </dependencies>
@@ -25,6 +37,11 @@
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net40\Microsoft.ApplicationInsights.PersistenceChannel.dll" target="lib\net40" />
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net40\Microsoft.ApplicationInsights.PersistenceChannel.pdb" target="lib\net40" />
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net40\Microsoft.ApplicationInsights.PersistenceChannel.xml" target="lib\net40" />
+    
+    <!-- Binaries for .NET 4.5 projects -->
+    <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net45\Microsoft.ApplicationInsights.PersistenceChannel.dll" target="lib\net45" />
+    <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net45\Microsoft.ApplicationInsights.PersistenceChannel.pdb" target="lib\net45" />
+    <file src="$configuration$\TelemetryChannels\PersistenceChannel\Net45\Microsoft.ApplicationInsights.PersistenceChannel.xml" target="lib\net45" />
 
     <!-- wp8: Binaries for Windows Phone 8.0 and 8.1 (Silverlight Runtime) projects -->
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Wp80\Microsoft.ApplicationInsights.PersistenceChannel.dll" target="lib\wp8" />
@@ -34,6 +51,6 @@
     <!-- portable-win81+wpa81: Windows Runtime projects (Phone & Store, Managed)-->
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Wrt81\Microsoft.ApplicationInsights.PersistenceChannel.dll" target="lib\portable-win81+wpa81" />
     <file src="$configuration$\TelemetryChannels\PersistenceChannel\Wrt81\Microsoft.ApplicationInsights.PersistenceChannel.pdb" target="lib\portable-win81+wpa81" />
-    <file src="$configuration$\TelemetryChannels\PersistenceChannel\Wrt81\Microsoft.ApplicationInsights.PersistenceChannel.xml" target="lib\portable-win8+wpa81" />
+    <file src="$configuration$\TelemetryChannels\PersistenceChannel\Wrt81\Microsoft.ApplicationInsights.PersistenceChannel.xml" target="lib\portable-win81+wpa81" />
   </files>
 </package>
