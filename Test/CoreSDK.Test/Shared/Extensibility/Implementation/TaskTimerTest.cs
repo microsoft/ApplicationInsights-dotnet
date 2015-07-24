@@ -138,7 +138,7 @@
                 Assert.Equal(1, invokationCount);
             }
 
-#if !Wp80
+#if !Wp80 && !WINDOWS_PHONE
             [TestMethod]
             [Timeout(1000)]
             public void HandlesAsyncExceptionThrownByTheDelegate()

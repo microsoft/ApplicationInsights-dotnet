@@ -558,7 +558,7 @@
             Assert.DoesNotThrow(() => client.Track(new StubTelemetry()));
         }
 
-#if !Wp80
+#if !Wp80 && !WINDOWS_PHONE
         [TestMethod]
         public void TrackLogsDiagnosticsMessageOnExceptionsDuringTelemetryIntializersInitialize()
         {

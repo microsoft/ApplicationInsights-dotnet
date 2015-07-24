@@ -6,14 +6,13 @@
   -->
 
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\Keys\InternalKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly Condition="'$(SIGNING_KEYS_PATH)'!='' AND Exists('$(SIGNING_KEYS_PATH)\InternalKey.snk')">true</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PublicRelease)' == 'True'">
     <DefineConstants>$(DefineConstants);PUBLIC_RELEASE</DefineConstants>
     <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\Keys\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SIGNING_KEYS_PATH)\Keys\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Default metadata for all files to sign -->
