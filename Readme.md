@@ -34,7 +34,7 @@ Developing
 ----------
 
 ## Pre-requisites
-- [Visual Studio 2015 RC](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Visual Studio 2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
 - [Node.js](https://nodejs.org/download).
 - [Git](http://git-scm.com/download).
 - Source Code.
