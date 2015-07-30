@@ -20,4 +20,5 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" />
   <Import Project="..\..\Common.targets" />
+  <Import Project="..\..\SetEnv.targets"/>
 </Project>

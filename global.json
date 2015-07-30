@@ -1,5 +1,7 @@
 ﻿{
     "sources": [ "src", "test" ],
     "sdk": {
+            "architecture": "x86",
+            "runtime": "clr"
     }
 }

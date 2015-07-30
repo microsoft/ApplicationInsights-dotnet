@@ -34,7 +34,7 @@ Developing
 ----------
 
 ## Pre-requisites
-- [Visual Studio 2015 RC](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Visual Studio 2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
 - [Node.js](https://nodejs.org/download).
 - [Git](http://git-scm.com/download).
 - Source Code.
@@ -81,7 +81,7 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit.runner.aspnet": "2.0.0-aspnet-beta5-*",
+"xunit.runner.aspnet": "2.0.0-aspnet-beta6-*",
 ```
 
 and test command:

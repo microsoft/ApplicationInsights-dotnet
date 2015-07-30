@@ -6,9 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Mvc6Framework45.FunctionalTests.Models;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Mvc6Framework45.FunctionalTests.Migrations
 {
@@ -31,7 +30,6 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .Annotation("OriginalValueIndex", 3);
                     b.Property<string>("Id")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 4);
                     b.Property<bool>("LockoutEnabled")
                         .Annotation("OriginalValueIndex", 5);
@@ -63,7 +61,6 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .ConcurrencyToken()
                         .Annotation("OriginalValueIndex", 0);
                     b.Property<string>("Id")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 1);
                     b.Property<string>("Name")
                         .Annotation("OriginalValueIndex", 2);
@@ -80,7 +77,6 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                     b.Property<string>("ClaimValue")
                         .Annotation("OriginalValueIndex", 1);
                     b.Property<int>("Id")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 2)
                         .Annotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("RoleId")
@@ -96,7 +92,6 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                     b.Property<string>("ClaimValue")
                         .Annotation("OriginalValueIndex", 1);
                     b.Property<int>("Id")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 2)
                         .Annotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("UserId")
@@ -108,12 +103,10 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityUserLogin`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 0);
                     b.Property<string>("ProviderDisplayName")
                         .Annotation("OriginalValueIndex", 1);
                     b.Property<string>("ProviderKey")
-                        .GenerateValueOnAdd()
                         .Annotation("OriginalValueIndex", 2);
                     b.Property<string>("UserId")
                         .Annotation("OriginalValueIndex", 3);

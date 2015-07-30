@@ -107,7 +107,7 @@ namespace Mvc6Framework45.FunctionalTests
                 loggerfactory.AddConsole(minLevel: LogLevel.Warning);
 
                 //app.UseBrowserLink();
-                app.UseErrorPage(ErrorPageOptions.ShowAll);
+                app.UseErrorPage(new ErrorPageOptions());
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
             }
             else
