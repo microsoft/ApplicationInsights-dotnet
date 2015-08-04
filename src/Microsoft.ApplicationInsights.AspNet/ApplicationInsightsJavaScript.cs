@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.AspNet
         ///         property: 'test'
         ///     }" + ApplicationInsightsJavaScript.ScriptPostfix
         /// </summary>
-        public static readonly string ScriptPrefix = @"<script language = 'javascript'>
+        public static readonly string ScriptPrefix = @"<script type=""text/javascript"">
   var appInsights = window.appInsights || function(config){
   function s(config){
     t[config] = function(){ var i = arguments; t.queue.push(function(){ t[config].apply(t, i)})}
