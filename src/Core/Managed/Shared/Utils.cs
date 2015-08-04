@@ -61,7 +61,7 @@
         public static TimeSpan ValidateDuration(string value)
         {
             TimeSpan interval;
-#if NET45
+#if NET45 || UWP
             if (!TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out interval))
 #else
             if (!TimeSpanEx.TryParse(value, CultureInfo.InvariantCulture, out interval))

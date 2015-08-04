@@ -92,7 +92,7 @@
         {
             if (value.HasValue)
             {
-#if NET45
+#if NET45 || UWP
                 this.WriteProperty(name, value.Value.ToString(string.Empty, CultureInfo.InvariantCulture));
 #else
                 this.WriteProperty(name, value.Value.ToString(CultureInfo.InvariantCulture, string.Empty));
