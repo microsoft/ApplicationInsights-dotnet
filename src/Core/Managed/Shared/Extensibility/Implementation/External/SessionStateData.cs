@@ -4,7 +4,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     /// <summary>
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.
     /// </summary>
-    [Microsoft.Diagnostics.Tracing.EventData(Name = "PartB_SessionStateData")]
+    [System.Diagnostics.Tracing.EventData(Name = "PartB_SessionStateData")]
     internal partial class SessionStateData
     {
     }

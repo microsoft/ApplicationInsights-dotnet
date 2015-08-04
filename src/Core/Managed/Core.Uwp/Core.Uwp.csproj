@@ -22,7 +22,7 @@
     <DefineConstants>TRACE;DEBUG;UWP;CORE_PCL</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DefineConstants>TRACE;CODE_ANALYSIS;CORE_PCL;UWP</DefineConstants>
+    <DefineConstants>TRACE;CODE_ANALYSIS;CODE_ANALYSIS;CORE_PCL;UWP;UTC</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
