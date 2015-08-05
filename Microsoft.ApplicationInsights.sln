@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.NuGet.Beta", "src\Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Uwp", "src\Core\Managed\Core.Uwp\Core.Uwp.csproj", "{D076FB25-D286-48F5-80C9-F55FFA576B77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net46", "src\Core\Managed\Core.Net46\Core.Net46.csproj", "{958CFE53-53B7-4E26-846D-DA3F214013E6}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
@@ -81,6 +83,7 @@ Global
 		src\Core\Managed\Shared\Shared.projitems*{3a820d7a-f63c-460d-b2bd-ddac9433b4e9}*SharedItemsImports = 4
 		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{394a78e5-2f8f-4d2d-ae08-027380c9f6b2}*SharedItemsImports = 4
 		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
+		src\Core\Managed\Shared\Shared.projitems*{958cfe53-53b7-4e26-846d-da3f214013e6}*SharedItemsImports = 4
 		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{6587b432-e16a-4d26-93e1-bf12449fdb32}*SharedItemsImports = 4
 		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{b3ad9230-7e7a-4c82-8a7e-f297eeef8bb8}*SharedItemsImports = 4
 		src\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
@@ -396,6 +399,26 @@ Global
 		{D076FB25-D286-48F5-80C9-F55FFA576B77}.Release|x64.Build.0 = Release|Any CPU
 		{D076FB25-D286-48F5-80C9-F55FFA576B77}.Release|x86.ActiveCfg = Release|Any CPU
 		{D076FB25-D286-48F5-80C9-F55FFA576B77}.Release|x86.Build.0 = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|ARM.Build.0 = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|ARM.Build.0 = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|x64.Build.0 = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{958CFE53-53B7-4E26-846D-DA3F214013E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -420,5 +443,6 @@ Global
 		{1AD07F5F-80E4-4020-B944-EE20756E3B24} = {BED5EB47-4AB1-4387-98B6-83CC327D6D16}
 		{4D7638A1-2F34-4C6C-BCD2-D0990A4695E9} = {05ACA4F0-E560-4E7A-BF50-1C248DAAA0D2}
 		{D076FB25-D286-48F5-80C9-F55FFA576B77} = {68CC2924-E162-44BE-8D7A-DBA385365585}
+		{958CFE53-53B7-4E26-846D-DA3F214013E6} = {68CC2924-E162-44BE-8D7A-DBA385365585}
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,7 @@
 #if NET40 || NET35
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if CORE_PCL || NET45 || WINRT
+#if CORE_PCL || NET45 || WINRT || UWP || NET46
     using System.Diagnostics.Tracing;
 #endif
 
