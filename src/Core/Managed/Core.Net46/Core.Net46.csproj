@@ -7,8 +7,6 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{958CFE53-53B7-4E26-846D-DA3F214013E6}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Core.Net46</RootNamespace>
-    <AssemblyName>Core.Net46</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

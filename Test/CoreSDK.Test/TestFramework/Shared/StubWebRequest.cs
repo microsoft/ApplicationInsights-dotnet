@@ -4,7 +4,7 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-#if WINRT || NET45
+#if WINRT || NET45 || UWP
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

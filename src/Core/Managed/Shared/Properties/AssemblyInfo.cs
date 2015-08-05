@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Win81.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Wp80.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Wpa81.Tests" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Uwp.Tests" + AssemblyInfo.PublicKey)]
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TestFramework" + AssemblyInfo.PublicKey)]
 
