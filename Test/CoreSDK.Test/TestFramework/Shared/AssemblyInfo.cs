@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Net40.Tests" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Net46.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Win81.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Wp80.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Wpa81.Tests" + AssemblyInfo.PublicKey)]

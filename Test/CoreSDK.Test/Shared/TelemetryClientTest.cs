@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-#if CORE_PCL || NET45 || WINRT
+#if CORE_PCL || NET45 || WINRT || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
@@ -18,7 +18,7 @@
 #if NET35 || NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if NET40 || NET45 || NET35
+#if NET40 || NET45 || NET35 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;

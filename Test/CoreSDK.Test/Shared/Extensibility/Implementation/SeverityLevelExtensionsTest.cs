@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-#if NET40 || NET45 || NET35
+#if NET40 || NET45 || NET35 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
