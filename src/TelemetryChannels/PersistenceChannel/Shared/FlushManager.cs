@@ -88,7 +88,14 @@ namespace Microsoft.ApplicationInsights.Channel
                 if (this.flushWaitHandle != null)
                 {
                     this.flushLoopEnabled = false;
-                    this.flushWaitHandle.Set();
+                    try
+                    {
+                        this.flushWaitHandle.Set();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // if object already disposed - do nothing.
+                    }
                 }
             }
         }
@@ -138,7 +145,14 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             if (this.flushWaitHandle != null && this.flushLoopEnabled)
             {
-                this.flushWaitHandle.Set();
+                try
+                {
+                    this.flushWaitHandle.Set();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // if object already disposed - do nothing.
+                }
             }
         }
     }
