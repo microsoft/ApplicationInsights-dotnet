@@ -56,7 +56,7 @@ This library makes use of the InMemoryChannel to send telemetry data. This is a 
 ## Branches
 
 - [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
-- [development][develop] contains the code for the *next* release. 
+- [develop][develop] contains the code for the *next* release. 
 
 ## Contributing
 
