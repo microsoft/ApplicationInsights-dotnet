@@ -8,7 +8,7 @@
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta7-*",
         "Microsoft.AspNet.Mvc": "6.0.0-beta7-*",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta7-*",
-        "Microsoft.Framework.Runtime": "1.0.0-beta7-*",
+        "Microsoft.Dnx.Runtime": "1.0.0-beta7-*",
         "Microsoft.Net.Http.Client": "1.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-beta7-*"
     },
