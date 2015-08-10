@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNet.Mvc;
-using Microsoft.Framework.Runtime;
+using Microsoft.Dnx.Runtime;
 
 namespace Mvc6Framework45.FunctionalTests.Controllers
 {
