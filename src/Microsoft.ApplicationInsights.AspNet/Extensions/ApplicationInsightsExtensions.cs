@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
     using Microsoft.Framework.Configuration;
+    using Microsoft.Framework.Configuration.Memory;
 
     public static class ApplicationInsightsExtensions
     {

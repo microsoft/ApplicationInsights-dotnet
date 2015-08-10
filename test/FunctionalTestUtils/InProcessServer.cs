@@ -4,10 +4,11 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.AspNet.FeatureModel;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Hosting.Server;
+    using Microsoft.AspNet.Http.Features;
     using Microsoft.Framework.Configuration;
+    using Microsoft.Framework.Configuration.Memory;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.Runtime;
     using Microsoft.Framework.Runtime.Infrastructure;

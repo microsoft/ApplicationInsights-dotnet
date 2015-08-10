@@ -1,14 +1,14 @@
 {
   "dependencies": {
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6-*",
-    "Microsoft.AspNet.FeatureModel": "1.0.0-beta6-*",
-    "Microsoft.AspNet.Http": "1.0.0-beta6-*",
-    "Microsoft.AspNet.Http.Extensions": "1.0.0-beta6-*",
-    "Microsoft.AspNet.Hosting": "1.0.0-beta6-*",
-    "Microsoft.AspNet.Mvc.Core": "6.0.0-beta6-*",
-    "Microsoft.Framework.Logging": "1.0.0-beta6-*",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-beta6-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-beta6-*"
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Http.Features": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Http": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Http.Extensions": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Hosting": "1.0.0-beta7-*",
+    "Microsoft.AspNet.Mvc.Core": "6.0.0-beta7-*",
+    "Microsoft.Framework.Logging": "1.0.0-beta7-*",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-beta7-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-beta7-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
