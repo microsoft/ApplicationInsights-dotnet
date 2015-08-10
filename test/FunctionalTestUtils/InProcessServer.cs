@@ -7,11 +7,11 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Hosting.Server;
     using Microsoft.AspNet.Http.Features;
+    using Microsoft.Dnx.Runtime;
+    using Microsoft.Dnx.Runtime.Infrastructure;
     using Microsoft.Framework.Configuration;
     using Microsoft.Framework.Configuration.Memory;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.Runtime;
-    using Microsoft.Framework.Runtime.Infrastructure;
     
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable, IServerFactory
