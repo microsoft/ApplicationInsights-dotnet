@@ -19,7 +19,6 @@ using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.Logging.Console;
-using Microsoft.Framework.Runtime;
 using Mvc6Framework45.FunctionalTests.Models;
 using Microsoft.ApplicationInsights.AspNet;
 using FunctionalTestUtils;
