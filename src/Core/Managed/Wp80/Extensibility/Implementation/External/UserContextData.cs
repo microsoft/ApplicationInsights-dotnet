@@ -80,6 +80,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
 
         /// <summary>
+        /// Gets or sets the AuthUserId of an application-defined account associated with the user.
+        /// </summary>
+        public string AuthUserId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the date when the user accessed the application for the first time.
         /// </summary>
         /// <remarks>
@@ -101,6 +110,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.tags.InitializeTagValue(ContextTagKeys.Keys.UserAccountId, source.AccountId);
             this.tags.InitializeTagDateTimeOffsetValue(ContextTagKeys.Keys.UserAccountAcquisitionDate, source.AcquisitionDate);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.UserStoreRegion, source.StoreRegion);
+            this.tags.InitializeTagValue(ContextTagKeys.Keys.UserAuthUserId, source.AuthUserId);
         }
     }
 }
