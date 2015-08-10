@@ -5,7 +5,7 @@
     <PropertyGroup>
       <Dnu>$(RuntimeToolingDirectory)\bin\dnu.cmd</Dnu>
     </PropertyGroup>
-    <Exec Command="$(Dnu) restore $(MSBuildProjectDirectory) -s $(DefaultFeed) -s $(NugetOrg_Feed)" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true">
+    <Exec Command="$(Dnu) restore $(MSBuildProjectDirectory) -s $(DefaultFeed) -s $(NugetOrg_Feed) -s https://www.myget.org/F/roslyn-nightly/ -s https://www.myget.org/F/dotnet-corefx" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true">
 	      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
     </Exec>
     <Message Text="DNU Path: $(Dnu)" Importance="high"/>
