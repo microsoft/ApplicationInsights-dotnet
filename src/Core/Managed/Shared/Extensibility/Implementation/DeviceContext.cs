@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
@@ -92,6 +93,7 @@
         /// <summary>
         /// Gets or sets the role name.
         /// </summary>
+        [Obsolete("Use TelemetryContext.Cloud.RoleName")]
         public string RoleName
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleName); }
@@ -101,6 +103,7 @@
         /// <summary>
         /// Gets or sets the role instance.
         /// </summary>
+        [Obsolete("Use TelemetryContext.Cloud.RoleInstance")]
         public string RoleInstance
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleInstance); }
@@ -118,8 +121,10 @@
             writer.WriteProperty("network", this.NetworkType);
             writer.WriteProperty("resolution", this.ScreenResolution);
             writer.WriteProperty("locale", this.Language);
+#pragma warning disable 618
             writer.WriteProperty("roleName", this.RoleName);
             writer.WriteProperty("roleInstance", this.RoleInstance);
+#pragma warning restore 618
             writer.WriteEndObject();
         }
     }
