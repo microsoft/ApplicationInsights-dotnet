@@ -29,7 +29,6 @@
   <ItemGroup>
     <Content Include="Properties\Core.Uwp.rd.xml" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Compile Include="..\Wp80\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\TelemetryConfigurationFactory.cs</Link>
