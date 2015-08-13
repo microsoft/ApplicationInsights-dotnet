@@ -99,6 +99,8 @@
             expected.Metrics.Add("Metric1", 30);
             expected.Properties.Add("userHostAddress", "::1");
 
+            ((ITelemetry)expected).Sanitize();
+
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
@@ -128,6 +130,7 @@
             {
                 var requestTelemetry = new RequestTelemetry();
                 requestTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
+                ((ITelemetry)requestTelemetry).Sanitize();
                 var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(requestTelemetry);
 
                 Assert.Equal(2, item.Data.BaseData.Ver);
@@ -177,8 +180,11 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);
+
+            // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated
+            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);
+            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
