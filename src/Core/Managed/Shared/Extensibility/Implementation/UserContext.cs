@@ -68,6 +68,16 @@
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserStoreRegion, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the authenticated user id.
+        /// Authenticated user id should be a persistent string that uniquely represents each authenticated user in the application or service.
+        /// </summary>
+        public string AuthenticatedUserId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
+        }
+
         void IJsonSerializable.Serialize(IJsonWriter writer)
         {
             writer.WriteStartObject();
@@ -76,6 +86,7 @@
             writer.WriteProperty("accountId", this.AccountId);
             writer.WriteProperty("anonUserAcquisitionDate", this.AcquisitionDate);
             writer.WriteProperty("storeRegion", this.StoreRegion);
+            writer.WriteProperty("authId", this.AuthenticatedUserId);
             writer.WriteEndObject();
         }      
     }
