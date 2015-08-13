@@ -10,7 +10,8 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Http.Internal;
     using Microsoft.Framework.Configuration;
     using Xunit;
 
