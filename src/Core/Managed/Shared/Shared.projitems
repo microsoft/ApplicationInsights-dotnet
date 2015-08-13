@@ -55,6 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\LocationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformSingleton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Property.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContext.cs" />
