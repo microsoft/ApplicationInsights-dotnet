@@ -22,8 +22,8 @@
 
         internal readonly string BaseType = typeof(RequestData).Name;
         internal readonly RequestData Data;
-        private bool successFieldSet;
         private readonly TelemetryContext context;
+        private bool successFieldSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -85,7 +85,7 @@
         }
 
         /// <summary>
-        /// Redundant. Will be marked obsolete in future versions. Use Context.Operation.Id property instead.
+        /// Gets or sets Request ID. This method is redundant. Will be marked obsolete in future versions. Use Context.Operation.Id property instead.
         /// </summary>
         public string Id
         {
@@ -118,7 +118,7 @@
         {
             get
             {
-                if (successFieldSet)
+                if (this.successFieldSet)
                 {
                     return this.Data.success;
                 }
@@ -127,6 +127,7 @@
                     return null;
                 }
             }
+
             set
             {
                 if (value != null && value.HasValue)
@@ -206,7 +207,8 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
-            //Set for backward compatibility:
+            
+            // Set for backward compatibility:
             this.Data.id = this.Context.Operation.Id;
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);

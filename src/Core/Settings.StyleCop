@@ -1,6 +1,9 @@
-<StyleCopSettings Version="105">
+﻿<StyleCopSettings Version="105">
   <GlobalSettings>
     <StringProperty Name="MergeSettingsFiles">NoMerge</StringProperty>
+    <CollectionProperty Name="RecognizedWords">
+      <Value>Auth</Value>
+    </CollectionProperty>
   </GlobalSettings>
   <Parsers>
     <Parser ParserId="StyleCop.CSharp.CsParser">

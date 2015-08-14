@@ -406,7 +406,6 @@
             }
         }
 
-
         /// <summary>
         /// Send information about the page viewed in the application.
         /// </summary>

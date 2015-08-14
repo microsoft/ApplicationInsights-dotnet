@@ -21,12 +21,12 @@
         public abstract string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets whether operaiton has finished successfully.
+        /// Gets or sets whether operation has finished successfully.
         /// </summary>
         public abstract bool? Success { get; set; }
 
         /// <summary>
-        /// Gets or sets the duration of the operaiton.
+        /// Gets or sets the duration of the operation.
         /// </summary>
         public abstract TimeSpan Duration { get; set;  }
 
@@ -54,6 +54,14 @@
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
+        {
+            this.Sanitize();
+        }
+
+        /// <summary>
+        /// Allow to call OperationTelemetry.Sanitize method from child classes.
+        /// </summary>
+        protected void Sanitize()
         {
         }
     }
