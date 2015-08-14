@@ -16,12 +16,13 @@
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
     /// </remarks>
-    public sealed class RequestTelemetry : ITelemetry, ISupportProperties
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Request";
 
         internal readonly string BaseType = typeof(RequestData).Name;
         internal readonly RequestData Data;
+        private bool successFieldSet;
         private readonly TelemetryContext context;
 
         /// <summary>
@@ -55,7 +56,7 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public DateTimeOffset Timestamp
+        public override DateTimeOffset Timestamp
         {
             get { return this.ValidateDateTimeOffset(this.Data.startTime); }
             set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
@@ -64,7 +65,7 @@
         /// <summary>
         /// Gets or sets the date and time when request was processed by the application.
         /// </summary>
-        public DateTimeOffset StartTime
+        public override DateTimeOffset StartTime
         {
             get { return this.ValidateDateTimeOffset(this.Data.startTime); }
             set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
@@ -73,12 +74,12 @@
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public string Sequence { get; set; }
+        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the object that contains contextual information about the application at the time when it handled the request.
         /// </summary>
-        public TelemetryContext Context
+        public override TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -95,7 +96,7 @@
         /// <summary>
         /// Gets or sets human-readable name of the requested page.
         /// </summary>
-        public string Name
+        public override string Name
         {
             get { return this.Data.name; }
             set { this.Data.name = value; }
@@ -113,16 +114,38 @@
         /// <summary>
         /// Gets or sets a value indicating whether application handled the request successfully.
         /// </summary>
-        public bool Success
+        public override bool? Success
         {
-            get { return this.Data.success; }
-            set { this.Data.success = value; }
+            get
+            {
+                if (successFieldSet)
+                {
+                    return this.Data.success;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (value != null && value.HasValue)
+                {
+                    this.Data.success = value.Value;
+                    this.successFieldSet = true;
+                }
+                else
+                {
+                    this.Data.success = true;
+                    this.successFieldSet = false;
+                }
+            }
         }
 
         /// <summary>
         /// Gets or sets the amount of time it took the application to handle the request.
         /// </summary>
-        public TimeSpan Duration
+        public override TimeSpan Duration
         {
             get { return Utils.ValidateDuration(this.Data.duration); }
             set { this.Data.duration = value.ToString(); }
@@ -131,7 +154,7 @@
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this request.
         /// </summary>
-        public IDictionary<string, string> Properties
+        public override IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
         }
