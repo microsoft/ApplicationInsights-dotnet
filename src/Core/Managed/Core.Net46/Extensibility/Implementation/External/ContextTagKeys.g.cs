@@ -122,8 +122,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string UserStoreRegion { get; set; }
 
-        
-        
+        public string UserAuthUserId { get; set; }
+
+
         public string SampleRate { get; set; }
 
         
@@ -169,6 +170,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             UserAgent = "ai.user.userAgent";
             UserId = "ai.user.id";
             UserStoreRegion = "ai.user.storeRegion";
+            UserAuthUserId = "ai.user.authUserId";
             SampleRate = "ai.sample.sampleRate";
             InternalSdkVersion = "ai.internal.sdkVersion";
             InternalAgentVersion = "ai.internal.agentVersion";
