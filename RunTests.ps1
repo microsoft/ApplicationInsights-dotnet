@@ -73,7 +73,7 @@ $dnxRuntimePaths |% {
 	$dnxPath = $_;
 
 	$TestProjects |% {
-		[String]$arguments = ". test";
+		[String]$arguments = "test";
 		[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
 
 		Write-Host "=========================================================";
