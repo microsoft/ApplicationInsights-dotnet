@@ -337,35 +337,11 @@
                     return;
                 }
 
-                var telemetryWithProperties = telemetry as ISupportProperties;
-                if (telemetryWithProperties != null)
-                {
-                    if (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value)
-                    {
-                        if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
-                        {
-                            telemetryWithProperties.Properties.Add("DeveloperMode", "true");
-                        }
-                    }
+                this.Initialize(telemetry);
 
-                    Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
-                }
-
-                telemetry.Context.Initialize(this.Context, instrumentationKey);
-                foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
-                    try
-                    {
-                        initializer.Initialize(telemetry);
-                    }
-                    catch (Exception exception)
-                    {
-                        CoreEventSource.Log.LogError(string.Format(
-                                                        CultureInfo.InvariantCulture,
-                                                        "Exception while initializing {0}, exception message - {1}",
-                                                        initializer.GetType().FullName,
-                                                        exception.ToString()));
-                    }
+                    return;
                 }
 
                 telemetry.Sanitize();
@@ -378,6 +354,58 @@
                 }
             }
         }
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
+        /// <param name="telemetry">Telemetry item to initialize.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Initialize(ITelemetry telemetry)
+        {
+            string instrumentationKey = this.Context.InstrumentationKey;
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                instrumentationKey = this.configuration.InstrumentationKey;
+            }
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                return;
+            }
+
+            var telemetryWithProperties = telemetry as ISupportProperties;
+            if (telemetryWithProperties != null)
+            {
+                if (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value)
+                {
+                    if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
+                    {
+                        telemetryWithProperties.Properties.Add("DeveloperMode", "true");
+                    }
+                }
+
+                Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
+            }
+
+            telemetry.Context.Initialize(this.Context, instrumentationKey);
+            foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
+            {
+                try
+                {
+                    initializer.Initialize(telemetry);
+                }
+                catch (Exception exception)
+                {
+                    CoreEventSource.Log.LogError(string.Format(
+                                                    CultureInfo.InvariantCulture,
+                                                    "Exception while initializing {0}, exception message - {1}",
+                                                    initializer.GetType().FullName,
+                                                    exception.ToString()));
+                }
+            }
+        }
+
 
         /// <summary>
         /// Send information about the page viewed in the application.
