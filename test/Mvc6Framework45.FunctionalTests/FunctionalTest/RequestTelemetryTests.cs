@@ -10,7 +10,7 @@
     {
         private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 
-        [Fact]
+        // [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
             using (var server = new InProcessServer(assemblyName))
@@ -28,7 +28,7 @@
             }
         }
 
-        [Fact]
+        // [Fact]
         public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
         {
             using (var server = new InProcessServer(assemblyName))

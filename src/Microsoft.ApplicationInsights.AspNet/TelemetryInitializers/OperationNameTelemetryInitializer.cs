@@ -45,12 +45,12 @@
 
             if (requestServices != null)
             {
-                var actionContextAccessor = requestServices.GetService<IScopedInstance<ActionContext>>();
+                var actionContextAccessor = requestServices.GetService<IActionContextAccessor>();
 
-                if (actionContextAccessor != null && actionContextAccessor.Value != null &&
-                    actionContextAccessor.Value.RouteData != null && actionContextAccessor.Value.RouteData.Values.Count > 0)
+                if (actionContextAccessor != null && actionContextAccessor.ActionContext != null &&
+                    actionContextAccessor.ActionContext.RouteData != null && actionContextAccessor.ActionContext.RouteData.Values.Count > 0)
                 {
-                    var routeValues = actionContextAccessor.Value.RouteData.Values;
+                    var routeValues = actionContextAccessor.ActionContext.RouteData.Values;
 
                     object controller;
                     routeValues.TryGetValue("controller", out controller);

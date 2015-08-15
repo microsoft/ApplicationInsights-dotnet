@@ -112,10 +112,10 @@
         /// <param name="telemetryConfiguration">Telemetry configuration to populate</param>
         private static void AddTelemetryConfiguration(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
         {
-            string instrumentationKey = config.Get(InstrumentationKeyForWebSites);
+            string instrumentationKey = config[InstrumentationKeyForWebSites];
             if (string.IsNullOrWhiteSpace(instrumentationKey))
             {
-                instrumentationKey = config.Get(InstrumentationKeyFromConfig);
+                instrumentationKey = config[InstrumentationKeyFromConfig];
             }
 
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
@@ -123,10 +123,10 @@
                 telemetryConfiguration.InstrumentationKey = instrumentationKey;
             }
 
-            string developerModeValue = config.Get(DeveloperModeForWebSites);
+            string developerModeValue = config[DeveloperModeForWebSites];
             if (string.IsNullOrWhiteSpace(developerModeValue))
             {
-                developerModeValue = config.Get(DeveloperModeFromConfig);
+                developerModeValue = config[DeveloperModeFromConfig];
             }
 
             if (!string.IsNullOrWhiteSpace(developerModeValue))
@@ -138,10 +138,10 @@
                 }
             }
 
-            string endpointAddress = config.Get(EndpointAddressForWebSites);
+            string endpointAddress = config[EndpointAddressForWebSites];
             if (string.IsNullOrWhiteSpace(endpointAddress))
             {
-                endpointAddress = config.Get(EndpointAddressFromConfig);
+                endpointAddress = config[EndpointAddressFromConfig];
             }
 
             if (!string.IsNullOrWhiteSpace(endpointAddress))

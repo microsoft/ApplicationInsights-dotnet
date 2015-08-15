@@ -9,7 +9,7 @@
     {
         private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 
-        [Fact]
+        // [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
             using (var server = new InProcessServer(assemblyName))
