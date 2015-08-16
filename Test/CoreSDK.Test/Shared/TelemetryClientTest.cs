@@ -703,6 +703,29 @@
 
         #endregion
 
+        #region Sampling
+        
+        [TestMethod]
+        public void AllTelemetryIsSentWithDefaultSamplingRate()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+
+            var client = new TelemetryClient(configuration) { Channel = channel };
+
+            const int ItemsToGenerate = 100;
+
+            for (int i = 0; i < ItemsToGenerate; i++)
+            {
+                client.TrackRequest(new RequestTelemetry());
+            }
+
+            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
+        }
+        
+        #endregion
+
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };

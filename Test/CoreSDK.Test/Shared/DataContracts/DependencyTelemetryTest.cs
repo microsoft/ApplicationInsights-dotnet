@@ -157,6 +157,14 @@
             Assert.Same(telemetry.Properties, telemetry.Properties);
         }
 
+        [TestMethod]
+        public void DependencyTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
+
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {
             DependencyTelemetry item = new DependencyTelemetry

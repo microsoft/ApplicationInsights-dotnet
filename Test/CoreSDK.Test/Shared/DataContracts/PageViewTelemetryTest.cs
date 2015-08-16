@@ -117,5 +117,13 @@
             Assert.Contains("name", telemetry.Name, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.Name, StringComparison.OrdinalIgnoreCase);
         }
+
+        [TestMethod]
+        public void PageViewTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new PageViewTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
     }
 }
