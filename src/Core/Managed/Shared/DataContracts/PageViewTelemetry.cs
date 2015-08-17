@@ -127,8 +127,8 @@
         }
 
         /// <summary>
-        /// Gets or sets data sampling percentage (between 0 and 100).		
-        /// </summary>		
+        /// Gets or sets data sampling percentage (between 0 and 100).
+        /// </summary>
         double ISupportSampling.SamplingPercentage
         {
             get { return this.samplingPercentage; }
