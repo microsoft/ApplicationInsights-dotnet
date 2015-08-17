@@ -197,5 +197,13 @@
             Assert.Contains("responseCode", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
         }
+
+        [TestMethod]
+        public void RequestTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new RequestTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
     }
 }

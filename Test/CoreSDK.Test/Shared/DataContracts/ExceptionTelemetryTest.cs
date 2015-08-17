@@ -415,6 +415,14 @@
             Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Metrics.Keys.ToArray()[1]);
         }
 
+        [TestMethod]
+        public void ExceptionTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new ExceptionTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
+
         private static Exception CreateExceptionWithStackTrace()
         {
             try

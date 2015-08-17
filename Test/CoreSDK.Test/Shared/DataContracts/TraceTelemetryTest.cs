@@ -132,5 +132,13 @@
             Assert.Contains("message", telemetry.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.Message, StringComparison.OrdinalIgnoreCase);
         }
-    }
+
+        [TestMethod]		
+        public void TraceTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new TraceTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);	
+        }
+}
 }

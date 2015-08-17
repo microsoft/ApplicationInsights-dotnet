@@ -14,8 +14,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    [DebuggerDisplay(@"Value={Value}; Name={Name}; Count={Count}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties
+    [DebuggerDisplay(@"Value={Value}; Name={Name}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "RemoteDependency";
 
@@ -23,6 +23,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData Data;
         private readonly TelemetryContext context;
+
+        private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
@@ -112,12 +114,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets request count.
+        /// Gets or sets request count. Obsolete, use SamplingPercentage instead.
         /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int? Count
         {
-            get { return this.Data.count; }
-            set { this.Data.count = value; }
+            get { return 1; }
+            set { }
         }
 
         /// <summary>
@@ -176,6 +180,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets or sets data sampling percentage (between 0 and 100).
+        /// </summary>
+        double ISupportSampling.SamplingPercentage
+        {
+            get { return this.samplingPercentage; }
+            set { this.samplingPercentage = value; }
         }
 
         /// <summary>
