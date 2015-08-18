@@ -3,7 +3,7 @@
     /// <summary>
     /// Represent objects that support data sampling.
     /// </summary>
-    internal interface ISupportSampling
+    public interface ISupportSampling
     {
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).

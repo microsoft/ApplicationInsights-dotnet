@@ -129,5 +129,16 @@
 
             Assert.NotNull(telemetry as ISupportSampling);
         }
+
+        [TestMethod]
+        public void EventTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = new EventTelemetry("my event");
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, DataPlatformModel.EventData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
     }
 }

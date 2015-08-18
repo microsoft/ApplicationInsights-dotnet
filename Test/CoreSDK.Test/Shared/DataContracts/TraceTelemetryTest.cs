@@ -88,7 +88,7 @@
             ((ITelemetry)expected).Sanitize();
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, DataPlatformModel.MessageData>(expected);
-            
+
             Assert.Equal(Developer.Analytics.DataCollection.Model.v2.SeverityLevel.Information, item.Data.BaseData.SeverityLevel.Value);
         }
 
@@ -128,17 +128,28 @@
             var telemetry = new TraceTelemetry { Message = null };
 
             ((ITelemetry)telemetry).Sanitize();
-            
+
             Assert.Contains("message", telemetry.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("required", telemetry.Message, StringComparison.OrdinalIgnoreCase);
         }
 
-        [TestMethod]		
+        [TestMethod]
         public void TraceTelemetryImplementsISupportSamplingContract()
         {
             var telemetry = new TraceTelemetry();
 
-            Assert.NotNull(telemetry as ISupportSampling);	
+            Assert.NotNull(telemetry as ISupportSampling);
         }
-}
+
+        [TestMethod]
+        public void TraceTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = new TraceTelemetry("my trace");
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, DataPlatformModel.MessageData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
+    }
 }
