@@ -6,6 +6,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 - TrackDependency will produce valid JSON when not all required fields were specified.
 - Redundant property ```RequestTelemetry.ID``` is now just a proxy for ```RequestTelemetry.Operation.Id```.
+- New interface ```ISupportSampling``` and explicit implementation of it by most of data item types.
+- ```Count``` property on DependencyTelemetry marked as Obsolete. Use ```SamplingPercentage``` instead.
+- New ```CloudContext``` introduced and properties ```RoleName``` and ```RoleInstance``` moved to it from ```DeviceContext```.
+- New property ```AuthenticatedUserId``` on ```UserContext``` to specify authenticated user identity.
 
 ## Version 1.2
 - First version shipped from github
