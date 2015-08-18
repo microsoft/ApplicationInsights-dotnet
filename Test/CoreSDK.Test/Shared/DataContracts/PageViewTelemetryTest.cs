@@ -125,5 +125,16 @@
 
             Assert.NotNull(telemetry as ISupportSampling);
         }
+
+        [TestMethod]
+        public void PageViewTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = new PageViewTelemetry("my page view");
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, DataPlatformModel.PageViewData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
     }
 }

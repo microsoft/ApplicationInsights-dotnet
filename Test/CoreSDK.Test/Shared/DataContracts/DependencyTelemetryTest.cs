@@ -165,6 +165,17 @@
             Assert.NotNull(telemetry as ISupportSampling);
         }
 
+        [TestMethod]
+        public void DependencyTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
+
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {
             DependencyTelemetry item = new DependencyTelemetry

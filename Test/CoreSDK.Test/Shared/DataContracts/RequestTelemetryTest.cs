@@ -205,5 +205,17 @@
 
             Assert.NotNull(telemetry as ISupportSampling);
         }
+
+        [TestMethod]
+        public void RequestTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = new RequestTelemetry { Id = null };
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+            ((ITelemetry)telemetry).Sanitize();
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
     }
 }
