@@ -1,16 +1,16 @@
 ﻿{
-    "version": "1.0.0-*",
+    "version": "1.0.0-beta7-*",
     "dependencies": {
         "Microsoft.ApplicationInsights": "1.1.1-beta",
-        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta6",
-        "Microsoft.AspNet.Diagnostics": "1.0.0-beta6-*",
-        "Microsoft.AspNet.Hosting": "1.0.0-beta6-*",
-        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta6-*",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta6-*",
-        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta6-*",
-        "Microsoft.Framework.Runtime": "1.0.0-beta6-*",
+        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta7",
+        "Microsoft.AspNet.Diagnostics": "1.0.0-beta7-*",
+        "Microsoft.AspNet.Hosting": "1.0.0-beta7-*",
+        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta7-*",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta7-*",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta7-*",
+        "Microsoft.Dnx.Runtime": "1.0.0-beta7-*",
         "Microsoft.Net.Http.Client": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta6-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta7-*"
     },
 
     "frameworks": {

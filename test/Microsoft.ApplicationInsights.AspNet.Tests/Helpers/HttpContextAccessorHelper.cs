@@ -23,9 +23,9 @@
 
             if (actionContext != null)
             {
-                var si = new ScopedInstance<ActionContext>();
-                si.Value = actionContext;
-                services.AddInstance<IScopedInstance<ActionContext>>(si);
+                var si = new ActionContextAccessor();
+                si.ActionContext = actionContext;
+                services.AddInstance<IActionContextAccessor>(si);
             }
 
             if (requestTelemetry != null)

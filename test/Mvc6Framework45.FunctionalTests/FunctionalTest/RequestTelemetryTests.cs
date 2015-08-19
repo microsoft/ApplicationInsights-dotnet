@@ -70,7 +70,7 @@
             using (var server = new InProcessServer(assemblyName))
             {
                 var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + "/home/contact");
+                var task = httpClient.GetAsync(server.BaseHost + "/Home/Contact");
                 task.Wait(TestTimeoutMs);
 
                 var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
