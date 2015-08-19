@@ -3,7 +3,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -14,7 +13,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    [DebuggerDisplay(@"Value={Value}; Name={Name}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "RemoteDependency";
