@@ -10,7 +10,7 @@
     {
         private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 
-        // [Fact]
+        [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
             using (var server = new InProcessServer(assemblyName))
@@ -28,7 +28,7 @@
             }
         }
 
-        // [Fact]
+        [Fact]
         public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
         {
             using (var server = new InProcessServer(assemblyName))
@@ -70,7 +70,7 @@
             using (var server = new InProcessServer(assemblyName))
             {
                 var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + "/home/contact");
+                var task = httpClient.GetAsync(server.BaseHost + "/Home/Contact");
                 task.Wait(TestTimeoutMs);
 
                 var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();

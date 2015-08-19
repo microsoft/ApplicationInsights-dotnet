@@ -8,7 +8,7 @@
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
-        // [Fact]
+        [Fact]
         public void TestBasicRequestPropertiesAfterRequestingValuesController()
         {
             using (var server = new InProcessServer(assemblyName))
@@ -44,7 +44,7 @@
             }
         }
 
-        // [Fact]
+        [Fact]
         public void TestBasicRequestPropertiesAfterRequestingWebApiShimRoute()
         {
             using (var server = new InProcessServer(assemblyName))

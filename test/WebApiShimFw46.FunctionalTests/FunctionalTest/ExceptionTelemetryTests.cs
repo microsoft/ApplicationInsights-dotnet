@@ -12,7 +12,7 @@
         public ExceptionTelemetryTests()
         { }
 
-        // [Fact]
+        [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
             using (var server = new InProcessServer(assemblyName))

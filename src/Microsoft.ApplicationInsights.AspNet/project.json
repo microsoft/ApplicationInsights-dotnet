@@ -16,7 +16,8 @@
         "Microsoft.AspNet.Http.Features": "1.0.0-beta7-*",
         "Microsoft.AspNet.Mvc": "6.0.0-beta7-*",
         "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7-*",
-        "Microsoft.Framework.Configuration": "1.0.0-beta7-*"
+        "Microsoft.Framework.Configuration": "1.0.0-beta7-*",
+        "Microsoft.Framework.Notification": "1.0.0-beta7-*"
     },
 
     "frameworks": {
