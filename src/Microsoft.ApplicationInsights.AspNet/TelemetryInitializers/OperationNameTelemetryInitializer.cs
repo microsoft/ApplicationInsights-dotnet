@@ -41,7 +41,6 @@
                     // We didn't get BeforeAction notification
                     string name = platformContext.Request.Method + " " + platformContext.Request.Path.Value;
                     requestTelemetry.Name = name;
-                    requestTelemetry.Context.Operation.Name = name;
                     telemetry.Context.Operation.Name = name;
                 }
             }
@@ -53,11 +52,10 @@
             string name = this.GetNameFromRouteContext(routeData);
             var telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
 
-            if (!string.IsNullOrEmpty(name) && telemetry != null)
+            if (!string.IsNullOrEmpty(name) && telemetry != null && telemetry is RequestTelemetry)
             {
                 name = httpContext.Request.Method + " " + name;
                 ((RequestTelemetry)telemetry).Name = name;
-                ((RequestTelemetry)telemetry).Context.Operation.Name = name;
             }
         }
 
