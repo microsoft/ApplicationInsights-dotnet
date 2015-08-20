@@ -17,10 +17,10 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DefineConstants>TRACE;DEBUG;UWP;UTC</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;UWP;UTC</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DefineConstants>TRACE;CODE_ANALYSIS;CODE_ANALYSIS;CODE_ANALYSIS;UWP;UTC</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;CODE_ANALYSIS;CODE_ANALYSIS;CODE_ANALYSIS;UWP;UTC</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
