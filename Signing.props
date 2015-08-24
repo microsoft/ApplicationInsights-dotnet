@@ -4,11 +4,16 @@
     Signing properties and items for MicroBuild-based build definitions.
     http://devdiv/sites/des/bars/Shared%20Documents/OneNote/VS%20Eng%20BARS%20Documentation/MicroBuild.one 
   -->
-
+  
   <PropertyGroup>
     <SignAssembly Condition="'$(SIGNING_KEYS_PATH)'!='' AND Exists('$(SIGNING_KEYS_PATH)\35MSSharedLib1024.snk')">true</SignAssembly>
   </PropertyGroup>
-
+  
+  <PropertyGroup Condition="'$(PrivateRelease)' == 'True' AND Exists('$(SIGNING_KEYS_PATH)\InternalKey.snk')">
+    <DefineConstants>$(DefineConstants);PRIVATE_RELEASE</DefineConstants>
+    <AssemblyOriginatorKeyFile>$(SIGNING_KEYS_PATH)\InternalKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(PublicRelease)' == 'True'">
     <DefineConstants>$(DefineConstants);PUBLIC_RELEASE</DefineConstants>
     <DelaySign>true</DelaySign>
