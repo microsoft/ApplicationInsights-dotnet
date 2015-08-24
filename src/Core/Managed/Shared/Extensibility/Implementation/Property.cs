@@ -16,7 +16,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     internal static class Property
     {
         public const int MaxDictionaryNameLength = 150;
-        public const int MaxValueLength = 1024;
+        public const int MaxDependencyTypeLength = 1024;
+        public const int MaxValueLength = 8 * 1024;
         public const int MaxNameLength = 1024;
         public const int MaxMessageLength = 32768;
         public const int MaxUrlLength = 2048;
@@ -60,6 +61,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public static string SanitizeName(this string name)
         {
             return TrimAndTruncate(name, Property.MaxNameLength);
+        }
+
+        public static string SanitizeDependencyType(this string value)
+        {
+            return TrimAndTruncate(value, Property.MaxDependencyTypeLength);
         }
 
         public static string SanitizeValue(this string value)

@@ -196,7 +196,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
-            this.DependencyTypeName = this.DependencyTypeName.SanitizeValue();
+            this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
             this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }
