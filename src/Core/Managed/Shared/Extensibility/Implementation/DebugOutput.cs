@@ -14,7 +14,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     {
         public void WriteLine(string message)
         {
-#if WINRT || CORE_PCL
+#if WINRT || CORE_PCL || UWP
             Debug.WriteLine(message);
 #else
             Debugger.Log(0, "category", message + Environment.NewLine);
@@ -23,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         public bool IsLogging()
         {
-#if WINRT || CORE_PCL
+#if WINRT || CORE_PCL || UWP
             return true;
 #else
             return Debugger.IsLogging();

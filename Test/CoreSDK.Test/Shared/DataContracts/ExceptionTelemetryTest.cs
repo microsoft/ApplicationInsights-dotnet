@@ -415,6 +415,25 @@
             Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Metrics.Keys.ToArray()[1]);
         }
 
+        [TestMethod]
+        public void ExceptionTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new ExceptionTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void ExceptionTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = new ExceptionTelemetry();
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, DataPlatformModel.ExceptionData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
+        }
+
         private static Exception CreateExceptionWithStackTrace()
         {
             try

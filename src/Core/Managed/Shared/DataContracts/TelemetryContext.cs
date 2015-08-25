@@ -19,6 +19,7 @@
 
         private ComponentContext component;
         private DeviceContext device;
+        private CloudContext cloud;
         private SessionContext session;
         private UserContext user;
         private OperationContext operation;
@@ -70,6 +71,14 @@
         public DeviceContext Device
         {
             get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Tags)); }
+        }
+
+        /// <summary>
+        /// Gets the object describing the cloud tracked by this <see cref="TelemetryContext"/>.
+        /// </summary>
+        public CloudContext Cloud
+        {
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext(this.Tags)); }
         }
 
         /// <summary>

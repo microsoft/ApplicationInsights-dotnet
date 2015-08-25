@@ -9,14 +9,14 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Globalization;
     using System.IO;
     using System.Net;
-#if CORE_PCL
+#if CORE_PCL || UWP
     using System.Net.Http;
     using System.Net.Http.Headers;
 #endif
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-#if WINRT || CORE_PCL || NET45
+#if WINRT || CORE_PCL || NET45 || NET46 || UWP
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.Channel
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
-#if CORE_PCL
+#if CORE_PCL || UWP
         private readonly HttpClient client;
 #endif
         private int isSending;
@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Channel
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = WeakConcurrentRandom.Instance.Next().ToString(CultureInfo.InvariantCulture);
-#if CORE_PCL
+#if CORE_PCL || UWP
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif
         }
@@ -138,7 +138,7 @@ namespace Microsoft.ApplicationInsights.Channel
 
             try
             {
-#if CORE_PCL
+#if CORE_PCL || UWP
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
@@ -164,7 +164,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
         }
 
-#if CORE_PCL
+#if CORE_PCL || UWP
         /// <summary>
         /// Creates an http request for sending a transmission.
         /// </summary>

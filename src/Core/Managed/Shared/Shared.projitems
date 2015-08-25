@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\IJsonWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\InnerExceptionCountExceededException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportSampling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\MetricTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PageViewTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\PerformanceCounterTelemetry.cs" />
@@ -40,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
@@ -55,6 +57,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\LocationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformSingleton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Property.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContext.cs" />

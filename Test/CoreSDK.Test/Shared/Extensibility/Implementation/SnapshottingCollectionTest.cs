@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Threading;
     using System.Threading.Tasks;
 
-#if NET40 || NET45 || NET35
+#if NET40 || NET45 || NET35 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;

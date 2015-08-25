@@ -138,7 +138,7 @@
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
             telemetry.CommandName = new string('Y', Property.MaxCommandNameLength + 1);
-            telemetry.DependencyTypeName = new string('D', Property.MaxValueLength + 1);
+            telemetry.DependencyTypeName = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
             
@@ -146,7 +146,7 @@
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
             Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.CommandName);
-            Assert.Equal(new string('D', Property.MaxValueLength), telemetry.DependencyTypeName);
+            Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.DependencyTypeName);
 
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
@@ -155,6 +155,25 @@
             Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
 
             Assert.Same(telemetry.Properties, telemetry.Properties);
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryImplementsISupportSamplingContract()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            Assert.NotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
+        {
+            var telemetry = this.CreateRemoteDependencyTelemetry("mycommand");
+            ((ISupportSampling)telemetry).SamplingPercentage = 10;
+
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(telemetry);
+
+            Assert.Equal(10, item.SampleRate);
         }
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()

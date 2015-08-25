@@ -28,6 +28,7 @@
     </GetFileVersionInfo>
     <PropertyGroup>
       <PackageVersion>@(VersionInfo->'%(FileMajorPart)').@(VersionInfo->'%(FileMinorPart)').@(VersionInfo->'%(FileBuildPart)')</PackageVersion>
+      <PackageVersion Condition="'$(PreReleaseMilestone)' != ''">$(PackageVersion)-$(PreReleaseMilestone)</PackageVersion>
       <PackageVersion Condition="'$(StableRelease)' != 'True'">$(PackageVersion)-build@(VersionInfo->'%(FilePrivatePart)')</PackageVersion>
       <PackageAuthor>@(VersionInfo->'%(CompanyName)')</PackageAuthor>
       <PackageImage>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageImage>

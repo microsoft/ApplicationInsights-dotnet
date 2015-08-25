@@ -3,7 +3,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -14,8 +13,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    [DebuggerDisplay(@"Value={Value}; Name={Name}; Count={Count}; Success={Success}; Async={Async}; Timestamp={Timestamp}")]
-    public sealed class DependencyTelemetry : ITelemetry, ISupportProperties
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "RemoteDependency";
 
@@ -23,6 +21,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly RemoteDependencyData Data;
         private readonly TelemetryContext context;
+
+        private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class.
@@ -51,17 +51,17 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public DateTimeOffset Timestamp { get; set; }
+        public override DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public string Sequence { get; set; }
+        public override string Sequence { get; set; }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public TelemetryContext Context
+        public override TelemetryContext Context
         {
             get { return this.context; }
         }
@@ -69,7 +69,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets or sets resource name.
         /// </summary>
-        public string Name
+        public override string Name
         {
             get { return this.Data.name; }
             set { this.Data.name = value; }
@@ -96,7 +96,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets or sets the date and time when dependency was called by the application.
         /// </summary>
-        public DateTimeOffset StartTime 
+        public override DateTimeOffset StartTime 
         {
             get { return this.Timestamp; }
             set { this.Timestamp = value; } 
@@ -105,25 +105,27 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets or sets dependency call duration.
         /// </summary>
-        public TimeSpan Duration
+        public override TimeSpan Duration
         {
             get { return TimeSpan.FromMilliseconds(this.Data.value); }
             set { this.Data.value = value.TotalMilliseconds; }
         }
 
         /// <summary>
-        /// Gets or sets request count.
+        /// Gets or sets request count. Obsolete, use SamplingPercentage instead.
         /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int? Count
         {
-            get { return this.Data.count; }
-            set { this.Data.count = value; }
+            get { return 1; }
+            set { }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the dependency call was successful or not.
         /// </summary>
-        public bool? Success
+        public override bool? Success
         {
             get { return this.Data.success; }
             set { this.Data.success = value; }
@@ -141,7 +143,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this remote dependency.
         /// </summary>
-        public IDictionary<string, string> Properties
+        public override IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
         }
@@ -179,13 +181,22 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
+        /// Gets or sets data sampling percentage (between 0 and 100).
+        /// </summary>
+        double ISupportSampling.SamplingPercentage
+        {
+            get { return this.samplingPercentage; }
+            set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
         {
             this.Name = this.Name.SanitizeName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
-            this.DependencyTypeName = this.DependencyTypeName.SanitizeValue();
+            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
+            this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
             this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }

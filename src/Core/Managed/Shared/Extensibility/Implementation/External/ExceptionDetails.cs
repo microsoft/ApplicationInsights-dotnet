@@ -7,7 +7,7 @@
     /// Additional implementation for ExceptionDetails.
     /// </summary>
 #if UTC
-    [Microsoft.Diagnostics.Tracing.EventData]
+    [System.Diagnostics.Tracing.EventData]
 #endif
     internal partial class ExceptionDetails
     {
