@@ -5,7 +5,7 @@
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Solution Include="Microsoft.ApplicationInsights.Channels.sln" />
+    <!--Solution Include="Microsoft.ApplicationInsights.Channels.sln" /-->
     <Solution Include="Microsoft.ApplicationInsights.sln" />    
   </ItemGroup>
   <Target Name="Build">
