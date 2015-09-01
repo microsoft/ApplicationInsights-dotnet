@@ -71,7 +71,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
-                            await elapsed(); 
+                            await elapsed().ConfigureAwait(false);
                         }
                         catch (Exception exception)
                         {
