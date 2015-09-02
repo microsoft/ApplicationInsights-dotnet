@@ -9,9 +9,9 @@
 
         internal static string GetAssemblyVersion()
         {
-            return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
+            return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>()
                     .First()
-                    .Version;
+                    .InformationalVersion;
         }
     }
 }

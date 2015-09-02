@@ -9,7 +9,7 @@
 
     public abstract class TelemetryTestsBase
     {
-        protected const int TestTimeoutMs = 5000;
+        protected const int TestTimeoutMs = 10000;
 
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
         {

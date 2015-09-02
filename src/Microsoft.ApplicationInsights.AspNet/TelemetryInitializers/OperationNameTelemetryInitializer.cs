@@ -9,82 +9,96 @@
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Mvc;
     using Microsoft.AspNet.Mvc.Routing;
+    using Microsoft.AspNet.Routing;
     using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.Notification;
 
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
-        { }
+        public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";
+
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, INotifier notifier) 
+            : base(httpContextAccessor)
+        {
+            if (notifier == null)
+            {
+                throw new ArgumentNullException("notifier");
+            }
+
+            notifier.EnlistTarget(this);
+        }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Operation.Name))
             {
-                string name = this.GetNameFromRouteContext(platformContext.RequestServices);                
-
-                if (string.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(requestTelemetry.Name))
                 {
-                    name = platformContext.Request.Path.Value;
+                    telemetry.Context.Operation.Name = requestTelemetry.Name;
                 }
-
-                name = platformContext.Request.Method + " " + name; 
-                
-                var telemetryType = telemetry as RequestTelemetry;
-                if (telemetryType != null && string.IsNullOrEmpty(telemetryType.Name))
+                else
                 {
-                    telemetryType.Name = name;
+                    // We didn't get BeforeAction notification
+                    string name = platformContext.Request.Method + " " + platformContext.Request.Path.Value;
+                    requestTelemetry.Name = name;
+                    telemetry.Context.Operation.Name = name;
                 }
-
-                telemetry.Context.Operation.Name = name;
             }
         }
 
-        private string GetNameFromRouteContext(IServiceProvider requestServices)
+        [NotificationName(BeforeActionNotificationName)]
+        public void OnBeforeAction(ActionDescriptor actionDescriptor, HttpContext httpContext, RouteData routeData)
+        {
+            string name = this.GetNameFromRouteContext(routeData);
+            var telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
+
+            if (!string.IsNullOrEmpty(name) && telemetry != null && telemetry is RequestTelemetry)
+            {
+                name = httpContext.Request.Method + " " + name;
+                ((RequestTelemetry)telemetry).Name = name;
+            }
+        }
+
+        private string GetNameFromRouteContext(RouteData routeData)
         {
             string name = null;
 
-            if (requestServices != null)
+            if (routeData.Values.Count > 0)
             {
-                var actionContextAccessor = requestServices.GetService<IScopedInstance<ActionContext>>();
+                var routeValues = routeData.Values;
 
-                if (actionContextAccessor != null && actionContextAccessor.Value != null &&
-                    actionContextAccessor.Value.RouteData != null && actionContextAccessor.Value.RouteData.Values.Count > 0)
+                object controller;
+                routeValues.TryGetValue("controller", out controller);
+                string controllerString = (controller == null) ? string.Empty : controller.ToString();
+
+                if (!string.IsNullOrEmpty(controllerString))
                 {
-                    var routeValues = actionContextAccessor.Value.RouteData.Values;
+                    name = controllerString;
 
-                    object controller;
-                    routeValues.TryGetValue("controller", out controller);
-                    string controllerString = (controller == null) ? string.Empty : controller.ToString();
+                    object action;
+                    routeValues.TryGetValue("action", out action);
+                    string actionString = (action == null) ? string.Empty : action.ToString();
 
-                    if (!string.IsNullOrEmpty(controllerString))
+                    if (!string.IsNullOrEmpty(actionString))
                     {
-                        name = controllerString;
+                        name += "/" + actionString;
+                    }
 
-                        object action;
-                        routeValues.TryGetValue("action", out action);
-                        string actionString = (action == null) ? string.Empty : action.ToString();
-                                                
-                        if (!string.IsNullOrEmpty(actionString))
+                    if (routeValues.Keys.Count > 2)
+                    {
+                        // Add parameters
+                        var sortedKeys = routeValues.Keys
+                            .Where(key =>
+                                !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(key, "action", StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(key, AttributeRouting.RouteGroupKey, StringComparison.OrdinalIgnoreCase))
+                            .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                            .ToArray();
+
+                        if (sortedKeys.Length > 0)
                         {
-                            name += "/" + actionString;
-                        }
-
-                        if (routeValues.Keys.Count > 2)
-                        {
-                            // Add parameters
-                            var sortedKeys = routeValues.Keys
-                                .Where(key => 
-                                    !string.Equals(key, "controller", StringComparison.OrdinalIgnoreCase) && 
-                                    !string.Equals(key, "action", StringComparison.OrdinalIgnoreCase) &&
-                                    !string.Equals(key, AttributeRouting.RouteGroupKey, StringComparison.OrdinalIgnoreCase))
-                                .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
-                                .ToArray();
-
-                            if (sortedKeys.Length > 0)
-                            {
-                                string arguments = string.Join(@"/", sortedKeys);
-                                name += " [" + arguments + "]";
-                            }
+                            string arguments = string.Join(@"/", sortedKeys);
+                            name += " [" + arguments + "]";
                         }
                     }
                 }

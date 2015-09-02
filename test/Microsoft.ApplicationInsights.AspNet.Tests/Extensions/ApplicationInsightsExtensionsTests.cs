@@ -10,10 +10,12 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Http.Internal;
     using Microsoft.Framework.Configuration;
+    using Microsoft.Framework.Notification;
     using Xunit;
-
+    
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -21,6 +23,7 @@
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddInstance<IHttpContextAccessor>(contextAccessor);
+            services.AddInstance<INotifier>(new Notifier(new ProxyNotifierMethodAdapter()));
             return services;
         }
 

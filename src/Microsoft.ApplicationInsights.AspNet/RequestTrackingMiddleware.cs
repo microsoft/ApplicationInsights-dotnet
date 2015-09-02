@@ -9,8 +9,7 @@
     using Microsoft.AspNet.Http;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.AspNet.Extensions;
-
-
+    
     /// <summary>
     /// Sends telemetry about requests handled by the application to the Microsoft Application Insights service.
     /// </summary>

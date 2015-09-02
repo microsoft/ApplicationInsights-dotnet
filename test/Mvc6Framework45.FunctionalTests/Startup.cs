@@ -19,7 +19,6 @@ using Microsoft.Framework.Configuration;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.Logging.Console;
-using Microsoft.Framework.Runtime;
 using Mvc6Framework45.FunctionalTests.Models;
 using Microsoft.ApplicationInsights.AspNet;
 using FunctionalTestUtils;
@@ -57,7 +56,7 @@ namespace Mvc6Framework45.FunctionalTests
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add Application settings to the services container.
-            services.Configure<AppSettings>(Configuration.GetConfigurationSection("AppSettings"));
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             // Add EF services to the services container.
             services.AddEntityFramework()
