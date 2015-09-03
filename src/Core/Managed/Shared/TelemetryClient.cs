@@ -334,6 +334,11 @@
 
                 if (string.IsNullOrEmpty(instrumentationKey))
                 {
+                    instrumentationKey = telemetry.Context.InstrumentationKey;
+                }
+
+                if (string.IsNullOrEmpty(instrumentationKey))
+                {
                     return;
                 }
 
@@ -367,11 +372,6 @@
             if (string.IsNullOrEmpty(instrumentationKey))
             {
                 instrumentationKey = this.configuration.InstrumentationKey;
-            }
-
-            if (string.IsNullOrEmpty(instrumentationKey))
-            {
-                return;
             }
 
             var telemetryWithProperties = telemetry as ISupportProperties;
