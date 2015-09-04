@@ -5,9 +5,10 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNet.Mvc.Actions;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.AspNet.Http.Internal;
-
+    
     public static class HttpContextAccessorHelper
     {
         public static HttpContextAccessor CreateHttpContextAccessor(RequestTelemetry requestTelemetry = null, ActionContext actionContext = null)

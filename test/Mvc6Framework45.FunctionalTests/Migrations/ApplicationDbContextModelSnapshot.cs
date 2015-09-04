@@ -4,17 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Mvc6Framework45.FunctionalTests.Models;
 
 namespace Mvc6Framework45.FunctionalTests.Migrations
 {
-    [ContextType(typeof(ApplicationDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        public override void BuildModel(ModelBuilder builder)
+        protected override void BuildModel(ModelBuilder builder)
         {
             builder.Annotation("SqlServer:ValueGeneration", "Identity");
 

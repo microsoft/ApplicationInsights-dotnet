@@ -8,11 +8,12 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNet.Mvc.Actions;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.Notification;
-
+    
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";

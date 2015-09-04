@@ -24,7 +24,7 @@ namespace Mvc6Framework45.FunctionalTests.Models
             // Create the database and schema if it doesn't exist
             if (!_created)
             {
-                Database.ApplyMigrations();
+                Database.Migrate();
                 _created = true;
             }
         }

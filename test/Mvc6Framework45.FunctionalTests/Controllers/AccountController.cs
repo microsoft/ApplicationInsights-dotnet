@@ -8,6 +8,7 @@ using Microsoft.AspNet.Authentication;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet.Mvc.ActionResults;
 using Microsoft.AspNet.Mvc.Rendering;
 using Mvc6Framework45.FunctionalTests;
 using Mvc6Framework45.FunctionalTests.Models;
