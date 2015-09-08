@@ -17,7 +17,7 @@
         "Microsoft.AspNet.Mvc": "6.0.0-beta8-*",
         "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta8-*",
         "Microsoft.Framework.Configuration": "1.0.0-beta8-*",
-        "Microsoft.Framework.Notification": "1.0.0-beta8-*"
+        "Microsoft.Framework.TelemetryAdapter": "1.0.0-beta8-*"
     },
 
     "frameworks": {

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
     using System;
+    using System.Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -9,9 +10,8 @@
     using Microsoft.AspNet.Mvc;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
-    using Microsoft.Framework.Notification;
     using Xunit;
-
+    
     public class OperationNameTelemetryInitializerTests
     {
         [Fact]
@@ -19,7 +19,7 @@
         {
             Assert.Throws<ArgumentNullException>(() => 
             {
-                var initializer = new OperationNameTelemetryInitializer(null, new Notifier(new ProxyNotifierMethodAdapter()));
+                var initializer = new OperationNameTelemetryInitializer(null, TelemetryListener.DefaultListener);
             });
         }
 
@@ -36,7 +36,7 @@
         {
             var ac = new HttpContextAccessor() { HttpContext = null };
 
-            var initializer = new OperationNameTelemetryInitializer(ac, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(ac, TelemetryListener.DefaultListener);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -46,7 +46,7 @@
         {
             var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
-            var initializer = new OperationNameTelemetryInitializer(ac, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(ac, TelemetryListener.DefaultListener);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -56,7 +56,7 @@
         {
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, TelemetryListener.DefaultListener);
 
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Name = "Name";
@@ -70,7 +70,7 @@
         {
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, TelemetryListener.DefaultListener);
 
             var telemetry = new EventTelemetry();
             initializer.Initialize(telemetry);
@@ -84,7 +84,7 @@
             var telemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry, null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, TelemetryListener.DefaultListener);
 
             initializer.Initialize(telemetry);
 
@@ -100,9 +100,9 @@
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var notifier = new Notifier(new ProxyNotifierMethodAdapter());
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, notifier);
-            notifier.Notify(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var telemetryListener = TelemetryListener.DefaultListener;
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
+            telemetryListener.WriteTelemetry(OperationNameTelemetryInitializer.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
             var telemetry = new EventTelemetry();
@@ -121,9 +121,9 @@
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var notifier = new Notifier(new ProxyNotifierMethodAdapter());
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, notifier);
-            notifier.Notify(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var telemetryListener = TelemetryListener.DefaultListener;
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
+            telemetryListener.WriteTelemetry(OperationNameTelemetryInitializer.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
             var telemetry = new EventTelemetry();
@@ -143,9 +143,9 @@
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var notifier = new Notifier(new ProxyNotifierMethodAdapter());
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, notifier);
-            notifier.Notify(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var telemetryListener = TelemetryListener.DefaultListener;
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
+            telemetryListener.WriteTelemetry(OperationNameTelemetryInitializer.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
             var telemetry = new EventTelemetry();
@@ -167,9 +167,9 @@
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
-            var notifier = new Notifier(new ProxyNotifierMethodAdapter());
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, notifier);
-            notifier.Notify(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var telemetryListener = TelemetryListener.DefaultListener;
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
+            telemetryListener.WriteTelemetry(OperationNameTelemetryInitializer.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
             var telemetry = new EventTelemetry();
@@ -188,9 +188,9 @@
             actionContext.RouteData.Values.Add(AttributeRouting.RouteGroupKey, "RouteGroupKey");
             
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
-            var notifier = new Notifier(new ProxyNotifierMethodAdapter());
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, notifier);
-            notifier.Notify(OperationNameTelemetryInitializer.BeforeActionNotificationName, 
+            var telemetryListener = TelemetryListener.DefaultListener;
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
+            telemetryListener.WriteTelemetry(OperationNameTelemetryInitializer.BeforeActionNotificationName, 
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
             var telemetry = new EventTelemetry();
@@ -207,7 +207,7 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry);
             contextAccessor.HttpContext.Request.Method = "POST";
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new Notifier(new ProxyNotifierMethodAdapter()));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, TelemetryListener.DefaultListener);
 
             initializer.Initialize(telemetry);
 

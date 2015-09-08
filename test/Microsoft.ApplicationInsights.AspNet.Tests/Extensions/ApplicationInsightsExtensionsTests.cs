@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
+    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights;
@@ -13,7 +14,6 @@
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
     using Microsoft.Framework.Configuration;
-    using Microsoft.Framework.Notification;
     using Xunit;
     
     public static class ApplicationInsightsExtensionsTests
@@ -23,7 +23,7 @@
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddInstance<IHttpContextAccessor>(contextAccessor);
-            services.AddInstance<INotifier>(new Notifier(new ProxyNotifierMethodAdapter()));
+            services.AddInstance<TelemetryListener>(TelemetryListener.DefaultListener);
             return services;
         }
 
