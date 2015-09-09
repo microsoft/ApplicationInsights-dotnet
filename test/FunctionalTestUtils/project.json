@@ -9,8 +9,8 @@
         "Microsoft.AspNet.Mvc": "6.0.0-beta8-*",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8-*",
         "Microsoft.Dnx.Runtime": "1.0.0-beta8-*",
-        "Microsoft.Net.Http.Client": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*",
+        "System.Net.Http": "4.0.0-beta-23109"
     },
 
     "frameworks": {
