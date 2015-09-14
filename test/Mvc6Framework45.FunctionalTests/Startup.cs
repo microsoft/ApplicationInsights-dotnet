@@ -106,14 +106,14 @@ namespace Mvc6Framework45.FunctionalTests
                 loggerfactory.AddConsole(minLevel: LogLevel.Warning);
 
                 //app.UseBrowserLink();
-                app.UseErrorPage(new ErrorPageOptions());
+                app.UseDeveloperExceptionPage(new ErrorPageOptions());
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
             }
             else
             {
                 // Add Error handling middleware which catches all application specific errors and
                 // sends the request to the following path or controller action.
-                app.UseErrorHandler("/Home/Error");
+                app.UseExceptionHandler("/Home/Error");
             }
 
             // Add Application Insights exceptions handling to the request pipeline.
