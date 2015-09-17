@@ -20,12 +20,15 @@
         public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, INotifier notifier) 
             : base(httpContextAccessor)
         {
-            if (notifier == null)
+            if (notifier != null)
             {
-                throw new ArgumentNullException("notifier");
+                notifier.EnlistTarget(this);
             }
+        }
 
-            notifier.EnlistTarget(this);
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
+            : this(httpContextAccessor, null)
+        {
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
