@@ -572,6 +572,35 @@
         }
 
         [TestMethod]
+        public void TrackRespectsInstrumentaitonKeySetByTelemetryInitializer()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration
+            {
+                // no instrumentation key set here
+            };
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.InstrumentationKey = "Foo";
+                initializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration) { Channel = channel };
+
+            var telemetry = new StubTelemetry();
+            client.Track(telemetry);
+
+            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Equal(1, initializedTelemetry.Count);
+        }
+
+        [TestMethod]
         public void TrackDoesNotThrowExceptionsDuringTelemetryIntializersInitialize()
         {
             var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };

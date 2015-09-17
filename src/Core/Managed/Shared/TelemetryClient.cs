@@ -325,23 +325,6 @@
             // It is hidden from intellisense to prevent customer confusion.
             if (this.IsEnabled())
             {
-                string instrumentationKey = this.Context.InstrumentationKey;
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = telemetry.Context.InstrumentationKey;
-                }
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    return;
-                }
-
                 this.Initialize(telemetry);
 
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
