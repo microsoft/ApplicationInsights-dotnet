@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</id>
+    <version>$version$</version>
+    <title>Application Insights Telemetry Channel for Windows Server Applications</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=391182</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
+    <iconUrl>$image$</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package.</description>
+    <copyright>$copyright$</copyright>
+    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <tags>Analytics ApplicationInsights Telemetry</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.ApplicationInsights" version="[$version$]" />
+        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.24"/>
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Microsoft.ApplicationInsights" version="[$version$]" />
+      </group>
+    </dependencies>
+  </metadata> 
+  <files>
+    <!-- Content files for all projects -->
+    <file src="$configuration$\TelemetryChannels\NuGet\ServerTelemetryChannel.NuGet\ApplicationInsights.config.transform" target="content" />
+    <file src="$configuration$\TelemetryChannels\NuGet\ServerTelemetryChannel.NuGet\ApplicationInsights.config.install.xdt" target="content" />
+    <file src="$configuration$\TelemetryChannels\NuGet\ServerTelemetryChannel.NuGet\ApplicationInsights.config.uninstall.xdt" target="content" />
+
+    <!-- Binaries for .NET 4.0 projects -->
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net40" />
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net40" />
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net40" />
+
+    <!-- Binaries for .NET 4.5 projects -->
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net45" />
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net45" />
+    <file src="$configuration$\TelemetryChannels\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net45" />
+  </files>
+</package>
