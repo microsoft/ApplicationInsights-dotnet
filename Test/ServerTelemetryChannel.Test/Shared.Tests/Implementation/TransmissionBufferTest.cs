@@ -1,0 +1,267 @@
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+{
+    using System;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Assert = Xunit.Assert;
+#if NET45
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
+    public class TransmissionBufferTest
+    {
+        [TestClass]
+        public class Class : TransmissionBufferTest
+        {
+            [TestMethod]
+            [Timeout(5000)]
+            public void EnqueueAndDequeueMethodsAreThreadSafe()
+            {
+                var buffer = new TransmissionBuffer();
+
+                const int NumberOfThreads = 16;
+                const int NumberOfIterations = 1000;
+                var tasks = new Task[NumberOfThreads];
+                for (int t = 0; t < NumberOfThreads; t++)
+                {
+                    tasks[t] = TaskEx.Run(() =>
+                    {
+                        for (int i = 0; i < NumberOfIterations; i++)
+                        {
+                            buffer.Enqueue(() => new StubTransmission());
+                            buffer.Dequeue();
+                        }
+                    });
+                }
+
+                TaskEx.WhenAll(tasks).GetAwaiter().GetResult();
+            }
+        }
+
+        [TestClass]
+        public class Capacity : TransmissionBufferTest
+        {
+            [TestMethod]
+            public void DefaultValueIsAppropriateForMostApps()
+            {
+                var buffer = new TransmissionBuffer();
+                Assert.Equal(1024 * 1024, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void CanBeSetToZeroToDsiableBufferingOfTransmissions()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 0 };
+                Assert.Equal(0, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void ThrowsArgumentOutOfRangeExceptionWhenValueIsLessThanZero()
+            {
+                var buffer = new TransmissionBuffer();
+                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = -1);
+            }
+        }
+
+        [TestClass]
+        public class Enqueue : TransmissionBufferTest
+        {
+            [TestMethod]
+            public void ReturnsTrueWhenNewTransmissionLengthDoesNotExceedBufferCapacity()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 1 };
+                Assert.True(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+            }
+
+            [TestMethod]
+            public void ReturnsFalseWhenNewTransmissionLengthExceedsBufferCapacity()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 0 };
+                Assert.False(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+            }
+
+            [TestMethod]
+            public void DoesNotCountRejectedTransmissionsAgainstMaxNumber()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 0 };
+                buffer.Enqueue(() => new StubTransmission(new byte[1]));
+
+                buffer.Capacity = 1;
+
+                Assert.True(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+            }
+
+            [TestMethod]
+            public void DoesNotInvokeTransmissionGetterWhenMaxNumberOfTransmissionsIsExceededToKeepItStored()
+            {
+                bool transmissionGetterInvoked = false;
+                Func<Transmission> transmissionGetter = () =>
+                {
+                    transmissionGetterInvoked = true;
+                    return new StubTransmission(new byte[1]);
+                };
+                var buffer = new TransmissionBuffer { Capacity = 0 };
+
+                buffer.Enqueue(transmissionGetter);
+
+                Assert.False(transmissionGetterInvoked);
+            }
+
+            [TestMethod]
+            public void ReturnsFalseWhenTransmissionGetterReturedNullIndicatingEmptyStorage()
+            {
+                var buffer = new TransmissionBuffer();
+                Assert.False(buffer.Enqueue(() => null));
+            }
+
+            [TestMethod]
+            public void DoesNotCountNullTransmissionsReturnedFromEmptyStorageAgainstMaxNumber()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 1 };
+                buffer.Enqueue(() => null);
+
+                Transmission transmission2 = new StubTransmission();
+                Assert.True(buffer.Enqueue(() => transmission2));
+            }
+
+            [TestMethod]
+            public void DoesNotContinueAsyncOperationsOnCapturedSynchronizationContextToImprovePerformance()
+            {
+                bool postedBack = false;
+                using (var context = new StubSynchronizationContext())
+                {
+                    context.OnPost = (callback, state) =>
+                    {
+                        postedBack = true;
+                        callback(state);
+                    };
+
+                    var buffer = new TransmissionBuffer();
+                    buffer.Enqueue(() => new StubTransmission());
+                }
+
+                Assert.False(postedBack);
+            }
+        }
+
+        [TestClass]
+        public class Dequeue : TransmissionBufferTest
+        {
+            [TestMethod]
+            public void ReturnsOldestEnquedTransmission()
+            {
+                var buffer = new TransmissionBuffer();
+
+                Transmission transmission1 = new StubTransmission();
+                buffer.Enqueue(() => transmission1);
+
+                Transmission transmission2 = new StubTransmission();
+                buffer.Enqueue(() => transmission2);
+
+                Assert.Same(transmission1, buffer.Dequeue());
+                Assert.Same(transmission2, buffer.Dequeue());
+            }
+
+            [TestMethod]
+            public void ReturnsNullWhenBufferIsEmpty()
+            {
+                var buffer = new TransmissionBuffer();
+                Assert.Null(buffer.Dequeue());
+            }
+
+            [TestMethod]
+            public void MakesSpaceForOneNewTransmissionWhenOldTransmissionDequeuedSuccessfully()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 1 };
+                buffer.Enqueue(() => new StubTransmission());
+                buffer.Dequeue();
+                Assert.True(buffer.Enqueue(() => new StubTransmission()));
+            }
+
+            [TestMethod]
+            public void DoesNotMakesSpaceForNewTransmissionWhenBufferIsEmpty()
+            {
+                var buffer = new TransmissionBuffer { Capacity = 0 };
+                buffer.Dequeue();
+                Assert.False(buffer.Enqueue(() => new StubTransmission()));
+            }
+        }
+
+        [TestClass]
+        public class Size
+        {
+            [TestMethod]
+            public void StartsAtZero()
+            {
+                var buffer = new TransmissionBuffer();                
+                Assert.Equal(0, buffer.Size);
+            }
+
+            [TestMethod]
+            public void ReflectsContentLengthOfTransmissionsAddedByEnqueueAsync()
+            {
+                Transmission transmission = new StubTransmission(new byte[42]);
+                var buffer = new TransmissionBuffer();
+
+                buffer.Enqueue(() => transmission);
+
+                Assert.Equal(transmission.Content.Length, buffer.Size);
+            }
+
+            [TestMethod]
+            public void ReflectsContentLengthOfTransmissionsRemovedByDequeueAsync()
+            {
+                var buffer = new TransmissionBuffer();
+
+                buffer.Enqueue(() => new StubTransmission(new byte[10]));
+                buffer.Dequeue();
+
+                Assert.Equal(0, buffer.Size);
+            }
+        }
+
+        [TestClass]
+        public class TransmissionDequeued
+        {
+            [TestMethod]
+            public void IsRaisedWhenTransmissionWasDequeuedSuccessfully()
+            {
+                object eventSender = null;
+                TransmissionProcessedEventArgs eventArgs = null;
+                var buffer = new TransmissionBuffer();
+                buffer.TransmissionDequeued += (sender, args) =>
+                {
+                    eventSender = sender;
+                    eventArgs = args;
+                };
+
+                buffer.Enqueue(() => new StubTransmission());
+
+                Transmission dequeuedTransmission = buffer.Dequeue();
+
+                Assert.Same(buffer, eventSender);
+                Assert.Same(dequeuedTransmission, eventArgs.Transmission);
+            }
+
+            [TestMethod]
+            public void RaisedWhenDequeueFromEmptyBufferWasAttempted()
+            {
+                object eventSender = null;
+                TransmissionProcessedEventArgs eventArgs = null;
+                var buffer = new TransmissionBuffer();
+                buffer.TransmissionDequeued += (sender, args) =>
+                {
+                    eventSender = sender;
+                    eventArgs = args;
+                };
+
+                buffer.Dequeue();
+
+                Assert.Same(buffer, eventSender);
+                Assert.Same(null, eventArgs.Transmission);
+            }
+        }
+    }
+}
