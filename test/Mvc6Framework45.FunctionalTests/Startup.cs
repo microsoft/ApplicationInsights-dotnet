@@ -72,13 +72,13 @@ namespace Mvc6Framework45.FunctionalTests
             // Configure the options for the authentication middleware.
             // You can add options for Google, Twitter and other middleware as shown below.
             // For more information see http://go.microsoft.com/fwlink/?LinkID=532715
-            services.Configure<FacebookAuthenticationOptions>(options =>
+            services.Configure<FacebookOptions>(options =>
             {
                 options.AppId = Configuration["Authentication:Facebook:AppId"];
                 options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
             });
 
-            services.Configure<MicrosoftAccountAuthenticationOptions>(options =>
+            services.Configure<MicrosoftAccountOptions>(options =>
             {
                 options.ClientId = Configuration["Authentication:MicrosoftAccount:ClientId"];
                 options.ClientSecret = Configuration["Authentication:MicrosoftAccount:ClientSecret"];

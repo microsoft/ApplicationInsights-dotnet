@@ -9,7 +9,7 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Mvc;
-    using Microsoft.AspNet.Mvc.Actions;
+    using Microsoft.AspNet.Mvc.Abstractions;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
     using Microsoft.Framework.DependencyInjection;
