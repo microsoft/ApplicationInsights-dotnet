@@ -19,8 +19,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
             this.dockerContextFactory = new DockerContextFactory();
         }
 
-        public bool Completed { get; private set; }
-
         public DockerContext DockerContext
         {
             get { return this.dockerContext; }
@@ -47,7 +45,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
                 }
 
                 this.DockerContext = this.dockerContextFactory.CreateDockerContext(this.contextFilePath);
-                this.Completed = true;
             }
         }
     }

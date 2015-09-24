@@ -9,6 +9,11 @@ namespace Microsoft.ApplicationInsights.Extensibility
     {
         private readonly DockerContextPoller contextPoller;
 
+        public DockerContextInitializer(DockerContextPoller dockerContextPoller)
+        {
+            this.contextPoller = dockerContextPoller;
+        }
+
         public DockerContextInitializer()
         {
             this.contextPoller = new DockerContextPoller(Implementation.Docker.Constants.AiSdkDirectory);
@@ -18,7 +23,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         public void Initialize(ITelemetry telemetry)
         {
             DockerContext dockerContext;
-            if (this.contextPoller.Completed && (dockerContext = this.contextPoller.DockerContext) != null)
+            if ((dockerContext = this.contextPoller.DockerContext) != null)
             {
                 TelemetryContext telemetryContext = telemetry.Context;
 
