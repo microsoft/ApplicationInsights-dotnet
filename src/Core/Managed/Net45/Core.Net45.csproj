@@ -38,6 +38,21 @@
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Net40\Extensibility\Implementation\Docker\Constants.cs">
+      <Link>Extensibility\Implementation\Docker\Constants.cs</Link>
+    </Compile>
+    <Compile Include="..\Net40\Extensibility\Implementation\Docker\DockerContext.cs">
+      <Link>Extensibility\Implementation\Docker\DockerContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Net40\Extensibility\Implementation\Docker\DockerContextPoller.cs">
+      <Link>Extensibility\Implementation\Docker\DockerContextPoller.cs</Link>
+    </Compile>
+    <Compile Include="..\Net40\Extensibility\Implementation\Docker\DockerContextFactory.cs">
+      <Link>Extensibility\Implementation\Docker\DockerContextFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Net40\Extensibility\DockerContextInitializer.cs">
+      <Link>Extensibility\DockerContextInitializer.cs</Link>
+    </Compile>
     <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
     <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
     <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />

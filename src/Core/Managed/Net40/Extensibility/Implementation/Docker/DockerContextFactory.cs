@@ -9,10 +9,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
     {
         public DockerContext CreateDockerContext(string contextFilePath)
         {
-            string fileContent = String.Empty;
-            #if NET40 || NET45
-                fileContent = File.ReadAllText(contextFilePath);
-            #endif
+            string fileContent = File.ReadAllText(contextFilePath);
 
             return new DockerContext(fileContent);
         }

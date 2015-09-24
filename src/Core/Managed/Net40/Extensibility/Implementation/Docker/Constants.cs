@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
 {
     public static class Constants
     {

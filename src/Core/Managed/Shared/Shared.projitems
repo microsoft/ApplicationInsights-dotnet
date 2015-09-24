@@ -37,17 +37,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SeverityLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\DockerContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Docker\Constants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Docker\DockerContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Docker\DockerContextFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Docker\DockerContextPoller.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.cs" />

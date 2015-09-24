@@ -11,20 +11,12 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
         public DockerContextInitializer()
         {
-            #if !(NET40 || NET45)
-                return;
-            #endif
-
             this.contextPoller = new DockerContextPoller(Implementation.Docker.Constants.AiSdkDirectory);
             this.contextPoller.Start();
         }
 
         public void Initialize(ITelemetry telemetry)
         {
-            #if !(NET40 || NET45)
-                return;
-            #endif
-
             DockerContext dockerContext;
             if (this.contextPoller.Completed && (dockerContext = this.contextPoller.DockerContext) != null)
             {
