@@ -1,19 +1,32 @@
-﻿using System.Collections.Generic;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Docker;
-
-namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System.Collections.Generic;
+    using Channel;
+    using DataContracts;
+    using Implementation.Docker;
+
+    /// <summary>
+    /// Initializes telemetries with Docker context, if available.
+    /// Docker context is the host, image, container name and ID in which the application is running in.
+    /// The Docker context file is injected by the Application Insights Monitoring Container:
+    ///     https://github.com/Microsoft/ApplicationInsights-Docker
+    /// </summary>
     public class DockerContextInitializer : ITelemetryInitializer
     {
         private readonly DockerContextPoller contextPoller;
 
+        /// <summary>
+        /// Constructs new DockerContextInitializer. This constructor is for testability purposes.
+        /// </summary>
+        /// <param name="dockerContextPoller">The context poller.</param>
         public DockerContextInitializer(DockerContextPoller dockerContextPoller)
         {
             this.contextPoller = dockerContextPoller;
         }
 
+        /// <summary>
+        /// Constructs new DockerContextInitializer.
+        /// </summary>
         public DockerContextInitializer()
         {
             this.contextPoller = new DockerContextPoller(Implementation.Docker.Constants.AiSdkDirectory);
@@ -44,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
             }
         }
 
-        private bool CheckIfTelemetryContextAlreadyInitialized(TelemetryContext telemetryContext)
+        private static bool CheckIfTelemetryContextAlreadyInitialized(TelemetryContext telemetryContext)
         {
             string containerName = null;
             telemetryContext.Properties.TryGetValue(Implementation.Docker.Constants.DockerContainerNamePropertyName, out containerName);

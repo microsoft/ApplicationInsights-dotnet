@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
 {
+    using System.IO;
+
     class DockerContextFactory
     {
         public DockerContext CreateDockerContext(string contextFilePath)
