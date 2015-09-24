@@ -59,6 +59,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensibility\DockerContextInitializer.cs" />
+    <Compile Include="Extensibility\Implementation\Docker\Constants.cs" />
+    <Compile Include="Extensibility\Implementation\Docker\DockerContext.cs" />
+    <Compile Include="Extensibility\Implementation\Docker\DockerContextFactory.cs" />
+    <Compile Include="Extensibility\Implementation\Docker\DockerContextPoller.cs" />
     <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
     <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
     <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />
