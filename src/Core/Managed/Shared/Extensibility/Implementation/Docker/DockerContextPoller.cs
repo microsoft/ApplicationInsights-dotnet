@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
 {
@@ -10,6 +9,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
     {
         private const int ThreadPollingIntervalInSeconds = 2;
         private const string ContextFileName = "docker.info";
+        private volatile DockerContext dockerContext = null;
         private readonly string contextFilePath;
         private readonly DockerContextFactory dockerContextFactory;
 
@@ -21,20 +21,25 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
 
         public bool Completed { get; private set; }
 
-        public DockerContext DockerContext { get; private set; }
+        public DockerContext DockerContext
+        {
+            get { return this.dockerContext; }
+            set { this.dockerContext = value; }
+        }
 
         public void Start()
         {
-            throw new NotImplementedException();
+            Task.Factory.StartNew(StartPollForContextFile);
         }
 
         private void StartPollForContextFile()
         {
-            do
+            bool fileExists = false;
+            while (!fileExists)
             {
-                var isFileExists = File.Exists(this.contextFilePath);
+                fileExists = File.Exists(this.contextFilePath);
 
-                if (!isFileExists)
+                if (!fileExists)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(ThreadPollingIntervalInSeconds));
 
@@ -42,7 +47,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
                 }
 
                 this.DockerContext = this.dockerContextFactory.CreateDockerContext(this.contextFilePath);
-            } while (!File.Exists(this.contextFilePath));
+                this.Completed = true;
+            }
         }
     }
 }

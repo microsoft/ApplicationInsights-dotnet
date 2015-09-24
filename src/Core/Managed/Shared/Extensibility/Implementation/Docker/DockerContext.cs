@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
 {
@@ -11,13 +10,27 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
      */
     public class DockerContext
     {
-        public string HostName { get; private set; }
+        public string HostName
+        {
+            get
+            {
+                string value = null;
+                this.Properties.TryGetValue(Constants.DockerHostPropertyName, out value);
+
+                return value;
+            }
+        }
+
         public Dictionary<string, string> Properties { get; private set; }
 
         public DockerContext(string context)
         {
             this.Properties = new Dictionary<string, string>();
-            Extract(context);
+
+            if (!String.IsNullOrEmpty(context))
+            {
+                Extract(context);
+            }
         }
 
         private void Extract(string context)
@@ -29,15 +42,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Docker
                 string[] split = kv.Split('=');
                 string key = split[0];
                 string value = split[1];
-
-                if (key.Equals(Constants.DockerHostPropertyName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    this.HostName = value;
-                }
-                else
-                {
-                    this.Properties.Add(key, value);
-                }
+                
+                this.Properties.Add(key, value);
             }
         }
     }

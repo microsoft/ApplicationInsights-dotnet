@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Docker;
@@ -32,15 +30,9 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 TelemetryContext telemetryContext = telemetry.Context;
 
-                // We always set the device ID, which is the device which sent the event, and by default it is represented by a GUID inside Docker container.
-                string containerName = GetContainerNameFromProperties(dockerContext.Properties);
-
-                if (containerName == null)
-                {
-                    return;
-                }
-
-                telemetryContext.Device.Id = containerName;
+                // We always set the device ID, which is the device that sent the event.
+                // By default GUID value, will be replaced with the real host name.
+                telemetryContext.Device.Id = dockerContext.HostName;
 
                 // If telemetry already initialized with Docker properties, we don't override it.
                 if (CheckIfTelemetryContextAlreadyInitialized(telemetryContext))
@@ -57,15 +49,10 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
         private bool CheckIfTelemetryContextAlreadyInitialized(TelemetryContext telemetryContext)
         {
-            return GetContainerNameFromProperties(telemetryContext.Properties) != null;
-        }
-
-        private string GetContainerNameFromProperties(IDictionary<string, string> properties)
-        {
             string containerName = null;
-            properties.TryGetValue(Implementation.Docker.Constants.DockerContainerNamePropertyName, out containerName);
+            telemetryContext.Properties.TryGetValue(Implementation.Docker.Constants.DockerContainerNamePropertyName, out containerName);
 
-            return containerName;
+            return containerName != null;
         }
     }
 }
