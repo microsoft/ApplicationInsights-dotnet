@@ -40,15 +40,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             return bool.Parse(tagValue);
         }
 
-        internal static int? GetTagIntValueOrNull(this IDictionary<string, string> tags, string tagKey)
+        internal static bool GetTagBoolValueOrDefault(this IDictionary<string, string> tags, string tagKey)
         {
             string tagValue = GetTagValueOrNull(tags, tagKey);
             if (string.IsNullOrEmpty(tagValue))
             {
-                return null;
+                return default(bool);
             }
 
-            return int.Parse(tagValue, CultureInfo.InvariantCulture);
+            return bool.Parse(tagValue);
         }
 
         internal static DateTimeOffset? GetTagDateTimeOffsetValueOrNull(this IDictionary<string, string> tags, string tagKey)
@@ -60,6 +60,89 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             }
 
             return DateTimeOffset.Parse(tagValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+        }
+
+        internal static int? GetTagIntValueOrNull(this IDictionary<string, string> tags, string tagKey)
+        {
+            string tagValue = GetTagValueOrNull(tags, tagKey);
+            if (string.IsNullOrEmpty(tagValue))
+            {
+                return null;
+            }
+
+            return int.Parse(tagValue, CultureInfo.InvariantCulture);
+        }
+
+        internal static int GetTagIntValueOrDefault(this IDictionary<string, string> tags, string tagKey)
+        {
+            string tagValue = GetTagValueOrNull(tags, tagKey);
+            if (string.IsNullOrEmpty(tagValue))
+            {
+                return default(int);
+            }
+
+            return int.Parse(tagValue, CultureInfo.InvariantCulture);
+        }
+
+        internal static long GetTagLongValueOrDefault(this IDictionary<string, string> tags, string tagKey)
+        {
+            string tagValue = GetTagValueOrNull(tags, tagKey);
+            if (string.IsNullOrEmpty(tagValue))
+            {
+                return default(long);
+            }
+
+            return long.Parse(tagValue, CultureInfo.InvariantCulture);
+        }
+
+        internal static Guid GetTagGuidValueOrDefault(this IDictionary<string, string> tags, string tagKey)
+        {
+            string tagValue = GetTagValueOrNull(tags, tagKey);
+            if (string.IsNullOrEmpty(tagValue))
+            {
+                return new Guid();
+            }
+
+            return new Guid(tagValue);
+        }
+
+        internal static void SetBoolValueOrRemove(this IDictionary<string, string> tags, string tagKey, bool? tagValue)
+        {
+            if (tagValue == null)
+            {
+                SetTagValueOrRemove(tags, tagKey, tagValue);
+            }
+            else
+            {
+                string tagStringValue = tagValue.Value.ToString();
+                SetTagValueOrRemove(tags, tagKey, tagStringValue);
+            }
+        }
+
+        internal static void SetIntValueOrRemove(this IDictionary<string, string> tags, string tagKey, int? tagValue)
+        {
+            if (tagValue == null)
+            {
+                SetTagValueOrRemove(tags, tagKey, tagValue);
+            }
+            else
+            {
+                string tagStringValue = tagValue.Value.ToString(CultureInfo.InvariantCulture);
+                SetTagValueOrRemove(tags, tagKey, tagStringValue);
+            }
+        }
+
+        internal static void SetLongValueOrRemove(this IDictionary<string, string> tags, string tagKey, long? tagValue)
+        {
+            if (tagValue == null)
+            {
+                SetTagValueOrRemove(tags, tagKey, tagValue);
+            }
+            else
+            {
+                string tagStringValue = tagValue.Value.ToString(CultureInfo.InvariantCulture);
+                SetTagValueOrRemove(tags, tagKey, tagStringValue);
+            }
         }
 
         internal static void SetStringValueOrRemove(this IDictionary<string, string> tags, string tagKey, string tagValue)
@@ -75,7 +158,20 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             }
             else
             {
-                string tagValueString = tagValue.Value.ToString("o", CultureInfo.InvariantCulture);
+                string tagValueString = tagValue.Value.ToString("O", CultureInfo.InvariantCulture);
+                SetTagValueOrRemove(tags, tagKey, tagValueString);
+            }
+        }
+
+        internal static void SetGuidValueOrRemove(this IDictionary<string, string> tags, string tagKey, Guid? tagValue)
+        {
+            if (tagValue == null)
+            {
+                SetTagValueOrRemove(tags, tagKey, tagValue);
+            }
+            else
+            {
+                string tagValueString = tagValue.Value.ToString();
                 SetTagValueOrRemove(tags, tagKey, tagValueString);
             }
         }

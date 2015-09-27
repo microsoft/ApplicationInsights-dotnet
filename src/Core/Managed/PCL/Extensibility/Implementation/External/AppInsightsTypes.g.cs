@@ -414,6 +414,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public string duration { get; set; }
+
+        
+        public string referrer { get; set; }
+
+        
+        public string referrerData { get; set; }
         
         public PageViewData()
             : this("AI.PageViewData", "PageViewData")
@@ -423,6 +429,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             url = string.Empty;
             duration = string.Empty;
+            referrer = string.Empty;
+            referrerData = string.Empty;
         }
     }
 

@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #endif
 {
     using System.Collections.Generic;
-    using System.Globalization;
 
     /// <summary>
     /// Encapsulates information about a device where an application is running.
@@ -31,11 +30,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #else
     internal
 #endif
-    sealed class DeviceContextData
+    sealed partial class DeviceContextData
     {
         private readonly IDictionary<string, string> tags;
 
-        internal DeviceContextData(IDictionary<string, string> tags)
+        public DeviceContextData(IDictionary<string, string> tags)
         {
             this.tags = tags;
         }
