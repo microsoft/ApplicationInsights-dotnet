@@ -3,16 +3,15 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Microsoft.AspNet.Server.IIS": "1.0.0-beta7",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta7",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta7-*",
-    "FunctionalTestUtils": "1.0.0-beta7-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-beta7-*",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-beta7-*"
+    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8-*",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta8-*",
+    "FunctionalTestUtils": "1.0.0-beta8-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-beta8-*"
   },
 
   "commands": {
-    "web": "Microsoft.AspNet.Hosting --config hosting.ini",
+    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
     "test": "xunit.runner.aspnet"
   },
 
