@@ -47,7 +47,7 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new MemoryConfigurationSource();
+            var customConfig = new MemoryConfigurationProvider();
             customConfig.Set("server.urls", this.BaseHost);
             var configBuilder = new ConfigurationBuilder();
             configBuilder.Add(customConfig);

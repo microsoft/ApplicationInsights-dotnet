@@ -31,7 +31,7 @@ namespace Mvc6Framework45.FunctionalTests
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            var builder = new ConfigurationBuilder(env.MapPath(@"..\"))
+            var builder = new ConfigurationBuilder()
                 .AddJsonFile("config.json", optional: true)
                 .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
 

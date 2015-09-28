@@ -76,7 +76,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-instrumentation-key.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -89,7 +89,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-developer-mode.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-developer-mode.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -102,7 +102,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-endpoint-address.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-endpoint-address.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 

@@ -23,7 +23,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                     b.Property<int>("AccessFailedCount")
                         .Annotation("OriginalValueIndex", 0);
                     b.Property<string>("ConcurrencyStamp")
-                        .ConcurrencyToken()
+                        .IsConcurrencyToken()
                         .Annotation("OriginalValueIndex", 1);
                     b.Property<string>("Email")
                         .Annotation("OriginalValueIndex", 2);
@@ -51,14 +51,14 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("OriginalValueIndex", 13);
                     b.Property<string>("UserName")
                         .Annotation("OriginalValueIndex", 14);
-                    b.Key("Id");
+                    b.HasKey("Id");
                     b.Annotation("Relational:TableName", "AspNetUsers");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityRole", b =>
                 {
                     b.Property<string>("ConcurrencyStamp")
-                        .ConcurrencyToken()
+                        .IsConcurrencyToken()
                         .Annotation("OriginalValueIndex", 0);
                     b.Property<string>("Id")
                         .Annotation("OriginalValueIndex", 1);
@@ -66,7 +66,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("OriginalValueIndex", 2);
                     b.Property<string>("NormalizedName")
                         .Annotation("OriginalValueIndex", 3);
-                    b.Key("Id");
+                    b.HasKey("Id");
                     b.Annotation("Relational:TableName", "AspNetRoles");
                 });
 
@@ -81,7 +81,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("RoleId")
                         .Annotation("OriginalValueIndex", 3);
-                    b.Key("Id");
+                    b.HasKey("Id");
                     b.Annotation("Relational:TableName", "AspNetRoleClaims");
                 });
 
@@ -96,7 +96,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("UserId")
                         .Annotation("OriginalValueIndex", 3);
-                    b.Key("Id");
+                    b.HasKey("Id");
                     b.Annotation("Relational:TableName", "AspNetUserClaims");
                 });
 
@@ -110,7 +110,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("OriginalValueIndex", 2);
                     b.Property<string>("UserId")
                         .Annotation("OriginalValueIndex", 3);
-                    b.Key("LoginProvider", "ProviderKey");
+                    b.HasKey("LoginProvider", "ProviderKey");
                     b.Annotation("Relational:TableName", "AspNetUserLogins");
                 });
 
@@ -120,7 +120,7 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
                         .Annotation("OriginalValueIndex", 0);
                     b.Property<string>("UserId")
                         .Annotation("OriginalValueIndex", 1);
-                    b.Key("UserId", "RoleId");
+                    b.HasKey("UserId", "RoleId");
                     b.Annotation("Relational:TableName", "AspNetUserRoles");
                 });
 
