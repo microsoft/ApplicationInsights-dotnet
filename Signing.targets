@@ -4,17 +4,6 @@
     Signing properties and items for MicroBuild-based build definitions.
     http://devdiv/sites/des/bars/Shared%20Documents/OneNote/VS%20Eng%20BARS%20Documentation/MicroBuild.one 
   -->
-
-  <PropertyGroup>
-    <SignAssembly Condition="'$(SIGNING_KEYS_PATH)'!='' AND Exists('$(SIGNING_KEYS_PATH)\35MSSharedLib1024.snk')">true</SignAssembly>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(PublicRelease)' == 'True'">
-    <DefineConstants>$(DefineConstants);PUBLIC_RELEASE</DefineConstants>
-    <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>$(SIGNING_KEYS_PATH)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-
   <!-- Default metadata for all files to sign -->
   <ItemDefinitionGroup>
     <FilesToSign>
@@ -38,4 +27,16 @@
       </FilesToSign>
     </ItemGroup>
   </Target>
+
+  <PropertyGroup>
+    <!--UseECMAKey>false</UseECMAKey-->
+    <ToolsDir>$(PackagesDir)\Microsoft.DotNet.BuildTools.1.0.16-prerelease\lib\</ToolsDir>
+  </PropertyGroup>
+
+  <Import Project="$(ToolsDir)\sign.targets" Condition="'$(PublicRelease)' != 'True'" />
+
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>$(EnlistmentRoot)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
 </Project>

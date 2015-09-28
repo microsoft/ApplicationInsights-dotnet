@@ -91,4 +91,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.1.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.1.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets'))" />
   </Target>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets"/>
 </Project>
