@@ -66,7 +66,7 @@
 
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
         {
-            var telemetryConfigurationSource = new MemoryConfigurationSource();
+            var telemetryConfigurationSource = new MemoryConfigurationProvider();
             bool wasAnythingSet = false;
 
             if (developerMode != null)
