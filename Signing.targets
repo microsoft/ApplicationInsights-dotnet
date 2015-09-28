@@ -39,4 +39,9 @@
     <AssemblyOriginatorKeyFile>$(EnlistmentRoot)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(PublicRelease)' == 'True'">  
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>  
+  </PropertyGroup>  
+
 </Project>
