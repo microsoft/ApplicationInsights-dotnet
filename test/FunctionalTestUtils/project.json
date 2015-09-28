@@ -3,10 +3,7 @@
     "dependencies": {
         "Microsoft.ApplicationInsights": "1.1.1-beta",
         "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta8",
-        "Microsoft.AspNet.Diagnostics": "1.0.0-beta8-*",
-        "Microsoft.AspNet.Hosting": "1.0.0-beta8-*",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta8-*",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta8-*",
         "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8-*",
         "Microsoft.Dnx.Runtime": "1.0.0-beta8-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*",

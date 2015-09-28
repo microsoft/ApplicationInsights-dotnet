@@ -24,14 +24,6 @@
         }
 
         [Fact]
-        public void InitializeThrowIfNotifierIsNull()
-        {
-            var ac = new HttpContextAccessor() { HttpContext = null };
-
-            Assert.Throws<ArgumentNullException>(() => { var initializer = new OperationNameTelemetryInitializer(ac, null); });
-        }
-
-        [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var ac = new HttpContextAccessor() { HttpContext = null };
