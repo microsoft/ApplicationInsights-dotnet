@@ -1,13 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Label="Global_Build_Properties">
-    <GlobalPropsLocation>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Global.props'))</GlobalPropsLocation>
-  </PropertyGroup>
-  <ImportGroup Label="Global_Build_Properties">
-    <Import Project="$(GlobalPropsLocation)\Global.props" />
-    <Import Project="$(GlobalPropsLocation)\Signing.props" />
-  </ImportGroup>     
-  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.props'))\Common.props"/>
   <PropertyGroup>
     <!--Removing the SRC folder from the output directory-->
     <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
