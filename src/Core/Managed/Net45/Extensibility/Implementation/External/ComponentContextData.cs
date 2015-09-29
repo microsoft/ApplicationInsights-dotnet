@@ -62,10 +62,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.ApplicationBuild, value); }
         }
 
+        public string ApplicationId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.ApplicationId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.ApplicationId, value); }
+        }
+
         internal void SetDefaults(ComponentContextData source)
         {
             this.tags.InitializeTagValue(ContextTagKeys.Keys.ApplicationVersion, source.Version);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.ApplicationBuild, source.Build);
+            this.tags.InitializeTagValue(ContextTagKeys.Keys.ApplicationId, source.ApplicationId);
         }
     }
 }

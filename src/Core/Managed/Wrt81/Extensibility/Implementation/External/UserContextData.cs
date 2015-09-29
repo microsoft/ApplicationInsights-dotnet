@@ -31,11 +31,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #else
     internal
 #endif
-    sealed class UserContextData
+    sealed partial class UserContextData
     {
         private readonly IDictionary<string, string> tags;
 
-        internal UserContextData(IDictionary<string, string> tags)
+        public UserContextData(IDictionary<string, string> tags)
         {
             this.tags = tags;
         }
@@ -71,21 +71,21 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
 
         /// <summary>
+        /// Gets or sets the UserAgent of an application-defined account associated with the user.
+        /// </summary>
+        public string AuthUserId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the StoreRegion of an application-defined account associated with the user.
         /// </summary>
         public string StoreRegion
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserStoreRegion); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserStoreRegion, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the AuthUserId of an application-defined account associated with the user.
-        /// </summary>
-        public string AuthUserId
-        {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             get { return this.tags.GetTagDateTimeOffsetValueOrNull(ContextTagKeys.Keys.UserAccountAcquisitionDate); }
             set { this.tags.SetDateTimeOffsetValueOrRemove(ContextTagKeys.Keys.UserAccountAcquisitionDate, value); }
         }
-        
+
         /// <summary>
         /// Sets values on the current context based on the default context passed in.
         /// </summary>

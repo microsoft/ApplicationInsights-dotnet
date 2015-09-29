@@ -36,6 +36,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string ApplicationBuild { get; set; }
 
         
+        public string ApplicationTypeId { get; set; }
+
+        
+        public string ApplicationId { get; set; }
+
+        
         public string DeviceId { get; set; }
 
         
@@ -52,6 +58,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         public string DeviceNetwork { get; set; }
+
+        
+        public string DeviceNetworkName { get; set; }
 
         
         public string DeviceOEMName { get; set; }
@@ -78,6 +87,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string DeviceMachineName { get; set; }
 
         
+        public string DeviceVMName { get; set; }
+
+        
         public string LocationIp { get; set; }
 
         
@@ -97,6 +109,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         public string OperationIsSynthetic { get; set; }
+
+        
+        public string OperationCorrelationVector { get; set; }
 
         
         public string SessionId { get; set; }
@@ -122,16 +137,46 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string UserStoreRegion { get; set; }
 
+        
         public string UserAuthUserId { get; set; }
 
+        
+        public string UserAnonymousUserAcquisitionDate { get; set; }
 
+        
+        public string UserAuthenticatedUserAcquisitionDate { get; set; }
+
+        
+        
         public string SampleRate { get; set; }
+
+        
+        public string CloudName { get; set; }
+
+        
+        public string CloudRoleVer { get; set; }
+
+        
+        public string CloudEnvironment { get; set; }
+
+        
+        public string CloudLocation { get; set; }
+
+        
+        public string CloudDeploymentUnit { get; set; }
+
+        
+        public string ServerDeviceOS { get; set; }
+
+        
+        public string ServerDeviceOSVer { get; set; }
 
         
         public string InternalSdkVersion { get; set; }
 
         
         public string InternalAgentVersion { get; set; }
+
         
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
@@ -141,12 +186,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ApplicationVersion = "ai.application.ver";
             ApplicationBuild = "ai.application.build";
+            ApplicationTypeId = "ai.application.typeId";
+            ApplicationId = "ai.application.applicationId";
             DeviceId = "ai.device.id";
             DeviceIp = "ai.device.ip";
             DeviceLanguage = "ai.device.language";
             DeviceLocale = "ai.device.locale";
             DeviceModel = "ai.device.model";
             DeviceNetwork = "ai.device.network";
+            DeviceNetworkName = "ai.device.networkName";
             DeviceOEMName = "ai.device.oemName";
             DeviceOS = "ai.device.os";
             DeviceOSVersion = "ai.device.osVersion";
@@ -155,6 +203,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             DeviceScreenResolution = "ai.device.screenResolution";
             DeviceType = "ai.device.type";
             DeviceMachineName = "ai.device.machineName";
+            DeviceVMName = "ai.device.vmName";
             LocationIp = "ai.location.ip";
             OperationId = "ai.operation.id";
             OperationName = "ai.operation.name";
@@ -162,6 +211,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             OperationRootId = "ai.operation.rootId";
             OperationSyntheticSource = "ai.operation.syntheticSource";
             OperationIsSynthetic = "ai.operation.isSynthetic";
+            OperationCorrelationVector = "ai.operation.correlationVector";
             SessionId = "ai.session.id";
             SessionIsFirst = "ai.session.isFirst";
             SessionIsNew = "ai.session.isNew";
@@ -171,7 +221,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             UserId = "ai.user.id";
             UserStoreRegion = "ai.user.storeRegion";
             UserAuthUserId = "ai.user.authUserId";
+            UserAnonymousUserAcquisitionDate = "ai.user.anonUserAcquisitionDate";
+            UserAuthenticatedUserAcquisitionDate = "ai.user.authUserAcquisitionDate";
             SampleRate = "ai.sample.sampleRate";
+            CloudName = "ai.cloud.name";
+            CloudRoleVer = "ai.cloud.roleVer";
+            CloudEnvironment = "ai.cloud.environment";
+            CloudLocation = "ai.cloud.location";
+            CloudDeploymentUnit = "ai.cloud.deploymentUnit";
+            ServerDeviceOS = "ai.serverDevice.os";
+            ServerDeviceOSVer = "ai.serverDevice.osVer";
             InternalSdkVersion = "ai.internal.sdkVersion";
             InternalAgentVersion = "ai.internal.agentVersion";
         }

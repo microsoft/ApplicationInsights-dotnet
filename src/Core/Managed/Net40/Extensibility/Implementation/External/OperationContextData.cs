@@ -30,11 +30,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #else
     internal
 #endif
-    sealed class OperationContextData
+    sealed partial class OperationContextData
     {
         private readonly IDictionary<string, string> tags;
 
-        internal OperationContextData(IDictionary<string, string> tags)
+        public OperationContextData(IDictionary<string, string> tags)
         {
             this.tags = tags;
         }
@@ -81,6 +81,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             set { this.tags.SetTagValueOrRemove(ContextTagKeys.Keys.OperationIsSynthetic, value); }
         }
 
+        public string CorrelationVector
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationCorrelationVector); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationCorrelationVector, value); }
+        }
+
         internal void SetDefaults(OperationContextData source)
         {
             this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationId, source.Id);
@@ -88,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationParentId, source.ParentId);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationRootId, source.RootId);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationSyntheticSource, source.SyntheticSource);
-            this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationIsSynthetic, source.IsSynthetic);
+            this.tags.InitializeTagValue(ContextTagKeys.Keys.OperationCorrelationVector, source.CorrelationVector);
         }
     }
 }

@@ -21,7 +21,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #endif
 {
     using System.Collections.Generic;
-    using System.Globalization;
 
     /// <summary>
     /// Encapsulates information about a device where an application is running.
@@ -31,11 +30,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 #else
     internal
 #endif
-    sealed class DeviceContextData
+    sealed partial class DeviceContextData
     {
         private readonly IDictionary<string, string> tags;
 
-        internal DeviceContextData(IDictionary<string, string> tags)
+        public DeviceContextData(IDictionary<string, string> tags)
         {
             this.tags = tags;
         }
@@ -63,8 +62,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         /// </summary>
         public string OperatingSystem
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceOSVersion); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceOSVersion, value); }
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceOS); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceOS, value); }
         }
 
         /// <summary>
@@ -153,7 +152,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceType, source.Type);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceId, source.Id);
-            this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceOSVersion, source.OperatingSystem);
+            this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceOS, source.OperatingSystem);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceOEMName, source.OemName);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceModel, source.Model);
             this.tags.InitializeTagValue(ContextTagKeys.Keys.DeviceNetwork, source.NetworkType);

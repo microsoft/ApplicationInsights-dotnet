@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     {
         private readonly IDictionary<string, string> tags;
 
-        internal InternalContextData(IDictionary<string, string> tags)
+        public InternalContextData(IDictionary<string, string> tags)
         {
             this.tags = tags;
         }
