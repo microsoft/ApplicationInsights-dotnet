@@ -334,6 +334,11 @@
 
                 telemetry.Sanitize();
 
+                if (this.Channel == null)
+                {
+                    throw new InvalidOperationException("Telemetry channel should be configured for telemetry client before tracking telemetry.");
+                }
+
                 this.Channel.Send(telemetry);
 
                 if (System.Diagnostics.Debugger.IsAttached)
@@ -360,7 +365,7 @@
             var telemetryWithProperties = telemetry as ISupportProperties;
             if (telemetryWithProperties != null)
             {
-                if (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value)
+                if ((this.Channel != null) && (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value))
                 {
                     if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                     {
