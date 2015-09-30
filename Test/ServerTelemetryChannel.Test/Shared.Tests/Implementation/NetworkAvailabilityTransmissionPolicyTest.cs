@@ -40,7 +40,7 @@
             public void DisposeUnsubscribesNetworkChangeEvents()
             {
                 bool unsubscribeCalled = false;
-                var netrwork = new StubNetwork { OnRemoveAddressChangedEventHandler = (h) => { unsubscribeCalled = true; } };
+                var network = new StubNetwork { OnRemoveAddressChangedEventHandler = (h) => { unsubscribeCalled = true; } };
                 var policy = new NetworkAvailabilityTransmissionPolicy(network);
 
                 policy.Dispose();
