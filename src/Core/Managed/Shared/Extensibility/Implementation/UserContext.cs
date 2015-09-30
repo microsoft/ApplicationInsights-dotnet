@@ -8,7 +8,7 @@
     /// <summary>
     /// Encapsulates information about a user using an application.
     /// </summary>
-    public sealed class UserContext : IJsonSerializable
+    public sealed class UserContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -77,17 +77,5 @@
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
         }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("id", this.Id);
-            writer.WriteProperty("userAgent", this.UserAgent);
-            writer.WriteProperty("accountId", this.AccountId);
-            writer.WriteProperty("anonUserAcquisitionDate", this.AcquisitionDate);
-            writer.WriteProperty("storeRegion", this.StoreRegion);
-            writer.WriteProperty("authId", this.AuthenticatedUserId);
-            writer.WriteEndObject();
-        }      
     }
 }

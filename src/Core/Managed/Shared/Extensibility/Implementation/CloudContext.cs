@@ -7,7 +7,7 @@
     /// <summary>
     /// Encapsulates information about a cloud where an application is running.
     /// </summary>
-    public sealed class CloudContext : IJsonSerializable
+    public sealed class CloudContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -32,11 +32,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleInstance); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleInstance, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            // empty: serialized by Device context now.
         }
     }
 }

@@ -20,7 +20,7 @@
             }
 
             json.WriteProperty("seq", telemetry.Sequence);
-            ((IJsonSerializable)telemetry.Context).Serialize(json);
+            WriteTelemetryContext(json, telemetry.Context);
         }
 
         public static void WriteTelemetryName(this ITelemetry telemetry, IJsonWriter json, string telemetryName)
@@ -43,6 +43,15 @@
                 NormalizeInstrumentationKey(telemetry.Context.InstrumentationKey),
                 telemetryName);
             json.WriteProperty("name", eventName);
+        }
+
+        public static void WriteTelemetryContext(IJsonWriter json, TelemetryContext context)
+        {
+            if (context != null)
+            {
+                json.WriteProperty("iKey", context.InstrumentationKey);
+                json.WriteProperty("tags", context.Tags);
+            }
         }
 
         /// <summary>
