@@ -111,12 +111,12 @@ namespace Microsoft.ApplicationInsights.Channel
                             catch (Exception e)
                             {   
                                 this.storageFolder = null;
-                                string error = string.Format("Failed to create storage folder: {0}", e);
+                                string error = string.Format(CultureInfo.InvariantCulture, "Failed to create storage folder: {0}", e);
                                 CoreEventSource.Log.LogVerbose(error);
                             }
 
                             this.storageFolderInitialized = true;
-                            string msg = string.Format("Storage folder: {0}", this.storageFolder == null ? "null" : this.storageFolder.Path);
+                            string msg = string.Format(CultureInfo.InvariantCulture, "Storage folder: {0}", this.storageFolder == null ? "null" : this.storageFolder.Path);
                             CoreEventSource.Log.LogVerbose(msg);
                         }
                     }
