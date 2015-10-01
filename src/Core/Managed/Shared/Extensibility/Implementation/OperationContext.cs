@@ -47,6 +47,16 @@
         }
 
         /// <summary>
+        /// Gets or sets the correlation vector for the current telemetry item.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string CorrelationVector
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationCorrelationVector); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationCorrelationVector, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the application-defined operation NAME.
         /// </summary>
         public string Name
