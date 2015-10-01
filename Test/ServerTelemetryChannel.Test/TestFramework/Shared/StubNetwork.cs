@@ -10,16 +10,24 @@
 
         public Action<NetworkAddressChangedEventHandler> OnAddAddressChangedEventHandler;
 
+        public Action<NetworkAddressChangedEventHandler> OnRemoveAddressChangedEventHandler;
+
         private NetworkAddressChangedEventHandler addressChanged = delegate { };
 
         public StubNetwork()
         {
             this.OnAddAddressChangedEventHandler = handler => this.addressChanged += handler;
+            this.OnRemoveAddressChangedEventHandler = handler => this.addressChanged -= handler;
         }
 
         public void AddAddressChangedEventHandler(NetworkAddressChangedEventHandler handler)
         {
             this.OnAddAddressChangedEventHandler(handler);
+        }
+
+        public void RemoveAddressChangeEventHandler(NetworkAddressChangedEventHandler handler)
+        {
+            this.OnRemoveAddressChangedEventHandler(handler);
         }
 
         public bool IsAvailable()

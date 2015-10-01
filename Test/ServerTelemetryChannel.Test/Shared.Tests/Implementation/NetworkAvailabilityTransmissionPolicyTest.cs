@@ -35,6 +35,18 @@
                 Assert.Null(policy.MaxSenderCapacity);
                 Assert.Null(policy.MaxBufferCapacity);
             }
+
+            [TestMethod]
+            public void DisposeUnsubscribesNetworkChangeEvents()
+            {
+                bool unsubscribeCalled = false;
+                var network = new StubNetwork { OnRemoveAddressChangedEventHandler = (h) => { unsubscribeCalled = true; } };
+                var policy = new NetworkAvailabilityTransmissionPolicy(network);
+
+                policy.Dispose();
+
+                Assert.True(unsubscribeCalled);
+            }
         }
 
         [TestClass]

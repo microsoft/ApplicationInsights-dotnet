@@ -168,6 +168,7 @@
         {   
             // Tested by FxCop rule CA2213
             this.TelemetryBuffer.Dispose();
+            this.Transmitter.Dispose();
         }
 
         /// <summary>
