@@ -754,10 +754,20 @@
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
+        [TestMethod]
+        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
+        {
+            var config = new TelemetryConfiguration();
+            config.InstrumentationKey = "Foo";
+            var client = new TelemetryClient(config);
+
+            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
+        }
+
         #endregion
 
         #region Sampling
-        
+
         [TestMethod]
         public void AllTelemetryIsSentWithDefaultSamplingRate()
         {
