@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -23,6 +24,26 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationId); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationId, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the parent operation ID.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string ParentId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationParentId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationParentId, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the root operation ID.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string RootId
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationRootId); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationRootId, value); }
         }
 
         /// <summary>
