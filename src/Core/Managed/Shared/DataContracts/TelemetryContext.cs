@@ -10,7 +10,7 @@
     /// <summary>
     /// Represents a context for sending telemetry to the Application Insights service.
     /// </summary>
-    public sealed class TelemetryContext : IJsonSerializable
+    public sealed class TelemetryContext
     {
         private readonly IDictionary<string, string> properties;
         private readonly IDictionary<string, string> tags;
@@ -132,15 +132,6 @@
         internal IDictionary<string, string> Tags
         {
             get { return this.tags; }
-        }
-
-        /// <summary>
-        /// Serializes this object in JSON format.
-        /// </summary>
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteProperty("iKey", this.InstrumentationKey);
-            writer.WriteProperty("tags", this.Tags);
         }
 
         internal void Initialize(TelemetryContext source, string instrumentationKey)

@@ -7,7 +7,7 @@
     /// <summary>
     /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).  
     /// </summary>
-    public sealed class OperationContext : IJsonSerializable
+    public sealed class OperationContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -41,15 +41,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationSyntheticSource); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationSyntheticSource, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("id", this.Id);
-            writer.WriteProperty("name", this.Name);
-            writer.WriteProperty("syntheticSource", this.SyntheticSource);
-            writer.WriteEndObject();
         }
     }
 }

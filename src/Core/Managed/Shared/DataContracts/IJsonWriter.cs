@@ -9,7 +9,6 @@
     /// <summary>
     /// Encapsulates logic for serializing objects to JSON. 
     /// </summary>
-    /// <seealso cref="IJsonSerializable"/>.
     public interface IJsonWriter
     {
         /// <summary>
@@ -79,11 +78,6 @@
         /// Writes a <see cref="IDictionary{String, String}"/> property.
         /// </summary>
         void WriteProperty(string name, IDictionary<string, string> values);
-
-        /// <summary>
-        /// Writes an <see cref="IJsonSerializable"/> object property.
-        /// </summary>
-        void WriteProperty(string name, IJsonSerializable value);
 
         /// <summary>
         /// Writes a property name in double quotation marks, followed by a colon.

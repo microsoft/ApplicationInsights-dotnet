@@ -7,7 +7,7 @@
     /// <summary>
     /// Encapsulates information about a user session.
     /// </summary>
-    public sealed class SessionContext : IJsonSerializable
+    public sealed class SessionContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -32,14 +32,6 @@
         {
             get { return this.tags.GetTagBoolValueOrNull(ContextTagKeys.Keys.SessionIsFirst); }
             set { this.tags.SetTagValueOrRemove<bool?>(ContextTagKeys.Keys.SessionIsFirst, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("id", this.Id);
-            writer.WriteProperty("firstSession", this.IsFirst);
-            writer.WriteEndObject();
         }
     }
 }

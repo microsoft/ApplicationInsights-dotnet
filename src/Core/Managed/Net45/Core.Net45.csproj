@@ -39,20 +39,13 @@
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
     <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
     <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />
     <Compile Include="Extensibility\Implementation\External\ContextTagKeys.g.cs" />
     <Compile Include="Extensibility\Implementation\External\DependencyKind.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\DeviceContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\InternalContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\LocationContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\OperationContextData.cs" />
     <Compile Include="Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\SessionContextData.cs" />
     <Compile Include="Extensibility\Implementation\External\SessionStateData.g.cs" />
     <Compile Include="Extensibility\Implementation\External\SeverityLevel.g.cs" />
     <Compile Include="Extensibility\Implementation\External\Tags.cs" />
-    <Compile Include="Extensibility\Implementation\External\UserContextData.cs" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -63,5 +56,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets'))" />
   </Target>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets"/>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

@@ -10,7 +10,7 @@
     /// <summary>
     /// Encapsulates Internal information.
     /// </summary>
-    public sealed class InternalContext : IJsonSerializable
+    public sealed class InternalContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -35,14 +35,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalAgentVersion); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalAgentVersion, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("sdkVersion", this.SdkVersion);
-            writer.WriteProperty("agentVersion", this.AgentVersion);
-            writer.WriteEndObject();
         }
     }
 }
