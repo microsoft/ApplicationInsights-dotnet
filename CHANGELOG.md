@@ -5,7 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version vNext
 
 - Property ```Id``` of ```RequestTelemetry``` was marked obsolete.
-- New properties of ```OperationContext```: ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
+- New properties of ```OperationContext```: ```CorrelationVector```, ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
 - TrackDependency will produce valid JSON when not all required fields were specified.
 - Redundant property ```RequestTelemetry.ID``` is now just a proxy for ```RequestTelemetry.Operation.Id```.
 - New interface ```ISupportSampling``` and explicit implementation of it by most of data item types.
