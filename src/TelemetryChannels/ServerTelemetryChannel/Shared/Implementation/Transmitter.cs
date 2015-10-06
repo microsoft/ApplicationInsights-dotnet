@@ -9,7 +9,7 @@
     /// <summary>
     /// Implements throttled and persisted transmission of telemetry to Application Insights. 
     /// </summary>
-    internal class Transmitter
+    internal class Transmitter : IDisposable
     {
         internal readonly TransmissionSender Sender;
         internal readonly TransmissionBuffer Buffer;        
@@ -91,6 +91,15 @@
                 this.maxStorageCapacity = value;
                 this.ApplyPoliciesIfAlreadyApplied();
             }
+        }
+
+        /// <summary>
+        /// Releases resources used by this <see cref="Transmitter"/> instance.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         internal virtual void Enqueue(Transmission transmission)
@@ -261,6 +270,17 @@
             this.Sender.Capacity = this.CalculateCapacity(policy => policy.MaxSenderCapacity) ?? this.maxSenderCapacity;
             this.Buffer.Capacity = this.CalculateCapacity(policy => policy.MaxBufferCapacity) ?? this.maxBufferCapacity;
             this.Storage.Capacity = this.CalculateCapacity(policy => policy.MaxStorageCapacity) ?? this.maxStorageCapacity;
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing && this.policies != null)
+            {
+                foreach (var policy in this.policies.OfType<IDisposable>())
+                {
+                    policy.Dispose();
+                }
+            }
         }
     }
 }

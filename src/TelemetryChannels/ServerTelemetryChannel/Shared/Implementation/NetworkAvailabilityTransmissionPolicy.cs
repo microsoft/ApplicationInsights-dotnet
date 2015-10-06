@@ -4,9 +4,9 @@
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
     
-    internal class NetworkAvailabilityTransmissionPolicy : TransmissionPolicy
+    internal class NetworkAvailabilityTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private readonly INetwork network;
+        private INetwork network;
 
         public NetworkAvailabilityTransmissionPolicy(INetwork network)
         {
@@ -18,6 +18,15 @@
             base.Initialize(transmitter);
             this.SubscribeToNetworkAddressChangedEvents();
             this.SetBufferAndSenderCapacity();
+        }
+
+        /// <summary>
+        /// Releases resources used by this <see cref="NetworkAvailabilityTransmissionPolicy"/> instance.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private void SubscribeToNetworkAddressChangedEvents()
@@ -33,6 +42,18 @@
             catch (NetworkInformationException nie)
             {
                 TelemetryChannelEventSource.Log.SubscribeToNetworkFailureWarning(nie.ToString());
+            }
+        }
+
+        private void UnsubscribeFromNetworkAddressChangedEvents()
+        {
+            try
+            {
+                this.network.RemoveAddressChangeEventHandler(this.HandleNetworkStatusChangedEvent);
+            }
+            catch (Exception)
+            {
+                // Eat up any exceptions, since this is only called in the dispose path.
             }
         }
 
@@ -69,6 +90,15 @@
                 // Catch all exceptions because SocketException and NetworkInformationException are not defined on all platforms
                 TelemetryChannelEventSource.Log.NetworkIsNotAvailableWarning(e.ToString());
                 return true; 
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing && this.network != null)
+            {
+                this.UnsubscribeFromNetworkAddressChangedEvents();
+                this.network = null;
             }
         }
     }

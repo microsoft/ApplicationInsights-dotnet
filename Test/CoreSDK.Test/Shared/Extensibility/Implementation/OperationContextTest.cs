@@ -46,6 +46,28 @@
         }
 
         [TestMethod]
+        public void ParentIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            Assert.Null(operation.ParentId);
+        }
+
+        [TestMethod]
+        public void RootIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            Assert.Null(operation.RootId);
+        }
+
+        [TestMethod]
+        public void CorrelationVectorIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            Assert.Null(operation.CorrelationVector);
+        }
+
+
+        [TestMethod]
         public void IdCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
@@ -67,6 +89,30 @@
             var operation = new OperationContext(new Dictionary<string, string>());
             operation.SyntheticSource = "Sample";
             Assert.Equal("Sample", operation.SyntheticSource);
+        }
+
+        [TestMethod]
+        public void ParentIdCanBeChangedByUserToSupplyApplicationDefinedValue()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            operation.ParentId = "ParentId";
+            Assert.Equal("ParentId", operation.ParentId);
+        }
+
+        [TestMethod]
+        public void RootIdCanBeChangedByUserToSupplyApplicationDefinedValue()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            operation.RootId = "RootId";
+            Assert.Equal("RootId", operation.RootId);
+        }
+
+        [TestMethod]
+        public void CorrelationVectorCanBeChangedByUserToSupplyApplicationDefinedValue()
+        {
+            var operation = new OperationContext(new Dictionary<string, string>());
+            operation.CorrelationVector = "CorrelationVector";
+            Assert.Equal("CorrelationVector", operation.CorrelationVector);
         }
     }
 }

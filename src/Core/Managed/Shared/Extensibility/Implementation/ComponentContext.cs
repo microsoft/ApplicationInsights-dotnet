@@ -12,7 +12,7 @@
     /// with terminology used by our portal and services and to encourage standardization of terminology within our 
     /// organization. Once a consensus is reached, we will change type and property names to match.
     /// </remarks>
-    public sealed class ComponentContext : IJsonSerializable
+    public sealed class ComponentContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -28,13 +28,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.ApplicationVersion); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.ApplicationVersion, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("version", this.Version);
-            writer.WriteEndObject();
         }
     }
 }

@@ -8,7 +8,7 @@
     /// <summary>
     /// Encapsulates information about a device where an application is running.
     /// </summary>
-    public sealed class DeviceContext : IJsonSerializable
+    public sealed class DeviceContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -108,24 +108,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleInstance); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleInstance, value); }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("type", this.Type);
-            writer.WriteProperty("id", Utils.PopulateRequiredStringValue(this.Id, "id", typeof(DeviceContext).FullName));
-            writer.WriteProperty("osVersion", this.OperatingSystem);
-            writer.WriteProperty("oemName", this.OemName);
-            writer.WriteProperty("model", this.Model);
-            writer.WriteProperty("network", this.NetworkType);
-            writer.WriteProperty("resolution", this.ScreenResolution);
-            writer.WriteProperty("locale", this.Language);
-#pragma warning disable 618
-            writer.WriteProperty("roleName", this.RoleName);
-            writer.WriteProperty("roleInstance", this.RoleInstance);
-#pragma warning restore 618
-            writer.WriteEndObject();
         }
     }
 }

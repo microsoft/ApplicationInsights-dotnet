@@ -12,6 +12,11 @@
             NetworkChange.NetworkAddressChanged += handler;
         }
 
+        public void RemoveAddressChangeEventHandler(NetworkAddressChangedEventHandler handler)
+        {
+            NetworkChange.NetworkAddressChanged -= handler;
+        }
+
         public bool IsAvailable()
         {
             return NetworkInterface.GetIsNetworkAvailable();

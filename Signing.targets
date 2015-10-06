@@ -33,7 +33,7 @@
     <ToolsDir>$(PackagesDir)\Microsoft.DotNet.BuildTools.1.0.16-prerelease\lib\</ToolsDir>
   </PropertyGroup>
 
-  <Import Project="$(ToolsDir)\sign.targets" Condition="'$(PublicRelease)' != 'True'" />
+  <Import Project="$(ToolsDir)\sign.targets" Condition="('$(PublicRelease)' != 'True') And (Exists('$(ToolsDir)\sign.targets'))" />
 
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>$(EnlistmentRoot)\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>

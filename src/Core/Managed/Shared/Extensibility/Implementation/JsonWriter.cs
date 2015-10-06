@@ -108,15 +108,6 @@
             }
         }
 
-        public void WriteProperty(string name, IJsonSerializable value)
-        {
-            if (!this.IsNullOrEmpty(value))
-            {
-                this.WritePropertyName(name);
-                value.Serialize(this);
-            }
-        }
-
         public void WriteProperty(string name, IDictionary<string, double> values)
         {
             if (values != null && values.Count > 0)
@@ -184,20 +175,6 @@
             this.textWriter.Write(':');
         }
         
-        protected bool IsNullOrEmpty(IJsonSerializable instance)
-        {
-            if (instance != null)
-            {
-                this.emptyObjectDetector.IsEmpty = true;
-                instance.Serialize(this.emptyObjectDetector);
-                return this.emptyObjectDetector.IsEmpty;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
         protected void WriteString(string value)
         {
             this.textWriter.Write('"');
@@ -305,14 +282,6 @@
                 if (value.HasValue)
                 {
                     this.IsEmpty = false;
-                }
-            }
-
-            public void WriteProperty(string name, IJsonSerializable value)
-            {
-                if (value != null)
-                {
-                    value.Serialize(this);
                 }
             }
 

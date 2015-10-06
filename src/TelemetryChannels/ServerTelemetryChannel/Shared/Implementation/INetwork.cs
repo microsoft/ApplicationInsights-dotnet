@@ -18,6 +18,12 @@
         /// </remarks>
         void AddAddressChangedEventHandler(NetworkAddressChangedEventHandler handler);
 
+        /// <summary>
+        /// Removes <see cref="NetworkChange.NetworkAddressChanged"/> event handler.
+        /// </summary>
+        /// <param name="handler">Address changed event handler.</param>
+        void RemoveAddressChangeEventHandler(NetworkAddressChangedEventHandler handler);
+
         bool IsAvailable();
     }
 }

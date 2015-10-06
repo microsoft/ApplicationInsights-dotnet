@@ -7,5 +7,5 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net40.Tests" + AssemblyInfoChannel.PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests" + AssemblyInfoChannel.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net40.Tests" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests" + AssemblyInfo.PublicKey)]

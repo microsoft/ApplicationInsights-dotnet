@@ -219,7 +219,7 @@
 
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
-                ((IJsonSerializable)target).Serialize(new JsonWriter(stringWriter));
+                Telemetry.WriteTelemetryContext(new JsonWriter(stringWriter), source);
                 return stringWriter.ToString();
             }
         }
