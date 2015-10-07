@@ -69,6 +69,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Thread.cs" />
   </ItemGroup>

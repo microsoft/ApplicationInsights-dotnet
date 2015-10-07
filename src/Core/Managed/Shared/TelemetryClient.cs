@@ -332,15 +332,11 @@
                     return;
                 }
 
-                telemetry.Sanitize();
-
-                if (this.Channel == null)
-                {
-                    throw new InvalidOperationException("Telemetry channel should be configured for telemetry client before tracking telemetry.");
-                }
-
-                this.Channel.Send(telemetry);
-
+                telemetry.Sanitize();                
+                
+                // invokes the Process in the first processor in the chain
+                this.configuration.TelemetryProcessor.Process(telemetry);
+                
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
                     this.WriteTelemetryToDebugOutput(telemetry);

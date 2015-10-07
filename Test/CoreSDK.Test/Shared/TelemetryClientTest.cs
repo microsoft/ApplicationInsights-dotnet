@@ -554,6 +554,7 @@
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
             var configuration = new TelemetryConfiguration { 
                 // no instrumentation key set here
+                TelemetryChannel = channel
             };
 
             var initializedTelemetry = new List<ITelemetry>();
@@ -561,7 +562,7 @@
             telemetryInitializer.OnInitialize = item => initializedTelemetry.Add(item);
             configuration.TelemetryInitializers.Add(telemetryInitializer);
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration);
 
             var telemetry = new StubTelemetry();
             telemetry.Context.InstrumentationKey = "Foo";
@@ -579,6 +580,7 @@
             var configuration = new TelemetryConfiguration
             {
                 // no instrumentation key set here
+                TelemetryChannel = channel
             };
 
             var initializedTelemetry = new List<ITelemetry>();
@@ -591,7 +593,7 @@
 
             configuration.TelemetryInitializers.Add(telemetryInitializer);
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration);
 
             var telemetry = new StubTelemetry();
             client.Track(telemetry);
@@ -603,11 +605,11 @@
         [TestMethod]
         public void TrackDoesNotThrowExceptionsDuringTelemetryIntializersInitialize()
         {
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = new StubTelemetryChannel() };
             var telemetryInitializer = new StubTelemetryInitializer();
             telemetryInitializer.OnInitialize = item => { throw new Exception(); };
             configuration.TelemetryInitializers.Add(telemetryInitializer);
-            var client = new TelemetryClient(configuration) { Channel = new StubTelemetryChannel() };
+            var client = new TelemetryClient(configuration);
             Assert.DoesNotThrow(() => client.Track(new StubTelemetry()));
         }
 
@@ -619,13 +621,13 @@
             {
                 listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
 
-                var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+                var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = new StubTelemetryChannel() };
                 var telemetryInitializer = new StubTelemetryInitializer();
                 var exceptionMessage = "Test exception message";
                 telemetryInitializer.OnInitialize = item => { throw new Exception(exceptionMessage); };
                 configuration.TelemetryInitializers.Add(telemetryInitializer);
 
-                var client = new TelemetryClient(configuration) { Channel = new StubTelemetryChannel() };
+                var client = new TelemetryClient(configuration);
                 client.Track(new StubTelemetry());
 
                 var exceptionExplanation = "Exception while initializing " + typeof(StubTelemetryInitializer).FullName;
@@ -773,9 +775,9 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = channel };
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration);
 
             const int ItemsToGenerate = 100;
 
@@ -792,8 +794,8 @@
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString() };
-            var client = new TelemetryClient(telemetryConfiguration) { Channel = channel };
+            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString(), TelemetryChannel = channel};
+            var client = new TelemetryClient(telemetryConfiguration);
             return client;
         }
     }

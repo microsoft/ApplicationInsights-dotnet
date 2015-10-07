@@ -107,11 +107,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\XorshiftRandomBatchGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TransmissionProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClient.cs" />

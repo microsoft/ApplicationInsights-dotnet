@@ -350,6 +350,137 @@
 
         #endregion
 
+        #region TelemetryProcesors
+        [TestMethod]
+        public void InitializeTelemetryProcessorsFromConfigurationFile()
+        {
+            string configFileContents = Configuration(
+                @"
+                  <TelemetryInitializers>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>
+                  <TelemetryProcessors>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor2, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryProcessors>"
+                );
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
+            {
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessor !=null);
+                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessor);
+
+                //validate the chain linking stub1->stub2->transmission
+                var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessor;
+                var tp2 = (StubTelemetryProcessor2) tp1.next;
+                var tpLast = (TransmissionProcessor) tp2.next;
+
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
+        }
+
+        [TestMethod]
+        public void InitializeTelemetryProcessorFromConfigurationFile()
+        {
+            string configFileContents = Configuration(
+                @"
+                  <TelemetryInitializers>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>
+                  <TelemetryProcessors>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
+                  </TelemetryProcessors>"
+                );
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
+            {
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessor != null);
+                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessor);
+
+                //validate the chain linking stub1->transmission
+                var stub1 = (StubTelemetryProcessor)configuration.TelemetryProcessor;
+                var transmission = (TransmissionProcessor)stub1.next;                
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
+        }
+
+        [TestMethod]
+        public void InitializeTelemetryProcessorFromConfigurationFileWhenNoTelemetryProcessorsTagSpecified()
+        {
+            // no TelemetryProcessors - TransmissionProcessor should be automatically created.
+            string configFileContents = Configuration(
+                @"
+                  <TelemetryInitializers>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>
+                  <!--<TelemetryProcessors>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor2, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryProcessors>-->"
+                );
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
+            {
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessor != null);
+                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessor);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
+        }
+
+        [TestMethod]
+        public void InitializeTelemetryProcessorFromConfigurationFileWhenEmptyTelemetryProcessorsTagSpecified()
+        {
+            // no TelemetryProcessors - TransmissionProcessor should be automatically created.
+            string configFileContents = Configuration(
+                @"
+                  <TelemetryInitializers>
+                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>
+                  <TelemetryProcessors>                  
+                  </TelemetryProcessors>"
+                );
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
+            {
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessor != null);
+                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessor);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
+        }
+        #endregion
+
         #region LoadInstances<T>
 
         [TestMethod]
@@ -366,7 +497,7 @@
             Assert.Equal(1, instances.Count);
             Assert.Equal(typeof(StubTelemetryInitializer), instances[0].GetType());
         }
-
+       
         [TestMethod]
         public void LoadInstancesUpdatesInstanceWithMatchingType() // TODO: Why? This is inconsistent with the name of the element, Add.
         {
