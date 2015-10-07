@@ -41,7 +41,7 @@
 
             var client = new TelemetryClient(configuration);
 
-            var transmissionProcessor = new TransmissionProcessor(null, configuration);
+            var transmissionProcessor = new TransmissionProcessor(configuration);
 
             const int ItemsToGenerate = 100;
 

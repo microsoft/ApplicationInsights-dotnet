@@ -39,7 +39,7 @@
         {
             configuration.ContextInitializers.Add(new SdkVersionPropertyContextInitializer());
             configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());
-            ITelemetryProcessor tranmissionProcessor = new TransmissionProcessor(null, configuration);
+            ITelemetryProcessor tranmissionProcessor = new TransmissionProcessor(configuration);
             configuration.TelemetryProcessor = tranmissionProcessor;
 
             // Load customizations from the ApplicationsInsights.config file

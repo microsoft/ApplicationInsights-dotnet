@@ -48,8 +48,9 @@
         {
             configuration.ContextInitializers.Add(new SdkVersionPropertyContextInitializer());
             configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());
-            ITelemetryProcessor tranmissionProcessor = new TransmissionProcessor(null, configuration);
+            ITelemetryProcessor tranmissionProcessor = new TransmissionProcessor(configuration);
             configuration.TelemetryProcessor = tranmissionProcessor;
+
             // Load customizations from the ApplicationsInsights.config file
             string text = PlatformSingleton.Current.ReadConfigurationXml();
             if (!string.IsNullOrEmpty(text))
@@ -101,7 +102,7 @@
             LoadInstance(applicationInsights, typeof(TelemetryConfiguration), configuration);
         }
 
-        protected static object LoadInstance(XElement definition, Type expectedType, object instance, object[] constructorArgs=null)
+        protected static object LoadInstance(XElement definition, Type expectedType, object instance, object[] constructorArgs = null)
         {
             if (definition != null)
             {
@@ -161,10 +162,11 @@
                 foreach (XElement addElement in elems)
                 {                    
                     instance = LoadInstance(addElement, typeof(ITelemetryProcessor), instance, constructorArgs);
-                    constructorArgs = new object[] { instance };                                        
+                    constructorArgs = new object[] { instance };                                                           
                 }
             }
-            return (ITelemetryProcessor) instance;
+
+            return (ITelemetryProcessor)instance;
         }
 
         protected static void LoadInstances<T>(XElement definition, ICollection<T> instances)
@@ -191,7 +193,6 @@
                 }
             }
         }
-
 
         protected static void LoadProperties(XElement instanceDefinition, object instance)
         {

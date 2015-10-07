@@ -157,12 +157,13 @@
                 ITelemetryProcessor output = this.telemetryProcessor;
                 if (output == null)
                 {
-                    output = new TransmissionProcessor(null, this);
+                    output = new TransmissionProcessor(this);
                     this.telemetryProcessor = output;
                 }
 
                 return output;
             }
+
             set
             {
                 if (value == null)

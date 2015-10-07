@@ -355,10 +355,7 @@
         public void InitializeTelemetryProcessorsFromConfigurationFile()
         {
             string configFileContents = Configuration(
-                @"
-                  <TelemetryInitializers>
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
-                  </TelemetryInitializers>
+                @"                  
                   <TelemetryProcessors>
                   <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
                   <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor2, Microsoft.ApplicationInsights.TestFramework"" />
@@ -391,10 +388,7 @@
         public void InitializeTelemetryProcessorFromConfigurationFile()
         {
             string configFileContents = Configuration(
-                @"
-                  <TelemetryInitializers>
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
-                  </TelemetryInitializers>
+                @"                  
                   <TelemetryProcessors>
                   <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
                   </TelemetryProcessors>"
@@ -425,10 +419,7 @@
         {
             // no TelemetryProcessors - TransmissionProcessor should be automatically created.
             string configFileContents = Configuration(
-                @"
-                  <TelemetryInitializers>
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
-                  </TelemetryInitializers>
+                @"                  
                   <!--<TelemetryProcessors>
                   <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
                   <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor2, Microsoft.ApplicationInsights.TestFramework"" />
@@ -706,7 +697,7 @@
 
         private class TestableTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
-            public static new object CreateInstance(Type interfaceType, string typeName)
+            public static object CreateInstance(Type interfaceType, string typeName)
             {
                 return TelemetryConfigurationFactory.CreateInstance(interfaceType, typeName);
             }
@@ -716,7 +707,7 @@
                 TelemetryConfigurationFactory.LoadFromXml(configuration, xml);
             }
 
-            public static new object LoadInstance(XElement definition, Type expectedType, object instance)
+            public static object LoadInstance(XElement definition, Type expectedType, object instance)
             {
                 return TelemetryConfigurationFactory.LoadInstance(definition, expectedType, instance);
             }

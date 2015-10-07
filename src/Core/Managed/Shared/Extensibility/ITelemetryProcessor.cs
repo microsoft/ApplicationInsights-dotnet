@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using Microsoft.ApplicationInsights.Channel;
+
     /// <summary>
     /// Represents an object used to process telemetry as part of sending it to Application Insights.
     /// </summary>

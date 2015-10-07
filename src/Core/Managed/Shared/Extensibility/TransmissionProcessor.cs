@@ -1,58 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    public class TransmissionProcessor : ITelemetryProcessor
-    {
-        private ITelemetryProcessor next;
-        private ITelemetryChannel channel;
-        private TelemetryConfiguration configuration;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+    /// <summary>
+    /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
+    /// </summary>
+    internal class TransmissionProcessor : ITelemetryProcessor
+    {        
+        private readonly TelemetryConfiguration configuration;        
 
         /// <summary>
-        /// Gets or sets the channel used by the client helper. Note that this doesn't need to be public as a customer can create a new client 
-        /// with a new channel via telemetry configuration.
-        /// </summary>
-        internal ITelemetryChannel Channel
-        {
-            get
-            {
-                ITelemetryChannel output = this.channel;
-                if (output == null)
-                {
-                    output = this.configuration.TelemetryChannel;
-                    this.channel = output;
-                }
-
-                return output;
-            }
-
-            set
-            {
-                this.channel = value;
-            }
-        }        
-
-        public TransmissionProcessor(ITelemetryProcessor next, TelemetryConfiguration configuration)
-        {
-            this.next = next;
+        /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
+        /// </summary>        
+        /// <param name="configuration">The <see cref="TelemetryConfiguration"/> to get the channel from.</param>
+        internal TransmissionProcessor(TelemetryConfiguration configuration)
+        {            
             this.configuration = configuration;
         }
 
+        /// <summary>
+        /// Process the given <see cref="ITelemetry"/> item. Here processing is sending the item through the channel/>.
+        /// </summary>
         public void Process(ITelemetry item)
         {
-            if (this.Channel == null)
+            if (this.configuration.TelemetryChannel == null)
             {
                 throw new InvalidOperationException("Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
             }
+
             try
             {
-                this.Channel.Send(item);
+                this.configuration.TelemetryChannel.Send(item);                
             }          
-             catch (Exception e)
+            catch (Exception e)
             {
                 CoreEventSource.Log.LogVerbose("TransmissionProcessor process failed: ", e.ToString());
             }

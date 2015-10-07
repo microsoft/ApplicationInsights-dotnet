@@ -67,6 +67,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools", "src\BuildTools\BuildTools.csproj", "{08B950E4-EBDC-4AD8-8311-746F2E8DEAB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Net45.Tests", "Test\CoreSDK.Test\Net45\Core.Net45.Tests.csproj", "{0927E682-4A56-45B6-8125-94FA066B2F57}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BEED7F7A-9908-4090-AF56-13B4B02F8B56}"
 	ProjectSection(SolutionItems) = preProject
 		CHANGELOG.md = CHANGELOG.md
