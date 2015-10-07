@@ -2,10 +2,13 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version vNext
+## Version 2.0.0-beta2
 
 - Property ```Id``` of ```RequestTelemetry``` was marked obsolete.
 - New properties of ```OperationContext```: ```CorrelationVector```, ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
+
+## Version 2.0.0-beta1
+
 - TrackDependency will produce valid JSON when not all required fields were specified.
 - Redundant property ```RequestTelemetry.ID``` is now just a proxy for ```RequestTelemetry.Operation.Id```.
 - New interface ```ISupportSampling``` and explicit implementation of it by most of data item types.
