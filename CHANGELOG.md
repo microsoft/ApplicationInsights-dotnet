@@ -2,7 +2,7 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version vNext
+## Version 2.0.0-beta1
 
 - Property ```Id``` of ```RequestTelemetry``` was marked obsolete.
 - New properties of ```OperationContext```: ```CorrelationVector```, ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
