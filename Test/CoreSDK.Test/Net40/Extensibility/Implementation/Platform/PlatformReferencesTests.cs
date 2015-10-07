@@ -10,7 +10,7 @@
         [TestMethod]
         public void NoSystemWebReferences()
         {
-            // Validate Platform assembly
+            // Validate Platform assembly.
             foreach (var assembly in typeof(DebugOutput).Assembly.GetReferencedAssemblies())
             {
                 Assert.True(!assembly.FullName.Contains("System.Web"));
