@@ -35,7 +35,7 @@
         public void NameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            Assert.Null(operation.Name);
+            Assert.Null(operation.RootName);
         }
 
         [TestMethod]
@@ -79,8 +79,8 @@
         public void NameCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            operation.Name = "SampleOperationName";
-            Assert.Equal("SampleOperationName", operation.Name);
+            operation.RootName = "SampleOperationName";
+            Assert.Equal("SampleOperationName", operation.RootName);
         }
 
         [TestMethod]
