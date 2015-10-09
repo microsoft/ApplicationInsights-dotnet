@@ -95,7 +95,7 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
-            this.Name = this.Name.SanitizeName();
+            this.Name = this.Name.SanitizeEventName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
