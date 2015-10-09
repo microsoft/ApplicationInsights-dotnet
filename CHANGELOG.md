@@ -5,6 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.0.0-beta2
 
 - The max length limit for the ```Name``` property of ```EventTelemetry``` was set to 512.
+- Property ```Name``` of ```OperationContext``` was renamed to ```RootName```
 - Property ```Id``` of ```RequestTelemetry``` was marked obsolete.
 - New properties of ```OperationContext```: ```CorrelationVector```, ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
 

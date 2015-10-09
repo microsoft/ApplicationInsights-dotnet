@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -57,9 +56,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined operation NAME.
+        /// Gets or sets the application-defined operation's root operation NAME.
         /// </summary>
-        public string Name
+        public string RootName
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationName); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationName, value); }
