@@ -47,7 +47,7 @@
 </Exec>  
 </Target>
   
-  <UsingTask TaskName="GetFileVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+  <UsingTask TaskName="GetFileVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.$(MSBuildToolsVersion).dll">
     <ParameterGroup>
       <File ParameterType="System.String" Required="true" />
       <VersionInfo ParameterType="Microsoft.Build.Framework.ITaskItem" Output="true" />
