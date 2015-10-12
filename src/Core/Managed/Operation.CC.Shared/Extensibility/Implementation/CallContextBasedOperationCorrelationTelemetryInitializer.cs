@@ -1,13 +1,12 @@
-﻿namespace Microsoft.ApplicationInsights.Operation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in CallContext.
     /// </summary>
-    public class CallContextBasedOperationCorrelationTelemetryInitializer : ITelemetryInitializer
+    internal class CallContextBasedOperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
         /// Initializes/Adds operation id to the existing telemetry item.

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.ComponentModel;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -8,6 +9,7 @@
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
         /// <summary>

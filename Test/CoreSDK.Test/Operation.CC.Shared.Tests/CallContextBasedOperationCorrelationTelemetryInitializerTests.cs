@@ -4,7 +4,6 @@
     using System.Runtime.Remoting.Messaging;
     using Extensibility.Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Operation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

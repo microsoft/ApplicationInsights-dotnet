@@ -3,16 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Net.Http;
-    using System.Runtime.Remoting.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Operation;
+#if WINDOWS_PHONE || WINDOWS_STORE
+    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
+    using Assert = Xunit.Assert;
+#if WINRT
+    using TaskEx = System.Threading.Tasks.Task;
+#endif 
     using TestFramework;
 
     /// <summary>
@@ -31,15 +35,8 @@
             this.sendItems = new List<ITelemetry>();
             configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.TelemetryInitializers.Add(new CallContextBasedOperationCorrelationTelemetryInitializer());
+            configuration.AddOperationsApi();
             this.telemetryClient = new TelemetryClient(configuration);
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName); 
         }
 
         /// <summary>
@@ -63,24 +60,24 @@
                 var id1 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace1");
 
-                HttpClient client = new HttpClient();
-                await client.GetStringAsync("http://bing.com");
+                //HttpClient client = new HttpClient();
+                await Task.Delay(100);//client.GetStringAsync("http://bing.com");
 
                 var id2 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace2");
 
-                Assert.AreNotEqual(id1, id2);
+                Assert.NotEqual(id1, id2);
             }
 
-            Assert.AreEqual(3, this.sendItems.Count);
+            Assert.Equal(3, this.sendItems.Count);
             var id = this.sendItems[this.sendItems.Count - 1].Context.Operation.Id;
-            Assert.IsFalse(string.IsNullOrEmpty(id));
+            Assert.False(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.AreEqual(id, item.Context.Operation.ParentId);
+                    Assert.Equal(id, item.Context.Operation.ParentId);
                 }
             }
         }
@@ -116,17 +113,17 @@
 
             Thread.Sleep(100);
 
-            Assert.AreNotEqual(id1, id2);
+            Assert.NotEqual(id1, id2);
 
-            Assert.AreEqual(3, this.sendItems.Count);
+            Assert.Equal(3, this.sendItems.Count);
             var id = this.sendItems[this.sendItems.Count - 1].Context.Operation.Id;
-            Assert.IsFalse(string.IsNullOrEmpty(id));
+            Assert.False(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.AreEqual(id, item.Context.Operation.ParentId);
+                    Assert.Equal(id, item.Context.Operation.ParentId);
                 }
             }
         }
