@@ -8,6 +8,8 @@
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
+    /// The <see cref="ITelemetryChannel"/>, as configured in <see cref="TelemetryConfiguration"/> will be used for transmission.
+    /// This processor is always appended as the last processor in the chain.
     /// </summary>
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
@@ -18,7 +20,12 @@
         /// </summary>        
         /// <param name="configuration">The <see cref="TelemetryConfiguration"/> to get the channel from.</param>
         internal TransmissionProcessor(TelemetryConfiguration configuration)
-        {            
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException("telemetryconfiguration");
+            }
+
             this.configuration = configuration;
         }
 

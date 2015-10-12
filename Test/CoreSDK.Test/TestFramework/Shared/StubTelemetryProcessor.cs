@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework
+﻿using System;
+
+namespace Microsoft.ApplicationInsights.TestFramework
 {
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -22,11 +24,20 @@
         }
 
         /// <summary>
+        /// Gets or sets the callback invoked by the <see cref="Process"/> method.
+        /// </summary>
+        public Action<ITelemetry> OnProcess { get; set; }
+
+        /// <summary>
         /// Implements the <see cref="ITelemetryProcessor.Initialize"/> method by invoking the process method
         /// </summary>
         public void Process(ITelemetry telemetry)
         {
-            
+            this.OnProcess(telemetry);
+            if (this.next != null)
+            {
+                this.next.Process(telemetry);
+            }
         }
     }
 }

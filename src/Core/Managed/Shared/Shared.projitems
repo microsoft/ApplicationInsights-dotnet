@@ -79,6 +79,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RemoteDependencyData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RequestData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MessageData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChain.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ApplicationNameProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventCounters.cs" />

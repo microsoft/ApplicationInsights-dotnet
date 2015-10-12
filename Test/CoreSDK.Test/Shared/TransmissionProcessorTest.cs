@@ -52,15 +52,21 @@
 
             Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
         }
-        
-        #endregion
 
-        private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
+        [TestMethod]
+        public void TransmissionProcessorThrowsWhenNullConfigurationIsPassedToContructor()
         {
-            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString(), TelemetryChannel = channel};
-            var client = new TelemetryClient(telemetryConfiguration);
-            return client;
+            Assert.Throws<ArgumentNullException>(() => new TransmissionProcessor(null));
         }
+
+        [TestMethod]
+        public void TransmissionProcessorProcessThrowsWhenChannelIsNull()
+        {
+
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = null };
+            Assert.Throws<InvalidOperationException>(() => new TransmissionProcessor(configuration).Process(new StubTelemetry()));
+        }
+
+        #endregion       
     }
 }

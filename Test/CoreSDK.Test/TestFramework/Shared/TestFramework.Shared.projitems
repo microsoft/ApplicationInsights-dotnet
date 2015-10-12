@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubDebugOutput.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryProcessor2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubWebRequest.cs" />

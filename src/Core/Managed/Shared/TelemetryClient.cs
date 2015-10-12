@@ -335,7 +335,7 @@
                 telemetry.Sanitize();                
                 
                 // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessor.Process(telemetry);
+                this.configuration.TelemetryProcessorChain.Process(telemetry);
                 
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
