@@ -148,21 +148,22 @@
         }
 
         /// <summary>
-        /// Gets or sets the first telemetry processor in the chain of processors.
+        /// Gets the first telemetry processor in the chain of processors.
         /// </summary>
-        public TelemetryProcessorChain TelemetryProcessorChain
+        public TelemetryProcessorChain TelemetryProcessors
         {
             get
             {                
                 if (this.telemetryProcessorChain == null)
-                {
-                    new TelemetryProcessorChainBuilder().Build(this);
+                {                                                 
+                    // Gets the telemetryprocessorchainbuilder, builds the processor chain and sets the same in the configuration.
+                    this.GetTelemetryProcessorChainBuilder().Build();
                 }
 
                 return this.telemetryProcessorChain;
             }
 
-            set
+            internal set
             {
                 if (value == null)
                 {

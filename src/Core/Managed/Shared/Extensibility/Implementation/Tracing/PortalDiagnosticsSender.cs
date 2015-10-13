@@ -87,13 +87,7 @@
         }
 
         private void InternalSendTraceTelemetry(TraceEvent eventData)
-        {
-            // If channel is not initialized yet, do nothing
-            if (this.telemetryClient.Channel == null)
-            {
-                return;
-            }
-
+        {            
             var traceTelemetry = new TraceTelemetry();
             
             string message;

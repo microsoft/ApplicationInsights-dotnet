@@ -268,7 +268,7 @@
             Type configurationInstanceType = configuration.GetType();
             Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
             PropertyInfo property;
-            Assert.True(properties.TryGetValue("TelemetryProcessorChain", out property));                            
+            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));                            
             Assert.True(property.CanWrite);
         }
 
@@ -276,9 +276,9 @@
         public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
         {
             var configuration = new TelemetryConfiguration();
-            var tp = configuration.TelemetryProcessorChain;
+            var tp = configuration.TelemetryProcessors;
 
-            Assert.IsType<TransmissionProcessor>(tp.TelemetryProcessors.First());            
+            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);            
         }
         #endregion
 

@@ -47,8 +47,8 @@
         public virtual void Initialize(TelemetryConfiguration configuration)
         {
             configuration.ContextInitializers.Add(new SdkVersionPropertyContextInitializer());
-            configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());            
-            
+            configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());
+
             // Load customizations from the ApplicationsInsights.config file
             string text = PlatformSingleton.Current.ReadConfigurationXml();
             if (!string.IsNullOrEmpty(text))
@@ -61,9 +61,9 @@
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
 
             // Creating the the processor chain with default processor (transmissionprocessor) if none configured
-            if (configuration.TelemetryProcessorChain == null)
+            if (configuration.TelemetryProcessors == null)
             {
-                new TelemetryProcessorChainBuilder().Build(configuration);
+                configuration.GetTelemetryProcessorChainBuilder().Build();
             }                
 
             InitializeComponents(configuration);
@@ -156,7 +156,7 @@
 
         protected static void LoadInstancesTelemetryProcessors(XElement definition, TelemetryConfiguration telemetryConfiguration)
         {
-            TelemetryProcessorChainBuilder builder = new TelemetryProcessorChainBuilder();
+            TelemetryProcessorChainBuilder builder = new TelemetryProcessorChainBuilder(telemetryConfiguration);
             if (definition != null)
             {
                 IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);                
@@ -171,7 +171,7 @@
                 }                
             }
 
-            builder.Build(telemetryConfiguration);
+            builder.Build();
         }
 
         protected static void LoadInstances<T>(XElement definition, ICollection<T> instances)
@@ -212,20 +212,20 @@
                     PropertyInfo property;                   
                     if (properties.TryGetValue(propertyName, out property))
                     {
-                        object propertyValue = property.GetValue(instance, null);
-                        propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue);
-                        if (property.CanWrite)
+                        if (propertyName == "TelemetryProcessors")
                         {
-                            property.SetValue(instance, propertyValue, null);
+                            LoadInstancesTelemetryProcessors(propertyDefinition, (TelemetryConfiguration)instance);
                         }
-                    }
-                    else if (propertyName == "TelemetryProcessors")
-                    {
-                        if (properties.TryGetValue("TelemetryProcessorChain", out property))
-                        {                                                        
-                            LoadInstancesTelemetryProcessors(propertyDefinition, (TelemetryConfiguration)instance);                                                       
-                        }
-                    }
+                        else
+                        {
+                            object propertyValue = property.GetValue(instance, null);
+                            propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue);
+                            if (property.CanWrite)
+                            {
+                                property.SetValue(instance, propertyValue, null);
+                            }
+                        }                        
+                    }                    
                     else if (propertyName == "TelemetryModules")
                     {
                         LoadInstance(propertyDefinition, TelemetryModules.Instance.Modules.GetType(), TelemetryModules.Instance.Modules);

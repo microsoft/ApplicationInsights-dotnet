@@ -10,14 +10,17 @@
     /// </summary>
     public sealed class TelemetryProcessorChainBuilder
     {
-        private List<Func<ITelemetryProcessor, ITelemetryProcessor>> factories;
+        private readonly List<Func<ITelemetryProcessor, ITelemetryProcessor>> factories;
+        private TelemetryConfiguration configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
         /// </summary>
-        public TelemetryProcessorChainBuilder()
+        /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to. </param>        
+        public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration)
         {
-            this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();            
+            this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
+            this.configuration = configuration;
         }
 
         /// <summary>
@@ -36,28 +39,25 @@
         /// Builds the chain of linked <see cref="ITelemetryProcessor" /> instances and sets the same in configuration object passed.
         /// A special telemetry processor for handling Transmission is always appended as the last
         /// processor in the chain.
-        /// </summary>
-        /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to. </param>        
-        public void Build(TelemetryConfiguration configuration)
+        /// </summary>        
+        public void Build()
         {
             var telemetryProcessorChain = new TelemetryProcessorChain();
 
             // TransmissionProcessor is always appended by default to the end of the chain.
-            ITelemetryProcessor linkedTelemetryProcessor = new TransmissionProcessor(configuration);
-            telemetryProcessorChain.TelemetryProcessors.Insert(0, linkedTelemetryProcessor);
-
+            ITelemetryProcessor linkedTelemetryProcessor = new TransmissionProcessor(this.configuration);
+            
             foreach (var generator in this.factories.AsEnumerable().Reverse())
             {                
                 linkedTelemetryProcessor = generator.Invoke(linkedTelemetryProcessor);
                 if (linkedTelemetryProcessor == null)
                 {
                     throw new InvalidOperationException("TelemetryProcessor returned from TelemetryProcessorFactory cannot be null.");
-                }
-
-                telemetryProcessorChain.TelemetryProcessors.Insert(0, linkedTelemetryProcessor);
+                }                
             }
-            
-            configuration.TelemetryProcessorChain = telemetryProcessorChain;
+
+            telemetryProcessorChain.FirstTelemetryProcessor = linkedTelemetryProcessor;
+            this.configuration.TelemetryProcessors = telemetryProcessorChain;
         }
-    }
+       }
 }

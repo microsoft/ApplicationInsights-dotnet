@@ -7,32 +7,32 @@
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
-    /// Represents the TelemetryProcessor chain. 
+    /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to build this object.
     /// </summary>
     public sealed class TelemetryProcessorChain
     {
-        private SnapshottingList<ITelemetryProcessor> telemetryProcessors = new SnapshottingList<ITelemetryProcessor>();
+        private ITelemetryProcessor firstTelemetryProcessor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChain" /> class.
-        /// Marked internal, as clients should use TelemetryProcessorBuilder to build the processing chain.
+        /// Marked internal, as clients should use TelemetryProcessorChainBuilder to build the processing chain.
         /// </summary>
         internal TelemetryProcessorChain()
         {            
         }
                 
-        internal SnapshottingList<ITelemetryProcessor> TelemetryProcessors
+        internal ITelemetryProcessor FirstTelemetryProcessor
         {
-            get { return this.telemetryProcessors; }
-            set { this.telemetryProcessors = value; }
+            get { return this.firstTelemetryProcessor; }
+            set { this.firstTelemetryProcessor = value; }
         }
 
         /// <summary>
         /// Invokes the process method in the first telemetry processor.
         /// </summary>        
-        internal void Process(ITelemetry item)
+        public void Process(ITelemetry item)
         {
-            this.telemetryProcessors.First().Process(item);
+            this.firstTelemetryProcessor.Process(item);
         }
     }
 }

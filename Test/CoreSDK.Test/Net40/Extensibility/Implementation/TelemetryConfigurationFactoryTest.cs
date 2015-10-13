@@ -370,11 +370,11 @@
                 new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
                 // Assume that LoadFromXml method is called, tested separately
-                Assert.True(configuration.TelemetryProcessorChain !=null);
-                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.TelemetryProcessors.First());
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
 
                 //validate the chain linking stub1->stub2->transmission
-                var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.TelemetryProcessors.First();
+                var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessors.FirstTelemetryProcessor;
                 var tp2 = (StubTelemetryProcessor2) tp1.next;
                 var tpLast = (TransmissionProcessor) tp2.next;
             }
@@ -401,11 +401,11 @@
                 new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
                 // Assume that LoadFromXml method is called, tested separately
-                Assert.True(configuration.TelemetryProcessorChain != null);
-                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.TelemetryProcessors.First());
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
 
                 //validate the chain linking stub1->transmission
-                var stub1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.TelemetryProcessors.First();
+                var stub1 = (StubTelemetryProcessor)configuration.TelemetryProcessors.FirstTelemetryProcessor;
                 var transmission = (TransmissionProcessor)stub1.next;                
             }
             finally
@@ -433,8 +433,8 @@
                 new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
                 // Assume that LoadFromXml method is called, tested separately
-                Assert.True(configuration.TelemetryProcessorChain != null);
-                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessorChain.TelemetryProcessors.First());
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
             }
             finally
             {
@@ -462,8 +462,8 @@
                 new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
                 // Assume that LoadFromXml method is called, tested separately
-                Assert.True(configuration.TelemetryProcessorChain != null);
-                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessorChain.TelemetryProcessors.First());
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
             }
             finally
             {
@@ -796,18 +796,11 @@
             /// Made public for testing if the chain of processors is correctly created.
             /// </summary>
             public ITelemetryProcessor next;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StubTelemetryProcessor"/> class.
-            /// </summary>
+                        
             public StubTelemetryProcessor2(ITelemetryProcessor next)
             {
                 this.next = next;
-            }
-
-            /// <summary>
-            /// Implements the <see cref="ITelemetryProcessor.Initialize"/> method by invoking the process method
-            /// </summary>
+            }            
             public void Process(ITelemetry telemetry)
             {
 

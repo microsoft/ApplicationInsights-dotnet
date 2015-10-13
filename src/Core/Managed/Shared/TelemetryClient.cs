@@ -24,8 +24,7 @@
     {
         private readonly TelemetryConfiguration configuration;
         private readonly IDebugOutput debugOutput;
-        private TelemetryContext context;
-        private ITelemetryChannel channel;
+        private TelemetryContext context;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
@@ -66,30 +65,6 @@
         {
             get { return this.Context.InstrumentationKey; }
             set { this.Context.InstrumentationKey = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the channel used by the client helper. Note that this doesn't need to be public as a customer can create a new client 
-        /// with a new channel via telemetry configuration.
-        /// </summary>
-        internal ITelemetryChannel Channel
-        {
-            get
-            {
-                ITelemetryChannel output = this.channel;
-                if (output == null)
-                {
-                    output = this.configuration.TelemetryChannel;
-                    this.channel = output;
-                }
-
-                return output;
-            }
-
-            set
-            {
-                this.channel = value;
-            }
         }
 
         /// <summary>
@@ -335,7 +310,7 @@
                 telemetry.Sanitize();                
                 
                 // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessorChain.Process(telemetry);
+                this.configuration.TelemetryProcessors.Process(telemetry);
                 
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
@@ -361,7 +336,7 @@
             var telemetryWithProperties = telemetry as ISupportProperties;
             if (telemetryWithProperties != null)
             {
-                if ((this.Channel != null) && (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value))
+                if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
                 {
                     if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                     {
@@ -446,7 +421,7 @@
         /// </summary>
         public void Flush()
         {
-            this.Channel.Flush();
+            this.configuration.TelemetryChannel.Flush();
         }
 
         private TelemetryContext CreateInitializedContext()

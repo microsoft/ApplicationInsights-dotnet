@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +23,7 @@
         {
             if (configuration == null)
             {
-                throw new ArgumentNullException("telemetryconfiguration");
+                throw new ArgumentNullException("configuration");
             }
 
             this.configuration = configuration;
@@ -36,17 +36,11 @@
         {
             if (this.configuration.TelemetryChannel == null)
             {
-                throw new InvalidOperationException("Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
+                throw new InvalidOperationException(
+                    "Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
             }
 
-            try
-            {
-                this.configuration.TelemetryChannel.Send(item);                
-            }          
-            catch (Exception e)
-            {
-                CoreEventSource.Log.LogVerbose("TransmissionProcessor process failed: ", e.ToString());
-            }
+            this.configuration.TelemetryChannel.Send(item);
         }
     }
 }

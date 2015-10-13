@@ -32,32 +32,30 @@
         [TestMethod]
         public void ThrowsInvalidOperationExceptionOnReturningNullFromUse()
         {
-            var builder = new TelemetryProcessorChainBuilder();
+            var builder = new TelemetryProcessorChainBuilder(new TelemetryConfiguration());
             builder.Use((next) => null);
 
-            Assert.Throws<InvalidOperationException>(() => builder.Build(new TelemetryConfiguration()));
+            Assert.Throws<InvalidOperationException>(() => builder.Build());
             
         }
 
         [TestMethod]
         public void TransmissionProcessorIsAddedDefaultWhenNoOtherTelemetryProcessorsAreConfigured()
         {
-            var builder = new TelemetryProcessorChainBuilder();
             var config = new TelemetryConfiguration();
-
-            builder.Build(config);
-            Assert.IsType<TransmissionProcessor>(config.TelemetryProcessorChain.TelemetryProcessors.First());
+            var builder = new TelemetryProcessorChainBuilder(config);            
+            builder.Build();
+            Assert.IsType<TransmissionProcessor>(config.TelemetryProcessors.FirstTelemetryProcessor);
         }
 
         [TestMethod]
         public void UsesTelemetryProcessorGivenInUseToBuild()
         {
-            var builder = new TelemetryProcessorChainBuilder();
-            builder.Use((next) => new StubTelemetryProcessor(next));
             var config = new TelemetryConfiguration();
-
-            builder.Build(config);
-            Assert.IsType<StubTelemetryProcessor>(config.TelemetryProcessorChain.TelemetryProcessors.First());
+            var builder = new TelemetryProcessorChainBuilder(config);
+            builder.Use((next) => new StubTelemetryProcessor(next));                    
+            builder.Build();
+            Assert.IsType<StubTelemetryProcessor>(config.TelemetryProcessors.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -65,13 +63,15 @@
         {
             var tc1 = new TelemetryConfiguration();
             var tc2 = new TelemetryConfiguration();
-            var builder = new TelemetryProcessorChainBuilder();
-            builder.Use((next) => new StubTelemetryProcessor(next));
+            var builder1 = new TelemetryProcessorChainBuilder(tc1);
+            builder1.Use((next) => new StubTelemetryProcessor(next));
+            builder1.Build();
 
-            builder.Build(tc1);
-            builder.Build(tc2);
-
-            Assert.NotSame(tc1.TelemetryProcessorChain, tc2.TelemetryProcessorChain);
+            var builder2 = new TelemetryProcessorChainBuilder(tc2);
+            builder2.Use((next) => new StubTelemetryProcessor(next));
+            builder2.Build();
+            
+            Assert.NotSame(tc1.TelemetryProcessors, tc2.TelemetryProcessors);
         }
 
         [TestMethod]
@@ -79,11 +79,11 @@
         {
            var config = new TelemetryConfiguration() {TelemetryChannel = new StubTelemetryChannel()};
            StringBuilder outputCollector = new StringBuilder();
-           var builder = new TelemetryProcessorChainBuilder();
+           var builder = new TelemetryProcessorChainBuilder(config);
            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor1"); } });
            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor2"); } });
-           builder.Build(config);
-           config.TelemetryProcessorChain.Process(new StubTelemetry());            
+           builder.Build();
+           config.TelemetryProcessors.Process(new StubTelemetry());            
 
            Assert.Equal("processor1processor2", outputCollector.ToString());
         }

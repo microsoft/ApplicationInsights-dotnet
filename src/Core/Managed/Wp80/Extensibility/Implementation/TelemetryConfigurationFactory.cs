@@ -52,9 +52,9 @@
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
 
             // Creating the the processor chain with default processor (transmissionprocessor) if none configured            
-            if (configuration.TelemetryProcessorChain == null)
+            if (configuration.TelemetryProcessors == null)
             {
-                new TelemetryProcessorChainBuilder().Build(configuration);
+                configuration.GetTelemetryProcessorChainBuilder().Build();
             }
         }
 

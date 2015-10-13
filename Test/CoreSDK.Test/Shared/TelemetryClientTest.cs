@@ -41,19 +41,7 @@
             TelemetryContext clientContext = client.Context;
 
             Assert.Equal("Test User Id", clientContext.User.Id);
-        }
-        
-        [TestMethod]
-        public void ChannelIsLazilyInitializedFromConfiguration()
-        {
-            var configuration = new TelemetryConfiguration();
-            TelemetryClient client = new TelemetryClient(configuration);
-
-            configuration.TelemetryChannel = new StubTelemetryChannel();
-            ITelemetryChannel clientChannel = client.Channel;
-
-            Assert.Same(configuration.TelemetryChannel, clientChannel);
-        }
+        }               
 
         [TestMethod]
         public void ContextInitializtionShouldInitializeInternalContext()
@@ -538,9 +526,9 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { DisableTelemetry = true };
+            var configuration = new TelemetryConfiguration { DisableTelemetry = true , TelemetryChannel = channel };
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration) {};
 
             client.Track(new StubTelemetry());
 

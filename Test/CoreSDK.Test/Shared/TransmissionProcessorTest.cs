@@ -33,7 +33,7 @@
         #region Tests
         
         [TestMethod]
-        public void TransmissionProcessorTranmitsAllDataWhenNoOtherProcessorPresent()
+        public void TransmissionProcessorTransmitsAllDataWhenNoOtherProcessorPresent()
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
