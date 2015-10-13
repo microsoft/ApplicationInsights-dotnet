@@ -55,8 +55,8 @@
             {
                 XDocument xml = XDocument.Parse(text);
                 LoadFromXml(configuration, xml);
-            }            
-
+            }
+            
             // Creating the default channel if no channel configuration supplied
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
 
@@ -154,7 +154,7 @@
             return instance;
         }
 
-        protected static void LoadInstancesTelemetryProcessors(XElement definition, TelemetryConfiguration telemetryConfiguration)
+        protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
         {
             TelemetryProcessorChainBuilder builder = new TelemetryProcessorChainBuilder(telemetryConfiguration);
             if (definition != null)
@@ -209,12 +209,12 @@
                 foreach (XElement propertyDefinition in propertyDefinitions)
                 {
                     string propertyName = propertyDefinition.Name.LocalName;
-                    PropertyInfo property;                   
+                    PropertyInfo property;
                     if (properties.TryGetValue(propertyName, out property))
                     {
                         if (propertyName == "TelemetryProcessors")
                         {
-                            LoadInstancesTelemetryProcessors(propertyDefinition, (TelemetryConfiguration)instance);
+                            BuildTelemetryProcessorChain(propertyDefinition, (TelemetryConfiguration)instance);
                         }
                         else
                         {
