@@ -18,6 +18,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxDictionaryNameLength = 150;
         public const int MaxDependencyTypeLength = 1024;
         public const int MaxValueLength = 8 * 1024;
+        public const int MaxEventNameLength = 512;
         public const int MaxNameLength = 1024;
         public const int MaxMessageLength = 32768;
         public const int MaxUrlLength = 2048;
@@ -56,6 +57,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 property = value;
             }
+        }
+
+        public static string SanitizeEventName(this string name)
+        {
+            return TrimAndTruncate(name, Property.MaxEventNameLength);
         }
 
         public static string SanitizeName(this string name)

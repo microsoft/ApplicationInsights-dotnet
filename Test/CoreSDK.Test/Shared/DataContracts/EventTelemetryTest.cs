@@ -90,7 +90,7 @@
         public void SanitizeWillTrimAppropriateFields()
         {
             EventTelemetry telemetry = new EventTelemetry();
-            telemetry.Name = new string('Z', Property.MaxNameLength + 1);
+            telemetry.Name = new string('Z', Property.MaxEventNameLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
             telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'X', 42.0);
@@ -98,7 +98,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
+            Assert.Equal(new string('Z', Property.MaxEventNameLength), telemetry.Name);
 
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);

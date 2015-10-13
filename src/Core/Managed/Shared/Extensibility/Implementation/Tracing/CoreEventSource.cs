@@ -15,6 +15,25 @@
         public static readonly CoreEventSource Log = new CoreEventSource();
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
+
+        /// <summary>
+        /// Logs the information when there operation to track is null.
+        /// </summary>
+        [Event(1, Message = "Operation object is null.", Level = EventLevel.Warning)]
+        public void OperationIsNullWarning(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(1, this.nameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs the information when there operation to stop does not match the current operation.
+        /// </summary>
+        [Event(2, Message = "Operation to stop does not match the current operation.", Level = EventLevel.Error)]
+        public void InvalidOperationToStopError(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, this.nameProvider.Name);
+        }
+
         [Event(
             10,
             Keywords = Keywords.VerboseFailure,

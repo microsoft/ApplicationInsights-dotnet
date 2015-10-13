@@ -28,6 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ClockTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationWatchTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TransmissionProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientTest.cs" />
