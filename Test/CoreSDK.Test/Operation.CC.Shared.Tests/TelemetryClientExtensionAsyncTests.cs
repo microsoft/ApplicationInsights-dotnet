@@ -78,6 +78,13 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
+                    Assert.Equal(id, item.Context.Operation.RootId);
+                }
+                else
+                {
+                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(id, item.Context.Operation.RootId);
+                    Assert.Null(item.Context.Operation.ParentId);
                 }
             }
         }
@@ -95,7 +102,7 @@
 
             HttpWebRequest request = WebRequest.Create(new Uri("http://bing.com")) as HttpWebRequest;
             var result = request.BeginGetResponse(
-                (r) => 
+                (r) =>
                     {
                         id2 = Thread.CurrentThread.ManagedThreadId;
                         this.telemetryClient.TrackTrace("trace2");
@@ -103,7 +110,7 @@
                         this.telemetryClient.StopOperation(op);
 
                         (r.AsyncState as HttpWebRequest).EndGetResponse(r);
-                    }, 
+                    },
                 null);
 
             while (!result.IsCompleted)
@@ -124,6 +131,14 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
+                    Assert.Equal(id, item.Context.Operation.RootId);
+                }
+                else
+                {
+                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(id, item.Context.Operation.RootId);
+                    Assert.Null(item.Context.Operation.ParentId);
+
                 }
             }
         }

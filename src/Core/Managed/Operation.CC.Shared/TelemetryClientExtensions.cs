@@ -32,9 +32,9 @@
             // Parent context store is assigned to operation that is used to restore call context.
             operation.ParentContext = CallContextHelpers.GetCurrentOperationContextFromCallContext();
 
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.RootName) && !string.IsNullOrEmpty(operationName))
+            if (string.IsNullOrEmpty(operation.Telemetry.Name) && !string.IsNullOrEmpty(operationName))
             {
-                operation.Telemetry.Context.Operation.RootName = operationName;
+                operation.Telemetry.Name = operationName;
             }
 
             telemetryClient.Initialize(operation.Telemetry);
@@ -42,6 +42,11 @@
             if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id))
             {
                 operation.Telemetry.GenerateOperationId();
+            }
+
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.RootId))
+            {
+                operation.Telemetry.Context.Operation.RootId = operation.Telemetry.Context.Operation.Id;
             }
 
             // Update the call context to store certain fields that can be used for subsequent operations.

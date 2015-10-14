@@ -10,9 +10,6 @@
     using Extensibility.Implementation;
     using TestFramework;
 
-    /// <summary>
-    /// Tests corresponding to TelemetryClientExtension methods.
-    /// </summary>
     [TestClass]
     public class TelemetryClientExtensionTests
     {
@@ -36,9 +33,6 @@
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName); 
         }
 
-        /// <summary>
-        /// Tests the scenario if StartOperation returns operation with telemetry item of same type.
-        /// </summary>
         [TestMethod]
         public void StartDependencyTrackingReturnsOperationWithSameTelemetryItem()
         {
@@ -49,19 +43,27 @@
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
-        /// <summary>
-        /// Tests the scenario if StartOperation assigns operation name to the telemetry item.
-        /// </summary>
         [TestMethod]
         public void StartDependencyTrackingReturnsOperationWithInitializedOperationName()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
-            Assert.AreEqual("TestOperationName", operation.Telemetry.Context.Operation.RootName);
+            Assert.AreEqual("TestOperationName", operation.Telemetry.Name);
         }
 
-        /// <summary>
-        /// Tests the scenario if StartOperation throws exception when telemetry client is null.
-        /// </summary>
+        [TestMethod]
+        public void StartDependencyTrackingReturnsOperationWithInitializedOperationId()
+        {
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
+            Assert.IsNotNull(operation.Telemetry.Context.Operation.Id);
+        }
+
+        [TestMethod]
+        public void StartDependencyTrackingReturnsOperationWithInitializedOperationRootId()
+        {
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
+            Assert.IsNotNull(operation.Telemetry.Context.Operation.RootId);
+        }
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void StartDependencyTrackingThrowsExceptionWithNullTelemetryClient()
@@ -70,9 +72,6 @@
             tc.StartOperation<DependencyTelemetry>(null);
         }
 
-        /// <summary>
-        /// Tests the scenario if StartOperation returns operation with timestamp.
-        /// </summary>
         [TestMethod]
         public void StartDependencyTrackingCreatesADependencyTelemetryItemWithTimeStamp()
         {
@@ -83,9 +82,6 @@
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
-        /// <summary>
-        /// Tests the scenario if CallContext is updated with the telemetry item with StartOperation.
-        /// </summary>
         [TestMethod]
         public void StartDependencyTrackingAddsOperationContextStoreToCallContext()
         {
@@ -96,9 +92,6 @@
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
-        /// <summary>
-        /// Tests the scenario if operation item is disposed and telemetry is sent with using.
-        /// </summary>
         [TestMethod]
         public void UsingSendsTelemetryAndDisposesOperationItem()
         {
@@ -112,9 +105,6 @@
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
-        /// <summary>
-        /// Tests the scenario if operation item is disposed and telemetry is sent with using.
-        /// </summary>
         [TestMethod]
         public void UsingWithStopOperationSendsTelemetryAndDisposesOperationItemOnlyOnce()
         {
@@ -128,9 +118,6 @@
             Assert.AreEqual(1, this.sendItems.Count);
         }
 
-        /// <summary>
-        /// Tests the scenario if CallContext is updated with multiple operations.
-        /// </summary>
         [TestMethod]
         public void StartDependencyTrackingHandlesMultipleContextStoresInCallContext()
         {
@@ -153,9 +140,6 @@
             Assert.IsNull(CallContextHelpers.GetCurrentOperationContextFromCallContext());
         }
 
-        /// <summary>
-        /// Tests the scenario if StopOperation does not fail when call context is not initialized.
-        /// </summary>
         [TestMethod]
         public void StopOperationDoesNotFailOnNullOperation()
         {
@@ -163,9 +147,6 @@
             tc.StopOperation<DependencyTelemetry>(null);
         }
 
-        /// <summary>
-        /// Tests the scenario if StopOperation throws exception when telemetry client is null.
-        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void StopDependencyTrackingThrowsExceptionWithNullTelemetryClient()
@@ -175,9 +156,6 @@
             tc.StopOperation(operationItem);
         }
 
-        /// <summary>
-        /// Tests the scenario if stop operation does not throw exception when a parent operation is being stopped before the child operation.
-        /// </summary>
         [TestMethod]
         public void StopOperationDoesNotThrowExceptionIfParentOpertionIsStoppedBeforeChildOperation()
         {
@@ -190,9 +168,6 @@
             }
         }
 
-        /// <summary>
-        /// Tests the scenario if stop operation works fine with nested operations.
-        /// </summary>
         [TestMethod]
         public void StopOperationWorksFineWithNestedOperations()
         {

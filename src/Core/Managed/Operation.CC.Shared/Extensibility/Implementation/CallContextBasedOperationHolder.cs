@@ -69,19 +69,19 @@
                 {
                     if (!this.isDisposed)
                     {
-                        var telemetry = this.Telemetry as OperationTelemetry;
+                        var operationTelemetry = this.Telemetry as OperationTelemetry;
 
                         var currentOperationContext = CallContextHelpers.GetCurrentOperationContextFromCallContext();
-                        if (telemetry.Context.Operation.Id != currentOperationContext.ParentOperationId ||
-                            telemetry.Context.Operation.RootName != currentOperationContext.OperationName)
+                        if (operationTelemetry.Context.Operation.Id != currentOperationContext.ParentOperationId ||
+                            operationTelemetry.Context.Operation.RootName != currentOperationContext.OperationName)
                         {
                             CoreEventSource.Log.InvalidOperationToStopError();
                             return;
                         }
 
-                        telemetry.Stop();
-                        this.telemetryClient.Track(telemetry);
+                        operationTelemetry.Stop();
                         CallContextHelpers.RestoreCallContext(this.ParentContext);
+                        this.telemetryClient.Track(operationTelemetry);
                     }
 
                     this.isDisposed = true;
