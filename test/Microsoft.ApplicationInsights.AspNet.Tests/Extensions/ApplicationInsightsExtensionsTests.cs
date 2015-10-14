@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Framework.DependencyInjection
 {
     using System;
+    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights;
@@ -13,7 +14,6 @@
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
     using Microsoft.Framework.Configuration;
-    using Microsoft.Framework.Notification;
     using Xunit;
     
     public static class ApplicationInsightsExtensionsTests
@@ -23,7 +23,7 @@
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddInstance<IHttpContextAccessor>(contextAccessor);
-            services.AddInstance<INotifier>(new Notifier(new ProxyNotifierMethodAdapter()));
+            services.AddInstance<TelemetryListener>(TelemetryListener.DefaultListener);
             return services;
         }
 
@@ -76,7 +76,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-instrumentation-key.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -89,7 +89,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-developer-mode.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-developer-mode.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -102,7 +102,7 @@
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder(Directory.GetCurrentDirectory()).AddJsonFile("content\\config-endpoint-address.json").Build();
+                var config = new ConfigurationBuilder().AddJsonFile("content\\config-endpoint-address.json").Build();
 
                 services.AddApplicationInsightsTelemetry(config);
 

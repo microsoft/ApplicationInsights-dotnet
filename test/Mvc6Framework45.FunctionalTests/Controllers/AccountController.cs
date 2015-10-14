@@ -429,7 +429,7 @@ namespace Mvc6Framework45.FunctionalTests.Controllers
 
         private async Task<ApplicationUser> GetCurrentUserAsync()
         {
-            return await UserManager.FindByIdAsync(Context.User.GetUserId());
+            return await UserManager.FindByIdAsync(ActionContext.HttpContext.User.GetUserId());
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

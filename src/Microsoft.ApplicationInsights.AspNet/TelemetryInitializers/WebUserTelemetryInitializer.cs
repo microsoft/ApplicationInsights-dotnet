@@ -46,7 +46,7 @@
                 var userCookieValue = platformContext.Request.Cookies[WebUserCookieName];
                 if (!string.IsNullOrEmpty(userCookieValue))
                 {
-                    var userCookieParts = userCookieValue.Split('|');
+                    var userCookieParts = ((string)userCookieValue).Split('|');
                     if (userCookieParts.Length >= 2)
                     {
                         // todo: add tracing

@@ -2,7 +2,7 @@
     "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
-    "version": "1.0.0-beta7-*",
+    "version": "1.0.0-beta8-*",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
     "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
@@ -11,13 +11,13 @@
     "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
     "dependencies": {
         "Microsoft.ApplicationInsights": "1.1.1-beta",
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-beta7-*",
-        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta7-*",
-        "Microsoft.AspNet.Http.Features": "1.0.0-beta7-*",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta7-*",
-        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta7-*",
-        "Microsoft.Framework.Configuration": "1.0.0-beta7-*",
-        "Microsoft.Framework.Notification": "1.0.0-beta7-*"
+        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-beta8-*",
+        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta8-*",
+        "Microsoft.AspNet.Http.Features": "1.0.0-beta8-*",
+        "Microsoft.AspNet.Mvc": "6.0.0-beta8-*",
+        "Microsoft.Framework.Logging.Abstractions": "1.0.0-beta8-*",
+        "Microsoft.Framework.Configuration": "1.0.0-beta8-*",
+        "Microsoft.Framework.TelemetryAdapter": "1.0.0-beta8-*"
     },
 
     "frameworks": {
@@ -27,7 +27,7 @@
                 "define": [ "dnxcore50" ]
             },
             "dependencies": {
-              "System.Net.NameResolution": "4.0.0-beta-22816",
+              "System.Net.NameResolution": "4.0.0-beta-23302",
               "System.Reflection": "4.0.10-beta-23109"
             }
         }

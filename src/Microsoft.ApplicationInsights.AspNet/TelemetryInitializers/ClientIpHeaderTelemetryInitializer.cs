@@ -136,7 +136,7 @@
 
                 if (string.IsNullOrEmpty(resultIp))
                 {
-                    var connectionFeature = platformContext.GetFeature<IHttpConnectionFeature>();
+                    var connectionFeature = platformContext.Features.Get<IHttpConnectionFeature>();
 
                     if (connectionFeature != null)
                     {

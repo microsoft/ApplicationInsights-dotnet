@@ -14,12 +14,10 @@
     using Microsoft.Framework.DependencyInjection;
     
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
-    public class InProcessServer : IDisposable, IServerFactory
+    public class InProcessServer : IDisposable
     {
-        private readonly IList<StartInstance> _startInstances = new List<StartInstance>();
         private static Random random = new Random();
         
-        private IFeatureCollection _featuresSupportedByThisHost = new FeatureCollection();
         private IDisposable hostingEngine;
         private string url;
 
@@ -49,7 +47,7 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new MemoryConfigurationSource();
+            var customConfig = new MemoryConfigurationProvider();
             customConfig.Set("server.urls", this.BaseHost);
             var configBuilder = new ConfigurationBuilder();
             configBuilder.Add(customConfig);
@@ -76,40 +74,10 @@
                 this.hostingEngine.Dispose();
             }
         }
-
-        public IServerInformation Initialize(IConfiguration configuration)
-        {
-            return null;
-        }
-
-        public IDisposable Start(IServerInformation serverInformation, Func<IFeatureCollection, Task> application)
-        {
-            var startInstance = new StartInstance(application);
-            _startInstances.Add(startInstance);
-            application(_featuresSupportedByThisHost);
-            return startInstance;
-        }
-
+        
         private WebHostBuilder CreateBuilder(IConfiguration config)
         {
             return new WebHostBuilder(CallContextServiceLocator.Locator.ServiceProvider, config);
-        }
-
-        public class StartInstance : IDisposable
-        {
-            private readonly Func<IFeatureCollection, Task> _application;
-
-            public StartInstance(Func<IFeatureCollection, Task> application)
-            {
-                _application = application;
-            }
-
-            public int DisposeCalls { get; set; }
-
-            public void Dispose()
-            {
-                DisposeCalls += 1;
-            }
         }
     }
 }
