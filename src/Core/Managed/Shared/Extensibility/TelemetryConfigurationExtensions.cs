@@ -1,6 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Extension methods for TelemetryConfiguration.

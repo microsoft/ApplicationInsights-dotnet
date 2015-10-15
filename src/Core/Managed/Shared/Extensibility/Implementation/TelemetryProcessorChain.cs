@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
-    /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to build this object.
+    /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to construct this object.
     /// </summary>
     public sealed class TelemetryProcessorChain
     {

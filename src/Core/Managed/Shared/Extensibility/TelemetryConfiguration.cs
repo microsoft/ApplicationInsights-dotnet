@@ -167,7 +167,7 @@
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("TelemetryProcessorChain");
+                    throw new ArgumentNullException("value");
                 }
 
                 this.telemetryProcessorChain = value;

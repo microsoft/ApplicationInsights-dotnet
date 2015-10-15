@@ -155,8 +155,8 @@
         }
 
         protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
-        {
-            TelemetryProcessorChainBuilder builder = new TelemetryProcessorChainBuilder(telemetryConfiguration);
+        {            
+            TelemetryProcessorChainBuilder builder = telemetryConfiguration.GetTelemetryProcessorChainBuilder();
             if (definition != null)
             {
                 IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);                

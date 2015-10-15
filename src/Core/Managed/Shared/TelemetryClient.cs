@@ -68,6 +68,14 @@
         }
 
         /// <summary>
+        /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
+        /// </summary>
+        internal TelemetryConfiguration TelemetryConfiguration
+        {
+            get { return this.configuration; }            
+        }
+
+        /// <summary>
         /// Check to determine if the tracking is enabled.
         /// </summary>
         public bool IsEnabled()
