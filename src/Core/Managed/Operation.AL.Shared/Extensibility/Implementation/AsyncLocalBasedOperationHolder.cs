@@ -6,24 +6,24 @@
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
     /// </summary>
-    internal class CallContextBasedOperationHolder<T> : IOperationHolder<T>
+    internal class AsyncLocalBasedOperationHolder<T> : IOperationHolder<T>
     {
         /// <summary>
         /// Parent context store that is used to restore call context.
         /// </summary>
-        public OperationContextForCallContext ParentContext;
+        public OperationContextForAsyncLocal ParentContext;
 
         private TelemetryClient telemetryClient;
         private T telemetry;
         private bool isDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CallContextBasedOperationHolder{T}"/> class.
+        /// Initializes a new instance of the <see cref="AsyncLocalBasedOperationHolder{T}"/> class.
         /// Initializes telemetry client.
         /// </summary>
         /// <param name="telemetryClient">Initializes telemetry client object.</param>
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
-        public CallContextBasedOperationHolder(TelemetryClient telemetryClient, T telemetry)
+        public AsyncLocalBasedOperationHolder(TelemetryClient telemetryClient, T telemetry)
         {
             if (telemetry == null)
             {
@@ -71,7 +71,7 @@
                     {
                         var operationTelemetry = this.Telemetry as OperationTelemetry;
 
-                        var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
+                        var currentOperationContext = AsyncLocalHelpers.GetCurrentOperationContext();
                         if (operationTelemetry.Context.Operation.Id != currentOperationContext.ParentOperationId ||
                             operationTelemetry.Context.Operation.RootName != currentOperationContext.OperationName)
                         {
@@ -80,7 +80,7 @@
                         }
 
                         operationTelemetry.Stop();
-                        CallContextHelpers.RestoreOperationContext(this.ParentContext);
+                        AsyncLocalHelpers.RestoreOperationContext(this.ParentContext);
                         this.telemetryClient.Track(operationTelemetry);
                     }
 
