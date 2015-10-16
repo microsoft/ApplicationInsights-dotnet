@@ -64,56 +64,56 @@
         [TestMethod]
         public void DependencyTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new DependencyTelemetry()));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new DependencyTelemetry()));
         }
         
         [TestMethod]
         public void EventTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new EventTelemetry("event")));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new EventTelemetry("event")));
         }
         
         [TestMethod]
         public void ExceptionTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new ExceptionTelemetry(new Exception("exception"))));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new ExceptionTelemetry(new Exception("exception"))));
         }
         
         [TestMethod]
         public void MetricTelemetryIsNotSubjectToSampling()
         {
-            TelemetryTypeDoesNotSupportSampling((telProcessors) => telProcessors.Process(new MetricTelemetry("metric", 1.0)));
+            TelemetryTypeDoesNotSupportSampling((telemetryProcessors) => telemetryProcessors.Process(new MetricTelemetry("metric", 1.0)));
         }
         
         [TestMethod]
         public void PageViewTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new PageViewTelemetry("page")));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new PageViewTelemetry("page")));
         }
         
         [TestMethod]
         public void PerformanceCounterTelemetryIsNotSubjectToSampling()
         {
             TelemetryTypeDoesNotSupportSampling(
-                (telProcessors) => telProcessors.Process(new PerformanceCounterTelemetry("category", "counter", "instance", 1.0)));
+                (telemetryProcessors) => telemetryProcessors.Process(new PerformanceCounterTelemetry("category", "counter", "instance", 1.0)));
         }
         
         [TestMethod]
         public void RequestTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new RequestTelemetry()));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new RequestTelemetry()));
         }
         
         [TestMethod]
         public void SessionStateTelemetryIsNotSubjectToSampling()
         {
-            TelemetryTypeDoesNotSupportSampling((telProcessors) => telProcessors.Process(new SessionStateTelemetry()));
+            TelemetryTypeDoesNotSupportSampling((telemetryProcessors) => telemetryProcessors.Process(new SessionStateTelemetry()));
         }
         
         [TestMethod]
         public void TraceTelemetryIsSubjectToSampling()
         {
-            TelemetryTypeSupportsSampling((telProcessors) => telProcessors.Process(new TraceTelemetry("my trace")));
+            TelemetryTypeSupportsSampling((telemetryProcessors) => telemetryProcessors.Process(new TraceTelemetry("my trace")));
         }
         
         private static void TelemetryTypeDoesNotSupportSampling(Action<TelemetryProcessorChain> sendAction)
@@ -152,8 +152,8 @@
         private static TelemetryProcessorChain CreateTelemetryProcessorChainWithSampling(IList<ITelemetry> sentTelemetry, double samplingPercentage)
         {
             var tc = new TelemetryConfiguration() {TelemetryChannel = new StubTelemetryChannel()};
-            var channelBuilder = new TelemetryProcessorChainBuilder(tc);
-            channelBuilder.Use((next) => new SamplingTelemetryProcessor(next) {SamplingPercentage = samplingPercentage});
+            var channelBuilder = new TelemetryProcessorChainBuilder(tc);            
+            channelBuilder.UseSampling(samplingPercentage);
             channelBuilder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
             
             channelBuilder.Build();
