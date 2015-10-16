@@ -22,7 +22,7 @@
 
         private readonly SnapshottingList<IContextInitializer> contextInitializers = new SnapshottingList<IContextInitializer>();
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
-
+        private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
 
@@ -146,7 +146,34 @@
         {
             get { return this.telemetryInitializers; }
         }
-        
+
+        /// <summary>
+        /// Gets the first telemetry processor in the chain of processors.
+        /// </summary>
+        public TelemetryProcessorChain TelemetryProcessors
+        {
+            get
+            {                
+                if (this.telemetryProcessorChain == null)
+                {                                                 
+                    // Gets the telemetryprocessorchainbuilder, builds the processor chain and sets the same in the configuration.
+                    this.GetTelemetryProcessorChainBuilder().Build();
+                }
+
+                return this.telemetryProcessorChain;
+            }
+
+            internal set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                this.telemetryProcessorChain = value;
+            }              
+        }
+
         /// <summary>
         /// Gets or sets the telemetry channel.
         /// </summary>

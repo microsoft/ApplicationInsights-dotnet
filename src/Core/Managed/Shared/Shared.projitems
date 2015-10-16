@@ -80,6 +80,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RemoteDependencyData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RequestData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MessageData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChain.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ApplicationNameProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventCounters.cs" />
@@ -102,6 +104,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\SpinWait.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\TraceEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TransmissionProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TypeExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandom.cs" />
@@ -109,9 +112,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
