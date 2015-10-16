@@ -22,6 +22,14 @@
 
         public string ApplicationName { get; private set; }
 
+        public bool IsVerboseEnabled
+        {
+            get
+            {
+                return Log.IsEnabled(EventLevel.Verbose, (EventKeywords)(-1));
+            }
+        }
+
         [Event(11, Keywords = Keywords.TelemetryChannel, Message = "Storage folder: {0}.", Level = EventLevel.Verbose)]
         public void StorageFolder(string folder, string appDomainName = "Incorrect")
         {
@@ -76,10 +84,10 @@
             this.WriteEvent(19, this.ApplicationName);
         }
         
-        [Event(20, Keywords = Keywords.TelemetryChannel, Message = "ITelemetry passed to channel", Level = EventLevel.Verbose)]
-        public void TelemetryChannelSend(string appDomainName = "Incorrect")
+        [Event(20, Keywords = Keywords.TelemetryChannel, Message = "{0} passed to channel", Level = EventLevel.Verbose)]
+        public void TelemetryChannelSend(string type, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(20, this.ApplicationName);
+            this.WriteEvent(20, type, this.ApplicationName);
         }
 
         [Event(21, Keywords = Keywords.TelemetryChannel, Message = "TransmitterEnqueue. TransmissionId: {0}.", Level = EventLevel.Verbose)]
