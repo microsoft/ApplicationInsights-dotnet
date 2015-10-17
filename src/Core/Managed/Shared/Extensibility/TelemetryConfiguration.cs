@@ -20,7 +20,6 @@
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
-        private readonly SnapshottingList<IContextInitializer> contextInitializers = new SnapshottingList<IContextInitializer>();
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
@@ -114,22 +113,6 @@
 
                 this.disableTelemetry = value;
             }
-        }
-
-        /// <summary>
-        /// Gets the list of <see cref="IContextInitializer"/> objects that supply additional information about application.
-        /// </summary>
-        /// <remarks>
-        /// Context initializers extend Application Insights telemetry collection by supplying additional information 
-        /// about application environment, such as <see cref="TelemetryContext.User"/> or <see cref="TelemetryContext.Device"/> 
-        /// information that remains constant during application lifetime. A <see cref="TelemetryClient"/> invokes context 
-        /// initializers to obtain initial property values for <see cref="TelemetryContext"/> object during its construction.
-        /// The default list of context initializers is provided by the Application Insights NuGet packages and loaded from 
-        /// the ApplicationInsights.config file located in the application directory. 
-        /// </remarks>
-        public IList<IContextInitializer> ContextInitializers
-        {
-            get { return this.contextInitializers; }
         }
 
         /// <summary>

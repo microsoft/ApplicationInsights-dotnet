@@ -95,14 +95,14 @@
         }
 
         [TestMethod]
-        public void InitializeAddsSdkVersionContextInitializerByDefault()
+        public void InitializeAddsSdkVersionTelemetryInitializerByDefault()
         {
             var configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
             // Assume that SdkVersionInitializer is added by default
-            var contextInitializer = configuration.ContextInitializers[0];
-            Assert.IsType<SdkVersionPropertyContextInitializer>(contextInitializer);
+            var contextInitializer = configuration.TelemetryInitializers[0];
+            Assert.IsType<SdkVersionPropertyTelemetryInitializer>(contextInitializer);
         }
         
         [TestMethod]
@@ -110,18 +110,6 @@
         {
             var initializer = new StubConfigurableTelemetryInitializer();
             var configuration = new TelemetryConfiguration { TelemetryInitializers = { initializer } };
-
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
-
-            Assert.True(initializer.Initialized);
-            Assert.Same(configuration, initializer.Configuration);
-        }
-
-        [TestMethod]
-        public void InitializeNotifiesContextInitializersImplementingITelemetryModuleInterface()
-        {
-            var initializer = new StubConfigurableContextInitializer();
-            var configuration = new TelemetryConfiguration { ContextInitializers = { initializer } };
 
             new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
@@ -749,13 +737,6 @@
             {
                 this.Configuration = configuration;
                 this.Initialized = true;
-            }
-        }
-
-        private class StubConfigurableContextInitializer : StubConfigurable, IContextInitializer
-        {
-            public void Initialize(TelemetryContext context)
-            {
             }
         }
 
