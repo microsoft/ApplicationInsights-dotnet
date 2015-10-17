@@ -1,12 +1,12 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using Implementation;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
-    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in CallContext.
+    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in AsyncLocal variable.
     /// </summary>
-    internal class CallContextBasedOperationCorrelationTelemetryInitializer : ITelemetryInitializer
+    public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
         /// Initializes/Adds operation id to the existing telemetry item.
@@ -18,7 +18,7 @@
 
             if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.RootId) || string.IsNullOrEmpty(itemContext.RootName))
             {
-                var parentContext = CallContextHelpers.GetCurrentOperationContextFromCallContext();
+                var parentContext = AsyncLocalHelpers.GetCurrentOperationContext();
                 if (parentContext != null)
                 {
                     if (string.IsNullOrEmpty(itemContext.ParentId)

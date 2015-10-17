@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="SharedProjectFile_SccProperties">
-    <SharedProjectFile_ProjectGuid>{C6425564-9EFE-49B3-B309-4D5FB55A5355}</SharedProjectFile_ProjectGuid>
+    <SharedProjectFile_ProjectGuid>{C6425564-9EFE-49B3-B309-4D5FB55A53bb}</SharedProjectFile_ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>669e7e58-072d-4b0a-a4dd-4eb2ae2ea4d4</SharedGUID>
+    <SharedGUID>669e7e58-072d-4b0a-a4dd-4eb2ae2ea4bb</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Microsoft.ApplicationInsights.Operation</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextBasedOperationHolder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextHelpers.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContextForCallContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncLocalBasedOperationHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncLocalHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContextForAsyncLocal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensions.cs" />
   </ItemGroup>
 </Project>
