@@ -11,7 +11,7 @@
     public sealed class TelemetryProcessorChainBuilder
     {
         private readonly List<Func<ITelemetryProcessor, ITelemetryProcessor>> factories;
-        private TelemetryConfiguration configuration;
+        private readonly TelemetryConfiguration configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
@@ -19,8 +19,13 @@
         /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to. </param>        
         public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration)
         {
-            this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
+            if (configuration == null)
+            {
+                throw new ArgumentNullException("configuration");
+            }
+
             this.configuration = configuration;
+            this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
         }
 
         /// <summary>

@@ -44,9 +44,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ContextTagKeys.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ContextTagKeys.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\DependencyKind.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SessionStateData.g.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SeverityLevel.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\StackFrame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SessionStateData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Tags.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\FixedSizeQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InternalContext.cs" />
@@ -89,6 +97,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingDefaults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsEventListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnosticsTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\EventMetaData.cs" />

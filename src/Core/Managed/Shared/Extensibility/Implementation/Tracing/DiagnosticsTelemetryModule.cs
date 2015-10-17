@@ -12,11 +12,14 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
 
-    internal class DiagnosticsTelemetryModule : ITelemetryModule, IDisposable
+    /// <summary>
+    /// Use diagnostics telemetry module to report SDK internal problems to the portal and VS debug output window.
+    /// </summary>
+    public sealed class DiagnosticsTelemetryModule : ITelemetryModule, IDisposable
     {
-        protected readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
+        internal readonly IList<IDiagnosticsSender> Senders = new List<IDiagnosticsSender>();
 
-        protected DiagnosticsListener eventListener;
+        internal readonly DiagnosticsListener EventListener;
 
         private readonly object lockObject = new object();
 
@@ -35,26 +38,30 @@
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
             this.Senders.Add(new F5DiagnosticsSender());
-            this.eventListener = new DiagnosticsListener(this.Senders);
+            this.EventListener = new DiagnosticsListener(this.Senders);
 
 #if Wp80
-            CoreEventSource.Log.EnableEventListener(this.eventListener);
+            CoreEventSource.Log.EnableEventListener(this.EventListener);
 #endif
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="DiagnosticsTelemetryModule" /> class.
+        /// </summary>
         ~DiagnosticsTelemetryModule()
         {
             this.Dispose(false);
         }
 
         /// <summary>
-        /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting.
+        /// Gets or sets diagnostics Telemetry Module LogLevel configuration setting. 
+        /// Possible values LogAlways, Critical, Error, Warning, Informational and Verbose.
         /// </summary>
         public string Severity
         {
             get
             {
-                return this.eventListener.LogLevel.ToString();
+                return this.EventListener.LogLevel.ToString();
             }
 
             set
@@ -66,14 +73,15 @@
                     if (Enum.IsDefined(typeof(EventLevel), value) == true)
                     {
                         parsedValue = (EventLevel)Enum.Parse(typeof(EventLevel), value, true);
-                        this.eventListener.LogLevel = parsedValue;
+                        this.EventListener.LogLevel = parsedValue;
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Gets or sets instrumentation key for diagnostics.
+        /// Gets or sets instrumentation key for diagnostics. Use to redirect SDK 
+        /// internal problems reporting to the separate instrumentation key.
         /// </summary>
         public string DiagnosticsInstrumentationKey
         {
@@ -97,6 +105,10 @@
             }
         }
 
+        /// <summary>
+        /// Initializes this telemetry module.
+        /// </summary>
+        /// <param name="configuration">Telemetry configuration to use for this telemetry module.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
             if (configuration == null)
@@ -136,6 +148,9 @@
             }
         }
         
+        /// <summary>
+        /// Disposes this object.
+        /// </summary>
         public void Dispose()
         {
             this.Dispose(true);
@@ -145,7 +160,7 @@
         {
             if (true == managed && false == this.disposed)
             {
-                this.eventListener.Dispose();
+                this.EventListener.Dispose();
                 (this.throttlingScheduler as IDisposable).Dispose();
 
                 GC.SuppressFinalize(this);

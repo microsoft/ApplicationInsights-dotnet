@@ -13,21 +13,13 @@
     /// <summary>
     /// Subscriber to ETW Event source events, which sends data to other Senders (F5 and Portal).
     /// </summary>
-    internal class DiagnosticsListener
-#if Wp80
- : IDisposable
-#else
-        : EventListener
-#endif
+    internal class DiagnosticsListener : IDisposable
     {
-        private const long AllKeyword = -1;
-
         private readonly IList<IDiagnosticsSender> diagnosticsSenders = new List<IDiagnosticsSender>();
-#if !Wp80
-        private HashSet<WeakReference> eventSources = new HashSet<WeakReference>();
-#endif
         private EventLevel logLevel = EventLevel.Error;
-
+#if !Wp80
+        private DiagnosticsEventListener eventListener;
+#endif
         public DiagnosticsListener(IList<IDiagnosticsSender> senders)
         {
             if (senders == null || senders.Count < 1)
@@ -36,10 +28,9 @@
             }
 
             this.diagnosticsSenders = senders;
-        }
-
-        private DiagnosticsListener()
-        {
+#if !Wp80
+            this.eventListener = new DiagnosticsEventListener(this, this.LogLevel);
+#endif
         }
 
         public EventLevel LogLevel
@@ -51,21 +42,15 @@
 
             set
             {
-                this.logLevel = value;
 #if !Wp80
-                HashSet<WeakReference> aliveEventSources = new HashSet<WeakReference>();
-                foreach (WeakReference s in this.eventSources)
+                if (this.LogLevel != value)
                 {
-                    EventSource source = (EventSource)s.Target;
-                    if (source != null)
-                    {
-                        this.EnableEvents(source, this.LogLevel, (EventKeywords)AllKeyword);
-                        aliveEventSources.Add(s);
-                    }
+                    var oldListener = this.eventListener;
+                    this.eventListener = new DiagnosticsEventListener(this, value);
+                    oldListener.Dispose();
                 }
-
-                this.eventSources = aliveEventSources;
 #endif
+                this.logLevel = value;
             }
         }
 
@@ -84,42 +69,11 @@
             }
         }
 
-#if Wp80
         public void Dispose()
         {
-        }
-
-#endif
 #if !Wp80
-        protected override void OnEventWritten(EventWrittenEventArgs eventSourceEvent)
-        {
-            var metadata = new EventMetaData
-            {
-                Keywords = (long)eventSourceEvent.Keywords,
-                MessageFormat = eventSourceEvent.Message,
-                EventId = eventSourceEvent.EventId,
-                Level = eventSourceEvent.Level
-            };
-
-            var traceEvent = new TraceEvent
-            {
-                MetaData = metadata,
-                Payload = eventSourceEvent.Payload != null ? eventSourceEvent.Payload.ToArray() : null
-            };
-            
-            this.WriteEvent(traceEvent);
-        }
-
-        protected override void OnEventSourceCreated(EventSource eventSource)
-        {
-            if (eventSource.Name.StartsWith("Microsoft-ApplicationInsights-", StringComparison.Ordinal))
-            {
-                this.eventSources.Add(new WeakReference(eventSource));
-                this.EnableEvents(eventSource, this.LogLevel, (EventKeywords)AllKeyword);
-            }
-
-            base.OnEventSourceCreated(eventSource);
-        }
+            this.eventListener.Dispose();
 #endif
+        }
     }
 }

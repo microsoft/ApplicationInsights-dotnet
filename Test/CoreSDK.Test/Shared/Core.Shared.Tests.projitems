@@ -61,7 +61,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingSchedulerMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsEventCollectingMock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsTelemetryModuleMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\F5DiagnosticsSenderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\PortalDiagnosticsSenderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLockTest.cs" />

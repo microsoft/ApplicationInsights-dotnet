@@ -177,7 +177,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string InternalAgentVersion { get; set; }
 
-        
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
         {}

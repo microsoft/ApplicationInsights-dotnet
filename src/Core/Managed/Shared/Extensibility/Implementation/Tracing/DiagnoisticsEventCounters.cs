@@ -1,12 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DiagnoisticsEventCounters.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-// <author>Sergei Nikitin: sergeyni@microsoft.com</author>
-// <summary></summary>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     internal class DiagnoisticsEventCounters
     {

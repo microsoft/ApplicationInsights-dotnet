@@ -73,10 +73,5 @@
 
             return interval;
         }
-
-        internal static bool EqualsWithPrecision(this double value1, double value2, double precision)
-        {
-            return (value1 >= value2 - precision) && (value1 <= value2 + precision);
-        }
     }
 }

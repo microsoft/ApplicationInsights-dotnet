@@ -2,7 +2,6 @@
 {
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     /// <summary>
@@ -14,7 +13,7 @@
         /// <summary>
         /// VS debug output.
         /// </summary>
-        protected IDebugOutput debugOutput;
+        protected readonly IDebugOutput debugOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="F5DiagnosticsSender"/> class. 
