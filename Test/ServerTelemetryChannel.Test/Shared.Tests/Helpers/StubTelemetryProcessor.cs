@@ -3,6 +3,7 @@
     using System;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 
     /// <summary>
