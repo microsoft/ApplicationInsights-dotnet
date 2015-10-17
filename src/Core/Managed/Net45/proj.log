@@ -1010,7 +1010,7 @@ WindowsSDK_ExecutablePath_x86 = C:\Program Files (x86)\Microsoft SDKs\Windows\v8
                            Visible = false
 
 09:53:55.111     1>Building with tools version "12.0".
-                   Project file contains ToolsVersion="14.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="12.0". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+                   Project file contains ToolsVersion="14.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="14.0". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
 09:53:55.111     1>Target "_CheckForInvalidConfigurationAndPlatform: (TargetId:2)" in file "C:\Program Files (x86)\MSBuild\12.0\bin\Microsoft.Common.CurrentVersion.targets" from project "c:\Enlist\ApplicationInsights-dotnet\src\Core\Managed\Net45\Core.Net45.csproj" (entry point):
                    Task "Error" skipped, due to false condition; ( '$(_InvalidConfigurationError)' == 'true' ) was evaluated as ( '' == 'true' ).
                    Task "Warning" skipped, due to false condition; ( '$(_InvalidConfigurationWarning)' == 'true' ) was evaluated as ( '' == 'true' ).

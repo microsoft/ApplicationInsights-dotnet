@@ -38,7 +38,7 @@
         public virtual void Initialize(TelemetryConfiguration configuration)
         {
             configuration.ContextInitializers.Add(new SdkVersionPropertyContextInitializer());
-            configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());
+            configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());            
 
             // Load customizations from the ApplicationsInsights.config file
             string text = PlatformSingleton.Current.ReadConfigurationXml();
@@ -50,6 +50,12 @@
 
             // Creating the default channel if no channel configuration supplied
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
+
+            // Creating the the processor chain with default processor (transmissionprocessor) if none configured            
+            if (configuration.TelemetryProcessors == null)
+            {
+                configuration.GetTelemetryProcessorChainBuilder().Build();
+            }
         }
 
         private string GetInstrumentationKeyFromConfigFile(string text)

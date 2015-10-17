@@ -5,6 +5,8 @@
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -255,6 +257,29 @@
             Assert.Same(customChannel, configuration.TelemetryChannel);
         }
 
+        #endregion
+
+        #region TelemetryProcessor
+
+        [TestMethod]
+        public void TelemetryProcessorChainIsWritable()
+        {
+            var configuration = new TelemetryConfiguration();
+            Type configurationInstanceType = configuration.GetType();
+            Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
+            PropertyInfo property;
+            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));                            
+            Assert.True(property.CanWrite);
+        }
+
+        [TestMethod]
+        public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
+        {
+            var configuration = new TelemetryConfiguration();
+            var tp = configuration.TelemetryProcessors;
+
+            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);            
+        }
         #endregion
 
         private class StubTelemetryConfigurationFactory : TelemetryConfigurationFactory
