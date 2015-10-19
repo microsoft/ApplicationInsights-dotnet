@@ -32,28 +32,6 @@
         private const string RequiredFieldText = "is a required field";
 
         [TestMethod]
-        public void ContextIsLazilyInitializedFromConfigurationToDefferCosts()
-        {
-            var configuration = new TelemetryConfiguration();
-            TelemetryClient client = new TelemetryClient(configuration);
-
-            configuration.ContextInitializers.Add(new StubContextInitializer { OnInitialize = context => context.User.Id = "Test User Id" });
-            TelemetryContext clientContext = client.Context;
-
-            Assert.Equal("Test User Id", clientContext.User.Id);
-        }               
-
-        [TestMethod]
-        public void ContextInitializtionShouldInitializeInternalContext()
-        {
-            // Assume SessionContext.Serialize is called, which is tested by ComponentContextTest
-            TelemetryClient client = new TelemetryClient(TelemetryConfiguration.Active);
-            client.Context.Session.Id = "TestValue";
-
-            Assert.NotEmpty(client.Context.Internal.SdkVersion);
-        }
-        
-        [TestMethod]
         public void IsEnabledReturnsTrueIfTelemetryTrackingIsEnabledInConfiguration()
         {
             var configuration = new TelemetryConfiguration { DisableTelemetry = false };

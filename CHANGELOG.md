@@ -1,9 +1,11 @@
-# Changelog
+﻿# Changelog
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.0.0-beta2
 - Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
+- Version of ```Microsoft.ApplicationInsights.dll``` for the framework 4.6 is now part of the package.
+- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguraiton object.
 - The max length limit for the ```Name``` property of ```EventTelemetry``` was set to 512.
 - Property ```Name``` of ```OperationContext``` was renamed to ```RootName```
 - Property ```Id``` of ```RequestTelemetry``` was removed.
