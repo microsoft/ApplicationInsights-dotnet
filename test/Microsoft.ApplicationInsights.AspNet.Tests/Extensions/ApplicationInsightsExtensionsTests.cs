@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Framework.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -13,7 +13,8 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
-    using Microsoft.Framework.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Configuration;
     using Xunit;
     
     public static class ApplicationInsightsExtensionsTests

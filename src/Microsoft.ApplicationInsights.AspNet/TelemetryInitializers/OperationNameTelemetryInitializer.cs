@@ -12,8 +12,8 @@
     using Microsoft.AspNet.Mvc.Abstractions;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.TelemetryAdapter;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.TelemetryAdapter;
     
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
