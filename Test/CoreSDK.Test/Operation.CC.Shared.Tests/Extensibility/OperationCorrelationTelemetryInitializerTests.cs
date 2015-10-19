@@ -1,20 +1,19 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using System;
     using System.Runtime.Remoting.Messaging;
-    using Extensibility.Implementation;
+    using Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class CallContextBasedOperationCorrelationTelemetryInitializerTests
+    public class OperationCorrelationTelemetryInitializerTests
     {
         [TestMethod]
         public void InitializerDoesNotFailOnNullContextStore()
         {
             var telemetry = new DependencyTelemetry();
             this.SetOperationContextToCallContext(null);
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.IsNull(telemetry.Context.Operation.ParentId);
         }
 
@@ -23,7 +22,7 @@
         {
             this.SetOperationContextToCallContext(new OperationContextForCallContext { ParentOperationId = "ParentOperationId" });
             var telemetry = new DependencyTelemetry();
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual("ParentOperationId", telemetry.Context.Operation.ParentId);
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -34,7 +33,7 @@
             this.SetOperationContextToCallContext(new OperationContextForCallContext { ParentOperationId = "ParentOperationId" });
             var telemetry = new DependencyTelemetry();
             telemetry.Context.Operation.ParentId = "OldParentOperationId";
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual("OldParentOperationId", telemetry.Context.Operation.ParentId);
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -44,7 +43,7 @@
         {
             this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationId = "RootOperationId" });
             var telemetry = new DependencyTelemetry();
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual("RootOperationId", telemetry.Context.Operation.RootId);
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -55,7 +54,7 @@
             this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationId = "RootOperationId" });
             var telemetry = new DependencyTelemetry();
             telemetry.Context.Operation.RootId = "OldRootOperationId";
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual("OldRootOperationId", telemetry.Context.Operation.RootId);
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -65,7 +64,7 @@
         {
             this.SetOperationContextToCallContext(new OperationContextForCallContext { OperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual(telemetry.Context.Operation.RootName, "OperationName");
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -76,7 +75,7 @@
             this.SetOperationContextToCallContext(new OperationContextForCallContext { OperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
             telemetry.Context.Operation.RootName = "OldOperationName";
-            (new CallContextBasedOperationCorrelationTelemetryInitializer()).Initialize(telemetry);
+            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
             Assert.AreEqual(telemetry.Context.Operation.RootName, "OldOperationName");
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }

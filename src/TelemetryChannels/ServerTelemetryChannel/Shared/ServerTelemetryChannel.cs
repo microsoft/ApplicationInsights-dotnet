@@ -176,7 +176,11 @@
         /// </summary>
         public void Send(ITelemetry item)
         {
-            TelemetryChannelEventSource.Log.TelemetryChannelSend();
+            if (item != null && TelemetryChannelEventSource.Log.IsVerboseEnabled)
+            {
+                TelemetryChannelEventSource.Log.TelemetryChannelSend(item.ToString());
+            }
+
             this.TelemetryProcessor.Process(item);
         }
 

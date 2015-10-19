@@ -88,8 +88,7 @@
 
         private void InternalSendTraceTelemetry(TraceEvent eventData)
         {
-            // If channel is not initialized yet, do nothing
-            if (this.telemetryClient.Channel == null)
+            if (this.telemetryClient.TelemetryConfiguration.TelemetryChannel == null)
             {
                 return;
             }

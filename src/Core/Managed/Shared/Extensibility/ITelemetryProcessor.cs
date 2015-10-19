@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using Microsoft.ApplicationInsights.Channel;
 
@@ -11,6 +11,6 @@
         /// Process a collected telemetry item.
         /// </summary>
         /// <param name="item">A collected Telemetry item.</param>
-        void Process(ITelemetry item);
+        void Process(ITelemetry item);        
     }
 }

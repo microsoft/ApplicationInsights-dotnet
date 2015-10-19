@@ -56,14 +56,20 @@
                 XDocument xml = XDocument.Parse(text);
                 LoadFromXml(configuration, xml);
             }
-
+            
             // Creating the default channel if no channel configuration supplied
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
+
+            // Creating the the processor chain with default processor (transmissionprocessor) if none configured
+            if (configuration.TelemetryProcessors == null)
+            {
+                configuration.GetTelemetryProcessorChainBuilder().Build();
+            }                
 
             InitializeComponents(configuration);
         }
 
-        protected static object CreateInstance(Type interfaceType, string typeName)
+        protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
         {
             Type type = GetType(typeName);
             if (type == null)
@@ -71,7 +77,15 @@
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' could not be loaded.", typeName));
             }
 
-            object instance = Activator.CreateInstance(type);
+            object instance = null;
+            if (constructorArgs != null)
+            {
+                instance = Activator.CreateInstance(type, constructorArgs);
+            }
+            else
+            {
+                instance = Activator.CreateInstance(type);
+            }            
 
             if (!interfaceType.IsAssignableFrom(instance.GetType()))
             {
@@ -92,7 +106,7 @@
             LoadInstance(applicationInsights, typeof(TelemetryConfiguration), configuration);
         }
 
-        protected static object LoadInstance(XElement definition, Type expectedType, object instance)
+        protected static object LoadInstance(XElement definition, Type expectedType, object instance, object[] constructorArgs = null)
         {
             if (definition != null)
             {
@@ -103,8 +117,8 @@
                     // If configuration instance is already created with the correct type, don't create it just load its properties
                     if (instance == null || instance.GetType() != GetType(typeName.Value))
                     {
-                        // Type specified, create a new instance
-                        instance = CreateInstance(expectedType, typeName.Value);
+                        // Type specified, create a new instance                        
+                        instance = CreateInstance(expectedType, typeName.Value, constructorArgs);
                     }
                 }
                 else if (!definition.Elements().Any() && !definition.Attributes().Any())
@@ -138,6 +152,26 @@
             }
 
             return instance;
+        }
+
+        protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
+        {            
+            TelemetryProcessorChainBuilder builder = telemetryConfiguration.GetTelemetryProcessorChainBuilder();
+            if (definition != null)
+            {
+                IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);                
+                foreach (XElement addElement in elems)
+                {
+                    builder = builder.Use((current) => 
+                    {
+                        var constructorArgs = new object[] { current };
+                        var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs);
+                        return (ITelemetryProcessor)instance;
+                    });                           
+                }                
+            }
+
+            builder.Build();
         }
 
         protected static void LoadInstances<T>(XElement definition, ICollection<T> instances)
@@ -178,13 +212,20 @@
                     PropertyInfo property;
                     if (properties.TryGetValue(propertyName, out property))
                     {
-                        object propertyValue = property.GetValue(instance, null);
-                        propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue);
-                        if (property.CanWrite)
+                        if (propertyName == "TelemetryProcessors")
                         {
-                            property.SetValue(instance, propertyValue, null);
+                            BuildTelemetryProcessorChain(propertyDefinition, (TelemetryConfiguration)instance);
                         }
-                    }
+                        else
+                        {
+                            object propertyValue = property.GetValue(instance, null);
+                            propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue);
+                            if (property.CanWrite)
+                            {
+                                property.SetValue(instance, propertyValue, null);
+                            }
+                        }                        
+                    }                    
                     else if (propertyName == "TelemetryModules")
                     {
                         LoadInstance(propertyDefinition, TelemetryModules.Instance.Modules.GetType(), TelemetryModules.Instance.Modules);

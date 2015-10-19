@@ -1,10 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
-{
-    using System;
+﻿using System;
 
+namespace Microsoft.ApplicationInsights.TestFramework
+{
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 
     /// <summary>
     /// A stub of <see cref="ITelemetryProcessor"/>.
@@ -12,30 +11,32 @@
     public sealed class StubTelemetryProcessor : ITelemetryProcessor
     {
         /// <summary>
+        /// Made public for testing if the chain of processors is correctly created.
+        /// </summary>
+        public ITelemetryProcessor next;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="StubTelemetryProcessor"/> class.
         /// </summary>
         public StubTelemetryProcessor(ITelemetryProcessor next)
         {
-            this.OnProcess = telemetry => { };
-            this.Next = next;
+            this.next = next;
         }
-        
+
         /// <summary>
         /// Gets or sets the callback invoked by the <see cref="Process"/> method.
         /// </summary>
         public Action<ITelemetry> OnProcess { get; set; }
 
-        internal ITelemetryProcessor Next { get; set; }
-
         /// <summary>
-        /// Implements the <see cref="ITelemetryProcessor.Process"/> method by invoking the <see cref="OnProcess"/> callback.
+        /// Implements the <see cref="ITelemetryProcessor.Initialize"/> method by invoking the process method
         /// </summary>
-        public void Process(ITelemetry item)
+        public void Process(ITelemetry telemetry)
         {
-            this.OnProcess(item);
-            if (this.Next != null)
+            this.OnProcess(telemetry);
+            if (this.next != null)
             {
-                this.Next.Process(item);
+                this.next.Process(telemetry);
             }
         }
     }
