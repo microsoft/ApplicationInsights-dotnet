@@ -25,8 +25,8 @@
         private const int SampleEventId = 1;
         private const int SampleKeywords = 0;
 
-        private const int ThrottlingStartedEventId = 20;
-        private const int ThrottlingResetEventId = 30;
+        private const int ThrottlingStartedEventId = 4;
+        private const int ThrottlingResetEventId = 5;
 
         private readonly DiagnoisticsEventThrottlingMock throttleAllContainer = new DiagnoisticsEventThrottlingMock(
             throttleAll: true,

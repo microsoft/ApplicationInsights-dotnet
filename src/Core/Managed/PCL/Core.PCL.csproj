@@ -26,21 +26,6 @@
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
-    <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />
-    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\DependencyKind.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\DeviceContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\InternalContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\LocationContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\OperationContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\SessionContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\SessionStateData.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\SeverityLevel.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\Tags.cs" />
-    <Compile Include="Extensibility\Implementation\External\UserContextData.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
     <Compile Include="TimeSpanEx.cs" />
   </ItemGroup>
