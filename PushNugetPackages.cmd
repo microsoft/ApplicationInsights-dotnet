@@ -14,7 +14,7 @@ goto :eof
 :push 
 set PACKAGE=%1
 if %PACKAGE:.symbols.=% == %PACKAGE% (
-    %NUGET% push "%PACKAGE%" %1 -source %NUGET_GALLERY%
+    %NUGET% push "%PACKAGE%" %MYGET_KEY% -source %NUGET_GALLERY%
 )
 goto :eof
 
