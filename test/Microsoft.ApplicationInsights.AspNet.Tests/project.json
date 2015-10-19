@@ -6,8 +6,8 @@
     "Microsoft.AspNet.Http.Extensions": "1.0.0-rc1-*",
     "Microsoft.AspNet.Hosting": "1.0.0-rc1-*",
     "Microsoft.AspNet.Mvc.Core": "6.0.0-rc1-*",
-    "Microsoft.Framework.Logging": "1.0.0-rc1-*",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-rc1-*",
+    "Microsoft.Extensions.Logging": "1.0.0-rc1-*",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-*",
     "xunit.runner.aspnet": "2.0.0-aspnet-rc1-*"
   },
   "commands": {

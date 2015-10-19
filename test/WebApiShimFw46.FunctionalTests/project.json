@@ -10,7 +10,7 @@
         "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-*",
         "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-*",
         "Microsoft.AspNet.WebApi.Client": "5.2.0",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-rc1-*",
+        "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-rc1-*"
     },
 
