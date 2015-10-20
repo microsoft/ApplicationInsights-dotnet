@@ -3,6 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.0.0-beta2
+- Fix UI thread locking when initializing InMemoryChannel (default channel) from UI thread.
 - Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
 - Version of ```Microsoft.ApplicationInsights.dll``` for the framework 4.6 is now part of the package.
 - IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguraiton object.
