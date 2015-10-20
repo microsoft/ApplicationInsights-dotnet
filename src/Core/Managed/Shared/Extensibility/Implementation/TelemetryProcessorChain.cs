@@ -10,8 +10,8 @@
     /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to construct this object.
     /// </summary>
     public sealed class TelemetryProcessorChain
-    {
-        private ITelemetryProcessor firstTelemetryProcessor;
+    {        
+        private readonly SnapshottingList<ITelemetryProcessor> telemetryProcessors = new SnapshottingList<ITelemetryProcessor>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChain" /> class.
@@ -20,11 +20,33 @@
         internal TelemetryProcessorChain()
         {            
         }
-                
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryProcessorChain" /> class by using the given list elements.
+        /// Marked internal, as clients should use TelemetryProcessorChainBuilder to build the processing chain.
+        /// </summary>
+        internal TelemetryProcessorChain(IEnumerable<ITelemetryProcessor> telemetryProcessors)
+        {
+            foreach (var item in telemetryProcessors)
+            {
+                this.telemetryProcessors.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Gets the first telemetry processor from the chain of processors.        
+        /// </summary>
         internal ITelemetryProcessor FirstTelemetryProcessor
         {
-            get { return this.firstTelemetryProcessor; }
-            set { this.firstTelemetryProcessor = value; }
+            get { return this.telemetryProcessors.First(); }            
+        }
+
+        /// <summary>
+        /// Gets the list of TelemetryProcessors making up this chain.        
+        /// </summary>
+        internal SnapshottingList<ITelemetryProcessor> TelemetryProcessors
+        {
+            get { return this.telemetryProcessors; }                       
         }
 
         /// <summary>
@@ -32,7 +54,7 @@
         /// </summary>        
         public void Process(ITelemetry item)
         {
-            this.firstTelemetryProcessor.Process(item);
+            this.telemetryProcessors.First().Process(item);
         }
     }
 }

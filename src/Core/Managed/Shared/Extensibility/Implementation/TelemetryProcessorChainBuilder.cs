@@ -47,21 +47,24 @@
         /// </summary>        
         public void Build()
         {
-            var telemetryProcessorChain = new TelemetryProcessorChain();
+            var telemetryProcessorsList = new List<ITelemetryProcessor>();
 
-            // TransmissionProcessor is always appended by default to the end of the chain.
+            // TransmissionProcessor is always appended by default to the end of the chain.            
             ITelemetryProcessor linkedTelemetryProcessor = new TransmissionProcessor(this.configuration);
-            
+            telemetryProcessorsList.Add(linkedTelemetryProcessor);
+
             foreach (var generator in this.factories.AsEnumerable().Reverse())
             {                
                 linkedTelemetryProcessor = generator.Invoke(linkedTelemetryProcessor);
+                telemetryProcessorsList.Add(linkedTelemetryProcessor);
+                
                 if (linkedTelemetryProcessor == null)
                 {
                     throw new InvalidOperationException("TelemetryProcessor returned from TelemetryProcessorFactory cannot be null.");
                 }                
             }
 
-            telemetryProcessorChain.FirstTelemetryProcessor = linkedTelemetryProcessor;
+            var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());
             this.configuration.TelemetryProcessors = telemetryProcessorChain;
         }
        }

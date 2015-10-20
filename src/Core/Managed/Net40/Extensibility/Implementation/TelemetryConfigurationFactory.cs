@@ -251,7 +251,7 @@
         {
             InitializeComponent(configuration.TelemetryChannel, configuration);            
             InitializeComponents(configuration.TelemetryInitializers, configuration);
-
+            InitializeComponents(configuration.TelemetryProcessors.TelemetryProcessors, configuration);
             InitializeComponents(TelemetryModules.Instance.Modules, configuration);
         }
 

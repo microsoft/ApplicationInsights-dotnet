@@ -403,6 +403,33 @@
         }
 
         [TestMethod]
+        public void InitializeInvokedWhenTelemetryProcessorAlsoImplementsITelemetryModule()
+        {
+            string configFileContents = Configuration(
+                @"                  
+                  <TelemetryProcessors>
+                  <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationFactoryTest+StubTelemetryProcessor2, Microsoft.ApplicationInsights.Core.Net40.Tests"" />
+                  </TelemetryProcessors>"
+                );
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
+            {
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<StubTelemetryProcessor2>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
+                Assert.True(((StubTelemetryProcessor2)configuration.TelemetryProcessors.FirstTelemetryProcessor).initialized);               
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
+        }
+
+        [TestMethod]
         public void InitializeTelemetryProcessorFromConfigurationFileWhenNoTelemetryProcessorsTagSpecified()
         {
             // no TelemetryProcessors - TransmissionProcessor should be automatically created.
@@ -771,13 +798,14 @@
             }
         }
 
-        public class StubTelemetryProcessor2 : ITelemetryProcessor
+        public class StubTelemetryProcessor2 : ITelemetryProcessor, ITelemetryModule
         {
             /// <summary>
             /// Made public for testing if the chain of processors is correctly created.
             /// </summary>
             public ITelemetryProcessor next;
-                        
+
+            public bool initialized = false;
             public StubTelemetryProcessor2(ITelemetryProcessor next)
             {
                 this.next = next;
@@ -785,6 +813,11 @@
             public void Process(ITelemetry telemetry)
             {
 
+            }
+
+            public void Initialize(TelemetryConfiguration config)
+            {
+                this.initialized = true;
             }
         }
     }
