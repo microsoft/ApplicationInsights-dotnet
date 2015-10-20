@@ -12,7 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubApplicationLifecycle.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StubContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
