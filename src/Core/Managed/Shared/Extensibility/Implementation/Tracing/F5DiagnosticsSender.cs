@@ -13,7 +13,7 @@
         /// <summary>
         /// VS debug output.
         /// </summary>
-        protected readonly IDebugOutput debugOutput;
+        protected IDebugOutput debugOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="F5DiagnosticsSender"/> class. 
