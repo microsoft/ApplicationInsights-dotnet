@@ -16,11 +16,6 @@
         private double? average;
 
         /// <summary>
-        /// Value of the counter during previous (versus current) interval of time
-        /// </summary>
-        private long previous;
-
-        /// <summary>
         /// Value of the counter during current interval of time
         /// </summary>
         private long current;
@@ -62,10 +57,8 @@
             var count = Interlocked.Exchange(ref this.current, 0);
 
             this.average = this.average.HasValue
-                               ? (this.coefficient * this.previous) + ((1 - this.coefficient) * this.average)
+                               ? (this.coefficient * count) + ((1 - this.coefficient) * this.average)
                                : count;
-
-            this.previous = count;
 
             return this.average.Value;
         }

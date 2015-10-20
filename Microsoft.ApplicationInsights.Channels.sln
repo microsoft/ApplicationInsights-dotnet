@@ -95,7 +95,7 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Test\Persistence.Test\Shared.Tests\Shared.Tests.projitems*{bf0ac726-de9a-4da2-8a24-e8b8bc4b2479}*SharedItemsImports = 13
-		src\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
+		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
 		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{9f9c3d52-abb9-461a-b1b6-a01bb5cecd93}*SharedItemsImports = 4
 		src\TelemetryChannels\PersistenceChannel\Shared\Shared.projitems*{27bf043b-b716-44cf-940e-33a106cde314}*SharedItemsImports = 4
 		Test\Persistence.Test\TestFramework\Shared\TestFramework.Shared.projitems*{9181dca1-c390-44b2-ae4e-93333977a7b3}*SharedItemsImports = 4
@@ -115,6 +115,7 @@ Global
 		Test\ServerTelemetryChannel.Test\TestFramework\Shared\TestFramework.Shared.projitems*{1be54ee7-6627-4206-86dd-3d2c709a1500}*SharedItemsImports = 4
 		Test\ServerTelemetryChannel.Test\TestFramework\Shared\TestFramework.Shared.projitems*{9718f051-147f-4f5f-9ff3-c926430efcf7}*SharedItemsImports = 13
 		src\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
+		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
 		src\TelemetryChannels\ServerTelemetryChannel\Shared\Shared.projitems*{18ce7397-7566-46d6-a52d-3b441363b326}*SharedItemsImports = 4
 		src\Core\Managed\Shared\Shared.projitems*{50368b2b-a526-460e-8ad9-ab2e7951dab2}*SharedItemsImports = 4

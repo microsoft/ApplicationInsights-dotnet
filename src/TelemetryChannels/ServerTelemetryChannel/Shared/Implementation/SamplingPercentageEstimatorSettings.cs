@@ -44,7 +44,7 @@
         {
             get
             {
-                double effectiveMaxSamplingPercentage = this.MaxSamplingPercentage > 100 ? 100 : this.MaxSamplingPercentage <= 0 ? 1E-12 : this.MaxSamplingPercentage;
+                double effectiveMaxSamplingPercentage = this.MaxSamplingPercentage > 100 ? 100 : this.MaxSamplingPercentage <= 0 ? 1E-6 : this.MaxSamplingPercentage;
 
                 return (int)Math.Floor(100 / effectiveMaxSamplingPercentage);
             }
@@ -54,7 +54,7 @@
         {
             get
             {
-                double effectiveMinSamplingPercentage = this.MinSamplingPercentage > 100 ? 100 : this.MinSamplingPercentage <= 0 ? 1E-12 : this.MinSamplingPercentage;
+                double effectiveMinSamplingPercentage = this.MinSamplingPercentage > 100 ? 100 : this.MinSamplingPercentage <= 0 ? 1E-6 : this.MinSamplingPercentage;
 
                 return (int)Math.Ceiling(100 / effectiveMinSamplingPercentage);
             }
@@ -70,7 +70,7 @@
             }
         }
 
-        internal int EffectivePercentageDecreaseTimeoutSeconds
+        internal int EffectiveSamplingPercentageDecreaseTimeoutSeconds
         {
             get
             {
@@ -80,12 +80,12 @@
             }
         }
 
-        internal int EffectivePercentageIncreaseTimeoutSeconds
+        internal int EffectiveSamplingPercentageIncreaseTimeoutSeconds
         {
             get
             {
                 return this.SamplingPercentageIncreaseTimeoutSeconds <= 0 
-                    ? Default.EffectivePercentageIncreaseTimeoutSeconds 
+                    ? Default.EffectiveSamplingPercentageIncreaseTimeoutSeconds 
                     : this.SamplingPercentageIncreaseTimeoutSeconds;
             }
         }

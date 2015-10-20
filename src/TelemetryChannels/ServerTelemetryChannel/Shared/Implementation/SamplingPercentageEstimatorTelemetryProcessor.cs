@@ -130,8 +130,8 @@
                 // check to see if enough time passed since last sampling % change
                 if ((DateTimeOffset.UtcNow - this.samplingPercentageLastChangeDateTime).TotalSeconds <
                     (suggestedSamplingRate > this.currenSamplingRate
-                        ? this.settings.EffectivePercentageDecreaseTimeoutSeconds
-                        : this.settings.EffectivePercentageIncreaseTimeoutSeconds))
+                        ? this.settings.EffectiveSamplingPercentageDecreaseTimeoutSeconds
+                        : this.settings.EffectiveSamplingPercentageIncreaseTimeoutSeconds))
                 {
                     samplingPercentageChangeNeeded = false;
                 }

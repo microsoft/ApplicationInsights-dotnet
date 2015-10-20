@@ -20,14 +20,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmitter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\Utils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskSchedulerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounterTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FileSystemTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFileTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettingsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGeneratorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBufferTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryChannelEventSourceTest.cs" />
