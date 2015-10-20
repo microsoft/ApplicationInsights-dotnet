@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Channel
             this.buffer.OnFull = this.OnBufferFull;
 
             // Starting the Runner
-            Task.Factory.StartNew(this.Runner, TaskCreationOptions.LongRunning)
+            Task.Factory.StartNew(this.Runner, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(
                     task => 
                     {
