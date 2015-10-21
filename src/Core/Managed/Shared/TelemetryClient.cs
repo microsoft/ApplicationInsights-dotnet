@@ -54,7 +54,7 @@
         /// </summary>
         public TelemetryContext Context
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.context, this.CreateInitializedContext); }
+            get { return LazyInitializer.EnsureInitialized(ref this.context, () => new TelemetryContext()); }
             internal set { this.context = value; }
         }
 
@@ -430,17 +430,6 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
-        }
-
-        private TelemetryContext CreateInitializedContext()
-        {
-            var context = new TelemetryContext();
-            foreach (IContextInitializer initializer in this.configuration.ContextInitializers)
-            {
-                initializer.Initialize(context);
-            }
-
-            return context;
         }
 
         private void WriteTelemetryToDebugOutput(ITelemetry telemetry)

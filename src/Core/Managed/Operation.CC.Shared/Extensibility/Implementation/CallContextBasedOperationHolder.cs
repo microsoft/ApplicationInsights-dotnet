@@ -71,7 +71,7 @@
                     {
                         var operationTelemetry = this.Telemetry as OperationTelemetry;
 
-                        var currentOperationContext = CallContextHelpers.GetCurrentOperationContextFromCallContext();
+                        var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
                         if (operationTelemetry.Context.Operation.Id != currentOperationContext.ParentOperationId ||
                             operationTelemetry.Context.Operation.RootName != currentOperationContext.OperationName)
                         {
@@ -80,7 +80,7 @@
                         }
 
                         operationTelemetry.Stop();
-                        CallContextHelpers.RestoreCallContext(this.ParentContext);
+                        CallContextHelpers.RestoreOperationContext(this.ParentContext);
                         this.telemetryClient.Track(operationTelemetry);
                     }
 

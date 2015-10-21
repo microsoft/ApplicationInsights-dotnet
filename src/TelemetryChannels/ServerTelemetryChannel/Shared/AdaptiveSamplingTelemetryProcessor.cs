@@ -3,7 +3,8 @@
     using System;
 
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 
     /// <summary>
     /// Telemetry processor for sampling telemetry at a dynamic rate before sending to Application Insights.

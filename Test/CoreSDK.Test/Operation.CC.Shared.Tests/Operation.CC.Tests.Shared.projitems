@@ -12,8 +12,8 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.Extensions.Tests</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextBasedOperationHolderTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CallContextBasedOperationCorrelationTelemetryInitializerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
   </ItemGroup>

@@ -13,7 +13,7 @@
         /// Saves the context store to the call context.
         /// </summary>
         /// <param name="operationContext">Operation context store instance.</param>
-        internal static void SaveOperationContextToCallContext(OperationContextForCallContext operationContext)
+        internal static void SaveOperationContext(OperationContextForCallContext operationContext)
         {
             CallContext.FreeNamedDataSlot(OperationContextSlotName);
             CallContext.LogicalSetData(OperationContextSlotName, operationContext);
@@ -22,7 +22,7 @@
         /// <summary>
         /// Returns the current operation context store present in the call context.
         /// </summary>
-        internal static OperationContextForCallContext GetCurrentOperationContextFromCallContext()
+        internal static OperationContextForCallContext GetCurrentOperationContext()
         { 
             return CallContext.LogicalGetData(OperationContextSlotName) as OperationContextForCallContext;
         }
@@ -31,7 +31,7 @@
         /// Clears the call context and restores the parent operation.
         /// </summary>
         /// <param name="parentContext">Parent operation context store to replace child operation context store.</param>
-        internal static void RestoreCallContext(OperationContextForCallContext parentContext)
+        internal static void RestoreOperationContext(OperationContextForCallContext parentContext)
         {
             CallContext.FreeNamedDataSlot(OperationContextSlotName);
             if (parentContext != null)

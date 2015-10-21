@@ -21,16 +21,16 @@
         [TestMethod]
         public void TestModuleDefaultInitialization()
         {
-            using (var initializedModule = new DiagnosticsTelemetryModuleMock())
+            using (var initializedModule = new DiagnosticsTelemetryModule())
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
                 Assert.IsTrue(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
                 Assert.AreEqual("Error", initializedModule.Severity);
 
-                Assert.AreEqual(2, initializedModule.ModuleSenders.Count);
-                Assert.AreEqual(1, initializedModule.ModuleSenders.OfType<PortalDiagnosticsSender>().Count());
-                Assert.AreEqual(1, initializedModule.ModuleSenders.OfType<F5DiagnosticsSender>().Count());
+                Assert.AreEqual(2, initializedModule.Senders.Count);
+                Assert.AreEqual(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
+                Assert.AreEqual(1, initializedModule.Senders.OfType<F5DiagnosticsSender>().Count());
             }
         }
 
@@ -38,7 +38,7 @@
         public void TestDiagnosticsModuleSetInstrumentationKey()
         {
             var diagnosticsInstrumentationKey = Guid.NewGuid().ToString();
-            using (var initializedModule = new DiagnosticsTelemetryModuleMock())
+            using (var initializedModule = new DiagnosticsTelemetryModule())
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 initializedModule.DiagnosticsInstrumentationKey = diagnosticsInstrumentationKey;
@@ -47,14 +47,14 @@
 
                 Assert.AreEqual(
                     diagnosticsInstrumentationKey,
-                    initializedModule.ModuleSenders.OfType<PortalDiagnosticsSender>().First().DiagnosticsInstrumentationKey);
+                    initializedModule.Senders.OfType<PortalDiagnosticsSender>().First().DiagnosticsInstrumentationKey);
             }
         }
 
         [TestMethod]
         public void TestDiagnosticsModuleSetSeverity()
         {
-            using (var initializedModule = new DiagnosticsTelemetryModuleMock())
+            using (var initializedModule = new DiagnosticsTelemetryModule())
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
@@ -62,7 +62,7 @@
 
                 initializedModule.Severity = "Informational";
 
-                Assert.AreEqual(EventLevel.Informational, initializedModule.ModuleListener.LogLevel);
+                Assert.AreEqual(EventLevel.Informational, initializedModule.EventListener.LogLevel);
             }
         }
 

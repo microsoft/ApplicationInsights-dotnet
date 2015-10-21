@@ -1,9 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
     /// Represents a method that is invoked every time sampling percentage is evaluated

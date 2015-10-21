@@ -46,7 +46,7 @@
 
         public virtual void Initialize(TelemetryConfiguration configuration)
         {
-            configuration.ContextInitializers.Add(new SdkVersionPropertyContextInitializer());
+            configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
             configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());
 
             // Load customizations from the ApplicationsInsights.config file
@@ -251,8 +251,7 @@
         {
             InitializeComponent(configuration.TelemetryChannel, configuration);            
             InitializeComponents(configuration.TelemetryInitializers, configuration);
-            InitializeComponents(configuration.ContextInitializers, configuration);
-
+            InitializeComponents(configuration.TelemetryProcessors.TelemetryProcessors, configuration);
             InitializeComponents(TelemetryModules.Instance.Modules, configuration);
         }
 

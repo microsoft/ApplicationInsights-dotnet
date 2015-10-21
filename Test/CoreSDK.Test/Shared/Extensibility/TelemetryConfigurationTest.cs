@@ -1,14 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
-    using System.ComponentModel;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
 #if WINDOWS_PHONE || WINDOWS_STORE
@@ -197,24 +194,6 @@
             var configuration = new TelemetryConfiguration();
             configuration.InstrumentationKey = "99C6A712-B2B5-46E3-97F4-F83F69999324";
             Assert.Equal("99C6A712-B2B5-46E3-97F4-F83F69999324", configuration.InstrumentationKey);
-        }
-
-        #endregion
-
-        #region ContextInitializers
-
-        [TestMethod]
-        public void ContextInitializersReturnsAnEmptyListByDefaultToAvoidNullReferenceExceptionsInUserCode()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(0, configuration.ContextInitializers.Count);
-        }
-
-        [TestMethod]
-        public void ContextInitializersReturnsThreadSafeList()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(typeof(SnapshottingList<IContextInitializer>), configuration.ContextInitializers.GetType());
         }
 
         #endregion

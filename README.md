@@ -2,7 +2,7 @@
 
 # Application Insights for .NET
 
-This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succedding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
+This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
 
 ## Getting Started
 

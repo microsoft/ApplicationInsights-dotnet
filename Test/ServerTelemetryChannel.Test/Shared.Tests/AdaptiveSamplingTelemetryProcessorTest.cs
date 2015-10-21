@@ -7,10 +7,10 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
@@ -21,13 +21,14 @@
         public void AllTelemetryCapturedWhenProductionRateIsLow()
         {
             var sentTelemetry = new List<ITelemetry>();
+            var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() };
 
-            var channelBuilder = new TelemetryChannelBuilder();
+            var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
             int itemsProduced = 0;
 
             // set up addaptive sampling that evaluates and changes sampling % frequently
-            channelBuilder
+            chainBuilder
                 .UseAdaptiveSampling(
                     new SamplingPercentageEstimatorSettings()
                     {
@@ -37,12 +38,13 @@
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
-            ITelemetryChannel channel = channelBuilder.Build();
+            chainBuilder.Build();
+
 
             const int productionFrequencyMs = 1000;
 
             using (var productionTimer = new Timer(
-                        (state) => { channel.Send(new RequestTelemetry()); itemsProduced++; },
+                        (state) => { tc.TelemetryProcessors.Process(new RequestTelemetry()); itemsProduced++; },
                         null,
                         productionFrequencyMs,
                         productionFrequencyMs))
@@ -57,13 +59,14 @@
         public void SamplingPercentageAdjustsAccordingToConstantHighProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
+            var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() };
 
-            var channelBuilder = new TelemetryChannelBuilder();
+            var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
             int itemsProduced = 0;
 
             // set up addaptive sampling that evaluates and changes sampling % frequently
-            channelBuilder
+            chainBuilder
                 .UseAdaptiveSampling(
                     new SamplingPercentageEstimatorSettings()
                     {
@@ -74,7 +77,7 @@
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
-            ITelemetryChannel channel = channelBuilder.Build();
+            chainBuilder.Build();
 
             const int productionFrequencyMs = 100;
 
@@ -83,7 +86,7 @@
                         {
                             for (int i = 0; i < 2; i++)
                             {
-                                channel.Send(new RequestTelemetry());
+                                tc.TelemetryProcessors.Process(new RequestTelemetry());
                                 itemsProduced++;
                             }
                         },
@@ -115,13 +118,14 @@
         public void SamplingPercentageAdjustsForSpikyProductionRate()
         {
             var sentTelemetry = new List<ITelemetry>();
+            var tc = new TelemetryConfiguration() { TelemetryChannel = new StubTelemetryChannel() };
 
-            var channelBuilder = new TelemetryChannelBuilder();
+            var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
             int itemsProduced = 0;
 
             // set up addaptive sampling that evaluates and changes sampling % frequently
-            channelBuilder
+            chainBuilder
                 .UseAdaptiveSampling(
                     new SamplingPercentageEstimatorSettings()
                     {
@@ -133,7 +137,7 @@
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
-            ITelemetryChannel channel = channelBuilder.Build();
+            chainBuilder.Build();
 
             const int regularProductionFrequencyMs = 100;
             const int spikeProductionFrequencyMs = 3000;
@@ -143,7 +147,7 @@
                         {
                             for (int i = 0; i < 2; i++)
                             {
-                                channel.Send(new RequestTelemetry());
+                                tc.TelemetryProcessors.Process(new RequestTelemetry());
                                 Interlocked.Increment(ref itemsProduced);
                             }
                         },
@@ -155,7 +159,7 @@
                         {
                             for (int i = 0; i < 200; i++)
                             {
-                                channel.Send(new RequestTelemetry());
+                                tc.TelemetryProcessors.Process(new RequestTelemetry());
                                 Interlocked.Increment(ref itemsProduced);
                             }
                         },

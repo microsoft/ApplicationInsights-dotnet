@@ -55,7 +55,6 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />

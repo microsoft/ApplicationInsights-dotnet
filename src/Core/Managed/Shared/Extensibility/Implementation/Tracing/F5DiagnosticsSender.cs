@@ -2,7 +2,6 @@
 {
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     /// <summary>

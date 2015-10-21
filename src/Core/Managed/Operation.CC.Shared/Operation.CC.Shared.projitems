@@ -12,11 +12,10 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.Operation</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextBasedOperationCorrelationTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CallContextHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContextForCallContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryConfigurationExtensions.cs" />
   </ItemGroup>
 </Project>

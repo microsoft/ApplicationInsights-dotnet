@@ -61,13 +61,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnoisticsEventThrottlingSchedulerMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsEventCollectingMock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\DiagnosticsTelemetryModuleMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Mocks\F5DiagnosticsSenderMock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\PortalDiagnosticsSenderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ThreadResourceLockTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\UserContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\WeakConcurrentRandomTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyContextInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensionsTests.cs" />

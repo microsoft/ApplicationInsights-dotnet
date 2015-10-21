@@ -6,6 +6,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>4dc2927f-bb78-4363-8428-0f02955064bc</ProjectGuid>
   </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
   <Import Project="Operation.CC.Tests.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\CodeSharing\Microsoft.CodeSharing.CSharp.targets" />
 </Project>

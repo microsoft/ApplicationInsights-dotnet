@@ -30,7 +30,7 @@
             operation.Telemetry.Start();
 
             // Parent context store is assigned to operation that is used to restore call context.
-            operation.ParentContext = CallContextHelpers.GetCurrentOperationContextFromCallContext();
+            operation.ParentContext = CallContextHelpers.GetCurrentOperationContext();
 
             if (string.IsNullOrEmpty(operation.Telemetry.Name) && !string.IsNullOrEmpty(operationName))
             {
@@ -54,7 +54,7 @@
             operationContext.ParentOperationId = operation.Telemetry.Context.Operation.Id;
             operationContext.RootOperationId = operation.Telemetry.Context.Operation.RootId;
             operationContext.OperationName = operation.Telemetry.Context.Operation.RootName;
-            CallContextHelpers.SaveOperationContextToCallContext(operationContext);
+            CallContextHelpers.SaveOperationContext(operationContext);
 
             return operation;
         }
