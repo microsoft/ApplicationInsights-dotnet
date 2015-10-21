@@ -29,7 +29,6 @@
             // set up addaptive sampling that evaluates and changes sampling % frequently
             channelBuilder
                 .UseAdaptiveSampling(
-                    100, 
                     new SamplingPercentageEstimatorSettings()
                     {
                         EvaluationIntervalSeconds = 1,
@@ -66,7 +65,6 @@
             // set up addaptive sampling that evaluates and changes sampling % frequently
             channelBuilder
                 .UseAdaptiveSampling(
-                    100,
                     new SamplingPercentageEstimatorSettings()
                     {
                         EvaluationIntervalSeconds = 2,
@@ -111,6 +109,78 @@
 
             Assert.True(sentTelemetry.Count > targetItemCount - targetItemCount * 1/3);
             Assert.True(sentTelemetry.Count < targetItemCount + targetItemCount * 1/3);
+        }
+
+        [TestMethod]
+        public void SamplingPercentageAdjustsForSpikyProductionRate()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var channelBuilder = new TelemetryChannelBuilder();
+
+            int itemsProduced = 0;
+
+            // set up addaptive sampling that evaluates and changes sampling % frequently
+            channelBuilder
+                .UseAdaptiveSampling(
+                    new SamplingPercentageEstimatorSettings()
+                    {
+                        InitialSamplingPercentage = 5.0,
+                        EvaluationIntervalSeconds = 2,
+                        SamplingPercentageDecreaseTimeoutSeconds = 2,
+                        SamplingPercentageIncreaseTimeoutSeconds = 10
+                    },
+                    this.TraceSamplingPercentageEvaluation)
+                .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
+
+            ITelemetryChannel channel = channelBuilder.Build();
+
+            const int regularProductionFrequencyMs = 100;
+            const int spikeProductionFrequencyMs = 3000;
+
+            using (var regularProductionTimer = new Timer(
+                        (state) =>
+                        {
+                            for (int i = 0; i < 2; i++)
+                            {
+                                channel.Send(new RequestTelemetry());
+                                Interlocked.Increment(ref itemsProduced);
+                            }
+                        },
+                        null,
+                        0,
+                        regularProductionFrequencyMs))
+            using (var spikeProductionTimer = new Timer(
+                        (state) =>
+                        {
+                            for (int i = 0; i < 200; i++)
+                            {
+                                channel.Send(new RequestTelemetry());
+                                Interlocked.Increment(ref itemsProduced);
+                            }
+                        },
+                        null,
+                        0,
+                        spikeProductionFrequencyMs))
+            {
+                Thread.Sleep(30000);
+            }
+
+            // number of items produced should be close to target of 5/second
+            int targetItemCount = 30 * 5;
+
+            Trace.WriteLine(string.Format("'Ideal' telemetry item count: {0}", targetItemCount));
+            Trace.WriteLine(string.Format(
+                "Expected range (+-50%): from {0} to {1}",
+                targetItemCount - targetItemCount * 1 / 2,
+                targetItemCount + targetItemCount * 1 / 2));
+            Trace.WriteLine(string.Format(
+                "Actual telemetry item count: {0} ({1:##.##}% of ideal)",
+                sentTelemetry.Count,
+                100.0 * sentTelemetry.Count / targetItemCount));
+
+            Assert.True(sentTelemetry.Count > targetItemCount - targetItemCount * 1 / 2);
+            Assert.True(sentTelemetry.Count < targetItemCount + targetItemCount * 1 / 2);
         }
 
         private void TraceSamplingPercentageEvaluation(

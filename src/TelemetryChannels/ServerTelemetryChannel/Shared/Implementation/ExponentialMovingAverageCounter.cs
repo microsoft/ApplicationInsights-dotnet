@@ -3,34 +3,37 @@
     using System;
     using System.Threading;
 
+    /// <summary>
+    /// Exponential moving average counter.
+    /// </summary>
     internal class ExponentialMovingAverageCounter
     {
         /// <summary>
-        /// Exponential coefficient (must be between 0 and 1)
+        /// Exponential coefficient (must be between 0 and 1).
         /// </summary>
         private readonly double coefficient;
 
         /// <summary>
-        /// Average value of the counter
+        /// Average value of the counter.
         /// </summary>
         private double? average;
 
         /// <summary>
-        /// Value of the counter during current interval of time
+        /// Value of the counter during current interval of time.
         /// </summary>
         private long current;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExponentialMovingAverageCounter"/> class
+        /// Initializes a new instance of the <see cref="ExponentialMovingAverageCounter"/> class.
         /// </summary>
-        /// <param name="coefficient">Exponential coefficient</param>
+        /// <param name="coefficient">Exponential coefficient.</param>
         public ExponentialMovingAverageCounter(double coefficient)
         {
             this.coefficient = coefficient;
         }
 
         /// <summary>
-        /// Gets exponential moving average value of the counter
+        /// Gets exponential moving average value of the counter.
         /// </summary>
         public double Average
         {
@@ -41,16 +44,16 @@
         }
 
         /// <summary>
-        /// Increments counter value
+        /// Increments counter value.
         /// </summary>
-        /// <returns>Incremented value</returns>
+        /// <returns>Incremented value.</returns>
         public long Increment()
         {
             return Interlocked.Increment(ref this.current);
         }
 
         /// <summary>
-        /// Zeros out current value and starts new 'counter interval'
+        /// Zeros out current value and starts new 'counter interval'.
         /// </summary>
         public double StartNewInterval()
         {
