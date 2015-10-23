@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
 
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -48,9 +49,9 @@
         private Timer evaluationTimer;
 
         /// <summary>
-        /// Current evaluation timeout.
+        /// Current evaluation interval.
         /// </summary>
-        private int evaluationIntervalMs;
+        private TimeSpan evaluationInterval;
 
         /// <summary>
         /// Current sampling rate.
@@ -108,14 +109,14 @@
             this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
 
             // set evaluation interval to default value if it is negative or zero
-            this.evaluationIntervalMs = this.settings.EffectiveEvaluationIntervalSeconds * 1000;
+            this.evaluationInterval = this.settings.EffectiveEvaluationInterval;
 
             // set up timer to run math to estimate sampling percentage
             this.evaluationTimer = new Timer(
                 this.EstimateSamplingPercentage, 
                 null,
-                this.evaluationIntervalMs,
-                this.evaluationIntervalMs);
+                this.evaluationInterval,
+                this.evaluationInterval);
         }
 
         /// <summary>
@@ -144,13 +145,26 @@
         }
 
         /// <summary>
+        /// Checks to see if exponential moving average has changed.
+        /// </summary>
+        /// <param name="running">Currently running value of moving average.</param>
+        /// <param name="current">Value set in the algorithm parameters.</param>
+        /// <returns>True if moving average value changed.</returns>
+        private static bool MovingAverageCoefficientChanged(double running, double current)
+        {
+            const double Precision = 1E-12;
+
+            return (running < current - Precision) || (running > current + Precision);
+        }
+
+        /// <summary>
         /// Callback for sampling percentage evaluation timer.
         /// </summary>
         /// <param name="state">Timer state.</param>
         private void EstimateSamplingPercentage(object state)
         {
             // get observed after-sampling eps
-            double observedEps = this.itemCount.StartNewInterval() * 1000 / this.evaluationIntervalMs;
+            double observedEps = this.itemCount.StartNewInterval() / this.evaluationInterval.TotalSeconds;
 
             // we see events post sampling, so get pre-sampling eps
             double beforeSamplingEps = observedEps * this.currenSamplingRate;
@@ -170,12 +184,10 @@
             }
 
             // see if evaluation interval was changed and apply change
-            int newEvaluationIntervalMs = this.settings.EffectiveEvaluationIntervalSeconds * 1000;
-
-            if (this.evaluationIntervalMs != newEvaluationIntervalMs)
+            if (this.evaluationInterval != this.settings.EffectiveEvaluationInterval)
             {
-                this.evaluationIntervalMs = newEvaluationIntervalMs;
-                this.evaluationTimer.Change(this.evaluationIntervalMs, this.evaluationIntervalMs);
+                this.evaluationInterval = this.settings.EffectiveEvaluationInterval;
+                this.evaluationTimer.Change(this.evaluationInterval, this.evaluationInterval);
             }
 
             // check to see if sampling rate needs changes
@@ -184,10 +196,10 @@
             if (samplingPercentageChangeNeeded)
             {
                 // check to see if enough time passed since last sampling % change
-                if ((DateTimeOffset.UtcNow - this.samplingPercentageLastChangeDateTime).TotalSeconds <
+                if ((DateTimeOffset.UtcNow - this.samplingPercentageLastChangeDateTime) <
                     (suggestedSamplingRate > this.currenSamplingRate
-                        ? this.settings.EffectiveSamplingPercentageDecreaseTimeoutSeconds
-                        : this.settings.EffectiveSamplingPercentageIncreaseTimeoutSeconds))
+                        ? this.settings.EffectiveSamplingPercentageDecreaseTimeout
+                        : this.settings.EffectiveSamplingPercentageIncreaseTimeout))
                 {
                     samplingPercentageChangeNeeded = false;
                 }
@@ -218,9 +230,13 @@
                 // apply sampling perfcentage change
                 this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
                 this.currenSamplingRate = suggestedSamplingRate;
+            }
 
+            if (samplingPercentageChangeNeeded || 
+                MovingAverageCoefficientChanged(this.itemCount.Coefficient, this.settings.EffectiveMovingAverageRatio))
+            {
                 // since we're observing event count post sampling and we're about
-                // to change sampling rate, reset counter
+                // to change sampling rate or change coefficient, reset counter
                 this.itemCount = new ExponentialMovingAverageCounter(this.settings.EffectiveMovingAverageRatio);
             }
         }

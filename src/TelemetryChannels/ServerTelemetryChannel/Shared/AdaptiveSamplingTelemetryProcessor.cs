@@ -145,12 +145,12 @@
         {
             get
             {
-                return this.estimatorSettings.EvaluationIntervalSeconds;
+                return (int)this.estimatorSettings.EvaluationInterval.TotalSeconds;
             }
 
             set
             {
-                this.estimatorSettings.EvaluationIntervalSeconds = value;
+                this.estimatorSettings.EvaluationInterval = TimeSpan.FromSeconds(value);
             }
         }
 
@@ -162,12 +162,12 @@
         {
             get
             {
-                return this.estimatorSettings.SamplingPercentageDecreaseTimeoutSeconds;
+                return (int)this.estimatorSettings.SamplingPercentageDecreaseTimeout.TotalSeconds;
             }
 
             set
             {
-                this.estimatorSettings.SamplingPercentageDecreaseTimeoutSeconds = value;
+                this.estimatorSettings.SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(value);
             }
         }
 
@@ -179,12 +179,12 @@
         {
             get
             {
-                return this.estimatorSettings.SamplingPercentageIncreaseTimeoutSeconds;
+                return (int)this.estimatorSettings.SamplingPercentageIncreaseTimeout.TotalSeconds;
             }
 
             set
             {
-                this.estimatorSettings.SamplingPercentageIncreaseTimeoutSeconds = value;
+                this.estimatorSettings.SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(value);
             }
         }
 
@@ -229,10 +229,13 @@
         /// <param name="disposing">True if disposing.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (this.estimatorProcessor != null)
+            if (disposing)
             {
-                this.estimatorProcessor.Dispose();
-                this.estimatorProcessor = null;
+                if (this.estimatorProcessor != null)
+                {
+                    this.estimatorProcessor.Dispose();
+                    this.estimatorProcessor = null;
+                }
             }
         }
 

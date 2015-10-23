@@ -23,9 +23,9 @@
             this.InitialSamplingPercentage = 100.0;
             this.MinSamplingPercentage = 0.1;
             this.MaxSamplingPercentage = 100.0;
-            this.EvaluationIntervalSeconds = 15;
-            this.SamplingPercentageDecreaseTimeoutSeconds = 2 * 60;
-            this.SamplingPercentageIncreaseTimeoutSeconds = 15 * 60;
+            this.EvaluationInterval = TimeSpan.FromSeconds(15);
+            this.SamplingPercentageDecreaseTimeout = TimeSpan.FromMinutes(2);
+            this.SamplingPercentageIncreaseTimeout = TimeSpan.FromMinutes(15);
             this.MovingAverageRatio = 0.25;
         }
         
@@ -57,19 +57,19 @@
         /// Gets or sets duration of the sampling percentage evaluation 
         /// interval in seconds.
         /// </summary>
-        public int EvaluationIntervalSeconds { get; set; }
+        public TimeSpan EvaluationInterval { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating how long to not to decrease
         /// sampling percentage after last change to prevent excessive fluctuation.
         /// </summary>
-        public int SamplingPercentageDecreaseTimeoutSeconds { get; set; }
+        public TimeSpan SamplingPercentageDecreaseTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating how long to not to increase
         /// sampling percentage after last change to prevent excessive fluctuation.
         /// </summary>
-        public int SamplingPercentageIncreaseTimeoutSeconds { get; set; }
+        public TimeSpan SamplingPercentageIncreaseTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets exponential moving average ratio (factor) applied
@@ -129,13 +129,13 @@
         /// Gets effective sampling percentage evaluation interval
         /// adjusted in case user makes an error while setting a value.
         /// </summary>
-        internal int EffectiveEvaluationIntervalSeconds
+        internal TimeSpan EffectiveEvaluationInterval
         {
             get
             {
-                return this.EvaluationIntervalSeconds <= 0 
-                    ? @default.EvaluationIntervalSeconds 
-                    : this.EvaluationIntervalSeconds;
+                return this.EvaluationInterval == TimeSpan.Zero
+                    ? @default.EvaluationInterval
+                    : this.EvaluationInterval;
             }
         }
 
@@ -143,13 +143,13 @@
         /// Gets effective sampling percentage decrease timeout
         /// adjusted in case user makes an error while setting a value.
         /// </summary>
-        internal int EffectiveSamplingPercentageDecreaseTimeoutSeconds
+        internal TimeSpan EffectiveSamplingPercentageDecreaseTimeout
         {
             get
             {
-                return this.SamplingPercentageDecreaseTimeoutSeconds <= 0 
-                    ? @default.SamplingPercentageDecreaseTimeoutSeconds 
-                    : this.SamplingPercentageDecreaseTimeoutSeconds;
+                return this.SamplingPercentageDecreaseTimeout == TimeSpan.Zero
+                    ? @default.SamplingPercentageDecreaseTimeout
+                    : this.SamplingPercentageDecreaseTimeout;
             }
         }
 
@@ -157,13 +157,13 @@
         /// Gets effective sampling percentage increase timeout
         /// adjusted in case user makes an error while setting a value.
         /// </summary>
-        internal int EffectiveSamplingPercentageIncreaseTimeoutSeconds
+        internal TimeSpan EffectiveSamplingPercentageIncreaseTimeout
         {
             get
             {
-                return this.SamplingPercentageIncreaseTimeoutSeconds <= 0 
-                    ? @default.EffectiveSamplingPercentageIncreaseTimeoutSeconds 
-                    : this.SamplingPercentageIncreaseTimeoutSeconds;
+                return this.SamplingPercentageIncreaseTimeout == TimeSpan.Zero
+                    ? @default.EffectiveSamplingPercentageIncreaseTimeout
+                    : this.SamplingPercentageIncreaseTimeout;
             }
         }
 

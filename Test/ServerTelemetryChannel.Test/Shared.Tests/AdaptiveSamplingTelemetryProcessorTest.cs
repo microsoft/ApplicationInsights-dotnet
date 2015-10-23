@@ -32,9 +32,10 @@
                 .UseAdaptiveSampling(
                     new SamplingPercentageEstimatorSettings()
                     {
-                        EvaluationIntervalSeconds = 1,
-                        SamplingPercentageDecreaseTimeoutSeconds = 2,
-                        SamplingPercentageIncreaseTimeoutSeconds = 2}, 
+                        EvaluationInterval = TimeSpan.FromSeconds(1),
+                        SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                        SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
+                    }, 
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
 
@@ -70,9 +71,9 @@
                 .UseAdaptiveSampling(
                     new SamplingPercentageEstimatorSettings()
                     {
-                        EvaluationIntervalSeconds = 2,
-                        SamplingPercentageDecreaseTimeoutSeconds = 2,
-                        SamplingPercentageIncreaseTimeoutSeconds = 2
+                        EvaluationInterval = TimeSpan.FromSeconds(1),
+                        SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                        SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(2),
                     },
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });
@@ -130,9 +131,9 @@
                     new SamplingPercentageEstimatorSettings()
                     {
                         InitialSamplingPercentage = 5.0,
-                        EvaluationIntervalSeconds = 2,
-                        SamplingPercentageDecreaseTimeoutSeconds = 2,
-                        SamplingPercentageIncreaseTimeoutSeconds = 10
+                        EvaluationInterval = TimeSpan.FromSeconds(1),
+                        SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(2),
+                        SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(10),
                     },
                     this.TraceSamplingPercentageEvaluation)
                 .Use((next) => new StubTelemetryProcessor(next) { OnProcess = (t) => sentTelemetry.Add(t) });

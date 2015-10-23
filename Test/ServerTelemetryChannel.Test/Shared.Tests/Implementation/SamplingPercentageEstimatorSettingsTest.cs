@@ -51,27 +51,27 @@
         public void EvaluationIntervalSecondsAdjustedIfSetToIncorrectValue()
         {
             var settings = new SamplingPercentageEstimatorSettings();
-            settings.EvaluationIntervalSeconds = -3;
+            settings.EvaluationInterval = TimeSpan.Zero;
 
-            Assert.Equal(15, settings.EffectiveEvaluationIntervalSeconds);
+            Assert.Equal(TimeSpan.FromSeconds(15), settings.EffectiveEvaluationInterval);
         }
 
         [TestMethod]
         public void SamplingPercentageDecreaseTimeoutSecondsAdjustedIfSetToIncorrectValue()
         {
             var settings = new SamplingPercentageEstimatorSettings();
-            settings.SamplingPercentageDecreaseTimeoutSeconds = -3;
+            settings.SamplingPercentageDecreaseTimeout = TimeSpan.Zero;
 
-            Assert.Equal(2*60, settings.EffectiveSamplingPercentageDecreaseTimeoutSeconds);
+            Assert.Equal(TimeSpan.FromMinutes(2), settings.EffectiveSamplingPercentageDecreaseTimeout);
         }
 
         [TestMethod]
         public void SamplingPercentageIncreaseTimeoutSecondsAdjustedIfSetToIncorrectValue()
         {
             var settings = new SamplingPercentageEstimatorSettings();
-            settings.SamplingPercentageIncreaseTimeoutSeconds = -3;
+            settings.SamplingPercentageIncreaseTimeout = TimeSpan.Zero;
 
-            Assert.Equal(15 * 60, settings.EffectiveSamplingPercentageIncreaseTimeoutSeconds);
+            Assert.Equal(TimeSpan.FromMinutes(15), settings.EffectiveSamplingPercentageIncreaseTimeout);
         }
 
         [TestMethod]

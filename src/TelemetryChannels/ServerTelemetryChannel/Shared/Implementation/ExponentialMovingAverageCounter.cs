@@ -9,11 +9,6 @@
     internal class ExponentialMovingAverageCounter
     {
         /// <summary>
-        /// Exponential coefficient (must be between 0 and 1).
-        /// </summary>
-        private readonly double coefficient;
-
-        /// <summary>
         /// Average value of the counter.
         /// </summary>
         private double? average;
@@ -29,8 +24,13 @@
         /// <param name="coefficient">Exponential coefficient.</param>
         public ExponentialMovingAverageCounter(double coefficient)
         {
-            this.coefficient = coefficient;
+            this.Coefficient = coefficient;
         }
+
+        /// <summary>
+        /// Gets exponential coefficient (must be between 0 and 1).
+        /// </summary>
+        public double Coefficient { get; private set; }
 
         /// <summary>
         /// Gets exponential moving average value of the counter.
@@ -60,7 +60,7 @@
             var count = Interlocked.Exchange(ref this.current, 0);
 
             this.average = this.average.HasValue
-                               ? (this.coefficient * count) + ((1 - this.coefficient) * this.average)
+                               ? (this.Coefficient * count) + ((1 - this.Coefficient) * this.average)
                                : count;
 
             return this.average.Value;
