@@ -769,6 +769,18 @@
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
+#if NET40 || NET45
+        [TestMethod]
+        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
+        {
+            var config = new TelemetryConfiguration();
+            config.InstrumentationKey = "Foo";
+            var client = new TelemetryClient(config);
+
+            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
+        }
+#endif
+
 #endregion
 
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)

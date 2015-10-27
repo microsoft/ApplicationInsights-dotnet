@@ -341,6 +341,11 @@
 
                 telemetry.Sanitize();
 
+                if (this.Channel == null)
+                {
+                    throw new InvalidOperationException("Telemetry channel should be configured for telemetry client before tracking telemetry.");
+                }
+
                 this.Channel.Send(telemetry);                
             }
         }
@@ -362,8 +367,8 @@
             var telemetryWithProperties = telemetry as ISupportProperties;
             if (telemetryWithProperties != null)
             {
-                if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
-                {
+                if ((this.Channel != null) && (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value))
+                { 
                     if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                     {
                         telemetryWithProperties.Properties.Add("DeveloperMode", "true");
