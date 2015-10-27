@@ -8,11 +8,11 @@
     using Microsoft.AspNet.Hosting.Server;
     using Microsoft.AspNet.Http.Features;
     using Microsoft.Dnx.Runtime;
-    using Microsoft.Dnx.Runtime.Infrastructure;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
-   
+    using Microsoft.Extensions.PlatformAbstractions;
+
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
     {
@@ -77,7 +77,7 @@
         
         private WebHostBuilder CreateBuilder(IConfiguration config)
         {
-            return new WebHostBuilder(CallContextServiceLocator.Locator.ServiceProvider, config);
+            return new WebHostBuilder(config);
         }
     }
 }

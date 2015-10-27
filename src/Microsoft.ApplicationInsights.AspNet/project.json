@@ -17,7 +17,7 @@
         "Microsoft.AspNet.Mvc": "6.0.0-rc1-*",
         "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc1-*",
         "Microsoft.Extensions.Configuration": "1.0.0-rc1-*",
-        "Microsoft.Extensions.TelemetryAdapter": "1.0.0-rc1-*"
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc1-*"
     },
 
     "frameworks": {

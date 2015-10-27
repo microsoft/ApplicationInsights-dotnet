@@ -28,7 +28,7 @@ namespace Mvc6Framework45.FunctionalTests
             {
                 // This reads the configuration keys from the secret store.
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                //builder.AddUserSecrets();
+                builder.AddUserSecrets();
 
                 builder.AddApplicationInsightsSettings(developerMode: true);
             }
@@ -95,7 +95,7 @@ namespace Mvc6Framework45.FunctionalTests
 
                 //app.UseBrowserLink();
                 app.UseDeveloperExceptionPage(new ErrorPageOptions());
-                app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
+                app.UseDatabaseErrorPage();
             }
             else
             {

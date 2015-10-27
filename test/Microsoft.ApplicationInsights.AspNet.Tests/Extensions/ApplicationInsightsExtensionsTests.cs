@@ -16,7 +16,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Xunit;
-    
+    using System.Diagnostics;
+
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -24,7 +25,7 @@
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddInstance<IHttpContextAccessor>(contextAccessor);
-            services.AddInstance<TelemetryListener>(TelemetryListener.DefaultListener);
+            services.AddInstance<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
 
