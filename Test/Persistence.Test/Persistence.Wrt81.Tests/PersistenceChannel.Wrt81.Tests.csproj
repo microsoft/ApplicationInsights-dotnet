@@ -15,7 +15,7 @@
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>PersistenceChannel.Wrt81.Tests_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxBundle>Never</AppxBundle>
     <AppXPackage>True</AppXPackage>
     <AppxPackageIncludePrivateSymbols>true</AppxPackageIncludePrivateSymbols>
@@ -24,7 +24,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <!-- Disable FxCop due to errors it encounters while resolving internal types from Microsoft.ApplicationInsights.winmd -->
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <PackageCertificateThumbprint>499A3B296891E38FE0021F842E4E5BD66C1BAB58</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>01FC3CEE4887EA5183A017779A4142EDFF6A9793</PackageCertificateThumbprint>
     <NuGetPackageImportStamp>03e31619</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
@@ -40,7 +40,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="TemporaryKey.pfx" />
+    <None Include="PersistenceChannel.Wrt81.Tests_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="MSTestFramework, Version=14.0" />
@@ -77,4 +77,5 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
   <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

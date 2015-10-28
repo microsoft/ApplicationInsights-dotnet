@@ -653,6 +653,74 @@
             Assert.Null(actualMessage);
         }
 
+#if WINRT
+        [TestMethod]
+        public void TrackDoesNotWriteTelemetryToDebugOutputIfIKeyEmptyInWinRt()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput { OnWriteLine = message => actualMessage = message };
+            
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = ""
+                
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            PlatformSingleton.Current = null;
+            Assert.Null(actualMessage);
+        }
+
+#endif
+#if NET40 || NET45
+        [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyEmptyInDotNet()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput { OnWriteLine = message => actualMessage = message };
+            
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = ""
+                
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            PlatformSingleton.Current = null;
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
+        }
+
+        [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyNotEmptyInDotNet()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput { OnWriteLine = message => actualMessage = message };
+
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = "123"
+
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            PlatformSingleton.Current = null;
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry: "));
+        }
+
+#endif
+
         [TestMethod]
         public void TrackCopiesPropertiesFromClientToTelemetry()
         {
@@ -701,7 +769,19 @@
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
-        #endregion
+#if NET40 || NET45
+        [TestMethod]
+        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
+        {
+            var config = new TelemetryConfiguration();
+            config.InstrumentationKey = "Foo";
+            var client = new TelemetryClient(config);
+
+            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
+        }
+#endif
+
+#endregion
 
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {

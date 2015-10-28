@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
-    using System.IO;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -314,6 +313,90 @@
             this.Track(telemetry);
         }
 
+        //// Preserve original version of 'Track' with TelemetryInitializer being called after iKey check for Devices SDK till we completely move to a different SDK.
+#if NET40 || NET45
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Track(ITelemetry telemetry)
+        {
+            // TALK TO YOUR TEAM MATES BEFORE CHANGING THIS.
+            // This method needs to be public so that we can build and ship new telemetry types without having to ship core.
+            // It is hidden from intellisense to prevent customer confusion.
+            if (this.IsEnabled())
+            {
+                this.Initialize(telemetry);
+
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    this.WriteTelemetryToDebugOutput(telemetry);
+                }
+
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+                {
+                    return;
+                }
+
+                telemetry.Sanitize();
+
+                if (this.Channel == null)
+                {
+                    throw new InvalidOperationException("Telemetry channel should be configured for telemetry client before tracking telemetry.");
+                }
+
+                this.Channel.Send(telemetry);                
+            }
+        }
+
+        /// <summary>
+        /// This method is an internal part of Application Insights infrastructure. Do not call.
+        /// </summary>
+        /// <param name="telemetry">Telemetry item to initialize.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Initialize(ITelemetry telemetry)
+        {
+            string instrumentationKey = this.Context.InstrumentationKey;
+
+            if (string.IsNullOrEmpty(instrumentationKey))
+            {
+                instrumentationKey = this.configuration.InstrumentationKey;
+            }
+
+            var telemetryWithProperties = telemetry as ISupportProperties;
+            if (telemetryWithProperties != null)
+            {
+                if ((this.Channel != null) && (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value))
+                { 
+                    if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
+                    {
+                        telemetryWithProperties.Properties.Add("DeveloperMode", "true");
+                    }
+                }
+
+                Utils.CopyDictionary(this.Context.Properties, telemetryWithProperties.Properties);
+            }
+
+            telemetry.Context.Initialize(this.Context, instrumentationKey);
+            foreach (ITelemetryInitializer initializer in this.configuration.TelemetryInitializers)
+            {
+                try
+                {
+                    initializer.Initialize(telemetry);
+                }
+                catch (Exception exception)
+                {
+                    CoreEventSource.Log.LogError(string.Format(
+                                                    CultureInfo.InvariantCulture,
+                                                    "Exception while initializing {0}, exception message - {1}",
+                                                    initializer.GetType().FullName,
+                                                    exception));
+                }
+            }
+        }
+
+#else
         /// <summary>
         /// This method is an internal part of Application Insights infrastructure. Do not call.
         /// </summary>
@@ -378,6 +461,7 @@
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Send information about the page viewed in the application.
@@ -453,11 +537,12 @@
         {
             if (this.debugOutput.IsLogging())
             {
-                using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-                {
-                    string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
-                    this.debugOutput.WriteLine("Application Insights Telemetry: " + serializedTelemetry);
-                }
+                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ? 
+                    "Application Insights Telemetry (unconfigured): " : 
+                    "Application Insights Telemetry: ";
+
+                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
+                this.debugOutput.WriteLine(prefix + serializedTelemetry);
             }
         }
     }
