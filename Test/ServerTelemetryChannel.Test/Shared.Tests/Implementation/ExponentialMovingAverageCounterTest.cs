@@ -8,7 +8,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
@@ -79,7 +78,7 @@
 
             counter.StartNewInterval();
 
-            Assert.True(counter.Average.EqualsWithPrecision(Increment1Count * .9 + Increment2Count * .1, 1E-12));
+            Xunit.Assert.Equal(Increment1Count * .9 + Increment2Count * .1, counter.Average, 10);
         }
     }
 }

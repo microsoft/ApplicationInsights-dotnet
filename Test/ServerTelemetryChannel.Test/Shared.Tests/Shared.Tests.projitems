@@ -20,7 +20,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmitter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\Utils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskSchedulerTest.cs" />

@@ -8,7 +8,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
@@ -20,7 +19,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.MaxTelemetryItemsPerSecond = -10;
 
-            Assert.True(settings.EffectiveMaxTelemetryItemsPerSecond.EqualsWithPrecision(1E-12, 1E-12));
+            Xunit.Assert.Equal(1E-12, settings.EffectiveMaxTelemetryItemsPerSecond, 12);
         }
 
         [TestMethod]
@@ -80,7 +79,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.MovingAverageRatio = -3;
 
-            Assert.True(settings.EffectiveMovingAverageRatio.EqualsWithPrecision(.25, 1E-12));
+            Xunit.Assert.Equal(0.25, settings.EffectiveMovingAverageRatio, 12);
         }
     }
 }
