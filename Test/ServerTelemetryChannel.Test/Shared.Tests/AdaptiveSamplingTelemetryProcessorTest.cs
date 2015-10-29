@@ -41,7 +41,6 @@
 
             chainBuilder.Build();
 
-
             const int productionFrequencyMs = 1000;
 
             using (var productionTimer = new Timer(

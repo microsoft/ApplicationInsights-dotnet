@@ -27,11 +27,6 @@
         private SamplingPercentageEstimatorSettings estimatorSettings;
 
         /// <summary>
-        /// Initial sampling percentage applied after start of the process.
-        /// </summary>
-        private double initialSamplingPercentage;
-
-        /// <summary>
         /// Callback invoked every time sampling percentage is evaluated.
         /// </summary>
         private AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
@@ -62,8 +57,6 @@
             // make estimatortelemetry processor  work after sampling was done
             this.estimatorProcessor = new SamplingPercentageEstimatorTelemetryProcessor(settings, this.SamplingPercentageChanged, next);
             this.samplingProcessor = new SamplingTelemetryProcessor(this.estimatorProcessor);
-
-            this.initialSamplingPercentage = 100.0;
         }
 
         /// <summary>
@@ -74,15 +67,15 @@
         {
             get
             {
-                return this.initialSamplingPercentage;
+                return this.estimatorSettings.InitialSamplingPercentage;
             }
 
             set
             {
                 // note: 'initial' percentage will affect sampling even 
                 // if it was running for a while
-                this.initialSamplingPercentage = value;
-                this.samplingProcessor.SamplingPercentage = this.initialSamplingPercentage;
+                this.estimatorSettings.InitialSamplingPercentage = value;
+                this.samplingProcessor.SamplingPercentage = value;
             }
         }
 
@@ -138,19 +131,18 @@
         }
 
         /// <summary>
-        /// Gets or sets duration of the sampling percentage evaluation 
-        /// interval in seconds.
+        /// Gets or sets duration of the sampling percentage evaluation interval.
         /// </summary>
-        public int EvaluationIntervalSeconds
+        public TimeSpan EvaluationInterval
         {
             get
             {
-                return (int)this.estimatorSettings.EvaluationInterval.TotalSeconds;
+                return this.estimatorSettings.EvaluationInterval;
             }
 
             set
             {
-                this.estimatorSettings.EvaluationInterval = TimeSpan.FromSeconds(value);
+                this.estimatorSettings.EvaluationInterval = value;
             }
         }
 
@@ -158,16 +150,16 @@
         /// Gets or sets a value indicating how long to not to decrease
         /// sampling percentage after last change to prevent excessive fluctuation.
         /// </summary>
-        public int SamplingPercentageDecreaseTimeoutSeconds
+        public TimeSpan SamplingPercentageDecreaseTimeout
         {
             get
             {
-                return (int)this.estimatorSettings.SamplingPercentageDecreaseTimeout.TotalSeconds;
+                return this.estimatorSettings.SamplingPercentageDecreaseTimeout;
             }
 
             set
             {
-                this.estimatorSettings.SamplingPercentageDecreaseTimeout = TimeSpan.FromSeconds(value);
+                this.estimatorSettings.SamplingPercentageDecreaseTimeout = value;
             }
         }
 
@@ -175,16 +167,16 @@
         /// Gets or sets a value indicating how long to not to increase
         /// sampling percentage after last change to prevent excessive fluctuation.
         /// </summary>
-        public int SamplingPercentageIncreaseTimeoutSeconds
+        public TimeSpan SamplingPercentageIncreaseTimeout
         {
             get
             {
-                return (int)this.estimatorSettings.SamplingPercentageIncreaseTimeout.TotalSeconds;
+                return this.estimatorSettings.SamplingPercentageIncreaseTimeout;
             }
 
             set
             {
-                this.estimatorSettings.SamplingPercentageIncreaseTimeout = TimeSpan.FromSeconds(value);
+                this.estimatorSettings.SamplingPercentageIncreaseTimeout = value;
             }
         }
 
