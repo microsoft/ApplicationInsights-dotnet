@@ -34,7 +34,6 @@
 
             if (string.IsNullOrEmpty(operation.Telemetry.Name) && !string.IsNullOrEmpty(operationName))
             {
-                operation.Telemetry.Context.Operation.RootName = operationName;
                 operation.Telemetry.Name = operationName;
             }
 
@@ -54,7 +53,7 @@
             var operationContext = new OperationContextForCallContext();
             operationContext.ParentOperationId = operation.Telemetry.Context.Operation.Id;
             operationContext.RootOperationId = operation.Telemetry.Context.Operation.RootId;
-            operationContext.OperationName = operation.Telemetry.Context.Operation.RootName;
+            operationContext.OperationName = operation.Telemetry.Name;
             CallContextHelpers.SaveOperationContext(operationContext);
 
             return operation;
