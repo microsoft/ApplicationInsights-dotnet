@@ -196,6 +196,12 @@
                 {
                     telemetryChannel.Dispose();
                 }
+
+                TelemetryProcessorChain processorChain = this.telemetryProcessorChain;
+                if (processorChain != null)
+                {
+                    processorChain.Dispose();
+                }
             }
         }
     }

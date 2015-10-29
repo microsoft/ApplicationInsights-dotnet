@@ -9,7 +9,7 @@
     /// <summary>
     /// Represents the TelemetryProcessor chain. Clients should use TelemetryProcessorChainBuilder to construct this object.
     /// </summary>
-    public sealed class TelemetryProcessorChain
+    public sealed class TelemetryProcessorChain : IDisposable
     {        
         private readonly SnapshottingList<ITelemetryProcessor> telemetryProcessors = new SnapshottingList<ITelemetryProcessor>();
 
@@ -55,6 +55,36 @@
         public void Process(ITelemetry item)
         {
             this.telemetryProcessors.First().Process(item);
+        }
+
+        /// <summary>
+        /// Releases resources used by the current instance of the <see cref="TelemetryProcessorChain"/> class.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                SnapshottingList<ITelemetryProcessor> processors = this.telemetryProcessors;
+
+                if (processors != null)
+                {
+                    foreach (ITelemetryProcessor processor in processors)
+                    {
+                        IDisposable disposableProcessor = processor as IDisposable;
+
+                        if (disposableProcessor != null)
+                        {
+                            disposableProcessor.Dispose();
+                        }
+                    }
+                }
+            }
         }
     }
 }
