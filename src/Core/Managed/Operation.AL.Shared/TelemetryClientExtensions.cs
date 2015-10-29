@@ -53,7 +53,7 @@
             var operationContext = new OperationContextForAsyncLocal();
             operationContext.ParentOperationId = operation.Telemetry.Context.Operation.Id;
             operationContext.RootOperationId = operation.Telemetry.Context.Operation.RootId;
-            operationContext.OperationName = operation.Telemetry.Context.Operation.RootName;
+            operationContext.OperationName = operation.Telemetry.Name;
             AsyncLocalHelpers.SaveOperationContext(operationContext);
 
             return operation;
