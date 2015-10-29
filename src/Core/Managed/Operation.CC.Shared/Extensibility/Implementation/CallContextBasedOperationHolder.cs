@@ -73,7 +73,7 @@
 
                         var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
                         if (operationTelemetry.Context.Operation.Id != currentOperationContext.ParentOperationId ||
-                            operationTelemetry.Context.Operation.RootName != currentOperationContext.OperationName)
+                            operationTelemetry.Name != currentOperationContext.OperationName)
                         {
                             CoreEventSource.Log.InvalidOperationToStopError();
                             return;

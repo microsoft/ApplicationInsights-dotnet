@@ -124,12 +124,12 @@
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as CallContextBasedOperationHolder<DependencyTelemetry>;
             var parentContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(operation.Telemetry.Context.Operation.Id, parentContextStore.ParentOperationId);
-            Assert.AreEqual(operation.Telemetry.Context.Operation.RootName, parentContextStore.OperationName);
+            Assert.AreEqual(operation.Telemetry.Name, parentContextStore.OperationName);
 
             var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as CallContextBasedOperationHolder<DependencyTelemetry>;
             var childContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Id, childContextStore.ParentOperationId);
-            Assert.AreEqual(childOperation.Telemetry.Context.Operation.RootName, childContextStore.OperationName);
+            Assert.AreEqual(childOperation.Telemetry.Name, childContextStore.OperationName);
 
             Assert.IsNull(operation.ParentContext);
             Assert.AreEqual(parentContextStore, childOperation.ParentContext);
