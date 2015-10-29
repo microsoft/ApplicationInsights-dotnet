@@ -34,6 +34,7 @@
 
             if (string.IsNullOrEmpty(operation.Telemetry.Name) && !string.IsNullOrEmpty(operationName))
             {
+                operation.Telemetry.Context.Operation.RootName = operationName;
                 operation.Telemetry.Name = operationName;
             }
 
