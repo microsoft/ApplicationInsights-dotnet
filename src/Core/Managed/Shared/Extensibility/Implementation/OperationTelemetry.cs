@@ -15,6 +15,11 @@
         /// </summary>
         public abstract DateTimeOffset StartTime { get; set;  }
 
+        /// <summary>  
+        /// Gets or sets Operation ID.
+        /// </summary>  
+        public abstract string Id { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the operation.
         /// </summary>

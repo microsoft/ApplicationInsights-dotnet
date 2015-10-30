@@ -17,7 +17,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined operation ID.
+        /// Gets or sets the application-defined operation ID for the topmost operation.
         /// </summary>
         public string Id
         {
@@ -28,21 +28,10 @@
         /// <summary>
         /// Gets or sets the parent operation ID.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public string ParentId
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationParentId); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationParentId, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the root operation ID.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public string RootId
-        {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationRootId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationRootId, value); }
         }
 
         /// <summary>
@@ -56,9 +45,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the application-defined operation's root operation NAME.
+        /// Gets or sets the application-defined topmost operation's name.
         /// </summary>
-        public string RootName
+        public string Name
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationName); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationName, value); }

@@ -70,7 +70,7 @@
             }
 
             Assert.Equal(3, this.sendItems.Count);
-            var id = this.sendItems[this.sendItems.Count - 1].Context.Operation.Id;
+            var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
             Assert.False(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
@@ -78,12 +78,12 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(id, item.Context.Operation.RootId);
+                    Assert.Equal(id, item.Context.Operation.Id);
                 }
                 else
                 {
+                    Assert.Equal(id, ((RequestTelemetry)item).Id);
                     Assert.Equal(id, item.Context.Operation.Id);
-                    Assert.Equal(id, item.Context.Operation.RootId);
                     Assert.Null(item.Context.Operation.ParentId);
                 }
             }
@@ -123,7 +123,7 @@
             Assert.NotEqual(id1, id2);
 
             Assert.Equal(3, this.sendItems.Count);
-            var id = this.sendItems[this.sendItems.Count - 1].Context.Operation.Id;
+            var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
             Assert.False(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
@@ -131,12 +131,12 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(id, item.Context.Operation.RootId);
+                    Assert.Equal(id, item.Context.Operation.Id);
                 }
                 else
                 {
+                    Assert.Equal(id, ((RequestTelemetry)item).Id);
                     Assert.Equal(id, item.Context.Operation.Id);
-                    Assert.Equal(id, item.Context.Operation.RootId);
                     Assert.Null(item.Context.Operation.ParentId);
 
                 }
