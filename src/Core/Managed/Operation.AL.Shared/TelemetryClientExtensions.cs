@@ -49,6 +49,11 @@
                 operation.Telemetry.Context.Operation.RootId = operation.Telemetry.Context.Operation.Id;
             }
 
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.RootName))
+            {
+                operation.Telemetry.Context.Operation.RootName = operation.Telemetry.Name;
+            }
+
             // Update the call context to store certain fields that can be used for subsequent operations.
             var operationContext = new OperationContextForAsyncLocal();
             operationContext.ParentOperationId = operation.Telemetry.Context.Operation.Id;
