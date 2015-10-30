@@ -1,10 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.ComponentModel;
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Extension methods for TelemetryContext.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryContextExtensions
     {
         /// <summary>

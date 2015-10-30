@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
+    using System.ComponentModel;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
@@ -9,6 +10,7 @@
     /// Extension methods for <see cref="TelemetryProcessorChainBuilder"/>.
     /// Adds shorthand for adding well-known processors.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryProcessorChainBuilderExtensions
     {
         /// <summary>
@@ -16,9 +18,10 @@
         /// </summary>
         /// <param name="builder">Instance of <see cref="TelemetryProcessorChainBuilder"/></param>
         /// <param name="samplingPercentage">Sampling Percentage to configure.</param>        
-        public static void UseSampling(this TelemetryProcessorChainBuilder builder, double samplingPercentage)
+        /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
+        public static TelemetryProcessorChainBuilder UseSampling(this TelemetryProcessorChainBuilder builder, double samplingPercentage)
         {
-            builder.Use((next) => new SamplingTelemetryProcessor(next) { SamplingPercentage = samplingPercentage });
+            return builder.Use((next) => new SamplingTelemetryProcessor(next) { SamplingPercentage = samplingPercentage });
         }
 
         /// <summary>
