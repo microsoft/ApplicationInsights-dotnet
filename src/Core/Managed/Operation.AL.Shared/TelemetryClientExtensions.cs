@@ -39,21 +39,29 @@
 
             telemetryClient.Initialize(operation.Telemetry);
 
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id))
+            // Initialize operation id if it wasn't initialized by telemetry initializers
+            if (string.IsNullOrEmpty(operation.Telemetry.Id))
             {
                 operation.Telemetry.GenerateOperationId();
             }
 
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.RootId))
+            // If operation do not executes in a context of any other operaiton - 
+            // set it's name and id as a context (root) operation name and id
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id))
             {
-                operation.Telemetry.Context.Operation.RootId = operation.Telemetry.Context.Operation.Id;
+                operation.Telemetry.Context.Operation.Id = operation.Telemetry.Id;
+            }
+
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Name))
+            {
+                operation.Telemetry.Context.Operation.Name = operation.Telemetry.Name;
             }
 
             // Update the call context to store certain fields that can be used for subsequent operations.
             var operationContext = new OperationContextForAsyncLocal();
-            operationContext.ParentOperationId = operation.Telemetry.Context.Operation.Id;
-            operationContext.RootOperationId = operation.Telemetry.Context.Operation.RootId;
-            operationContext.OperationName = operation.Telemetry.Context.Operation.RootName;
+            operationContext.ParentOperationId = operation.Telemetry.Id;
+            operationContext.RootOperationId = operation.Telemetry.Context.Operation.Id;
+            operationContext.RootOperationName = operation.Telemetry.Context.Operation.Name;
             AsyncLocalHelpers.SaveOperationContext(operationContext);
 
             return operation;

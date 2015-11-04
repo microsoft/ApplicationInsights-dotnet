@@ -65,7 +65,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.context; }
         }
-        
+
+        /// <summary>  
+        /// Gets or sets Dependency ID.
+        /// </summary>  
+        public override string Id { get; set; }
+
         /// <summary>
         /// Gets or sets resource name.
         /// </summary>

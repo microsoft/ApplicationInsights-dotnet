@@ -21,6 +21,6 @@
         /// <summary>
         /// Operation name that will be assigned to all the child telemetry items.
         /// </summary>
-        public string OperationName;
+        public string RootOperationName;
     }
 }

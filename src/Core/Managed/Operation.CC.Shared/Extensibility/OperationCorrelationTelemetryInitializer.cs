@@ -16,7 +16,7 @@
         {
             var itemContext = telemetryItem.Context.Operation;
 
-            if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.RootId) || string.IsNullOrEmpty(itemContext.RootName))
+            if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
             {
                 var parentContext = CallContextHelpers.GetCurrentOperationContext();
                 if (parentContext != null)
@@ -27,16 +27,16 @@
                         itemContext.ParentId = parentContext.ParentOperationId;
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.RootId)
+                    if (string.IsNullOrEmpty(itemContext.Id)
                         && !string.IsNullOrEmpty(parentContext.RootOperationId))
                     {
-                        itemContext.RootId = parentContext.RootOperationId;
+                        itemContext.Id = parentContext.RootOperationId;
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.RootName)
-                        && !string.IsNullOrEmpty(parentContext.OperationName))
+                    if (string.IsNullOrEmpty(itemContext.Name)
+                        && !string.IsNullOrEmpty(parentContext.RootOperationName))
                     {
-                        itemContext.RootName = parentContext.OperationName;
+                        itemContext.Name = parentContext.RootOperationName;
                     }
                 }
             }

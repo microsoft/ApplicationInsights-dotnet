@@ -30,6 +30,7 @@
         public void ParameterlessConstructorInitializesRequiredFields()
         {
             var request = new RequestTelemetry();
+            Assert.False(string.IsNullOrEmpty(request.Id));
             Assert.Equal("200", request.ResponseCode);
             Assert.Equal(true, request.Success);
         }
@@ -73,6 +74,7 @@
         {
             RequestTelemetry original = new RequestTelemetry();
             original.HttpMethod = null;
+            original.Id = null;
             original.Name = null;
             original.ResponseCode = null;
             original.Url = null;
@@ -87,6 +89,7 @@
         {
             var expected = new RequestTelemetry();
             expected.Timestamp = DateTimeOffset.Now;
+            expected.Id = "a1b2c3d4e5f6h7h8i9j10";
             expected.Name = "GET /WebForm.aspx";
             expected.Duration = TimeSpan.FromSeconds(4);
             expected.ResponseCode = "200";
@@ -106,6 +109,7 @@
             Assert.Equal(typeof(DataPlatformModel.RequestData).Name, item.Data.BaseType);
 
             Assert.Equal(2, item.Data.BaseData.Ver);
+            Assert.Equal(expected.Id, item.Data.BaseData.Id);
             Assert.Equal(expected.Name, item.Data.BaseData.Name);
             Assert.Equal(expected.Timestamp, item.Data.BaseData.StartTime);
             Assert.Equal(expected.Duration, item.Data.BaseData.Duration);
@@ -148,6 +152,7 @@
             telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'X', 42.0);
             telemetry.Metrics.Add(new string('Y', Property.MaxDictionaryNameLength) + 'Y', 42.0);
             telemetry.Url = new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength + 1));
+            telemetry.Id = new string('1', Property.MaxNameLength);
 
             ((ITelemetry)telemetry).Sanitize();
 
@@ -164,9 +169,25 @@
             Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Metrics.Keys.ToArray()[1]);
 
             Assert.Equal(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
+
+            Assert.Equal(new string('1', Property.MaxNameLength), telemetry.Id);
+        }
+  
+        [TestMethod]  
+        public void SanitizePopulatesIdWithErrorBecauseItIsRequiredByEndpoint()
+        {  
+            var telemetry = new RequestTelemetry { Id = null };  
+  
+            ((ITelemetry)telemetry).Sanitize();  
+  
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);  
+  
+            // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
+            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
         }
 
-        [TestMethod]
+    [TestMethod]
         public void SanitizePopulatesResponseCodeWithErrorBecauseItIsRequiredByEndpoint()
         {
             var telemetry = new RequestTelemetry { ResponseCode = null };
@@ -188,7 +209,7 @@
         [TestMethod]
         public void RequestTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
         {
-            var telemetry = new RequestTelemetry();
+            var telemetry = new RequestTelemetry { Id = null };
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
             ((ITelemetry)telemetry).Sanitize();
 

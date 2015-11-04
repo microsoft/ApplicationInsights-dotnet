@@ -34,6 +34,7 @@
         {
             this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
 
             this.ResponseCode = "200";
             this.Success = true;
@@ -82,6 +83,15 @@
         public override TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>  
+        /// Gets or sets Request ID.
+        /// </summary>  
+        public override string Id  
+        {  
+            get { return this.Data.id; }  
+            set { this.Data.id = value; }  
         }
 
         /// <summary>
@@ -207,9 +217,11 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
-            
-            // Set to a space to comply to the schema
-            this.Data.id = " ";
+
+            // Set for backward compatibility:  
+            this.Data.id = this.Data.id.SanitizeName();
+            this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
+
             this.ResponseCode = Utils.PopulateRequiredStringValue(this.ResponseCode, "responseCode", typeof(RequestTelemetry).FullName);
         }
 

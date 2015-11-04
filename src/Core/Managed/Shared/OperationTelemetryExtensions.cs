@@ -46,7 +46,7 @@
         /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
         public static void GenerateOperationId(this OperationTelemetry telemetry)
         {
-            telemetry.Context.Operation.Id = WeakConcurrentRandom.Instance.Next().ToString(CultureInfo.InvariantCulture);
+            telemetry.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
     }
 }

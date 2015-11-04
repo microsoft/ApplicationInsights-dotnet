@@ -39,44 +39,23 @@
         }
 
         [TestMethod]
-        public void TelemetryContextIsUpdatedWithRootOperationIdForDependencyTelemetry()
-        {
-            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { RootOperationId = "RootOperationId" });
-            var telemetry = new DependencyTelemetry();
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual("RootOperationId", telemetry.Context.Operation.RootId);
-            AsyncLocalHelpers.SaveOperationContext(null);
-        }
-
-        [TestMethod]
-        public void InitializeDoesNotUpdateRootOperationIdIfItExists()
-        {
-            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { RootOperationId = "RootOperationId" });
-            var telemetry = new DependencyTelemetry();
-            telemetry.Context.Operation.RootId = "OldRootOperationId";
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual("OldRootOperationId", telemetry.Context.Operation.RootId);
-            AsyncLocalHelpers.SaveOperationContext(null);
-        }
-
-        [TestMethod]
         public void TelemetryContextIsUpdatedWithOperationNameForDependencyTelemetry()
         {
-            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { OperationName = "OperationName" });
+            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { RootOperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual(telemetry.Context.Operation.RootName, "OperationName");
+            Assert.AreEqual(telemetry.Context.Operation.Name, "OperationName");
             AsyncLocalHelpers.SaveOperationContext(null);
         }
 
         [TestMethod]
         public void InitializeDoesNotUpdateOperationNameIfItExists()
         {
-            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { OperationName = "OperationName" });
+            AsyncLocalHelpers.SaveOperationContext(new OperationContextForAsyncLocal { RootOperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
-            telemetry.Context.Operation.RootName = "OldOperationName";
+            telemetry.Context.Operation.Name = "OldOperationName";
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual(telemetry.Context.Operation.RootName, "OldOperationName");
+            Assert.AreEqual(telemetry.Context.Operation.Name, "OldOperationName");
             AsyncLocalHelpers.SaveOperationContext(null);
         }
     }

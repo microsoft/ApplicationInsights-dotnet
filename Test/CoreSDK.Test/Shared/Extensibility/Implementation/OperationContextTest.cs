@@ -35,7 +35,7 @@
         public void NameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            Assert.Null(operation.RootName);
+            Assert.Null(operation.Name);
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@
         public void RootIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            Assert.Null(operation.RootId);
+            Assert.Null(operation.Id);
         }
 
         [TestMethod]
@@ -79,8 +79,8 @@
         public void NameCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            operation.RootName = "SampleOperationName";
-            Assert.Equal("SampleOperationName", operation.RootName);
+            operation.Name = "SampleOperationName";
+            Assert.Equal("SampleOperationName", operation.Name);
         }
 
         [TestMethod]
@@ -97,14 +97,6 @@
             var operation = new OperationContext(new Dictionary<string, string>());
             operation.ParentId = "ParentId";
             Assert.Equal("ParentId", operation.ParentId);
-        }
-
-        [TestMethod]
-        public void RootIdCanBeChangedByUserToSupplyApplicationDefinedValue()
-        {
-            var operation = new OperationContext(new Dictionary<string, string>());
-            operation.RootId = "RootId";
-            Assert.Equal("RootId", operation.RootId);
         }
 
         [TestMethod]
