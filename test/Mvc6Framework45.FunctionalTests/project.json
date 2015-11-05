@@ -2,7 +2,10 @@
   "webroot": "wwwroot",
   "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
   "version": "1.0.0-rc1-*",
-
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true
+  },
   "dependencies": {
     "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-*",
     "EntityFramework.Commands": "7.0.0-rc1-*",

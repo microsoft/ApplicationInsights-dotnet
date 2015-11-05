@@ -1,7 +1,10 @@
 {
     "webroot": "wwwroot",
     "version": "1.0.0-beta8-*",
-
+    "compilationOptions": {
+        "keyFile": "../../keys/35MSSharedLib1024.snk",
+        "delaySign": true
+    },
     "dependencies": {
         "FunctionalTestUtils": "1.0.0-rc1-*",
         "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1",

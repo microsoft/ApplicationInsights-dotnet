@@ -1,4 +1,8 @@
 {
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true
+    },
   "dependencies": {
     "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-*",
     "Microsoft.AspNet.Http.Features": "1.0.0-rc1-*",
