@@ -31,7 +31,7 @@ namespace Mvc6Framework45.FunctionalTests
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            var builder = new ConfigurationBuilder(env.MapPath(@"..\"))
+            var builder = new ConfigurationBuilder()
                 .AddJsonFile("config.json", optional: true)
                 .AddJsonFile($"config.{env.EnvironmentName}.json", optional: true);
 
@@ -72,13 +72,13 @@ namespace Mvc6Framework45.FunctionalTests
             // Configure the options for the authentication middleware.
             // You can add options for Google, Twitter and other middleware as shown below.
             // For more information see http://go.microsoft.com/fwlink/?LinkID=532715
-            services.Configure<FacebookAuthenticationOptions>(options =>
+            services.Configure<FacebookOptions>(options =>
             {
                 options.AppId = Configuration["Authentication:Facebook:AppId"];
                 options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
             });
 
-            services.Configure<MicrosoftAccountAuthenticationOptions>(options =>
+            services.Configure<MicrosoftAccountOptions>(options =>
             {
                 options.ClientId = Configuration["Authentication:MicrosoftAccount:ClientId"];
                 options.ClientSecret = Configuration["Authentication:MicrosoftAccount:ClientSecret"];
@@ -106,14 +106,14 @@ namespace Mvc6Framework45.FunctionalTests
                 loggerfactory.AddConsole(minLevel: LogLevel.Warning);
 
                 //app.UseBrowserLink();
-                app.UseErrorPage(new ErrorPageOptions());
+                app.UseDeveloperExceptionPage(new ErrorPageOptions());
                 app.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
             }
             else
             {
                 // Add Error handling middleware which catches all application specific errors and
                 // sends the request to the following path or controller action.
-                app.UseErrorHandler("/Home/Error");
+                app.UseExceptionHandler("/Home/Error");
             }
 
             // Add Application Insights exceptions handling to the request pipeline.

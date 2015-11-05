@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
     using System;
+    using System.Diagnostics.Tracing;
     using System.Linq;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -8,21 +9,27 @@
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNet.Mvc.Abstractions;
     using Microsoft.AspNet.Mvc.Routing;
     using Microsoft.AspNet.Routing;
     using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.Notification;
-
+    using Microsoft.Framework.TelemetryAdapter;
+    
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";
 
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, INotifier notifier) 
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, TelemetryListener telemetryListener) 
             : base(httpContextAccessor)
         {
-            if (notifier != null)
+            if (telemetryListener == null)
             {
-                notifier.EnlistTarget(this);
+                throw new ArgumentNullException("telemetryListener");
+            }
+
+            if (telemetryListener != null)
+            {
+                telemetryListener.SubscribeWithAdapter(this);
             }
         }
 
@@ -49,7 +56,7 @@
             }
         }
 
-        [NotificationName(BeforeActionNotificationName)]
+        [TelemetryName(BeforeActionNotificationName)]
         public void OnBeforeAction(ActionDescriptor actionDescriptor, HttpContext httpContext, RouteData routeData)
         {
             string name = this.GetNameFromRouteContext(routeData);

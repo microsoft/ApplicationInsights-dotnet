@@ -13,7 +13,7 @@ namespace SampleWebAPIIntegration
         public Startup(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            Configuration = new ConfigurationBuilder(env.MapPath(@"..\"))
+            Configuration = new ConfigurationBuilder()
                 .AddJsonFile("config.json")
                 .AddEnvironmentVariables()
                 .Build();

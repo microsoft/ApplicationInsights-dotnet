@@ -40,7 +40,7 @@
                 var sessionCookieValue = platformContext.Request.Cookies[WebSessionCookieName];
                 if (!string.IsNullOrEmpty(sessionCookieValue))
                 {
-                    var sessionCookieParts = sessionCookieValue.Split('|');
+                    var sessionCookieParts = ((string)sessionCookieValue).Split('|');
                     if (sessionCookieParts.Length > 0)
                     {
                         // Currently SessionContext takes in only SessionId. 
