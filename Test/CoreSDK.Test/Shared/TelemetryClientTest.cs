@@ -656,6 +656,26 @@
         }
 
         [TestMethod]
+        public void TrackAddsTimestampWhenMissing()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry => sentTelemetry = telemetry
+            };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = "Test key"
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotEqual(DateTimeOffset.MinValue, sentTelemetry.Timestamp);
+        }
+
+        [TestMethod]
         public void TrackDoesNotWriteTelemetryToDebugOutputIfNotInDeveloperMode()
         {
             string actualMessage = null;

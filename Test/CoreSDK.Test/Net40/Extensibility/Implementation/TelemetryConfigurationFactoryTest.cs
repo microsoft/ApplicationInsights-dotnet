@@ -67,14 +67,6 @@
         }
 
         [TestMethod]
-        public void InitializeCreatesTimestampPropertyInitializerByDefaultBecauseItIsNeededOnAllPlatforms()
-        {
-            var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
-            Assert.Equal(1, configuration.TelemetryInitializers.Count(i => i is TimestampPropertyInitializer));
-        }
-
-        [TestMethod]
         public void InitializesInstanceWithInformationFromConfigurationFileWhenItExists()
         {
             string configFileContents = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>");
@@ -94,6 +86,18 @@
             }
         }
 
+#if !CORE_PCL
+        [TestMethod]
+        public void InitializeAddsOperationContextTelemetryInitializerByDefault()
+        {
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration);
+
+            // Assume that SdkVersionInitializer is added by default
+            var contextInitializer = configuration.TelemetryInitializers[1];
+            Assert.IsType<OperationCorrelationTelemetryInitializer>(contextInitializer);
+        }
+#endif
         [TestMethod]
         public void InitializeAddsSdkVersionTelemetryInitializerByDefault()
         {
@@ -104,7 +108,8 @@
             var contextInitializer = configuration.TelemetryInitializers[0];
             Assert.IsType<SdkVersionPropertyTelemetryInitializer>(contextInitializer);
         }
-        
+
+
         [TestMethod]
         public void InitializeNotifiesTelemetryInitializersImplementingITelemetryModuleInterface()
         {
