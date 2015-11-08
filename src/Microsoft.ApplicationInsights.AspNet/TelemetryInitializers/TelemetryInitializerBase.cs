@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
-    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection;
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {

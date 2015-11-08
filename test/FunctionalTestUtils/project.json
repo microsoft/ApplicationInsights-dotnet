@@ -1,12 +1,16 @@
 ﻿{
-    "version": "1.0.0-beta8-*",
+    "version": "1.0.0-rc1-*",
+    "compilationOptions": {
+        "keyFile": "../../keys/35MSSharedLib1024.snk",
+        "delaySign": true
+    },
     "dependencies": {
         "Microsoft.ApplicationInsights": "1.1.1-beta",
-        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta8",
-        "Microsoft.AspNet.Http.Abstractions": "1.0.0-beta8-*",
-        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8-*",
-        "Microsoft.Dnx.Runtime": "1.0.0-beta8-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*",
+        "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1",
+        "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-*",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-*",
+        "Microsoft.Dnx.Runtime": "1.0.0-rc1-*",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-*",
         "System.Net.Http": "4.0.0-beta-23109"
     },
 

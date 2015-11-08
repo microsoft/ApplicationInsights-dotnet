@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Framework.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -13,9 +13,11 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
-    using Microsoft.Framework.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Configuration;
     using Xunit;
-    
+    using System.Diagnostics;
+
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -23,7 +25,7 @@
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddInstance<IHttpContextAccessor>(contextAccessor);
-            services.AddInstance<TelemetryListener>(TelemetryListener.DefaultListener);
+            services.AddInstance<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
 

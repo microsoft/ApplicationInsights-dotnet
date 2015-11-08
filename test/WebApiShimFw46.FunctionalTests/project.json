@@ -1,17 +1,20 @@
 {
     "webroot": "wwwroot",
     "version": "1.0.0-beta8-*",
-
+    "compilationOptions": {
+        "keyFile": "../../keys/35MSSharedLib1024.snk",
+        "delaySign": true
+    },
     "dependencies": {
-        "FunctionalTestUtils": "1.0.0-beta8-*",
-        "Microsoft.ApplicationInsights.AspNet": "1.0.0-beta8",
-        "Microsoft.AspNet.Mvc": "6.0.0-beta8-*",
-        "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-beta8-*",
-        "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8-*",
-        "Microsoft.AspNet.StaticFiles": "1.0.0-beta8-*",
+        "FunctionalTestUtils": "1.0.0-rc1-*",
+        "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1",
+        "Microsoft.AspNet.Mvc": "6.0.0-rc1-*",
+        "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-rc1-*",
+        "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-*",
+        "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-*",
         "Microsoft.AspNet.WebApi.Client": "5.2.0",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-beta8-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-beta8-*"
+        "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-*",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-*"
     },
 
     "commands": {
