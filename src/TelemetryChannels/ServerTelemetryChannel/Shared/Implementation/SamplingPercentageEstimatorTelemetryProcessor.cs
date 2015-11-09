@@ -3,9 +3,9 @@
     using System;
     using System.Threading;
 
-    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Represents a method that is invoked every time sampling percentage is evaluated
@@ -219,9 +219,9 @@
                         samplingPercentageChangeNeeded,
                         this.settings);
                 }
-                catch
+                catch (Exception exp)
                 {
-                    // TODO: Report exception somehow
+                    TelemetryChannelEventSource.Log.SamplingCallbackError(exp.ToString());
                 }
             }
 

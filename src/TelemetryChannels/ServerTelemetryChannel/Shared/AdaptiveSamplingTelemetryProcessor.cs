@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Telemetry processor for sampling telemetry at a dynamic rate before sending to Application Insights.
@@ -241,6 +242,7 @@
             if (isSamplingPercentageChanged)
             {
                 this.samplingProcessor.SamplingPercentage = newSamplingPercentage;
+                TelemetryChannelEventSource.Log.SamplingChanged(newSamplingPercentage);
             }
 
             if (this.evaluationCallback != null)
