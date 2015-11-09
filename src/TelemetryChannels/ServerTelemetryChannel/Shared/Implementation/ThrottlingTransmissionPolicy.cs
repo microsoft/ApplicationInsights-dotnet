@@ -2,7 +2,13 @@
 {
     using System;
     using System.Net;
+    using System.Threading.Tasks;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
+#if NET45
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
@@ -72,7 +78,7 @@
                             this.pauseTimer.Start(() =>
                             {
                                 this.ResetPolicy();
-                                return null;
+                                return TaskEx.FromResult<object>(null);
                             });
 
                             this.Transmitter.Enqueue(e.Transmission);
