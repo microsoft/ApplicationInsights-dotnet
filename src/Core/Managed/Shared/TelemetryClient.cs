@@ -309,7 +309,9 @@
             if (this.IsEnabled())
             {
                 this.Initialize(telemetry);
-
+                
+                this.WriteTelemetryToDebugOutput(telemetry);
+                
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
                     return;
@@ -324,11 +326,6 @@
 
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessors.Process(telemetry);
-                
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    this.WriteTelemetryToDebugOutput(telemetry);
-                }
             }
         }
 
@@ -373,7 +370,7 @@
                                                     CultureInfo.InvariantCulture,
                                                     "Exception while initializing {0}, exception message - {1}",
                                                     initializer.GetType().FullName,
-                                                    exception.ToString()));
+                                                    exception));
                 }
             }
         }
@@ -439,13 +436,14 @@
 
         private void WriteTelemetryToDebugOutput(ITelemetry telemetry)
         {
-            if (this.debugOutput.IsLogging())
+            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
             {
-                using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-                {
-                    string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
-                    this.debugOutput.WriteLine("Application Insights Telemetry: " + serializedTelemetry);
-                }
+                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ?
+                    "Application Insights Telemetry (unconfigured): " :
+                    "Application Insights Telemetry: ";
+
+                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
+                this.debugOutput.WriteLine(prefix + serializedTelemetry);
             }
         }
     }

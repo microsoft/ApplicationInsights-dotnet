@@ -29,5 +29,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return Debugger.IsLogging();
 #endif
         }
+
+        public bool IsAttached()
+        {
+            return Debugger.IsAttached;
+        }
     }
 }
