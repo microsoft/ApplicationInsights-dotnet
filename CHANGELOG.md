@@ -2,6 +2,13 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.0.0-beta3
+- Adaptive sampling turned on by default in server telemetry channel. Details can be found in [#80](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/80).
+- Fixed signature of ```UseSampling``` to allow chaining with other calls to ```Use``` of telemetry processors.
+- Property ```Request.ID``` returned back. ```OperationContext``` now has a property ```ParentId``` for end-to-end coorrelation.
+- ```TimestampTelemetryInitializer``` is removed. Timestamp will be added automatically by ```TelemetryClient```.
+- ```OperationCorrelationTelemetryInitializer``` is added by default to enable operaitons correlation.
+
 ## Version 2.0.0-beta2
 - Fix UI thread locking when initializing InMemoryChannel (default channel) from UI thread.
 - Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
@@ -21,6 +28,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 - ```Count``` property on DependencyTelemetry marked as Obsolete. Use ```SamplingPercentage``` instead.
 - New ```CloudContext``` introduced and properties ```RoleName``` and ```RoleInstance``` moved to it from ```DeviceContext```.
 - New property ```AuthenticatedUserId``` on ```UserContext``` to specify authenticated user identity.
+
+## Version 1.2.3
+- Bug fixes.
+- Telemetry item will be serialized to Debug Ouput even when Instrumentaiton Key was not set.
 
 ## Version 1.2
 - First version shipped from github
