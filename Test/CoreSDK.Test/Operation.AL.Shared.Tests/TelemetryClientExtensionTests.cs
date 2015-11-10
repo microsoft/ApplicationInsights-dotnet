@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Messaging;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -177,6 +176,14 @@
             }
 
             Assert.AreEqual(2, this.sendItems.Count);
+        }
+
+
+        [TestMethod]
+        public void StartDependencyTrackingStoresTheArgumentOperationNameInContext()
+        {
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
+            Assert.AreEqual("TestOperationName", AsyncLocalHelpers.GetCurrentOperationContext().RootOperationName);
         }
     }
 }

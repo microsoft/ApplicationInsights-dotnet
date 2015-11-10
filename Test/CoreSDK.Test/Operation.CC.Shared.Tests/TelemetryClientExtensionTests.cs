@@ -183,5 +183,12 @@
 
             Assert.AreEqual(2, this.sendItems.Count);
         }
+
+        [TestMethod]
+        public void StartDependencyTrackingStoresTheArgumentOperationNameInContext()
+        {
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
+            Assert.AreEqual("TestOperationName", CallContextHelpers.GetCurrentOperationContext().RootOperationName);
+        }
     }
 }
