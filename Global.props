@@ -111,12 +111,12 @@
     <SemanticVersionMajor>2</SemanticVersionMajor>
     <SemanticVersionMinor>0</SemanticVersionMinor>
     <SemanticVersionPatch>0</SemanticVersionPatch>
-    <PreReleaseMilestone>beta2</PreReleaseMilestone>
+    <PreReleaseMilestone>beta3</PreReleaseMilestone>
     <!-- 
       Date when Semantic Version was changed. 
       Update for every public release.
     -->
-    <SemanticVersionDate>2015-10-06</SemanticVersionDate>
+    <SemanticVersionDate>2015-10-20</SemanticVersionDate>
 
     <!-- 
       Pre-release version is used to distinguish internally built NuGet packages.
@@ -134,7 +134,7 @@
       NuGet package version is derived from AssemblyFileVersion.
     -->
     <AssemblyAttributes Include="AssemblyVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
+      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</_Parameter1>
     </AssemblyAttributes>
     <AssemblyAttributes Include="AssemblyFileVersion">
       <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>

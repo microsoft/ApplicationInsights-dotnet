@@ -1,11 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using Microsoft.ApplicationInsights.DataContracts;
+    using System.ComponentModel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Extension methods for TelemetryConfiguration.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryConfigurationExtensions
     {
         /// <summary>

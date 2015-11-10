@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.WindowsServer.Channel</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AdaptiveSamplingTelemetryProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\DirectoryAccessDenier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\FileAccessDenier.cs" />
@@ -23,10 +24,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskSchedulerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounterTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FileSystemTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFileTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettingsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGeneratorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBufferTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryChannelEventSourceTest.cs" />

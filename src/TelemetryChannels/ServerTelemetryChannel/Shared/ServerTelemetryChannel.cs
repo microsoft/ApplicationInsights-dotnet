@@ -178,7 +178,9 @@
         {
             if (item != null && TelemetryChannelEventSource.Log.IsVerboseEnabled)
             {
-                TelemetryChannelEventSource.Log.TelemetryChannelSend(item.ToString());
+                TelemetryChannelEventSource.Log.TelemetryChannelSend(
+                    item.ToString(), 
+                    item.Context.InstrumentationKey.Substring(0, Math.Min(item.Context.InstrumentationKey.Length, 8)));
             }
 
             this.TelemetryProcessor.Process(item);

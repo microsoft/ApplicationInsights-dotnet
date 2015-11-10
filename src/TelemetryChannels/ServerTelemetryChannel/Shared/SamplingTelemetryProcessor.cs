@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
@@ -59,6 +60,11 @@
 
                 if (!this.IsSampledIn(item))
                 {
+                    if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                    {
+                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                    }
+
                     return;
                 }
             }
