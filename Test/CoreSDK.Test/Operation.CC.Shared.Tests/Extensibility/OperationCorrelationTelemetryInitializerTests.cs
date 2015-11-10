@@ -39,44 +39,23 @@
         }
 
         [TestMethod]
-        public void TelemetryContextIsUpdatedWithRootOperationIdForDependencyTelemetry()
-        {
-            this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationId = "RootOperationId" });
-            var telemetry = new DependencyTelemetry();
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual("RootOperationId", telemetry.Context.Operation.RootId);
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
-        }
-
-        [TestMethod]
-        public void InitializeDoesNotUpdateRootOperationIdIfItExists()
-        {
-            this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationId = "RootOperationId" });
-            var telemetry = new DependencyTelemetry();
-            telemetry.Context.Operation.RootId = "OldRootOperationId";
-            (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual("OldRootOperationId", telemetry.Context.Operation.RootId);
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
-        }
-
-        [TestMethod]
         public void TelemetryContextIsUpdatedWithOperationNameForDependencyTelemetry()
         {
-            this.SetOperationContextToCallContext(new OperationContextForCallContext { OperationName = "OperationName" });
+            this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual(telemetry.Context.Operation.RootName, "OperationName");
+            Assert.AreEqual(telemetry.Context.Operation.Name, "OperationName");
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
         [TestMethod]
         public void InitializeDoesNotUpdateOperationNameIfItExists()
         {
-            this.SetOperationContextToCallContext(new OperationContextForCallContext { OperationName = "OperationName" });
+            this.SetOperationContextToCallContext(new OperationContextForCallContext { RootOperationName = "OperationName" });
             var telemetry = new DependencyTelemetry();
-            telemetry.Context.Operation.RootName = "OldOperationName";
+            telemetry.Context.Operation.Name = "OldOperationName";
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
-            Assert.AreEqual(telemetry.Context.Operation.RootName, "OldOperationName");
+            Assert.AreEqual(telemetry.Context.Operation.Name, "OldOperationName");
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 

@@ -17,7 +17,7 @@
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
         {
-            var startTime = OperationWatch.Timestamp(OperationWatch.ElapsedTicks);
+            var startTime = Clock.Instance.Time;
             telemetry.StartTime = startTime;
             telemetry.Timestamp = startTime;
         }
@@ -30,11 +30,11 @@
         {
             if (telemetry.StartTime != DateTimeOffset.MinValue)
             {
-                telemetry.Duration = OperationWatch.Timestamp(OperationWatch.ElapsedTicks) - telemetry.StartTime;
+                telemetry.Duration = Clock.Instance.Time - telemetry.StartTime;
             }
             else
             {
-                telemetry.Timestamp = OperationWatch.Timestamp(OperationWatch.ElapsedTicks);
+                telemetry.Timestamp = Clock.Instance.Time;
                 telemetry.StartTime = telemetry.Timestamp;
                 telemetry.Duration = TimeSpan.Zero;
             }
@@ -46,7 +46,7 @@
         /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
         public static void GenerateOperationId(this OperationTelemetry telemetry)
         {
-            telemetry.Context.Operation.Id = WeakConcurrentRandom.Instance.Next().ToString(CultureInfo.InvariantCulture);
+            telemetry.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
     }
 }

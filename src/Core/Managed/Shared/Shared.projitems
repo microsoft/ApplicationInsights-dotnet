@@ -64,7 +64,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\LocationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationTelemetry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationWatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Platform\PlatformSingleton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Property.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContext.cs" />
@@ -126,7 +125,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TimestampPropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />

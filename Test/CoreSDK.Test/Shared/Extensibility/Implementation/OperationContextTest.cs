@@ -1,19 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
     using System.Reflection;
-    using Microsoft.ApplicationInsights.DataContracts;
 #if WINDOWS_PHONE || WINDOWS_STORE
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
     using Assert = Xunit.Assert;
-    using EndpointOperationContext = Microsoft.Developer.Analytics.DataCollection.Model.v2.OperationContextData;
-    using JsonConvert = Newtonsoft.Json.JsonConvert;
 
     [TestClass]
     public class OperationContextTest
@@ -35,7 +29,7 @@
         public void NameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            Assert.Null(operation.RootName);
+            Assert.Null(operation.Name);
         }
 
         [TestMethod]
@@ -56,7 +50,7 @@
         public void RootIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            Assert.Null(operation.RootId);
+            Assert.Null(operation.Id);
         }
 
         [TestMethod]
@@ -79,8 +73,8 @@
         public void NameCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
             var operation = new OperationContext(new Dictionary<string, string>());
-            operation.RootName = "SampleOperationName";
-            Assert.Equal("SampleOperationName", operation.RootName);
+            operation.Name = "SampleOperationName";
+            Assert.Equal("SampleOperationName", operation.Name);
         }
 
         [TestMethod]
@@ -97,14 +91,6 @@
             var operation = new OperationContext(new Dictionary<string, string>());
             operation.ParentId = "ParentId";
             Assert.Equal("ParentId", operation.ParentId);
-        }
-
-        [TestMethod]
-        public void RootIdCanBeChangedByUserToSupplyApplicationDefinedValue()
-        {
-            var operation = new OperationContext(new Dictionary<string, string>());
-            operation.RootId = "RootId";
-            Assert.Equal("RootId", operation.RootId);
         }
 
         [TestMethod]

@@ -38,7 +38,6 @@
         public virtual void Initialize(TelemetryConfiguration configuration)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
-            configuration.TelemetryInitializers.Add(new TimestampPropertyInitializer());            
 
             // Load customizations from the ApplicationsInsights.config file
             string text = PlatformSingleton.Current.ReadConfigurationXml();
