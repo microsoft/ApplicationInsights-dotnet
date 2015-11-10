@@ -65,12 +65,30 @@
         }
 
         [TestMethod]
+        public void ActiveInitializesTelemetryModuleCollection()
+        {
+            IList<ITelemetryModule> modules = new List<ITelemetryModule>();
+            TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
+            {
+                OnInitialize = (c, m) =>
+                {
+                    modules = m;
+                },
+            };
+
+            TelemetryConfiguration.Active = null;
+            Assert.NotNull(TelemetryConfiguration.Active);
+
+            Assert.Same(modules, TelemetryModules.Instance.Modules);
+        }
+
+        [TestMethod]
         public void ActiveUsesTelemetryConfigurationFactoryToInitializeTheInstance()
         {
             bool factoryInvoked = false;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => { factoryInvoked = true; },
+                OnInitialize = (configuration, _) => { factoryInvoked = true; },
             };
             TelemetryConfiguration.Active = null;
             try
@@ -92,7 +110,7 @@
             TelemetryConfiguration.Active = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => { Interlocked.Increment(ref numberOfInstancesInitialized); },
+                OnInitialize = (configuration, _) => { Interlocked.Increment(ref numberOfInstancesInitialized); },
             };
             try
             {
@@ -120,7 +138,7 @@
             TelemetryConfiguration.Active = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration =>
+                OnInitialize = (configuration, _) =>
                 {
                     Interlocked.Increment(ref numberOfInstancesInitialized);
                     var dummy = TelemetryConfiguration.Active;
@@ -143,12 +161,29 @@
         #region CreateDefault
 
         [TestMethod]
+        public void DefaultDoesNotInitializeTelemetryModuleCollection()
+        {
+            IList<ITelemetryModule> modules = new List<ITelemetryModule>();
+            TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
+            {
+                OnInitialize = (c, m) =>
+                {
+                    modules = m;
+                },
+            };
+
+            Assert.NotNull(TelemetryConfiguration.CreateDefault());
+
+            Assert.NotSame(modules, TelemetryModules.Instance.Modules);
+        }
+
+        [TestMethod]
         public void CreateDefaultReturnsNewConfigurationInstanceInitializedByTelemetryConfigurationFactory()
         {
             TelemetryConfiguration initializedConfiguration = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => initializedConfiguration = configuration,
+                OnInitialize = (configuration, _) => initializedConfiguration = configuration,
             };
             try
             {
@@ -263,11 +298,11 @@
 
         private class StubTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
-            public Action<TelemetryConfiguration> OnInitialize = configuration => { };
+            public Action<TelemetryConfiguration, IList<ITelemetryModule>> OnInitialize = (configuration, module) => { };
 
-            public override void Initialize(TelemetryConfiguration configuration)
+            public override void Initialize(TelemetryConfiguration configuration, IList<ITelemetryModule> modules)
             {
-                this.OnInitialize(configuration);
+                this.OnInitialize(configuration, modules);
             }
         }
     }

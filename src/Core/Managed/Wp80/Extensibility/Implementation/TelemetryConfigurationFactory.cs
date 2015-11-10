@@ -1,12 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     internal class TelemetryConfigurationFactory
     {
+        protected string configurationFileContent;
+
         private const string InstrumentationKeyOpeingTag = "<InstrumentationKey>";
         private const string InstrumentationKeyClosingTag = "</InstrumentationKey>";
 
@@ -35,13 +40,14 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration)
+        public virtual void Initialize(TelemetryConfiguration configuration, IList<ITelemetryModule> modules = null)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
             // Load customizations from the ApplicationsInsights.config file
-            string text = PlatformSingleton.Current.ReadConfigurationXml();
-            string instrumentationKey = this.GetInstrumentationKeyFromConfigFile(text);
+            LazyInitializer.EnsureInitialized(ref this.configurationFileContent, PlatformSingleton.Current.ReadConfigurationXml);
+
+            string instrumentationKey = this.GetInstrumentationKeyFromConfigFile(this.configurationFileContent);
             if (!string.IsNullOrEmpty(instrumentationKey))
             {
                 configuration.InstrumentationKey = instrumentationKey;

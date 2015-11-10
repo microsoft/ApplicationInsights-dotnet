@@ -7,20 +7,24 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Xml.Linq;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
 
     internal class TelemetryConfigurationFactory
     {
+        protected string configurationFileContent;
+
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
         private static TelemetryConfigurationFactory instance;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryConfigurationFactory"/> class.
         /// </summary>
@@ -44,7 +48,7 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration)
+        public virtual void Initialize(TelemetryConfiguration configuration, IList<ITelemetryModule> modules)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
@@ -53,11 +57,11 @@
 #endif
 
             // Load customizations from the ApplicationsInsights.config file
-            string text = PlatformSingleton.Current.ReadConfigurationXml();
-            if (!string.IsNullOrEmpty(text))
+            LazyInitializer.EnsureInitialized(ref this.configurationFileContent, PlatformSingleton.Current.ReadConfigurationXml);
+            if (!string.IsNullOrEmpty(this.configurationFileContent))
             {
-                XDocument xml = XDocument.Parse(text);
-                LoadFromXml(configuration, xml);
+                XDocument xml = XDocument.Parse(this.configurationFileContent);
+                LoadFromXml(configuration, modules, xml);
             }
             
             // Creating the default channel if no channel configuration supplied
@@ -69,7 +73,7 @@
                 configuration.GetTelemetryProcessorChainBuilder().Build();
             }                
 
-            InitializeComponents(configuration);
+            InitializeComponents(configuration, modules);
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
@@ -80,15 +84,7 @@
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' could not be loaded.", typeName));
             }
 
-            object instance = null;
-            if (constructorArgs != null)
-            {
-                instance = Activator.CreateInstance(type, constructorArgs);
-            }
-            else
-            {
-                instance = Activator.CreateInstance(type);
-            }            
+            object instance = constructorArgs != null ? Activator.CreateInstance(type, constructorArgs) : Activator.CreateInstance(type);            
 
             if (!interfaceType.IsAssignableFrom(instance.GetType()))
             {
@@ -103,13 +99,13 @@
             return instance;
         }
 
-        protected static void LoadFromXml(TelemetryConfiguration configuration, XDocument xml)
+        protected static void LoadFromXml(TelemetryConfiguration configuration, IList<ITelemetryModule> modules, XDocument xml)
         {
             XElement applicationInsights = xml.Element(XmlNamespace + "ApplicationInsights");
-            LoadInstance(applicationInsights, typeof(TelemetryConfiguration), configuration);
+            LoadInstance(applicationInsights, typeof(TelemetryConfiguration), configuration, null, modules);
         }
 
-        protected static object LoadInstance(XElement definition, Type expectedType, object instance, object[] constructorArgs = null)
+        protected static object LoadInstance(XElement definition, Type expectedType, object instance, object[] constructorArgs, IList<ITelemetryModule> modules)
         {
             if (definition != null)
             {
@@ -144,12 +140,12 @@
 
                 if (instance != null)
                 {
-                    LoadProperties(definition, instance);
+                    LoadProperties(definition, instance, modules);
                     Type elementType;
                     if (GetCollectionElementType(instance.GetType(), out elementType))
                     {
                         MethodInfo genericLoadInstances = LoadInstancesDefinition.MakeGenericMethod(elementType);
-                        genericLoadInstances.Invoke(null, new object[] { definition, instance });
+                        genericLoadInstances.Invoke(null, new[] { definition, instance, modules });
                     }
                 }
             }
@@ -165,10 +161,10 @@
                 IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);                
                 foreach (XElement addElement in elems)
                 {
-                    builder = builder.Use((current) => 
+                    builder = builder.Use(current => 
                     {
                         var constructorArgs = new object[] { current };
-                        var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs);
+                        var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
                         return (ITelemetryProcessor)instance;
                     });                           
                 }                
@@ -177,7 +173,7 @@
             builder.Build();
         }
 
-        protected static void LoadInstances<T>(XElement definition, ICollection<T> instances)
+        protected static void LoadInstances<T>(XElement definition, ICollection<T> instances, IList<ITelemetryModule> modules)
         {
             if (definition != null)
             {
@@ -193,7 +189,7 @@
                     }
 
                     bool isNewInstance = instance == null;
-                    instance = LoadInstance(addElement, typeof(T), instance);
+                    instance = LoadInstance(addElement, typeof(T), instance, null, modules);
                     if (isNewInstance)
                     {
                         instances.Add((T)instance);
@@ -202,7 +198,7 @@
             }
         }
 
-        protected static void LoadProperties(XElement instanceDefinition, object instance)
+        protected static void LoadProperties(XElement instanceDefinition, object instance, IList<ITelemetryModule> modules)
         {
             List<XElement> propertyDefinitions = GetPropertyDefinitions(instanceDefinition).ToList();
             if (propertyDefinitions.Count > 0)
@@ -222,16 +218,16 @@
                         else
                         {
                             object propertyValue = property.GetValue(instance, null);
-                            propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue);
+                            propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue, null, modules);
                             if (property.CanWrite)
                             {
                                 property.SetValue(instance, propertyValue, null);
                             }
                         }                        
                     }                    
-                    else if (propertyName == "TelemetryModules")
+                    else if (modules != null && propertyName == "TelemetryModules")
                     {
-                        LoadInstance(propertyDefinition, TelemetryModules.Instance.Modules.GetType(), TelemetryModules.Instance.Modules);
+                        LoadInstance(propertyDefinition, modules.GetType(), modules, null, modules);
                     }
                     else if (instance is TelemetryConfiguration)
                     {
@@ -250,19 +246,22 @@
             }
         }        
 
-        private static void InitializeComponents(TelemetryConfiguration configuration)
+        private static void InitializeComponents(TelemetryConfiguration configuration, IList<ITelemetryModule> modules)
         {
             InitializeComponent(configuration.TelemetryChannel, configuration);            
             InitializeComponents(configuration.TelemetryInitializers, configuration);
             InitializeComponents(configuration.TelemetryProcessors.TelemetryProcessors, configuration);
-            InitializeComponents(TelemetryModules.Instance.Modules, configuration);
+            InitializeComponents(modules, configuration);
         }
 
         private static void InitializeComponents(IEnumerable components, TelemetryConfiguration configuration)
         {
-            foreach (object component in components)
+            if (components != null)
             {
-                InitializeComponent(component, configuration);
+                foreach (object component in components)
+                {
+                    InitializeComponent(component, configuration);
+                }
             }
         }
 
@@ -288,7 +287,7 @@
             {
                 string valueString = definition.Value.Trim();
                 expectedType = Nullable.GetUnderlyingType(expectedType) ?? expectedType;
-                if (valueString == null || valueString == "null")
+                if (valueString == "null")
                 {
                     instance = null;
                 }

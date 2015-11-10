@@ -41,7 +41,7 @@
                         if (active == null)
                         {
                             active = new TelemetryConfiguration();
-                            TelemetryConfigurationFactory.Instance.Initialize(active);
+                            TelemetryConfigurationFactory.Instance.Initialize(active, TelemetryModules.Instance.Modules);
                         }
                     }
                 }
@@ -170,7 +170,7 @@
         public static TelemetryConfiguration CreateDefault()
         {
             var configuration = new TelemetryConfiguration();
-            TelemetryConfigurationFactory.Instance.Initialize(configuration);
+            TelemetryConfigurationFactory.Instance.Initialize(configuration, null);
 
             return configuration;
         }

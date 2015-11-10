@@ -61,7 +61,7 @@
         public void InitializeCreatesInMemoryChannel()
         {
             var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
         }
@@ -69,21 +69,16 @@
         [TestMethod]
         public void InitializesInstanceWithInformationFromConfigurationFileWhenItExists()
         {
-            string configFileContents = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>");
-            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
-            PlatformSingleton.Current = platform;
-            try
+            var configuration = new TelemetryConfiguration();
+            var factory = new TestableTelemetryConfigurationFactory
             {
-                var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+                ConfigurationFileContentAccessor = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>")
+            };
 
-                // Assume that LoadFromXml method is called, tested separately
-                Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
-            }
-            finally
-            {
-                PlatformSingleton.Current = null;
-            }
+            factory.Initialize(configuration, new List<ITelemetryModule>());
+
+            // Assume that LoadFromXml method is called, tested separately
+            Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
         }
 
 #if !CORE_PCL
@@ -91,7 +86,7 @@
         public void InitializeAddsOperationContextTelemetryInitializerByDefault()
         {
             var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             // Assume that SdkVersionInitializer is added by default
             var contextInitializer = configuration.TelemetryInitializers[1];
@@ -102,7 +97,7 @@
         public void InitializeAddsSdkVersionTelemetryInitializerByDefault()
         {
             var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             // Assume that SdkVersionInitializer is added by default
             var contextInitializer = configuration.TelemetryInitializers[0];
@@ -116,7 +111,7 @@
             var initializer = new StubConfigurableTelemetryInitializer();
             var configuration = new TelemetryConfiguration { TelemetryInitializers = { initializer } };
 
-            new TestableTelemetryConfigurationFactory().Initialize(configuration);
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             Assert.True(initializer.Initialized);
             Assert.Same(configuration, initializer.Configuration);
@@ -175,7 +170,7 @@
             string profile = Configuration("<InstrumentationKey>" + expected + "</InstrumentationKey>");
 
             var configuration = new TelemetryConfiguration();
-            TestableTelemetryConfigurationFactory.LoadFromXml(configuration, XDocument.Parse(profile));
+            TestableTelemetryConfigurationFactory.LoadFromXml(configuration, null, XDocument.Parse(profile));
 
             // Assume LoadFromXml calls LoadInstance, which is tested separately.
             Assert.Equal(expected, configuration.InstrumentationKey);
@@ -189,7 +184,7 @@
         public void LoadInstanceReturnsInstanceOfTypeSpecifiedInTypeAttributeOfGivenXmlDefinition()
         {
             var definition = new XElement("Definition", new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName));
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
             Assert.Equal(typeof(StubClassWithProperties), instance.GetType());
         }
 
@@ -201,7 +196,7 @@
                 new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName),
                 new XElement("StringProperty", "TestValue"));
 
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
 
             Assert.Equal("TestValue", ((StubClassWithProperties)instance).StringProperty);
         }
@@ -214,7 +209,7 @@
                 new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName),
                 new XElement("TimeSpanProperty", "00:00:07"));
 
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
 
             Assert.Equal(TimeSpan.FromSeconds(7), ((StubClassWithProperties)instance).TimeSpanProperty);
         }
@@ -227,7 +222,7 @@
                 new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName),
                 new XElement("TimeSpanProperty", "7"));
 
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
 
             Assert.Equal(TimeSpan.FromDays(7), ((StubClassWithProperties)instance).TimeSpanProperty);
         }
@@ -240,7 +235,7 @@
                 new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName),
                 new XElement("TimeSpanProperty", "TestValue"));
 
-            Assert.Throws<FormatException>(() => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null));
+            Assert.Throws<FormatException>(() => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null));
         }
 
         [TestMethod]
@@ -251,7 +246,7 @@
                 new XElement("StringProperty", "TestValue"));
 
             var original = new StubClassWithProperties();
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
 
             Assert.Equal("TestValue", original.StringProperty);
         }
@@ -260,7 +255,7 @@
         public void LoadInstanceConvertsValueToExpectedTypeGivenXmlDefinitionWithNoChildElements()
         {
             var definition = new XElement("Definition", "42");
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), null, null);
             Assert.Equal(42, instance);
         }
 
@@ -270,7 +265,7 @@
             string expected = Guid.NewGuid().ToString();
             var definition = new XElement("InstrumentationKey", "\n" + expected + "\n");
 
-            object actual = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(string), null);
+            object actual = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(string), null, null);
 
             Assert.Equal(expected, actual);
         }
@@ -279,7 +274,7 @@
         public void LoadInstanceReturnsNullGivenEmptyXmlElementForReferenceType()
         {
             var definition = new XElement("Definition");
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(string), "Test Value");
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(string), "Test Value", null);
             Assert.Null(instance);
         }
 
@@ -287,7 +282,7 @@
         public void LoadInstanceReturnsOriginalValueGivenNullXmlElement()
         {
             var original = "Test Value";
-            object loaded = TestableTelemetryConfigurationFactory.LoadInstance(null, original.GetType(), original);
+            object loaded = TestableTelemetryConfigurationFactory.LoadInstance(null, original.GetType(), original, null);
             Assert.Same(original, loaded);
         }
 
@@ -295,7 +290,7 @@
         public void LoadInstanceReturnsDefaultValueGivenValueEmptyXmlElementForValueType()
         {
             var definition = new XElement("Definition");
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), 12);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(int), 12, null);
             Assert.Equal(0, instance);
         }
 
@@ -303,7 +298,7 @@
         public void LoadInstanceThrowsInvalidOperationExceptionWhenDefinitionElementDoesNotHaveTypeAttributeAndInstanceIsNotInitialized()
         {
             var elementWithoutType = new XElement("Add", new XElement("PropertyName"));
-            var exception = Assert.Throws<InvalidOperationException>(() => TestableTelemetryConfigurationFactory.LoadInstance(elementWithoutType, typeof(IComparable), null));
+            var exception = Assert.Throws<InvalidOperationException>(() => TestableTelemetryConfigurationFactory.LoadInstance(elementWithoutType, typeof(IComparable), null, null));
             Assert.Contains(elementWithoutType.Name.ToString(), exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("Type", exception.Message, StringComparison.OrdinalIgnoreCase);
         }
@@ -313,7 +308,7 @@
         {
             var definition = new XElement("InvalidElement", "InvalidText");
             var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(ITelemetryChannel), null));
+                () => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(ITelemetryChannel), null, null));
             Assert.Contains("InvalidElement", exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("InvalidText", exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.NotNull(exception.InnerException);
@@ -324,7 +319,7 @@
         {
             var definition = new XElement("Definition", new XElement("Int32Property", 42));
 
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
 
             var loaded = Assert.IsType<StubClassWithProperties>(instance);
             Assert.Equal(42, loaded.Int32Property);
@@ -335,7 +330,7 @@
         {
             var definition = new XElement("Definition", new XAttribute("Int32Property", 42));
 
-            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null);
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), null, null);
 
             var loaded = Assert.IsType<StubClassWithProperties>(instance);
             Assert.Equal(42, loaded.Int32Property);
@@ -344,6 +339,7 @@
         #endregion
 
         #region TelemetryProcesors
+
         [TestMethod]
         public void InitializeTelemetryProcessorsFromConfigurationFile()
         {
@@ -354,27 +350,22 @@
                   <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationFactoryTest+StubTelemetryProcessor2, Microsoft.ApplicationInsights.Core.Net40.Tests"" />
                   </TelemetryProcessors>"
                 );
-            
-            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
-            PlatformSingleton.Current = platform;
-            try
-            {
-                var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
 
-                // Assume that LoadFromXml method is called, tested separately
-                Assert.True(configuration.TelemetryProcessors != null);
-                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
-
-                //validate the chain linking stub1->stub2->transmission
-                var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessors.FirstTelemetryProcessor;
-                var tp2 = (StubTelemetryProcessor2) tp1.next;
-                var tpLast = (TransmissionProcessor) tp2.next;
-            }
-            finally
+            var configuration = new TelemetryConfiguration();
+            var factory = new TestableTelemetryConfigurationFactory
             {
-                PlatformSingleton.Current = null;
-            }
+                ConfigurationFileContentAccessor = configFileContents
+            };
+            factory.Initialize(configuration, new List<ITelemetryModule>());
+
+            // Assume that LoadFromXml method is called, tested separately
+            Assert.True(configuration.TelemetryProcessors != null);
+            Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
+
+            //validate the chain linking stub1->stub2->transmission
+            var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessors.FirstTelemetryProcessor;
+            var tp2 = (StubTelemetryProcessor2) tp1.next;
+            var tpLast = (TransmissionProcessor) tp2.next;
         }
 
         [TestMethod]
@@ -391,7 +382,7 @@
             try
             {
                 var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
                 // Assume that LoadFromXml method is called, tested separately
                 Assert.True(configuration.TelemetryProcessors != null);
@@ -421,7 +412,7 @@
             try
             {
                 var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
                 // Assume that LoadFromXml method is called, tested separately
                 Assert.True(configuration.TelemetryProcessors != null);
@@ -450,7 +441,7 @@
             try
             {
                 var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
                 // Assume that LoadFromXml method is called, tested separately
                 Assert.True(configuration.TelemetryProcessors != null);
@@ -479,7 +470,7 @@
             try
             {
                 var configuration = new TelemetryConfiguration();
-                new TestableTelemetryConfigurationFactory().Initialize(configuration);
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
                 // Assume that LoadFromXml method is called, tested separately
                 Assert.True(configuration.TelemetryProcessors != null);
@@ -490,6 +481,47 @@
                 PlatformSingleton.Current = null;
             }
         }
+        #endregion
+
+        #region Modules
+
+        [TestMethod]
+        public void InitializeTelemetryModulesFromConfigurationFile()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryModules>    
+    <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights"" />
+  </TelemetryModules>"
+                );
+
+            var modules = new List<ITelemetryModule>();
+            var factory = new TestableTelemetryConfigurationFactory
+            {
+                ConfigurationFileContentAccessor = configFileContents
+            };
+            factory.Initialize(new TelemetryConfiguration(), modules);
+
+            Assert.Equal(1, modules.Count); 
+        }
+
+        [TestMethod]
+        public void InitializeTelemetryModulesFromConfigurationFileWithNoModules()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryModules>    
+                  </TelemetryModules>"
+                );
+
+            var modules = new List<ITelemetryModule>();
+            var factory = new TestableTelemetryConfigurationFactory
+            {
+                ConfigurationFileContentAccessor = configFileContents
+            };
+            factory.Initialize(new TelemetryConfiguration(), modules);
+
+            Assert.Equal(0, modules.Count);
+        }
+
         #endregion
 
         #region LoadInstances<T>
@@ -503,14 +535,14 @@
                 </List>");
             var instances = new List<ITelemetryInitializer>();
 
-            TestableTelemetryConfigurationFactory.LoadInstances(element, instances);
+            TestableTelemetryConfigurationFactory.LoadInstances(element, instances, null);
 
             Assert.Equal(1, instances.Count);
             Assert.Equal(typeof(StubTelemetryInitializer), instances[0].GetType());
         }
        
         [TestMethod]
-        public void LoadInstancesUpdatesInstanceWithMatchingType() // TODO: Why? This is inconsistent with the name of the element, Add.
+        public void LoadInstancesUpdatesInstanceWithMatchingType() 
         {
             var configuration = new TelemetryConfiguration();
             var element = XElement.Parse(@"
@@ -524,7 +556,7 @@
             var instances = new List<object>();
             instances.Add(configurableElement);
 
-            TestableTelemetryConfigurationFactory.LoadInstances(element, instances);
+            TestableTelemetryConfigurationFactory.LoadInstances(element, instances, null);
 
             var telemetryModules = instances.OfType<StubConfigurableWithProperties>().ToArray();
             Assert.Equal(1, telemetryModules.Count());
@@ -542,13 +574,13 @@
                 </List>");
 
             var instances = new List<int>();
-            TestableTelemetryConfigurationFactory.LoadInstances(definition, instances);
+            TestableTelemetryConfigurationFactory.LoadInstances(definition, instances, null);
 
             Assert.Equal(new[] { 41, 42 }, instances);
         }
 
         [TestMethod]
-        public void LoadInstancesIgnoresElementsOtherThanAdd() // TODO: Why? This is inconsistent with property loading, which throws InvalidOperationException.
+        public void LoadInstancesIgnoresElementsOtherThanAdd()
         {
             var definition = XElement.Parse(@"
                 <List xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
@@ -557,7 +589,7 @@
                 </List>");
 
             var instances = new List<int>();
-            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadInstances(definition, instances));
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadInstances(definition, instances, null));
 
             Assert.Equal(new[] { 42 }, instances);
         }
@@ -572,7 +604,7 @@
             var definition = new XElement("Definition", new XElement("Int32Property", "42"));
 
             var instance = new StubClassWithProperties();
-            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance);
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.Equal(42, instance.Int32Property);
         }
@@ -582,7 +614,7 @@
         {
             var definition = new XElement("Definition", new XElement("InvalidProperty", "AnyValue"));
             var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.LoadProperties(definition, new StubClassWithProperties()));
+                () => TestableTelemetryConfigurationFactory.LoadProperties(definition, new StubClassWithProperties(), null));
             Assert.Contains("InvalidProperty", exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(typeof(StubClassWithProperties).AssemblyQualifiedName, exception.Message, StringComparison.OrdinalIgnoreCase);
         }
@@ -592,7 +624,7 @@
         {
             string configuration = Configuration("<UnknownSection/>");
             XElement aplicationInsightsElement = XDocument.Parse(configuration).Root;
-            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(aplicationInsightsElement, new TelemetryConfiguration()));
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(aplicationInsightsElement, new TelemetryConfiguration(), null));
         }
 
         [TestMethod]
@@ -601,7 +633,7 @@
             var definition = new XElement("Definition", new XElement("ChildProperty", new XAttribute("Type", typeof(StubClassWithProperties).AssemblyQualifiedName)));
             var instance = new StubClassWithProperties();
 
-            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance);
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.Equal(typeof(StubClassWithProperties), instance.ChildProperty.GetType());
         }
@@ -617,7 +649,7 @@
                     new XElement("StringProperty", "TestValue")));
             var instance = new StubClassWithProperties();
 
-            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance);
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.Equal("TestValue", instance.ChildProperty.StringProperty);
         }
@@ -627,7 +659,7 @@
         {
             XElement definition = XDocument.Parse(Configuration(@"<TelemetryModules/>")).Root;
             var instance = new TelemetryConfiguration();
-            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance));
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null));
         }
 
         [TestMethod]
@@ -636,7 +668,7 @@
             var definition = new XElement("Definition", new XAttribute("Int32Property", "42"));
 
             var instance = new StubClassWithProperties();
-            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance);
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.Equal(42, instance.Int32Property);
         }
@@ -647,7 +679,7 @@
             var definition = new XElement("Definition", new XAttribute("Int32Property", "41"), new XElement("Int32Property", "42"));
 
             var instance = new StubClassWithProperties();
-            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance);
+            TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null);
 
             Assert.Equal(42, instance.Int32Property);
         }
@@ -659,7 +691,7 @@
 
             var instance = new StubClassWithProperties();
 
-            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance));
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null));
         }
 
         [TestMethod]
@@ -702,7 +734,7 @@
                  </TelemetryChannel>")).Root;
 
             var instance = new TelemetryConfiguration();
-            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance));
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, instance, null));
             return instance;
         }
 
@@ -717,30 +749,36 @@
 
         private class TestableTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
+            public string ConfigurationFileContentAccessor
+            {
+                get { return base.configurationFileContent; }
+                set { base.configurationFileContent = value; }
+            }
+
             public static object CreateInstance(Type interfaceType, string typeName)
             {
                 return TelemetryConfigurationFactory.CreateInstance(interfaceType, typeName);
             }
 
-            public static new void LoadFromXml(TelemetryConfiguration configuration, XDocument xml)
+            public static new void LoadFromXml(TelemetryConfiguration configuration, IList<ITelemetryModule> modules, XDocument xml)
             {
-                TelemetryConfigurationFactory.LoadFromXml(configuration, xml);
+                TelemetryConfigurationFactory.LoadFromXml(configuration, modules, xml);
             }
 
-            public static object LoadInstance(XElement definition, Type expectedType, object instance)
+            public static object LoadInstance(XElement definition, Type expectedType, object instance, IList<ITelemetryModule> modules)
             {
-                return TelemetryConfigurationFactory.LoadInstance(definition, expectedType, instance);
+                return TelemetryConfigurationFactory.LoadInstance(definition, expectedType, instance, null, modules);
             }
 
             [SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This method allows calling protected base method in this test class.")]
-            public static new void LoadInstances<T>(XElement definition, ICollection<T> instances)
+            public static new void LoadInstances<T>(XElement definition, ICollection<T> instances, IList<ITelemetryModule> modules)
             {
-                TelemetryConfigurationFactory.LoadInstances(definition, instances);
+                TelemetryConfigurationFactory.LoadInstances(definition, instances, modules);
             }
 
-            public static new void LoadProperties(XElement definition, object instance)
+            public static new void LoadProperties(XElement definition, object instance, IList<ITelemetryModule> modules)
             {
-                TelemetryConfigurationFactory.LoadProperties(definition, instance);
+                TelemetryConfigurationFactory.LoadProperties(definition, instance, modules);
             }
         }
 
