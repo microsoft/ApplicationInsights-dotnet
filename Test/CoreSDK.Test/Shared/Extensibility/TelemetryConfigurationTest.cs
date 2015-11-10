@@ -67,7 +67,7 @@
         [TestMethod]
         public void ActiveInitializesTelemetryModuleCollection()
         {
-            IList<ITelemetryModule> modules = new List<ITelemetryModule>();
+            TelemetryModules modules = new TestableTelemetryModules();
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
                 OnInitialize = (c, m) =>
@@ -79,7 +79,7 @@
             TelemetryConfiguration.Active = null;
             Assert.NotNull(TelemetryConfiguration.Active);
 
-            Assert.Same(modules, TelemetryModules.Instance.Modules);
+            Assert.Same(modules, TelemetryModules.Instance);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@
         [TestMethod]
         public void DefaultDoesNotInitializeTelemetryModuleCollection()
         {
-            IList<ITelemetryModule> modules = new List<ITelemetryModule>();
+            TelemetryModules modules = new TestableTelemetryModules();
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
                 OnInitialize = (c, m) =>
@@ -173,8 +173,7 @@
             };
 
             Assert.NotNull(TelemetryConfiguration.CreateDefault());
-
-            Assert.NotSame(modules, TelemetryModules.Instance.Modules);
+            Assert.Null(modules);
         }
 
         [TestMethod]
@@ -296,11 +295,15 @@
         }
         #endregion
 
+        private class TestableTelemetryModules : TelemetryModules
+        {
+        }
+
         private class StubTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
-            public Action<TelemetryConfiguration, IList<ITelemetryModule>> OnInitialize = (configuration, module) => { };
+            public Action<TelemetryConfiguration, TelemetryModules> OnInitialize = (configuration, module) => { };
 
-            public override void Initialize(TelemetryConfiguration configuration, IList<ITelemetryModule> modules)
+            public override void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
             {
                 this.OnInitialize(configuration, modules);
             }

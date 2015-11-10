@@ -10,8 +10,6 @@
 
     internal class TelemetryConfigurationFactory
     {
-        protected string configurationFileContent;
-
         private const string InstrumentationKeyOpeingTag = "<InstrumentationKey>";
         private const string InstrumentationKeyClosingTag = "</InstrumentationKey>";
 
@@ -40,14 +38,14 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration, IList<ITelemetryModule> modules = null)
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules = null)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
             // Load customizations from the ApplicationsInsights.config file
-            LazyInitializer.EnsureInitialized(ref this.configurationFileContent, PlatformSingleton.Current.ReadConfigurationXml);
+            string text = PlatformSingleton.Current.ReadConfigurationXml();
 
-            string instrumentationKey = this.GetInstrumentationKeyFromConfigFile(this.configurationFileContent);
+            string instrumentationKey = this.GetInstrumentationKeyFromConfigFile(text);
             if (!string.IsNullOrEmpty(instrumentationKey))
             {
                 configuration.InstrumentationKey = instrumentationKey;

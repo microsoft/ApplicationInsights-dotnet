@@ -41,7 +41,7 @@
                         if (active == null)
                         {
                             active = new TelemetryConfiguration();
-                            TelemetryConfigurationFactory.Instance.Initialize(active, TelemetryModules.Instance.Modules);
+                            TelemetryConfigurationFactory.Instance.Initialize(active, TelemetryModules.Instance);
                         }
                     }
                 }

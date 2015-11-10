@@ -69,16 +69,22 @@
         [TestMethod]
         public void InitializesInstanceWithInformationFromConfigurationFileWhenItExists()
         {
-            var configuration = new TelemetryConfiguration();
-            var factory = new TestableTelemetryConfigurationFactory
+            string configFileContents = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>");
+
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
             {
-                ConfigurationFileContentAccessor = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>")
-            };
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules());
 
-            factory.Initialize(configuration, new List<ITelemetryModule>());
-
-            // Assume that LoadFromXml method is called, tested separately
-            Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
         }
 
 #if !CORE_PCL
@@ -351,21 +357,26 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
-            var factory = new TestableTelemetryConfigurationFactory
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
             {
-                ConfigurationFileContentAccessor = configFileContents
-            };
-            factory.Initialize(configuration, new List<ITelemetryModule>());
+                var configuration = new TelemetryConfiguration();
+                new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules());
 
-            // Assume that LoadFromXml method is called, tested separately
-            Assert.True(configuration.TelemetryProcessors != null);
-            Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
+                // Assume that LoadFromXml method is called, tested separately
+                Assert.True(configuration.TelemetryProcessors != null);
+                Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessors.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->stub2->transmission
-            var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessors.FirstTelemetryProcessor;
-            var tp2 = (StubTelemetryProcessor2) tp1.next;
-            var tpLast = (TransmissionProcessor) tp2.next;
+                //validate the chain linking stub1->stub2->transmission
+                var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessors.FirstTelemetryProcessor;
+                var tp2 = (StubTelemetryProcessor2) tp1.next;
+                var tpLast = (TransmissionProcessor) tp2.next;
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
         }
 
         [TestMethod]
@@ -494,14 +505,19 @@
   </TelemetryModules>"
                 );
 
-            var modules = new List<ITelemetryModule>();
-            var factory = new TestableTelemetryConfigurationFactory
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
             {
-                ConfigurationFileContentAccessor = configFileContents
-            };
-            factory.Initialize(new TelemetryConfiguration(), modules);
+                var modules = new TestableTelemetryModules();
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules);
 
-            Assert.Equal(1, modules.Count); 
+                Assert.Equal(1, modules.Modules.Count);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
         }
 
         [TestMethod]
@@ -512,14 +528,19 @@
                   </TelemetryModules>"
                 );
 
-            var modules = new List<ITelemetryModule>();
-            var factory = new TestableTelemetryConfigurationFactory
+            var platform = new StubPlatform { OnReadConfigurationXml = () => configFileContents };
+            PlatformSingleton.Current = platform;
+            try
             {
-                ConfigurationFileContentAccessor = configFileContents
-            };
-            factory.Initialize(new TelemetryConfiguration(), modules);
+                var modules = new TestableTelemetryModules();
+                new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules);
 
-            Assert.Equal(0, modules.Count);
+                Assert.Equal(0, modules.Modules.Count);
+            }
+            finally
+            {
+                PlatformSingleton.Current = null;
+            }
         }
 
         #endregion
@@ -747,36 +768,34 @@
                 </ApplicationInsights>";
         }
 
+        private class TestableTelemetryModules : TelemetryModules
+        {
+        }
+
         private class TestableTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
-            public string ConfigurationFileContentAccessor
-            {
-                get { return base.configurationFileContent; }
-                set { base.configurationFileContent = value; }
-            }
-
             public static object CreateInstance(Type interfaceType, string typeName)
             {
                 return TelemetryConfigurationFactory.CreateInstance(interfaceType, typeName);
             }
 
-            public static new void LoadFromXml(TelemetryConfiguration configuration, IList<ITelemetryModule> modules, XDocument xml)
+            public static new void LoadFromXml(TelemetryConfiguration configuration, TelemetryModules modules, XDocument xml)
             {
                 TelemetryConfigurationFactory.LoadFromXml(configuration, modules, xml);
             }
 
-            public static object LoadInstance(XElement definition, Type expectedType, object instance, IList<ITelemetryModule> modules)
+            public static object LoadInstance(XElement definition, Type expectedType, object instance, TelemetryModules modules)
             {
                 return TelemetryConfigurationFactory.LoadInstance(definition, expectedType, instance, null, modules);
             }
 
             [SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This method allows calling protected base method in this test class.")]
-            public static new void LoadInstances<T>(XElement definition, ICollection<T> instances, IList<ITelemetryModule> modules)
+            public static new void LoadInstances<T>(XElement definition, ICollection<T> instances, TelemetryModules modules)
             {
                 TelemetryConfigurationFactory.LoadInstances(definition, instances, modules);
             }
 
-            public static new void LoadProperties(XElement definition, object instance, IList<ITelemetryModule> modules)
+            public static new void LoadProperties(XElement definition, object instance, TelemetryModules modules)
             {
                 TelemetryConfigurationFactory.LoadProperties(definition, instance, modules);
             }
@@ -795,10 +814,6 @@
 
         private class StubConfigurable : ITelemetryModule
         {
-            public StubConfigurable()
-            {
-            }
-
             public TelemetryConfiguration Configuration { get; set; }
 
             public bool Initialized { get; set; }
