@@ -676,6 +676,63 @@
         }
 
         [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyEmpty()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput
+            {
+                OnWriteLine = message =>
+                {
+                    System.Diagnostics.Debug.WriteLine("1");
+                    actualMessage = message;
+                },
+                OnIsAttached = () => true,
+            };
+
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = ""
+
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
+            PlatformSingleton.Current = null;
+        }
+
+        [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyNotEmpty()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput
+            {
+                OnWriteLine = message => actualMessage = message,
+                OnIsAttached = () => true,
+            };
+
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = "123"
+
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry: "));
+            PlatformSingleton.Current = null;
+        }
+
+
+        [TestMethod]
         public void TrackDoesNotWriteTelemetryToDebugOutputIfNotInDeveloperMode()
         {
             string actualMessage = null;

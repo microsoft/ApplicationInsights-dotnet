@@ -1,6 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
@@ -35,12 +38,13 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration)
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules = null)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
             // Load customizations from the ApplicationsInsights.config file
             string text = PlatformSingleton.Current.ReadConfigurationXml();
+
             string instrumentationKey = this.GetInstrumentationKeyFromConfigFile(text);
             if (!string.IsNullOrEmpty(instrumentationKey))
             {
