@@ -55,18 +55,6 @@
         }
 
         [TestMethod]
-        public void TrackEventWillUseRequiredFieldTextForTheEventNameWhenTheEventNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent((string)null);
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, eventTelemetry.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [TestMethod]
         public void TrackEventSendsEventTelemetryWithSpecifiedObjectTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -76,18 +64,6 @@
 
             var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
             Assert.Equal("TestEvent", eventTelemetry.Name);
-        }
-
-        [TestMethod]
-        public void TrackEventWillUseABlankObjectAsTheEventToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent((EventTelemetry)null);
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, eventTelemetry.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -120,19 +96,6 @@
         }
 
         [TestMethod]
-        public void TrackMetricPopulatesRequiredNameWhenItIsNullOrEmptyToLetUserKnowAboutTheProblem()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackMetric(null, 42);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, metric.Name, StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(42, metric.Value);
-        }
-
-        [TestMethod]
         public void TrackMetricSendsSpecifiedMetricTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -143,19 +106,6 @@
             var metric = (MetricTelemetry)sentTelemetry.Single();
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(42, metric.Value);
-        }
-
-        [TestMethod]
-        public void TrackMetricSendsNewMetricTelemetryGivenNullMetricTElemetryToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackMetric(null);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, metric.Name, StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(0, metric.Value);
         }
 
         [TestMethod]
@@ -203,18 +153,6 @@
         }
 
         [TestMethod]
-        public void TrackTraceWillUseRequiredFieldAsTextForTheTraceNameWhenTheTraceNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace((string)null);
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, trace.Message, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [TestMethod]
         public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -224,18 +162,6 @@
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
             Assert.Equal("TestTrace", trace.Message);
-        }
-
-        [TestMethod]
-        public void TrackTraceWillUseABlankObjectAsTheTraceToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace((TraceTelemetry)null);
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, trace.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -343,18 +269,6 @@
 
             var pageView = (PageViewTelemetry)sentTelemetry.Single();
             Assert.Equal("TestName", pageView.Name);
-        }
-
-        [TestMethod]
-        public void TrackPageViewWillUseRequiredFieldAsTextForThePageNameWhenTheNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackPageView((string)null);
-
-            var pageViewTelemetry = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, pageViewTelemetry.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]

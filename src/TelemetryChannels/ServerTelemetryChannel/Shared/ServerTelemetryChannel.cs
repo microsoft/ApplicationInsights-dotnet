@@ -176,14 +176,17 @@
         /// </summary>
         public void Send(ITelemetry item)
         {
-            if (item != null && TelemetryChannelEventSource.Log.IsVerboseEnabled)
+            if (item != null)
             {
-                TelemetryChannelEventSource.Log.TelemetryChannelSend(
-                    item.ToString(), 
-                    item.Context.InstrumentationKey.Substring(0, Math.Min(item.Context.InstrumentationKey.Length, 8)));
-            }
+                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                {
+                    TelemetryChannelEventSource.Log.TelemetryChannelSend(
+                        item.ToString(),
+                        item.Context.InstrumentationKey.Substring(0, Math.Min(item.Context.InstrumentationKey.Length, 8)));
+                }
 
-            this.TelemetryProcessor.Process(item);
+                this.TelemetryProcessor.Process(item);
+            }
         }
 
         /// <summary>
