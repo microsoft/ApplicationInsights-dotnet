@@ -104,26 +104,7 @@
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->
   <PropertyGroup>
-    <!-- 
-      Semantic Version. See http://semver.org for full details. 
-      Update for every public release. 
-    -->
-    <SemanticVersionMajor>2</SemanticVersionMajor>
-    <SemanticVersionMinor>0</SemanticVersionMinor>
-    <SemanticVersionPatch>0</SemanticVersionPatch>
-    <PreReleaseMilestone>beta3</PreReleaseMilestone>
-    <!-- 
-      Date when Semantic Version was changed. 
-      Update for every public release.
-    -->
-    <SemanticVersionDate>2015-10-20</SemanticVersionDate>
-
-    <!-- 
-      Pre-release version is used to distinguish internally built NuGet packages.
-      Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16).
-    -->
-    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
-
+    
     <!-- Turn on dynamic assembly attribute generation -->
     <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
