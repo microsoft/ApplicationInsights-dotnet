@@ -317,8 +317,6 @@
                     return;
                 }
 
-                telemetry.Sanitize();
-
                 if (telemetry.Timestamp == default(DateTimeOffset))
                 {
                     telemetry.Timestamp = Clock.Instance.Time;

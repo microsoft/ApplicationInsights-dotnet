@@ -128,6 +128,7 @@ namespace Microsoft.ApplicationInsights.Channel
 
             try
             {
+                item.Sanitize();
                 this.buffer.Enqueue(item);
             }
             catch (Exception e)

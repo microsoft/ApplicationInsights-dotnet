@@ -41,7 +41,7 @@
             var configuration = new TelemetryConfiguration();
             TelemetryConfigurationFactory.Instance.Initialize(configuration);
 
-            Assert.AreEqual(2, configuration.TelemetryInitializers.Count);
+            Assert.AreEqual(1, configuration.TelemetryInitializers.Count);
             Assert.IsInstanceOfType(configuration.TelemetryChannel, typeof(InMemoryChannel));
         }
 

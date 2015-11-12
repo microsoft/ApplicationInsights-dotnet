@@ -251,13 +251,18 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         public void Send(ITelemetry item)
         {
-            if (this.DeveloperMode.HasValue && this.DeveloperMode == true)
+            if (item != null)
             {
-                this.Transmitter.SendForDeveloperMode(item, this.EndpointAddress);
-            }
-            else
-            {
-                this.TelemetryBuffer.Enqueue(item);
+                item.Sanitize();
+
+                if (this.DeveloperMode.HasValue && this.DeveloperMode == true)
+                {
+                    this.Transmitter.SendForDeveloperMode(item, this.EndpointAddress);
+                }
+                else
+                {
+                    this.TelemetryBuffer.Enqueue(item);
+                }
             }
         }
 
