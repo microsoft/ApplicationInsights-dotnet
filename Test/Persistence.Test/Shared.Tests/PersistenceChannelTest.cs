@@ -1,4 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿using System.Text;
+using Microsoft.ApplicationInsights.DataContracts;
+
+namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
@@ -120,6 +123,18 @@
 
                 IEnumerable<ITelemetry> actual = channel.TelemetryBuffer.Dequeue();
                 Assert.AreEqual(telemetry, actual.First());
+            }
+
+            [TestMethod]
+            public void SendSanitizesTelemetryItem()
+            {
+                string name = new string('Z', 10000);
+
+                EventTelemetry t = new EventTelemetry(name);
+
+                new PersistenceChannel().Send(t);
+
+                Assert.AreEqual(512, t.Name.Length);
             }
         }
     }

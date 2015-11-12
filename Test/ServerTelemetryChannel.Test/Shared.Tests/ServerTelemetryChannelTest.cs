@@ -1,4 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel
+﻿using System.Text;
+using Microsoft.ApplicationInsights.DataContracts;
+
+namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {
     using System;
     using System.Collections.Generic;
@@ -279,6 +282,17 @@
         [TestClass]
         public class Send : TelemetryChannelTest
         {
+            [TestMethod]
+            public void SendSanitizesTelemetryItem()
+            {
+                string name = new string('Z', 10000);
+                EventTelemetry t = new EventTelemetry(name);
+
+                new ServerTelemetryChannel().Send(t);
+
+                Assert.Equal(512, t.Name.Length);
+            }
+
             [TestMethod]
             public void PassesTelemetryToTelemetryProcessor()
             {
