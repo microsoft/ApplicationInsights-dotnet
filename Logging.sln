@@ -1,0 +1,205 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net40", "Adapters\NLogTarget.Net40\NLogTarget.Net40.csproj", "{065795EA-516F-4EAB-8C1B-13989E343645}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net40", "Adapters\Log4NetAppender.Net40\Log4NetAppender.Net40.csproj", "{AD78C91C-9D4F-4E06-9AF7-9A31A5565210}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net40", "Adapters\TraceListener.Net40\TraceListener.Net40.csproj", "{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net40.Tests", "Adapters.Tests\TraceListener.Net40.Tests\TraceListener.Net40.Tests.csproj", "{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net40.Tests", "Adapters.Tests\NLogTarget.Net40.Tests\NLogTarget.Net40.Tests.csproj", "{6513EF9F-5A84-47CD-BE3E-34F7706A1868}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net40.Tests", "Adapters.Tests\Log4NetAppender.Net40.Tests\Log4NetAppender.Net40.Tests.csproj", "{C6ABC49C-5CF0-40FF-9114-423232339382}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters.Tests", "Adapters.Tests", "{2FCC45B3-D820-405D-87FA-467C96465BB1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Adapters.Shared.Tests", "Adapters.Tests\Shared\Adapters.Shared.Tests.shproj", "{FA775630-7917-4A99-A78C-FBA46EDF685C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{4765948E-1A4D-4F8E-974C-6078C746ABEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.NuGet", "NuGet\Log4NetAppender\Log4NetAppender.NuGet.csproj", "{3658BD66-68CD-4B37-8085-7D200CB020C7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210} = {AD78C91C-9D4F-4E06-9AF7-9A31A5565210}
+		{CB555B89-94D7-4B38-92D9-9F497A796966} = {CB555B89-94D7-4B38-92D9-9F497A796966}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.NuGet", "NuGet\NLogTarget\NLogTarget.NuGet.csproj", "{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6C581DDA-88AF-4A64-984D-E275F2F21100} = {6C581DDA-88AF-4A64-984D-E275F2F21100}
+		{065795EA-516F-4EAB-8C1B-13989E343645} = {065795EA-516F-4EAB-8C1B-13989E343645}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.NuGet", "NuGet\TraceListener\TraceListener.NuGet.csproj", "{9392CF11-9063-4FC9-B8D1-922C754007D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3} = {B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}
+		{E3766DD1-F376-43F8-B242-6CF06E186179} = {E3766DD1-F376-43F8-B242-6CF06E186179}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet.Tests", "NuGet.Tests", "{F8C8CF80-83DB-4E2F-9C27-51D43D7B1E25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xdt.Tests", "NuGet.Tests\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{117E14CF-5656-42BD-B64E-93142160B6FA}"
+	ProjectSection(SolutionItems) = preProject
+		Product.props = Product.props
+		Settings.StyleCop = Settings.StyleCop
+		Test.props = Test.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net45", "Adapters\Log4NetAppender.Net45\Log4NetAppender.Net45.csproj", "{CB555B89-94D7-4B38-92D9-9F497A796966}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net45", "Adapters\NLogTarget.Net45\NLogTarget.Net45.csproj", "{6C581DDA-88AF-4A64-984D-E275F2F21100}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net45", "Adapters\TraceListener.Net45\TraceListener.Net45.csproj", "{E3766DD1-F376-43F8-B242-6CF06E186179}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net45.Tests", "Adapters.Tests\Log4NetAppender.Net45.Tests\Log4NetAppender.Net45.Tests.csproj", "{C537553E-C7D0-42E4-884F-10A9C6063D4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net45.Tests", "Adapters.Tests\NLogTarget.Net45.Tests\NLogTarget.Net45.Tests.csproj", "{BE1D6405-1930-4A19-A24C-027B008C5011}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.Net45.Tests", "Adapters.Tests\TraceListener.Net45.Tests\TraceListener.Net45.Tests.csproj", "{E6F03762-6BD6-4B38-8798-42C189AAB18C}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Log4NetAppender.Shared", "Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.shproj", "{69B1C4D1-C8E9-44CA-BE2A-02B5D1929DC2}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NLogTarget.Shared", "Adapters\NLogTarget.Shared\NLogTarget.Shared.shproj", "{EA4D9FBF-02F2-4791-9F78-DEB591545FEE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TraceListener.Shared", "Adapters\TraceListener.Shared\TraceListener.Shared.shproj", "{FF6230F0-A69C-4ED3-B552-26CBE31324DB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Log4NetAppender.Tests.Shared", "Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Tests.Shared.shproj", "{CDF1D886-ED10-4F99-BE94-3BB40A56052E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NLogTarget.Tests.Shared", "Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Tests.Shared.shproj", "{6DD6F1C7-636D-41B5-8AC4-517C68F74D18}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TraceListener.Tests.Shared", "Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Tests.Shared.shproj", "{17EE52DA-5460-4BD2-A70F-529D2A94C938}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{69b1c4d1-c8e9-44ca-be2a-02b5d1929dc2}*SharedItemsImports = 13
+		Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{be1d6405-1930-4a19-a24c-027b008c5011}*SharedItemsImports = 4
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{be1d6405-1930-4a19-a24c-027b008c5011}*SharedItemsImports = 4
+		Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
+		Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{cb555b89-94d7-4b38-92d9-9f497a796966}*SharedItemsImports = 4
+		Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
+		Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
+		Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
+		Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
+		Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6513ef9f-5a84-47cd-be3e-34f7706a1868}*SharedItemsImports = 4
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{6513ef9f-5a84-47cd-be3e-34f7706a1868}*SharedItemsImports = 4
+		Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{17ee52da-5460-4bd2-a70f-529d2a94c938}*SharedItemsImports = 13
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
+		Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
+		Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{cdf1d886-ed10-4f99-be94-3bb40a56052e}*SharedItemsImports = 13
+		Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{b6dcd83b-f8fb-4171-8996-7a402dca9fe3}*SharedItemsImports = 4
+		Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{ea4d9fbf-02f2-4791-9f78-deb591545fee}*SharedItemsImports = 13
+		Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
+		Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6dd6f1c7-636d-41b5-8ac4-517c68f74d18}*SharedItemsImports = 13
+		Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
+		Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{e3766dd1-f376-43f8-b242-6cf06e186179}*SharedItemsImports = 4
+		Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{ff6230f0-a69c-4ed3-b552-26cbe31324db}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Release|Mixed Platforms = Release|Mixed Platforms
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{065795EA-516F-4EAB-8C1B-13989E343645}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{065795EA-516F-4EAB-8C1B-13989E343645}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{065795EA-516F-4EAB-8C1B-13989E343645}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{065795EA-516F-4EAB-8C1B-13989E343645}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6513EF9F-5A84-47CD-BE3E-34F7706A1868}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6513EF9F-5A84-47CD-BE3E-34F7706A1868}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6513EF9F-5A84-47CD-BE3E-34F7706A1868}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6513EF9F-5A84-47CD-BE3E-34F7706A1868}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C6ABC49C-5CF0-40FF-9114-423232339382}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C6ABC49C-5CF0-40FF-9114-423232339382}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C6ABC49C-5CF0-40FF-9114-423232339382}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C6ABC49C-5CF0-40FF-9114-423232339382}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3658BD66-68CD-4B37-8085-7D200CB020C7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3658BD66-68CD-4B37-8085-7D200CB020C7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3658BD66-68CD-4B37-8085-7D200CB020C7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3658BD66-68CD-4B37-8085-7D200CB020C7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9392CF11-9063-4FC9-B8D1-922C754007D7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9392CF11-9063-4FC9-B8D1-922C754007D7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9392CF11-9063-4FC9-B8D1-922C754007D7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9392CF11-9063-4FC9-B8D1-922C754007D7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CB555B89-94D7-4B38-92D9-9F497A796966}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CB555B89-94D7-4B38-92D9-9F497A796966}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CB555B89-94D7-4B38-92D9-9F497A796966}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CB555B89-94D7-4B38-92D9-9F497A796966}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6C581DDA-88AF-4A64-984D-E275F2F21100}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6C581DDA-88AF-4A64-984D-E275F2F21100}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6C581DDA-88AF-4A64-984D-E275F2F21100}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6C581DDA-88AF-4A64-984D-E275F2F21100}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E3766DD1-F376-43F8-B242-6CF06E186179}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E3766DD1-F376-43F8-B242-6CF06E186179}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E3766DD1-F376-43F8-B242-6CF06E186179}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E3766DD1-F376-43F8-B242-6CF06E186179}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C537553E-C7D0-42E4-884F-10A9C6063D4A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C537553E-C7D0-42E4-884F-10A9C6063D4A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C537553E-C7D0-42E4-884F-10A9C6063D4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C537553E-C7D0-42E4-884F-10A9C6063D4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BE1D6405-1930-4A19-A24C-027B008C5011}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BE1D6405-1930-4A19-A24C-027B008C5011}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BE1D6405-1930-4A19-A24C-027B008C5011}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BE1D6405-1930-4A19-A24C-027B008C5011}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{065795EA-516F-4EAB-8C1B-13989E343645} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{AD78C91C-9D4F-4E06-9AF7-9A31A5565210} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{B6DCD83B-F8FB-4171-8996-7A402DCA9FE3} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{96B3AFDB-ABC4-4DF2-A46D-DE4286E4BB1F} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{6513EF9F-5A84-47CD-BE3E-34F7706A1868} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{C6ABC49C-5CF0-40FF-9114-423232339382} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{FA775630-7917-4A99-A78C-FBA46EDF685C} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{3658BD66-68CD-4B37-8085-7D200CB020C7} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
+		{E8B0EC3C-8219-4A13-8C6A-C2D88ABC1E94} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
+		{9392CF11-9063-4FC9-B8D1-922C754007D7} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
+		{C6B569BC-6F19-42C9-A951-DA611BB0F4BE} = {F8C8CF80-83DB-4E2F-9C27-51D43D7B1E25}
+		{CB555B89-94D7-4B38-92D9-9F497A796966} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{6C581DDA-88AF-4A64-984D-E275F2F21100} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{E3766DD1-F376-43F8-B242-6CF06E186179} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{C537553E-C7D0-42E4-884F-10A9C6063D4A} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{BE1D6405-1930-4A19-A24C-027B008C5011} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{E6F03762-6BD6-4B38-8798-42C189AAB18C} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{69B1C4D1-C8E9-44CA-BE2A-02B5D1929DC2} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{EA4D9FBF-02F2-4791-9F78-DEB591545FEE} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{FF6230F0-A69C-4ED3-B552-26CBE31324DB} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{CDF1D886-ED10-4F99-BE94-3BB40A56052E} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{6DD6F1C7-636D-41B5-8AC4-517C68F74D18} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{17EE52DA-5460-4BD2-A70F-529D2A94C938} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+	EndGlobalSection
+EndGlobal

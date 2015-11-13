@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.ApplicationInsights.NLogTarget</id>
+    <version>0.7.1</version>
+    <title>Microsoft.ApplicationInsights.NLogTarget</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=391182</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Application Insights NLog Target is a custom target allowing you to send NLog log messages to Application Insights. Application Insights will collect your logs from multiple sources and provide rich powerful search capabilities. This functionality depends on Microsoft Monitoring Agent being installed onto your machine, http://go.microsoft.com/fwlink/?LinkID=328052.</description>
+    <summary>Application Insights NLog Target is supported for .NET FX 3.5 SP1 and later.</summary>
+    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <copyright>Copyright © 2014-2022, Microsoft. All rights reserved.</copyright>
+    <language>en-us</language>
+    <tags>Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Role MMA Logging Log Tracing NLog</tags>
+    <dependencies>
+      <group>
+        <dependency id="NLog" version="2.1.0" />
+        <dependency id="Newtonsoft.Json" version="5.0.8" />
+        <dependency id="Microsoft.ApplicationInsights.Tracing" version="0.7.1" />
+      </group>
+      <group targetFramework="net35">
+        <dependency id="Microsoft.Diagnostics.Tracing.EventSource" version="1.1.11-beta" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net35" />
+    <file src="bin\Release\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net35" />
+    <file src="bin\v45\Release\Microsoft.ApplicationInsights.NLogTarget.dll" target="lib\net45" />
+    <file src="bin\v45\Release\Microsoft.ApplicationInsights.NLogTarget.xml" target="lib\net45" />
+  </files>
+</package>
