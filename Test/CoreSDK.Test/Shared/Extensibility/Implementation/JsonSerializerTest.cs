@@ -32,5 +32,19 @@
             Assert.Equal("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
             Assert.Equal("Unhandled", obj["data"]["baseData"]["handledAt"].ToString());
         }
+
+        [TestMethod]
+        public void SanitizesTelemetryItem()
+        {
+            string name = new string('Z', 10000);
+            EventTelemetry t = new EventTelemetry(name);
+
+            string exceptionAsJson = JsonSerializer.SerializeAsString(t);
+
+            JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
+            
+            Assert.Equal(512, obj["data"]["baseData"]["name"].ToString().Length);
+        }
+
     }
 }

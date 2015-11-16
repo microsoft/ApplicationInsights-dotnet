@@ -280,6 +280,7 @@
                     streamWriter.Write(Environment.NewLine);
                 }
 
+                telemetryItem.Sanitize();
                 SerializeTelemetryItem(telemetryItem, jsonWriter);
             }
         }
