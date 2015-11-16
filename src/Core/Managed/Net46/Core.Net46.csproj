@@ -38,6 +38,7 @@
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
+    <Compile Include="Extensibility\Implementation\RichPayloadEventSource.cs" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="..\Operation.AL.Shared\Operation.AL.Shared.projitems" Label="Shared" />
