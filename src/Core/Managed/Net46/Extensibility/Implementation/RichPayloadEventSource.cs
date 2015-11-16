@@ -20,7 +20,7 @@
         internal readonly EventSource eventSource;
 
         /// <summary>Event provider name.</summary>
-        private const string EventProviderName = "Microsoft-ApplicationInsights";
+        private const string EventProviderName = "Microsoft-ApplicationInsights-Data";
 
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
@@ -29,9 +29,7 @@
         {
             this.eventSource = new EventSource(
                EventProviderName,
-               EventSourceSettings.EtwSelfDescribingEventFormat,
-               "ETW_GROUP",
-               "{E3AFA6F4-0FEA-4757-AFFF-80B5CA685BB8}");
+               EventSourceSettings.EtwSelfDescribingEventFormat);
         }
 
         /// <summary>
