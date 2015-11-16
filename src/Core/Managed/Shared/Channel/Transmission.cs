@@ -59,7 +59,7 @@ namespace Microsoft.ApplicationInsights.Channel
             this.ContentType = contentType;
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
-            this.Id = WeakConcurrentRandom.Instance.Next().ToString(CultureInfo.InvariantCulture);
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
 #if CORE_PCL || UWP
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif

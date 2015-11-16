@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="SharedProjectFile_SccProperties">
+    <SharedProjectFile_ProjectGuid>{9D7715BB-E4D0-499C-B8A3-63466FC8AA5D}</SharedProjectFile_ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>395e03bb-d061-4c9d-9d47-18676566444d</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Extensions.Tests</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncLoaclBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionAsyncTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensionTests.cs" />
+  </ItemGroup>
+</Project>

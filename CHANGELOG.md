@@ -1,8 +1,26 @@
-# Changelog
+Ôªø# Changelog
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version vNext
+## Version 2.0.0-beta3
+- Adaptive sampling turned on by default in server telemetry channel. Details can be found in [#80](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/80).
+- Fixed signature of ```UseSampling``` to allow chaining with other calls to ```Use``` of telemetry processors.
+- Property ```Request.ID``` returned back. ```OperationContext``` now has a property ```ParentId``` for end-to-end coorrelation.
+- ```TimestampTelemetryInitializer``` is removed. Timestamp will be added automatically by ```TelemetryClient```.
+- ```OperationCorrelationTelemetryInitializer``` is added by default to enable operaitons correlation.
+
+## Version 2.0.0-beta2
+- Fix UI thread locking when initializing InMemoryChannel (default channel) from UI thread.
+- Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
+- Version of ```Microsoft.ApplicationInsights.dll``` for the framework 4.6 is now part of the package.
+- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguraiton object.
+- The max length limit for the ```Name``` property of ```EventTelemetry``` was set to 512.
+- Property ```Name``` of ```OperationContext``` was renamed to ```RootName```
+- Property ```Id``` of ```RequestTelemetry``` was removed.
+- Property ```Id``` and ```Context.Operation.Id``` of ```RequestTelemetry``` would not be initialized when creating new ```RequestTelemetry```.
+- New properties of ```OperationContext```: ```CorrelationVector```, ```ParentId``` and ```RootId``` to support end-to-end telemetry items correlation.
+
+## Version 2.0.0-beta1
 
 - TrackDependency will produce valid JSON when not all required fields were specified.
 - Redundant property ```RequestTelemetry.ID``` is now just a proxy for ```RequestTelemetry.Operation.Id```.
@@ -10,6 +28,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 - ```Count``` property on DependencyTelemetry marked as Obsolete. Use ```SamplingPercentage``` instead.
 - New ```CloudContext``` introduced and properties ```RoleName``` and ```RoleInstance``` moved to it from ```DeviceContext```.
 - New property ```AuthenticatedUserId``` on ```UserContext``` to specify authenticated user identity.
+
+## Version 1.2.3
+- Bug fixes.
+- Telemetry item will be serialized to Debug Ouput even when Instrumentaiton Key was not set.
 
 ## Version 1.2
 - First version shipped from github
@@ -34,7 +56,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 0.15
 
-- New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as ìnot a real user trafficî and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
+- New property ```Operation.SyntheticSource``` now available on ```TelemetryContext```. Now you can mark your telemetry items as ‚Äúnot a real user traffic‚Äù and specify how this traffic was generated. As an example by setting this property you can distinguish traffic from your test automation from load test traffic.
 - Channel logic was moved to the separate NuGet called Microsoft.ApplicationInsights.PersistenceChannel. Default channel is now called InMemoryChannel
 - New method ```TelemetryClient.Flush``` allows to flush telemetry items from the buffer synchronously
 

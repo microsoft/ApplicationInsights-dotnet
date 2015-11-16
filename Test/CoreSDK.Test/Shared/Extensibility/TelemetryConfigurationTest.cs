@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
-    using System.ComponentModel;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
 #if WINDOWS_PHONE || WINDOWS_STORE
@@ -66,12 +65,30 @@
         }
 
         [TestMethod]
+        public void ActiveInitializesTelemetryModuleCollection()
+        {
+            TelemetryModules modules = new TestableTelemetryModules();
+            TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
+            {
+                OnInitialize = (c, m) =>
+                {
+                    modules = m;
+                },
+            };
+
+            TelemetryConfiguration.Active = null;
+            Assert.NotNull(TelemetryConfiguration.Active);
+
+            Assert.Same(modules, TelemetryModules.Instance);
+        }
+
+        [TestMethod]
         public void ActiveUsesTelemetryConfigurationFactoryToInitializeTheInstance()
         {
             bool factoryInvoked = false;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => { factoryInvoked = true; },
+                OnInitialize = (configuration, _) => { factoryInvoked = true; },
             };
             TelemetryConfiguration.Active = null;
             try
@@ -93,7 +110,7 @@
             TelemetryConfiguration.Active = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => { Interlocked.Increment(ref numberOfInstancesInitialized); },
+                OnInitialize = (configuration, _) => { Interlocked.Increment(ref numberOfInstancesInitialized); },
             };
             try
             {
@@ -121,7 +138,7 @@
             TelemetryConfiguration.Active = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration =>
+                OnInitialize = (configuration, _) =>
                 {
                     Interlocked.Increment(ref numberOfInstancesInitialized);
                     var dummy = TelemetryConfiguration.Active;
@@ -144,12 +161,28 @@
         #region CreateDefault
 
         [TestMethod]
+        public void DefaultDoesNotInitializeTelemetryModuleCollection()
+        {
+            TelemetryModules modules = new TestableTelemetryModules();
+            TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
+            {
+                OnInitialize = (c, m) =>
+                {
+                    modules = m;
+                },
+            };
+
+            Assert.NotNull(TelemetryConfiguration.CreateDefault());
+            Assert.Null(modules);
+        }
+
+        [TestMethod]
         public void CreateDefaultReturnsNewConfigurationInstanceInitializedByTelemetryConfigurationFactory()
         {
             TelemetryConfiguration initializedConfiguration = null;
             TelemetryConfigurationFactory.Instance = new StubTelemetryConfigurationFactory
             {
-                OnInitialize = configuration => initializedConfiguration = configuration,
+                OnInitialize = (configuration, _) => initializedConfiguration = configuration,
             };
             try
             {
@@ -199,24 +232,6 @@
 
         #endregion
 
-        #region ContextInitializers
-
-        [TestMethod]
-        public void ContextInitializersReturnsAnEmptyListByDefaultToAvoidNullReferenceExceptionsInUserCode()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(0, configuration.ContextInitializers.Count);
-        }
-
-        [TestMethod]
-        public void ContextInitializersReturnsThreadSafeList()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(typeof(SnapshottingList<IContextInitializer>), configuration.ContextInitializers.GetType());
-        }
-
-        #endregion
-
         #region TelemetryInitializers
 
         [TestMethod]
@@ -257,13 +272,40 @@
 
         #endregion
 
+        #region TelemetryProcessor
+
+        [TestMethod]
+        public void TelemetryProcessorChainIsWritable()
+        {
+            var configuration = new TelemetryConfiguration();
+            Type configurationInstanceType = configuration.GetType();
+            Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
+            PropertyInfo property;
+            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));                            
+            Assert.True(property.CanWrite);
+        }
+
+        [TestMethod]
+        public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
+        {
+            var configuration = new TelemetryConfiguration();
+            var tp = configuration.TelemetryProcessors;
+
+            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);            
+        }
+        #endregion
+
+        private class TestableTelemetryModules : TelemetryModules
+        {
+        }
+
         private class StubTelemetryConfigurationFactory : TelemetryConfigurationFactory
         {
-            public Action<TelemetryConfiguration> OnInitialize = configuration => { };
+            public Action<TelemetryConfiguration, TelemetryModules> OnInitialize = (configuration, module) => { };
 
-            public override void Initialize(TelemetryConfiguration configuration)
+            public override void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
             {
-                this.OnInitialize(configuration);
+                this.OnInitialize(configuration, modules);
             }
         }
     }

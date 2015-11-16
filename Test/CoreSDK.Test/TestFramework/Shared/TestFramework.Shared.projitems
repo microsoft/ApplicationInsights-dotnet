@@ -15,12 +15,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)AsyncTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubClock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StubContextInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubDebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubWebRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubWebResponse.cs" />

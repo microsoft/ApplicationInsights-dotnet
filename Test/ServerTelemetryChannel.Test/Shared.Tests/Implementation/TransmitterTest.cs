@@ -1,0 +1,727 @@
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
+{
+    using System;
+    using System.Collections.Generic;
+#if NET45
+    using System.Diagnostics.Tracing;
+#endif
+    using System.Linq;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
+#if NET40
+    using Microsoft.Diagnostics.Tracing;
+#endif
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Assert = Xunit.Assert;    
+#if NET45
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
+
+    public class TransmitterTest
+    {
+        private static StubTransmissionSender CreateSender(ICollection<Transmission> enqueuedTransmissions)
+        {
+            var sender = new StubTransmissionSender();
+            sender.OnEnqueue = getTransmission =>
+            {
+                enqueuedTransmissions.Add(getTransmission());
+                return false;
+            };
+
+            return sender;
+        }
+
+        private static Transmitter CreateTransmitter(
+            TransmissionSender sender = null, 
+            TransmissionBuffer buffer = null, 
+            TransmissionStorage storage = null, 
+            IEnumerable<TransmissionPolicy> policies = null)
+        {
+            return new Transmitter(
+                sender ?? new StubTransmissionSender(),
+                buffer ?? new StubTransmissionBuffer(),
+                storage ?? new StubTransmissionStorage(),
+                policies);
+        }
+
+        [TestClass]
+        public class Constructor : TransmitterTest
+        {
+            [TestMethod]
+            public void InitializesTransmissionPolicies()
+            {
+                Transmitter policyTransmitter = null;
+                var policy = new StubTransmissionPolicy();
+                policy.OnInitialize = t => policyTransmitter = t;
+
+                Transmitter transmitter = CreateTransmitter(policies: new[] { policy });
+
+                Assert.Same(transmitter, policyTransmitter);
+            }
+        }
+
+        [TestClass]
+        public class MaxBufferCapacity : TransmitterTest
+        {
+            [TestMethod]
+            public void ReturnsCurrentTransmissionBufferCapacityByDefault()
+            {
+                var buffer = new StubTransmissionBuffer { Capacity = 42 };
+                Transmitter transmitter = CreateTransmitter(buffer: buffer);
+                Assert.Equal(42, transmitter.MaxBufferCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsNewValueImmediatelyAfterPropertyIsSet()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                transmitter.MaxBufferCapacity = 42;
+                Assert.Equal(42, transmitter.MaxBufferCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsMaximumTransmissionBufferCapacityRegardlessOfPolicyInEffect()
+            {
+                var buffer = new StubTransmissionBuffer { Capacity = 42 };
+                var policy = new StubTransmissionPolicy { MaxBufferCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(buffer: buffer, policies: new[] { policy });
+
+                policy.Apply();
+
+                Assert.Equal(42, transmitter.MaxBufferCapacity);
+            }
+
+            [TestMethod]
+            public void ChangesCurrentBufferCapacityImmediatelyWhenNoOverridingPoliciesAreInEffect()
+            {
+                var buffer = new StubTransmissionBuffer();
+                Transmitter transmitter = CreateTransmitter(buffer: buffer);
+                transmitter.ApplyPolicies();
+
+                transmitter.MaxBufferCapacity = 42;
+
+                Assert.Equal(42, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void DoesNotChangeCurrentBufferCapacityWhenOverridingPolicyIsInEffect()
+            {
+                var buffer = new StubTransmissionBuffer();
+                var policy = new StubTransmissionPolicy { MaxBufferCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(buffer: buffer, policies: new[] { policy });
+                policy.Apply();
+
+                transmitter.MaxBufferCapacity = 42;
+
+                Assert.Equal(0, buffer.Capacity);
+            }
+        }
+
+        [TestClass]
+        public class MaxSenderCapacity : TransmitterTest
+        {
+            [TestMethod]
+            public void ReturnsCurrentTransmissionSenderCapacityByDefault()
+            {
+                var sender = new StubTransmissionSender { Capacity = 42 };
+                Transmitter transmitter = CreateTransmitter(sender: sender);
+                Assert.Equal(42, transmitter.MaxSenderCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsNewValueImmediatelyAfterPropertyIsSet()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                transmitter.MaxSenderCapacity = 42;
+                Assert.Equal(42, transmitter.MaxSenderCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsMaximumTransmissionSenderCapacityRegardlessOfPolicyInEffect()
+            {
+                var sender = new StubTransmissionSender { Capacity = 42 };
+                var policy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { policy });
+
+                policy.Apply();
+
+                Assert.Equal(42, transmitter.MaxSenderCapacity);
+            }
+
+            [TestMethod]
+            public void ChangesCurrentTransmissionSenderCapacityImmediatelyWhenNoOverridingPoliciesAreInEffect()
+            {
+                var sender = new StubTransmissionSender();
+                Transmitter transmitter = CreateTransmitter(sender: sender);
+                transmitter.ApplyPolicies();
+
+                transmitter.MaxSenderCapacity = 42;
+
+                Assert.Equal(42, sender.Capacity);
+            }
+
+            [TestMethod]
+            public void DoesNotChangeCurrentSenderCapacityWhenOverridingPolicyIsInEffect()
+            {
+                var sender = new StubTransmissionSender();
+                var policy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { policy });
+                policy.Apply();
+
+                transmitter.MaxSenderCapacity = 42;
+
+                Assert.Equal(0, sender.Capacity);
+            }
+        }
+
+        [TestClass]
+        public class MaxStorageCapacity : TransmitterTest
+        {
+            [TestMethod]
+            public void ReturnsCurrentTransmissionStorageCapacityByDefault()
+            {
+                var storage = new StubTransmissionStorage { Capacity = 42 };
+                Transmitter transmitter = CreateTransmitter(storage: storage);
+                Assert.Equal(42, transmitter.MaxStorageCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsNewValueImmediatelyAfterPropertyIsSet()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                transmitter.MaxStorageCapacity = 42;
+                Assert.Equal(42, transmitter.MaxStorageCapacity);
+            }
+
+            [TestMethod]
+            public void ReturnsMaximumTransmissionStorageCapacityRegardlessOfPolicyInEffect()
+            {
+                var storage = new StubTransmissionStorage { Capacity = 42 };
+                var policy = new StubTransmissionPolicy { MaxStorageCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(storage: storage, policies: new[] { policy });
+
+                policy.Apply();
+
+                Assert.Equal(42, transmitter.MaxStorageCapacity);
+            }
+
+            [TestMethod]
+            public void ChangesCurrentTransmissionStorageCapacityImmediatelyWhenNoOverridingPoliciesAreInEffect()
+            {
+                var storage = new StubTransmissionStorage();
+                Transmitter transmitter = CreateTransmitter(storage: storage);
+                transmitter.ApplyPolicies();
+
+                transmitter.MaxStorageCapacity = 42;
+
+                Assert.Equal(42, storage.Capacity);
+            }
+
+            [TestMethod]
+            public void DoesNotChangeCurrentStorageCapacityWhenOverridingPolicyIsInEffect()
+            {
+                var storage = new StubTransmissionStorage();
+                var policy = new StubTransmissionPolicy { MaxStorageCapacity = 0 };
+                Transmitter transmitter = CreateTransmitter(storage: storage, policies: new[] { policy });
+                policy.Apply();
+
+                transmitter.MaxStorageCapacity = 42;
+
+                Assert.Equal(0, storage.Capacity);
+            }
+        }
+
+        [TestClass]
+        public class ApplyPoliciesAsync : TransmitterTest
+        {
+            [TestMethod]
+            public void SetsSenderCapacityToMinValueReturnedByTransmissionPolicies()
+            {
+                var sender = new StubTransmissionSender();
+                var policies = new[]
+                {
+                    new StubTransmissionPolicy { MaxSenderCapacity = 4 },
+                    new StubTransmissionPolicy { MaxSenderCapacity = 2 },
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: policies);
+                transmitter.ApplyPolicies();
+
+                Assert.Equal(2, sender.Capacity);
+            }
+
+            [TestMethod]
+            public void SetsBufferCapacityToMinValueReturnedByTransmissionPolicies()
+            {
+                var buffer = new StubTransmissionBuffer();
+                var policies = new[]
+                {
+                    new StubTransmissionPolicy { MaxBufferCapacity = 4 },
+                    new StubTransmissionPolicy { MaxBufferCapacity = 2 },
+                };
+
+                Transmitter transmitter = CreateTransmitter(buffer: buffer, policies: policies);
+                transmitter.ApplyPolicies();
+
+                Assert.Equal(2, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void SetsStorageCapacityToMinValueReturnedByTransmissionPolicies()
+            {
+                var storage = new StubTransmissionStorage();
+                var policies = new[]
+                {
+                    new StubTransmissionPolicy { MaxStorageCapacity = 4 },
+                    new StubTransmissionPolicy { MaxStorageCapacity = 2 },
+                };
+
+                Transmitter transmitter = CreateTransmitter(storage: storage, policies: policies);
+                transmitter.ApplyPolicies();
+
+                Assert.Equal(2, storage.Capacity);
+            }
+
+            [TestMethod]
+            public void DoesNotChangeComponentCapacityIfNoneOfPoliciesAreApplicable()
+            {
+                var sender = new StubTransmissionSender { Capacity = 1 };
+                var buffer = new StubTransmissionBuffer { Capacity = 10 };
+                var storage = new StubTransmissionStorage { Capacity = 100 };
+                var policies = new[] { new StubTransmissionPolicy() };
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, policies: policies);
+                    
+                Assert.Equal(1, sender.Capacity);
+                Assert.Equal(10, buffer.Capacity);
+                Assert.Equal(100, storage.Capacity);
+            }
+
+            [TestMethod]
+            public void RestoresOriginalComponentCapacityWhenPolicyIsNoLongerApplicable()
+            {
+                var sender = new StubTransmissionSender { Capacity = 1 };
+                var buffer = new StubTransmissionBuffer { Capacity = 10 };
+                var storage = new StubTransmissionStorage { Capacity = 100 };
+                var policy = new StubTransmissionPolicy()
+                {
+                    MaxSenderCapacity = 0,
+                    MaxBufferCapacity = 0,
+                    MaxStorageCapacity = 0,
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, new[] { policy });
+
+                policy.MaxSenderCapacity = null;
+                policy.MaxBufferCapacity = null;
+                policy.MaxStorageCapacity = null;
+                policy.Apply();
+
+                Assert.Equal(1, sender.Capacity);
+                Assert.Equal(10, buffer.Capacity);
+                Assert.Equal(100, storage.Capacity);
+            }
+
+            [TestMethod]
+            public void MovesTransmissionsFromStorageToSenderToAvoidWaitingUntilBufferIsFullBeforeSendingStarts()
+            {
+                var storedTransmission = new StubTransmission();
+                var storage = new StubTransmissionStorage();
+                storage.Enqueue(() => storedTransmission);
+                var buffer = new StubTransmissionBuffer();
+
+                var sentTransmissions = new List<Transmission>();
+                StubTransmissionSender sender = CreateSender(sentTransmissions);
+                sender.OnGetCapacity = () => 1;
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage);
+                transmitter.ApplyPolicies();
+
+                Assert.Contains(storedTransmission, sentTransmissions);
+            }
+
+            [TestMethod]
+            public void DoesNotMoveTransmissionsFromStorageToSenderWhenBufferIsNotEmptyToPreserveQueueOrder()
+            {
+                var storedTransmission = new StubTransmission();
+                var storage = new StubTransmissionStorage();
+                storage.Enqueue(() => storedTransmission);
+                var buffer = new StubTransmissionBuffer { OnGetSize = () => 1 };
+
+                var sentTransmissions = new List<Transmission>();
+                StubTransmissionSender sender = CreateSender(sentTransmissions);
+                sender.OnGetCapacity = () => 1;
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage);
+                transmitter.ApplyPolicies();
+
+                Assert.DoesNotContain(storedTransmission, sentTransmissions);                
+            }
+
+            [TestMethod]
+            public void EmptiesStorageIfCapacityIsZero()
+            {              
+                //// We set capacity to 0 and clear the cache when DC responds with 439.
+
+                var buffer = new StubTransmissionBuffer();
+                buffer.Enqueue(() => new StubTransmission());
+                var storage = new StubTransmissionStorage();
+                storage.Enqueue(() => new StubTransmission());
+                var sender = new StubTransmissionSender();
+                sender.Enqueue(() => new StubTransmission());
+
+                var policy = new StubTransmissionPolicy { MaxBufferCapacity = 0 };
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, new[] { policy });
+
+                policy.Apply();
+
+                Assert.Equal(0, storage.Queue.Count);
+            }
+
+            [TestMethod]
+            public void EmptiesBufferIfCapacityIsZero()
+            {
+                //// We set capacity to 0 and clear the cache when DC responds with 439.
+
+                var buffer = new StubTransmissionBuffer();
+                buffer.Enqueue(() => new StubTransmission());
+                var storage = new StubTransmissionStorage();
+                storage.Enqueue(() => new StubTransmission());
+                var sender = new StubTransmissionSender();
+                sender.Enqueue(() => new StubTransmission());
+
+                var policy = new StubTransmissionPolicy();
+                policy.MaxStorageCapacity = 0;
+
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, new[] { policy });
+
+                policy.Apply();
+
+                Assert.Equal(0, storage.Queue.Count);
+            }
+            
+            [TestMethod]
+            public void MovesTransmissionsFromStorageToBufferWhenBufferCapacityIsGreaterThanZero()
+            {
+                var storedTransmission = new StubTransmission();
+
+                var storage = new StubTransmissionStorage();
+                storage.Enqueue(() => storedTransmission);
+
+                var buffer = new TransmissionBuffer();
+
+                var policy = new StubTransmissionPolicy();
+                policy.MaxBufferCapacity = 0;
+
+                Transmitter transmitter = CreateTransmitter(buffer: buffer, storage: storage, policies: new[] { policy });
+
+                policy.MaxBufferCapacity = 1;
+                policy.Apply();
+
+                Transmission bufferedTransmission = buffer.Dequeue();
+                Assert.Same(storedTransmission, bufferedTransmission);
+            }
+
+            [TestMethod]
+            public void MovesTransmissionsFromBufferToStorageWhenBufferCapacityIsZero()
+            {
+                var storage = new StubTransmissionStorage { Capacity = 1 };
+
+                var bufferedTransmission = new StubTransmission();
+                var buffer = new TransmissionBuffer();
+                storage.Enqueue(() => bufferedTransmission);
+                
+                var policy = new StubTransmissionPolicy();
+                policy.MaxBufferCapacity = 1;
+
+                Transmitter transmitter = CreateTransmitter(buffer: buffer, storage: storage, policies: new[] { policy });
+
+                policy.MaxBufferCapacity = 0;
+                policy.Apply();
+
+                Transmission storedTransmission = storage.Dequeue();
+                Assert.Same(bufferedTransmission, storedTransmission);
+            }
+
+            [TestMethod]
+            public void MovesTransmissionsFromBufferToSenderWhenSenderCapacityIsGreaterThanZero()
+            {
+                var bufferedTransmission = new StubTransmission();
+                var buffer = new TransmissionBuffer();
+                buffer.Enqueue(() => bufferedTransmission);
+
+                Transmission sentTransmission = null;
+                var sender = new StubTransmissionSender();
+                sender.OnEnqueue = getTransmission =>
+                {
+                    sentTransmission = getTransmission();
+                    return false;
+                };
+
+                var policy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, policies: new[] { policy });
+
+                policy.MaxSenderCapacity = 1;
+                policy.Apply();
+
+                Assert.Same(bufferedTransmission, sentTransmission);
+            }
+        }
+
+        [TestClass]
+        public class EnqueueAsync : TransmitterTest
+        {
+            [TestMethod]
+            public void PassesTransmissionToSenderAndReturnsTrue()
+            {
+                Transmission sentTransmission = null;
+                var sender = new StubTransmissionSender
+                {
+                    OnEnqueue = getTransmission =>
+                    {
+                        sentTransmission = getTransmission();
+                        return sentTransmission != null;
+                    },
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender);
+
+                var transmission = new StubTransmission();
+                transmitter.Enqueue(transmission);
+
+                Assert.Same(transmission, sentTransmission);
+            }
+
+            [TestMethod]
+            public void BuffersTransmissionWhenSenderIsFull()
+            {
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+
+                Transmission bufferedTransmission = null;
+                var buffer = new StubTransmissionBuffer
+                {
+                    OnEnqueue = getTransmission =>
+                    {
+                        bufferedTransmission = getTransmission();
+                        return bufferedTransmission != null;
+                    },
+                };
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer);
+
+                var transmission = new StubTransmission();
+                transmitter.Enqueue(transmission);
+
+                Assert.Same(transmission, bufferedTransmission);
+            }
+
+            [TestMethod]
+            public void StoresTransmissionWhenBufferIsFull()
+            {
+                Transmission storedTransmission = null;
+                var storage = new StubTransmissionStorage
+                {
+                    OnEnqueue = transmission =>
+                    {
+                        storedTransmission = transmission;
+                        return false;
+                    }
+                };
+
+                var sender = new StubTransmissionSender { OnEnqueue = t => false };
+                var buffer = new StubTransmissionBuffer { OnEnqueue = t => false };
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+
+                var enqueuedTransmission = new StubTransmission();
+                transmitter.Enqueue(enqueuedTransmission);
+
+                Assert.Same(enqueuedTransmission, storedTransmission);
+            }
+
+            [TestMethod]
+            public void AppliesTransmistionPoliciesIfTheyNeverBeenAppliedBefore()
+            {
+                var senderPolicy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                var sender = new StubTransmissionSender { Capacity = 1 };
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { senderPolicy });
+
+                transmitter.Enqueue(new StubTransmission());
+
+                Assert.Equal(senderPolicy.MaxSenderCapacity, sender.Capacity);
+            }
+
+            [TestMethod]
+            public void DoesNotApplyPolicesIfTheyAlreadyApplied()
+            {
+                var senderPolicy = new StubTransmissionPolicy { MaxSenderCapacity = 0 };
+                var sender = new StubTransmissionSender();
+                Transmitter transmitter = CreateTransmitter(sender: sender, policies: new[] { senderPolicy });
+                transmitter.ApplyPolicies();
+                senderPolicy.MaxSenderCapacity = 2;
+
+                transmitter.Enqueue(new StubTransmission());
+
+                Assert.NotEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
+            }
+
+            [TestMethod]
+            public void TracesDiagnosticsEvent()
+            {
+                Transmitter transmitter = CreateTransmitter();
+                using (var listener = new TestEventListener())
+                {
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    transmitter.Enqueue(new StubTransmission());
+
+                    EventWrittenEventArgs trace = listener.Messages.First();
+                    Assert.Equal(21, trace.EventId);
+                }
+            }
+        }
+
+        [TestClass]
+        public class HandleSenderTransmissionSentEvent : TransmitterTest
+        {
+            [TestMethod]
+            public void MovesOldestTransmissionFromBufferToSender()
+            {
+                Transmission sentTransmission = null;
+                var sender = new StubTransmissionSender();
+                sender.OnEnqueue = getTransmission =>
+                {
+                    sentTransmission = getTransmission();
+                    return false;
+                };
+
+                Transmission bufferedTransmission = new StubTransmission();
+                var buffer = new TransmissionBuffer();
+                buffer.Enqueue(() => bufferedTransmission);
+
+                Transmitter transmitter = CreateTransmitter(sender: sender, buffer: buffer);
+
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission()));
+
+                Assert.Same(bufferedTransmission, sentTransmission);
+            }
+
+            [TestMethod]
+            public void RaisesTransmissionSentWhenTransmissionFinishesSending()
+            {
+                var sender = new StubTransmissionSender();
+                Transmitter queue = CreateTransmitter(sender: sender);
+
+                object eventSender = null;
+                TransmissionProcessedEventArgs eventArgs = null;
+                queue.TransmissionSent += (s, e) =>
+                {
+                    eventSender = s;
+                    eventArgs = e;
+                };
+
+                var transmission = new StubTransmission();
+                var exception = new Exception();
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception));
+
+                Assert.Same(queue, eventSender);
+                Assert.Same(transmission, eventArgs.Transmission);
+                Assert.Same(exception, eventArgs.Exception);
+            }
+
+            [TestMethod]
+            public void LogsUnhandledAsyncExceptionsToPreventThemFromCrashingApplication()
+            {
+                var exception = new Exception(Guid.NewGuid().ToString());
+                var sender = new StubTransmissionSender { OnEnqueue = getTransmissionAsync => { throw exception; } };
+                Transmitter transmitter = CreateTransmitter(sender: sender);
+                using (var listener = new TestEventListener())
+                {
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeywords);
+
+                    sender.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission()));
+
+                    EventWrittenEventArgs message = listener.Messages.First();
+                    Assert.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
+                }
+            }
+        }
+
+        [TestClass]
+        public class HandleBufferTransmissionDequeuedEvent : TransmitterTest
+        {
+            [TestMethod]
+            public void MovesOldestTransmissionFromStorageToBuffer()
+            {
+                var previouslyStoredTransmissions = new List<Transmission> { new StubTransmission(), new StubTransmission() };
+                int storageIndex = 0;
+                var storage = new StubTransmissionStorage
+                {
+                    OnDequeue = () =>
+                    {
+                        if (storageIndex < previouslyStoredTransmissions.Count)
+                        {
+                            return previouslyStoredTransmissions[storageIndex++];
+                        }
+
+                        return null;
+                    }
+                };
+
+                var newlyBufferedTransmissions = new List<Transmission>();
+                var buffer = new StubTransmissionBuffer
+                {
+                    OnEnqueue = getTransmission =>
+                    {
+                        var transmission = getTransmission();
+                        if (transmission != null)
+                        {
+                            newlyBufferedTransmissions.Add(transmission);
+                            return true;
+                        }
+
+                        return false;
+                    }
+                };
+
+                var sender = new StubTransmissionSender();
+
+                Transmitter queue = CreateTransmitter(sender: sender, buffer: buffer, storage: storage);
+
+                buffer.OnTransmissionDequeued(new TransmissionProcessedEventArgs(null));
+
+                Assert.Equal(previouslyStoredTransmissions, newlyBufferedTransmissions);
+            }
+
+            [TestMethod]
+            public void LogsUnhandledAsyncExceptionsToPreventThemFromCrashingApplication()
+            {
+                var exception = new Exception(Guid.NewGuid().ToString());
+                var buffer = new StubTransmissionBuffer 
+                { 
+                    OnEnqueue = getTransmissionAsync => 
+                    { 
+                        throw exception; 
+                    } 
+                };
+
+                Transmitter transmitter = CreateTransmitter(buffer: buffer);
+
+                using (var listener = new TestEventListener())
+                {
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeywords);
+
+                    buffer.OnTransmissionDequeued(new TransmissionProcessedEventArgs(new StubTransmission()));
+
+                    EventWrittenEventArgs message = listener.Messages.First();
+                    Assert.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
+                }
+            }
+        }
+    }
+}

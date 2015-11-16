@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A7CCC704-CCA9-492A-BB8A-3DE5EE9AEAC8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <DefineConstants>$(DefineConstants);NET40</DefineConstants>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>974d9743</NuGetPackageImportStamp>
+    <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Net40.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.24\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop, Version=1.0.168.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1402.2112, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+    <Reference Include="System.IO">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Runtime">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>..\..\..\..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="xunit">
+      <HintPath>..\..\..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Core\Managed\Net40\Core.Net40.csproj">
+      <Project>{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}</Project>
+      <Name>Core.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestFramework\Net40\TestFramework.Net40.csproj">
+      <Project>{63e687d2-97ab-4d64-a92d-31b305d5f1b9}</Project>
+      <Name>TestFramework.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\TelemetryChannels\ServerTelemetryChannel\Net40\TelemetryChannel.Net40.csproj">
+      <Project>{1ac957c0-e9a7-42bb-8820-ce2f6e5c937f}</Project>
+      <Name>TelemetryChannel.Net40</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" />
+  <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets'))" />
+  </Target>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets"/>
+</Project>

@@ -172,22 +172,22 @@
 
             Assert.Equal(new string('1', Property.MaxNameLength), telemetry.Id);
         }
-
-        [TestMethod]
+  
+        [TestMethod]  
         public void SanitizePopulatesIdWithErrorBecauseItIsRequiredByEndpoint()
-        {
-            var telemetry = new RequestTelemetry { Id = null };
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);
-
-            // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated
-            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);
-            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);
+        {  
+            var telemetry = new RequestTelemetry { Id = null };  
+  
+            ((ITelemetry)telemetry).Sanitize();  
+  
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);  
+  
+            // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
+            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
         }
 
-        [TestMethod]
+    [TestMethod]
         public void SanitizePopulatesResponseCodeWithErrorBecauseItIsRequiredByEndpoint()
         {
             var telemetry = new RequestTelemetry { ResponseCode = null };

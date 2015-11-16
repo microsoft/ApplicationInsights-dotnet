@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
   <PropertyGroup>
@@ -13,7 +13,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetFrameworkProfile>Profile32</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\</SolutionDir>
@@ -37,21 +37,6 @@
     <Compile Include="..\Wp80\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
-    <Compile Include="Extensibility\Implementation\External\AppInsightsTypes.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\ComponentContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.cs" />
-    <Compile Include="Extensibility\Implementation\External\ContextTagKeys.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\DependencyKind.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\DeviceContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\InternalContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\LocationContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\OperationContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\SessionContextData.cs" />
-    <Compile Include="Extensibility\Implementation\External\SessionStateData.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\SeverityLevel.g.cs" />
-    <Compile Include="Extensibility\Implementation\External\Tags.cs" />
-    <Compile Include="Extensibility\Implementation\External\UserContextData.cs" />
     <Compile Include="TimeSpanEx.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
   </ItemGroup>
@@ -61,4 +46,5 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>

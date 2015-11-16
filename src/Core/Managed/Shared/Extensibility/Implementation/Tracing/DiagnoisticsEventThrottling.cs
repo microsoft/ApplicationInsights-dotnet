@@ -1,12 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DiagnoisticsEventThrottling.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-// <author>Sergei Nikitin: sergeyni@microsoft.com</author>
-// <summary></summary>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Collections.Generic;

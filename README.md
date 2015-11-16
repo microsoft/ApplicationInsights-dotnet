@@ -2,7 +2,7 @@
 
 # Application Insights for .NET
 
-This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succedding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
+This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
 
 ## Getting Started
 
@@ -53,6 +53,10 @@ catch(Exception e)
 
 This library makes use of the InMemoryChannel to send telemetry data. This is a very lightweight channel implementation. It stores all telemetry to an in-memory queue and batches and sends telemetry. As a result, if the process is terminated suddenly, you could lose telemetry that is stored in the queue but not yet sent. It is recommended to track the closing of your process and call the `TelemetryClient.Flush()` method to ensure no telemetry is lost.
 
+### Full API Overview
+
+Read about [how to use the API and see the results in the portal][api-overview].
+
 ## Branches
 
 - [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
@@ -63,6 +67,7 @@ This library makes use of the InMemoryChannel to send telemetry data. This is a 
 We strongly welcome and encourage contributions to this project. Please read the [contributor's guide][ContribGuide] located in the ApplicationInsights-Home repository. If making a large change we request that you open an [issue][GitHubIssue] first. We follow the [Git Flow][GitFlow] approach to branching. 
 
 [AILandingPage]: http://azure.microsoft.com/services/application-insights/
+[api-overview]: https://azure.microsoft.com/documentation/articles/app-insights-api-custom-events-metrics/
 [ContribGuide]: https://github.com/Microsoft/ApplicationInsights-Home/blob/master/CONTRIBUTING.md
 [GitFlow]: http://nvie.com/posts/a-successful-git-branching-model/
 [GitHubIssue]: https://github.com/Microsoft/ApplicationInsights-dotnet/issues

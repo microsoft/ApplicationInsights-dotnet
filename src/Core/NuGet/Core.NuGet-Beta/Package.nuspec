@@ -21,6 +21,8 @@
       </group>
       <group targetFramework="net45">
       </group>
+      <group targetFramework="net46">
+      </group>
       <group targetFramework="wp8">
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
       </group>
@@ -62,6 +64,11 @@
     <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.dll" target="lib\net45" />
     <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.pdb" target="lib\net45" />
     <file src="$configuration$\Core\Managed\Net45\Microsoft.ApplicationInsights.xml" target="lib\net45" />
+
+    <!-- Binaries for .NET 4.6 projects -->
+    <file src="$configuration$\Core\Managed\Net46\Microsoft.ApplicationInsights.dll" target="lib\net46" />
+    <file src="$configuration$\Core\Managed\Net46\Microsoft.ApplicationInsights.pdb" target="lib\net46" />
+    <file src="$configuration$\Core\Managed\Net46\Microsoft.ApplicationInsights.xml" target="lib\net46" />
 
     <!-- wp8: Binaries for Windows Phone 8.0 and 8.1 (Silverlight Runtime) projects -->
     <file src="$configuration$\Core\Managed\Wp80\Microsoft.ApplicationInsights.dll" target="lib\wp8" />

@@ -11,6 +11,8 @@ namespace Microsoft.ApplicationInsights.TestFramework
     {
         public Action<string> OnWriteLine = message => { };
 
+        public Func<bool> OnIsAttached = () => System.Diagnostics.Debugger.IsAttached;
+
         public void WriteLine(string message)
         {
             this.OnWriteLine(message);
@@ -19,6 +21,11 @@ namespace Microsoft.ApplicationInsights.TestFramework
         public bool IsLogging()
         {
             return true;
+        }
+
+        public bool IsAttached()
+        {
+            return this.OnIsAttached();
         }
     }
 }

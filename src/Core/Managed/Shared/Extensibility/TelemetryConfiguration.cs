@@ -20,9 +20,8 @@
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
-        private readonly SnapshottingList<IContextInitializer> contextInitializers = new SnapshottingList<IContextInitializer>();
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
-
+        private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
 
@@ -42,7 +41,7 @@
                         if (active == null)
                         {
                             active = new TelemetryConfiguration();
-                            TelemetryConfigurationFactory.Instance.Initialize(active);
+                            TelemetryConfigurationFactory.Instance.Initialize(active, TelemetryModules.Instance);
                         }
                     }
                 }
@@ -117,22 +116,6 @@
         }
 
         /// <summary>
-        /// Gets the list of <see cref="IContextInitializer"/> objects that supply additional information about application.
-        /// </summary>
-        /// <remarks>
-        /// Context initializers extend Application Insights telemetry collection by supplying additional information 
-        /// about application environment, such as <see cref="TelemetryContext.User"/> or <see cref="TelemetryContext.Device"/> 
-        /// information that remains constant during application lifetime. A <see cref="TelemetryClient"/> invokes context 
-        /// initializers to obtain initial property values for <see cref="TelemetryContext"/> object during its construction.
-        /// The default list of context initializers is provided by the Application Insights NuGet packages and loaded from 
-        /// the ApplicationInsights.config file located in the application directory. 
-        /// </remarks>
-        public IList<IContextInitializer> ContextInitializers
-        {
-            get { return this.contextInitializers; }
-        }
-
-        /// <summary>
         /// Gets the list of <see cref="ITelemetryInitializer"/> objects that supply additional information about telemetry.
         /// </summary>
         /// <remarks>
@@ -146,7 +129,34 @@
         {
             get { return this.telemetryInitializers; }
         }
-        
+
+        /// <summary>
+        /// Gets the first telemetry processor in the chain of processors.
+        /// </summary>
+        public TelemetryProcessorChain TelemetryProcessors
+        {
+            get
+            {                
+                if (this.telemetryProcessorChain == null)
+                {                                                 
+                    // Gets the telemetryprocessorchainbuilder, builds the processor chain and sets the same in the configuration.
+                    this.GetTelemetryProcessorChainBuilder().Build();
+                }
+
+                return this.telemetryProcessorChain;
+            }
+
+            internal set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                this.telemetryProcessorChain = value;
+            }              
+        }
+
         /// <summary>
         /// Gets or sets the telemetry channel.
         /// </summary>
@@ -160,7 +170,7 @@
         public static TelemetryConfiguration CreateDefault()
         {
             var configuration = new TelemetryConfiguration();
-            TelemetryConfigurationFactory.Instance.Initialize(configuration);
+            TelemetryConfigurationFactory.Instance.Initialize(configuration, null);
 
             return configuration;
         }
@@ -185,6 +195,12 @@
                 if (telemetryChannel != null)
                 {
                     telemetryChannel.Dispose();
+                }
+
+                TelemetryProcessorChain processorChain = this.telemetryProcessorChain;
+                if (processorChain != null)
+                {
+                    processorChain.Dispose();
                 }
             }
         }

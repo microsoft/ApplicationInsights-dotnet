@@ -19,5 +19,11 @@ namespace Microsoft.ApplicationInsights.Extensibility
         /// </summary>
         /// <returns>true if a debugger is attached and logging is enabled; otherwise, false.</returns>
         bool IsLogging();
+
+        /// <summary>
+        /// Checks to see if debugger is attached.
+        /// </summary>
+        /// <returns>true if debugger is attached.</returns>
+        bool IsAttached();
     }
 }

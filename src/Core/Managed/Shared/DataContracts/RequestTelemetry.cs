@@ -34,9 +34,8 @@
         {
             this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
 
-            // Initialize required fields
-            this.Context.Operation.Id = WeakConcurrentRandom.Instance.Next().ToString(CultureInfo.InvariantCulture);
             this.ResponseCode = "200";
             this.Success = true;
         }
@@ -86,13 +85,13 @@
             get { return this.context; }
         }
 
-        /// <summary>
-        /// Gets or sets Request ID. This method is redundant. Will be marked obsolete in future versions. Use Context.Operation.Id property instead.
-        /// </summary>
-        public string Id
-        {
-            get { return this.Context.Operation.Id; }
-            set { this.Context.Operation.Id = value; }
+        /// <summary>  
+        /// Gets or sets Request ID.
+        /// </summary>  
+        public override string Id  
+        {  
+            get { return this.Data.id; }  
+            set { this.Data.id = value; }  
         }
 
         /// <summary>
@@ -218,11 +217,11 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
-            
-            // Set for backward compatibility:
-            this.Data.id = this.Context.Operation.Id;
+
+            // Set for backward compatibility:  
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
+
             this.ResponseCode = Utils.PopulateRequiredStringValue(this.ResponseCode, "responseCode", typeof(RequestTelemetry).FullName);
         }
 

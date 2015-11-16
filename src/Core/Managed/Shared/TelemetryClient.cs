@@ -24,8 +24,7 @@
     {
         private readonly TelemetryConfiguration configuration;
         private readonly IDebugOutput debugOutput;
-        private TelemetryContext context;
-        private ITelemetryChannel channel;
+        private TelemetryContext context;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
@@ -55,7 +54,7 @@
         /// </summary>
         public TelemetryContext Context
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.context, this.CreateInitializedContext); }
+            get { return LazyInitializer.EnsureInitialized(ref this.context, () => new TelemetryContext()); }
             internal set { this.context = value; }
         }
 
@@ -69,27 +68,11 @@
         }
 
         /// <summary>
-        /// Gets or sets the channel used by the client helper. Note that this doesn't need to be public as a customer can create a new client 
-        /// with a new channel via telemetry configuration.
+        /// Gets the <see cref="TelemetryConfiguration"/> object associated with this telemetry client instance.
         /// </summary>
-        internal ITelemetryChannel Channel
+        internal TelemetryConfiguration TelemetryConfiguration
         {
-            get
-            {
-                ITelemetryChannel output = this.channel;
-                if (output == null)
-                {
-                    output = this.configuration.TelemetryChannel;
-                    this.channel = output;
-                }
-
-                return output;
-            }
-
-            set
-            {
-                this.channel = value;
-            }
+            get { return this.configuration; }            
         }
 
         /// <summary>
@@ -325,33 +308,27 @@
             // It is hidden from intellisense to prevent customer confusion.
             if (this.IsEnabled())
             {
-                string instrumentationKey = this.Context.InstrumentationKey;
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
-
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    return;
-                }
-
                 this.Initialize(telemetry);
-
+                
+                this.WriteTelemetryToDebugOutput(telemetry);
+                
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
                     return;
                 }
 
-                telemetry.Sanitize();
-
-                this.Channel.Send(telemetry);
-
-                if (System.Diagnostics.Debugger.IsAttached)
+                if (telemetry.Timestamp == default(DateTimeOffset))
                 {
-                    this.WriteTelemetryToDebugOutput(telemetry);
+                    telemetry.Timestamp = Clock.Instance.Time;
                 }
+
+                // invokes the Process in the first processor in the chain
+                this.configuration.TelemetryProcessors.Process(telemetry);
+
+#if NET46
+                // logs rich payload ETW event for any partners to process it
+                RichPayloadEventSource.Log.Process(telemetry);
+#endif
             }
         }
 
@@ -369,15 +346,10 @@
                 instrumentationKey = this.configuration.InstrumentationKey;
             }
 
-            if (string.IsNullOrEmpty(instrumentationKey))
-            {
-                return;
-            }
-
             var telemetryWithProperties = telemetry as ISupportProperties;
             if (telemetryWithProperties != null)
             {
-                if (this.Channel.DeveloperMode.HasValue && this.Channel.DeveloperMode.Value)
+                if ((this.configuration.TelemetryChannel != null) && (this.configuration.TelemetryChannel.DeveloperMode.HasValue && this.configuration.TelemetryChannel.DeveloperMode.Value))
                 {
                     if (!telemetryWithProperties.Properties.ContainsKey("DeveloperMode"))
                     {
@@ -401,7 +373,7 @@
                                                     CultureInfo.InvariantCulture,
                                                     "Exception while initializing {0}, exception message - {1}",
                                                     initializer.GetType().FullName,
-                                                    exception.ToString()));
+                                                    exception));
                 }
             }
         }
@@ -462,29 +434,19 @@
         /// </summary>
         public void Flush()
         {
-            this.Channel.Flush();
-        }
-
-        private TelemetryContext CreateInitializedContext()
-        {
-            var context = new TelemetryContext();
-            foreach (IContextInitializer initializer in this.configuration.ContextInitializers)
-            {
-                initializer.Initialize(context);
-            }
-
-            return context;
+            this.configuration.TelemetryChannel.Flush();
         }
 
         private void WriteTelemetryToDebugOutput(ITelemetry telemetry)
         {
-            if (this.debugOutput.IsLogging())
+            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
             {
-                using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-                {
-                    string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
-                    this.debugOutput.WriteLine("Application Insights Telemetry: " + serializedTelemetry);
-                }
+                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ?
+                    "Application Insights Telemetry (unconfigured): " :
+                    "Application Insights Telemetry: ";
+
+                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
+                this.debugOutput.WriteLine(prefix + serializedTelemetry);
             }
         }
     }

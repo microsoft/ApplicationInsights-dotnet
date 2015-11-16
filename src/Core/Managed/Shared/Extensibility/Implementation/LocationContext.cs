@@ -12,7 +12,7 @@
     /// <summary>
     /// Encapsulates telemetry location information.
     /// </summary>
-    public sealed class LocationContext : IJsonSerializable
+    public sealed class LocationContext
     {
         private readonly IDictionary<string, string> tags;
 
@@ -38,13 +38,6 @@
                     this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.LocationIp, value);
                 }
             }
-        }
-
-        void IJsonSerializable.Serialize(IJsonWriter writer)
-        {
-            writer.WriteStartObject();
-            writer.WriteProperty("ip", this.Ip);
-            writer.WriteEndObject();
         }
 
         private bool IsIpV4(string ip)

@@ -15,21 +15,40 @@
         public static readonly CoreEventSource Log = new CoreEventSource();
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
+
+        /// <summary>
+        /// Logs the information when there operation to track is null.
+        /// </summary>
+        [Event(1, Message = "Operation object is null.", Level = EventLevel.Warning)]
+        public void OperationIsNullWarning(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(1, this.nameProvider.Name);
+        }
+
+        /// <summary>
+        /// Logs the information when there operation to stop does not match the current operation.
+        /// </summary>
+        [Event(2, Message = "Operation to stop does not match the current operation.", Level = EventLevel.Error)]
+        public void InvalidOperationToStopError(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, this.nameProvider.Name);
+        }
+
         [Event(
-            10,
+            3,
             Keywords = Keywords.VerboseFailure,
             Message = "[msg=Log verbose];[msg={0}]",
             Level = EventLevel.Verbose)]
         public void LogVerbose(string msg, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                10,
+                3,
                 msg ?? string.Empty,
                 this.nameProvider.Name);
         }
         
         [Event(
-            20,
+            4,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable,
             Message = "Diagnostics event throttling has been started for the event {0}",
             Level = EventLevel.Informational)]
@@ -37,11 +56,11 @@
             int eventId,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(20, eventId, this.nameProvider.Name);
+            this.WriteEvent(4, eventId, this.nameProvider.Name);
         }
 
         [Event(
-            30,
+            5,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable,
             Message = "Diagnostics event throttling has been reset for the event {0}, event was fired {1} times during last interval",
             Level = EventLevel.Informational)]
@@ -50,11 +69,11 @@
             int executionCount,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(30, eventId, executionCount, this.nameProvider.Name);
+            this.WriteEvent(5, eventId, executionCount, this.nameProvider.Name);
         }
 
         [Event(
-            40,
+            6,
             Keywords = Keywords.Diagnostics,
             Message = "Scheduler timer dispose failure: {0}",
             Level = EventLevel.Warning)]
@@ -63,13 +82,13 @@
             string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                40, 
+                6, 
                 exception ?? string.Empty,
                 this.nameProvider.Name);
         }
 
         [Event(
-            50,
+            7,
             Keywords = Keywords.Diagnostics,
             Message = "A scheduler timer was created for the interval: {0}",
             Level = EventLevel.Verbose)]
@@ -77,77 +96,77 @@
             int intervalInMilliseconds,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(50, intervalInMilliseconds, this.nameProvider.Name);
+            this.WriteEvent(7, intervalInMilliseconds, this.nameProvider.Name);
         }
 
         [Event(
-            60,
+            8,
             Keywords = Keywords.Diagnostics,
             Message = "A scheduler timer was removed",
             Level = EventLevel.Verbose)]
         public void DiagnoisticsEventThrottlingSchedulerTimerWasRemoved(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(60, this.nameProvider.Name);
+            this.WriteEvent(8, this.nameProvider.Name);
         }
         
         [Event(
-            70,
+            9,
             Message = "No Telemetry Configuration provided. Using the default TelemetryConfiguration.Active.",
             Level = EventLevel.Warning)]
         public void TelemetryClientConstructorWithNoTelemetryConfiguration(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(70, this.nameProvider.Name);
+            this.WriteEvent(9, this.nameProvider.Name);
         }
 
         [Event(
-            71,
+            10,
             Message = "Value for property '{0}' of {1} was not found. Populating it by default.",
             Level = EventLevel.Verbose)]
         public void PopulateRequiredStringWithValue(string parameterName, string telemetryType, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                71, 
+                10, 
                 parameterName ?? string.Empty, 
                 telemetryType ?? string.Empty,
                 this.nameProvider.Name);
         }
 
         [Event(
-            72,
+            11,
             Message = "Invalid duration for Request Telemetry. Setting it to '00:00:00'.",
             Level = EventLevel.Warning)]
         public void RequestTelemetryIncorrectDuration(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(72, this.nameProvider.Name);
+            this.WriteEvent(11, this.nameProvider.Name);
         }
 
         [Event(
-           80,
+           12,
            Message = "Telemetry tracking was disabled. Message is dropped.",
            Level = EventLevel.Verbose)]
         public void TrackingWasDisabled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(80, this.nameProvider.Name);
+            this.WriteEvent(12, this.nameProvider.Name);
         }
 
         [Event(
-           81,
+           13,
            Message = "Telemetry tracking was enabled. Messages are being logged.",
            Level = EventLevel.Verbose)]
         public void TrackingWasEnabled(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(81, this.nameProvider.Name);
+            this.WriteEvent(13, this.nameProvider.Name);
         }
 
         [Event(
-            90,
+            14,
             Keywords = Keywords.ErrorFailure,
             Message = "[msg=Log Error];[msg={0}]",
             Level = EventLevel.Error)]
         public void LogError(string msg, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                90, 
+                14, 
                 msg ?? string.Empty,
                 this.nameProvider.Name);
         }        

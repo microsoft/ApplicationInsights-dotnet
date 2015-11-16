@@ -106,6 +106,27 @@
         [TestClass]
         public class Start
         {
+#if NET40 || NET45
+            [TestMethod]
+            public void DoesNotLogErrorsIfCallbackReturnsNull()
+            {
+                using (TestEventListener listener = new TestEventListener())
+                {
+                    listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
+
+                    var timer = new TaskTimer {Delay = TimeSpan.FromMilliseconds(1)};
+                    var actionInvoked = new ManualResetEventSlim();
+
+                    timer.Start(() => { actionInvoked.Set(); return null; });
+
+                    Assert.True(actionInvoked.Wait(50));
+                    Thread.Sleep(1000);
+
+                    Assert.Null(listener.Messages.FirstOrDefault());
+                }
+            }
+#endif
+
             [TestMethod]
             public void InvokesActionAfterDelay()
             {
@@ -145,12 +166,14 @@
             {
                 TaskTimer timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
 
-                TestEventListener listener = new TestEventListener();
-                listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways);
+                using (TestEventListener listener = new TestEventListener())
+                {
+                    listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways);
 
-                timer.Start(() => Task.Factory.StartNew(() => { throw new Exception(); }));
+                    timer.Start(() => Task.Factory.StartNew(() => { throw new Exception(); }));
 
-                Assert.NotNull(listener.Messages.FirstOrDefault());
+                    Assert.NotNull(listener.Messages.FirstOrDefault());
+                }
             }
 
             [TestMethod]

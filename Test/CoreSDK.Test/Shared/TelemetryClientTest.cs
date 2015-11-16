@@ -32,40 +32,6 @@
         private const string RequiredFieldText = "is a required field";
 
         [TestMethod]
-        public void ContextIsLazilyInitializedFromConfigurationToDefferCosts()
-        {
-            var configuration = new TelemetryConfiguration();
-            TelemetryClient client = new TelemetryClient(configuration);
-
-            configuration.ContextInitializers.Add(new StubContextInitializer { OnInitialize = context => context.User.Id = "Test User Id" });
-            TelemetryContext clientContext = client.Context;
-
-            Assert.Equal("Test User Id", clientContext.User.Id);
-        }
-        
-        [TestMethod]
-        public void ChannelIsLazilyInitializedFromConfiguration()
-        {
-            var configuration = new TelemetryConfiguration();
-            TelemetryClient client = new TelemetryClient(configuration);
-
-            configuration.TelemetryChannel = new StubTelemetryChannel();
-            ITelemetryChannel clientChannel = client.Channel;
-
-            Assert.Same(configuration.TelemetryChannel, clientChannel);
-        }
-
-        [TestMethod]
-        public void ContextInitializtionShouldInitializeInternalContext()
-        {
-            // Assume SessionContext.Serialize is called, which is tested by ComponentContextTest
-            TelemetryClient client = new TelemetryClient(TelemetryConfiguration.Active);
-            client.Context.Session.Id = "TestValue";
-
-            Assert.NotEmpty(client.Context.Internal.SdkVersion);
-        }
-        
-        [TestMethod]
         public void IsEnabledReturnsTrueIfTelemetryTrackingIsEnabledInConfiguration()
         {
             var configuration = new TelemetryConfiguration { DisableTelemetry = false };
@@ -89,18 +55,6 @@
         }
 
         [TestMethod]
-        public void TrackEventWillUseRequiredFieldTextForTheEventNameWhenTheEventNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent((string)null);
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, eventTelemetry.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [TestMethod]
         public void TrackEventSendsEventTelemetryWithSpecifiedObjectTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -110,18 +64,6 @@
 
             var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
             Assert.Equal("TestEvent", eventTelemetry.Name);
-        }
-
-        [TestMethod]
-        public void TrackEventWillUseABlankObjectAsTheEventToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackEvent((EventTelemetry)null);
-
-            var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, eventTelemetry.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -154,19 +96,6 @@
         }
 
         [TestMethod]
-        public void TrackMetricPopulatesRequiredNameWhenItIsNullOrEmptyToLetUserKnowAboutTheProblem()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackMetric(null, 42);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, metric.Name, StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(42, metric.Value);
-        }
-
-        [TestMethod]
         public void TrackMetricSendsSpecifiedMetricTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -177,19 +106,6 @@
             var metric = (MetricTelemetry)sentTelemetry.Single();
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(42, metric.Value);
-        }
-
-        [TestMethod]
-        public void TrackMetricSendsNewMetricTelemetryGivenNullMetricTElemetryToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackMetric(null);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, metric.Name, StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(0, metric.Value);
         }
 
         [TestMethod]
@@ -237,18 +153,6 @@
         }
 
         [TestMethod]
-        public void TrackTraceWillUseRequiredFieldAsTextForTheTraceNameWhenTheTraceNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace((string)null);
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, trace.Message, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [TestMethod]
         public void TrackTraceSendsTraceTelemetryWithSpecifiedObjectTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
@@ -258,18 +162,6 @@
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
             Assert.Equal("TestTrace", trace.Message);
-        }
-
-        [TestMethod]
-        public void TrackTraceWillUseABlankObjectAsTheTraceToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackTrace((TraceTelemetry)null);
-
-            var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, trace.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -377,18 +269,6 @@
 
             var pageView = (PageViewTelemetry)sentTelemetry.Single();
             Assert.Equal("TestName", pageView.Name);
-        }
-
-        [TestMethod]
-        public void TrackPageViewWillUseRequiredFieldAsTextForThePageNameWhenTheNameIsEmptyToHideUserErrors()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var client = this.InitializeTelemetryClient(sentTelemetry);
-
-            client.TrackPageView((string)null);
-
-            var pageViewTelemetry = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.Contains(RequiredFieldText, pageViewTelemetry.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -538,9 +418,9 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { DisableTelemetry = true };
+            var configuration = new TelemetryConfiguration { DisableTelemetry = true , TelemetryChannel = channel };
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration) {};
 
             client.Track(new StubTelemetry());
 
@@ -548,13 +428,68 @@
         }
 
         [TestMethod]
+        public void TrackRespectsInstrumentaitonKeyOfTelemetryItem()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration { 
+                // no instrumentation key set here
+                TelemetryChannel = channel
+            };
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item => initializedTelemetry.Add(item);
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+
+            var telemetry = new StubTelemetry();
+            telemetry.Context.InstrumentationKey = "Foo";
+            client.Track( telemetry );
+
+            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Equal(1, initializedTelemetry.Count);
+        }
+
+        [TestMethod]
+        public void TrackRespectsInstrumentaitonKeySetByTelemetryInitializer()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
+            var configuration = new TelemetryConfiguration
+            {
+                // no instrumentation key set here
+                TelemetryChannel = channel
+            };
+
+            var initializedTelemetry = new List<ITelemetry>();
+            var telemetryInitializer = new StubTelemetryInitializer();
+            telemetryInitializer.OnInitialize = item =>
+            {
+                item.Context.InstrumentationKey = "Foo";
+                initializedTelemetry.Add(item);
+            };
+
+            configuration.TelemetryInitializers.Add(telemetryInitializer);
+
+            var client = new TelemetryClient(configuration);
+
+            var telemetry = new StubTelemetry();
+            client.Track(telemetry);
+
+            Assert.Equal(1, sentTelemetry.Count);
+            Assert.Equal(1, initializedTelemetry.Count);
+        }
+
+        [TestMethod]
         public void TrackDoesNotThrowExceptionsDuringTelemetryIntializersInitialize()
         {
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = new StubTelemetryChannel() };
             var telemetryInitializer = new StubTelemetryInitializer();
             telemetryInitializer.OnInitialize = item => { throw new Exception(); };
             configuration.TelemetryInitializers.Add(telemetryInitializer);
-            var client = new TelemetryClient(configuration) { Channel = new StubTelemetryChannel() };
+            var client = new TelemetryClient(configuration);
             Assert.DoesNotThrow(() => client.Track(new StubTelemetry()));
         }
 
@@ -566,13 +501,13 @@
             {
                 listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
 
-                var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+                var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = new StubTelemetryChannel() };
                 var telemetryInitializer = new StubTelemetryInitializer();
                 var exceptionMessage = "Test exception message";
                 telemetryInitializer.OnInitialize = item => { throw new Exception(exceptionMessage); };
                 configuration.TelemetryInitializers.Add(telemetryInitializer);
 
-                var client = new TelemetryClient(configuration) { Channel = new StubTelemetryChannel() };
+                var client = new TelemetryClient(configuration);
                 client.Track(new StubTelemetry());
 
                 var exceptionExplanation = "Exception while initializing " + typeof(StubTelemetryInitializer).FullName;
@@ -633,6 +568,83 @@
 
             Assert.DoesNotThrow(() => client.Track(new SessionStateTelemetry()));
         }
+
+        [TestMethod]
+        public void TrackAddsTimestampWhenMissing()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry => sentTelemetry = telemetry
+            };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = "Test key"
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotEqual(DateTimeOffset.MinValue, sentTelemetry.Timestamp);
+        }
+
+        [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyEmpty()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput
+            {
+                OnWriteLine = message =>
+                {
+                    System.Diagnostics.Debug.WriteLine("1");
+                    actualMessage = message;
+                },
+                OnIsAttached = () => true,
+            };
+
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = ""
+
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
+            PlatformSingleton.Current = null;
+        }
+
+        [TestMethod]
+        public void TrackWritesTelemetryToDebugOutputIfIKeyNotEmpty()
+        {
+            string actualMessage = null;
+            var debugOutput = new StubDebugOutput
+            {
+                OnWriteLine = message => actualMessage = message,
+                OnIsAttached = () => true,
+            };
+
+            PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
+            var channel = new StubTelemetryChannel { DeveloperMode = true };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = channel,
+                InstrumentationKey = "123"
+
+            };
+            var client = new TelemetryClient(configuration);
+
+            client.Track(new StubTelemetry());
+            
+            Assert.True(actualMessage.StartsWith("Application Insights Telemetry: "));
+            PlatformSingleton.Current = null;
+        }
+
 
         [TestMethod]
         public void TrackDoesNotWriteTelemetryToDebugOutputIfNotInDeveloperMode()
@@ -701,18 +713,28 @@
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
+        [TestMethod]
+        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
+        {
+            var config = new TelemetryConfiguration();
+            config.InstrumentationKey = "Foo";
+            var client = new TelemetryClient(config);
+
+            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
+        }
+
         #endregion
 
         #region Sampling
-        
+
         [TestMethod]
         public void AllTelemetryIsSentWithDefaultSamplingRate()
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key" };
+            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = channel };
 
-            var client = new TelemetryClient(configuration) { Channel = channel };
+            var client = new TelemetryClient(configuration);
 
             const int ItemsToGenerate = 100;
 
@@ -729,8 +751,8 @@
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString() };
-            var client = new TelemetryClient(telemetryConfiguration) { Channel = channel };
+            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString(), TelemetryChannel = channel};
+            var client = new TelemetryClient(telemetryConfiguration);
             return client;
         }
     }

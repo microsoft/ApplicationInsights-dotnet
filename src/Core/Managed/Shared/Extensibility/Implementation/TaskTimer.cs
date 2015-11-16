@@ -71,7 +71,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
-                            await elapsed(); 
+                            var task = elapsed();
+
+                            // Task may be executed syncronously
+                            // It should return Task.FromResult but just in case we check for null if someone returned null
+                            if (task != null)
+                            {
+                                await task.ConfigureAwait(false);
+                            }
                         }
                         catch (Exception exception)
                         {
