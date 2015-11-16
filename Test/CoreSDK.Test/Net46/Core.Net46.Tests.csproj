@@ -66,6 +66,7 @@
     <Compile Include="..\Net40\Extensibility\Implementation\Tracing\CoreEventSourceTest.cs">
       <Link>Extensibility\Implementation\Tracing\CoreEventSourceTest.cs</Link>
     </Compile>
+    <Compile Include="Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
   <ItemGroup>

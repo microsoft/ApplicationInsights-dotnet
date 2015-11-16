@@ -324,6 +324,11 @@
                     telemetry.Timestamp = Clock.Instance.Time;
                 }
 
+#if NET46
+                // logs rich payload ETW event for any partners to process it
+                RichPayloadEventSource.Log.Process(telemetry);
+#endif
+
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessors.Process(telemetry);
             }
