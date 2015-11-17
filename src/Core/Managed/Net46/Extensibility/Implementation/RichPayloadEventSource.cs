@@ -7,8 +7,6 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal sealed class RichPayloadEventSource : IDisposable
@@ -17,7 +15,7 @@
         public static readonly RichPayloadEventSource Log = new RichPayloadEventSource();
         
         /// <summary>Event source.</summary>
-        internal readonly EventSource eventSource;
+        internal readonly EventSource EventSourceInternal;
 
         /// <summary>Event provider name.</summary>
         private const string EventProviderName = "Microsoft-ApplicationInsights-Data";
@@ -27,7 +25,7 @@
         /// </summary>
         public RichPayloadEventSource()
         {
-            this.eventSource = new EventSource(
+            this.EventSourceInternal = new EventSource(
                EventProviderName,
                EventSourceSettings.EtwSelfDescribingEventFormat);
         }
@@ -40,7 +38,7 @@
         {
             if (item is RequestTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Requests))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Requests))
                 {
                     return;
                 }
@@ -55,7 +53,7 @@
             }
             else if (item is TraceTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Traces))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Traces))
                 {
                     return;
                 }
@@ -70,7 +68,7 @@
             }
             else if (item is EventTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Events))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
                 {
                     return;
                 }
@@ -85,7 +83,7 @@
             }
             else if (item is DependencyTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Dependencies))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Dependencies))
                 {
                     return;
                 }
@@ -100,7 +98,7 @@
             }
             else if (item is MetricTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
                 {
                     return;
                 }
@@ -115,7 +113,7 @@
             }
             else if (item is ExceptionTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.Exceptions))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Exceptions))
                 {
                     return;
                 }
@@ -130,7 +128,7 @@
             }
             else if (item is PerformanceCounterTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.PerformanceCounters))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PerformanceCounters))
                 {
                     return;
                 }
@@ -145,7 +143,7 @@
             }
             else if (item is PageViewTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.PageViews))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViews))
                 {
                     return;
                 }
@@ -160,7 +158,7 @@
             }
             else if (item is SessionStateTelemetry)
             {
-                if (!this.eventSource.IsEnabled(EventLevel.Verbose, Keywords.SessionState))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.SessionState))
                 {
                     return;
                 }
@@ -197,16 +195,16 @@
         {
             if (disposing)
             {
-                if (this.eventSource != null)
+                if (this.EventSourceInternal != null)
                 {
-                    this.eventSource.Dispose();
+                    this.EventSourceInternal.Dispose();
                 }
             }
         }
 
         private void WriteEvent<T>(string eventName, string instrumentationKey, IDictionary<string, string> tags, T data, EventKeywords keywords)
         {
-            this.eventSource.Write(
+            this.EventSourceInternal.Write(
                 eventName,
                 new EventSourceOptions() { Keywords = keywords },
                 new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
