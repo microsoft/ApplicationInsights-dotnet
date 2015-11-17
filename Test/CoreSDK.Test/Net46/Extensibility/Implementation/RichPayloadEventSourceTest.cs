@@ -20,7 +20,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Requests);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Requests);
 
                 var item = new RequestTelemetry("TestRequest", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", true);
                 item.Context.Properties.Add("property1", "value1");
@@ -53,7 +53,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Traces);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Traces);
 
                 var item = new TraceTelemetry("TestTrace", SeverityLevel.Information);
                 item.Context.Properties.Add("property1", "value1");
@@ -86,7 +86,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Events);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Events);
 
                 var item = new EventTelemetry("TestEvent");
                 item.Context.Properties.Add("property1", "value1");
@@ -119,7 +119,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Exceptions);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Exceptions);
 
                 var item = new ExceptionTelemetry(new SystemException("Test"));
                 item.Context.Properties.Add("property1", "value1");
@@ -152,7 +152,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Metrics);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Metrics);
 
                 var item = new MetricTelemetry("TestMetric", 1);
                 item.Context.Properties.Add("property1", "value1");
@@ -185,7 +185,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.Dependencies);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Dependencies);
 
                 var item = new DependencyTelemetry("TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, true);
                 item.Context.Properties.Add("property1", "value1");
@@ -218,7 +218,7 @@
 
             using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
-                listener.EnableEvents(RichPayloadEventSource.Log.eventSource, EventLevel.Verbose, RichPayloadEventSource.Keywords.PageViews);
+                listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.PageViews);
 
                 var item = new PageViewTelemetry("TestPage");
                 item.Context.Properties.Add("property1", "value1");
