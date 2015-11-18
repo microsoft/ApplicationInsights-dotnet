@@ -16,112 +16,112 @@ namespace Mvc6Framework45.FunctionalTests.Migrations
     {
         protected override void BuildModel(ModelBuilder builder)
         {
-            builder.Annotation("SqlServer:ValueGeneration", "Identity");
+            builder.HasAnnotation("SqlServer:ValueGeneration", "Identity");
 
             builder.Entity("Mvc6Framework45.FunctionalTests.Models.ApplicationUser", b =>
                 {
                     b.Property<int>("AccessFailedCount")
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.Property<string>("Email")
-                        .Annotation("OriginalValueIndex", 2);
+                        .HasAnnotation("OriginalValueIndex", 2);
                     b.Property<bool>("EmailConfirmed")
-                        .Annotation("OriginalValueIndex", 3);
+                        .HasAnnotation("OriginalValueIndex", 3);
                     b.Property<string>("Id")
-                        .Annotation("OriginalValueIndex", 4);
+                        .HasAnnotation("OriginalValueIndex", 4);
                     b.Property<bool>("LockoutEnabled")
-                        .Annotation("OriginalValueIndex", 5);
+                        .HasAnnotation("OriginalValueIndex", 5);
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .Annotation("OriginalValueIndex", 6);
+                        .HasAnnotation("OriginalValueIndex", 6);
                     b.Property<string>("NormalizedEmail")
-                        .Annotation("OriginalValueIndex", 7);
+                        .HasAnnotation("OriginalValueIndex", 7);
                     b.Property<string>("NormalizedUserName")
-                        .Annotation("OriginalValueIndex", 8);
+                        .HasAnnotation("OriginalValueIndex", 8);
                     b.Property<string>("PasswordHash")
-                        .Annotation("OriginalValueIndex", 9);
+                        .HasAnnotation("OriginalValueIndex", 9);
                     b.Property<string>("PhoneNumber")
-                        .Annotation("OriginalValueIndex", 10);
+                        .HasAnnotation("OriginalValueIndex", 10);
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .Annotation("OriginalValueIndex", 11);
+                        .HasAnnotation("OriginalValueIndex", 11);
                     b.Property<string>("SecurityStamp")
-                        .Annotation("OriginalValueIndex", 12);
+                        .HasAnnotation("OriginalValueIndex", 12);
                     b.Property<bool>("TwoFactorEnabled")
-                        .Annotation("OriginalValueIndex", 13);
+                        .HasAnnotation("OriginalValueIndex", 13);
                     b.Property<string>("UserName")
-                        .Annotation("OriginalValueIndex", 14);
+                        .HasAnnotation("OriginalValueIndex", 14);
                     b.HasKey("Id");
-                    b.Annotation("Relational:TableName", "AspNetUsers");
+                    b.HasAnnotation("Relational:TableName", "AspNetUsers");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityRole", b =>
                 {
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("Id")
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.Property<string>("Name")
-                        .Annotation("OriginalValueIndex", 2);
+                        .HasAnnotation("OriginalValueIndex", 2);
                     b.Property<string>("NormalizedName")
-                        .Annotation("OriginalValueIndex", 3);
+                        .HasAnnotation("OriginalValueIndex", 3);
                     b.HasKey("Id");
-                    b.Annotation("Relational:TableName", "AspNetRoles");
+                    b.HasAnnotation("Relational:TableName", "AspNetRoles");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityRoleClaim`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
                 {
                     b.Property<string>("ClaimType")
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("ClaimValue")
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.Property<int>("Id")
-                        .Annotation("OriginalValueIndex", 2)
-                        .Annotation("SqlServer:ValueGeneration", "Default");
+                        .HasAnnotation("OriginalValueIndex", 2)
+                        .HasAnnotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("RoleId")
-                        .Annotation("OriginalValueIndex", 3);
+                        .HasAnnotation("OriginalValueIndex", 3);
                     b.HasKey("Id");
-                    b.Annotation("Relational:TableName", "AspNetRoleClaims");
+                    b.HasAnnotation("Relational:TableName", "AspNetRoleClaims");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityUserClaim`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
                 {
                     b.Property<string>("ClaimType")
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("ClaimValue")
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.Property<int>("Id")
-                        .Annotation("OriginalValueIndex", 2)
-                        .Annotation("SqlServer:ValueGeneration", "Default");
+                        .HasAnnotation("OriginalValueIndex", 2)
+                        .HasAnnotation("SqlServer:ValueGeneration", "Default");
                     b.Property<string>("UserId")
-                        .Annotation("OriginalValueIndex", 3);
+                        .HasAnnotation("OriginalValueIndex", 3);
                     b.HasKey("Id");
-                    b.Annotation("Relational:TableName", "AspNetUserClaims");
+                    b.HasAnnotation("Relational:TableName", "AspNetUserClaims");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityUserLogin`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("ProviderDisplayName")
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.Property<string>("ProviderKey")
-                        .Annotation("OriginalValueIndex", 2);
+                        .HasAnnotation("OriginalValueIndex", 2);
                     b.Property<string>("UserId")
-                        .Annotation("OriginalValueIndex", 3);
+                        .HasAnnotation("OriginalValueIndex", 3);
                     b.HasKey("LoginProvider", "ProviderKey");
-                    b.Annotation("Relational:TableName", "AspNetUserLogins");
+                    b.HasAnnotation("Relational:TableName", "AspNetUserLogins");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityUserRole`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
                 {
                     b.Property<string>("RoleId")
-                        .Annotation("OriginalValueIndex", 0);
+                        .HasAnnotation("OriginalValueIndex", 0);
                     b.Property<string>("UserId")
-                        .Annotation("OriginalValueIndex", 1);
+                        .HasAnnotation("OriginalValueIndex", 1);
                     b.HasKey("UserId", "RoleId");
-                    b.Annotation("Relational:TableName", "AspNetUserRoles");
+                    b.HasAnnotation("Relational:TableName", "AspNetUserRoles");
                 });
 
             builder.Entity("Microsoft.AspNet.Identity.EntityFramework.IdentityRoleClaim`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]", b =>
