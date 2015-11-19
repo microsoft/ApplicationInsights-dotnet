@@ -1,9 +1,69 @@
-Application Insights logging adaptors. 
+Application Insights logging adapters. 
 ==============================
 
-If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in your ASP.NET application, you can have your logs sent to Visual Studio Application Insights, where you can explore and search them. Your logs will be merged with the other telemetry coming from your application, so that you can identify the traces associated with servicing each user request, and correlate them with other events and exception reports.
+If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in your  application, you can have your logs sent to Application Insights, where you can explore and search them. Your logs will be merged with the other telemetry coming from your application, so that you can identify the traces associated with servicing each user request, and correlate them with other events and exception reports.
 
-Read more [here](https://azure.microsoft.com/en-us/documentation/articles/app-insights-search-diagnostic-logs/#trace).
+[Application Insights Documentation](https://azure.microsoft.com/en-us/documentation/articles/app-insights-search-diagnostic-logs/#trace).
+
+#NLog
+Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
+
+- If you configure NLog though web config then you just need do the following:
+
+```csharp
+// You need this only if you did not define InsyrumentationKey in ApplicationInsights.config
+TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
+
+Logger logger = LogManager.GetLogger("Example");
+
+logger.Trace("trace log message");
+```
+
+- If you configure NLog programmatically than create Application Insights target in code and add it to your other targets:
+
+```csharp
+ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+// You need this only if you did not define InsyrumentationKey in ApplicationInsights.config or want to use different instrumentation key
+target.InstrumentationKey = "Your_Resource_Key";
+
+LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
+config.LoggingRules.Add(rule);
+
+LogManager.Configuration = config;
+
+Logger logger = LogManager.GetLogger("Example");
+
+logger.Trace("trace log message");
+``` 
+
+[NLog Documentation](https://github.com/nlog/NLog/wiki/Configuration-API) 
+
+#Log4Net
+
+Application Insights Log4Net adapter nuget modifies web.config and adds Application Insights Appender.
+
+```csharp
+// You do not need thois if you have instrumentation key in the ApplicationInsights.config
+TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
+
+log4net.Config.XmlConfigurator.Configure();
+var logger = LogManager.GetLogger(this.GetType());
+
+logger.Info("Message");
+logger.Warn("A warning message");
+logger.Error("An error message");
+```
+
+#System.Diagnostics
+
+Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. (If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type)
+
+```csharp
+// You do not need thois if you have instrumentation key in the ApplicationInsights.config
+TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
+System.Diagnostics.Trace.TraceWarning("Slow response - database01");
+
+``` 
 
 ##Nuget packages
 
