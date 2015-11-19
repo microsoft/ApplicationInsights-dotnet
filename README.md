@@ -11,7 +11,7 @@ Application Insights NLog Target nuget package adds ApplicationInsights target i
 - If you configure NLog though web config then you just need do the following:
 
 ```csharp
-// You need this only if you did not define InsyrumentationKey in ApplicationInsights.config
+// You need this only if you did not define InstrumentationKey in ApplicationInsights.config
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 
 Logger logger = LogManager.GetLogger("Example");
@@ -23,7 +23,7 @@ logger.Trace("trace log message");
 
 ```csharp
 ApplicationInsightsTarget target = new ApplicationInsightsTarget();
-// You need this only if you did not define InsyrumentationKey in ApplicationInsights.config or want to use different instrumentation key
+// You need this only if you did not define InstrumentationKey in ApplicationInsights.config or want to use different instrumentation key
 target.InstrumentationKey = "Your_Resource_Key";
 
 LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
@@ -43,7 +43,7 @@ logger.Trace("trace log message");
 Application Insights Log4Net adapter nuget modifies web.config and adds Application Insights Appender.
 
 ```csharp
-// You do not need thois if you have instrumentation key in the ApplicationInsights.config
+// You do not need this if you have instrumentation key in the ApplicationInsights.config
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 
 log4net.Config.XmlConfigurator.Configure();
@@ -59,7 +59,7 @@ logger.Error("An error message");
 Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. (If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type)
 
 ```csharp
-// You do not need thois if you have instrumentation key in the ApplicationInsights.config
+// You do not need this if you have instrumentation key in the ApplicationInsights.config
 TelemetryConfiguration.Active.InstrumentationKey = "Your_Resource_Key";
 System.Diagnostics.Trace.TraceWarning("Slow response - database01");
 
