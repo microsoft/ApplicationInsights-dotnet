@@ -317,11 +317,6 @@
                     return;
                 }
 
-                if (telemetry.Timestamp == default(DateTimeOffset))
-                {
-                    telemetry.Timestamp = Clock.Instance.Time;
-                }
-
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessors.Process(telemetry);
 
@@ -375,6 +370,11 @@
                                                     initializer.GetType().FullName,
                                                     exception));
                 }
+            }
+
+            if (telemetry.Timestamp == default(DateTimeOffset))
+            {
+                telemetry.Timestamp = Clock.Instance.Time;
             }
         }
 

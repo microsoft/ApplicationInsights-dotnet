@@ -78,6 +78,16 @@
             Assert.Equal("yoyo", eventTelemetry.Properties["blah"]);
         }
 
+        [TestMethod]
+        public void InitializeSetsDateTime()
+        {
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+
+            new TelemetryClient().Initialize(telemetry);
+
+            Assert.True(telemetry.Timestamp != default(DateTimeOffset));
+        }
+
         #endregion
 
         #region TrackMetric
