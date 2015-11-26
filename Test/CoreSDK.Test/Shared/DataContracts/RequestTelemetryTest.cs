@@ -31,8 +31,6 @@
         {
             var request = new RequestTelemetry();
             Assert.False(string.IsNullOrEmpty(request.Id));
-            Assert.Equal("200", request.ResponseCode);
-            Assert.Equal(true, request.Success);
         }
 
         [TestMethod]
@@ -172,7 +170,27 @@
 
             Assert.Equal(new string('1', Property.MaxNameLength), telemetry.Id);
         }
-  
+
+        [TestMethod]
+        public void SanitizeWillInitializeStatusCode()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.Equal("200", telemetry.ResponseCode);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSuccess()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.True(telemetry.Success.Value);
+        }
+
         [TestMethod]  
         public void SanitizePopulatesIdWithErrorBecauseItIsRequiredByEndpoint()
         {  
@@ -185,17 +203,6 @@
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
             // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
             // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
-        }
-
-    [TestMethod]
-        public void SanitizePopulatesResponseCodeWithErrorBecauseItIsRequiredByEndpoint()
-        {
-            var telemetry = new RequestTelemetry { ResponseCode = null };
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.Contains("responseCode", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("required", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
