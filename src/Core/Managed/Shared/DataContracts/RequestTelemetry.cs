@@ -221,12 +221,22 @@
             if (string.IsNullOrEmpty(this.ResponseCode))
             {
                 this.ResponseCode = "200";
+                this.Success = true;
             }
 
             // Required field
             if (!this.Success.HasValue)
             {
-                this.Success = true;
+                int responseCode;
+
+                if (int.TryParse(this.ResponseCode, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCode))
+                {
+                    this.Success = (responseCode < 400) || (responseCode == 401);
+                }
+                else
+                {
+                    this.Success = true;
+                }
             }
         }
 
