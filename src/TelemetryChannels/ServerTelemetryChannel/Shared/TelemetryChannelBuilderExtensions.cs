@@ -1,10 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using System;
     using System.ComponentModel;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 
     /// <summary>
     /// Extension methods for <see cref="TelemetryProcessorChainBuilder"/>.
