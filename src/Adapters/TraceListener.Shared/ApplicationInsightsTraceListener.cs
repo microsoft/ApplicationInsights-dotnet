@@ -154,7 +154,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, default(int), trace);
+            this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, null, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -167,14 +167,18 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.Write(message + Environment.NewLine);
         }
         
-        private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int id, TraceTelemetry trace)
+        private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = this.GetSeverityLevel(eventType);
 
             IDictionary<string, string> metaData = trace.Properties;
             metaData.Add("SourceType", "TraceListener");
             metaData.Add("TraceEventType", eventType.ToString());
-            metaData.Add("EventId", id.ToString(CultureInfo.InvariantCulture));
+
+            if (id.HasValue)
+            {
+                metaData.Add("EventId", id.Value.ToString(CultureInfo.InvariantCulture));
+            }
 
             if ((this.TraceOutputOptions & TraceOptions.Timestamp) == TraceOptions.Timestamp)
             {

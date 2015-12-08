@@ -1,5 +1,9 @@
 # Changelog 
 
-## Version 1.2.6
+### Version 1.2.6
+
+- Bug fixes
+
+### Version 1.2.5
 - First open source version: References Application Insights API version 1.2.3 or higher.
 

@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
                 Assert.AreEqual(expectedMessage, telemetry.Message);
                 Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
                 Assert.AreEqual("Verbose", telemetry.Properties["TraceEventType"]);
-                Assert.AreEqual("0", telemetry.Properties["EventId"]);
+                Assert.IsFalse(telemetry.Properties.ContainsKey("EventId"));
                 Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
             }
         }
