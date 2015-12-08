@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Generates batches of random number using Xorshift algorithm
-    /// Note: the base code is from http://www.codeproject.com/Articles/9187/A-fast-equivalent-for-System-Random.
+    /// Note: implementation of XorShift algorithm https://en.wikipedia.org/wiki/Xorshift. You can find some extra details and performance tests here http://www.codeproject.com/Articles/9187/A-fast-equivalent-for-System-Random.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", 
         Justification = "Xorshift is a well-known algorithm name")]
