@@ -2,14 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public sealed class DiagnoisticsEventThrottlingSchedulerTest : IDisposable

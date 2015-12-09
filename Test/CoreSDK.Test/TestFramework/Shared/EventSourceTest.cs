@@ -1,18 +1,16 @@
 ﻿#define DEBUG
 
-#if !Wp80
-
 namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
 
@@ -69,11 +67,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 return "Test String";
             }
 
-#if WINRT || UWP
-            if (parameter.ParameterType.GetTypeInfo().IsValueType)
-#else
             if (parameter.ParameterType.IsValueType)
-#endif
             {
                 return Activator.CreateInstance(parameter.ParameterType);
             }
@@ -104,11 +98,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
-#if !WINRT && !UWP
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
-#else
-            string expectedApplicationName = string.Empty;
-#endif
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
         }
@@ -134,15 +124,9 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private static IEnumerable<MethodInfo> GetEventMethods(EventSource eventSource)
         {
-#if WINRT
-            IEnumerable<MethodInfo> methods = eventSource.GetType().GetRuntimeMethods();
-#else
             MethodInfo[] methods = eventSource.GetType().GetMethods();
-#endif
 
             return methods.Where(m => m.GetCustomAttributes(typeof(EventAttribute), false).Any());
         }
     }
 }
-
-#endif

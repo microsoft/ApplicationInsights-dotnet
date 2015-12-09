@@ -1,13 +1,12 @@
-﻿#if !Wp80
-namespace Microsoft.ApplicationInsights.TestFramework
+﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Threading;
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
 
@@ -63,4 +62,3 @@ namespace Microsoft.ApplicationInsights.TestFramework
         }
     }
 }
-#endif

@@ -2,14 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Reflection;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
-    using EndpointDeviceContext = Microsoft.Developer.Analytics.DataCollection.Model.v2.DeviceContextData;
-    using JsonConvert = Newtonsoft.Json.JsonConvert;
 
     [TestClass]
     public class DeviceContextTest

@@ -5,11 +5,7 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.Developer.Analytics.DataCollection.Model.v2;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
         where TTelemetry : ITelemetry, new()

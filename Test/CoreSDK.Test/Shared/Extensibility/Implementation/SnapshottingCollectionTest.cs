@@ -11,15 +11,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Threading;
     using System.Threading.Tasks;
 
-#if NET40 || NET45 || NET35 || NET46
+#if NET40 || NET45 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class SnapshottingCollectionTest
@@ -294,7 +291,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 Assert.Same(expectedCollection, actualCollection);
             }
 
-#if !NET35
             [TestMethod]
             public void LocksCollectionWhileCreatingSnapshotForThreadSafety()
             {
@@ -310,7 +306,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 Assert.True(isCollectionLocked);
             }
-#endif
 
             [TestMethod]
             public void ReusesPreviouslyCreatedSnapshotToImprovePerformance()
@@ -324,7 +319,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 Assert.Same(previouslyCreatedSnapshot, returnedSnapshot);
             }
 
-#if !NET35
             [TestMethod]
             public void DoesNotKeepCollectionLockedToUnblockOtherThreads()
             {
@@ -335,7 +329,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 Assert.False(Monitor.IsEntered(collection));
             }
-#endif
         }
 
         private class TestableSnapshottingCollection<T> : SnapshottingCollection<T, ICollection<T>>

@@ -10,7 +10,7 @@
     /// </summary>
     internal static class TypeExtensions
     {
-#if NET35 || NET40
+#if NET40
         public static IEnumerable<MethodInfo> GetRuntimeMethods(this Type type)
         {
             return type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);

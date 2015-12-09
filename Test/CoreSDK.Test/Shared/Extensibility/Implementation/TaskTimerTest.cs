@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-#if CORE_PCL || NET45 || WINRT || NET46 
+#if CORE_PCL || NET45 || NET46 
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
@@ -11,18 +11,11 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class TaskTimerTest
@@ -159,7 +152,6 @@
                 Assert.Equal(1, invokationCount);
             }
 
-#if !Wp80 && !WINDOWS_PHONE
             [TestMethod]
             [Timeout(1000)]
             public void HandlesAsyncExceptionThrownByTheDelegate()
@@ -190,7 +182,6 @@
                     Assert.NotNull(listener.Messages.FirstOrDefault());
                 }
             }
-#endif
         }
 
         [TestClass]

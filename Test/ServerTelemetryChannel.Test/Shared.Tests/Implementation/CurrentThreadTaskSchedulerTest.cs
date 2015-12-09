@@ -2,15 +2,12 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-#if NET40 || NET45 || NET35
+#if NET40 || NET45
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
-#if !NET35
-    using EnvironmentEx = System.Environment;
-#endif
 
     [TestClass]
     public class CurrentThreadTaskSchedulerTest

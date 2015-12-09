@@ -2,18 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || WINRT || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
-    using Tracing;
     using Tracing.Mocks;
 
     [TestClass]
@@ -45,9 +40,6 @@
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {
-#if SILVERLIGHT
-                CoreEventSource.Log.EnableEventListener(listener);
-#endif
                 listener.LogLevel = EventLevel.Verbose;
                 CoreEventSource.Log.LogVerbose("failure");
             }
@@ -63,9 +55,6 @@
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {
-#if SILVERLIGHT
-                CoreEventSource.Log.EnableEventListener(listener);
-#endif
                 listener.LogLevel = EventLevel.Informational;
 
                 CoreEventSource.Log.LogVerbose("Some verbose tracing");

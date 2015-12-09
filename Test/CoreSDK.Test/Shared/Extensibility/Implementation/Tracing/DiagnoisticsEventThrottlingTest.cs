@@ -1,10 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
     [TestClass]
     public class DiagnoisticsEventThrottlingTest
@@ -14,11 +10,9 @@
         private const int SecondTraceEventId = 2;
 
         private const int EventThrottlingEnabledKeywords = 0;
-        private const int EventThrottlingNotEnabledKeywords =
-            DiagnoisticsEventThrottlingDefaults.KeywordsExcludedFromEventThrottling;
+        private const int EventThrottlingNotEnabledKeywords = DiagnoisticsEventThrottlingDefaults.KeywordsExcludedFromEventThrottling;
 
-        private readonly DiagnoisticsEventThrottling throttling = 
-            new DiagnoisticsEventThrottling(ThrottleAfterCountAsOne);
+        private readonly DiagnoisticsEventThrottling throttling = new DiagnoisticsEventThrottling(ThrottleAfterCountAsOne);
 
         [TestMethod]
         public void TestThrottleEvent()

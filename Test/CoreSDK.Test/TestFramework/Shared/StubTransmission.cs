@@ -2,11 +2,7 @@
 {
     using System;
     using System.IO;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     internal class StubTransmission : Transmission
     {

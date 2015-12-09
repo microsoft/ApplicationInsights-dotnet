@@ -3,15 +3,8 @@
     using System;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif 
 
     /// <summary>
     /// Tests corresponding to OperationExtension methods.

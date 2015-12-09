@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     internal class WeakConcurrentRandom
@@ -65,7 +66,7 @@
 
         public static WeakConcurrentRandom Instance
         {
-#if ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE
+#if NET45 || NET46
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
             get

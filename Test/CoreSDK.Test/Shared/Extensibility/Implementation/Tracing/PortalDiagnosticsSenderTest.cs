@@ -2,20 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || WINRT || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.Mocks;
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using TestFramework;
 
     [TestClass]

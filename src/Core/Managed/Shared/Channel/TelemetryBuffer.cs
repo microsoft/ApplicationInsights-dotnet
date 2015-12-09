@@ -3,9 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.

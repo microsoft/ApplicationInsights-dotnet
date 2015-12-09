@@ -4,7 +4,7 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-#if WINRT || NET45 || UWP || NET46
+#if NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -23,11 +23,6 @@
         public Func<IAsyncResult, Stream> OnEndGetRequestStream;
         public Func<AsyncCallback, object, IAsyncResult> OnBeginGetResponse;
         public Func<IAsyncResult, WebResponse> OnEndGetResponse;
-
-#if WINRT
-        public Func<Task<Stream>> OnGetRequestStreamAsync;
-        public Func<Task<WebResponse>> OnGetResponseAsync;
-#endif
 
         private string contentType;
         private WebHeaderCollection headers;
@@ -50,10 +45,6 @@
             this.OnEndGetRequestStream = asyncResult => this.requestStream = new StubStream();
             this.OnBeginGetResponse = (callback, state) => TaskEx.FromResult<object>(null).AsAsyncResult(callback, this);
             this.OnEndGetResponse = asyncResult => this.response = new StubWebResponse();
-#if WINRT
-            this.OnGetRequestStreamAsync = () => Task.Factory.FromAsync(this.OnBeginGetRequestStream, this.OnEndGetRequestStream, null);
-            this.OnGetResponseAsync = () => Task.Factory.FromAsync(this.OnBeginGetResponse, this.OnEndGetResponse, null);
-#endif
         }
 
         public override string ContentType 
@@ -83,18 +74,6 @@
         {
             this.OnAbort();
         }
-
-#if WINRT
-        public override Task<Stream> GetRequestStreamAsync()
-        {
-            return this.OnGetRequestStreamAsync();
-        }
-
-        public override Task<WebResponse> GetResponseAsync()
-        {
-            return this.OnGetResponseAsync();
-        }
-#endif
 
         public override IAsyncResult BeginGetRequestStream(AsyncCallback callback, object state)
         {

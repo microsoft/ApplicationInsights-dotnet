@@ -3,11 +3,7 @@
     using System;
     using System.Reflection;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
 
     [TestClass]

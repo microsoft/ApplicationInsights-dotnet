@@ -3,11 +3,7 @@
     using System.Linq;
     using System.Reflection;
     using Microsoft.ApplicationInsights.DataContracts;
-#if WINDOWS_PHONE || WINDOWS_PHONE_APP || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
 
     [TestClass]
@@ -42,17 +38,10 @@
             var item = new RequestTelemetry();
             initializer.Initialize(item);
             
-            string expectedSdkVersion;
-#if !WINRT
-            expectedSdkVersion = typeof(SdkVersionPropertyTelemetryInitializer).Assembly.GetCustomAttributes(false)
+            string expectedSdkVersion = typeof(SdkVersionPropertyTelemetryInitializer).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
-#else
-            expectedSdkVersion = typeof(SdkVersionPropertyTelemetryInitializer).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-#endif
             Assert.Equal(item.Context.Internal.SdkVersion, expectedSdkVersion);
         }
     }

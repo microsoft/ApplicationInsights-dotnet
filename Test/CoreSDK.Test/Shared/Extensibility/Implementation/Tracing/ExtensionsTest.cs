@@ -4,11 +4,7 @@
     using System.Globalization;
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
 
     public class ExtensionsTest
@@ -16,7 +12,6 @@
         [TestClass]
         public class ToInvariantString
         {
-#if !WINRT
             private CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
 
             [TestCleanup]
@@ -47,7 +42,6 @@
                 Extensions.ToInvariantString(new Exception());
                 Assert.Same(this.originalUICulture, Thread.CurrentThread.CurrentUICulture);
             }
-#endif
         }
     }
 }
