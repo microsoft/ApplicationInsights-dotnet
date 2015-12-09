@@ -32,8 +32,8 @@
         /// </summary>
         public static TelemetryConfiguration Active
         {
-            get 
-            { 
+            get
+            {
                 if (active == null)
                 {
                     lock (syncRoot)
@@ -49,7 +49,7 @@
                 return active;
             }
 
-            internal set 
+            internal set
             {
                 lock (syncRoot)
                 {
@@ -136,9 +136,9 @@
         public TelemetryProcessorChain TelemetryProcessors
         {
             get
-            {                
+            {
                 if (this.telemetryProcessorChain == null)
-                {                                                 
+                {
                     // Gets the telemetryprocessorchainbuilder, builds the processor chain and sets the same in the configuration.
                     this.GetTelemetryProcessorChainBuilder().Build();
                 }
@@ -154,7 +154,7 @@
                 }
 
                 this.telemetryProcessorChain = value;
-            }              
+            }
         }
 
         /// <summary>
@@ -176,6 +176,23 @@
         }
 
         /// <summary>
+        /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the specified configuration.
+        /// </summary>
+        /// <param name="config">an xml serialized configuration</param>
+        /// <exception cref="ArgumentNullException">throws if the config value is null or empty</exception>
+        public static TelemetryConfiguration CreateFromConfiguration(string config)
+        {
+            if (String.IsNullOrWhiteSpace(config))
+            {
+                throw new ArgumentNullException("config");
+            }
+
+            var configuration = new TelemetryConfiguration();
+            TelemetryConfigurationFactory.Instance.Initialize(configuration, null, config);
+            return configuration;
+        }
+
+        /// <summary>
         /// Releases resources used by the current instance of the <see cref="TelemetryConfiguration"/> class.
         /// </summary>
         public void Dispose()
@@ -184,7 +201,7 @@
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-        
+
         private void Dispose(bool disposing)
         {
             if (disposing)
