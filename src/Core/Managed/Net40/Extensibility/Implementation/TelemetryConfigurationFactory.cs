@@ -46,22 +46,20 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string configurationXml)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
 #if !CORE_PCL
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 #endif
-
-            // Load customizations from the ApplicationsInsights.config file
-            string text = PlatformSingleton.Current.ReadConfigurationXml();
-            if (!string.IsNullOrEmpty(text))
+            // Load configuration from the specified configuration
+            if (!string.IsNullOrEmpty(configurationXml))
             {
-                XDocument xml = XDocument.Parse(text);
+                XDocument xml = XDocument.Parse(configurationXml);
                 LoadFromXml(configuration, modules, xml);
             }
-            
+
             // Creating the default channel if no channel configuration supplied
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
 
@@ -69,9 +67,15 @@
             if (configuration.TelemetryProcessors == null)
             {
                 configuration.GetTelemetryProcessorChainBuilder().Build();
-            }                
+            }
 
             InitializeComponents(configuration, modules);
+        }
+
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
+        {
+            // Load customizations from the ApplicationsInsights.config file
+            Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
