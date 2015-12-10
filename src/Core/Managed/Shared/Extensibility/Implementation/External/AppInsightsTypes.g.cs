@@ -518,6 +518,73 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             responseCode = string.Empty;
         }
     }
+
+    
+    [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
+    internal enum TestResult
+    {
+        Pass,
+        Fail,
+    }
+
+    
+    [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
+    internal partial class AvailabilityData
+        
+    {
+        
+        public int ver { get; set; }
+
+        
+        public string testRunId { get; set; }
+
+        
+        
+        public string testTimeStamp { get; set; }
+
+        
+        public string testName { get; set; }
+
+        
+        
+        public string duration { get; set; }
+
+        
+        public TestResult result { get; set; }
+
+        
+        public string runLocation { get; set; }
+
+        
+        public string message { get; set; }
+
+        
+        public double dataSize { get; set; }
+
+        
+        public IDictionary<string, string> properties { get; set; }
+
+        
+        public IDictionary<string, double> measurements { get; set; }
+        
+        public AvailabilityData()
+            : this("AI.AvailabilityData", "AvailabilityData")
+        {}
+
+        protected AvailabilityData(string fullName, string name)
+        {
+            ver = 2;
+            testRunId = string.Empty;
+            testTimeStamp = string.Empty;
+            testName = string.Empty;
+            duration = string.Empty;
+            result = new TestResult();
+            runLocation = string.Empty;
+            message = string.Empty;
+            properties = new Dictionary<string, string>();
+            measurements = new Dictionary<string, double>();
+        }
+    }
 } // AI
 
 
