@@ -115,6 +115,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string name { get; set; }
 
         
+        public string id { get; set; }
+
+        
+        public string resultCode { get; set; }
+
+        
         public DataPointType kind { get; set; }
 
         
@@ -161,6 +167,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             this.name = string.Empty;
+            id = string.Empty;
+            resultCode = string.Empty;
             kind = DataPointType.Measurement;
             dependencyKind = DependencyKind.Other;
             success = true;
@@ -404,6 +412,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     }
 
     
+    
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class PageViewData
         : EventData
@@ -434,6 +443,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
+    
     
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class PageViewPerfData
@@ -473,6 +483,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
+    
     
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class AjaxCallData

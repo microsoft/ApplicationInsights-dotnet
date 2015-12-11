@@ -215,6 +215,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         public string InternalTrackingType { get; set; }
+
+        
+        public string InternalIsDiagnosticExample { get; set; }
         
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
@@ -284,6 +287,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             InternalIsAudit = "ai.internal.isAudit";
             InternalTrackingSourceId = "ai.internal.trackingSourceId";
             InternalTrackingType = "ai.internal.trackingType";
+            InternalIsDiagnosticExample = "ai.internal.isDiagnosticExample";
         }
     }
 } // AI
