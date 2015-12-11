@@ -24,7 +24,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System.Collections.Generic;
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal enum DataPointType
     {
@@ -32,34 +32,34 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         Aggregation,
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class DataPoint
     {
-        
+
         public string name { get; set; }
 
-        
+
         public DataPointType kind { get; set; }
 
-        
+
         public double value { get; set; }
 
-        
+
         public int? count { get; set; }
 
-        
+
         public double? min { get; set; }
 
-        
+
         public double? max { get; set; }
 
-        
+
         public double? stdDev { get; set; }
-        
+
         public DataPoint()
             : this("AI.DataPoint", "DataPoint")
-        {}
+        { }
 
         protected DataPoint(string fullName, string name)
         {
@@ -68,23 +68,23 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class MetricData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public IList<DataPoint> metrics { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
-        
+
         public MetricData()
             : this("AI.MetricData", "MetricData")
-        {}
+        { }
 
         protected MetricData(string fullName, string name)
         {
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal enum DependencySourceType
     {
@@ -103,65 +103,62 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         Apmc,
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class RemoteDependencyData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string name { get; set; }
 
-        
         public string id { get; set; }
 
-        
         public string resultCode { get; set; }
 
-        
         public DataPointType kind { get; set; }
 
-        
+
         public double value { get; set; }
 
-        
+
         public int? count { get; set; }
 
-        
+
         public double? min { get; set; }
 
-        
+
         public double? max { get; set; }
 
-        
+
         public double? stdDev { get; set; }
 
-        
+
         public DependencyKind dependencyKind { get; set; }
 
-        
+
         public bool? success { get; set; }
 
-        
+
         public bool? async { get; set; }
 
-        
+
         public DependencySourceType dependencySource { get; set; }
 
-        
+
         public string commandName { get; set; }
 
-        
+
         public string dependencyTypeName { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
-        
+
         public RemoteDependencyData()
             : this("AI.RemoteDependencyData", "RemoteDependencyData")
-        {}
+        { }
 
         protected RemoteDependencyData(string fullName, string name)
         {
@@ -179,49 +176,49 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class RequestData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string id { get; set; }
 
-        
+
         public string name { get; set; }
 
-        
-        
+
+
         public string startTime { get; set; }
 
-        
-        
+
+
         public string duration { get; set; }
 
-        
+
         public string responseCode { get; set; }
 
-        
+
         public bool success { get; set; }
 
-        
+
         public string httpMethod { get; set; }
 
-        
+
         public string url { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
 
-        
+
         public IDictionary<string, double> measurements { get; set; }
-        
+
         public RequestData()
             : this("AI.RequestData", "RequestData")
-        {}
+        { }
 
         protected RequestData(string fullName, string name)
         {
@@ -238,28 +235,28 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class StackFrame
     {
-        
+
         public int level { get; set; }
 
-        
+
         public string method { get; set; }
 
-        
+
         public string assembly { get; set; }
 
-        
+
         public string fileName { get; set; }
 
-        
+
         public int line { get; set; }
-        
+
         public StackFrame()
             : this("AI.StackFrame", "StackFrame")
-        {}
+        { }
 
         protected StackFrame(string fullName, string name)
         {
@@ -269,34 +266,34 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class ExceptionDetails
     {
-        
+
         public int id { get; set; }
 
-        
+
         public int outerId { get; set; }
 
-        
+
         public string typeName { get; set; }
 
-        
+
         public string message { get; set; }
 
-        
+
         public bool hasFullStack { get; set; }
 
-        
+
         public string stack { get; set; }
 
-        
+
         public IList<StackFrame> parsedStack { get; set; }
-        
+
         public ExceptionDetails()
             : this("AI.ExceptionDetails", "ExceptionDetails")
-        {}
+        { }
 
         protected ExceptionDetails(string fullName, string name)
         {
@@ -308,38 +305,38 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class ExceptionData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string handledAt { get; set; }
 
-        
+
         public IList<ExceptionDetails> exceptions { get; set; }
 
-        
+
         public SeverityLevel? severityLevel { get; set; }
 
-        
+
         public string problemId { get; set; }
 
-        
+
         public int crashThreadId { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
 
-        
+
         public IDictionary<string, double> measurements { get; set; }
-        
+
         public ExceptionData()
             : this("AI.ExceptionData", "ExceptionData")
-        {}
+        { }
 
         protected ExceptionData(string fullName, string name)
         {
@@ -352,26 +349,26 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class MessageData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string message { get; set; }
 
-        
+
         public SeverityLevel? severityLevel { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
-        
+
         public MessageData()
             : this("AI.MessageData", "MessageData")
-        {}
+        { }
 
         protected MessageData(string fullName, string name)
         {
@@ -381,26 +378,26 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class EventData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string name { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
 
-        
+
         public IDictionary<string, double> measurements { get; set; }
-        
+
         public EventData()
             : this("AI.EventData", "EventData")
-        {}
+        { }
 
         protected EventData(string fullName, string name)
         {
@@ -411,28 +408,27 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class PageViewData
         : EventData
     {
-        
+
         public string url { get; set; }
 
-        
-        
+
+
         public string duration { get; set; }
 
-        
+
         public string referrer { get; set; }
 
-        
+
         public string referrerData { get; set; }
-        
+
         public PageViewData()
             : this("AI.PageViewData", "PageViewData")
-        {}
+        { }
 
         protected PageViewData(string fullName, string name)
         {
@@ -443,35 +439,34 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class PageViewPerfData
         : PageViewData
     {
-        
-        
+
+
         public string perfTotal { get; set; }
 
-        
-        
+
+
         public string networkConnect { get; set; }
 
-        
-        
+
+
         public string sentRequest { get; set; }
 
-        
-        
+
+
         public string receivedResponse { get; set; }
 
-        
-        
+
+
         public string domProcessing { get; set; }
-        
+
         public PageViewPerfData()
             : this("AI.PageViewPerfData", "PageViewPerfData")
-        {}
+        { }
 
         protected PageViewPerfData(string fullName, string name)
         {
@@ -483,42 +478,41 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class AjaxCallData
         : PageViewData
     {
-        
+
         public string ajaxUrl { get; set; }
 
-        
+
         public double requestSize { get; set; }
 
-        
+
         public double responseSize { get; set; }
 
-        
-        
+
+
         public string timeToFirstByte { get; set; }
 
-        
-        
+
+
         public string timeToLastByte { get; set; }
 
-        
-        
+
+
         public string callbackDuration { get; set; }
 
-        
+
         public string responseCode { get; set; }
 
-        
+
         public bool success { get; set; }
-        
+
         public AjaxCallData()
             : this("AI.AjaxCallData", "AjaxCallData")
-        {}
+        { }
 
         protected AjaxCallData(string fullName, string name)
         {
@@ -530,7 +524,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 
-    
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal enum TestResult
     {
@@ -538,49 +531,49 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         Fail,
     }
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class AvailabilityData
-        
+
     {
-        
+
         public int ver { get; set; }
 
-        
+
         public string testRunId { get; set; }
 
-        
-        
+
+
         public string testTimeStamp { get; set; }
 
-        
+
         public string testName { get; set; }
 
-        
-        
+
+
         public string duration { get; set; }
 
-        
+
         public TestResult result { get; set; }
 
-        
+
         public string runLocation { get; set; }
 
-        
+
         public string message { get; set; }
 
-        
+
         public double dataSize { get; set; }
 
-        
+
         public IDictionary<string, string> properties { get; set; }
 
-        
+
         public IDictionary<string, double> measurements { get; set; }
-        
+
         public AvailabilityData()
             : this("AI.AvailabilityData", "AvailabilityData")
-        {}
+        { }
 
         protected AvailabilityData(string fullName, string name)
         {
