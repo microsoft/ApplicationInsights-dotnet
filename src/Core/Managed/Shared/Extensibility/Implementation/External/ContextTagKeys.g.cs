@@ -24,204 +24,202 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System.Collections.Generic;
 
-    
-    
+
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class ContextTagKeys
     {
-        
+
         public string ApplicationVersion { get; set; }
 
-        
+
         public string ApplicationBuild { get; set; }
 
-        
+
         public string ApplicationTypeId { get; set; }
 
-        
+
         public string ApplicationId { get; set; }
 
-        
+
         public string DeviceId { get; set; }
 
-        
+
         public string DeviceIp { get; set; }
 
-        
+
         public string DeviceLanguage { get; set; }
 
-        
+
         public string DeviceLocale { get; set; }
 
-        
+
         public string DeviceModel { get; set; }
 
-        
+
         public string DeviceNetwork { get; set; }
 
-        
+
         public string DeviceNetworkName { get; set; }
 
-        
+
         public string DeviceOEMName { get; set; }
 
-        
+
         public string DeviceOS { get; set; }
 
-        
+
         public string DeviceOSVersion { get; set; }
 
-        
+
         public string DeviceRoleInstance { get; set; }
 
-        
+
         public string DeviceRoleName { get; set; }
 
-        
+
         public string DeviceScreenResolution { get; set; }
 
-        
+
         public string DeviceType { get; set; }
 
-        
+
         public string DeviceMachineName { get; set; }
 
-        
+
         public string DeviceVMName { get; set; }
 
-        
+
         public string LocationIp { get; set; }
 
-        
+
         public string OperationId { get; set; }
 
-        
+
         public string OperationName { get; set; }
 
-        
+
         public string OperationParentId { get; set; }
 
-        
+
         public string OperationRootId { get; set; }
 
-        
+
         public string OperationSyntheticSource { get; set; }
 
-        
+
         public string OperationIsSynthetic { get; set; }
 
-        
+
         public string OperationCorrelationVector { get; set; }
 
-        
+
         public string SessionId { get; set; }
 
-        
+
         public string SessionIsFirst { get; set; }
 
-        
+
         public string SessionIsNew { get; set; }
 
-        
+
         public string UserAccountAcquisitionDate { get; set; }
 
-        
+
         public string UserAccountId { get; set; }
 
-        
+
         public string UserAgent { get; set; }
 
-        
+
         public string UserId { get; set; }
 
-        
+
         public string UserStoreRegion { get; set; }
 
-        
+
         public string UserAuthUserId { get; set; }
 
-        
+
         public string UserAnonymousUserAcquisitionDate { get; set; }
 
-        
+
         public string UserAuthenticatedUserAcquisitionDate { get; set; }
 
-        
-        
+
+
         public string SampleRate { get; set; }
 
-        
+
         public string CloudName { get; set; }
 
-        
+
         public string CloudRoleVer { get; set; }
 
-        
+
         public string CloudEnvironment { get; set; }
 
-        
+
         public string CloudLocation { get; set; }
 
-        
+
         public string CloudDeploymentUnit { get; set; }
 
-        
+
         public string ServerDeviceOS { get; set; }
 
-        
+
         public string ServerDeviceOSVer { get; set; }
 
-        
+
         public string InternalSdkVersion { get; set; }
 
-        
+
         public string InternalAgentVersion { get; set; }
 
-        
+
         public string InternalDataCollectorReceivedTime { get; set; }
 
-        
+
         public string InternalProfileId { get; set; }
 
-        
+
         public string InternalProfileClassId { get; set; }
 
-        
+
         public string InternalAccountId { get; set; }
 
-        
+
         public string InternalApplicationName { get; set; }
 
-        
+
         public string InternalInstrumentationKey { get; set; }
 
-        
+
         public string InternalTelemetryItemId { get; set; }
 
-        
+
         public string InternalApplicationType { get; set; }
 
-        
+
         public string InternalRequestSource { get; set; }
 
-        
+
         public string InternalFlowType { get; set; }
 
-        
+
         public string InternalIsAudit { get; set; }
 
-        
+
         public string InternalTrackingSourceId { get; set; }
 
-        
+
         public string InternalTrackingType { get; set; }
 
-        
         public string InternalIsDiagnosticExample { get; set; }
-        
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
-        {}
+        { }
 
         protected ContextTagKeys(string fullName, string name)
         {
