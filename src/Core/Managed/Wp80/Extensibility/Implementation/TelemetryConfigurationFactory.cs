@@ -40,6 +40,11 @@
 
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules = null)
         {
+            Initialize(configuration, modules, null);
+        }
+
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string serializedConfig)
+        {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
             // Load customizations from the ApplicationsInsights.config file

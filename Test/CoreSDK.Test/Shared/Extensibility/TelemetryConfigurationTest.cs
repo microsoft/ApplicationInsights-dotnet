@@ -281,7 +281,7 @@
             Type configurationInstanceType = configuration.GetType();
             Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
             PropertyInfo property;
-            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));                            
+            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));
             Assert.True(property.CanWrite);
         }
 
@@ -291,10 +291,38 @@
             var configuration = new TelemetryConfiguration();
             var tp = configuration.TelemetryProcessors;
 
-            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);            
+            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
         }
         #endregion
 
+        #region Serialized Configuration
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsNull()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+             {
+                 TelemetryConfiguration.CreateFromConfiguration(null);
+             });
+        }
+
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsEmpty()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+            {
+                TelemetryConfiguration.CreateFromConfiguration(String.Empty);
+            });
+        }
+
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsWhitespace()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+            {
+                TelemetryConfiguration.CreateFromConfiguration(" ");
+            });
+        }
+        #endregion
         private class TestableTelemetryModules : TelemetryModules
         {
         }
