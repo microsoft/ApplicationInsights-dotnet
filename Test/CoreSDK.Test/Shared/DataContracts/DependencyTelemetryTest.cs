@@ -32,6 +32,8 @@
             Assert.Equal(expected.Context.Tags.ToArray(), item.Tags.ToArray());
             Assert.Equal(typeof(DataPlatformModel.RemoteDependencyData).Name, item.Data.BaseType);
 
+            Assert.Equal(expected.Id, item.Data.BaseData.Id);
+            Assert.Equal(expected.ResultCode, item.Data.BaseData.ResultCode);
             Assert.Equal(expected.Name, item.Data.BaseData.Name);
             Assert.Equal(DataPlatformModel.DataPointType.Aggregation, item.Data.BaseData.Kind);
             Assert.Equal(expected.Duration.TotalMilliseconds, item.Data.BaseData.Value);
@@ -187,6 +189,8 @@
                                                 Duration = TimeSpan.FromMilliseconds(42),
                                                 Async = false,
                                                 Success = true,
+                                                Id = "DepID",
+                                                ResultCode = "200",
                                                 DependencyTypeName = "external call"
                                             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
