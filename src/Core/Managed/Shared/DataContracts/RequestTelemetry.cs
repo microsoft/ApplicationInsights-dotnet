@@ -85,10 +85,10 @@
         /// <summary>  
         /// Gets or sets Request ID.
         /// </summary>  
-        public override string Id  
-        {  
-            get { return this.Data.id; }  
-            set { this.Data.id = value; }  
+        public override string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
         }
 
         /// <summary>
@@ -171,12 +171,12 @@
                 return new Uri(this.Data.url, UriKind.RelativeOrAbsolute);
             }
 
-            set 
+            set
             {
                 this.Data.url = value == null ? null : value.ToString();
             }
         }
-        
+
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
         /// </summary>
