@@ -7,6 +7,7 @@
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     internal class WeakConcurrentRandom
@@ -71,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         public static WeakConcurrentRandom Instance
         {
-#if ALLOW_AGGRESSIVE_INLIGNING_ATTRIBUTE
+#if NET45 || NET46
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
             get

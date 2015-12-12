@@ -2,9 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-#if WINRT
-    using Windows.Foundation.Metadata;
-#endif
 
     /// <summary>
     /// Encapsulates logic for serializing objects to JSON. 
@@ -39,9 +36,6 @@
         /// <summary>
         /// Writes a <see cref="String"/> property.
         /// </summary>
-#if WINRT
-        [DefaultOverload]
-#endif
         void WriteProperty(string name, string value);
 
         /// <summary>

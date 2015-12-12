@@ -6,21 +6,14 @@
     using System.Runtime.CompilerServices;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using Assert = Xunit.Assert;
-    using StackFrame = Microsoft.ApplicationInsights.Extensibility.Implementation.External.StackFrame;
 
     /// <summary>
     /// Tests of exception stack serialization.
     /// </summary>
     [TestClass]
-    public partial class ExceptionConverterTest
+    public class ExceptionConverterTest
     {
         [TestMethod]
         public void CallingConvertToExceptionDetailsWithNullExceptionThrowsArgumentNullException()
@@ -48,11 +41,7 @@
             var exp = this.CreateException(42);
 
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
-#if !WINRT
             Assert.Equal(43, expDetails.parsedStack.Count);
-#else
-            Assert.NotNull(expDetails.stack);
-#endif
             Assert.True(expDetails.hasFullStack);
         }
 
@@ -64,23 +53,13 @@
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
             
             Assert.False(expDetails.hasFullStack);
-#if !WINRT
             Assert.True(expDetails.parsedStack.Count < 300);
 
             // We should keep top of stack, and end of stack hence CreateException function should be present
             Assert.Equal("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.FailedFunction", expDetails.parsedStack[0].method);
             Assert.Equal("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException", expDetails.parsedStack[expDetails.parsedStack.Count - 1].method);
-#else
-            string stack = expDetails.stack;
-            Assert.NotNull(stack);
-
-            // We should keep top of stack, and end of stack hence CreateException function should be present
-            Assert.True(stack.Contains("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.FailedFunction"));
-            Assert.True(stack.Contains("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException"));
-#endif
         }
 
-#if !WINRT
         [TestMethod]
         public void CheckThatFileNameAndLineAreCorrectIfAvailable()
         {
@@ -142,7 +121,6 @@
                 Assert.Equal(j, stack[stack.Count - 1 - i].level);
             }
         }
-#endif
 
         [TestMethod]
         public void SizeOfParsedStackFrameIsLessThanMaxValue()
@@ -152,7 +130,6 @@
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
             int parsedStackLength = 0;
 
-#if !WINRT
             var stack = expDetails.parsedStack;
             for (int i = 0; i < stack.Count; i++)
             {
@@ -160,10 +137,6 @@
                                      + (stack[i].assembly == null ? 0 : stack[i].assembly.Length)
                                      + (stack[i].fileName == null ? 0 : stack[i].fileName.Length);
             }
-#else
-            var stack = expDetails.stack;
-            parsedStackLength = stack.Length;
-#endif
             Assert.True(parsedStackLength <= ExceptionConverter.MaxParsedStackLength);
         }
 

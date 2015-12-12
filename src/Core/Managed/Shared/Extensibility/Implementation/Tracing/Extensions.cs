@@ -17,14 +17,14 @@
         /// </summary>
         public static string ToInvariantString(this Exception exception)
         {
-#if !WINRT && !CORE_PCL && !UWP
+#if !CORE_PCL
             CultureInfo originalUICulture = Thread.CurrentThread.CurrentUICulture;
             try
             {
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 #endif
-                return exception.ToString();
-#if !WINRT && !CORE_PCL && !UWP
+            return exception.ToString();
+#if !CORE_PCL
             }
             finally
             {

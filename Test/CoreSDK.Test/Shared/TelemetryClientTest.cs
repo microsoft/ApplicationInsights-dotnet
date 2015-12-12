@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-#if CORE_PCL || NET45 || WINRT || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
@@ -11,20 +11,18 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET35 || NET40
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if NET40 || NET45 || NET35 || NET46
+#if NET40 || NET45 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
-    using AssertEx = Xunit.AssertEx;
 
     [TestClass]
     public class TelemetryClientTest
@@ -503,7 +501,6 @@
             Assert.DoesNotThrow(() => client.Track(new StubTelemetry()));
         }
 
-#if !Wp80 && !WINDOWS_PHONE
         [TestMethod]
         public void TrackLogsDiagnosticsMessageOnExceptionsDuringTelemetryIntializersInitialize()
         {
@@ -526,7 +523,7 @@
                 Assert.Contains(exceptionMessage, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
             }
         }
-#endif
+
         [TestMethod]
         public void TrackDoesNotAddDeveloperModeCustomPropertyIfDeveloperModeIsSetToFalse()
         {

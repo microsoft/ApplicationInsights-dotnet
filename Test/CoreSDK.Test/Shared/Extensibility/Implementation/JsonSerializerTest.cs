@@ -1,18 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using Microsoft.ApplicationInsights.DataContracts;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Assert = Xunit.Assert;
 
     /// <summary>
     /// Tests for <see cref="JsonSerializer"/>
-    /// TODO: move all the serialization tests from ITelemetry instances to a JSONSerializerTest class.
     /// </summary>
     [TestClass]
     public class JsonSerializerTest

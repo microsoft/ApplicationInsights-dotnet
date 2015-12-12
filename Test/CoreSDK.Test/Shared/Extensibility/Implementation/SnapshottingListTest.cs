@@ -8,15 +8,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Reflection;
     using System.Threading.Tasks;
 
-#if NET40 || NET45 || NET35 || NET46
+#if NET40 || NET45 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
     [TestClass]
     public class SnapshottingListTest
