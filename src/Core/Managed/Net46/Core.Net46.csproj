@@ -14,9 +14,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <DefineConstants>$(DefineConstants);NET46;UTC</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET46;</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
     <Reference Include="System" />
@@ -38,6 +39,19 @@
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
+    <Compile Include="Extensibility\Implementation\External\AjaxCallData.cs" />
+    <Compile Include="Extensibility\Implementation\External\DataPoint.cs" />
+    <Compile Include="Extensibility\Implementation\External\EventData.cs" />
+    <Compile Include="Extensibility\Implementation\External\ExceptionData.cs" />
+    <Compile Include="Extensibility\Implementation\External\MessageData.cs" />
+    <Compile Include="Extensibility\Implementation\External\MetricData.cs" />
+    <Compile Include="Extensibility\Implementation\External\PageViewData.cs" />
+    <Compile Include="Extensibility\Implementation\External\PageViewPerfData.cs" />
+    <Compile Include="Extensibility\Implementation\External\PerformanceCounterData.cs" />
+    <Compile Include="Extensibility\Implementation\External\RemoteDependencyData.cs" />
+    <Compile Include="Extensibility\Implementation\External\RequestData.cs" />
+    <Compile Include="Extensibility\Implementation\External\SessionStateData.cs" />
+    <Compile Include="Extensibility\Implementation\External\StackFrame.cs" />
     <Compile Include="Extensibility\Implementation\RichPayloadEventSource.cs" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
