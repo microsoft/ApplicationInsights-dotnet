@@ -52,7 +52,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\InternalContextData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\LocationContextData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\OperationContextData.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SessionContextData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SessionStateData.g.cs" />
