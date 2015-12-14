@@ -6,7 +6,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 - UseSampling and UseAdaptiveSampling extensions were moved to Microsoft.ApplicationInsights.Extensibility
 - Cut Phone and Store support
-- Updated ```DependencyTelemetry``` to have new property ```ResultCode```
+- Updated ```DependencyTelemetry``` to have new properties ```ResultCode``` and ```Id```
 
 ## Version 2.0.0-beta3
 - Adaptive sampling turned on by default in server telemetry channel. Details can be found in [#80](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/80).

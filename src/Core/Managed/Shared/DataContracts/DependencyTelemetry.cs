@@ -32,6 +32,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Data = new RemoteDependencyData() { kind = DataPointType.Aggregation };
             this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
             this.Data.dependencyKind = BondDependencyKind.Other;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>
@@ -214,7 +215,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
-            this.Id = this.Id.SanitizeName();
+            this.Id.SanitizeName();
+            this.ResultCode = this.ResultCode.SanitizeValue();
             this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
             this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();
