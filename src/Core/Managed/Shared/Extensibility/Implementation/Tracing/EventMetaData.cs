@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if NET40 || NET35
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
 

@@ -295,11 +295,7 @@
                 }
                 else if (expectedType == typeof(TimeSpan))
                 {
-#if NET35
-                    instance = TimeSpan.Parse(valueString);
-#else
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
-#endif
                 }
                 else
                 {

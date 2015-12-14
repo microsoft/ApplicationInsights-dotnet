@@ -5,6 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.0.0-beta4
 
 - UseSampling and UseAdaptiveSampling extensions were moved to Microsoft.ApplicationInsights.Extensibility
+- Cut Phone and Store support
 - Updated ```DependencyTelemetry``` to have new property ```ResultCode```
 
 ## Version 2.0.0-beta3

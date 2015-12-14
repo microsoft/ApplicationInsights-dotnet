@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
     using System;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
-
+    
     /// <summary>
     /// Additional implementation for ExceptionDetails.
     /// </summary>
-#if UTC
+#if NET46
     [System.Diagnostics.Tracing.EventData]
 #endif
     internal partial class ExceptionDetails

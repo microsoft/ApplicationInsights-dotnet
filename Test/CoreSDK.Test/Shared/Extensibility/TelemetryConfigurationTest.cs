@@ -8,17 +8,9 @@
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
-    // TODO: Add Dispose tests to TelemetryConfigurationTest.
     [TestClass]
     public class TelemetryConfigurationTest
     {
@@ -33,21 +25,13 @@
         [TestMethod]
         public void ActiveIsPublicToAllowUsersToAccessActiveTelemetryConfigurationInAdvancedScenarios()
         {
-#if NET35
-            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetGetMethod().IsPublic);
-#else
             Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetMethod.IsPublic);
-#endif
         }
 
         [TestMethod]
         public void ActiveSetterIsInternalAndNotMeantToBeUsedByOurCustomers()
         {
-#if NET35
-            Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
-#else
             Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").SetMethod.IsPublic);
-#endif
         }
 
         [TestMethod]

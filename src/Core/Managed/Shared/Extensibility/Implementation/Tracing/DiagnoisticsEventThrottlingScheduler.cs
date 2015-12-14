@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 
     using Implementation;
 
-#if WINRT || CORE_PCL || NET45 || NET46 || UWP
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

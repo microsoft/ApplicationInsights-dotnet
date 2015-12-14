@@ -2,10 +2,10 @@
 {
     using System.Reflection;
     using Microsoft.ApplicationInsights.TestFramework;
-#if NET40 || NET35
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -7,7 +7,6 @@
 #else
     using System.Diagnostics.Tracing;
     using System.Net;
-
 #endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]

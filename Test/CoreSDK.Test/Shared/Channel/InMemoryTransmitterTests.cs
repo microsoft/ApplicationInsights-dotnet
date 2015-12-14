@@ -1,16 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
-    using Microsoft.ApplicationInsights.TestFramework;
-#if NET40 || NET45 || NET35 || NET46
+#if NET40 || NET45 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
-#if !NET35
-    using EnvironmentEx = System.Environment;
-#endif
 
     public class InMemoryTransmitterTests
     {
