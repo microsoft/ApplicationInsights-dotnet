@@ -75,7 +75,7 @@
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
         {
             // Load customizations from the ApplicationsInsights.config file
-            Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
+            this.Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
