@@ -178,11 +178,11 @@
         /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the specified configuration.
         /// </summary>
-        /// <param name="config">an xml serialized configuration</param>
-        /// <exception cref="ArgumentNullException">throws if the config value is null or empty</exception>
+        /// <param name="config">An xml serialized configuration.</param>
+        /// <exception cref="ArgumentNullException">Throws if the config value is null or empty.</exception>
         public static TelemetryConfiguration CreateFromConfiguration(string config)
         {
-            if (String.IsNullOrWhiteSpace(config))
+            if (string.IsNullOrWhiteSpace(config))
             {
                 throw new ArgumentNullException("config");
             }
