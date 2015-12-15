@@ -86,11 +86,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             {
                                 foreach (Exception e in ((AggregateException)exception).InnerExceptions)
                                 {
-                                    CoreEventSource.Log.LogError(e.ToString());
+                                    CoreEventSource.Log.LogError(e.ToInvariantString());
                                 }
                             }
 
-                            CoreEventSource.Log.LogError(exception.ToString());
+                            CoreEventSource.Log.LogError(exception.ToInvariantString());
                         }
                     },
                     CancellationToken.None,
