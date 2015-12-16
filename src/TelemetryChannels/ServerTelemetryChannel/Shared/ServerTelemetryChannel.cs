@@ -190,7 +190,7 @@
         {
             if (!this.isInitialized)
             {
-                throw new InvalidOperationException("Channel was not initialized. Use ServerTelemetryChannel.Initialize().");
+                TelemetryChannelEventSource.Log.StorageNotInitializedError();
             }
 
             if (item != null)
@@ -213,7 +213,7 @@
         {
             if (!this.isInitialized)
             {
-                throw new InvalidOperationException("Channel was not initialized. Use ServerTelemetryChannel.Initialize().");
+                TelemetryChannelEventSource.Log.StorageNotInitializedError();
             }
 
             TelemetryChannelEventSource.Log.TelemetryChannelFlush();

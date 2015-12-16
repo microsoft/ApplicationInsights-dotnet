@@ -274,14 +274,6 @@
 
                 Assert.Same(expectedException, actualException);
             }
-
-            [TestMethod]
-            public void FlushesThrowsIfInitializeWasNotCalled()
-            {
-                var channel = new ServerTelemetryChannel();
-                
-                Assert.Throws<InvalidOperationException>(() => channel.Flush());
-            }
         }
 
         [TestClass]
@@ -338,17 +330,6 @@
                 channel.Send(telemetry);
 
                 Assert.Equal(telemetry, sentTelemetry);
-            }
-
-            [TestMethod]
-            public void ThrowsExceptionIfInitializeWasNotCalled()
-            {
-                ITelemetry sentTelemetry = null;
-                var channel = new ServerTelemetryChannel();
-                channel.TelemetryProcessor = new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry = t };
-
-                var telemetry = new StubTelemetry();
-                Assert.Throws<InvalidOperationException>(() => channel.Send(telemetry));
             }
         }
     }
