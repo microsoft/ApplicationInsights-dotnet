@@ -16,12 +16,13 @@
     public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
     {
         internal readonly TelemetrySerializer TelemetrySerializer;
-        internal Implementation.TelemetryBuffer TelemetryBuffer;
+        internal TelemetryBuffer TelemetryBuffer;
         internal Transmitter Transmitter;
 
         private bool? developerMode;
         private int telemetryBufferCapacity;
         private ITelemetryProcessor telemetryProcessor;
+        private bool isInitialized;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerTelemetryChannel"/> class.
@@ -43,10 +44,11 @@
             this.Transmitter = new Transmitter(policies: policies);
 
             this.TelemetrySerializer = new TelemetrySerializer(this.Transmitter);
-            this.TelemetryBuffer = new Implementation.TelemetryBuffer(this.TelemetrySerializer, applicationLifecycle);
+            this.TelemetryBuffer = new TelemetryBuffer(this.TelemetrySerializer, applicationLifecycle);
             this.telemetryBufferCapacity = this.TelemetryBuffer.Capacity;
 
             this.TelemetryProcessor = this.TelemetryBuffer;
+            this.isInitialized = false;
         }
 
         /// <summary>
@@ -141,6 +143,16 @@
         }
 
         /// <summary>
+        /// Gets or sets the folder to be used as a temporary storage for events that were not sent because of temporary connectivity issues. 
+        /// If folder was not provided or inaccessible. %LocalAppData% or %Temp% folder will be used.
+        /// </summary>
+        public string StorageFolder
+        {
+            get { return this.Transmitter.StorageFolder; }
+            set { this.Transmitter.StorageFolder = value; }
+        }
+
+        /// <summary>
         /// Gets or sets first TelemetryProcessor in processor call chain.
         /// </summary>
         internal ITelemetryProcessor TelemetryProcessor
@@ -176,6 +188,11 @@
         /// </summary>
         public void Send(ITelemetry item)
         {
+            if (!this.isInitialized)
+            {
+                throw new InvalidOperationException("Channel was not initialized. Use ServerTelemetryChannel.Initialize().");
+            }
+
             if (item != null)
             {
                 if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
@@ -194,6 +211,11 @@
         /// </summary>
         public void Flush()
         {
+            if (!this.isInitialized)
+            {
+                throw new InvalidOperationException("Channel was not initialized. Use ServerTelemetryChannel.Initialize().");
+            }
+
             TelemetryChannelEventSource.Log.TelemetryChannelFlush();
             this.TelemetryBuffer.FlushAsync().ConfigureAwait(false).GetAwaiter().GetResult(); // Don't use Task.Wait() because it wraps the original exception in an AggregateException.
         }
@@ -203,9 +225,13 @@
         /// </summary>
         public void Initialize(TelemetryConfiguration configuration)
         {
+            this.Transmitter.Initialize();
+
             // ApplyPolicies will syncronously get list of file names from disk and calculate size
             // Creating task to improve application startup time
             ExceptionHandler.Start(() => { return TaskEx.Run(() => this.Transmitter.ApplyPolicies()); });
+
+            this.isInitialized = true;
         }
     }
 }

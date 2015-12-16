@@ -39,7 +39,7 @@
             this.Buffer.TransmissionDequeued += this.HandleBufferTransmissionDequeuedEvent;
             this.maxBufferCapacity = this.Buffer.Capacity;
 
-            this.Storage = storage ?? new TransmissionStorage(new ApplicationFolderProvider());
+            this.Storage = storage ?? new TransmissionStorage();
             this.maxStorageCapacity = this.Storage.Capacity;
 
             this.policies = policies ?? Enumerable.Empty<TransmissionPolicy>();
@@ -50,6 +50,8 @@
         }
 
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
+
+        public string StorageFolder { get; set; }
 
         public int MaxBufferCapacity
         {
@@ -100,6 +102,11 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        internal virtual void Initialize()
+        {
+            this.Storage.Initialize(new ApplicationFolderProvider(this.StorageFolder));
         }
 
         internal virtual void Enqueue(Transmission transmission)

@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -18,11 +17,11 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    public class TelemetryChannelTest : IDisposable
+    public class ServerTelemetryChannelTest : IDisposable
     {
         private readonly TelemetryConfiguration configuration;
 
-        public TelemetryChannelTest()
+        public ServerTelemetryChannelTest()
         {
             this.configuration = new TelemetryConfiguration();
         }
@@ -39,7 +38,7 @@
         }
 
         [TestClass]
-        public class Constructor : TelemetryChannelTest
+        public class Constructor : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void InitializesTransmitterWithNetworkAvailabilityPolicy()
@@ -55,7 +54,7 @@
         }
 
         [TestClass]
-        public class DeveloperMode : TelemetryChannelTest
+        public class DeveloperMode : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void DeveloperModeIsNullByDefault()
@@ -105,7 +104,7 @@
         }
 
         [TestClass]
-        public class EndpointAddress : TelemetryChannelTest
+        public class EndpointAddress : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void EndpointAddressCanBeModifiedByConfiguration()
@@ -131,7 +130,7 @@
         }
 
         [TestClass]
-        public class MaxTelemetryBufferDelay : TelemetryChannelTest
+        public class MaxTelemetryBufferDelay : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void DataUploadIntervalInSecondsIsStoredByTelemetryBuffer()
@@ -146,7 +145,7 @@
         }
 
         [TestClass]
-        public class MaxTelemetryBufferCapacity : TelemetryChannelTest
+        public class MaxTelemetryBufferCapacity : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void GetterReturnsTelemetryBufferCapacity()
@@ -166,7 +165,7 @@
         }
 
         [TestClass]
-        public class MaxTransmissionBufferCapacity : TelemetryChannelTest
+        public class MaxTransmissionBufferCapacity : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void ReturnsMaxBufferCapacityOfTransmitter()
@@ -186,7 +185,7 @@
         }
 
         [TestClass]
-        public class MaxTransmissionSenderCapacity : TelemetryChannelTest
+        public class MaxTransmissionSenderCapacity : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void ReturnsMaxSenderCapacityOfTransmitter()
@@ -206,7 +205,7 @@
         }
 
         [TestClass]
-        public class MaxTransmissionStorageCapacity : TelemetryChannelTest
+        public class MaxTransmissionStorageCapacity : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void GetterReturnsMaxStorageCapacityOfTransmitter()
@@ -226,13 +225,34 @@
         }
 
         [TestClass]
-        public class Flush : TelemetryChannelTest
+        public class StorageFolder : ServerTelemetryChannelTest
+        {
+            [TestMethod]
+            public void GetterReturnsStorageFolderOfTransmitter()
+            {
+                var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
+                channel.Transmitter.StorageFolder = "test";
+                Assert.Equal("test", channel.StorageFolder);
+            }
+
+            [TestMethod]
+            public void SetterChangesStorageFolderOfTransmitter()
+            {
+                var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
+                channel.StorageFolder = "test";
+                Assert.Equal("test", channel.Transmitter.StorageFolder);
+            }
+        }
+
+        [TestClass]
+        public class Flush : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void FlushesTelemetryBuffer()
             {
                 var mockTelemetryBuffer = new Mock<TelemetryBuffer>();
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
 
                 channel.Flush();
 
@@ -248,15 +268,24 @@
                 var mockTelemetryBuffer = new Mock<TelemetryBuffer>();
                 mockTelemetryBuffer.Setup(x => x.FlushAsync()).Returns(tcs.Task);
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
 
                 var actualException = Assert.Throws<Exception>(() => channel.Flush());
 
                 Assert.Same(expectedException, actualException);
             }
+
+            [TestMethod]
+            public void FlushesThrowsIfInitializeWasNotCalled()
+            {
+                var channel = new ServerTelemetryChannel();
+                
+                Assert.Throws<InvalidOperationException>(() => channel.Flush());
+            }
         }
 
         [TestClass]
-        public class Initialize : TelemetryChannelTest
+        public class Initialize : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void AppliesTransmissionPoliciesToBeginSendingStoredTelemetry()
@@ -268,28 +297,58 @@
                     transmissionPoliciesApplied.Set();
                 };
                 var channel = new ServerTelemetryChannel { Transmitter = transmitter };
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
 
                 var initializedConfiguration = new TelemetryConfiguration();
                 channel.Initialize(initializedConfiguration);
 
                 Assert.True(transmissionPoliciesApplied.WaitOne(1000));
             }
+
+            [TestMethod]
+            public void InitializeCallsTransmitterInitialize()
+            {
+                var transmitterInitialized = new ManualResetEvent(false);
+                var transmitter = new StubTransmitter();
+                transmitter.OnInitialize = () =>
+                {
+                    transmitterInitialized.Set();
+                };
+                var channel = new ServerTelemetryChannel { Transmitter = transmitter };
+
+                var initializedConfiguration = new TelemetryConfiguration();
+                channel.Initialize(initializedConfiguration);
+
+                Assert.True(transmitterInitialized.WaitOne(1000));
+            }
         }
 
         [TestClass]
-        public class Send : TelemetryChannelTest
+        public class Send : ServerTelemetryChannelTest
         {
             [TestMethod]
             public void PassesTelemetryToTelemetryProcessor()
             {
                 ITelemetry sentTelemetry = null;
                 var channel = new ServerTelemetryChannel();
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
                 channel.TelemetryProcessor = new StubTelemetryProcessor(null) { OnProcess = (t) => sentTelemetry = t };
 
                 var telemetry = new StubTelemetry();
                 channel.Send(telemetry);
 
                 Assert.Equal(telemetry, sentTelemetry);
+            }
+
+            [TestMethod]
+            public void ThrowsExceptionIfInitializeWasNotCalled()
+            {
+                ITelemetry sentTelemetry = null;
+                var channel = new ServerTelemetryChannel();
+                channel.TelemetryProcessor = new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry = t };
+
+                var telemetry = new StubTelemetry();
+                Assert.Throws<InvalidOperationException>(() => channel.Send(telemetry));
             }
         }
     }

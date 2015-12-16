@@ -17,11 +17,12 @@
         public Func<long> OnGetCapacity;
         public Action<long> OnSetCapacity;
         public Queue<Transmission> Queue;
+        public Action<IApplicationFolderProvider> OnInitialize;
 
         private long capacity;
 
-        public StubTransmissionStorage(IApplicationFolderProvider transmissionFolderProvider = null)
-            : base(transmissionFolderProvider ?? new StubApplicationFolderProvider())
+        public StubTransmissionStorage()
+            
         {
             this.Queue = new Queue<Transmission>();
             this.OnDequeue = () => this.Queue.Count == 0 ? null : this.Queue.Dequeue();
@@ -38,6 +39,12 @@
 
             this.OnGetCapacity = () => this.capacity;
             this.OnSetCapacity = value => this.capacity = value;
+            this.OnInitialize = _ => base.Initialize(_ ?? new StubApplicationFolderProvider());
+        }
+
+        public override void Initialize(IApplicationFolderProvider transmissionFolderProvider = null)
+        {
+            this.OnInitialize(transmissionFolderProvider);
         }
 
         public override long Capacity

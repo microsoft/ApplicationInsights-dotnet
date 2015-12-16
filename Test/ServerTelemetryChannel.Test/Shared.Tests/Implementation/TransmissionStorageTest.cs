@@ -2,20 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET45
-    using System.Diagnostics.Tracing;
-#endif
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 #if NET45
@@ -59,9 +52,10 @@
         public class Class : TransmissionStorageTest
         {
             [TestMethod]
-            public void ConstructorThrowsArgumentNullExceptionToPreventUsageErrors()
+            public void InitializeThrowsArgumentNullExceptionToPreventUsageErrors()
             {
-                Assert.Throws<ArgumentNullException>(() => new TransmissionStorage(null));
+                var transmitter = new TransmissionStorage();
+                Assert.Throws<ArgumentNullException>(() => transmitter.Initialize(null));
             }
 
             // Uncomment this integration test only during investigations.
@@ -71,7 +65,8 @@
             {
                 const int NumberOfThreads = 16;
                 const int NumberOfFilesPerThread = 64;
-                var storage = new TransmissionStorage(new ApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new ApplicationFolderProvider());
 
                 try
                 {
@@ -109,14 +104,17 @@
             [TestMethod]
             public void DefaultValueIsAppropriateForAllApplications()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
+
                 Assert.Equal(TransmissionStorage.DefaultCapacityKiloBytes * 1024, storage.Capacity);
             }
 
             [TestMethod]
             public void ValueCanBeChangedByChannelToTunePerformanceForParticularPlatform()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
 
                 storage.Capacity = 42;
 
@@ -126,7 +124,9 @@
             [TestMethod]
             public void SetterThrowsArgumentOutOfRangeExceptionWhenValueIsLessThanZero()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
+
                 Assert.Throws<ArgumentOutOfRangeException>(() => storage.Capacity = -1);
             }
         }
@@ -147,7 +147,8 @@
                     }
                 };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Enqueue(() => new StubTransmission());
 
@@ -167,7 +168,8 @@
                     }
                 };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Enqueue(() => new StubTransmission());
                 storage.Enqueue(() => new StubTransmission());
@@ -188,7 +190,8 @@
                 var file = new StubPlatformFile { OnOpen = () => fileStream };
                 var folder = new StubPlatformFolder { OnCreateFile = fileName => file };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 byte[] contents = Encoding.UTF8.GetBytes(Path.GetRandomFileName());
                 var transmission = new StubTransmission(contents);
@@ -206,7 +209,8 @@
                 var file = new StubPlatformFile { OnOpen = () => fileStream };
                 var folder = new StubPlatformFolder { OnCreateFile = fileName => file };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Enqueue(() => new StubTransmission());
                 
@@ -221,7 +225,8 @@
                 file.OnRename = desiredName => permanentFileName = desiredName;
                 var folder = new StubPlatformFolder { OnCreateFile = fileName => file };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Enqueue(() => new StubTransmission());
 
@@ -231,7 +236,8 @@
             [TestMethod]
             public void ReturnsTrueWhenTransmissionIsSavedSuccessfully()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
@@ -251,7 +257,8 @@
                     return new StubPlatformFile();
                 };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider) { Capacity = 10 };
+                var storage = new TransmissionStorage { Capacity = 10 };
+                storage.Initialize(provider);
 
                 bool result = storage.Enqueue(() => new StubTransmission());
                 Thread.Sleep(20);
@@ -265,7 +272,8 @@
             {
                 StubPlatformFolder folder = CreateFolder();
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider) { Capacity = 10 };
+                var storage = new TransmissionStorage { Capacity = 10 };
+                storage.Initialize(provider);
 
                 bool firstTransmissionSaved = storage.Enqueue(() => new Transmission(new Uri("any://address"), new byte[42], string.Empty, string.Empty));
                 bool secondTransmissionSaved = storage.Enqueue(() => new Transmission(new Uri("any://address"), new byte[42], string.Empty, string.Empty));
@@ -277,7 +285,8 @@
             [TestMethod]
             public void SavesTransmissionFileAfterPreviousUnsuccessfullAttempt()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider()) { Capacity = 0 };
+                var storage = new TransmissionStorage { Capacity = 0 };
+                storage.Initialize(new StubApplicationFolderProvider());
                 storage.Enqueue(() => new StubTransmission());
 
                 storage.Capacity = 1;
@@ -293,7 +302,8 @@
                 file.OnGetLength = () => { throw new FileNotFoundException(); };
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 bool transmissionEnqueued = storage.Enqueue(() => new StubTransmission());
 
@@ -304,7 +314,8 @@
             public void ReturnsFalseIfApplicationFolderIsNotAvailable()
             {
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => null };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
@@ -316,7 +327,8 @@
             {
                 var folder = new StubPlatformFolder { OnGetFiles = () => { throw new UnauthorizedAccessException(); } };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Enqueue(() => new StubTransmission());
 
@@ -330,7 +342,8 @@
             {
                 var folder = new StubPlatformFolder { OnCreateFile = name => { throw new UnauthorizedAccessException(); } };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
@@ -343,7 +356,8 @@
                 var file = new StubPlatformFile { OnOpen = () => { throw new UnauthorizedAccessException(); } };
                 var folder = new StubPlatformFolder { OnCreateFile = name => file };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 bool result = storage.Enqueue(() => new StubTransmission());
 
@@ -353,7 +367,8 @@
             [TestMethod]
             public void ReturnsFalseWhenTransmissionGetterReturnedNullIndicatingNoMoreTransmissionsInBuffer()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
 
                 bool result = storage.Enqueue(() => null);
 
@@ -364,7 +379,8 @@
             public void DoesNotRemoveTransmissionFromBufferIfApplicationFolderIsNotAvailableToAvoidDroppingData()
             {
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => null };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
                 bool transmissionRemovedFromBuffer = false;
 
                 storage.Enqueue(() =>
@@ -379,7 +395,8 @@
             [TestMethod]
             public void DoesNotRemoveTransmissionFromBufferIfStorageCapacityIsExceededToAvoidDroppingData()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider()) { Capacity = 0 };
+                var storage = new TransmissionStorage() { Capacity = 0 };
+                storage.Initialize(new StubApplicationFolderProvider());
                 bool transmissionRemovedFromBuffer = false;
 
                 storage.Enqueue(() =>
@@ -398,7 +415,8 @@
             [TestMethod]
             public void ReturnsNullWhenFolderIsEmpty()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider());
+                var storage = new TransmissionStorage();
+                storage.Initialize(new StubApplicationFolderProvider());
 
                 Transmission transmission = storage.Dequeue();
 
@@ -413,7 +431,8 @@
                 file.OnRename = desiredName => temporaryFileName = desiredName;
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Dequeue();
 
@@ -427,7 +446,8 @@
                 StubPlatformFile file = CreateTransmissionFile(expectedAddress);
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -441,7 +461,8 @@
                 file.OnOpen = () => new MemoryStream();
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -459,7 +480,8 @@
 
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Dequeue();
 
@@ -474,7 +496,8 @@
                 file.OnDelete = () => fileDeleted = true;
                 StubPlatformFolder folder = CreateFolder(file);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 storage.Dequeue();
 
@@ -489,7 +512,8 @@
                 StubPlatformFile transmissionFile = CreateTransmissionFile(expectedAddress);
                 StubPlatformFolder folder = CreateFolder(unknownFile, transmissionFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -509,7 +533,8 @@
 
                 var folder = CreateFolder(newestFile, oldestFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -520,7 +545,7 @@
             public void GetsMultipleFilesFromFolderOnceAndCachesThemToReduceDiskAccess()
             {
                 int numberOfGetFilesAsyncCalls = 0;
-                var files = new StubPlatformFile[] { CreateTransmissionFile(), CreateTransmissionFile() };
+                var files = new [] { CreateTransmissionFile(), CreateTransmissionFile() };
                 var folder = new StubPlatformFolder();
                 folder.OnGetFiles = () =>
                 {
@@ -528,7 +553,8 @@
                     return files;
                 };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Assert.NotNull(storage.Dequeue());
                 Assert.NotNull(storage.Dequeue());
@@ -541,7 +567,7 @@
             {
                 int numberOfGetFilesAsyncCalls = 0;
                 var returnFiles = new ManualResetEventSlim();
-                var files = new StubPlatformFile[] { CreateTransmissionFile(), CreateTransmissionFile() };
+                var files = new [] { CreateTransmissionFile(), CreateTransmissionFile() };
                 var folder = new StubPlatformFolder();
                 folder.OnGetFiles = () =>
                 {
@@ -550,7 +576,8 @@
                     return files;
                 };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Task<Transmission> dequeue1 = TaskEx.Run(() => storage.Dequeue());
                 Task<Transmission> dequeue2 = TaskEx.Run(() => storage.Dequeue());
@@ -567,7 +594,8 @@
                 StubPlatformFile validFile = CreateTransmissionFile();
                 StubPlatformFolder folder = CreateFolder(corruptFile, validFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -592,7 +620,8 @@
                 files.Add(nextFile);
                 var folder = new StubPlatformFolder { OnGetFiles = () => files };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -617,7 +646,8 @@
                 files.Add(nextFile);
                 var folder = new StubPlatformFolder { OnGetFiles = () => files };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission dequeued = storage.Dequeue();
 
@@ -631,7 +661,8 @@
                 inaccessibleFile.OnRename = newName => { throw new UnauthorizedAccessException(); };
                 StubPlatformFolder folder = CreateFolder(inaccessibleFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Assert.Throws<UnauthorizedAccessException>(() => storage.Dequeue());
             }
@@ -639,7 +670,8 @@
             [TestMethod]
             public void MakesSpaceAvailableForNextTransmission()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider()) { Capacity = 1 };
+                var storage = new TransmissionStorage() { Capacity = 1 };
+                storage.Initialize(new StubApplicationFolderProvider());
                 storage.Enqueue(() => new Transmission(new Uri("any://address"), new byte[1], "any/content", "any/encoding"));
 
                 storage.Dequeue();
@@ -650,7 +682,8 @@
             [TestMethod]
             public void DoesNotMakeMoreSpaceAvailableWhenTransmissionCouldNotBeDequeued()
             {
-                var storage = new TransmissionStorage(new StubApplicationFolderProvider()) { Capacity = 0 };
+                var storage = new TransmissionStorage { Capacity = 0 };
+                storage.Initialize(new StubApplicationFolderProvider());
                 storage.Enqueue(() => new StubTransmission());
 
                 storage.Dequeue();
@@ -662,7 +695,8 @@
             public void ReturnsNullIfApplicationFolderIsNotAvailable()
             {
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => null };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission result = storage.Dequeue();
 
@@ -674,7 +708,8 @@
             {
                 var folder = new StubPlatformFolder { OnGetFiles = () => { throw new UnauthorizedAccessException(); } };
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
-                var storage = new TransmissionStorage(provider);
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
 
                 Transmission result = storage.Dequeue();
 

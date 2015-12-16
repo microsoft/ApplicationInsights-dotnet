@@ -321,12 +321,25 @@
         [Event(
             55, 
             Keywords = Keywords.UserActionable,
-            Message = "Access to the local storage was denied. If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please the process give access either to %LOCALAPPDATA% or to %TEMP% folder. After you give access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped.", 
+            Message = "Access to the local storage was denied. If you want Application Insights SDK to store telemetry locally on disk in case of transient network issues please the process give access either to %LOCALAPPDATA% or to %TEMP% folder. After you give access to the folder you need to restart the process. Currently monitoring will continue but if telemetry cannot be sent it will be dropped. Attempts: {0}.", 
             Level = EventLevel.Error)]
-        public void TransmissionStorageAccessDeniedError(string appDomainName = "Incorrect")
+        public void TransmissionStorageAccessDeniedError(string error, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 55,
+                error,
+                this.ApplicationName);
+        }
+
+        [Event(
+            56,
+            Message = "Access to the local storage was denied. {0}.",
+            Level = EventLevel.Warning)]
+        public void TransmissionStorageAccessDeniedWarning(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                56,
+                error,
                 this.ApplicationName);
         }
 
