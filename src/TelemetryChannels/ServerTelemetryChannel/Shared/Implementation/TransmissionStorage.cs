@@ -16,28 +16,21 @@
     {
         internal const string TemporaryFileExtension = ".tmp";
         internal const string TransmissionFileExtension = ".trn";
-
         internal const int DefaultCapacityKiloBytes = 50 * 1024;
 
-        private readonly IPlatformFolder folder;
         private readonly ConcurrentQueue<IPlatformFile> files;
         private readonly object loadFilesLock;
+        
+        private IPlatformFolder folder;
         private long capacity = DefaultCapacityKiloBytes * 1024;
         private long size;
         private bool sizeCalculated;
 
-        public TransmissionStorage(IApplicationFolderProvider applicationFolderProvider)
+        public TransmissionStorage()
         {
-            if (applicationFolderProvider == null)
-            {
-                throw new ArgumentNullException("applicationFolderProvider");
-            }
-
             this.files = new ConcurrentQueue<IPlatformFile>();
             this.loadFilesLock = new object();
             this.sizeCalculated = false;
-
-            this.folder = applicationFolderProvider.GetApplicationFolder();
         }
 
         /// <summary>
@@ -59,6 +52,16 @@
 
                 this.capacity = value;
             }
+        }
+
+        public virtual void Initialize(IApplicationFolderProvider applicationFolderProvider)
+        {
+            if (applicationFolderProvider == null)
+            {
+                throw new ArgumentNullException("applicationFolderProvider");
+            }
+
+            this.folder = applicationFolderProvider.GetApplicationFolder();
         }
 
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
