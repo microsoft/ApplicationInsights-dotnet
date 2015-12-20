@@ -122,6 +122,64 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
         [TestMethod]
         [TestCategory("Log4NetAppender")]
+        public void Log4NetSetsTimespamp()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+            Assert.AreNotEqual(default(DateTimeOffset), telemetry.Timestamp);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void Log4NetSetsUser()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+            Assert.IsNotNull(default(DateTimeOffset), telemetry.Context.User.Id);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void Log4NetAddsCustomProperties()
+        {
+            GlobalContext.Properties["CustomProperty1"] = "Value1";
+
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+            Assert.AreEqual("Value1", telemetry.Context.Properties["CustomProperty1"]);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void Log4NetDoesNotAddPropertiesPropertiesWithPrefix()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+
+            foreach (var key in telemetry.Context.Properties.Keys)
+            {
+                Assert.IsFalse(key.StartsWith("log4net", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
         public void Log4NetSetsVerboseSeverityLevelToTraceTelemetry()
         {
             this.appendableLogger.Logger.Debug("Trace Debug");
@@ -314,12 +372,12 @@ adapterComponentIdSnippet +
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
 
             // Set up error handler to intercept exception
-            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)log4net.LogManager.GetRepository().GetAppenders()[0];
-            log4net.Util.OnlyOnceErrorHandler errorHandler = new log4net.Util.OnlyOnceErrorHandler();
+            ApplicationInsightsAppender aiAppender = (ApplicationInsightsAppender)LogManager.GetRepository().GetAppenders()[0];
+            OnlyOnceErrorHandler errorHandler = new OnlyOnceErrorHandler();
             aiAppender.ErrorHandler = errorHandler;            
 
             // Log something
-            ILog logger = log4net.LogManager.GetLogger("TestAIAppender");
+            ILog logger = LogManager.GetLogger("TestAIAppender");
             logger.Debug("Trace Debug");
 
             ITelemetry[] sentItems = this.adapterHelper.Channel.SentItems;
@@ -329,23 +387,16 @@ adapterComponentIdSnippet +
             Assert.IsTrue(properties.Any());
 
             string value;
-            properties.TryGetValue("SourceType", out value);
-            Assert.AreEqual("Log4Net", value);
-
+            
             properties.TryGetValue("LoggerName", out value);
             Assert.AreEqual("TestAIAppender", value);
 
-            properties.TryGetValue("LoggingLevel", out value);
-            Assert.AreEqual("DEBUG", value);
-
             Assert.IsTrue(properties.ContainsKey("ThreadName"));
-            Assert.IsTrue(properties.ContainsKey("TimeStamp"));
             Assert.IsTrue(properties.ContainsKey("ClassName"));
             Assert.IsTrue(properties.ContainsKey("FileName"));
             Assert.IsTrue(properties.ContainsKey("MethodName"));
             Assert.IsTrue(properties.ContainsKey("LineNumber"));
             Assert.IsTrue(properties.ContainsKey("Domain"));
-            Assert.IsTrue(properties.ContainsKey("UserName"));
             Assert.IsTrue(properties.ContainsKey("Identity"));
         }
 

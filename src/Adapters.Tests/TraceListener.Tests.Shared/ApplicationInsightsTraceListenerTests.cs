@@ -156,8 +156,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
             
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual("(123, 123.456)", telemetry.Message);
-            Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
-            Assert.AreEqual(expectedTraceEventType.ToString(), telemetry.Properties["TraceEventType"]);
             Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
         }
 

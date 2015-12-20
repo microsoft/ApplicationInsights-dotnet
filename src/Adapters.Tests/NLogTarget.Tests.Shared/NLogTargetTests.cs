@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="NLogTargetTests.cs" company="Microsoft">
-// Copyright (c) Microsoft Corporation. 
-// All rights reserved.  2014
-// </copyright>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.NLogTarget.Tests
+﻿namespace Microsoft.ApplicationInsights.NLogTarget.Tests
 {
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -92,13 +85,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget.Tests
         {
             string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
 
-            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey(instrumentationKey);
             this.VerifyMessagesInMockChannel(aiLogger, instrumentationKey);
         }
 
         [TestMethod]
         [TestCategory("NLogTarget")]
-        public void TraceAreEnqueuedInChannelAndContainAllCustomProperties()
+        public void TraceAreEnqueuedInChannelAndContainAllProperties()
         {
             string instrumentationKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
 
@@ -112,17 +105,53 @@ namespace Microsoft.ApplicationInsights.NLogTarget.Tests
             var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
 
-            string level;
-            telemetry.Properties.TryGetValue("Level", out level);
-            Assert.AreEqual("Debug", level);
-
-            Assert.IsTrue(telemetry.Properties.ContainsKey("SequenceID"));
-
             string loggerName;
             telemetry.Properties.TryGetValue("LoggerName", out loggerName);
             Assert.AreEqual("AITarget", loggerName);
-            
-            Assert.IsTrue(telemetry.Properties.ContainsKey("TimeStamp"));
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void TraceHasTimestamp()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+
+            Assert.AreNotEqual((default(DateTimeOffset)), telemetry.Timestamp);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void TraceHasSequesnceId()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+
+            Assert.AreNotEqual("0", telemetry.Sequence);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void TraceHasCustomProperties()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            var eventInfo = new LogEventInfo(LogLevel.Trace, "TestLogger", "Hello!");
+            eventInfo.Properties["Name"] = "Value";
+            aiLogger.Log(eventInfo);
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+
+            Assert.AreEqual("Value", telemetry.Context.Properties["Name"]);
         }
 
         [TestMethod]
@@ -232,7 +261,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget.Tests
         }
 
         private Logger CreateTargetWithGivenInstrumentationKey(
-            string instrumentationKey = null,
+            string instrumentationKey = "TEST",
             Action<Logger> loggerAction = null)
         {
             // Mock channel to validate that our appender is trying to send logs
