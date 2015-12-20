@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             Assert.AreEqual(1, sentItems.Length);
 
             var telemetry = (TraceTelemetry)sentItems[0];
-            Assert.IsNotNull(default(DateTimeOffset), telemetry.Context.User.Id);
+            Assert.IsNotNull(telemetry.Context.User.Id);
         }
 
         [TestMethod]
