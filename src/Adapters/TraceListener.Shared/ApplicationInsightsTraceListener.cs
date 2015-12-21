@@ -12,7 +12,10 @@ namespace Microsoft.ApplicationInsights.TraceListener
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
+
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Listener that routes all tracing and debugging output to ApplicationInsights logging framework.
@@ -42,6 +45,8 @@ namespace Microsoft.ApplicationInsights.TraceListener
             {
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
+
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD: " + GetAssemblyVersion();
         }
 
         internal TelemetryClient TelemetryClient { get; set; }
@@ -154,7 +159,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
             }
 
             var trace = new TraceTelemetry(message);
-            this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, default(int), trace);
+            this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, null, trace);
             this.TelemetryClient.Track(trace);
         }
 
@@ -166,19 +171,24 @@ namespace Microsoft.ApplicationInsights.TraceListener
         {
             this.Write(message + Environment.NewLine);
         }
-        
-        private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int id, TraceTelemetry trace)
+
+        private static string GetAssemblyVersion()
+        {
+            return typeof(ApplicationInsightsTraceListener).Assembly.GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
+        }
+
+        private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = this.GetSeverityLevel(eventType);
-
+            
             IDictionary<string, string> metaData = trace.Properties;
-            metaData.Add("SourceType", "TraceListener");
-            metaData.Add("TraceEventType", eventType.ToString());
-            metaData.Add("EventId", id.ToString(CultureInfo.InvariantCulture));
-
-            if ((this.TraceOutputOptions & TraceOptions.Timestamp) == TraceOptions.Timestamp)
+            
+            if (id.HasValue)
             {
-                metaData.Add("Timestamp", eventCache.Timestamp.ToString(CultureInfo.InvariantCulture));
+                metaData.Add("EventId", id.Value.ToString(CultureInfo.InvariantCulture));
             }
         }
 
