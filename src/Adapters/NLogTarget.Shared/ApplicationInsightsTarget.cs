@@ -10,8 +10,13 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    
     using NLog;
     using NLog.Targets;
       
@@ -49,6 +54,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
+
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = "NLog: " + GetAssemblyVersion();
         }
 
         /// <summary>
@@ -70,6 +77,14 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 this.SendTrace(logEvent);
             }
+        }
+
+        private static string GetAssemblyVersion()
+        {
+            return typeof(ApplicationInsightsTarget).Assembly.GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
         }
 
         private void SendException(LogEventInfo logEvent)
@@ -96,6 +111,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
         private void BuildPropertyBag(LogEventInfo logEvent, ITelemetry trace)
         {
+            trace.Timestamp = logEvent.TimeStamp;
+            trace.Sequence = logEvent.SequenceID.ToString(CultureInfo.InvariantCulture);
+
             IDictionary<string, string> propertyBag;
 
             if (trace is ExceptionTelemetry)
@@ -107,16 +125,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 propertyBag = ((TraceTelemetry)trace).Properties;
             }
 
-            if (logEvent.Level != null)
-            {
-                // Log verbosity level
-                propertyBag.Add("Level", logEvent.Level.Name);
-            }
-
-            propertyBag.Add("SequenceID", logEvent.SequenceID.ToString(CultureInfo.InvariantCulture));
-            propertyBag.Add("TimeStamp", logEvent.TimeStamp.ToString(CultureInfo.InvariantCulture));
-            propertyBag.Add("SourceType", "NLog");
-
             if (!string.IsNullOrEmpty(logEvent.LoggerName))
             {
                 propertyBag.Add("LoggerName", logEvent.LoggerName);
@@ -126,6 +134,21 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             {
                 propertyBag.Add("UserStackFrame", logEvent.UserStackFrame.ToString());
                 propertyBag.Add("UserStackFrameNumber", logEvent.UserStackFrameNumber.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var properties = logEvent.Properties;
+            if (properties != null)
+            {
+                foreach (var keyValuePair in properties)
+                {
+                    string key = keyValuePair.Key.ToString();
+                    object valueObj = keyValuePair.Value;
+                    if (valueObj != null)
+                    {
+                        string value = valueObj.ToString();
+                        propertyBag.Add(key, value);
+                    }
+                }
             }
         }
 

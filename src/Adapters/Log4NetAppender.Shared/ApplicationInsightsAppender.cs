@@ -8,20 +8,20 @@
 namespace Microsoft.ApplicationInsights.Log4NetAppender
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
-    using System.Globalization;
     using System.Linq;
+    using System.Reflection;
+
     using log4net.Appender;
     using log4net.Core;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
     /// <summary>
     /// Log4Net Appender that routes all logging output to the Application Insights logging framework.
-    /// The messages will be read by the Microsoft Monitoring Agent (MMA) which uploads logging message to the Application Insights cloud service.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable",
         Justification = "Releasing the resources on the close method")]
@@ -62,6 +62,8 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             {
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
+
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = "Log4Net: " + GetAssemblyVersion();
         }
 
         /// <summary>
@@ -78,6 +80,14 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             {
                 this.SendTrace(loggingEvent);
             }
+        }
+
+        private static string GetAssemblyVersion()
+        {
+            return typeof(ApplicationInsightsAppender).Assembly.GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
         }
 
         private static void AddLoggingEventProperty(string key, string value, IDictionary<string, string> metaData)
@@ -110,12 +120,8 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
         {
             try
             {
-                string message = "Log4Net Trace";
-
-                if (loggingEvent.RenderedMessage != null)
-                {
-                    message = this.RenderLoggingEvent(loggingEvent);
-                }
+                loggingEvent.GetProperties();
+                string message = loggingEvent.RenderedMessage != null ? this.RenderLoggingEvent(loggingEvent) : "Log4Net Trace";
 
                 var trace = new TraceTelemetry(message)
                 {
@@ -133,8 +139,11 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
 
         private void BuildCustomProperties(LoggingEvent loggingEvent, ITelemetry trace)
         {
-            IDictionary<string, string> metaData;
+            trace.Timestamp = loggingEvent.TimeStamp;
+            trace.Context.User.Id = loggingEvent.UserName;
 
+            IDictionary<string, string> metaData;
+            
             if (trace is ExceptionTelemetry)
             {
                 metaData = ((ExceptionTelemetry)trace).Properties;
@@ -144,12 +153,8 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 metaData = ((TraceTelemetry)trace).Properties;
             }
 
-            metaData.Add("SourceType", "Log4Net");
-
             AddLoggingEventProperty("LoggerName", loggingEvent.LoggerName, metaData);
-            AddLoggingEventProperty("LoggingLevel", loggingEvent.Level != null ? loggingEvent.Level.Name : null, metaData);
             AddLoggingEventProperty("ThreadName", loggingEvent.ThreadName, metaData);
-            AddLoggingEventProperty("TimeStamp", loggingEvent.TimeStamp.ToString(CultureInfo.InvariantCulture), metaData);
 
             var locationInformation = loggingEvent.LocationInformation;
             if (locationInformation != null)
@@ -159,10 +164,25 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 AddLoggingEventProperty("MethodName", locationInformation.MethodName, metaData);
                 AddLoggingEventProperty("LineNumber", locationInformation.LineNumber, metaData);
             }
-
-            AddLoggingEventProperty("UserName", loggingEvent.UserName, metaData);
+            
             AddLoggingEventProperty("Domain", loggingEvent.Domain, metaData);
             AddLoggingEventProperty("Identity", loggingEvent.Identity, metaData);
+
+            var properties = loggingEvent.GetProperties();
+            if (properties != null)
+            {
+                foreach (string key in properties.GetKeys())
+                {
+                    if (!string.IsNullOrEmpty(key) && !key.StartsWith("log4net", StringComparison.OrdinalIgnoreCase))
+                    {
+                        object value = properties[key];
+                        if (value != null)
+                        {
+                            AddLoggingEventProperty(key, value.ToString(), metaData);
+                        }
+                    }
+                }
+            }
         }
 
         private SeverityLevel? GetSeverityLevel(Level logginEventLevel)
