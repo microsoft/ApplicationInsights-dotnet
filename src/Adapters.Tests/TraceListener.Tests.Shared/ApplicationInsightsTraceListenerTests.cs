@@ -87,8 +87,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
                 Assert.AreEqual(expectedMessage, telemetry.Message);
-                Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
-                Assert.AreEqual("Verbose", telemetry.Properties["TraceEventType"]);
                 Assert.IsFalse(telemetry.Properties.ContainsKey("EventId"));
                 Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
             }
@@ -111,8 +109,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual(expectedMessage, telemetry.Message);
-            Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
-            Assert.AreEqual(expectedTraceEventType.ToString(), telemetry.Properties["TraceEventType"]);
             Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
         }
 
@@ -134,8 +130,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual(string.Format(formatString, arg0), telemetry.Message);
-            Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
-            Assert.AreEqual(expectedTraceEventType.ToString(), telemetry.Properties["TraceEventType"]);
             Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
         }
 
@@ -176,8 +170,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
 
             TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
             Assert.AreEqual("(123, 123.456), https://foobar/", telemetry.Message);
-            Assert.AreEqual("TraceListener", telemetry.Properties["SourceType"]);
-            Assert.AreEqual(expectedTraceEventType.ToString(), telemetry.Properties["TraceEventType"]);
             Assert.AreEqual(expectedEventId.ToString(), telemetry.Properties["EventId"]);
         }
 
