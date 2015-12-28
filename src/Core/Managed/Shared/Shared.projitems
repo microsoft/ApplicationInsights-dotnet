@@ -117,7 +117,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SdkVersionPropertyTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfigurationExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationTelemetryExtensions.cs" />
