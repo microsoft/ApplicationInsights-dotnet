@@ -250,7 +250,7 @@
             [TestMethod]
             public void FlushesTelemetryBuffer()
             {
-                var mockTelemetryBuffer = new Mock<TelemetryBuffer>();
+                var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
 
@@ -265,7 +265,7 @@
                 var expectedException = new Exception();
                 var tcs = new TaskCompletionSource<object>();
                 tcs.SetException(expectedException);
-                var mockTelemetryBuffer = new Mock<TelemetryBuffer>();
+                var mockTelemetryBuffer = new Mock<TelemetryChannel.Implementation.TelemetryBuffer>();
                 mockTelemetryBuffer.Setup(x => x.FlushAsync()).Returns(tcs.Task);
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
