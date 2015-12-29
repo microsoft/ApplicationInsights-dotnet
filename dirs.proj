@@ -5,15 +5,14 @@
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Solution Include="Microsoft.ApplicationInsights.Channels.sln" />
-    <Solution Include="Microsoft.ApplicationInsights.sln" />    
+     <Solution Include="Microsoft.ApplicationInsights.sln" />    
+     <Solution Include="Microsoft.ApplicationInsights.Channels.sln" />        
   </ItemGroup>
   <Target Name="Build">
     <!-- Generate build version -->
     <WriteLinesToFile File="$(PreReleaseVersionFileName)" Lines="$(PreReleaseVersion)" Overwrite="true" Encoding="Unicode"/>
 
-    <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
-          ContinueOnError="ErrorAndStop"/>
+    <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' ContinueOnError="ErrorAndStop"/>
           
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop"/> 
   </Target>
