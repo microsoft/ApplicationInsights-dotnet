@@ -302,7 +302,7 @@
                 }
 
                 // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessors.Process(telemetry);
+                this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if NET46
                 // logs rich payload ETW event for any partners to process it

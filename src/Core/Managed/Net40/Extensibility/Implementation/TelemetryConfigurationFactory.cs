@@ -66,7 +66,7 @@
             // Creating the the processor chain with default processor (transmissionprocessor) if none configured
             if (configuration.TelemetryProcessors == null)
             {
-                configuration.GetTelemetryProcessorChainBuilder().Build();
+                configuration.TelemetryProcessorChainBuilder.Build();
             }
 
             InitializeComponents(configuration, modules);
@@ -157,7 +157,7 @@
 
         protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
         {
-            TelemetryProcessorChainBuilder builder = telemetryConfiguration.GetTelemetryProcessorChainBuilder();
+            TelemetryProcessorChainBuilder builder = telemetryConfiguration.TelemetryProcessorChainBuilder;
             if (definition != null)
             {
                 IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);
@@ -167,6 +167,7 @@
                     {
                         var constructorArgs = new object[] { current };
                         var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
+                        
                         return (ITelemetryProcessor)instance;
                     });
                 }
@@ -252,7 +253,7 @@
         {
             InitializeComponent(configuration.TelemetryChannel, configuration);
             InitializeComponents(configuration.TelemetryInitializers, configuration);
-            InitializeComponents(configuration.TelemetryProcessors.TelemetryProcessors, configuration);
+            InitializeComponents(configuration.TelemetryProcessorChain.TelemetryProcessors, configuration);
             if (modules != null)
             {
                 InitializeComponents(modules.Modules, configuration);

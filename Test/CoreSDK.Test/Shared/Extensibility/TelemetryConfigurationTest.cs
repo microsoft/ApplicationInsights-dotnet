@@ -4,8 +4,8 @@
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.ObjectModel;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -259,24 +259,22 @@
         #region TelemetryProcessor
 
         [TestMethod]
-        public void TelemetryProcessorChainIsWritable()
-        {
-            var configuration = new TelemetryConfiguration();
-            Type configurationInstanceType = configuration.GetType();
-            Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
-            PropertyInfo property;
-            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));
-            Assert.True(property.CanWrite);
-        }
-
-        [TestMethod]
         public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
         {
             var configuration = new TelemetryConfiguration();
-            var tp = configuration.TelemetryProcessors;
+            var tp = configuration.TelemetryProcessorChain;
 
             Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
         }
+
+        [TestMethod]
+        public void TelemetryProcessorsCollectionIsReadOnly()
+        {
+            var configuration = new TelemetryConfiguration();
+            
+            Assert.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
+        }
+
         #endregion
 
         #region Serialized Configuration
@@ -307,6 +305,7 @@
             });
         }
         #endregion
+
         private class TestableTelemetryModules : TelemetryModules
         {
         }

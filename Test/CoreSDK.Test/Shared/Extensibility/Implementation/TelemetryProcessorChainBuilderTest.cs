@@ -33,7 +33,7 @@
             var config = new TelemetryConfiguration();
             var builder = new TelemetryProcessorChainBuilder(config);            
             builder.Build();
-            Assert.IsType<TransmissionProcessor>(config.TelemetryProcessors.FirstTelemetryProcessor);
+            Assert.IsType<TransmissionProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@
             var builder = new TelemetryProcessorChainBuilder(config);
             builder.Use((next) => new StubTelemetryProcessor(next));                    
             builder.Build();
-            Assert.IsType<StubTelemetryProcessor>(config.TelemetryProcessors.FirstTelemetryProcessor);
+            Assert.IsType<StubTelemetryProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@
            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor1"); } });
            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor2"); } });
            builder.Build();
-           config.TelemetryProcessors.Process(new StubTelemetry());            
+           config.TelemetryProcessorChain.Process(new StubTelemetry());            
 
            Assert.Equal("processor1processor2", outputCollector.ToString());
         }
