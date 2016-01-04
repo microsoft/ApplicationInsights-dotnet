@@ -12,10 +12,17 @@
     {
         public Action OnApplyPolicies = () => { };
         public Action<Transmission> OnEnqueue = transmission => { };
+        public Action OnInitialize = () => { };
+
 
         public StubTransmitter()
             : base(new StubTransmissionSender(), new StubTransmissionBuffer(), new StubTransmissionStorage(), Enumerable.Empty<TransmissionPolicy>())
         {
+        }
+
+        internal override void Initialize()
+        {
+            this.OnInitialize();
         }
 
         internal override void Enqueue(Transmission transmission)

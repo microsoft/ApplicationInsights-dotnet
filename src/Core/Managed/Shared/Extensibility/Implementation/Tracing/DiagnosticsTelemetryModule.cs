@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
 
-#if NET40 || NET35
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
 
@@ -39,10 +39,6 @@
 
             this.Senders.Add(new F5DiagnosticsSender());
             this.EventListener = new DiagnosticsListener(this.Senders);
-
-#if Wp80
-            CoreEventSource.Log.EnableEventListener(this.EventListener);
-#endif
         }
 
         /// <summary>

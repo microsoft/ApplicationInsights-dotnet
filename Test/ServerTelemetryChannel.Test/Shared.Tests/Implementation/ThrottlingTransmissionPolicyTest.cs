@@ -10,7 +10,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
-#if NET40 || NET35
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;

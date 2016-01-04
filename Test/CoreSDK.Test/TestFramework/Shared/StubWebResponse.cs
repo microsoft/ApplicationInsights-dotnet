@@ -37,7 +37,7 @@
             get { return this.OnGetResponseUri(); }
         }
 
-#if !NET40 && !NET35
+#if !NET40
         public override bool SupportsHeaders 
         {
             get { return this.OnGetSupportsHeaders(); }

@@ -4,21 +4,13 @@
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.ObjectModel;
+
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
-    // TODO: Add Dispose tests to TelemetryConfigurationTest.
     [TestClass]
     public class TelemetryConfigurationTest
     {
@@ -33,21 +25,13 @@
         [TestMethod]
         public void ActiveIsPublicToAllowUsersToAccessActiveTelemetryConfigurationInAdvancedScenarios()
         {
-#if NET35
-            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetGetMethod().IsPublic);
-#else
             Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetMethod.IsPublic);
-#endif
         }
 
         [TestMethod]
         public void ActiveSetterIsInternalAndNotMeantToBeUsedByOurCustomers()
         {
-#if NET35
-            Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
-#else
             Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").SetMethod.IsPublic);
-#endif
         }
 
         [TestMethod]
@@ -275,23 +259,50 @@
         #region TelemetryProcessor
 
         [TestMethod]
-        public void TelemetryProcessorChainIsWritable()
-        {
-            var configuration = new TelemetryConfiguration();
-            Type configurationInstanceType = configuration.GetType();
-            Dictionary<string, PropertyInfo> properties = configurationInstanceType.GetProperties().ToDictionary(p => p.Name);
-            PropertyInfo property;
-            Assert.True(properties.TryGetValue("TelemetryProcessors", out property));                            
-            Assert.True(property.CanWrite);
-        }
-
-        [TestMethod]
         public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
         {
             var configuration = new TelemetryConfiguration();
-            var tp = configuration.TelemetryProcessors;
+            var tp = configuration.TelemetryProcessorChain;
 
-            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);            
+            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
+        }
+
+        [TestMethod]
+        public void TelemetryProcessorsCollectionIsReadOnly()
+        {
+            var configuration = new TelemetryConfiguration();
+            
+            Assert.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
+        }
+
+        #endregion
+
+        #region Serialized Configuration
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsNull()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+             {
+                 TelemetryConfiguration.CreateFromConfiguration(null);
+             });
+        }
+
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsEmpty()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+            {
+                TelemetryConfiguration.CreateFromConfiguration(String.Empty);
+            });
+        }
+
+        [TestMethod]
+        public void TelemetryConfigThrowsIfSerializedConfigIsWhitespace()
+        {
+            Assert.Throws(typeof(ArgumentNullException), () =>
+            {
+                TelemetryConfiguration.CreateFromConfiguration(" ");
+            });
         }
         #endregion
 

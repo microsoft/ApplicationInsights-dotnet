@@ -73,7 +73,7 @@
                             {
                                 // This message will not be sent to the portal because we have infinite loop protection
                                 // But it will be available in PerfView or StatusMonitor
-                                CoreEventSource.Log.LogError("Failed to send traces to the portal: " + exp);
+                                CoreEventSource.Log.LogError("Failed to send traces to the portal: " + exp.ToInvariantString());
                             }
                         }
                     }

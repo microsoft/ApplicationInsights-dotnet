@@ -7,18 +7,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
     using AssertEx = Xunit.AssertEx;
-#if WINRT
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
 
-    //// TODO: Add tests that verify that Transmission does not capture SynchronizationContext
     public class TransmissionTest : AsyncTest
     {
         private static Stream CreateStream(string text)

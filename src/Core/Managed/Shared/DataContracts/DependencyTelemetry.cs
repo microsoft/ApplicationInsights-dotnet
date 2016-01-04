@@ -32,6 +32,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Data = new RemoteDependencyData() { kind = DataPointType.Aggregation };
             this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
             this.Data.dependencyKind = BondDependencyKind.Other;
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>
@@ -69,7 +70,20 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>  
         /// Gets or sets Dependency ID.
         /// </summary>  
-        public override string Id { get; set; }
+        public override string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Result Code.
+        /// </summary>
+        public string ResultCode
+        {
+            get { return this.Data.resultCode; }
+            set { this.Data.resultCode = value; }
+        }
 
         /// <summary>
         /// Gets or sets resource name.
@@ -201,6 +215,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
+            this.Id.SanitizeName();
+            this.ResultCode = this.ResultCode.SanitizeValue();
             this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
             this.CommandName = this.CommandName.SanitizeCommandName();
             this.Properties.SanitizeProperties();

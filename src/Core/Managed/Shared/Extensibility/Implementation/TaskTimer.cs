@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if WINRT || CORE_PCL || NET45 || NET46 || UWP
+#if CORE_PCL || NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -86,11 +86,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             {
                                 foreach (Exception e in ((AggregateException)exception).InnerExceptions)
                                 {
-                                    CoreEventSource.Log.LogError(e.ToString());
+                                    CoreEventSource.Log.LogError(e.ToInvariantString());
                                 }
                             }
 
-                            CoreEventSource.Log.LogError(exception.ToString());
+                            CoreEventSource.Log.LogError(exception.ToInvariantString());
                         }
                     },
                     CancellationToken.None,

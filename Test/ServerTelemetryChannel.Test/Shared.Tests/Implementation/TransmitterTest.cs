@@ -5,6 +5,7 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
+    using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -58,6 +59,36 @@
                 Transmitter transmitter = CreateTransmitter(policies: new[] { policy });
 
                 Assert.Same(transmitter, policyTransmitter);
+            }
+        }
+
+        [TestClass]
+        public class StorageFolder : TransmitterTest
+        {
+            [TestMethod]
+            public void TransmittionIsSavedToStorageFolder()
+            {
+                var testDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+                testDirectory.Create();
+
+                try
+                {
+                    Transmitter transmitter = new Transmitter();
+                    transmitter.StorageFolder = testDirectory.FullName;
+
+                    transmitter.MaxSenderCapacity = 0;
+                    transmitter.MaxBufferCapacity = 0;
+
+                    transmitter.Initialize();
+
+                    transmitter.Enqueue(new StubTransmission());
+
+                    Assert.Equal(1, testDirectory.EnumerateFiles().Count());
+                }
+                finally
+                {
+                    testDirectory.Delete(true);
+                }
             }
         }
 
@@ -233,8 +264,27 @@
         }
 
         [TestClass]
+        public class Initialize : TransmitterTest
+        {
+            [TestMethod]
+            public void InitializeCallsStorageInitialize()
+            {
+                IApplicationFolderProvider provider = null;
+                var storage = new StubTransmissionStorage();
+                storage.OnInitialize = _ => provider = _;
+
+                Transmitter transmitter = CreateTransmitter(null, null, storage);
+                transmitter.Initialize();
+
+                Assert.NotNull(provider);
+            }
+        }
+
+        [TestClass]
         public class ApplyPoliciesAsync : TransmitterTest
         {
+            
+
             [TestMethod]
             public void SetsSenderCapacityToMinValueReturnedByTransmissionPolicies()
             {

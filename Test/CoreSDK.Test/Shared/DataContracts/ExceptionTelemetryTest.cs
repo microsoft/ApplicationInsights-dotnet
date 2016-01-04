@@ -12,11 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
     using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
 
@@ -46,11 +42,7 @@
         [TestMethod]
         public void ExceptionsPropertyIsInternalUntilWeSortOutPublicInterface()
         {
-#if NET35
-            Assert.False(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
-#else
             Assert.False(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetMethod.IsPublic);
-#endif
         }
 
         [TestMethod]

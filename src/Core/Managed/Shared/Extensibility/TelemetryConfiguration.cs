@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -24,6 +25,7 @@
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
+        private TelemetryProcessorChainBuilder builder;
 
         /// <summary>
         /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
@@ -32,8 +34,8 @@
         /// </summary>
         public static TelemetryConfiguration Active
         {
-            get 
-            { 
+            get
+            {
                 if (active == null)
                 {
                     lock (syncRoot)
@@ -49,7 +51,7 @@
                 return active;
             }
 
-            internal set 
+            internal set
             {
                 lock (syncRoot)
                 {
@@ -131,22 +133,54 @@
         }
 
         /// <summary>
-        /// Gets the first telemetry processor in the chain of processors.
+        /// Gets a readonly collection of TelemetryProcessors.
         /// </summary>
-        public TelemetryProcessorChain TelemetryProcessors
+        public ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors
         {
             get
-            {                
+            {
+                return new ReadOnlyCollection<ITelemetryProcessor>(this.TelemetryProcessorChain.TelemetryProcessors);
+            }
+        }
+
+        /// <summary>
+        /// Gets the TelemetryProcessorChainBuilder which can build and populate TelemetryProcessors in the TelemetryConfiguration.
+        /// </summary>
+        public TelemetryProcessorChainBuilder TelemetryProcessorChainBuilder
+        {
+            get
+            {
+                LazyInitializer.EnsureInitialized(ref this.builder, () => new TelemetryProcessorChainBuilder(this));
+                return this.builder;
+            }
+
+            internal set
+            {
+                this.builder = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the telemetry channel.
+        /// </summary>
+        public ITelemetryChannel TelemetryChannel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chain of processors.
+        /// </summary>
+        internal TelemetryProcessorChain TelemetryProcessorChain
+        {
+            get
+            {
                 if (this.telemetryProcessorChain == null)
-                {                                                 
-                    // Gets the telemetryprocessorchainbuilder, builds the processor chain and sets the same in the configuration.
-                    this.GetTelemetryProcessorChainBuilder().Build();
+                {
+                    this.TelemetryProcessorChainBuilder.Build();
                 }
 
                 return this.telemetryProcessorChain;
             }
 
-            internal set
+            set
             {
                 if (value == null)
                 {
@@ -154,13 +188,8 @@
                 }
 
                 this.telemetryProcessorChain = value;
-            }              
+            }
         }
-
-        /// <summary>
-        /// Gets or sets the telemetry channel.
-        /// </summary>
-        public ITelemetryChannel TelemetryChannel { get; set; }
 
         /// <summary>
         /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file.
@@ -176,15 +205,31 @@
         }
 
         /// <summary>
+        /// Creates a new <see cref="TelemetryConfiguration"/> instance loaded from the specified configuration.
+        /// </summary>
+        /// <param name="config">An xml serialized configuration.</param>
+        /// <exception cref="ArgumentNullException">Throws if the config value is null or empty.</exception>
+        public static TelemetryConfiguration CreateFromConfiguration(string config)
+        {
+            if (string.IsNullOrWhiteSpace(config))
+            {
+                throw new ArgumentNullException("config");
+            }
+
+            var configuration = new TelemetryConfiguration();
+            TelemetryConfigurationFactory.Instance.Initialize(configuration, null, config);
+            return configuration;
+        }
+
+        /// <summary>
         /// Releases resources used by the current instance of the <see cref="TelemetryConfiguration"/> class.
         /// </summary>
         public void Dispose()
         {
-            // TODO: Implement a Finalizer to dispose this class.
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-        
+
         private void Dispose(bool disposing)
         {
             if (disposing)

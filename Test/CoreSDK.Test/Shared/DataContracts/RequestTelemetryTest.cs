@@ -9,11 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
-#if WINDOWS_PHONE || WINDOWS_STORE
-    using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
     using Assert = Xunit.Assert;
     using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
     
@@ -31,8 +27,6 @@
         {
             var request = new RequestTelemetry();
             Assert.False(string.IsNullOrEmpty(request.Id));
-            Assert.Equal("200", request.ResponseCode);
-            Assert.Equal(true, request.Success);
         }
 
         [TestMethod]
@@ -172,7 +166,71 @@
 
             Assert.Equal(new string('1', Property.MaxNameLength), telemetry.Id);
         }
-  
+
+        [TestMethod]
+        public void SanitizeWillInitializeStatusCode()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.Equal("200", telemetry.ResponseCode);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSucessIfStatusCodeNotProvided()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.True(telemetry.Success.Value);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSuccessIfStatusCodeNaN()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.ResponseCode = "NaN";
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.True(telemetry.Success.Value);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSuccessIfStatusCodeLess400()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.ResponseCode = "300";
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.True(telemetry.Success.Value);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSuccessIfStatusCode401()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.ResponseCode = "300";
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.True(telemetry.Success.Value);
+        }
+
+        [TestMethod]
+        public void SanitizeWillInitializeSuccessIfStatusCode500()
+        {
+            RequestTelemetry telemetry = new RequestTelemetry();
+            telemetry.ResponseCode = "500";
+
+            ((ITelemetry)telemetry).Sanitize();
+
+            Assert.False(telemetry.Success.Value);
+        }
+
         [TestMethod]  
         public void SanitizePopulatesIdWithErrorBecauseItIsRequiredByEndpoint()
         {  
@@ -185,17 +243,6 @@
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
             // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
             // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
-        }
-
-    [TestMethod]
-        public void SanitizePopulatesResponseCodeWithErrorBecauseItIsRequiredByEndpoint()
-        {
-            var telemetry = new RequestTelemetry { ResponseCode = null };
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.Contains("responseCode", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("required", telemetry.ResponseCode, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]

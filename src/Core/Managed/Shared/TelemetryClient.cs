@@ -13,10 +13,6 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     
-#if WINRT
-    using Windows.Foundation.Metadata;
-#endif
-
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
     /// </summary>
@@ -89,9 +85,6 @@
         /// <param name="eventName">A name for the event.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         /// <param name="metrics">Measurements associated with this event.</param>
-#if WINRT
-        [DefaultOverload]
-#endif
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             var telemetry = new EventTelemetry(eventName);
@@ -127,9 +120,6 @@
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
         /// <param name="message">Message to display.</param>
-#if WINRT
-        [DefaultOverload]
-#endif
         public void TrackTrace(string message)
         {
             this.TrackTrace(new TraceTelemetry(message));
@@ -196,9 +186,6 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-#if WINRT
-        [DefaultOverload]
-#endif
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
             var telemetry = new MetricTelemetry(name, value);
@@ -229,9 +216,6 @@
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
         /// <param name="metrics">Additional values associated with this exception.</param>
-#if WINRT
-        [DefaultOverload]
-#endif
         public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             if (exception == null)
@@ -318,7 +302,7 @@
                 }
 
                 // invokes the Process in the first processor in the chain
-                this.configuration.TelemetryProcessors.Process(telemetry);
+                this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if NET46
                 // logs rich payload ETW event for any partners to process it
@@ -382,9 +366,6 @@
         /// Send information about the page viewed in the application.
         /// </summary>
         /// <param name="name">Name of the page.</param>
-#if WINRT
-        [DefaultOverload]
-#endif
         public void TrackPageView(string name)
         {
             this.Track(new PageViewTelemetry(name));
