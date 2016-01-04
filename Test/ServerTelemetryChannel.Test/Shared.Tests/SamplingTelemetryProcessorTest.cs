@@ -158,7 +158,7 @@
             
             channelBuilder.Build();
 
-            return tc.TelemetryProcessors;
+            return tc.TelemetryProcessorChain;
         }
     }
 }

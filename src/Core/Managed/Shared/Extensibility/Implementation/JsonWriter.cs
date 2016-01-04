@@ -5,9 +5,6 @@
     using System.Globalization;
     using System.IO;
     using Microsoft.ApplicationInsights.DataContracts;
-#if WINRT
-    using Windows.Foundation.Metadata;
-#endif
 
     internal class JsonWriter : IJsonWriter
     {
@@ -92,7 +89,7 @@
         {
             if (value.HasValue)
             {
-#if NET45 || UWP || NET46
+#if NET45 || NET46
                 this.WriteProperty(name, value.Value.ToString(string.Empty, CultureInfo.InvariantCulture));
 #else
                 this.WriteProperty(name, value.Value.ToString(CultureInfo.InvariantCulture, string.Empty));

@@ -47,6 +47,26 @@
 
             Assert.IsNotNull(applicationFolder);
             Assert.AreEqual(1, localAppData.GetDirectories().Length);
+
+            localAppData.Delete(true);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromCustomFolderFirst()
+        {
+            DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
+            DirectoryInfo customFolder = this.CreateTestDirectory(@"Custom");
+
+            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName } };
+            var provider = new ApplicationFolderProvider(environmentVariables, customFolder.FullName);
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNotNull(applicationFolder);
+            Assert.AreEqual(((PlatformFolder)applicationFolder).Folder.Name, customFolder.Name, "Subfolder for custom folder should not be created.");
+
+            localAppData.Delete(true);
+            customFolder.Delete(true);
         }
 
         [TestMethod]
@@ -60,6 +80,8 @@
 
             Assert.IsNotNull(applicationFolder);
             Assert.AreEqual(1, temp.GetDirectories().Length);
+
+            temp.Delete(true);
         }
 
         [TestMethod]
@@ -78,6 +100,70 @@
 
             Assert.IsNotNull(applicationFolder);
             Assert.AreEqual(1, temp.GetDirectories().Length);
+
+            localAppData.Delete(true);
+            temp.Delete(true);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsInvalid()
+        {
+            DirectoryInfo temp = this.CreateTestDirectory("Temp");
+            var environmentVariables = new Hashtable 
+            { 
+                { "LOCALAPPDATA", " " },
+                { "TEMP", temp.FullName },
+            };
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNotNull(applicationFolder);
+            Assert.AreEqual(1, temp.GetDirectories().Length);
+
+            temp.Delete(true);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsUnmappedDrive()
+        {
+            DirectoryInfo temp = this.CreateTestDirectory("Temp");
+            var environmentVariables = new Hashtable 
+            { 
+                { "LOCALAPPDATA", @"L:\Temp" },
+                { "TEMP", temp.FullName },
+            };
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNotNull(applicationFolder);
+            Assert.AreEqual(1, temp.GetDirectories().Length);
+
+            temp.Delete(true);
+        }
+
+        [TestMethod]
+        public void GetApplicationFolderReturnsSubfolderFromTempFolderIfLocalAppDataIsTooLong()
+        {
+            string longName = new string('A', 238 - this.testDirectory.FullName.Length);
+
+            DirectoryInfo localAppData = this.CreateTestDirectory(longName);
+            DirectoryInfo temp = this.CreateTestDirectory("Temp");
+            var environmentVariables = new Hashtable 
+            { 
+                { "LOCALAPPDATA", localAppData.FullName },
+                { "TEMP", temp.FullName },
+            };
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            IPlatformFolder applicationFolder = provider.GetApplicationFolder();
+
+            Assert.IsNotNull(applicationFolder);
+            Assert.AreEqual(1, temp.GetDirectories().Length);
+
+            localAppData.Delete(true);
+            temp.Delete(true);
         }
 
         [TestMethod]

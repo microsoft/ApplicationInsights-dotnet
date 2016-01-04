@@ -177,6 +177,48 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string InternalAgentVersion { get; set; }
 
+        
+        public string InternalDataCollectorReceivedTime { get; set; }
+
+        
+        public string InternalProfileId { get; set; }
+
+        
+        public string InternalProfileClassId { get; set; }
+
+        
+        public string InternalAccountId { get; set; }
+
+        
+        public string InternalApplicationName { get; set; }
+
+        
+        public string InternalInstrumentationKey { get; set; }
+
+        
+        public string InternalTelemetryItemId { get; set; }
+
+        
+        public string InternalApplicationType { get; set; }
+
+        
+        public string InternalRequestSource { get; set; }
+
+        
+        public string InternalFlowType { get; set; }
+
+        
+        public string InternalIsAudit { get; set; }
+
+        
+        public string InternalTrackingSourceId { get; set; }
+
+        
+        public string InternalTrackingType { get; set; }
+
+        
+        public string InternalIsDiagnosticExample { get; set; }
+        
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
         {}
@@ -232,6 +274,20 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             ServerDeviceOSVer = "ai.serverDevice.osVer";
             InternalSdkVersion = "ai.internal.sdkVersion";
             InternalAgentVersion = "ai.internal.agentVersion";
+            InternalDataCollectorReceivedTime = "ai.internal.dataCollectorReceivedTime";
+            InternalProfileId = "ai.internal.profileId";
+            InternalProfileClassId = "ai.internal.profileClassId";
+            InternalAccountId = "ai.internal.accountId";
+            InternalApplicationName = "ai.internal.applicationName";
+            InternalInstrumentationKey = "ai.internal.instrumentationKey";
+            InternalTelemetryItemId = "ai.internal.telemetryItemId";
+            InternalApplicationType = "ai.internal.applicationType";
+            InternalRequestSource = "ai.internal.requestSource";
+            InternalFlowType = "ai.internal.flowType";
+            InternalIsAudit = "ai.internal.isAudit";
+            InternalTrackingSourceId = "ai.internal.trackingSourceId";
+            InternalTrackingType = "ai.internal.trackingType";
+            InternalIsDiagnosticExample = "ai.internal.isDiagnosticExample";
         }
     }
 } // AI

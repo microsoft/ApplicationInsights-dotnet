@@ -44,7 +44,7 @@
                 const int productionFrequencyMs = 1000;
 
                 using (var productionTimer = new Timer(
-                            (state) => { tc.TelemetryProcessors.Process(new RequestTelemetry()); itemsProduced++; },
+                            (state) => { tc.TelemetryProcessorChain.Process(new RequestTelemetry()); itemsProduced++; },
                             null,
                             productionFrequencyMs,
                             productionFrequencyMs))
@@ -87,7 +87,7 @@
                             {
                                 for (int i = 0; i < 2; i++)
                                 {
-                                    tc.TelemetryProcessors.Process(new RequestTelemetry());
+                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
                                     itemsProduced++;
                                 }
                             },
@@ -152,7 +152,7 @@
                             {
                                 for (int i = 0; i < 2; i++)
                                 {
-                                    tc.TelemetryProcessors.Process(new RequestTelemetry());
+                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
                                     Interlocked.Increment(ref itemsProduced);
                                 }
                             },
@@ -164,7 +164,7 @@
                             {
                                 for (int i = 0; i < 200; i++)
                                 {
-                                    tc.TelemetryProcessors.Process(new RequestTelemetry());
+                                    tc.TelemetryProcessorChain.Process(new RequestTelemetry());
                                     Interlocked.Increment(ref itemsProduced);
                                 }
                             },

@@ -22,7 +22,7 @@
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
         private static TelemetryConfigurationFactory instance;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryConfigurationFactory"/> class.
         /// </summary>
@@ -46,32 +46,36 @@
             set { instance = value; }
         }
 
-        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string serializedConfiguration)
         {
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
 #if !CORE_PCL
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 #endif
-
-            // Load customizations from the ApplicationsInsights.config file
-            string text = PlatformSingleton.Current.ReadConfigurationXml();
-            if (!string.IsNullOrEmpty(text))
+            // Load configuration from the specified configuration
+            if (!string.IsNullOrEmpty(serializedConfiguration))
             {
-                XDocument xml = XDocument.Parse(text);
+                XDocument xml = XDocument.Parse(serializedConfiguration);
                 LoadFromXml(configuration, modules, xml);
             }
-            
+
             // Creating the default channel if no channel configuration supplied
             configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
 
             // Creating the the processor chain with default processor (transmissionprocessor) if none configured
             if (configuration.TelemetryProcessors == null)
             {
-                configuration.GetTelemetryProcessorChainBuilder().Build();
-            }                
+                configuration.TelemetryProcessorChainBuilder.Build();
+            }
 
             InitializeComponents(configuration, modules);
+        }
+
+        public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
+        {
+            // Load customizations from the ApplicationsInsights.config file
+            this.Initialize(configuration, modules, PlatformSingleton.Current.ReadConfigurationXml());
         }
 
         protected static object CreateInstance(Type interfaceType, string typeName, object[] constructorArgs = null)
@@ -82,7 +86,7 @@
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' could not be loaded.", typeName));
             }
 
-            object instance = constructorArgs != null ? Activator.CreateInstance(type, constructorArgs) : Activator.CreateInstance(type);            
+            object instance = constructorArgs != null ? Activator.CreateInstance(type, constructorArgs) : Activator.CreateInstance(type);
 
             if (!interfaceType.IsAssignableFrom(instance.GetType()))
             {
@@ -152,20 +156,21 @@
         }
 
         protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
-        {            
-            TelemetryProcessorChainBuilder builder = telemetryConfiguration.GetTelemetryProcessorChainBuilder();
+        {
+            TelemetryProcessorChainBuilder builder = telemetryConfiguration.TelemetryProcessorChainBuilder;
             if (definition != null)
             {
-                IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);                
+                IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);
                 foreach (XElement addElement in elems)
                 {
-                    builder = builder.Use(current => 
+                    builder = builder.Use(current =>
                     {
                         var constructorArgs = new object[] { current };
                         var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
+                        
                         return (ITelemetryProcessor)instance;
-                    });                           
-                }                
+                    });
+                }
             }
 
             builder.Build();
@@ -221,8 +226,8 @@
                             {
                                 property.SetValue(instance, propertyValue, null);
                             }
-                        }                        
-                    }                    
+                        }
+                    }
                     else if (modules != null && propertyName == "TelemetryModules")
                     {
                         LoadInstance(propertyDefinition, modules.Modules.GetType(), modules.Modules, null, modules);
@@ -242,13 +247,13 @@
                     }
                 }
             }
-        }        
+        }
 
         private static void InitializeComponents(TelemetryConfiguration configuration, TelemetryModules modules)
         {
-            InitializeComponent(configuration.TelemetryChannel, configuration);            
+            InitializeComponent(configuration.TelemetryChannel, configuration);
             InitializeComponents(configuration.TelemetryInitializers, configuration);
-            InitializeComponents(configuration.TelemetryProcessors.TelemetryProcessors, configuration);
+            InitializeComponents(configuration.TelemetryProcessorChain.TelemetryProcessors, configuration);
             if (modules != null)
             {
                 InitializeComponents(modules.Modules, configuration);
@@ -291,11 +296,7 @@
                 }
                 else if (expectedType == typeof(TimeSpan))
                 {
-#if NET35
-                    instance = TimeSpan.Parse(valueString);
-#else
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
-#endif
                 }
                 else
                 {
@@ -315,7 +316,7 @@
             Type type = GetManagedType(typeName);
             return type;
         }
-        
+
         private static Type GetManagedType(string typeName)
         {
             try

@@ -1,13 +1,11 @@
-﻿#if !Wp80
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-#if CORE_PCL || NET45 || WINRT || UWP || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
-#if NET40 || NET35
+#if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
 
@@ -53,4 +51,3 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
         }
     }
 }
-#endif

@@ -35,9 +35,6 @@
             this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
-
-            this.ResponseCode = "200";
-            this.Success = true;
         }
 
         /// <summary>
@@ -123,10 +120,8 @@
                 {
                     return this.Data.success;
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
 
             set
@@ -222,7 +217,27 @@
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
 
-            this.ResponseCode = Utils.PopulateRequiredStringValue(this.ResponseCode, "responseCode", typeof(RequestTelemetry).FullName);
+            // Required field
+            if (string.IsNullOrEmpty(this.ResponseCode))
+            {
+                this.ResponseCode = "200";
+                this.Success = true;
+            }
+
+            // Required field
+            if (!this.Success.HasValue)
+            {
+                int responseCode;
+
+                if (int.TryParse(this.ResponseCode, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCode))
+                {
+                    this.Success = (responseCode < 400) || (responseCode == 401);
+                }
+                else
+                {
+                    this.Success = true;
+                }
+            }
         }
 
         private DateTimeOffset ValidateDateTimeOffset(string value)

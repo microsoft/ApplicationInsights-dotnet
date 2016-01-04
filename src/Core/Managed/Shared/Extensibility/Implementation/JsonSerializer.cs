@@ -6,9 +6,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
-#if !Wp80
     using System.IO.Compression;
-#endif
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -32,11 +30,7 @@
         {
             get
             {
-#if !Wp80
                 return "gzip";
-#else
-                return null;
-#endif
             }
         }
 
@@ -97,30 +91,6 @@
         }
 
         #region Exception Serializer helper
-
-        private static void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
-        {
-            if (exception == null)
-            {
-                exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
-            }
-
-            ExceptionDetails exceptionDetails = PlatformSingleton.Current.GetExceptionDetails(exception, parentExceptionDetails);
-            exceptions.Add(exceptionDetails);
-
-            AggregateException aggregate = exception as AggregateException;
-            if (aggregate != null)
-            {
-                foreach (Exception inner in aggregate.InnerExceptions)
-                {
-                    ConvertExceptionTree(inner, exceptionDetails, exceptions);
-                }
-            }
-            else if (exception.InnerException != null)
-            {
-                ConvertExceptionTree(exception.InnerException, exceptionDetails, exceptions);
-            }
-        }
 
         private static void SerializeExceptions(IEnumerable<ExceptionDetails> exceptions, IJsonWriter writer)
         {
@@ -204,11 +174,7 @@
         /// </summary>
         private static Stream CreateCompressedStream(Stream stream)
         {
-#if !Wp80
             return new GZipStream(stream, CompressionMode.Compress);
-#else
-            return stream;
-#endif
         }
 
         private static void SerializeTelemetryItem(ITelemetry telemetryItem, JsonWriter jsonWriter)
@@ -453,11 +419,11 @@
 
                     writer.WriteProperty("ver", dependencyTelemetry.Data.ver);
                     writer.WriteProperty("name", dependencyTelemetry.Data.name);
-
+                    writer.WriteProperty("id", dependencyTelemetry.Data.id);
                     writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
                     writer.WriteProperty("kind", (int)dependencyTelemetry.Data.kind);
                     writer.WriteProperty("value", dependencyTelemetry.Data.value);
-
+                    writer.WriteProperty("resultCode", dependencyTelemetry.Data.resultCode);
                     writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
                     writer.WriteProperty("async", dependencyTelemetry.Data.async);

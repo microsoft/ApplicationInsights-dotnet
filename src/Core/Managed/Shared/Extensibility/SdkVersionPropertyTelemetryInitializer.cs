@@ -27,7 +27,7 @@
 
         private string GetAssemblyVersion()
         {
-#if !WINRT && !CORE_PCL && !UWP
+#if !CORE_PCL
             return typeof(SdkVersionPropertyTelemetryInitializer).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
