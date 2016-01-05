@@ -76,7 +76,7 @@
             {
                 var channel = new ServerTelemetryChannel();
                 channel.DeveloperMode = true;
-                Assert.Equal(1, channel.TelemetryBuffer.Capacity);
+                Assert.Equal(15, channel.TelemetryBuffer.Capacity);
             }
 
             [TestMethod]

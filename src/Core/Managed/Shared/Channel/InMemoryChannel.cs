@@ -18,7 +18,8 @@ namespace Microsoft.ApplicationInsights.Channel
         private readonly TelemetryBuffer buffer;
         private readonly InMemoryTransmitter transmitter;
         private bool? developerMode = false;
-        private int bufferSize;
+        private int originalCapacity;
+        private TimeSpan originalSendingInterval;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryChannel" /> class.
@@ -37,7 +38,9 @@ namespace Microsoft.ApplicationInsights.Channel
         internal InMemoryChannel(TelemetryBuffer telemetryBuffer, InMemoryTransmitter transmitter)
         {
             this.buffer = telemetryBuffer;
+            this.originalCapacity = this.buffer.Capacity;
             this.transmitter = transmitter;
+            this.originalSendingInterval = this.transmitter.SendingInterval;
         }
 
         /// <summary>
@@ -56,12 +59,13 @@ namespace Microsoft.ApplicationInsights.Channel
                 {
                     if (value.HasValue && value.Value)
                     {
-                        this.bufferSize = this.buffer.Capacity;
-                        this.buffer.Capacity = 1;
+                        this.buffer.Capacity = 15;
+                        this.transmitter.SendingInterval = TimeSpan.FromSeconds(5);
                     }
                     else
                     {
-                        this.buffer.Capacity = this.bufferSize;
+                        this.buffer.Capacity = this.originalCapacity;
+                        this.transmitter.SendingInterval = this.originalSendingInterval;
                     }
 
                     this.developerMode = value;
@@ -83,6 +87,7 @@ namespace Microsoft.ApplicationInsights.Channel
             set
             {
                 this.transmitter.SendingInterval = value;
+                this.originalSendingInterval = this.transmitter.SendingInterval;
             }
         }
 
@@ -112,8 +117,16 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         public int MaxTelemetryBufferCapacity
         {
-            get { return this.buffer.Capacity; }
-            set { this.buffer.Capacity = value; }
+            get
+            {
+                return this.buffer.Capacity;
+            }
+
+            set
+            {
+                this.buffer.Capacity = value;
+                this.originalCapacity = this.buffer.Capacity;
+            }
         }
 
         /// <summary>

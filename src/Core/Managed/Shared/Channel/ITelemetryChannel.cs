@@ -5,7 +5,6 @@
 namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a communication channel for sending telemetry to application insights.
