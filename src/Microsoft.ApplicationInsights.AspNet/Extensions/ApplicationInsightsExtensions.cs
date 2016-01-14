@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -36,8 +35,7 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
-            services.AddSingleton<IContextInitializer, DomainNameRoleInstanceContextInitializer>();
-
+            services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -50,7 +48,6 @@
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
-                AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
                 return telemetryConfiguration;
             });

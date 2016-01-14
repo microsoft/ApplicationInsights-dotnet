@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Diagnostics.Tracing;
-    using System.IO;
+    using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -10,13 +9,10 @@
     using Microsoft.ApplicationInsights.AspNet.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Xunit;
-    using System.Diagnostics;
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -32,7 +28,7 @@
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(IContextInitializer), typeof(DomainNameRoleInstanceContextInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -71,7 +67,7 @@
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is TimestampPropertyInitializer);
+                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is OperationIdTelemetryInitializer);
             }
 
             [Fact]
@@ -172,20 +168,6 @@
                 {
                     Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", null);
                 }
-            }
-
-            [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithContextInitializersFromContainer()
-            {
-                var contextInitializer = new FakeContextInitializer();
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<IContextInitializer>(contextInitializer);
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
-
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Contains(contextInitializer, telemetryConfiguration.ContextInitializers);
             }
 
             [Fact]
