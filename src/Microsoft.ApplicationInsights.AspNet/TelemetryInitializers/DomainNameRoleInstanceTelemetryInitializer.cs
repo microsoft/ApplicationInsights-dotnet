@@ -10,14 +10,13 @@
     using Microsoft.AspNet.Http;
     using TelemetryInitializers;
 
+    /// <summary>
+    /// A telemetry initializer that populates cloud context role instance.
+    /// </summary>
     public class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
     {
         private string roleInstanceName;
 
-        /// <summary>
-        /// A telemetry initializer that populates device context role instance.
-        /// </summary>
-        /// <param name="httpContextAccessor"></param>
         public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
         }
