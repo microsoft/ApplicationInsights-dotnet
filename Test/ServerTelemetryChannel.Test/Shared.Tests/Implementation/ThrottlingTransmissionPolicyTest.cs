@@ -42,9 +42,25 @@
             }
 
             [TestMethod]
-            public void AssertPaymentRequiredStopsSending()
+            public void AssertPaymentRequiredDoesntChangeCapacity()
             {
-                this.PositiveTest(ResponseCodePaymentRequired, 0, null, null);
+                var transmitter = new StubTransmitter();
+                transmitter.OnApplyPolicies = () =>
+                {
+                    throw new Exception("Apply shouldn't be called because unsupported response code was passed");
+                };
+
+                var policy = new ThrottlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                transmitter.OnTransmissionSent(
+                    new TransmissionProcessedEventArgs(
+                        new StubTransmission(),
+                    CreateThrottledResponse(ResponseCodePaymentRequired, 1)));
+
+                Assert.Null(policy.MaxSenderCapacity);
+                Assert.Null(policy.MaxBufferCapacity);
+                Assert.Null(policy.MaxStorageCapacity);
             }
 
             [TestMethod]
