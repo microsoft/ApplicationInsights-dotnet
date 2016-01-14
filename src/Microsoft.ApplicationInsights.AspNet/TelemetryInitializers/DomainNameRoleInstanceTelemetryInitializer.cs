@@ -14,16 +14,20 @@
     {
         private string roleInstanceName;
 
+        /// <summary>
+        /// A telemetry initializer that populates device context role instance.
+        /// </summary>
+        /// <param name="httpContextAccessor"></param>
         public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
-            if (string.IsNullOrEmpty(telemetry.Context.Device.RoleInstance))
+            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
-                telemetry.Context.Device.RoleInstance = name;
+                telemetry.Context.Cloud.RoleInstance = name;
             }
         }
 

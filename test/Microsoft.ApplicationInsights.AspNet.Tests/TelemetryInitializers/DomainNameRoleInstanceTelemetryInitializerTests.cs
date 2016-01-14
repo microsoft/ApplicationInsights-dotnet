@@ -61,7 +61,7 @@
             }
 #endif
 
-            Assert.Equal(hostName, requestTelemetry.Context.Device.RoleInstance);
+            Assert.Equal(hostName, requestTelemetry.Context.Cloud.RoleInstance);
         }
 
         [Fact]
@@ -70,11 +70,11 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
             var source = new DomainNameRoleInstanceTelemetryInitializer(contextAccessor);
             var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.Device.RoleInstance = "Test";
+            requestTelemetry.Context.Cloud.RoleInstance = "Test";
 
             source.Initialize(requestTelemetry);
 
-            Assert.Equal("Test", requestTelemetry.Context.Device.RoleInstance);
+            Assert.Equal("Test", requestTelemetry.Context.Cloud.RoleInstance);
         }
     }
 }
