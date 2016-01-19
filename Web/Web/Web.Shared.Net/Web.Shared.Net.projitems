@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="SharedProjectFile_SccProperties">
+    <SharedProjectFile_ProjectGuid>{9D7715BB-E4D0-499C-B8A3-63466FC8AA5D}</SharedProjectFile_ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>395e03bb-d061-4c9d-9d47-18676566444d</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Web</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HandlerTelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticTrafficManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsPublisher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsSubscriber.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryInitializerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryModuleBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationCorrelationTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationNameTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SyntheticTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UserAgentTelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UserTelemetryInitializer.cs" />
+  </ItemGroup>
+</Project>

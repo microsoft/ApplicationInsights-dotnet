@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="SharedProjectFile_SccProperties">
+    <SharedProjectFile_ProjectGuid>{C6425564-9EFE-49B3-B309-4D5FB55A5355}</SharedProjectFile_ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>669e7e58-072d-4b0a-a4dd-4eb2ae2ea4d4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyKind.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ICacheProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\SortedList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerRuntimeInstrumentation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlEventListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTableStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
+  </ItemGroup>
+</Project>

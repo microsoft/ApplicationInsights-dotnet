@@ -1,0 +1,62 @@
+<ApplicationInsights xdt:Transform="SetAttributes" xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+
+  <TelemetryInitializers xdt:Transform="InsertIfMissing">
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.SyntheticTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ClientIpHeaderTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.OperationNameTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.OperationCorrelationTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.UserTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.AuthenticatedUserIdTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.AccountIdTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.SessionTelemetryInitializer, Microsoft.AI.Web" />
+  </TelemetryInitializers>
+
+  <TelemetryModules xdt:Transform="InsertIfMissing">
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModule, Microsoft.AI.Web" />
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ExceptionTrackingTelemetryModule, Microsoft.AI.Web" />
+  </TelemetryModules>
+
+  <TelemetryProcessors xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+
+  <TelemetryProcessors xdt:Transform="InsertIfMissing">
+    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor))" />
+    
+    <Add Type="Microsoft.ApplicationInsights.Web.UserAgentTelemetryProcessor, Microsoft.AI.Web"
+         xdt:Transform="InsertIfMissing"
+         xdt:Locator="Match(Type)">
+      <UserAgents>
+        <!-- 
+        Add entries here to filter out additional user agent strings: 
+        
+        NOTE: user agent configuration will be lost upon NuGet upgrade.
+        -->
+        <Add Value="AlwaysOn" />
+      </UserAgents>
+    </Add>
+    <Add Type="Microsoft.ApplicationInsights.Web.HandlerTelemetryProcessor, Microsoft.AI.Web"
+         xdt:Transform="InsertIfMissing"
+         xdt:Locator="Match(Type)">
+      <Handlers>
+        <!-- 
+        Add entries here to filter out additional handlers: 
+        
+        NOTE: handler configuration will be lost upon NuGet upgrade.
+        -->
+        <Add Value="System.Web.Handlers.TransferRequestHandler" />
+        <Add Value="Microsoft.VisualStudio.Web.PageInspector.Runtime.Tracing.RequestDataHttpHandler" />
+        <Add Value="System.Web.StaticFileHandler" />
+        <Add Value="System.Web.Handlers.AssemblyResourceLoader" />
+        <Add Value="System.Web.Optimization.BundleHandler" />
+        <Add Value="System.Web.Script.Services.ScriptHandlerFactory" />
+        <Add Value="System.Web.Handlers.TraceHandler" />
+        <Add Value="System.Web.Services.Discovery.DiscoveryRequestHandler" />
+        <Add Value="System.Web.HttpDebugHandler" />
+      </Handlers>
+    </Add>
+    <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
+      xdt:Transform="InsertIfMissing"
+      xdt:Locator="Match(Type)">
+      <MaxTelemetryItemsPerSecond>5</MaxTelemetryItemsPerSecond>
+    </Add>
+  </TelemetryProcessors>
+</ApplicationInsights>

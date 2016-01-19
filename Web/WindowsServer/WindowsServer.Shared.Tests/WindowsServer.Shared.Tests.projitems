@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7916ae39-ae89-4886-8842-33ac9883905a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.WindowsServer</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Azure\Emulation\Microsoft.WindowsAzure.ServiceRuntime.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRole.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRoleInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Azure\ServiceRuntimeHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntimeTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TypeHelpersTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
+  </ItemGroup>
+</Project>
