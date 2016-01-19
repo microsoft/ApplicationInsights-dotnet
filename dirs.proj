@@ -7,9 +7,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Solution Include="Web\Microsoft.ApplicationInsights.Web.sln" />
-    <Solution Include="Web\FunctionalTests.sln" /> 
-    <Solution Include="Web\DependencyCollector\FunctionalTests\FunctionalTests.sln" />
-    <Solution Include="PerformanceCollector\PerformanceCollector.sln" />
+    <Solution Include="Test\DependencyCollector\FunctionalTests.sln" /> 
+    <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
+    <Solution Include="Test\Web\FunctionalTests.sln" />
   </ItemGroup>
   <Target Name="Build">
     <!-- Generate build version -->
