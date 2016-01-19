@@ -1,6 +1,6 @@
 @echo off
 
-call "%VS120COMNTOOLS%\VsDevCmd.bat"
+call "%VS140COMNTOOLS%\VsDevCmd.bat"
 
 SET PATH=%PATH%;%systemdrive%\Windows\Microsoft.NET\Framework\v4.0.30319\;
 SET ProjectName=Msbuild.All
