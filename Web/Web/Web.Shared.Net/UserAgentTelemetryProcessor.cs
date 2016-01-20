@@ -58,18 +58,45 @@
                 if (response != null && response.StatusCode < 400)
                 {
                     var request = HttpContext.Current.GetRequest();
-                    if (request != null && this.userAgentsToFilter.Any(
-                        t => t.Value.Equals(
-                            request.UserAgent,
-                            StringComparison.OrdinalIgnoreCase)))
+                    bool filteredOut = false;
+                    if (request != null)
                     {
-                        WebEventSource.Log.WebRequestFilteredOutByUserAgent();
-                        return;
+                        if (request.UserAgent == null && this.userAgentsToFilter.Any(t => t == null || t.Value == null))
+                        {
+                            filteredOut = true;
+                        }
+                        else if (request.UserAgent == string.Empty && this.userAgentsToFilter.Any(
+                            t => t.Value == string.Empty))
+                        {
+                            filteredOut = true;
+                        }
+                        else if (this.IsStringWhiteSpace(request.UserAgent) && this.userAgentsToFilter.Any(
+                            t => t != null && this.IsStringWhiteSpace(t.Value)))
+                        {
+                            filteredOut = true;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(request.UserAgent) && this.userAgentsToFilter.Any(
+                            t => t.Value != null && t.Value.ToLowerInvariant().Contains(
+                                request.UserAgent.ToLowerInvariant())))
+                        {
+                            filteredOut = true;
+                        }
+
+                        if (filteredOut)
+                        {
+                            WebEventSource.Log.WebRequestFilteredOutByUserAgent();
+                            return;
+                        }
                     }
                 }
             }
 
             this.Next.Process(item);
+        }
+
+        private bool IsStringWhiteSpace(string str)
+        {
+            return str != null && str != string.Empty && string.IsNullOrWhiteSpace(str);
         }
     }
 }

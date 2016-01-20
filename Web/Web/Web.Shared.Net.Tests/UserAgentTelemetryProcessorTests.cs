@@ -71,15 +71,79 @@
         }
 
         [TestMethod]
-        public void ProcessReturnsIfSuccessfulRequestUserAgentIsFiltered()
+        public void UserAgentIsFilteredIfItIsWhiteSpaceAndWhitespaceExplicitlySpecified()
         {
-            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", "A" } });
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", "    " } });
 
             var spy = new SimpleTelemetryProcessorSpy();
 
             var source = new UserAgentTelemetryProcessor(spy);
 
-            source.UserAgents.Add(new FilterRequest { Value = "a" });
+            source.UserAgents.Add(new FilterRequest { Value = "\n " });
+
+            source.Process(new RequestTelemetry());
+
+            Assert.AreEqual(0, spy.ReceivedCalls);
+        }
+
+        [TestMethod]
+        public void UserAgentIsNotFilteredIfItIsNullAndWhitespaceSpecified()
+        {
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", null } });
+
+            var spy = new SimpleTelemetryProcessorSpy();
+
+            var source = new UserAgentTelemetryProcessor(spy);
+
+            source.UserAgents.Add(new FilterRequest { Value = "\n " });
+
+            source.Process(new RequestTelemetry());
+
+            Assert.AreEqual(1, spy.ReceivedCalls);
+        }
+
+        [TestMethod]
+        public void UserAgentIsFilteredIfItIsNullAndNullExplicitlySpecified()
+        {
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", null } });
+
+            var spy = new SimpleTelemetryProcessorSpy();
+
+            var source = new UserAgentTelemetryProcessor(spy);
+
+            source.UserAgents.Add(new FilterRequest { Value = null });
+
+            source.Process(new RequestTelemetry());
+
+            Assert.AreEqual(0, spy.ReceivedCalls);
+        }
+
+        [TestMethod]
+        public void UserAgentIsFilteredIfItIsEmptyAndEmptyExplictlySpecified()
+        {
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", string.Empty } });
+
+            var spy = new SimpleTelemetryProcessorSpy();
+
+            var source = new UserAgentTelemetryProcessor(spy);
+
+            source.UserAgents.Add(new FilterRequest { Value = string.Empty });
+
+            source.Process(new RequestTelemetry());
+
+            Assert.AreEqual(0, spy.ReceivedCalls);
+        }
+
+        [TestMethod]
+        public void ProcessReturnsIfSuccessfulRequestUserAgentIsFiltered()
+        {
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", "a" } });
+
+            var spy = new SimpleTelemetryProcessorSpy();
+
+            var source = new UserAgentTelemetryProcessor(spy);
+
+            source.UserAgents.Add(new FilterRequest { Value = "As" });
 
             source.Process(new RequestTelemetry());
 
