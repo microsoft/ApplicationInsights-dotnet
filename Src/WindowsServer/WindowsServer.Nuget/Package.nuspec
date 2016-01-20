@@ -31,20 +31,20 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Nuget\install.ps1" target="Tools"/>
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\install.ps1" target="Tools"/>
     
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.transform" target="content" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.install.xdt" target="content" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.uninstall.xdt" target="content" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.transform" target="content" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.install.xdt" target="content" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Nuget\ApplicationInsights.config.uninstall.xdt" target="content" />
 
     <!-- For .NET 4.0 projects -->
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.dll" target="lib\net40" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.pdb" target="lib\net40" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.xml" target="lib\net40" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.dll" target="lib\net40" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.pdb" target="lib\net40" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net40\Microsoft.AI.WindowsServer.xml" target="lib\net40" />
 
     <!-- For .NET 4.5 projects -->
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.dll" target="lib\net45" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.pdb" target="lib\net45" />
-    <file src="$configuration$\Web\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.xml" target="lib\net45" />    
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.dll" target="lib\net45" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.pdb" target="lib\net45" />
+    <file src="$configuration$\Src\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.xml" target="lib\net45" />    
   </files>
 </package>

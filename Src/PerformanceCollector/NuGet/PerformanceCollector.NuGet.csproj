@@ -1,49 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Global.props'))\Global.props" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Signing.props'))\Signing.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{658C7719-F276-42EA-8B17-045129DB4DC7}</ProjectGuid>
+    <ProjectGuid>{9392CF11-9063-4FC9-B8D1-922C754007D7}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.ApplicationInsights.Server.NuGet</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsight.Server.NuGet</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.PerfCounterCollector.NuGet</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.PerfCounterCollector.NuGet</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
     <!-- Suppress the "CS2008: No source files specified" warning -->
     <NoWarn>2008</NoWarn>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
-    <PackageVersionFile>$(BinRoot)\$(Configuration)\Web\Web\Web.Net40\Microsoft.AI.Web.dll</PackageVersionFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\Src\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.dll</PackageVersionFile>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>7286ce46</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>dd2813bf</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="ApplicationInsights.config.transform">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Package.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\ApplicationInsights.config.install.xdt">
+    <None Include="ApplicationInsights.config.uninstall.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\ApplicationInsights.config.transform">
+    <None Include="ApplicationInsights.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\ApplicationInsights.config.uninstall.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\web.config.install.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\web.config.uninstall.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

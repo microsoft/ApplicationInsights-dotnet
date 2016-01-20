@@ -6,7 +6,7 @@
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Solution Include="Web\Microsoft.ApplicationInsights.Web.sln" />
+    <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
     <Solution Include="Test\DependencyCollector\FunctionalTests.sln" /> 
     <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
     <Solution Include="Test\Web\FunctionalTests.sln" />

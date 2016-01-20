@@ -27,17 +27,17 @@
   </metadata>
   <files>
     <!-- Binaries for .NET 4.0 -->
-    <file src="$configuration$\Web\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.dll" target="lib\net40" />
-    <file src="$configuration$\Web\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net40" />
+    <file src="$configuration$\Src\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.dll" target="lib\net40" />
+    <file src="$configuration$\Src\PerformanceCollector\Net40\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net40" />
 
     <!-- Binaries for .NET 4.5 -->
-    <file src="$configuration$\Web\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll" target="lib\net45" />
-    <file src="$configuration$\Web\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net45" />
+    <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll" target="lib\net45" />
+    <file src="$configuration$\Src\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.pdb" target="lib\net45" />
 
     <!-- XDT transformations -->
-    <file src="$configuration$\Web\PerformanceCollector\NuGet\ApplicationInsights.config.transform" target="content"/>
-    <file src="$configuration$\Web\PerformanceCollector\NuGet\ApplicationInsights.config.install.xdt" target="content"/>
-    <file src="$configuration$\Web\PerformanceCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content"/>
+    <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.transform" target="content"/>
+    <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.install.xdt" target="content"/>
+    <file src="$configuration$\Src\PerformanceCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content"/>
 
   </files>
 </package>

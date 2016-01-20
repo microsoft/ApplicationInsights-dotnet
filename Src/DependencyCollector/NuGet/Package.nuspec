@@ -26,18 +26,18 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="$configuration$\Web\DependencyCollector\NuGet\ApplicationInsights.config.transform" target="content" />
-    <file src="$configuration$\Web\DependencyCollector\NuGet\ApplicationInsights.config.install.xdt" target="content" />
-    <file src="$configuration$\Web\DependencyCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content" />
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.transform" target="content" />
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.install.xdt" target="content" />
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content" />
 
     <!-- For .NET 4.0 projects -->
-    <file src="$configuration$\Web\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.dll" target="lib\net40" />
-    <file src="$configuration$\Web\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.pdb" target="lib\net40" />
-    <file src="$configuration$\Web\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.xml" target="lib\net40" />
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.dll" target="lib\net40" />
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.pdb" target="lib\net40" />
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.xml" target="lib\net40" />
 
     <!-- For .NET 4.5 projects -->
-    <file src="$configuration$\Web\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.dll" target="lib\net45" />
-    <file src="$configuration$\Web\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.pdb" target="lib\net45" />
-    <file src="$configuration$\Web\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.xml" target="lib\net45" />
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.dll" target="lib\net45" />
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.pdb" target="lib\net45" />
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.xml" target="lib\net45" />
   </files>
 </package>
