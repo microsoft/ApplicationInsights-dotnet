@@ -11,6 +11,9 @@
 		<Reference Include="Microsoft.AI.WindowsServer">
 			<HintPath>$(BinRoot)\$(Configuration)\Web\WindowsServer\WindowsServer.Net45\Microsoft.AI.WindowsServer.dll</HintPath>
 		</Reference>
+        <Reference Include="Microsoft.AI.PerfCounterCollector">
+			<HintPath>$(BinRoot)\$(Configuration)\Web\PerformanceCollector\Net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<Target Name="CopyAppInsightsSdkFiles">
@@ -18,6 +21,7 @@
 			<_CustomFiles Include="
 										$(BinRoot)\$(Configuration)\Web\WindowsServer\WindowsServer.Net45\*.dll;
 										$(BinRoot)\$(Configuration)\Web\Web\Web.Net45\*.dll;
+                                        $(BinRoot)\$(Configuration)\Web\PerformanceCollector\Net45\*.dll;
 										" />
 			<FilesForPackagingFromProject Include="%(_CustomFiles.Identity)">
 				<DestinationRelativePath>%(RecursiveDir)bin\%(Filename)%(Extension)</DestinationRelativePath>
