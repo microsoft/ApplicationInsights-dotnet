@@ -378,7 +378,7 @@
 
         /// <summary>
         /// Send information about the page viewed in the application.
-        /// Create a separate PageViewTelemetry instance for each call to TrackPageView.
+        /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackPageView(Microsoft.ApplicationInsights.Extensibility.DataContracts.PageViewTelemetry)"/>.
         /// </summary>
         public void TrackPageView(PageViewTelemetry telemetry)
         {
