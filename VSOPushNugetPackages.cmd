@@ -4,7 +4,7 @@ if "%NUGET_KEY%"=="" SET NUGET_KEY=%1
 
 echo "key: '%NUGET_KEY%'"
 
-set BINROOT=%AGENT_BUILDDIRECTORY%\Release\NuGet
+set BINROOT=%AGENT_BUILDDIRECTORY%\bin\Release\NuGet
 if not exist %BINROOT% echo "Error: '%BINROOT%' does not exist."&goto :eof
 
 set NUGET=%BUILD_SOURCESDIRECTORY%\NuGet.exe
