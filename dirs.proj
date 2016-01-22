@@ -18,4 +18,8 @@
           
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop"/> 
   </Target>
+  <Target Name="Clean">
+    <RemoveDir Directories="$(BinRoot)" />
+    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+  </Target>
 </Project>
