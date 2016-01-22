@@ -1,0 +1,1 @@
+copy .\..\ApplicationInsightsAgent.msi c:\

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ac2e85bb-05f7-43cb-b966-3611ccf47156</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Web</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HandlerTelemetryProcessorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpContextTestExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\HttpModuleHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\InMemoryCaptureTelemetryChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\RequestStatus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\WebTelemetryModuleBaseFake.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtensionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticTrafficManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsSubscriberTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModuleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationCorrelationTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OperationNameTelemetryInitializerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModuleTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SyntheticTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UserAgentTelemetryProcessorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UserTelemetryInitializerTest.cs" />
+  </ItemGroup>
+</Project>

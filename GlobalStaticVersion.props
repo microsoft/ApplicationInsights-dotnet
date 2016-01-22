@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- 
+      Semantic Version. See http://semver.org for full details. 
+      Update for every public release. 
+    -->
+    <SemanticVersionMajor>2</SemanticVersionMajor>
+    <SemanticVersionMinor>0</SemanticVersionMinor>
+    <SemanticVersionPatch>0</SemanticVersionPatch>
+    <PreReleaseMilestone>beta5</PreReleaseMilestone>
+
+    <!-- 
+      Date when Semantic Version was changed. 
+      Update for every public release.
+      This resets file version counter. We will not change it before the stable version
+    -->
+    <SemanticVersionDate>2015-10-22</SemanticVersionDate>
+    
+    <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
+    <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>
+  </PropertyGroup>
+</Project>

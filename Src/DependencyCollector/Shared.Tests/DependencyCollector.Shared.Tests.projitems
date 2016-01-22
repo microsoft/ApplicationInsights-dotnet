@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ace58393-3419-4fca-87cc-c33eb756c7e4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpersTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorTestHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\MockTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryExtensionsForDependencyCollectorTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModuleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheProviderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\SortedListTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TestUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+</Project>

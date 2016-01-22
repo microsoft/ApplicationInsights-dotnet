@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Microsoft.ApplicationInsights.DependencyCollector</id>
+    <version>$version$</version>
+    <title>Application Insights Dependency Collector</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkID=510710</projectUrl>
+    <iconUrl>$image$</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Application Insights Dependency Collector for .NET applications. See http://go.microsoft.com/fwlink/?LinkID=510754 for more information. This is a dependent package for Application Insights platform specifc packages and provides automatic collection of dependency telemetry. Please install the platform specific packages directly for the best experience.</description>
+    <copyright>$copyright$</copyright>
+    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="1.2.1" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="1.2.1" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.transform" target="content" />
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.install.xdt" target="content" />
+    <file src="$configuration$\Src\DependencyCollector\NuGet\ApplicationInsights.config.uninstall.xdt" target="content" />
+
+    <!-- For .NET 4.0 projects -->
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.dll" target="lib\net40" />
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.pdb" target="lib\net40" />
+    <file src="$configuration$\Src\DependencyCollector\Net40\Microsoft.AI.DependencyCollector.xml" target="lib\net40" />
+
+    <!-- For .NET 4.5 projects -->
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.dll" target="lib\net45" />
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.pdb" target="lib\net45" />
+    <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.xml" target="lib\net45" />
+  </files>
+</package>
