@@ -104,6 +104,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perf.Net45", "PerformanceCollector\Net45\Perf.Net45.csproj", "{FBFCB985-BBFE-4954-A2EF-8124A42F56C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceCollector.NuGet", "PerformanceCollector\NuGet\PerformanceCollector.NuGet.csproj", "{9392CF11-9063-4FC9-B8D1-922C754007D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{61FC6E01-B40D-4DB2-9DAB-B27B82F02244} = {61FC6E01-B40D-4DB2-9DAB-B27B82F02244}
+		{FBFCB985-BBFE-4954-A2EF-8124A42F56C7} = {FBFCB985-BBFE-4954-A2EF-8124A42F56C7}
+	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Perf.Shared", "PerformanceCollector\Shared\Perf.Shared.shproj", "{092A02B5-9ACC-48B5-B317-428F71257196}"
 EndProject
