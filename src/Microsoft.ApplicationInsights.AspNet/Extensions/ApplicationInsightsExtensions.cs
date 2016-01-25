@@ -13,6 +13,11 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
 
+#if net451
+    using ApplicationInsights.Extensibility.PerfCounterCollector;
+    using ApplicationInsights.DependencyCollector;
+#endif
+
     public static class ApplicationInsightsExtensions
     {
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
@@ -43,12 +48,18 @@
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
 
+#if net451
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+#endif
+
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
+                InitializeModulesWithConfiguration(serviceProvider, telemetryConfiguration);
                 return telemetryConfiguration;
             });
 
@@ -153,6 +164,15 @@
             foreach (T service in services)
             {
                 collection.Add(service);
+            }
+        }
+
+        private static void InitializeModulesWithConfiguration(IServiceProvider serviceProvider, TelemetryConfiguration configuration)
+        {
+            var services = serviceProvider.GetService<IEnumerable<ITelemetryModule>>();
+            foreach (ITelemetryModule service in services)
+            {
+                service.Initialize(configuration);
             }
         }
     }
