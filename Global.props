@@ -63,12 +63,12 @@
         
         <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
         
-        <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
+        <BinRoot Condition=" '$(BinRoot)' == '' ">$(EnlistmentRoot)\..\bin</BinRoot>
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
                 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
         
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj</BaseIntermediateOutputPath>
+        <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == '' ">$(EnlistmentRoot)\..\obj</BaseIntermediateOutputPath>
         <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
 
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
