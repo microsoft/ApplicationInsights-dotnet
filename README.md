@@ -1,5 +1,14 @@
 ![Build](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/2637/badge)
 
+##Nuget packages
+
+- [For NLog](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/).
+[![NLog Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
+- [For Log4Net](http://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+[![Log4Net Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.Log4NetAppender.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
+- [For System.Diagnostics](http://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+[![System.Diagnostics Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.TraceListener.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
+
 Application Insights logging adapters. 
 ==============================
 
@@ -67,11 +76,6 @@ System.Diagnostics.Trace.TraceWarning("Slow response - database01");
 
 ``` 
 
-##Nuget packages
-
-- [For NLog](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/).
-- [For Log4Net](http://www.nuget.org/packages/Microsoft.ApplicationInsights.Log4NetAppender/)
-- [For System.Diagnostics](http://www.nuget.org/packages/Microsoft.ApplicationInsights.TraceListener/)
 
 
 
