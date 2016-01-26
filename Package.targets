@@ -31,7 +31,7 @@
       <PackageAuthor>@(VersionInfo->'%(CompanyName)')</PackageAuthor>
       <PackageImage>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</PackageImage>
       <PackageCopyright>@(VersionInfo->'%(LegalCopyright)')</PackageCopyright>
-      <PackageCommand>$(NuGetCommand) pack "$(PackageSpecFile)" -Properties "coresdkversion=$(CoreSdkVersion);version=$(PackageVersion);author=$(PackageAuthor);image=$(PackageImage);copyright=$(PackageCopyright);configuration=$(Configuration)" -BasePath "$(BinRoot)" -OutputDirectory "$(PackageOutputDir)"</PackageCommand>
+      <PackageCommand>$(NuGetCommand) pack "$(PackageSpecFile)" -Properties "coresdkversion=$(CoreSdkVersion);version=$(PackageVersion);author=$(PackageAuthor);image=$(PackageImage);copyright=$(PackageCopyright);configuration=$(Configuration)" -BasePath "$(BinRoot)" -OutputDirectory "$(PackageOutputDir)" -Symbols</PackageCommand>
     </PropertyGroup>
 
     <!-- Make sure package output directory exists (expected by NuGet). -->
@@ -43,7 +43,9 @@
         <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />      
     </Exec>  
 </Target>
-  
+    <Target Name="Gitlink" AfterTargets="Build" BeforeTargets="BuildNugetPackage">
+        <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Src\Microsoft.ApplicationInsights.Web.sln" -u https://github.com/Microsoft/ApplicationInsights-server-dotnet -c "$(Configuration)" -p "$(Platform)"' IgnoreExitCode='true' />
+  </Target>
   <UsingTask TaskName="GetFileVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
     <ParameterGroup>
       <File ParameterType="System.String" Required="true" />
