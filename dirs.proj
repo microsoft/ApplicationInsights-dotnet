@@ -21,7 +21,7 @@
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop"/> 
   </Target>
   <Target Name="Gitlink" AfterTargets="Build" BeforeTargets="BuildNugetPackage">
-        <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Src\Microsoft.ApplicationInsights.Web.sln" -u https://github.com/Microsoft/ApplicationInsights-server-dotnet -c "$(Configuration)" -p "$(Platform)"' />
+        <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Src\Microsoft.ApplicationInsights.Web.sln" -u https://github.com/Microsoft/ApplicationInsights-server-dotnet -c "$(Configuration)" -p "$(Platform)"' IgnoreExitCode='true' />
   </Target>
   <Target Name="Clean">
     <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
