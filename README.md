@@ -1,3 +1,5 @@
+![Build Status](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/2678/badge)
+
 # Microsoft Application Insights for Web Applications
 
 This repository has code for the Web Application SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their applications are available, performing, and succeeding. This SDK provides the ability to auto-collect data such as dependency calls, requests and server performance counters in .NET web applications. 
