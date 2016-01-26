@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Channel;
+    using Extensibility;
+    using Extensibility.Implementation;
+    using Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Various utilities.
@@ -72,6 +74,19 @@
             }
 
             return interval;
+        }
+
+        public static void WriteTelemetryToDebugOutput(ITelemetry telemetry, IDebugOutput output)
+        {
+            if (output.IsAttached() && output.IsLogging())
+            {
+                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ?
+                    "Application Insights Telemetry (unconfigured): " :
+                    "Application Insights Telemetry: ";
+
+                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
+                output.WriteLine(prefix + serializedTelemetry);
+            }
         }
     }
 }
