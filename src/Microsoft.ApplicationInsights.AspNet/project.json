@@ -27,7 +27,7 @@
     "frameworks": {
       "dnx451": {
         "compilationOptions": {
-          "define": [ "net451" ]
+          "define": [ "dnx451" ]
         },
         "dependencies": {
           "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0-*",

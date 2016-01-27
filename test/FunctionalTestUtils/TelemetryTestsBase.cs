@@ -6,6 +6,10 @@
     using System.Net.Http;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+#if dnx451
+    using System.Net;
+#endif
+    using System.Threading;
 
     public abstract class TelemetryTestsBase
     {
@@ -47,6 +51,43 @@
             Assert.Equal(actual.HandledAt, actual.HandledAt);
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
+        }
+
+        public void ValidateBasicDependency(InProcessServer server, string requestPath, DependencyTelemetry expected)
+        {
+
+#if dnx451 
+            DateTimeOffset testStart = DateTimeOffset.Now;
+            var timer = Stopwatch.StartNew();
+            var httpClient = new HttpClient();
+            var task = httpClient.GetAsync(server.BaseHost + requestPath);
+            task.Wait(TestTimeoutMs);
+            var result = task.Result;
+
+            var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
+            timer.Stop();
+
+            Assert.Equal(expected.Name, actual.Name);
+            Assert.Equal(expected.Success, actual.Success);         
+            Assert.Equal(expected.ResultCode, actual.ResultCode);
+#endif
+        }
+
+        public void ValidateBasicPerfCounters(InProcessServer server, string requestPath)
+        {
+
+#if dnx451 
+            DateTimeOffset testStart = DateTimeOffset.Now;
+            var timer = Stopwatch.StartNew();
+            var httpClient = new HttpClient();
+            var task = httpClient.GetAsync(server.BaseHost + requestPath);
+            task.Wait(TestTimeoutMs);
+            var result = task.Result;
+            Thread.Sleep(70000);
+            var actual = server.BackChannel.Buffer.OfType<PerformanceCounterTelemetry>().Distinct();
+
+            Assert.True(actual.Count() > 0);
+#endif
         }
     }
 }

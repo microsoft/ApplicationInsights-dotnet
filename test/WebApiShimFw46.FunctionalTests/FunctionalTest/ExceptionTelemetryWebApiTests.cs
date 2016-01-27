@@ -5,12 +5,9 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class ExceptionTelemetryTests : TelemetryTestsBase
+    public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
-
-        public ExceptionTelemetryTests()
-        { }
 
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()

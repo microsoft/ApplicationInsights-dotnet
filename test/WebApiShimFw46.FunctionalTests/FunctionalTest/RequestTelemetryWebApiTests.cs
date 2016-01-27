@@ -4,7 +4,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class RequestTelemetryTests : TelemetryTestsBase
+    public class RequestTelemetryWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
