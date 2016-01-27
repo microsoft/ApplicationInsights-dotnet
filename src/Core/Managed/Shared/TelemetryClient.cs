@@ -293,15 +293,17 @@
             if (this.IsEnabled())
             {
                 this.Initialize(telemetry);
-                                
+
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
-                    Utils.WriteTelemetryToDebugOutput(telemetry, this.debugOutput);
+                    this.WriteTelemetryToDebugOutput(telemetry, false);
                     return;
                 }
 
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
+
+                this.WriteTelemetryToDebugOutput(telemetry, true);
 
 #if NET46
                 // logs rich payload ETW event for any partners to process it
@@ -415,6 +417,35 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
+        }
+
+        private void WriteTelemetryToDebugOutput(ITelemetry telemetry, bool isConfigured)
+        {
+            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
+            {
+                ISupportInternalProperties properties = telemetry as ISupportInternalProperties;
+
+                string prefix = string.Empty;
+
+                if (isConfigured)
+                {
+                    if (properties == null || properties.Sent)
+                    {
+                        prefix = "Application Insights Telemetry: ";
+                    }
+                    else
+                    {
+                        prefix = "Application Insights Telemetry (not sent): ";
+                    }
+                }
+                else
+                {
+                    prefix = "Application Insights Telemetry (unconfigured): ";
+                }
+
+                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
+                this.debugOutput.WriteLine(prefix + serializedTelemetry);
+            }
         }
     }
 }

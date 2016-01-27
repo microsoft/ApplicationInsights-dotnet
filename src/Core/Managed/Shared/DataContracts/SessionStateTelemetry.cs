@@ -9,7 +9,7 @@
     /// <summary>
     /// Telemetry type used to track user sessions.
     /// </summary>
-    public sealed class SessionStateTelemetry : ITelemetry
+    public sealed class SessionStateTelemetry : ITelemetry, ISupportInternalProperties
     {
         internal const string TelemetryName = "SessionState";
 
@@ -58,6 +58,11 @@
         /// Gets or sets the value describing state of the user session.
         /// </summary>
         public SessionState State { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the telemetry was sent.
+        /// </summary>
+        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes this telemetry instance to ensure it can be accepted by the Application Insights.

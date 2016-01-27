@@ -1,11 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
+    using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Platform;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
@@ -15,7 +12,6 @@
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
         private readonly TelemetryConfiguration configuration;
-        private readonly IDebugOutput debugOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
@@ -29,7 +25,6 @@
             }
 
             this.configuration = configuration;
-            this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
         /// <summary>
@@ -37,11 +32,17 @@
         /// </summary>
         public void Process(ITelemetry item)
         {
-            Utils.WriteTelemetryToDebugOutput(item, this.debugOutput);
             if (this.configuration.TelemetryChannel == null)
             {
                 throw new InvalidOperationException(
                     "Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
+            }
+
+            ISupportInternalProperties properties = item as ISupportInternalProperties;
+
+            if (properties != null)
+            {
+                properties.Sent = true;
             }
 
             this.configuration.TelemetryChannel.Send(item);
