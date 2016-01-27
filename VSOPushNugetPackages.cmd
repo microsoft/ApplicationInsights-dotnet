@@ -4,8 +4,6 @@ if "%NUGET_KEY%"=="" SET NUGET_KEY=%1
 
 if "%NUGET_GALLERY%"=="" SET NUGET_GALLERY=%2
 
-if "%SYMBOL_GALLERY%"=="" SET SYMBOL_GALLERY=%3
-
 set BINROOT=%BUILD_STAGINGDIRECTORY%\Release
 if not exist %BINROOT% echo "Error: '%BINROOT%' does not exist."&goto :eof
 
@@ -19,9 +17,8 @@ goto :eof
 set PACKAGE=%1
 if %PACKAGE:.symbols.=% == %PACKAGE% (
     %NUGET% push "%PACKAGE%" %NUGET_KEY% -source %NUGET_GALLERY%
-) else (
-    %NUGET% push "%PACKAGE%" %NUGET_KEY% -source %SYMBOL_GALLERY%
 )
+
 goto :eof
 
 endlocal
