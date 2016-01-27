@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "RemoteDependency";
 
@@ -207,11 +207,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.

@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track events.
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "Event";
          
@@ -89,11 +89,6 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.

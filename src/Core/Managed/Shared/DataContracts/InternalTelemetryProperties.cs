@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    internal interface ISupportInternalProperties
+    internal class InternalTelemetryProperties
     {
         /// <summary>
         /// Gets or sets a value indicating whether the telemetry was sent.
         /// </summary>
-        bool Sent { get; set; }
+        public bool Sent { get; set; }
     }
 }

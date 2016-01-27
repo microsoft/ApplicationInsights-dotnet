@@ -38,14 +38,9 @@
                     "Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
             }
 
-            ISupportInternalProperties properties = item as ISupportInternalProperties;
-
-            if (properties != null)
-            {
-                properties.Sent = true;
-            }
-
             this.configuration.TelemetryChannel.Send(item);
+
+            item.Context.ExtraTelemetryProperties.Add(item, new InternalTelemetryProperties { Sent = true });
         }
     }
 }

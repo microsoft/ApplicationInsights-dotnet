@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track metrics.
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, ISupportInternalProperties
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Metric";
 
@@ -158,11 +158,6 @@
         {
             get { return this.Data.properties; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.

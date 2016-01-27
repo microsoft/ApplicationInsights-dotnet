@@ -11,7 +11,7 @@
     /// Telemetry type used for log messages.
     /// Contains a time and message and optionally some additional metadata.
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "Message";
 
@@ -98,11 +98,6 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.

@@ -12,7 +12,7 @@
     /// <summary>
     /// Telemetry type used to track exceptions.
     /// </summary>
-    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
+    public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "Exception";
         internal readonly string BaseType = typeof(ExceptionData).Name;
@@ -125,11 +125,6 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         internal IList<ExceptionDetails> Exceptions
         {
