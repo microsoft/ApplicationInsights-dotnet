@@ -2,11 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
+    
     /// <summary>
     /// Represents a context for sending telemetry to the Application Insights service.
     /// </summary>
@@ -25,6 +26,8 @@
         private OperationContext operation;
         private LocationContext location;
         private InternalContext internalContext;
+
+        private ConditionalWeakTable<ITelemetry, InternalTelemetryProperties> extraTelemetryProperties = new ConditionalWeakTable<ITelemetry, InternalTelemetryProperties>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
@@ -132,6 +135,14 @@
         internal IDictionary<string, string> Tags
         {
             get { return this.tags; }
+        }
+
+        internal ConditionalWeakTable<ITelemetry, InternalTelemetryProperties> ExtraTelemetryProperties
+        {
+            get
+            {
+                return this.extraTelemetryProperties;
+            }
         }
 
         internal void Initialize(TelemetryContext source, string instrumentationKey)

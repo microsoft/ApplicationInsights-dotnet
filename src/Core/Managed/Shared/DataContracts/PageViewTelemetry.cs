@@ -16,7 +16,7 @@
     /// passing an instance of the <see cref="PageViewTelemetry"/> class to the <see cref="TelemetryClient.TrackPageView(PageViewTelemetry)"/> 
     /// method.
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "PageView";
 
@@ -134,11 +134,6 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.

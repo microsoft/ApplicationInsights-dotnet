@@ -10,7 +10,7 @@
     /// <summary>
     /// The class that represents information about performance counters.
     /// </summary>
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, ISupportInternalProperties
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "PerformanceCounter";
         internal readonly string BaseType = typeof(PerformanceCounterData).Name;
@@ -133,11 +133,6 @@
         {
             get { return this.Data.properties; }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the telemetry was sent.
-        /// </summary>
-        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.
