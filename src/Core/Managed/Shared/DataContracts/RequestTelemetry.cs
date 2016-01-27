@@ -16,7 +16,7 @@
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportInternalProperties
     {
         internal const string TelemetryName = "Request";
 
@@ -202,6 +202,11 @@
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the telemetry was sent.
+        /// </summary>
+        bool ISupportInternalProperties.Sent { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.
