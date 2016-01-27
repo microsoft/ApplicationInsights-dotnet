@@ -41,6 +41,11 @@
                 return 0;
             }
 
+            while (input.Length < 8)
+            {
+                input = input + input;
+            }
+
             int hash = 5381;
 
             for (int i = 0; i < input.Length; i++)
