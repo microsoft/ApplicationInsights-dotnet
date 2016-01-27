@@ -46,7 +46,9 @@
         <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />      
     </Exec>  
 </Target>
-  
+  <Target Name="Gitlink" AfterTargets="Build" BeforeTargets="BuildNugetPackage">
+    <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Logging.sln" -u https://github.com/Microsoft/ApplicationInsights-dotnet-logging -c "$(Configuration)" -p "$(Platform)"' IgnoreExitCode='true' />
+  </Target>
   <UsingTask TaskName="GetFileVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
     <ParameterGroup>
       <File ParameterType="System.String" Required="true" />
