@@ -74,6 +74,9 @@ namespace Aspx451
                     case "http":
                         HttpHelper40.MakeHttpCallSync(count, "bing");
                         break;
+                    case "httpClient":
+                        HttpHelper40.MakeHttpCallUsingHttpClient("http://www.google.com/404");
+                        break;
                     case "failedhttp":
                         HttpHelper40.MakeHttpCallSyncFailed(count);
                         break;

@@ -11,7 +11,7 @@
     {
         internal CacheBasedOperationHolder TelemetryTable;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
-        private TelemetryClient telemetryClient;
+        private readonly TelemetryClient telemetryClient;
 
         internal FrameworkHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder)
         {
@@ -22,7 +22,7 @@
 
             if (telemetryTupleHolder == null)
             {
-                throw new ArgumentNullException("telemetryHolder");
+                throw new ArgumentNullException("telemetryTupleHolder");
             }
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
@@ -105,13 +105,23 @@
             if (!telemetryTuple.Item2)
             {
                 this.TelemetryTable.Remove(id);
-                var telemetry = telemetryTuple.Item1 as DependencyTelemetry;
+                DependencyTelemetry telemetry = telemetryTuple.Item1;
                 telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
-                telemetry.Success = success;
-                telemetry.ResultCode = statusCode.HasValue ? statusCode.ToString() : string.Empty;
+
+                if (!statusCode.HasValue)
+                {
+                    statusCode = -1;
+                }
+
+                telemetry.ResultCode = statusCode.Value > 0 ? statusCode.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
+
+                // We calculate success on the base of http code and do not use the 'success' method argument
+                // because framework returns true all the time if you use HttpClient to create a request
+                // statusCode == -1 if there is no Response
+                telemetry.Success = (statusCode > 0) && (statusCode < 400);
 
                 ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
-            }   
+            }
         }   
 
         /// <summary>
