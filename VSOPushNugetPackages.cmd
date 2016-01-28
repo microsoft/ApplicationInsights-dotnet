@@ -18,6 +18,7 @@ set PACKAGE=%1
 if %PACKAGE:.symbols.=% == %PACKAGE% (
     %NUGET% push "%PACKAGE%" %NUGET_KEY% -source %NUGET_GALLERY%
 )
+
 goto :eof
 
 endlocal

@@ -179,7 +179,7 @@
 
         [Event(
             18,
-            Message = "TelemetryInitializer {0} filed to initialize telemetry item {1}",
+            Message = "TelemetryInitializer {0} failed to initialize telemetry item {1}",
             Level = EventLevel.Error)]
         public void WebTelemetryInitializerFailure(
             string typeName,
