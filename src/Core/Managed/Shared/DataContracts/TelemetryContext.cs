@@ -27,8 +27,6 @@
         private LocationContext location;
         private InternalContext internalContext;
 
-        private ConditionalWeakTable<ITelemetry, InternalTelemetryProperties> extraTelemetryProperties = new ConditionalWeakTable<ITelemetry, InternalTelemetryProperties>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
@@ -135,14 +133,6 @@
         internal IDictionary<string, string> Tags
         {
             get { return this.tags; }
-        }
-
-        internal ConditionalWeakTable<ITelemetry, InternalTelemetryProperties> ExtraTelemetryProperties
-        {
-            get
-            {
-                return this.extraTelemetryProperties;
-            }
         }
 
         internal void Initialize(TelemetryContext source, string instrumentationKey)
