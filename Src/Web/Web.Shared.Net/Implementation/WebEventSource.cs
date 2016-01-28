@@ -270,7 +270,19 @@
                 30,
                 this.ApplicationName);
         }
-      
+
+        [Event(
+            31,
+            Message = "[msg=SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException];[exception={0}];",
+            Level = EventLevel.Error)]
+        public void SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                31,
+                exception,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
