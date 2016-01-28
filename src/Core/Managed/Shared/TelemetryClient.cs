@@ -424,7 +424,7 @@
             if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
             {
                 InternalTelemetryProperties properties = null;
-                telemetry.Context.ExtraTelemetryProperties.TryGetValue(telemetry, out properties);
+                Utils.ExtraTelemetryProperties.TryGetValue(telemetry, out properties);
 
                 string prefix = string.Empty;
 

@@ -3,6 +3,7 @@
     using System;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
+    using Platform;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
@@ -12,6 +13,7 @@
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
         private readonly TelemetryConfiguration configuration;
+        private readonly IDebugOutput debugOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
@@ -25,6 +27,7 @@
             }
 
             this.configuration = configuration;
+            this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
         /// <summary>
@@ -40,7 +43,10 @@
 
             this.configuration.TelemetryChannel.Send(item);
 
-            item.Context.ExtraTelemetryProperties.Add(item, new InternalTelemetryProperties { Sent = true });
+            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
+            {
+                Utils.ExtraTelemetryProperties.Add(item, new InternalTelemetryProperties { Sent = true });
+            }    
         }
     }
 }
