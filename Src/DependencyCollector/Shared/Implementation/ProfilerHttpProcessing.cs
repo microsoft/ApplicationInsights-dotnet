@@ -294,7 +294,7 @@
                     {
                         try
                         {
-                            statusCode = (int) responseObj.StatusCode;
+                            statusCode = (int)responseObj.StatusCode;
                         }
                         catch (ObjectDisposedException)
                         {
