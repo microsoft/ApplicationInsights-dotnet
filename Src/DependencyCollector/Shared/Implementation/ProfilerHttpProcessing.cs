@@ -30,7 +30,7 @@
 
             if (telemetryTupleHolder == null)
             {
-                throw new ArgumentNullException("telemetryHolder");
+                throw new ArgumentNullException("telemetryTupleHolder");
             }
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
@@ -285,16 +285,16 @@
                 if (!telemetryTuple.Item2)
                 {
                     this.TelemetryTable.Remove(thisObj);
-                    var telemetry = telemetryTuple.Item1 as DependencyTelemetry;
-                    telemetry.Success = exception == null;
+                    DependencyTelemetry telemetry = telemetryTuple.Item1;
                     
                     var responseObj = returnValue as HttpWebResponse;
 
+                    int statusCode = -1;
                     if (responseObj != null)
                     {
                         try
                         {
-                            telemetry.ResultCode = ((int)responseObj.StatusCode).ToString(CultureInfo.InvariantCulture);
+                            statusCode = (int) responseObj.StatusCode;
                         }
                         catch (ObjectDisposedException)
                         {
@@ -302,6 +302,9 @@
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
                     }
+                    
+                    telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                    telemetry.Success = (statusCode > 0) && (statusCode < 400);
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }

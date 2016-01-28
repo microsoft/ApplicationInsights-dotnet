@@ -12,6 +12,7 @@ namespace FW40Shared
     using System.Diagnostics;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
     using System.Runtime.InteropServices;
     using System.Text;
 
@@ -58,6 +59,12 @@ namespace FW40Shared
 
                 myHttpWebResponse.Close();
             }
+        }
+
+        public static string MakeHttpCallUsingHttpClient(string url)
+        {
+            HttpClient httpClient = new HttpClient();
+            return httpClient.GetStringAsync(url).Result;
         }
 
         /// <summary>
