@@ -446,6 +446,8 @@
 
                 string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
                 this.debugOutput.WriteLine(prefix + serializedTelemetry);
+
+                Utils.ExtraTelemetryProperties.Remove(telemetry);
             }
         }
     }
