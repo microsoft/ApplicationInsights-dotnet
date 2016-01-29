@@ -68,19 +68,6 @@
                     telemetry.DependencyKind = RemoteDependencyKind.SQL.ToString();
                     this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
                 }
-                else
-                {
-                    // The BeginExecuteReader method returns immediately, but until the code executes the corresponding EndExecuteReader method call, 
-                    // it must not execute any other calls that start a synchronous or asynchronous execution against the same SqlCommand object. 
-                    // howeever if customer tries to execute such call we need clean the watch state as command execution is incorrect to not report the wrong data.
-                    // note: This particular case is not dealt with in HTTP case.
-                    if (!telemetryTuple.Item2)
-                    {
-                        this.TelemetryTable.Remove(id);                
-                    }
-
-                    DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("SqlProcessingFramework.OnBegin removed the entry from cache to prevent incorrect information for " + resourceName);
-                }
             }
             catch (Exception exception)
             {

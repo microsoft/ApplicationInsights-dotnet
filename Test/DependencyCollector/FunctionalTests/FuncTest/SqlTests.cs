@@ -110,7 +110,7 @@
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                          var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
                          var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
-                         Assert.AreEqual(0, sqlItems.Length, "We must not report any rdd data as it could be wrong");
+                         Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
 
