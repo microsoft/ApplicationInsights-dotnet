@@ -5,7 +5,7 @@
         "delaySign": true
     },
   "dependencies": {
-    "Microsoft.ApplicationInsights": "2.0.0-beta4",
+    "Microsoft.ApplicationInsights": "2.0.0-*",
     "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-*",
     "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-*",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-*",
