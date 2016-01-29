@@ -37,12 +37,12 @@ namespace FunctionalTestUtils
         {
             get
             {
-                throw new NotImplementedException();
+                return string.Empty;
             }
 
             set
             {
-                throw new NotImplementedException();
+                this.EndpointAddress = string.Empty;
             }
         }
 

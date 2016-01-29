@@ -5,7 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class ExceptionTelemetryTests : TelemetryTestsBase
+    public class ExceptionTelemetryMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 

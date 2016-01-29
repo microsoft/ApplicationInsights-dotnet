@@ -14,6 +14,11 @@
     using Microsoft.Extensions.Configuration;
     using Xunit;
 
+#if dnx451
+    using ApplicationInsights.DependencyCollector;
+    using ApplicationInsights.Extensibility.PerfCounterCollector;
+#endif
+
     public static class ApplicationInsightsExtensionsTests
     {
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
@@ -232,6 +237,27 @@
                 // instrumentation key instead
                 Assert.Equal(configuration.InstrumentationKey, sentTelemetry.Context.InstrumentationKey);
             }
+
+#if dnx451
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+                Assert.Equal(2, modules.Count());
+
+                var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                Assert.NotNull(dependencyModule);
+
+                var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
+                Assert.NotNull(perfCounterModule);
+            }
+#endif
         }
 
         public static class AddApplicationInsightsSettings

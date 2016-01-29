@@ -53,10 +53,6 @@
             configBuilder.Add(customConfig);
             var config = configBuilder.Build();
 
-            var services = new ServiceCollection();
-            services.AddTransient<IApplicationEnvironment, ApplicationEnvironment>();
-            var serviceProvider = services.BuildServiceProvider();
-
             var engine = CreateBuilder(config)
                 .UseServer("Microsoft.AspNet.Server.WebListener")
                 .UseStartup(assemblyName)
