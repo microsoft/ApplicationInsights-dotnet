@@ -1,7 +1,4 @@
-﻿using System.Xml;
-using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
     using System.Collections;
@@ -10,11 +7,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Xml;
     using System.Xml.Linq;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class TelemetryConfigurationFactory
     {
@@ -184,7 +183,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     builder = builder.Use(current =>
                     {
                         var constructorArgs = new object[] { current };
-                        return (ITelemetryProcessor) LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
+                        return (ITelemetryProcessor)LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
                     });
                 }
             }
