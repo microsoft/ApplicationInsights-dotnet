@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -107,6 +108,24 @@
             Assert.Same(configuration, initializer.Configuration);
         }
 
+        [TestMethod]
+        public void InitializeCreatesInMemoryChannelEvenWhenConfigIsBroken()
+        {
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, Configuration("</blah>"));
+
+            Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
+        public void InitializeCreatesInMemoryChannelEvenWhenConfigIsInvalid()
+        {
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, Configuration("<blah></blah>"));
+
+            Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
+        }
+
         #endregion
 
         #region CreateInstance
@@ -114,39 +133,29 @@
         [TestMethod]
         public void CreateInstanceReturnsInstanceOfTypeSpecifiedByTypeName()
         {
-            var configuration = new TelemetryConfiguration();
             Type type = typeof(StubTelemetryInitializer);
             object instance = TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), type.AssemblyQualifiedName);
             Assert.Equal(type, instance.GetType());
         }
 
         [TestMethod]
-        public void CreateInstanceThrowsInvalidOperationExceptionWhenTypeCannotBeFoundToHelpDeveloperIdentifyAndFixTheProblem()
+        public void CreateInstanceReturnsNullWhenTypeCannotBeFound()
         {
-            var configuration = new TelemetryConfiguration();
-            var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), "MissingType, MissingAssembly"));
-            Assert.Contains("MissingType", exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), "MissingType, MissingAssembly"));
         }
 
         [TestMethod]
         public void CreateInstanceThrowsInvalidOperationExceptionWhenTypeNameIsInvalidToHelpDeveloperIdentifyAndFixTheProblem()
         {
-            var configuration = new TelemetryConfiguration();
-            var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), "Invalid Type Name"));
-            Assert.Contains("Invalid Type Name", exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), "Invalid Type Name"));
         }
 
         [TestMethod]
-        public void CreateInstanceThrowsInvalidOperationExceptionWhenInstanceDoesNotImplementExpectedInterfaceToHelpDeveloperIdentifyAndFixTheProblem()
+        public void CreateInstanceReturnsNullWhenInstanceDoesNotImplementExpectedInterface()
         {
             var configuration = new TelemetryConfiguration();
             Type invalidType = typeof(object);
-            var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), invalidType.AssemblyQualifiedName));
-            Assert.Contains(invalidType.AssemblyQualifiedName, exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(typeof(ITelemetryInitializer).Name, exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), invalidType.AssemblyQualifiedName));
         }
 
         #endregion
@@ -285,23 +294,17 @@
         }
 
         [TestMethod]
-        public void LoadInstanceThrowsInvalidOperationExceptionWhenDefinitionElementDoesNotHaveTypeAttributeAndInstanceIsNotInitialized()
+        public void LoadInstanceReturnsNullWhenDefinitionElementDoesNotHaveTypeAttributeAndInstanceIsNotInitialized()
         {
             var elementWithoutType = new XElement("Add", new XElement("PropertyName"));
-            var exception = Assert.Throws<InvalidOperationException>(() => TestableTelemetryConfigurationFactory.LoadInstance(elementWithoutType, typeof(IComparable), null, null));
-            Assert.Contains(elementWithoutType.Name.ToString(), exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("Type", exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(TestableTelemetryConfigurationFactory.LoadInstance(elementWithoutType, typeof(IComparable), null, null));
         }
 
         [TestMethod]
-        public void LoadInstanceThrowsInvalidOperationExceptionWhenDefinitionElementContainsInvalidContentAndNoTypeAttribute()
+        public void LoadInstanceReturnsNullWhenDefinitionElementContainsInvalidContentAndNoTypeAttribute()
         {
             var definition = new XElement("InvalidElement", "InvalidText");
-            var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(ITelemetryChannel), null, null));
-            Assert.Contains("InvalidElement", exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("InvalidText", exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.NotNull(exception.InnerException);
+            Assert.Null(TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(ITelemetryChannel), null, null));
         }
 
         [TestMethod]
@@ -334,12 +337,10 @@
         public void InitializeTelemetryProcessorsFromConfigurationFile()
         {
             string configFileContents = Configuration(
-                @"                  
-                  <TelemetryProcessors>
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
-                  <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationFactoryTest+StubTelemetryProcessor2, Microsoft.ApplicationInsights.Core.Net40.Tests"" />
-                  </TelemetryProcessors>"
-                );
+                "<TelemetryProcessors>" +
+                  "<Add Type=\"" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + "\" />" +
+                  "<Add Type=\"" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />" +
+                  "</TelemetryProcessors>");
 
             var configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
@@ -352,6 +353,28 @@
             var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
             var tp2 = (StubTelemetryProcessor2) tp1.next;
             var tpLast = (TransmissionProcessor) tp2.next;
+        }
+
+        [TestMethod]
+        public void InitializeTelemetryProcessorsWithWrongProcessorInTheMiddle()
+        {
+            string configFileContents = Configuration(
+                "<TelemetryProcessors>" +
+                  "<Add Type=\"" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + "\" />" +
+                  "<Add Type = \"Invalid, Invalid\" />" +
+                  "<Add Type=\"" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />" +
+                  "</TelemetryProcessors>");
+
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
+
+            Assert.True(configuration.TelemetryProcessors != null);
+            Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
+
+            //validate the chain linking stub1->stub2->transmission
+            var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
+            var tp2 = (StubTelemetryProcessor2)tp1.next;
+            var tpLast = (TransmissionProcessor)tp2.next;
         }
 
         [TestMethod]
@@ -380,16 +403,13 @@
         public void InitializeInvokedWhenTelemetryProcessorAlsoImplementsITelemetryModule()
         {
             string configFileContents = Configuration(
-                @"                  
-                  <TelemetryProcessors>
-                  <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryConfigurationFactoryTest+StubTelemetryProcessor2, Microsoft.ApplicationInsights.Core.Net40.Tests"" />
-                  </TelemetryProcessors>"
-                );
+                "<TelemetryProcessors>" +
+                  "<Add Type=\""+ typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />"+
+                  "</TelemetryProcessors>");
 
             var configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
-            // Assume that LoadFromXml method is called, tested separately
             Assert.True(configuration.TelemetryProcessors != null);
             Assert.IsType<StubTelemetryProcessor2>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
             Assert.True(((StubTelemetryProcessor2) configuration.TelemetryProcessorChain.FirstTelemetryProcessor).initialized);
@@ -505,19 +525,19 @@
         public void InitializeTelemetryModulesFromConfigurationFile()
         {
             string configFileContents = Configuration(
-                @"<TelemetryModules>    
-                    <Add Type=""Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights"" />
+                @"<TelemetryModules>
+                    <Add Type = """ + typeof(StubConfigurable).AssemblyQualifiedName + @"""  />
                   </TelemetryModules>"
                 );
 
             var modules = new TestableTelemetryModules();
             new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.Equal(1, modules.Modules.Count);
+            Assert.Equal(2, modules.Modules.Count); // Diagnostics module is added by default
         }
 
         [TestMethod]
-        public void InitializeTelemetryModulesFromConfigurationFileWithNoModules()
+        public void InitializeTelemetryModulesFromConfigurationFileWithNoModulesHasOneDiagnosticsModuleByDefault()
         {
             string configFileContents = Configuration(
                 @"<TelemetryModules>    
@@ -527,7 +547,46 @@
             var modules = new TestableTelemetryModules();
             new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
 
-            Assert.Equal(0, modules.Modules.Count);
+            Assert.Equal(1, modules.Modules.Count);
+            Assert.IsType<DiagnosticsTelemetryModule>(modules.Modules[0]);
+        }
+
+        [TestMethod]
+        public void InitializeAddTelemetryInitializersWithOneInvalid()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryInitializers>
+                    <Add Type=""Invalid, Invalid"" />
+                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>"
+                );
+
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(3, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
+            Assert.NotNull(configuration.TelemetryInitializers.First(item => item.GetType().Name == "StubTelemetryInitializer"));
+        }
+
+        #endregion
+
+        #region TelemetryInitializers
+
+        [TestMethod]
+        public void InitializeTelemetryModulesFromConfigurationFileWhenOneModuleCannotBeLoaded()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryModules>
+                    <Add Type = """ + typeof(StubConfigurable).AssemblyQualifiedName + @"""  />
+                    <Add Type = ""Invalid, Invalid"" />
+                    <Add Type = """ + typeof(StubConfigurableTelemetryInitializer).AssemblyQualifiedName + @"""  />
+                  </TelemetryModules>"
+                );
+
+            var modules = new TestableTelemetryModules();
+            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+
+            Assert.Equal(3, modules.Modules.Count); // Diagnostics module is added by default
         }
 
         #endregion
@@ -548,9 +607,9 @@
             Assert.Equal(1, instances.Count);
             Assert.Equal(typeof(StubTelemetryInitializer), instances[0].GetType());
         }
-       
+
         [TestMethod]
-        public void LoadInstancesUpdatesInstanceWithMatchingType() 
+        public void LoadInstancesUpdatesInstanceWithMatchingType()
         {
             var configuration = new TelemetryConfiguration();
             var element = XElement.Parse(@"
@@ -618,13 +677,10 @@
         }
 
         [TestMethod]
-        public void LoadPropertiesThrowsInvalidOperationExceptionWhenInstanceDoesNotHavePropertyWithSpecifiedName()
+        public void LoadPropertiesReturnsNullWhenInstanceDoesNotHavePropertyWithSpecifiedName()
         {
             var definition = new XElement("Definition", new XElement("InvalidProperty", "AnyValue"));
-            var exception = Assert.Throws<InvalidOperationException>(
-                () => TestableTelemetryConfigurationFactory.LoadProperties(definition, new StubClassWithProperties(), null));
-            Assert.Contains("InvalidProperty", exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(typeof(StubClassWithProperties).AssemblyQualifiedName, exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotThrow(() => TestableTelemetryConfigurationFactory.LoadProperties(definition, new StubClassWithProperties(), null));
         }
 
         [TestMethod]

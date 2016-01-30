@@ -54,13 +54,18 @@
 
             foreach (var generator in this.factories.AsEnumerable().Reverse())
             {
+                ITelemetryProcessor prevTelemetryProcessor = linkedTelemetryProcessor;
                 linkedTelemetryProcessor = generator.Invoke(linkedTelemetryProcessor);
-                telemetryProcessorsList.Add(linkedTelemetryProcessor);
 
                 if (linkedTelemetryProcessor == null)
                 {
-                    throw new InvalidOperationException("TelemetryProcessor returned from TelemetryProcessorFactory cannot be null.");
+                    // Loading of a telemetry processor failed, so skip it
+                    // Error is logged when telemetry processor loading failed
+                    linkedTelemetryProcessor = prevTelemetryProcessor;
+                    continue;
                 }
+
+                telemetryProcessorsList.Add(linkedTelemetryProcessor);
             }
 
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());

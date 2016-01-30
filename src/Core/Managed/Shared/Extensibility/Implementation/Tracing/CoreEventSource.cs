@@ -169,7 +169,103 @@
                 14, 
                 msg ?? string.Empty,
                 this.nameProvider.Name);
-        }        
+        }
+
+        [Event(
+            15,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' was not found. Type loading was skipped. Monitoring will continue.",
+            Level = EventLevel.Error)]
+        public void TypeWasNotFoundConfigurationError(string type, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                15,
+                type ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            16,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' does not implement '{1}'. Type loading was skipped. Monitoring will continue.",
+            Level = EventLevel.Error)]
+        public void IncorrectTypeConfigurationError(string type, string expectedType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                16,
+                type ?? string.Empty,
+                expectedType ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            17,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' does not have property '{1}'. Property initialization was skipped. Monitoring will continue.",
+            Level = EventLevel.Error)]
+        public void IncorrectPropertyConfigurationError(string type, string property, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                17,
+                type ?? string.Empty,
+                property ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            18,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Element '{0}' element does not have a Type attribute, does not specify a value and is not a valid collection type. Type initialization was skipped. Monitoring will continue.",
+            Level = EventLevel.Error)]
+        public void IncorrectInstanceAtributesConfigurationError(string definition, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                18,
+                definition ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            19,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. '{0}' element has unexpected contents: '{1}': '{2}'. Type initialization was skipped. Monitoring will continue.",
+            Level = EventLevel.Error)]
+        public void LoadInstanceFromValueConfigurationError(string element, string contents, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                19,
+                element ?? string.Empty,
+                contents ?? string.Empty,
+                error ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            20,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Exception: '{0}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Level = EventLevel.Error)]
+        public void ConfigurationFileCouldNotBeParsedError(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                20,
+                error ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            21,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be create. Error: '{1}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Level = EventLevel.Error)]
+        public void MissingMethodExceptionConfigurationError(string type, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                21,
+                type ?? string.Empty,
+                error ?? string.Empty,
+                this.nameProvider.Name);
+        }
 
         /// <summary>
         /// Keywords for the PlatformEventSource.

@@ -63,8 +63,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensibility\Implementation\TelemetryConfigurationFactoryTest.cs" />
-    <Compile Include="Extensibility\Implementation\Tracing\CoreEventSourceTest.cs" />
     <Compile Include="FailOnAssertSetup.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
   </ItemGroup>
@@ -83,6 +81,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensibility\Implementation\Tracing\" />
   </ItemGroup>
   <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Shared" />
   <Import Project="..\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems" Label="Shared" />
