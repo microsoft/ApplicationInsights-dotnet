@@ -273,12 +273,14 @@
 
         [Event(
             31,
-            Message = "[msg=SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException];[exception={0}];",
-            Level = EventLevel.Error)]
-        public void SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(string exception, string appDomainName = "Incorrect")
+            Keywords = Keywords.UserActionable,
+            Message = "SyntheticUserAgentTelemetryInitializer failed to parse regular expression {0} with exception: {1}",
+            Level = EventLevel.Warning)]
+        public void SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(string pattern, string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 31,
+                pattern,
                 exception,
                 this.ApplicationName);
         }

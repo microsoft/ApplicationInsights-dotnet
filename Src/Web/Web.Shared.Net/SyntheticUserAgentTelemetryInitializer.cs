@@ -47,7 +47,7 @@
                 {
                     foreach (var pattern in this.filterPatterns)
                     {
-                        if (pattern.RegularExpression != null)
+                        if (pattern.RegularExpression != null && request.UserAgent != null)
                         {
                             var match = pattern.RegularExpression.Match(request.UserAgent);
                             if (match.Success)

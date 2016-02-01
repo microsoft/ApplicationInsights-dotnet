@@ -39,7 +39,7 @@
                 }
                 catch (ArgumentException ex)
                 {
-                    WebEventSource.Log.SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(ex.ToInvariantString());
+                    WebEventSource.Log.SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(this.pattern, ex.ToInvariantString());
                 }                
             }
         }
