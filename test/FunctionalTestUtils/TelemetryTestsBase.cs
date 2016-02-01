@@ -6,6 +6,10 @@
     using System.Net.Http;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+#if dnx451
+    using System.Net;
+#endif
+    using System.Threading;
 
     public abstract class TelemetryTestsBase
     {
@@ -48,5 +52,24 @@
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
+
+#if dnx451
+        public void ValidateBasicDependency(InProcessServer server, string requestPath, DependencyTelemetry expected)
+        {
+            DateTimeOffset testStart = DateTimeOffset.Now;
+            var timer = Stopwatch.StartNew();
+            var httpClient = new HttpClient();
+            var task = httpClient.GetAsync(server.BaseHost + requestPath);
+            task.Wait(TestTimeoutMs);
+            var result = task.Result;
+
+            var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
+            timer.Stop();
+
+            Assert.Equal(expected.Name, actual.Name);
+            Assert.Equal(expected.Success, actual.Success);
+            Assert.Equal(expected.ResultCode, actual.ResultCode);
+        }
+#endif
     }
 }

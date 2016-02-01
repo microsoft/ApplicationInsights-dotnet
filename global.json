@@ -2,6 +2,7 @@
     "sources": [ "src", "test" ],
     "sdk": {
             "architecture": "x86",
-            "runtime": "clr"
+      "runtime": "clr",
+      "version": "1.0.0-rc1-update1"
     }
 }

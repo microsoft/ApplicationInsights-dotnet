@@ -5,31 +5,28 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Threading;
-
+    using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Http;
+    using TelemetryInitializers;
 
     /// <summary>
-    /// A telemetry context initializer that populates device context role instance.
+    /// A telemetry initializer that populates cloud context role instance.
     /// </summary>
-    public class DomainNameRoleInstanceContextInitializer : IContextInitializer
+    public class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
     {
         private string roleInstanceName;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DomainNameRoleInstanceContextInitializer"/> class.
-        /// </summary>
-        public void Initialize(TelemetryContext context)
+        public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
-            if (context == null)
-            {
-                // TODO: add diagnostics
-            }
+        }
 
-            if (string.IsNullOrEmpty(context.Device.RoleInstance))
+        protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
+        {
+            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
-                context.Device.RoleInstance = name;
+                telemetry.Context.Cloud.RoleInstance = name;
             }
         }
 

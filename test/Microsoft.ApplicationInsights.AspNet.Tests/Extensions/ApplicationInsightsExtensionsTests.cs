@@ -1,8 +1,7 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Diagnostics.Tracing;
-    using System.IO;
+    using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -10,13 +9,15 @@
     using Microsoft.ApplicationInsights.AspNet.Tests;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNet.Builder;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Xunit;
-    using System.Diagnostics;
+
+#if dnx451
+    using ApplicationInsights.DependencyCollector;
+    using ApplicationInsights.Extensibility.PerfCounterCollector;
+#endif
 
     public static class ApplicationInsightsExtensionsTests
     {
@@ -32,7 +33,7 @@
         public static class AddApplicationInsightsTelemetry
         {
             [Theory]
-            [InlineData(typeof(IContextInitializer), typeof(DomainNameRoleInstanceContextInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -71,7 +72,7 @@
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is TimestampPropertyInitializer);
+                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is OperationIdTelemetryInitializer);
             }
 
             [Fact]
@@ -175,20 +176,6 @@
             }
 
             [Fact]
-            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithContextInitializersFromContainer()
-            {
-                var contextInitializer = new FakeContextInitializer();
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<IContextInitializer>(contextInitializer);
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
-
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Contains(contextInitializer, telemetryConfiguration.ContextInitializers);
-            }
-
-            [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryInitializersFromContainer()
             {
                 var telemetryInitializer = new FakeTelemetryInitializer();
@@ -250,6 +237,27 @@
                 // instrumentation key instead
                 Assert.Equal(configuration.InstrumentationKey, sentTelemetry.Context.InstrumentationKey);
             }
+
+#if dnx451
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var modules = serviceProvider.GetServices<ITelemetryModule>();
+                Assert.NotNull(modules);
+                Assert.Equal(2, modules.Count());
+
+                var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                Assert.NotNull(dependencyModule);
+
+                var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
+                Assert.NotNull(perfCounterModule);
+            }
+#endif
         }
 
         public static class AddApplicationInsightsSettings

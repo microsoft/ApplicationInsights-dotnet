@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -13,6 +12,11 @@
     using Microsoft.AspNet.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
+
+#if dnx451
+    using ApplicationInsights.Extensibility.PerfCounterCollector;
+    using ApplicationInsights.DependencyCollector;
+#endif
 
     public static class ApplicationInsightsExtensions
     {
@@ -36,8 +40,7 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
-            services.AddSingleton<IContextInitializer, DomainNameRoleInstanceContextInitializer>();
-
+            services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -45,13 +48,18 @@
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
 
+#if dnx451
+            services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
+            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+#endif
+
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
-                AddServicesToCollection(serviceProvider, telemetryConfiguration.ContextInitializers);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
+                InitializeModulesWithConfiguration(serviceProvider, telemetryConfiguration);
                 return telemetryConfiguration;
             });
 
@@ -156,6 +164,15 @@
             foreach (T service in services)
             {
                 collection.Add(service);
+            }
+        }
+
+        private static void InitializeModulesWithConfiguration(IServiceProvider serviceProvider, TelemetryConfiguration configuration)
+        {
+            var services = serviceProvider.GetService<IEnumerable<ITelemetryModule>>();
+            foreach (ITelemetryModule service in services)
+            {
+                service.Initialize(configuration);
             }
         }
     }

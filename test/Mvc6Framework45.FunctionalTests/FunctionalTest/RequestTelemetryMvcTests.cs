@@ -1,4 +1,4 @@
-﻿namespace EmptyApp.FunctionalTests.FunctionalTest
+﻿namespace SampleWebAppIntegration.FunctionalTest
 {
     using System.Linq;
     using System.Net.Http;
@@ -6,12 +6,12 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
 
-    public class RequestTelemetryTests : TelemetryTestsBase
+    public class RequestTelemetryMvcTests : TelemetryTestsBase
     {
-        private const string assemblyName = "EmptyApp.FunctionalTests";
+        private const string assemblyName = "Mvc6Framework45.FunctionalTests";
 
         [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingBasicPage()
+        public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
             using (var server = new InProcessServer(assemblyName))
             {
@@ -19,7 +19,7 @@
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.HttpMethod = "GET";
-                expectedRequestTelemetry.Name = "GET /";
+                expectedRequestTelemetry.Name = "GET Home/Index";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
@@ -29,7 +29,25 @@
         }
 
         [Fact]
-        public void TestBasicRequestPropertiesAfterRequestingNotExistingPage()
+        public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
+        {
+            using (var server = new InProcessServer(assemblyName))
+            {
+                const string RequestPath = "/Home/About/5";
+
+                var expectedRequestTelemetry = new RequestTelemetry();
+                expectedRequestTelemetry.HttpMethod = "GET";
+                expectedRequestTelemetry.Name = "GET Home/About [id]";
+                expectedRequestTelemetry.ResponseCode = "200";
+                expectedRequestTelemetry.Success = true;
+                expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
+
+                this.ValidateBasicRequest(server, RequestPath, expectedRequestTelemetry);
+            }
+        }
+
+        [Fact]
+        public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
             using (var server = new InProcessServer(assemblyName))
             {
@@ -52,7 +70,7 @@
             using (var server = new InProcessServer(assemblyName))
             {
                 var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + "/Mixed");
+                var task = httpClient.GetAsync(server.BaseHost + "/Home/Contact");
                 task.Wait(TestTimeoutMs);
 
                 var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
@@ -60,7 +78,12 @@
                 var metricTelemetry = server.BackChannel.Buffer.OfType<MetricTelemetry>().Single();
                 var traceTelemetry = server.BackChannel.Buffer.OfType<TraceTelemetry>().Single();
 
-                Assert.Equal(4, server.BackChannel.Buffer.Count);
+#if dnx451
+                var dependencyTelemetry = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
+                Assert.NotNull(dependencyTelemetry);               
+#endif
+
+                Assert.True(server.BackChannel.Buffer.Count >= 4);
                 Assert.NotNull(request);
                 Assert.NotNull(eventTelemetry);
                 Assert.NotNull(metricTelemetry);
