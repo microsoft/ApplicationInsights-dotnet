@@ -274,10 +274,7 @@
                 var telemetryTuple = this.TelemetryTable.Get(thisObj);
                 if (telemetryTuple != null)
                 {
-                    // The BeginExecuteReader method returns immediately, but until the code executes the corresponding EndExecuteReader method call, 
-                    // it must not execute any other calls that start a synchronous or asynchronous execution against the same SqlCommand object. 
-                    // howeever if customer tries to execute such call we need clean the watch state as command execution is incorrect to not report the wrong data.
-                    // note: This particular case is not dealt with in HTTP case.
+                    // We are already tracking this item
                     if (telemetryTuple.Item1 != null)
                     {
                         DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
