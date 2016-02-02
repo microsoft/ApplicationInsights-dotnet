@@ -10,12 +10,23 @@
     public class TelemetryInitailizersTests
     {
         [TestMethod]
-        public void InstallAddsSyntheticTelemetryInitializer()
+        public void InstallAddsWebTestTelemetryInitializer()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
-            Type typeToFind = typeof(SyntheticTelemetryInitializer);
+            Type typeToFind = typeof(WebTestTelemetryInitializer);
+
+            Assert.IsNotNull(AssertNodeExistsInConfiguration(configAfterTransform, typeToFind));
+        }
+
+        [TestMethod]
+        public void InstallAddsSyntheticUserAgentTelemetryInitializer()
+        {
+            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
+            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
+
+            Type typeToFind = typeof(SyntheticUserAgentTelemetryInitializer);
 
             Assert.IsNotNull(AssertNodeExistsInConfiguration(configAfterTransform, typeToFind));
         }
@@ -129,7 +140,7 @@
                                            .Descendants()
                                            .FirstOrDefault(
                                                element =>
-                                               element.Attribute("Type").Value ==
+                                               (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) ==
                                                ConfigurationHelpers.GetPartialTypeName(typeToFind));
         }
     }

@@ -1,7 +1,8 @@
 <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
 
   <TelemetryInitializers>
-    <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.SyntheticTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.WebTestTelemetryInitializer, Microsoft.AI.Web" />
+    <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.SyntheticUserAgentTelemetryInitializer, Microsoft.AI.Web" />
     <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ClientIpHeaderTelemetryInitializer, Microsoft.AI.Web" />
     <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.OperationNameTelemetryInitializer, Microsoft.AI.Web" />
     <Add xdt:Transform="Remove" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.OperationCorrelationTelemetryInitializer, Microsoft.AI.Web" />

@@ -10,38 +10,6 @@
     public class TelemetryProcessorsTests
     {
         [TestMethod]
-        public void InstallAddsUserAgentProcessor()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            var typeToFind = typeof(UserAgentTelemetryProcessor);
-
-            var node = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform)
-                .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
-
-            Assert.IsNotNull(node);
-        }
-
-        [TestMethod]
-        public void InstallAddsUserAgentProcessorDefaultConfiguration()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            var typeToFind = typeof(UserAgentTelemetryProcessor);
-
-            var node = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform)
-                .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind))
-                .Descendants()
-                .FirstOrDefault(element => (element.Attribute("Value") != null ? element.Attribute("Value").Value : null) == "AlwaysOn");
-
-            Assert.IsNotNull(node);
-        }
-
-        [TestMethod]
         public void InstallAddsHandlerProcessor()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
@@ -134,18 +102,13 @@
             var handler = children
                 .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeof(HandlerTelemetryProcessor)));
 
-            var userAgent = children
-                .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeof(UserAgentTelemetryProcessor)));
-
             var sampler = children
                 .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel");
             
             var handlerIndex = children.IndexOf(handler);
-            var userAgentIndex = children.IndexOf(userAgent);
             var samplerIndex = children.IndexOf(sampler);
 
             Assert.IsTrue(samplerIndex > handlerIndex, "AdaptiveSamplingTelemetryProcessor is not placed before HandlerTelemetryProcessor");
-            Assert.IsTrue(samplerIndex > userAgentIndex, "AdaptiveSamplingTelemetryProcessor is not placed before UserAgentTelemetryProcessor");
         }
 
         [TestMethod]
@@ -161,14 +124,10 @@
             var handler = children
                 .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeof(HandlerTelemetryProcessor)));
 
-            var userAgent = children
-                .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeof(UserAgentTelemetryProcessor)));
-
             var sampler = children
                 .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel");
 
             Assert.IsNull(handler, "HandlerTelemetryProcessor was not removed.");
-            Assert.IsNull(userAgent, "UserAgentTelemetryProcessor was not removed.");
             Assert.IsNotNull(sampler, "AdaptiveSamplingTelemetryProcessor was removed");
         }
     }
