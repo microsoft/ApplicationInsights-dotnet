@@ -39,7 +39,7 @@ Developing
 - [Git](http://git-scm.com/download).
 - Source Code.
 ```
-git clone https://github.com/Microsoft/ApplicationInsights-aspnet5.git
+git clone https://github.com/Microsoft/ApplicationInsights-aspnetcore.git
 ```
 
 ## Building
@@ -81,13 +81,14 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit.runner.aspnet": "2.0.0-aspnet-beta6-*",
+"xunit.runner.dnx": "2.1.0-rc1-*",
+"xunit": "2.1.0-rc1-*"
 ```
 
 and test command:
 
 ```
-"test": "xunit.runner.aspnet"
+"test": "xunit.runner.dnx"
 ```
 
 Add this initialization logic to Startup.cs:
