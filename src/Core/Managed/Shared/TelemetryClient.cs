@@ -436,7 +436,7 @@
                     }
                     else
                     {
-                        prefix = "Application Insights Telemetry (not sent): ";
+                        prefix = "Application Insights Telemetry (filtered out): ";
                     }
                 }
                 else
