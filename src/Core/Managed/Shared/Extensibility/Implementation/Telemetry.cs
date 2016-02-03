@@ -9,7 +9,7 @@
     {
         public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
         {
-            json.WriteProperty("time", telemetry.Timestamp.ToString("o", CultureInfo.InvariantCulture));
+            json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
             var samplingSupportingTelemetry = telemetry as ISupportSampling;
 
