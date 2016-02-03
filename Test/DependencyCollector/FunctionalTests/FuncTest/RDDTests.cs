@@ -1048,11 +1048,11 @@ namespace FuncTest
             var accessTimeMaxPlusDnsResolutionTime = accessTimeMax.Add(TimeSpan.FromSeconds(15));
             if (successFlagExpected == true)
             {
-                Assert.IsTrue(accessTime.TotalMilliseconds > 0, "Access time should be above zero");
+                Assert.IsTrue(accessTime.Ticks > 0, "Access time should be above zero");
             }
             else
             {
-                Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be zero or above for failed calls");
+                Assert.IsTrue(accessTime.Ticks >= 0, "Access time should be zero or above for failed calls");
             }
 
             Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format("Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
