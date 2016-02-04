@@ -57,7 +57,7 @@
                 var response = HttpContext.Current.GetResponse();
                 if (response != null && response.StatusCode < 400)
                 {
-                    if (this.IsHandlerToFilter(HttpContext.Current.Handler))
+                    if (this.IsHandlerToFilter(HttpContext.Current.Handler, HttpContext.Current.TryGetCurrentNotification()))
                     {
                         WebEventSource.Log.WebRequestFilteredOutByRequestHandler();
                         return;
@@ -72,17 +72,32 @@
         /// Checks whether or not handler is a transfer handler.
         /// </summary>
         /// <param name="handler">An instance of handler to validate.</param>
+        /// <param name="notification">The current notification of the request.</param>
         /// <returns>True if handler is a transfer handler, otherwise - False.</returns>
-        private bool IsHandlerToFilter(IHttpHandler handler)
+        private bool IsHandlerToFilter(IHttpHandler handler, RequestNotification notification)
         {
             if (handler != null)
             {
                 var handlerName = handler.GetType().FullName;
-                foreach (var h in this.handlersToFilter.Select(t => t.Value))
+                foreach (var h in this.handlersToFilter)
                 {
-                    if (string.Equals(handlerName, h, StringComparison.Ordinal))
+                    if (string.Equals(handlerName, h.Value, StringComparison.Ordinal))
                     {
-                        return true;
+                        if (h.RequestNotifications.Any())
+                        {
+                            if (h.RequestNotifications.Any(t => t.Value.Equals(notification.ToString())))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return true;
+                        }                        
                     }
                 }
             }

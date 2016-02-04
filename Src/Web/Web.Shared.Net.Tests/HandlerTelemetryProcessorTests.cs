@@ -103,5 +103,31 @@
 
             Assert.AreEqual(0, spy.ReceivedCalls);
         }
+
+        [TestMethod]
+        public void ProcessCallsNextIfHandlerMatchesButNotNotification()
+        {
+            HttpContext.Current = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { { "User-Agent", "a" } });
+            HttpContext.Current.Handler = new Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest.FakeHttpHandler();
+
+            var spy = new SimpleTelemetryProcessorSpy();
+
+            var source = new HandlerTelemetryProcessor(spy);
+
+            var filter = new FilterRequest
+            {
+                Value = "Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest+FakeHttpHandler"
+            };
+            filter.RequestNotifications.Add(new RequestNotificationFilter
+            {
+                Value = "EndRequest"
+            });
+
+            source.Handlers.Add(filter);
+
+            source.Process(new RequestTelemetry());
+
+            Assert.AreEqual(1, spy.ReceivedCalls);
+        }
     }
 }

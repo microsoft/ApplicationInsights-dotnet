@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
+    using System;
     using System.Web;
 
     internal static class HttpContextExtensions
@@ -36,6 +37,25 @@
             }
 
             return result;
+        }
+
+        public static RequestNotification TryGetCurrentNotification(this HttpContext context)
+        {
+            RequestNotification notification = default(RequestNotification);
+            try
+            {
+                notification = context.CurrentNotification;
+            }
+            catch (NullReferenceException exp)
+            {
+                WebEventSource.Log.HttpRequestNotAvailable(exp.Message, exp.StackTrace);
+            }
+            catch (PlatformNotSupportedException exp)
+            {
+                WebEventSource.Log.HttpRequestNotAvailable(exp.Message, exp.StackTrace);
+            }
+
+            return notification;
         }
     }
 }
