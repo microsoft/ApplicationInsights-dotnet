@@ -411,7 +411,6 @@
             {
                 writer.WriteStartObject();
 
-                // TODO: DependencyTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 writer.WriteProperty("baseType", dependencyTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
@@ -450,7 +449,6 @@
             {
                 jsonWriter.WriteStartObject();
 
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 jsonWriter.WriteProperty("baseType", requestTelemetry.BaseType);
                 jsonWriter.WritePropertyName("baseData");
                 {

@@ -41,5 +41,15 @@
             Assert.Equal(512, obj["data"]["baseData"]["name"].ToString().Length);
         }
 
+        [TestMethod]
+        public void SanitizesTimestampInIsoFormat()
+        {
+            EventTelemetry t = new EventTelemetry();
+            
+            string json = JsonSerializer.SerializeAsString(t);
+
+            Assert.True(json.Contains("\"time\":\"0001-01-01T00:00:00.0000000Z\""));
+        }
+
     }
 }

@@ -180,22 +180,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
             set
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    this.Data.dependencyKind = BondDependencyKind.Other;
-                }
-                else
-                {
-                    // There is no TryParse in .Net 3.5
-                    if (Enum.GetNames(typeof(BondDependencyKind)).Contains(value))
-                    {
-                        this.Data.dependencyKind = (BondDependencyKind)Enum.Parse(typeof(BondDependencyKind), value);
-                    }
-                    else
-                    {
-                        this.Data.dependencyKind = BondDependencyKind.Other;
-                    }
-                }
+                BondDependencyKind result;
+                this.Data.dependencyKind = Enum.TryParse(value, true, out result) ? result : BondDependencyKind.Other;
             }
         }
 
