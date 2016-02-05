@@ -130,7 +130,7 @@
         {
             get { return this.Data.exceptions; }
         }
-        
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>

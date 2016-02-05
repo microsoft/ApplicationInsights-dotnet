@@ -4,14 +4,18 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-
+    using System.Runtime.CompilerServices;
+    using Channel;
+    using DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
+    
     /// <summary>
     /// Various utilities.
     /// </summary>
     internal static partial class Utils
     {
+        public static ConditionalWeakTable<ITelemetry, InternalTelemetryProperties> ExtraTelemetryProperties = new ConditionalWeakTable<ITelemetry, InternalTelemetryProperties>();
+
         public static bool IsNullOrWhiteSpace(this string value)
         {
             if (value == null)

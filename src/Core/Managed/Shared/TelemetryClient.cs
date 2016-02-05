@@ -293,16 +293,17 @@
             if (this.IsEnabled())
             {
                 this.Initialize(telemetry);
-                
-                this.WriteTelemetryToDebugOutput(telemetry);
-                
+
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
+                    this.WriteTelemetryToDebugOutput(telemetry, false);
                     return;
                 }
 
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
+
+                this.WriteTelemetryToDebugOutput(telemetry, true);
 
 #if NET46
                 // logs rich payload ETW event for any partners to process it
@@ -418,16 +419,35 @@
             this.configuration.TelemetryChannel.Flush();
         }
 
-        private void WriteTelemetryToDebugOutput(ITelemetry telemetry)
+        private void WriteTelemetryToDebugOutput(ITelemetry telemetry, bool isConfigured)
         {
             if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
             {
-                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ?
-                    "Application Insights Telemetry (unconfigured): " :
-                    "Application Insights Telemetry: ";
+                InternalTelemetryProperties properties = null;
+                Utils.ExtraTelemetryProperties.TryGetValue(telemetry, out properties);
+
+                string prefix = string.Empty;
+
+                if (isConfigured)
+                {
+                    if (properties == null || properties.Sent)
+                    {
+                        prefix = "Application Insights Telemetry: ";
+                    }
+                    else
+                    {
+                        prefix = "Application Insights Telemetry (filtered out): ";
+                    }
+                }
+                else
+                {
+                    prefix = "Application Insights Telemetry (unconfigured): ";
+                }
 
                 string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
                 this.debugOutput.WriteLine(prefix + serializedTelemetry);
+
+                Utils.ExtraTelemetryProperties.Remove(telemetry);
             }
         }
     }

@@ -1,10 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
+    using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Platform;
 
     /// <summary>
     /// An <see cref="ITelemetryProcessor"/> that act as a proxy to the Transmission of telemetry"/>.
@@ -13,7 +12,8 @@
     /// </summary>
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
-        private readonly TelemetryConfiguration configuration;        
+        private readonly TelemetryConfiguration configuration;
+        private readonly IDebugOutput debugOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
@@ -27,6 +27,7 @@
             }
 
             this.configuration = configuration;
+            this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
         /// <summary>
@@ -41,6 +42,11 @@
             }
 
             this.configuration.TelemetryChannel.Send(item);
+
+            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
+            {
+                Utils.ExtraTelemetryProperties.Add(item, new InternalTelemetryProperties { Sent = true });
+            }    
         }
     }
 }

@@ -2,11 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
+    
     /// <summary>
     /// Represents a context for sending telemetry to the Application Insights service.
     /// </summary>
