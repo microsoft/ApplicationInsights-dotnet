@@ -15,9 +15,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FilterRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HandlerTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FilterRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingExtensions.cs" />
@@ -32,7 +31,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationNameTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)RequestNotificationFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebTestHeaderFilter.cs" />

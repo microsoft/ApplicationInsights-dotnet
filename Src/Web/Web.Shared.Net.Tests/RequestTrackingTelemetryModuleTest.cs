@@ -226,6 +226,85 @@
         }
 
         [TestMethod]
+        public void NeedProcessRequestReturnsFalseForDefaultHandler()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 200;
+            context.Handler = new System.Web.Handlers.AssemblyResourceLoader();
+
+            var requestTelemetry = context.CreateRequestTelemetryPrivate();
+            requestTelemetry.Start();
+
+            var module = new RequestTrackingTelemetryModule();
+            module.Handlers.Add(new FilterRequest { Value = "System.Web.Handlers.AssemblyResourceLoader" });
+            var configuration = TelemetryConfiguration.CreateDefault();
+            module.Initialize(configuration);
+
+            Assert.IsFalse(module.NeedProcessRequest(context));
+        }
+
+        [TestMethod]
+        public void NeedProcessRequestReturnsTrueForUnknownHandler()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 200;
+            context.Handler = new FakeHttpHandler();
+
+            var requestTelemetry = context.CreateRequestTelemetryPrivate();
+            requestTelemetry.Start();
+
+            using (var module = new RequestTrackingTelemetryModule())
+            {
+                var configuration = TelemetryConfiguration.CreateDefault();
+                module.Initialize(configuration);
+
+                Assert.IsTrue(module.NeedProcessRequest(context));
+            }
+        }
+
+        [TestMethod]
+        public void NeedProcessRequestReturnsFalseForCustomHandler()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 200;
+            context.Handler = new FakeHttpHandler();
+
+            var requestTelemetry = context.CreateRequestTelemetryPrivate();
+            requestTelemetry.Start();
+
+            using (var module = new RequestTrackingTelemetryModule())
+            {
+                module.Handlers.Add(new FilterRequest
+                {
+                    Value = "Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest+FakeHttpHandler"
+                });
+                var configuration = TelemetryConfiguration.CreateDefault();
+                module.Initialize(configuration);
+
+                Assert.IsFalse(module.NeedProcessRequest(context));
+            }
+        }
+
+        [TestMethod]
+        public void NeedProcessRequestReturnsTrueForNon200()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 500;
+            context.Handler = new System.Web.Handlers.AssemblyResourceLoader();
+
+            var requestTelemetry = context.CreateRequestTelemetryPrivate();
+            requestTelemetry.Start();
+
+            using (var module = new RequestTrackingTelemetryModule())
+            {
+                var configuration = TelemetryConfiguration.CreateDefault();
+                module.Initialize(configuration);
+
+                Assert.IsTrue(module.NeedProcessRequest(context));
+            }
+        }
+
+        [TestMethod]
         public void ConstructorSetsOnBeginAsAHanderForEvent1()
         {
             var context = HttpModuleHelper.GetFakeHttpContext();

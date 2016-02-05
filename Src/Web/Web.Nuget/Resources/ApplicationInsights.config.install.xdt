@@ -23,29 +23,14 @@
   </TelemetryInitializers>
 
   <TelemetryModules xdt:Transform="InsertIfMissing">
-    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModule, Microsoft.AI.Web" />
-    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ExceptionTrackingTelemetryModule, Microsoft.AI.Web" />
-  </TelemetryModules>
-
-  <TelemetryProcessors xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
-
-  <TelemetryProcessors xdt:Transform="InsertIfMissing">
-    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor))" />
-    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.Web.UserAgentTelemetryProcessor))" />
-    <Add Type="Microsoft.ApplicationInsights.Web.HandlerTelemetryProcessor, Microsoft.AI.Web"
-         xdt:Transform="InsertIfMissing"
-         xdt:Locator="Match(Type)">
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModule, Microsoft.AI.Web">
       <Handlers>
         <!-- 
         Add entries here to filter out additional handlers: 
         
         NOTE: handler configuration will be lost upon NuGet upgrade.
         -->
-        <Add Value="System.Web.Handlers.TransferRequestHandler">
-          <RequestNotifications>
-            <Add Value="EndRequest" />
-          </RequestNotifications>
-        </Add>
+        <Add Value="System.Web.Handlers.TransferRequestHandler" />
         <Add Value="Microsoft.VisualStudio.Web.PageInspector.Runtime.Tracing.RequestDataHttpHandler" />
         <Add Value="System.Web.StaticFileHandler" />
         <Add Value="System.Web.Handlers.AssemblyResourceLoader" />
@@ -56,6 +41,15 @@
         <Add Value="System.Web.HttpDebugHandler" />
       </Handlers>
     </Add>
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Web.ExceptionTrackingTelemetryModule, Microsoft.AI.Web" />
+  </TelemetryModules>
+
+  <TelemetryProcessors xdt:Transform="Remove" xdt:Locator="Condition(count(*)=0)"/>
+
+  <TelemetryProcessors xdt:Transform="InsertIfMissing">
+    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor))" />
+    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.Web.UserAgentTelemetryProcessor))" />
+    <Add xdt:Transform="Remove" xdt:Locator="Condition(contains(@Type, Microsoft.ApplicationInsights.Web.HandlerTelemetryProcessor))" />
     <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
       xdt:Transform="InsertIfMissing"
       xdt:Locator="Match(Type)">

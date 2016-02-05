@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web
+﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     /// <summary>
     /// Allows configuration of specific <see cref="System.Web.RequestNotification"/> values in the <see cref="System.Web.HttpContext.CurrentNotification"/> property for <see cref="HandlerTelemetryProcessor"/>. 
