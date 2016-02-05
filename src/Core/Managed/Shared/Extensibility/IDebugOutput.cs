@@ -4,11 +4,15 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using Microsoft.ApplicationInsights.Channel;
+
     /// <summary>
     /// Encapsulates method call that has to be compiled with DEBUG compiler constant.
     /// </summary>
     internal interface IDebugOutput
     {
+        void WriteTelemetry(ITelemetry telemetry, string filteredBy = null);
+
         /// <summary>
         /// Write the message to the VisualStudio output window.
         /// </summary>

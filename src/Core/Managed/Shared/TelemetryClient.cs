@@ -293,11 +293,10 @@
             if (this.IsEnabled())
             {
                 this.Initialize(telemetry);
-                
-                this.WriteTelemetryToDebugOutput(telemetry);
-                
+                                
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
+                    this.debugOutput.WriteTelemetry(telemetry);
                     return;
                 }
 
@@ -416,19 +415,6 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
-        }
-
-        private void WriteTelemetryToDebugOutput(ITelemetry telemetry)
-        {
-            if (this.debugOutput.IsAttached() && this.debugOutput.IsLogging())
-            {
-                string prefix = string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) ?
-                    "Application Insights Telemetry (unconfigured): " :
-                    "Application Insights Telemetry: ";
-
-                string serializedTelemetry = JsonSerializer.SerializeAsString(telemetry);
-                this.debugOutput.WriteLine(prefix + serializedTelemetry);
-            }
         }
     }
 }

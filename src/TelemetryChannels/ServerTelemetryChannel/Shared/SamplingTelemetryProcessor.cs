@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
+    using Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -65,6 +66,7 @@
                         TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
                     }
 
+                    new DebugOutput().WriteTelemetry(item, this.GetType().FullName);
                     return;
                 }
             }
