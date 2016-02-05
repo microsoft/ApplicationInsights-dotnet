@@ -69,9 +69,6 @@
     <Compile Include="..\Net40\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
       <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
     </Compile>
-    <Compile Include="..\Net40\Extensibility\Implementation\Tracing\CoreEventSourceTest.cs">
-      <Link>Extensibility\Implementation\Tracing\CoreEventSourceTest.cs</Link>
-    </Compile>
     <Compile Include="Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
@@ -90,6 +87,9 @@
       <Link>app.config</Link>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensibility\Implementation\Tracing\" />
   </ItemGroup>
   <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Shared" />
   <Import Project="..\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems" Label="Shared" />

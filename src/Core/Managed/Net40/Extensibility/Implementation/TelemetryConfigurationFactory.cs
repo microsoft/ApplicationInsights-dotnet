@@ -7,12 +7,13 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
+    using System.Xml;
     using System.Xml.Linq;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class TelemetryConfigurationFactory
     {
@@ -48,6 +49,12 @@
 
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string serializedConfiguration)
         {
+            if (modules != null)
+            {
+                // Create diagnostics module so configuration loading errors are reported to the portal    
+                modules.Modules.Add(new DiagnosticsTelemetryModule());
+            }
+
             configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
 
 #if !CORE_PCL
@@ -56,8 +63,15 @@
             // Load configuration from the specified configuration
             if (!string.IsNullOrEmpty(serializedConfiguration))
             {
-                XDocument xml = XDocument.Parse(serializedConfiguration);
-                LoadFromXml(configuration, modules, xml);
+                try
+                {
+                    XDocument xml = XDocument.Parse(serializedConfiguration);
+                    LoadFromXml(configuration, modules, xml);
+                }
+                catch (XmlException exp)
+                {
+                    CoreEventSource.Log.ConfigurationFileCouldNotBeParsedError(exp.Message);
+                }
             }
 
             // Creating the default channel if no channel configuration supplied
@@ -83,22 +97,29 @@
             Type type = GetType(typeName);
             if (type == null)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' could not be loaded.", typeName));
+                CoreEventSource.Log.TypeWasNotFoundConfigurationError(typeName);
+                return null;
             }
 
-            object instance = constructorArgs != null ? Activator.CreateInstance(type, constructorArgs) : Activator.CreateInstance(type);
-
-            if (!interfaceType.IsAssignableFrom(instance.GetType()))
+            object instanceToCreate;
+            try
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        "Type '{0}' does not implement the required interface {1}.",
-                        type.AssemblyQualifiedName,
-                        interfaceType.FullName));
+                instanceToCreate = constructorArgs != null ? Activator.CreateInstance(type, constructorArgs) : Activator.CreateInstance(type);
+            }
+            catch (Exception exp)
+            {
+                // Ideally we would want to catch MissingMethodException. But there is no such type in PCL.
+                CoreEventSource.Log.MissingMethodExceptionConfigurationError(typeName, exp.Message);
+                return null;
             }
 
-            return instance;
+            if (!interfaceType.IsAssignableFrom(instanceToCreate.GetType()))
+            {
+                CoreEventSource.Log.IncorrectTypeConfigurationError(type.AssemblyQualifiedName, interfaceType.FullName);
+                return null;
+            }
+
+            return instanceToCreate;
         }
 
         protected static void LoadFromXml(TelemetryConfiguration configuration, TelemetryModules modules, XDocument xml)
@@ -133,11 +154,7 @@
                 }
                 else if (instance == null)
                 {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            "'{0}' element does not have a Type attribute, does not specify a value and is not a valid collection type",
-                            definition.Name.LocalName));
+                    CoreEventSource.Log.IncorrectInstanceAtributesConfigurationError(definition.Name.LocalName);
                 }
 
                 if (instance != null)
@@ -166,9 +183,7 @@
                     builder = builder.Use(current =>
                     {
                         var constructorArgs = new object[] { current };
-                        var instance = LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
-                        
-                        return (ITelemetryProcessor)instance;
+                        return (ITelemetryProcessor)LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
                     });
                 }
             }
@@ -178,6 +193,7 @@
 
         protected static void LoadInstances<T>(XElement definition, ICollection<T> instances, TelemetryModules modules)
         {
+            // This method is invoked through reflection. Do not delete.
             if (definition != null)
             {
                 foreach (XElement addElement in definition.Elements(XmlNamespace + AddElementName))
@@ -191,11 +207,18 @@
                         instance = instances.FirstOrDefault(i => i.GetType() == type);
                     }
 
-                    bool isNewInstance = instance == null;
-                    instance = LoadInstance(addElement, typeof(T), instance, null, modules);
-                    if (isNewInstance)
+                    if (instance == null)
                     {
-                        instances.Add((T)instance);
+                        instance = LoadInstance(addElement, typeof(T), instance, null, modules);
+                        if (instance != null)
+                        {
+                            instances.Add((T)instance);
+                        }
+                    }
+                    else
+                    {
+                        // Apply configuration overrides to element created in code
+                        LoadProperties(addElement, instance, null);
                     }
                 }
             }
@@ -222,7 +245,7 @@
                         {
                             object propertyValue = property.GetValue(instance, null);
                             propertyValue = LoadInstance(propertyDefinition, property.PropertyType, propertyValue, null, modules);
-                            if (property.CanWrite)
+                            if (propertyValue != null && property.CanWrite)
                             {
                                 property.SetValue(instance, propertyValue, null);
                             }
@@ -238,12 +261,7 @@
                     }
                     else
                     {
-                        throw new InvalidOperationException(
-                            string.Format(
-                                CultureInfo.CurrentCulture,
-                                "'{0}' is not a valid property name for type {1}.",
-                                propertyName,
-                                instanceType.AssemblyQualifiedName));
+                        CoreEventSource.Log.IncorrectPropertyConfigurationError(instanceType.AssemblyQualifiedName, propertyName);
                     }
                 }
             }
@@ -305,9 +323,7 @@
             }
             catch (InvalidCastException e)
             {
-                throw new InvalidOperationException(
-                    string.Format(CultureInfo.InvariantCulture, "'{0}' element has unexpected contents: '{1}'.", definition.Name.LocalName, definition.Value),
-                    e);
+                CoreEventSource.Log.LoadInstanceFromValueConfigurationError(definition.Name.LocalName, definition.Value, e.Message);
             }
         }
 
