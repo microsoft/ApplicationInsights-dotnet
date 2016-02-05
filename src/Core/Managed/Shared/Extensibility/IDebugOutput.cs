@@ -11,8 +11,6 @@ namespace Microsoft.ApplicationInsights.Extensibility
     /// </summary>
     internal interface IDebugOutput
     {
-        void WriteTelemetry(ITelemetry telemetry, string filteredBy = null);
-
         /// <summary>
         /// Write the message to the VisualStudio output window.
         /// </summary>

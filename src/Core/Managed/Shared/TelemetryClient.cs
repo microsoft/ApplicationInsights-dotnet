@@ -296,7 +296,7 @@
                                 
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
-                    this.debugOutput.WriteTelemetry(telemetry);
+                    TelemetryDebugWriter.WriteTelemetry(telemetry);
                     return;
                 }
 

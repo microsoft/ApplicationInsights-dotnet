@@ -45,7 +45,7 @@
 
             this.configuration.TelemetryChannel.Send(item);
 
-            this.debugOutput.WriteTelemetry(item);
+            TelemetryDebugWriter.WriteTelemetry(item);
         }
     }
 }

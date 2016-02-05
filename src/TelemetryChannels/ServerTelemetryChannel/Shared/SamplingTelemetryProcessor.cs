@@ -66,7 +66,7 @@
                         TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
                     }
 
-                    new DebugOutput().WriteTelemetry(item, this.GetType().FullName);
+                    TelemetryDebugWriter.WriteTelemetry(item, this.GetType().FullName);
                     return;
                 }
             }

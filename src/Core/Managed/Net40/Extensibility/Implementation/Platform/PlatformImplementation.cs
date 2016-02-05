@@ -47,7 +47,7 @@
         /// </summary>
         public IDebugOutput GetDebugOutput()
         {
-            return new DebugOutput();
+            return new TelemetryDebugWriter();
         }
     }
 }

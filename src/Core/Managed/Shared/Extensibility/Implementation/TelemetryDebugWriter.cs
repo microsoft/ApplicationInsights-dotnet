@@ -1,4 +1,4 @@
-﻿// <copyright file="DebugOutput.cs" company="Microsoft">
+﻿// <copyright file="TelemetryDebugWriter.cs" company="Microsoft">
 // Copyright © Microsoft. All Rights Reserved.
 // </copyright>
 
@@ -10,20 +10,26 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Diagnostics;
     using Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-   
+    using Platform;
+
     /// <summary>
     /// Writes telemetry items to debug output.
     /// </summary>
-    public class DebugOutput : IDebugOutput
+    public class TelemetryDebugWriter : IDebugOutput
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether writing telemetry items to debug output is enabled.
+        /// </summary>
+        public static bool IsTracingDisabled { get; set; }
+
         /// <summary>
         /// Write the specified <see cref="ITelemetry"/> item to debug output.
         /// </summary>
         /// <param name="telemetry">Item to write.</param>
         /// <param name="filteredBy">If specified, indicates the telemetry item was filtered out and not sent to the API.</param>
-        public void WriteTelemetry(ITelemetry telemetry, string filteredBy = null)
+        public static void WriteTelemetry(ITelemetry telemetry, string filteredBy = null)
         {
-            var output = (IDebugOutput)this;
+            var output = PlatformSingleton.Current.GetDebugOutput();
             if (output.IsAttached() && output.IsLogging())
             {
                 string prefix = "Application Insights Telemetry: ";
@@ -53,6 +59,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         bool IDebugOutput.IsLogging()
         {
+            if (IsTracingDisabled)
+            {
+                return false;
+            }
 #if CORE_PCL
             return true;
 #else
