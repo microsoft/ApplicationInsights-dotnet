@@ -6,6 +6,8 @@
 
     internal class PlatformImplementation : IPlatform
     {
+		private IDebugOutput debugOutput = null;
+		
         public IDictionary<string, object> GetApplicationSettings()
         {
             return null;
@@ -21,9 +23,17 @@
             return ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
         }
 
+        /// <summary>
+        /// Returns the platform specific Debugger writer to the VS output console.
+        /// </summary>
         public IDebugOutput GetDebugOutput()
         {
-            return new TelemetryDebugWriter();
+            if (this.debugOutput == null)
+            {
+                this.debugOutput = new TelemetryDebugWriter(); 
+            }
+			
+            return this.debugOutput;
         }
     }
 }

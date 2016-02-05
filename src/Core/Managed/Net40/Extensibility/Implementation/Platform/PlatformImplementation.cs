@@ -15,6 +15,8 @@
     internal class PlatformImplementation : 
         IPlatform
     {
+        private IDebugOutput debugOutput = null;
+
         public IDictionary<string, object> GetApplicationSettings()
         {
             throw new NotImplementedException();
@@ -47,7 +49,12 @@
         /// </summary>
         public IDebugOutput GetDebugOutput()
         {
-            return new TelemetryDebugWriter();
+            if (this.debugOutput == null)
+            {
+                this.debugOutput = new TelemetryDebugWriter(); 
+            }
+
+            return this.debugOutput;
         }
     }
 }
