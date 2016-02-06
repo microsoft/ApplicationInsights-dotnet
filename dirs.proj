@@ -2,6 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Inmported here to generate version file before compilation starts. Same props are imported by projects. -->
   <Import Project=".\GlobalStaticVersion.props" />
+  <Import Project=".\Global.props" />
   <PropertyGroup>
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
