@@ -27,18 +27,6 @@
         private TelemetryClient telemetryClient;
 
         /// <summary>
-        /// Gets the list of handler types for which requests telemetry will not be collected
-        /// if request was successful.
-        /// </summary>
-        public IList<FilterRequest> Handlers
-        {
-            get
-            {
-                return this.handlersToFilter;
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RequestTrackingTelemetryModule" /> class.
         /// </summary>
         public RequestTrackingTelemetryModule()
@@ -50,7 +38,19 @@
                         { 2, this.OnEndRequest }
                     });
         }
-        
+
+        /// <summary>
+        /// Gets the list of handler types for which requests telemetry will not be collected
+        /// if request was successful.
+        /// </summary>
+        public IList<FilterRequest> Handlers
+        {
+            get
+            {
+                return this.handlersToFilter;
+            }
+        }
+
         /// <summary>
         /// Implements on begin callback of http module.
         /// </summary>
@@ -121,6 +121,15 @@
         }
 
         /// <summary>
+        /// Dispose method.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Verifies context to detect whether or not request needs to be processed.
         /// </summary>
         /// <param name="httpContext">Current http context.</param>
@@ -136,15 +145,6 @@
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Dispose method.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
