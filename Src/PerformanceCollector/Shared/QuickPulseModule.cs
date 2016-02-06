@@ -12,12 +12,12 @@
     /// </summary>
     public sealed class QuickPulseModule : ITelemetryModule, IDisposable
     {
+        private readonly object lockObject = new object();
+
         private Timer timer = null;
 
         private bool isInitialized = false;
-
-        private readonly object lockObject = new object();
-
+        
         private QuickPulseDataHub dataHub = null;
         private IQuickPulseTelemetryInitializer telemetryInitializer = null;
 
@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// Internal constructor for unit tests only.
+        /// Initializes a new instance of the <see cref="QuickPulseModule"/> class. Internal constructor for unit tests only.
         /// </summary>
         /// <param name="dataHub">Data hub to sink QuickPulse data to.</param>
         /// <param name="telemetryInitializer">Telemetry initializer to inspect telemetry stream.</param>
@@ -47,7 +47,6 @@
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-
 
         /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
@@ -77,9 +76,9 @@
                             configuration.TelemetryInitializers.Add(this.telemetryInitializer);
                         }
                         
-                        this.timer = new Timer(TimerCallback);
+                        this.timer = new Timer(this.TimerCallback);
 
-                        //this.timer.ScheduleNextTick(this.collectionPeriod);
+                        // this.timer.ScheduleNextTick(this.collectionPeriod);
                         this.isInitialized = true;
                     }
                 }
@@ -88,7 +87,6 @@
 
         private void TimerCallback(object state)
         {
-            //!!!
             throw new NotImplementedException();
         }
 

@@ -1,12 +1,12 @@
 ﻿namespace Unit.Tests
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class QuickPulseTelemetryInitializerTests
@@ -24,15 +24,14 @@
             var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
 
             // ACT
-            telemetryInitializer.Initialize(new RequestTelemetry() {Success = true, Duration = TimeSpan.FromSeconds(1)});
-            telemetryInitializer.Initialize(new RequestTelemetry() {Success = true, Duration = TimeSpan.FromSeconds(1)});
-            telemetryInitializer.Initialize(new RequestTelemetry() {Success = false, Duration = TimeSpan.FromSeconds(2)});
-            telemetryInitializer.Initialize(new RequestTelemetry() {Success = null, Duration = TimeSpan.FromSeconds(3)});
+            telemetryInitializer.Initialize(new RequestTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
+            telemetryInitializer.Initialize(new RequestTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
+            telemetryInitializer.Initialize(new RequestTelemetry() { Success = false, Duration = TimeSpan.FromSeconds(2) });
+            telemetryInitializer.Initialize(new RequestTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
             Assert.AreEqual(4, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
-            Assert.AreEqual(1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestDurationTicks).TotalSeconds);
+            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestDurationTicks).TotalSeconds);
             Assert.AreEqual(2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestSuccessCount);
             Assert.AreEqual(1, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestFailureCount);
         }
@@ -44,15 +43,14 @@
             var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
 
             // ACT
-            telemetryInitializer.Initialize(new DependencyTelemetry() {Success = true, Duration = TimeSpan.FromSeconds(1)});
-            telemetryInitializer.Initialize(new DependencyTelemetry() {Success = true, Duration = TimeSpan.FromSeconds(1)});
-            telemetryInitializer.Initialize(new DependencyTelemetry() {Success = false, Duration = TimeSpan.FromSeconds(2)});
-            telemetryInitializer.Initialize(new DependencyTelemetry() {Success = null, Duration = TimeSpan.FromSeconds(3)});
+            telemetryInitializer.Initialize(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
+            telemetryInitializer.Initialize(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
+            telemetryInitializer.Initialize(new DependencyTelemetry() { Success = false, Duration = TimeSpan.FromSeconds(2) });
+            telemetryInitializer.Initialize(new DependencyTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
             Assert.AreEqual(4, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallCount);
-            Assert.AreEqual(1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallDurationTicks).TotalSeconds);
+            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallDurationTicks).TotalSeconds);
             Assert.AreEqual(2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallSuccessCount);
             Assert.AreEqual(1, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallFailureCount);
         }
@@ -87,9 +85,9 @@
             int taskCount = 10000;
             var tasks = new List<Task>(taskCount);
 
-            for (int i = 0; i < taskCount; i ++)
+            for (int i = 0; i < taskCount; i++)
             {
-                var requestTelemetry = new RequestTelemetry() {Success = (i%2 == 0), Duration = TimeSpan.FromMilliseconds(i)};
+                var requestTelemetry = new RequestTelemetry() { Success = i % 2 == 0, Duration = TimeSpan.FromMilliseconds(i) };
 
                 var task = new Task(() => telemetryInitializer.Initialize(requestTelemetry));
                 tasks.Add(task);
@@ -102,7 +100,7 @@
 
             // ASSERT
             Assert.AreEqual(taskCount, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
-            Assert.AreEqual(taskCount/2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestSuccessCount);
+            Assert.AreEqual(taskCount / 2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestSuccessCount);
         }
     }
 }

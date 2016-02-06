@@ -238,7 +238,10 @@
             }
             finally
             {
-                this.timer?.ScheduleNextTick(this.collectionPeriod);
+                if (this.timer != null)
+                {
+                    this.timer.ScheduleNextTick(this.collectionPeriod);
+                }
             }
         }
 

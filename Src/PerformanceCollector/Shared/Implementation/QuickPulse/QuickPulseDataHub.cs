@@ -7,7 +7,7 @@
     /// </summary>
     internal sealed class QuickPulseDataHub : IQuickPulseDataHub
     {
-        private static readonly object syncRoot = new object();
+        private static readonly object SyncRoot = new object();
 
         private static volatile QuickPulseDataHub instance;
 
@@ -24,7 +24,7 @@
             {
                 if (instance == null)
                 {
-                    lock (syncRoot)
+                    lock (SyncRoot)
                     {
                         if (instance == null)
                         {
@@ -37,21 +37,16 @@
             }
         }
 
-        /// <summary>
-        /// Unit tests only.
-        /// </summary>
-        internal static void ResetInstance()
+        public QuickPulseDataSample CurrentDataSampleReference
         {
-            lock (syncRoot)
-            {
-                instance = new QuickPulseDataHub();
-            }
+            get { return this.currentDataSample; }
         }
 
-        public QuickPulseDataSample CurrentDataSampleReference => this.currentDataSample;
-
-        public QuickPulseDataSample CompletedDataSample => this.completedDataSample;
-
+        public QuickPulseDataSample CompletedDataSample
+        {
+            get { return this.completedDataSample; }
+        }
+        
         public QuickPulseDataSample CompleteCurrentDataSample()
         {
             /* 
@@ -70,6 +65,17 @@
             Interlocked.Exchange(ref this.currentDataSample, new QuickPulseDataSample());
 
             return this.completedDataSample;
+        }
+
+        /// <summary>
+        /// Unit tests only.
+        /// </summary>
+        internal static void ResetInstance()
+        {
+            lock (SyncRoot)
+            {
+                instance = new QuickPulseDataHub();
+            }
         }
     }
 }

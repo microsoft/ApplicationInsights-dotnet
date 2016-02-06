@@ -1,11 +1,9 @@
-﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-
-namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
+    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
-    using System.Threading;
 
     /// <summary>
     /// Extracts QuickPulse data from the telemetry stream.
@@ -24,7 +22,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         }
 
         /// <summary>
-        /// Internal constructor for unit tests only.
+        /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class. Internal constructor for unit tests only.
         /// </summary>
         /// <param name="dataHub">Data sink for QuickPulse data.</param>
         internal QuickPulseTelemetryInitializer(IQuickPulseDataHub dataHub) : this()
@@ -43,10 +41,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
             // (telemetry.Context.InstrumentationKey), for now all QuickPulse data is being sent to 
             // the iKey passed to the module through configuration at initialization time 
             // (most likely TelemetryConfiguration.Active.InstrumentationKey)
-
             if (telemetry is RequestTelemetry)
             {
-                var request = (RequestTelemetry) telemetry;
+                var request = (RequestTelemetry)telemetry;
 
                 Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIRequestCount);
                 Interlocked.Add(ref this.dataHub.CurrentDataSampleReference.AIRequestDurationTicks, request.Duration.Ticks);
@@ -60,9 +57,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                     Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIRequestFailureCount);
                 }
             }
-            else if(telemetry is DependencyTelemetry)
+            else if (telemetry is DependencyTelemetry)
             {
-                var dependencyCall = (DependencyTelemetry) telemetry;
+                var dependencyCall = (DependencyTelemetry)telemetry;
 
                 Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallCount);
                 Interlocked.Add(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallDurationTicks, dependencyCall.Duration.Ticks);

@@ -39,23 +39,18 @@
         {
             this.WriteEvent(1, message, this.ApplicationName);
         }
-
        
         #endregion
 
         #region Infra init - failure
 
-     
-
         #endregion
 
         #region Data reading - success
-
        
         #endregion
 
         #region Data reading - failure
-
      
         #endregion
 

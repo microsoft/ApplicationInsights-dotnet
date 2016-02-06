@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
+    using System;
+
     /// <summary>
     /// DTO containing everything that we send to QPS.
     /// </summary>
@@ -11,12 +11,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
         public DateTime StartTimestamp;
         
         #region AI
-        //!!! what if int overflows?
+        // //!!! what if int overflows?
         public int AIRequestCount;
         public long AIRequestDurationTicks;
         public int AIRequestSuccessCount;
         public int AIRequestFailureCount;
-        
 
         public int AIDependencyCallCount;
         public long AIDependencyCallDurationTicks;
