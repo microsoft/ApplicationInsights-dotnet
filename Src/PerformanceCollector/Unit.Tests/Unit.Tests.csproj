@@ -63,14 +63,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="PerformanceCollectorMock.cs" />
+    <Compile Include="Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />
     <Compile Include="PerformanceCollectorModuleTests.cs" />
     <Compile Include="PerformanceCollectorEventSourceTests.cs" />
     <Compile Include="PerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseServiceClientMock.cs" />
     <Compile Include="QuickPulse\QuickPulseDataHubTests.cs" />
-    <Compile Include="StubTelemetryChannel.cs" />
+    <Compile Include="QuickPulse\QuickPulseCollectionStateManagerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseTelemetryModuleTests.cs" />
+    <Compile Include="Mocks\StubTelemetryChannel.cs" />
     <Compile Include="TelemetryAction.cs" />
     <Compile Include="QuickPulse\QuickPulseTelemetryInitializerTests.cs" />
   </ItemGroup>

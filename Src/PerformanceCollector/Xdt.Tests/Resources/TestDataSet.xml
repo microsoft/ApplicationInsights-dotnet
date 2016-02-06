@@ -39,7 +39,7 @@
         ??APP_CLR_PROC?? - instance name of the application CLR process for .NET counters.
       -->
           </Add>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
       </ApplicationInsights>
       
@@ -80,7 +80,7 @@
         ??APP_CLR_PROC?? - instance name of the application CLR process for .NET counters.
       -->
           </Add>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
       </ApplicationInsights>
 
@@ -146,7 +146,7 @@
         ??APP_CLR_PROC?? - instance name of the application CLR process for .NET counters.
       -->
           </Add>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
       </ApplicationInsights>
 
@@ -165,7 +165,7 @@
 
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
         <TelemetryModules>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
         </TelemetryModules>
       </ApplicationInsights>
 
@@ -174,7 +174,7 @@
 
       <ApplicationInsights xmlns="http://schemas.microsoft.com/ApplicationInsights/2013/Settings" schemaVersion="2014-05-30">
         <TelemetryModules>
-          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+          <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
           <Add Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.PerformanceCollectorModule, Microsoft.AI.PerfCounterCollector">
             <!--
       Use the following syntax here to collect additional performance counters:

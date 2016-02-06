@@ -23,6 +23,6 @@
         ??APP_CLR_PROC?? - instance name of the application CLR process for .NET counters.
       -->
     </Add>
-    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseModule, Microsoft.AI.PerfCounterCollector"/>
+    <Add xdt:Transform="InsertIfMissing" xdt:Locator="Match(Type)" Type="Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse.QuickPulseTelemetryModule, Microsoft.AI.PerfCounterCollector"/>
   </TelemetryModules>
 </ApplicationInsights>

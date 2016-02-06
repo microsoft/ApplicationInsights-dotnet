@@ -11,7 +11,7 @@
     /// <remarks>Unlike other telemetry initializers, this class does not modify telemetry items.</remarks>
     internal class QuickPulseTelemetryInitializer : IQuickPulseTelemetryInitializer
     {
-        private IQuickPulseDataHub dataHub = null;
+        private readonly IQuickPulseDataHub dataHub = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class.
@@ -29,6 +29,8 @@
         {
             this.dataHub = dataHub;
         }
+        
+        public bool Enabled { get; set; }
 
         /// <summary>
         /// Intercepts telemetry items and updates QuickPulse data when needed.
@@ -37,6 +39,11 @@
         /// <remarks>This method is performance critical since every AI telemetry item goes through it.</remarks>
         public void Initialize(ITelemetry telemetry)
         {
+            if (!this.Enabled)
+            {
+                return;
+            }
+
             // we don't care about the actual instrumentation key to which this item is going to go
             // (telemetry.Context.InstrumentationKey), for now all QuickPulse data is being sent to 
             // the iKey passed to the module through configuration at initialization time 

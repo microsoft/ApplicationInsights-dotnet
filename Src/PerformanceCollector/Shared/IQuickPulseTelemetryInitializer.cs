@@ -2,5 +2,6 @@
 {
     internal interface IQuickPulseTelemetryInitializer : ITelemetryInitializer
     {
+        bool Enabled { get; set; }
     }
 }

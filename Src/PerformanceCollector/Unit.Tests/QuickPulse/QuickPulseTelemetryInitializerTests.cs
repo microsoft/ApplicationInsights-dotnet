@@ -22,6 +22,7 @@
         {
             // ARRANGE
             var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            telemetryInitializer.Enabled = true;
 
             // ACT
             telemetryInitializer.Initialize(new RequestTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
@@ -41,6 +42,7 @@
         {
             // ARRANGE
             var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            telemetryInitializer.Enabled = true;
 
             // ACT
             telemetryInitializer.Initialize(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
@@ -53,6 +55,19 @@
             Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallDurationTicks).TotalSeconds);
             Assert.AreEqual(2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallSuccessCount);
             Assert.AreEqual(1, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallFailureCount);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryInitializerIsDisabledByDefault()
+        {
+            // ARRANGE
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            
+            // ACT
+            telemetryInitializer.Initialize(new RequestTelemetry());
+
+            // ASSERT
+            Assert.AreEqual(0, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
         }
 
         [TestMethod]
@@ -80,6 +95,7 @@
         {
             // ARRANGE
             var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            telemetryInitializer.Enabled = true;
 
             // expected data loss if threading is misimplemented is around 10% (established through experiment)
             int taskCount = 10000;
