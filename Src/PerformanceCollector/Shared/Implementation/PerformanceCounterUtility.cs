@@ -97,7 +97,7 @@
                         CultureInfo.InvariantCulture,
                         @"Invalid performance counter name format: {0}. Expected formats are \category(instance)\counter or \category\counter",
                         performanceCounter),
-                    "performanceCounter");
+                    nameof(performanceCounter));
             }
 
             return new PerformanceCounter()

@@ -13,13 +13,7 @@
         /// <summary>
         /// Gets a collection of registered performance counters.
         /// </summary>
-        public IEnumerable<PerformanceCounterData> PerformanceCounters
-        {
-            get
-            {
-                return this.performanceCounters;
-            }   
-        }
+        public IEnumerable<PerformanceCounterData> PerformanceCounters => this.performanceCounters;
 
         /// <summary>
         /// Register a performance counter for collection.
