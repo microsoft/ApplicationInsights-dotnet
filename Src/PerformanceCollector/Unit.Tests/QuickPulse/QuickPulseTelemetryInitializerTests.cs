@@ -14,14 +14,14 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            QuickPulseDataHub.ResetInstance();
+            QuickPulseDataAccumulatorManager.ResetInstance();
         }
 
         [TestMethod]
         public void QuickPulseTelemetryInitializerKeepsAccurateCountRequests()
         {
             // ARRANGE
-            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataAccumulatorManager.Instance);
             telemetryInitializer.Enabled = true;
 
             // ACT
@@ -31,17 +31,17 @@
             telemetryInitializer.Initialize(new RequestTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
-            Assert.AreEqual(4, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
-            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestDurationTicks).TotalSeconds);
-            Assert.AreEqual(2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestSuccessCount);
-            Assert.AreEqual(1, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestFailureCount);
+            Assert.AreEqual(4, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
+            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestDurationInTicks).TotalSeconds);
+            Assert.AreEqual(2, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestSuccessCount);
+            Assert.AreEqual(1, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestFailureCount);
         }
 
         [TestMethod]
         public void QuickPulseTelemetryInitializerKeepsAccurateCountDependencies()
         {
             // ARRANGE
-            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataAccumulatorManager.Instance);
             telemetryInitializer.Enabled = true;
 
             // ACT
@@ -51,30 +51,30 @@
             telemetryInitializer.Initialize(new DependencyTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
-            Assert.AreEqual(4, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallCount);
-            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallDurationTicks).TotalSeconds);
-            Assert.AreEqual(2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallSuccessCount);
-            Assert.AreEqual(1, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallFailureCount);
+            Assert.AreEqual(4, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallDurationInTicks).TotalSeconds);
+            Assert.AreEqual(2, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallSuccessCount);
+            Assert.AreEqual(1, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallFailureCount);
         }
 
         [TestMethod]
         public void QuickPulseTelemetryInitializerIsDisabledByDefault()
         {
             // ARRANGE
-            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataAccumulatorManager.Instance);
             
             // ACT
             telemetryInitializer.Initialize(new RequestTelemetry());
 
             // ASSERT
-            Assert.AreEqual(0, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
+            Assert.AreEqual(0, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
         }
 
         [TestMethod]
         public void QuickPulseTelemetryInitializerIgnoresUnrelatedTelemetryItems()
         {
             // ARRANGE
-            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataAccumulatorManager.Instance);
 
             // ACT
             telemetryInitializer.Initialize(new EventTelemetry());
@@ -86,15 +86,15 @@
             telemetryInitializer.Initialize(new TraceTelemetry());
 
             // ASSERT
-            Assert.AreEqual(0, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
-            Assert.AreEqual(0, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallCount);
+            Assert.AreEqual(0, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
+            Assert.AreEqual(0, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallCount);
         }
 
         [TestMethod]
         public void QuickPulseTelemetryInitializerHandlesMultipleThreadsCorrectly()
         {
             // ARRANGE
-            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataHub.Instance);
+            var telemetryInitializer = new QuickPulseTelemetryInitializer(QuickPulseDataAccumulatorManager.Instance);
             telemetryInitializer.Enabled = true;
 
             // expected data loss if threading is misimplemented is around 10% (established through experiment)
@@ -115,8 +115,8 @@
             Task.WaitAll(tasks.ToArray());
 
             // ASSERT
-            Assert.AreEqual(taskCount, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
-            Assert.AreEqual(taskCount / 2, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestSuccessCount);
+            Assert.AreEqual(taskCount, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
+            Assert.AreEqual(taskCount / 2, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestSuccessCount);
         }
     }
 }

@@ -70,8 +70,9 @@
     <Compile Include="PerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickPulse\Mocks\QuickPulseServiceClientMock.cs" />
-    <Compile Include="QuickPulse\QuickPulseDataHubTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseDataAccumulatorManagerTests.cs" />
     <Compile Include="QuickPulse\QuickPulseCollectionStateManagerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseServiceClientTests.cs" />
     <Compile Include="QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="Mocks\StubTelemetryChannel.cs" />
     <Compile Include="TelemetryAction.cs" />

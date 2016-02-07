@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -11,25 +12,26 @@
     /// <remarks>Unlike other telemetry initializers, this class does not modify telemetry items.</remarks>
     internal class QuickPulseTelemetryInitializer : IQuickPulseTelemetryInitializer
     {
-        private readonly IQuickPulseDataHub dataHub = null;
+        private readonly IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class.
         /// </summary>
         public QuickPulseTelemetryInitializer()
         {
-            this.dataHub = QuickPulseDataHub.Instance;
+            this.dataAccumulatorManager = QuickPulseDataAccumulatorManager.Instance;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class. Internal constructor for unit tests only.
         /// </summary>
-        /// <param name="dataHub">Data sink for QuickPulse data.</param>
-        internal QuickPulseTelemetryInitializer(IQuickPulseDataHub dataHub) : this()
+        /// <param name="dataAccumulatorManager">Data sink for QuickPulse data.</param>
+        internal QuickPulseTelemetryInitializer(IQuickPulseDataAccumulatorManager dataAccumulatorManager)
+            : this()
         {
-            this.dataHub = dataHub;
+            this.dataAccumulatorManager = dataAccumulatorManager;
         }
-        
+
         public bool Enabled { get; set; }
 
         /// <summary>
@@ -52,32 +54,32 @@
             {
                 var request = (RequestTelemetry)telemetry;
 
-                Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIRequestCount);
-                Interlocked.Add(ref this.dataHub.CurrentDataSampleReference.AIRequestDurationTicks, request.Duration.Ticks);
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
+                Interlocked.Add(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestDurationInTicks, request.Duration.Ticks);
 
                 if (request.Success == true)
                 {
-                    Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIRequestSuccessCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestSuccessCount);
                 }
                 else if (request.Success == false)
                 {
-                    Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIRequestFailureCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestFailureCount);
                 }
             }
             else if (telemetry is DependencyTelemetry)
             {
                 var dependencyCall = (DependencyTelemetry)telemetry;
 
-                Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallCount);
-                Interlocked.Add(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallDurationTicks, dependencyCall.Duration.Ticks);
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCount);
+                Interlocked.Add(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallDurationInTicks, dependencyCall.Duration.Ticks);
 
                 if (dependencyCall.Success == true)
                 {
-                    Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallSuccessCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallSuccessCount);
                 }
                 else if (dependencyCall.Success == false)
                 {
-                    Interlocked.Increment(ref this.dataHub.CurrentDataSampleReference.AIDependencyCallFailureCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallFailureCount);
                 }
             }
         }

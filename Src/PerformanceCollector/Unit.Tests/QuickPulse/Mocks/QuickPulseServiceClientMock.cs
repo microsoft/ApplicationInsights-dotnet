@@ -1,12 +1,16 @@
 ﻿namespace Unit.Tests
 {
+    using System.Collections.Generic;
+
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     internal class QuickPulseServiceClientMock : IQuickPulseServiceClient
     {
         public int PingCount { get; private set; }
 
-        public int SampleCount { get; private set; }
+        public List<QuickPulseDataSample> Samples { get; private set; } = new List<QuickPulseDataSample>();
+
+        public int SampleCount => this.Samples.Count;
 
         public bool ReturnValueFromPing { get; set; }
 
@@ -15,7 +19,8 @@
         public void Reset()
         {
             this.PingCount = 0;
-            this.SampleCount = 0;
+            
+            this.Samples.Clear();
         }
 
         public bool Ping()
@@ -27,7 +32,7 @@
 
         public bool SubmitSample(QuickPulseDataSample sample)
         {
-            this.SampleCount++;
+            this.Samples.Add(sample);
 
             return this.ReturnValueFromSubmitSample;
         }

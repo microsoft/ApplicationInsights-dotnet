@@ -1,6 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
+﻿using System.Diagnostics;
+using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+
+namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -26,10 +30,12 @@
 
         private bool isInitialized = false;
         
-        private QuickPulseDataHub dataHub = null;
+        private QuickPulseDataAccumulatorManager dataAccumulatorManager = null;
         private IQuickPulseTelemetryInitializer telemetryInitializer = null;
 
         private QuickPulseCollectionStateManager collectionStateManager = null;
+
+        private IPerformanceCollector performanceCollector = null;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
@@ -37,22 +43,24 @@
         public QuickPulseTelemetryModule()
         {
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class. Internal constructor for unit tests only.
         /// </summary>
-        /// <param name="dataHub">Data hub to sink QuickPulse data to.</param>
+        /// <param name="dataAccumulatorManager">Data hub to sink QuickPulse data to.</param>
         /// <param name="telemetryInitializer">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
+        /// <param name="performanceCollector">Performance counter collector</param>
         /// <param name="servicePollingInterval">Interval to poll the service at.</param>
         /// <param name="collectionInterval">Interval to collect data at.</param>
-        internal QuickPulseTelemetryModule(QuickPulseDataHub dataHub, IQuickPulseTelemetryInitializer telemetryInitializer, IQuickPulseServiceClient serviceClient, TimeSpan? servicePollingInterval, TimeSpan? collectionInterval) : this()
+        internal QuickPulseTelemetryModule(QuickPulseDataAccumulatorManager dataAccumulatorManager, IQuickPulseTelemetryInitializer telemetryInitializer, IQuickPulseServiceClient serviceClient, IPerformanceCollector performanceCollector, TimeSpan? servicePollingInterval, TimeSpan? collectionInterval) : this()
         {
-            this.dataHub = dataHub;
+            this.dataAccumulatorManager = dataAccumulatorManager;
             this.telemetryInitializer = telemetryInitializer;
+            this.serviceClient = serviceClient;
+            this.performanceCollector = performanceCollector;
             this.servicePollingInterval = servicePollingInterval ?? this.servicePollingInterval;
             this.collectionInterval = collectionInterval ?? this.collectionInterval;
-            this.serviceClient = serviceClient;
         }
 
         /// <summary>
@@ -86,14 +94,17 @@
 
                         ValidateConfiguration(configuration);
 
-                        this.dataHub = this.dataHub ?? QuickPulseDataHub.Instance;
+                        this.dataAccumulatorManager = this.dataAccumulatorManager ?? QuickPulseDataAccumulatorManager.Instance;
+                        this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
 
                         this.InitializeServiceClient();
                         
-                        this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer(this.dataHub);
+                        this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer(this.dataAccumulatorManager);
                         this.PlugInTelemetryInitializer(configuration);
                         
                         this.collectionStateManager = new QuickPulseCollectionStateManager(this.serviceClient, this.StartCollection, this.StopCollection, this.CollectData);
+
+                        this.InitializePerformanceCollector();
 
                         this.StartTimer();
 
@@ -103,7 +114,50 @@
             }
         }
 
-        private static void ValidateConfiguration(TelemetryConfiguration configuration)
+        private void InitializePerformanceCollector()
+        {
+            foreach (var counter in QuickPulsePerfCounterList.CountersToCollect)
+            {
+                PerformanceCounter pc = null;
+                bool usesPlaceholder;
+
+                try
+                {
+                    pc = PerformanceCounterUtility.ParsePerformanceCounter(counter.Item2, null, null, out usesPlaceholder);
+                }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.CounterParsingFailedEvent(e.Message, counter.Item2);
+                    continue;
+                }
+
+                if (usesPlaceholder)
+                {
+                    throw new InvalidOperationException(
+                        "Instance placeholders are not currently supported since they require refresh. Refresh is not implemented at this time.");
+                }
+
+                try
+                {
+                    this.performanceCollector.RegisterPerformanceCounter(
+                        counter.Item2,
+                        counter.Item1.ToString(),
+                        pc.CategoryName,
+                        pc.CounterName,
+                        pc.InstanceName,
+                        false,
+                        true);
+
+                    QuickPulseEventSource.Log.CounterRegisteredEvent(counter.Item2);
+                }
+                catch (InvalidOperationException e)
+                {
+                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
+                }
+            }
+        }
+
+        void ValidateConfiguration(TelemetryConfiguration configuration)
         {
             if (configuration == null)
             {
@@ -178,7 +232,7 @@
             {
                 if (this.timer != null)
                 {
-                    // //!!! File.AppendAllText(@"e:\qps.log", $"Request count: {sample.AIRequestCount}\tRequest average duration: {TimeSpan.FromTicks(sample.AIRequestCount > 0 ? sample.AIRequestDurationTicks / sample.AIRequestCount : 0)}{Environment.NewLine}");
+                    // //!!! File.AppendAllText(@"e:\qps.log", $"Request count: {accumulator.AIRequestCount}\tRequest average duration: {TimeSpan.FromTicks(accumulator.AIRequestCount > 0 ? accumulator.AIRequestDurationTicks / accumulator.AIRequestCount : 0)}{Environment.NewLine}");
                     this.timer.ScheduleNextTick(this.collectionStateManager.IsCollectingData ? this.collectionInterval : this.servicePollingInterval);
                 }
             }
@@ -188,26 +242,33 @@
         /// Data collection entry point.
         /// </summary>
         /// <returns><b>true</b> if we need to keep collecting data, <b>false</b> otherwise.</returns>
-        private bool CollectData()
+        private QuickPulseDataSample CollectData()
         {
-            // //!!! collect perf counters
-            var sample = this.dataHub.CompleteCurrentDataSample();
+            // For AI data, all we have to do is lock the current accumulator in
+            QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
 
-            return this.serviceClient.SubmitSample(sample);
+            // For performance collection, we have to read perf samples from Windows and append them to the accumulator
+            List<Tuple<PerformanceCounterData, float>> perfData =
+                this.performanceCollector.Collect(
+                    (counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
+                    .ToList();
+
+            return this.CreateDataSample(completeAccumulator, perfData);
+        }
+
+        private QuickPulseDataSample CreateDataSample(QuickPulseDataAccumulator accumulator, IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
+        {
+            return new QuickPulseDataSample(accumulator, perfData.ToLookup(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
         }
 
         private void StartCollection()
         {
             this.telemetryInitializer.Enabled = true;
-
-            // //!!! start perf counter collection
         }
 
         private void StopCollection()
         {
             this.telemetryInitializer.Enabled = false;
-
-            // //!!! stop perf counter collection
         }
         
         /// <summary>

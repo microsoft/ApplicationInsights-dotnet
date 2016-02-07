@@ -1,5 +1,6 @@
 ﻿namespace Unit.Tests
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +15,7 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            QuickPulseDataHub.ResetInstance();
+            QuickPulseDataAccumulatorManager.ResetInstance();
         }
 
         [TestMethod]
@@ -23,7 +24,7 @@
             // ARRANGE
             var serviceClient = new QuickPulseServiceClientMock();
 
-            var manager = new QuickPulseCollectionStateManager(serviceClient, () => { }, () => { }, () => false);
+            var manager = new QuickPulseCollectionStateManager(serviceClient, () => { }, () => { }, () => null);
 
             // ACT
             
@@ -265,7 +266,7 @@
                 {
                     actions.Add(Collect);
 
-                    return serviceClient.SubmitSample(null);
+                    return null;
                 });
 
             return manager;

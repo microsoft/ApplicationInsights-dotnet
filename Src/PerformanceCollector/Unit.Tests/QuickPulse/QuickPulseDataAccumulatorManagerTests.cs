@@ -8,31 +8,31 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     [TestClass]
-    public class QuickPulseDataHubTests
+    public class QuickPulseDataAccumulatorManagerTests
     {
         [TestInitialize]
         public void TestInitialize()
         {
-            QuickPulseDataHub.ResetInstance();
+            QuickPulseDataAccumulatorManager.ResetInstance();
         }
 
         [TestMethod]
         public void QuickPulseDataHubLocksInSampleCorrectly()
         {
             // ARRANGE
-            QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount = 5;
+            QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount = 5;
 
             // ACT
-            var completedSample = QuickPulseDataHub.Instance.CompleteCurrentDataSample();
+            var completedSample = QuickPulseDataAccumulatorManager.Instance.CompleteCurrentDataAccumulator();
 
             // ASSERT
             Assert.AreEqual(5, completedSample.AIRequestCount);
-            Assert.AreEqual(0, QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
+            Assert.AreEqual(0, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
 
-            Assert.AreSame(completedSample, QuickPulseDataHub.Instance.CompletedDataSample);
-            Assert.AreNotSame(completedSample, QuickPulseDataHub.Instance.CurrentDataSampleReference);
+            Assert.AreSame(completedSample, QuickPulseDataAccumulatorManager.Instance.CompletedDataAccumulator);
+            Assert.AreNotSame(completedSample, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference);
 
-            Assert.AreNotSame(QuickPulseDataHub.Instance.CompletedDataSample, QuickPulseDataHub.Instance.CurrentDataSampleReference);
+            Assert.AreNotSame(QuickPulseDataAccumulatorManager.Instance.CompletedDataAccumulator, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference);
         }
 
         [TestMethod]
@@ -47,12 +47,12 @@
             {
                 var task = new Task(() =>
                 {
-                    Interlocked.Increment(ref QuickPulseDataHub.Instance.CurrentDataSampleReference.AIRequestCount);
+                    Interlocked.Increment(ref QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
 
                     // sleep to increase the probability of sample completion happening right now
                     Thread.Sleep(pause);
 
-                    Interlocked.Increment(ref QuickPulseDataHub.Instance.CurrentDataSampleReference.AIDependencyCallCount);
+                    Interlocked.Increment(ref QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallCount);
                 });
 
                 writeTasks.Add(task);
@@ -63,14 +63,14 @@
                 // sleep to increase the probability of more write tasks being between the two writes
                 Thread.Sleep(TimeSpan.FromTicks(pause.Ticks / 2));
 
-                QuickPulseDataHub.Instance.CompleteCurrentDataSample();
+                QuickPulseDataAccumulatorManager.Instance.CompleteCurrentDataAccumulator();
             });
 
             // shuffle the completion task into the middle of the pile to have it fire roughly halfway through
             writeTasks.Insert(writeTasks.Count / 2, completionTask);
 
             // ACT
-            var sample1 = QuickPulseDataHub.Instance.CurrentDataSampleReference;
+            var sample1 = QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference;
 
             var result = Parallel.For(0, writeTasks.Count, new ParallelOptions() { MaxDegreeOfParallelism = taskCount }, i => writeTasks[i].RunSynchronously());
 
@@ -78,7 +78,7 @@
             {
             }
 
-            var sample2 = QuickPulseDataHub.Instance.CurrentDataSampleReference;
+            var sample2 = QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference;
 
             // ASSERT
             // we expect some "telemetry items" to get "sprayed" over the two neighboring samples

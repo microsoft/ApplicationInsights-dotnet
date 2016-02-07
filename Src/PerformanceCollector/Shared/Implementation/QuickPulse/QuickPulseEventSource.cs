@@ -39,19 +39,38 @@
         {
             this.WriteEvent(1, message, this.ApplicationName);
         }
-       
+
+        [Event(3, Level = EventLevel.Informational, Message = @"Performance counter {0} has been successfully registered with QuickPulse performance collector.")]
+        public void CounterRegisteredEvent(string counter, string applicationName = "dummy")
+        {
+            this.WriteEvent(3, counter, this.ApplicationName);
+        }
         #endregion
 
         #region Infra init - failure
+        [Event(5, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Performance counter {1} has failed to register with QuickPulse performance collector. This might happen whenever an application is running on a platform that doesn't provide access to performance counters. Technical details: {0}")]
+        public void CounterRegistrationFailedEvent(string e, string counter, string applicationName = "dummy")
+        {
+            this.WriteEvent(5, e, counter, this.ApplicationName);
+        }
 
+        [Event(6, Level = EventLevel.Warning, Message = @"Performance counter specified in QuickPulse as {1} was not parsed correctly. Technical details: {0}")]
+        public void CounterParsingFailedEvent(string e, string counter, string applicationName = "dummy")
+        {
+            this.WriteEvent(6, e, counter, this.ApplicationName);
+        }
         #endregion
 
         #region Data reading - success
-       
+
         #endregion
 
         #region Data reading - failure
-     
+        [Event(11, Level = EventLevel.Warning, Message = @"Performance counter {1} has failed the reading operation in QuickPulse. Error message: {0}")]
+        public void CounterReadingFailedEvent(string e, string counter, string applicationName = "dummy")
+        {
+            this.WriteEvent(11, e, counter, this.ApplicationName);
+        }
         #endregion
 
         #region Data sending - success

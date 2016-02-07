@@ -11,13 +11,15 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollectorEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseDataHub.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseDataAccumulatorManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionStateManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulsePerfCounterList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataHub.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataSample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulatorManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryInitializer.cs" />

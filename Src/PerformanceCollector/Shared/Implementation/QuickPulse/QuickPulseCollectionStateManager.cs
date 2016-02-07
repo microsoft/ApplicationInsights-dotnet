@@ -7,9 +7,9 @@
         private readonly IQuickPulseServiceClient serviceClient = null;
         private readonly Action onStartCollection = null;
         private readonly Action onStopCollection = null;
-        private readonly Func<bool> onCollect = null;
+        private readonly Func<QuickPulseDataSample> onCollect = null;
 
-        public QuickPulseCollectionStateManager(IQuickPulseServiceClient serviceClient, Action onStartCollection, Action onStopCollection, Func<bool> onCollect)
+        public QuickPulseCollectionStateManager(IQuickPulseServiceClient serviceClient, Action onStartCollection, Action onStopCollection, Func<QuickPulseDataSample> onCollect)
         {
             if (serviceClient == null)
             {
@@ -44,7 +44,7 @@
             if (this.IsCollectingData)
             {
                 // we are currently collecting
-                this.IsCollectingData = this.onCollect();
+                this.IsCollectingData = this.serviceClient.SubmitSample(this.onCollect());
 
                 if (!this.IsCollectingData)
                 {
@@ -62,7 +62,7 @@
                     // the service wants us to start collection now
                     this.onStartCollection();
 
-                    this.IsCollectingData = this.onCollect();
+                    this.IsCollectingData = this.serviceClient.SubmitSample(this.onCollect());
 
                     if (!this.IsCollectingData)
                     {

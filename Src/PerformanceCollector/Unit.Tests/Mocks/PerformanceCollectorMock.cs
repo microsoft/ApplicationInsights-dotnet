@@ -22,7 +22,10 @@
         {
             get
             {
-                return this.counters;
+                lock (this.Sync)
+                {
+                    return this.counters;
+                }
             }
         }
 
@@ -30,7 +33,10 @@
         {
             get
             {
-                return this.counters.Select(c => c.Item1);
+                lock (this.Sync)
+                {
+                    return this.counters.Select(c => c.Item1);
+                }
             }
         }
 
