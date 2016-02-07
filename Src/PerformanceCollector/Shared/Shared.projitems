@@ -15,9 +15,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionStateManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulsePerfCounterList.cs">
+		<!--C# 6-->
 		<ExcludeFromStyleCop>True</ExcludeFromStyleCop>
 	</Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataSample.cs">
+		<!--C# 6-->
 		<ExcludeFromStyleCop>True</ExcludeFromStyleCop>
 	</Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs" />
