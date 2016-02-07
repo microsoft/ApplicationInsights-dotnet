@@ -1,13 +1,13 @@
-﻿using System.Diagnostics;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
-
-namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
@@ -20,6 +20,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         private readonly object lockObject = new object();
 
         private readonly TimeSpan servicePollingInterval = TimeSpan.FromSeconds(5);
+
         private readonly TimeSpan collectionInterval = TimeSpan.FromSeconds(1);
 
         private readonly Uri serviceUriDefault = new Uri("https://qps.com/api");
@@ -29,14 +30,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         private Timer timer = null;
 
         private bool isInitialized = false;
-        
+
         private QuickPulseDataAccumulatorManager dataAccumulatorManager = null;
+
         private IQuickPulseTelemetryInitializer telemetryInitializer = null;
 
         private QuickPulseCollectionStateManager collectionStateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
         /// </summary>
@@ -50,10 +52,17 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         /// <param name="dataAccumulatorManager">Data hub to sink QuickPulse data to.</param>
         /// <param name="telemetryInitializer">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
-        /// <param name="performanceCollector">Performance counter collector</param>
+        /// <param name="performanceCollector">Performance counter collector.</param>
         /// <param name="servicePollingInterval">Interval to poll the service at.</param>
         /// <param name="collectionInterval">Interval to collect data at.</param>
-        internal QuickPulseTelemetryModule(QuickPulseDataAccumulatorManager dataAccumulatorManager, IQuickPulseTelemetryInitializer telemetryInitializer, IQuickPulseServiceClient serviceClient, IPerformanceCollector performanceCollector, TimeSpan? servicePollingInterval, TimeSpan? collectionInterval) : this()
+        internal QuickPulseTelemetryModule(
+            QuickPulseDataAccumulatorManager dataAccumulatorManager,
+            IQuickPulseTelemetryInitializer telemetryInitializer,
+            IQuickPulseServiceClient serviceClient,
+            IPerformanceCollector performanceCollector,
+            TimeSpan? servicePollingInterval,
+            TimeSpan? collectionInterval)
+            : this()
         {
             this.dataAccumulatorManager = dataAccumulatorManager;
             this.telemetryInitializer = telemetryInitializer;
@@ -90,19 +99,24 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 {
                     if (!this.isInitialized)
                     {
-                        QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(string.Format(CultureInfo.InvariantCulture, "QuickPulseServiceEndpoint: '{0}'", this.QuickPulseServiceEndpoint));
+                        QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(
+                            string.Format(CultureInfo.InvariantCulture, "QuickPulseServiceEndpoint: '{0}'", this.QuickPulseServiceEndpoint));
 
-                        ValidateConfiguration(configuration);
+                        this.ValidateConfiguration(configuration);
 
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? QuickPulseDataAccumulatorManager.Instance;
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
 
                         this.InitializeServiceClient();
-                        
+
                         this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer(this.dataAccumulatorManager);
                         this.PlugInTelemetryInitializer(configuration);
-                        
-                        this.collectionStateManager = new QuickPulseCollectionStateManager(this.serviceClient, this.StartCollection, this.StopCollection, this.CollectData);
+
+                        this.collectionStateManager = new QuickPulseCollectionStateManager(
+                            this.serviceClient,
+                            this.StartCollection,
+                            this.StopCollection,
+                            this.CollectData);
 
                         this.InitializePerformanceCollector();
 
@@ -157,7 +171,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
             }
         }
 
-        void ValidateConfiguration(TelemetryConfiguration configuration)
+        private void ValidateConfiguration(TelemetryConfiguration configuration)
         {
             if (configuration == null)
             {
@@ -209,7 +223,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 catch (Exception e)
                 {
                     throw new ArgumentException(
-                        string.Format(CultureInfo.InvariantCulture, "Error initializing QuickPulse module. QPS endpoint is not a correct URI: '{0}'", this.QuickPulseServiceEndpoint), 
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "Error initializing QuickPulse module. QPS endpoint is not a correct URI: '{0}'",
+                            this.QuickPulseServiceEndpoint),
                         e);
                 }
             }
@@ -237,7 +254,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
                 }
             }
         }
-        
+
         /// <summary>
         /// Data collection entry point.
         /// </summary>
@@ -249,14 +266,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
 
             // For performance collection, we have to read perf samples from Windows and append them to the accumulator
             List<Tuple<PerformanceCounterData, float>> perfData =
-                this.performanceCollector.Collect(
-                    (counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
+                this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
                     .ToList();
 
             return this.CreateDataSample(completeAccumulator, perfData);
         }
 
-        private QuickPulseDataSample CreateDataSample(QuickPulseDataAccumulator accumulator, IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
+        private QuickPulseDataSample CreateDataSample(
+            QuickPulseDataAccumulator accumulator,
+            IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
         {
             return new QuickPulseDataSample(accumulator, perfData.ToLookup(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
         }
@@ -270,7 +288,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Quick
         {
             this.telemetryInitializer.Enabled = false;
         }
-        
+
         /// <summary>
         /// Dispose implementation.
         /// </summary>

@@ -18,7 +18,7 @@
             this.StartTimestamp = accumulator.StartTimestamp;
             this.EndTimestamp = accumulator.EndTimestamp.Value;
 
-            // below we're utilizing a little-known fact that any operator defined on a type will produce null if invoked on 
+            // below we're utilizing a little-known fact that any operator defined on a value type will produce null if invoked on 
             // a nullable instance of that type which is currently null
             TimeSpan? sampleDuration = this.EndTimestamp - this.StartTimestamp;
 

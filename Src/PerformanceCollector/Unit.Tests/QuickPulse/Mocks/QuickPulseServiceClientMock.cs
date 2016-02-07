@@ -8,7 +8,7 @@
     {
         public int PingCount { get; private set; }
 
-        public List<QuickPulseDataSample> Samples { get; private set; } = new List<QuickPulseDataSample>();
+        public List<QuickPulseDataSample> Samples { get; } = new List<QuickPulseDataSample>();
 
         public int SampleCount => this.Samples.Count;
 
