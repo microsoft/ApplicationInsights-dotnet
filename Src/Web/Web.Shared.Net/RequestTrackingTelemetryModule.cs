@@ -23,7 +23,7 @@
     public class RequestTrackingTelemetryModule : ITelemetryModule, IDisposable
     {
         private readonly EventListener listener;
-
+        private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
 
         /// <summary>
@@ -38,7 +38,19 @@
                         { 2, this.OnEndRequest }
                     });
         }
-        
+
+        /// <summary>
+        /// Gets the list of handler types for which requests telemetry will not be collected
+        /// if request was successful.
+        /// </summary>
+        public IList<string> Handlers
+        {
+            get
+            {
+                return this.handlersToFilter;
+            }
+        }
+
         /// <summary>
         /// Implements on begin callback of http module.
         /// </summary>
@@ -71,6 +83,10 @@
             }
 
             var platformContext = this.ResolvePlatformContext();
+            if (false == this.NeedProcessRequest(platformContext))
+            {
+                return;
+            }
 
             var requestTelemetry = platformContext.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
@@ -114,6 +130,24 @@
         }
 
         /// <summary>
+        /// Verifies context to detect whether or not request needs to be processed.
+        /// </summary>
+        /// <param name="httpContext">Current http context.</param>
+        /// <returns>True if request needs to be processed, otherwise - False.</returns>
+        internal bool NeedProcessRequest(HttpContext httpContext)
+        {
+            if (httpContext.Response.StatusCode < 400)
+            {
+                if (this.IsHandlerToFilter(httpContext.Handler))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Returns current HttpContext.
         /// </summary>
         /// <returns>Current HttpContext.</returns>
@@ -128,6 +162,29 @@
             {
                 this.listener.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Checks whether or not handler is a transfer handler.
+        /// </summary>
+        /// <param name="handler">An instance of handler to validate.</param>
+        /// <returns>True if handler is a transfer handler, otherwise - False.</returns>
+        private bool IsHandlerToFilter(IHttpHandler handler)
+        {
+            if (handler != null)
+            {
+                var handlerName = handler.GetType().FullName;
+                foreach (var h in this.Handlers)
+                {
+                    if (string.Equals(handlerName, h, StringComparison.Ordinal))
+                    {
+                        WebEventSource.Log.WebRequestFilteredOutByRequestHandler();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
