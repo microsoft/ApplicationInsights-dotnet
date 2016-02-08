@@ -34,7 +34,7 @@
             
             var node = ConfigurationHelpers.GetTelemetryModules(configAfterTransform)
                 .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type")?.Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
+                .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeToFind));
 
             Assert.IsNotNull(node);
         }
