@@ -62,31 +62,44 @@
             this.PerfMemoryInBytes = perfData[QuickPulsePerfCounters.PerfMemoryInBytes.ToString()].SingleOrDefault();
         }
 
-        public DateTime StartTimestamp;
+        public DateTime StartTimestamp { get; }
 
-        public DateTime EndTimestamp;
+        public DateTime EndTimestamp { get; }
         
         #region AI
         public double AIRequestsPerSecond { get; private set; }
+
         public double AIRequestDurationAve { get; private set; }
+
         public double AIRequestsFailedPerSecond { get; private set; }
+
         public double AIRequestsSucceededPerSecond { get; private set; }
         
-
         public double AIDependencyCallsPerSecond { get; private set; }
+
         public double AIDependencyCallDurationAve { get; private set; }
+
         public double AIDependencyCallsFailedPerSecond { get; private set; }
+
         public double AIDependencyCallsSucceededPerSecond { get; private set; }
+
         #endregion
 
         #region Performance counters
         public double PerfIisRequestsPerSecond { get; private set; }
+
         public double PerfIisRequestDurationAve { get; private set; }
+
         public double PerfIisRequestsFailedTotal { get; private set; }
+
         public double PerfIisRequestsSucceededTotal { get; private set; }
+
         public double PerfIisQueueSize { get; private set; }
+
         public double PerfCpuUtilization { get; private set; }
+
         public double PerfMemoryInBytes { get; private set; }
+
         #endregion
     }
 }
