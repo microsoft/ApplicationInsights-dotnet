@@ -4,14 +4,14 @@
     "delaySign": true
     },
   "dependencies": {
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-*",
-    "Microsoft.AspNet.Http.Features": "1.0.0-rc1-*",
-    "Microsoft.AspNet.Http": "1.0.0-rc1-*",
-    "Microsoft.AspNet.Http.Extensions": "1.0.0-rc1-*",
-    "Microsoft.AspNet.Hosting": "1.0.0-rc1-*",
-    "Microsoft.AspNet.Mvc.Core": "6.0.0-rc1-*",
-    "Microsoft.Extensions.Logging": "1.0.0-rc1-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-*",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Http.Features": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Http": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Http.Extensions": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Mvc.Core": "6.0.0-rc1-final",
+    "Microsoft.Extensions.Logging": "1.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
     "xunit.runner.dnx": "2.1.0-rc1-*",
     "xunit": "2.1.0-rc1-*"
   },
