@@ -111,7 +111,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
 
             // ASSERT
-            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIRequestDurationAve);
+            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIRequestDurationAveInTicks);
         }
 
         [TestMethod]
@@ -244,7 +244,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.AIRequestDurationAve);
+            Assert.AreEqual(0.0, dataSample.AIRequestDurationAveInTicks);
         }
 
         [TestMethod]

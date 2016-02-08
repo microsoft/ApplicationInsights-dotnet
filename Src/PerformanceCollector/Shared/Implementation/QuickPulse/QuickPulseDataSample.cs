@@ -45,7 +45,7 @@
             long requestDurationInTicks = requestCountAndDuration.Item2;
 
             this.AIRequestsPerSecond = sampleDuration.TotalSeconds > 0 ? requestCount / sampleDuration.TotalSeconds : 0;
-            this.AIRequestDurationAve = requestCount > 0 ? (double)requestDurationInTicks / requestCount : 0;
+            this.AIRequestDurationAveInTicks = requestCount > 0 ? (double)requestDurationInTicks / requestCount : 0;
             this.AIRequestsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestFailureCount / sampleDuration.TotalSeconds : 0;
             this.AIRequestsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestSuccessCount / sampleDuration.TotalSeconds : 0;
 
@@ -60,7 +60,7 @@
 
             // avoiding reflection (Enum.GetNames()) to speed things up
             this.PerfIisRequestsPerSecond = perfData[QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString()].SingleOrDefault();
-            this.PerfIisRequestDurationAve = perfData[QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString()].SingleOrDefault();
+            this.PerfIisRequestDurationAveInTicks = perfData[QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString()].SingleOrDefault();
             this.PerfIisRequestsFailedTotal = perfData[QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString()].SingleOrDefault();
             this.PerfIisRequestsSucceededTotal = perfData[QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString()].SingleOrDefault();
             this.PerfIisQueueSize = perfData[QuickPulsePerfCounters.PerfIisQueueSize.ToString()].SingleOrDefault();
@@ -75,7 +75,7 @@
         #region AI
         public double AIRequestsPerSecond { get; private set; }
 
-        public double AIRequestDurationAve { get; private set; }
+        public double AIRequestDurationAveInTicks { get; private set; }
 
         public double AIRequestsFailedPerSecond { get; private set; }
 
@@ -94,7 +94,7 @@
         #region Performance counters
         public double PerfIisRequestsPerSecond { get; private set; }
 
-        public double PerfIisRequestDurationAve { get; private set; }
+        public double PerfIisRequestDurationAveInTicks { get; private set; }
 
         public double PerfIisRequestsFailedTotal { get; private set; }
 

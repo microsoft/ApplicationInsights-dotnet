@@ -21,7 +21,7 @@
 
         public bool SubmitSample(QuickPulseDataSample sample)
         {
-            // //!!! System.IO.File.AppendAllText(@"e:\qps.log", $"AI RPS: {sample.AIRequestsPerSecond}\tIIS RPS: {sample.PerfIisRequestsPerSecond}{Environment.NewLine}");
+            // //!!! System.IO.File.AppendAllText(@"e:\qps.log", $"AI RPS: {sample.AIRequestsPerSecond}\tIIS RPS: {sample.PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)sample.AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
             return true;
         }
     }
