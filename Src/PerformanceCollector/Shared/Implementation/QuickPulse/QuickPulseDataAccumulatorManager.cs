@@ -15,11 +15,6 @@
         {
             get { return this.currentDataAccumulator; }
         }
-
-        public QuickPulseDataAccumulator CompletedDataAccumulator
-        {
-            get { return this.completedDataAccumulator; }
-        }
         
         public QuickPulseDataAccumulator CompleteCurrentDataAccumulator()
         {
@@ -28,10 +23,8 @@
                     - promote currentDataAccumulator to completedDataAccumulator
                     - reset (zero out) the new currentDataAccumulator
 
-                We're not using critical sections, so THE RESULT WILL BE SLIGHTLY INCORRECT because the writers will keep writing throughout this operation
-                causing data inconsistencies (e.g. 4 requests with 3 failures when in fact all 4 requests failed).
-                In other words, some telemetry items will be partially counted towards the older accumulator, and partially - towards the newer one.
-                See unit tests for details on this "spraying" behavior.
+                There's a low chance of data loss here (if a writer accesses the accumulator between the two Exchange calls below), but 
+                we should be ok with that given the overall number of items.
             */ 
             
             Interlocked.Exchange(ref this.completedDataAccumulator, this.currentDataAccumulator);

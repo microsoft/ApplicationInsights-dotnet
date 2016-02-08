@@ -85,7 +85,7 @@
                                   {
                                       StartTimestamp = DateTime.UtcNow,
                                       EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                                      AIRequestCount = 10
+                                      AIRequestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(10, 0)
                                   };
 
             // ACT
@@ -103,8 +103,8 @@
                                   {
                                       StartTimestamp = DateTime.UtcNow,
                                       EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                                      AIRequestCount = 10,
-                                      AIRequestDurationInTicks = TimeSpan.FromSeconds(5).Ticks
+                                      AIRequestCountAndDurationInTicks =
+                                          QuickPulseDataAccumulator.EncodeCountAndDuration(10, TimeSpan.FromSeconds(5).Ticks)
                                   };
 
             // ACT
@@ -162,7 +162,8 @@
                                   {
                                       StartTimestamp = DateTime.UtcNow,
                                       EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                                      AIDependencyCallCount = 10
+                                      AIDependencyCallCountAndDurationInTicks =
+                                          QuickPulseDataAccumulator.EncodeCountAndDuration(10, 0)
                                   };
 
             // ACT
@@ -180,8 +181,8 @@
                                   {
                                       StartTimestamp = DateTime.UtcNow,
                                       EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                                      AIDependencyCallCount = 10,
-                                      AIDependencyCallDurationInTicks = TimeSpan.FromSeconds(5).Ticks
+                                      AIDependencyCallCountAndDurationInTicks =
+                                          QuickPulseDataAccumulator.EncodeCountAndDuration(10, TimeSpan.FromSeconds(5).Ticks)
                                   };
 
             // ACT
@@ -232,12 +233,12 @@
         {
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
-            {
-                StartTimestamp = DateTime.UtcNow,
-                EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                AIRequestDurationInTicks = TimeSpan.FromSeconds(5).Ticks,
-                AIRequestCount = 0
-            };
+                                  {
+                                      StartTimestamp = DateTime.UtcNow,
+                                      EndTimestamp = DateTime.UtcNow.AddSeconds(2),
+                                      AIRequestCountAndDurationInTicks =
+                                          QuickPulseDataAccumulator.EncodeCountAndDuration(0, TimeSpan.FromSeconds(5).Ticks)
+                                  };
 
             // ACT
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
@@ -251,12 +252,12 @@
         {
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
-            {
-                StartTimestamp = DateTime.UtcNow,
-                EndTimestamp = DateTime.UtcNow.AddSeconds(2),
-                AIDependencyCallDurationInTicks = TimeSpan.FromSeconds(5).Ticks,
-                AIDependencyCallCount = 0
-            };
+                                  {
+                                      StartTimestamp = DateTime.UtcNow,
+                                      EndTimestamp = DateTime.UtcNow.AddSeconds(2),
+                                      AIDependencyCallCountAndDurationInTicks =
+                                          QuickPulseDataAccumulator.EncodeCountAndDuration(0, TimeSpan.FromSeconds(5).Ticks)
+                                  };
 
             // ACT
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);

@@ -40,15 +40,21 @@
 
             TimeSpan sampleDuration = this.EndTimestamp - this.StartTimestamp;
 
-            this.AIRequestsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestCount / sampleDuration.TotalSeconds : 0;
+            Tuple<long, long> requestCountAndDuration = QuickPulseDataAccumulator.DecodeCountAndDuration(accumulator.AIRequestCountAndDurationInTicks);
+            long requestCount = requestCountAndDuration.Item1;
+            long requestDurationInTicks = requestCountAndDuration.Item2;
 
-            // //!!! multithreading issue here - values might be out of sync
-            this.AIRequestDurationAve = accumulator.AIRequestCount > 0 ? accumulator.AIRequestDurationInTicks / accumulator.AIRequestCount : 0;
+            this.AIRequestsPerSecond = sampleDuration.TotalSeconds > 0 ? requestCount / sampleDuration.TotalSeconds : 0;
+            this.AIRequestDurationAve = requestCount > 0 ? (double)requestDurationInTicks / requestCount : 0;
             this.AIRequestsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestFailureCount / sampleDuration.TotalSeconds : 0;
             this.AIRequestsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestSuccessCount / sampleDuration.TotalSeconds : 0;
 
-            this.AIDependencyCallsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallCount / sampleDuration.TotalSeconds : 0;
-            this.AIDependencyCallDurationAve = accumulator.AIDependencyCallCount > 0 ? accumulator.AIDependencyCallDurationInTicks / accumulator.AIDependencyCallCount : 0;
+            Tuple<long, long> dependencyCountAndDuration = QuickPulseDataAccumulator.DecodeCountAndDuration(accumulator.AIDependencyCallCountAndDurationInTicks);
+            long dependencyCount = dependencyCountAndDuration.Item1;
+            long dependencyDurationInTicks = dependencyCountAndDuration.Item2;
+
+            this.AIDependencyCallsPerSecond = sampleDuration.TotalSeconds > 0 ? dependencyCount / sampleDuration.TotalSeconds : 0;
+            this.AIDependencyCallDurationAve = dependencyCount > 0 ? (double)dependencyDurationInTicks / dependencyCount : 0;
             this.AIDependencyCallsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallFailureCount / sampleDuration.TotalSeconds : 0;
             this.AIDependencyCallsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallSuccessCount / sampleDuration.TotalSeconds : 0;
 

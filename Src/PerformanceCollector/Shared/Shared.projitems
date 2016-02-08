@@ -22,7 +22,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulatorManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulator.cs">
+	  <!--C# 6-->
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+	</Compile>
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryInitializer.cs" />
