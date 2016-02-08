@@ -1041,7 +1041,9 @@ namespace FuncTest
             }
 
             // Validate is within expected limits
-            var accessTime = TimeSpan.FromMilliseconds(itemToValidate.Data.BaseData.Value);
+            var ticks = (long)(itemToValidate.Data.BaseData.Value * 10000);
+
+            var accessTime = TimeSpan.FromTicks(ticks);
             // DNS resolution may take up to 15 seconds https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.timeout(v=vs.110).aspx.
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 
             // not only those made to not-existing domain.
