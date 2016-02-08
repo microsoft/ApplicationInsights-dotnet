@@ -10,35 +10,31 @@
     [TestClass]
     public class QuickPulseDataAccumulatorManagerTests
     {
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            QuickPulseDataAccumulatorManager.ResetInstance();
-        }
-
         [TestMethod]
-        public void QuickPulseDataHubLocksInSampleCorrectly()
+        public void QuickPulseDataAccumulatorManagerLocksInSampleCorrectly()
         {
             // ARRANGE
-            QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount = 5;
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount = 5;
 
             // ACT
-            var completedSample = QuickPulseDataAccumulatorManager.Instance.CompleteCurrentDataAccumulator();
+            var completedSample = accumulatorManager.CompleteCurrentDataAccumulator();
 
             // ASSERT
             Assert.AreEqual(5, completedSample.AIRequestCount);
-            Assert.AreEqual(0, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
+            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
 
-            Assert.AreSame(completedSample, QuickPulseDataAccumulatorManager.Instance.CompletedDataAccumulator);
-            Assert.AreNotSame(completedSample, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference);
+            Assert.AreSame(completedSample, accumulatorManager.CompletedDataAccumulator);
+            Assert.AreNotSame(completedSample, accumulatorManager.CurrentDataAccumulatorReference);
 
-            Assert.AreNotSame(QuickPulseDataAccumulatorManager.Instance.CompletedDataAccumulator, QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference);
+            Assert.AreNotSame(accumulatorManager.CompletedDataAccumulator, accumulatorManager.CurrentDataAccumulatorReference);
         }
 
         [TestMethod]
-        public void QuickPulseDataHubLocksInSampleCorrectlyMultithreaded()
+        public void QuickPulseDataAccumulatorManagerLocksInSampleCorrectlyMultithreaded()
         {
             // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
             int taskCount = 1000;
             var writeTasks = new List<Task>(taskCount);
             var pause = TimeSpan.FromMilliseconds(10);
@@ -47,12 +43,12 @@
             {
                 var task = new Task(() =>
                 {
-                    Interlocked.Increment(ref QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIRequestCount);
+                    Interlocked.Increment(ref accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
 
                     // sleep to increase the probability of sample completion happening right now
                     Thread.Sleep(pause);
 
-                    Interlocked.Increment(ref QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference.AIDependencyCallCount);
+                    Interlocked.Increment(ref accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCount);
                 });
 
                 writeTasks.Add(task);
@@ -63,14 +59,14 @@
                 // sleep to increase the probability of more write tasks being between the two writes
                 Thread.Sleep(TimeSpan.FromTicks(pause.Ticks / 2));
 
-                QuickPulseDataAccumulatorManager.Instance.CompleteCurrentDataAccumulator();
+                accumulatorManager.CompleteCurrentDataAccumulator();
             });
 
             // shuffle the completion task into the middle of the pile to have it fire roughly halfway through
             writeTasks.Insert(writeTasks.Count / 2, completionTask);
 
             // ACT
-            var sample1 = QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference;
+            var sample1 = accumulatorManager.CurrentDataAccumulatorReference;
 
             var result = Parallel.For(0, writeTasks.Count, new ParallelOptions() { MaxDegreeOfParallelism = taskCount }, i => writeTasks[i].RunSynchronously());
 
@@ -78,7 +74,7 @@
             {
             }
 
-            var sample2 = QuickPulseDataAccumulatorManager.Instance.CurrentDataAccumulatorReference;
+            var sample2 = accumulatorManager.CurrentDataAccumulatorReference;
 
             // ASSERT
             // we expect some "telemetry items" to get "sprayed" over the two neighboring samples

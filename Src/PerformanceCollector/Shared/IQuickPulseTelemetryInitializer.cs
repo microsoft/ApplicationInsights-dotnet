@@ -1,7 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+
     internal interface IQuickPulseTelemetryInitializer : ITelemetryInitializer
     {
-        bool Enabled { get; set; }
+        void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager);
+
+        void StopCollection();
     }
 }

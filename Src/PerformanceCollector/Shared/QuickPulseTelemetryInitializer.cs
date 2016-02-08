@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
+    using System;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -12,27 +13,26 @@
     /// <remarks>Unlike other telemetry initializers, this class does not modify telemetry items.</remarks>
     internal class QuickPulseTelemetryInitializer : IQuickPulseTelemetryInitializer
     {
-        private readonly IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
+        private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class.
-        /// </summary>
-        public QuickPulseTelemetryInitializer()
+        private bool isCollecting = false;
+
+        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager)
         {
-            this.dataAccumulatorManager = QuickPulseDataAccumulatorManager.Instance;
+            if (this.isCollecting)
+            {
+                throw new InvalidOperationException("Can't start collection while it is already running.");
+            }
+
+            this.dataAccumulatorManager = accumulatorManager;
+            this.isCollecting = true;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QuickPulseTelemetryInitializer"/> class. Internal constructor for unit tests only.
-        /// </summary>
-        /// <param name="dataAccumulatorManager">Data sink for QuickPulse data.</param>
-        internal QuickPulseTelemetryInitializer(IQuickPulseDataAccumulatorManager dataAccumulatorManager)
-            : this()
+        public void StopCollection()
         {
-            this.dataAccumulatorManager = dataAccumulatorManager;
+            this.dataAccumulatorManager = null;
+            this.isCollecting = false;
         }
-
-        public bool Enabled { get; set; }
 
         /// <summary>
         /// Intercepts telemetry items and updates QuickPulse data when needed.
@@ -41,7 +41,7 @@
         /// <remarks>This method is performance critical since every AI telemetry item goes through it.</remarks>
         public void Initialize(ITelemetry telemetry)
         {
-            if (!this.Enabled)
+            if (!this.isCollecting || this.dataAccumulatorManager == null)
             {
                 return;
             }

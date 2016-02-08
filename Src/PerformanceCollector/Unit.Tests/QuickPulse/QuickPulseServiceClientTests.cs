@@ -6,10 +6,5 @@
     [TestClass]
     public class QuickPulseServiceClientTests
     {
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            QuickPulseDataAccumulatorManager.ResetInstance();
-        }
     }
 }

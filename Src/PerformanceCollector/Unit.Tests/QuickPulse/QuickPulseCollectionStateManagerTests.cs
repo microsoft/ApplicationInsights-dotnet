@@ -11,13 +11,7 @@
         const string StartCollection = "StartCollection";
         const string StopCollection = "StopCollection";
         const string Collect = "Collect";
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            QuickPulseDataAccumulatorManager.ResetInstance();
-        }
-
+        
         [TestMethod]
         public void QuickPulseCollectionStateManagerInitiallyInIdleState()
         {

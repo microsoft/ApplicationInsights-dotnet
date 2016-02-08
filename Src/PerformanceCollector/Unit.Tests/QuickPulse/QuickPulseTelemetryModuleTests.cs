@@ -14,12 +14,6 @@
     [TestClass]
     public class QuickPulseTelemetryModuleTests
     {
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            QuickPulseDataAccumulatorManager.ResetInstance();
-        }
-
         [TestMethod]
         public void QuickPulseTelemetryModuleInitializesServiceClientFromConfiguration()
         {

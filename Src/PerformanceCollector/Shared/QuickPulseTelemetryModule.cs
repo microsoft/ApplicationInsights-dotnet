@@ -104,18 +104,18 @@
 
                         this.ValidateConfiguration(configuration);
 
-                        this.dataAccumulatorManager = this.dataAccumulatorManager ?? QuickPulseDataAccumulatorManager.Instance;
+                        this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
 
                         this.InitializeServiceClient();
 
-                        this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer(this.dataAccumulatorManager);
+                        this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer();
                         this.PlugInTelemetryInitializer(configuration);
 
                         this.collectionStateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
-                            this.StartCollection,
-                            this.StopCollection,
+                            () => this.telemetryInitializer.StartCollection(this.dataAccumulatorManager),
+                            () => this.telemetryInitializer.StopCollection(),
                             this.CollectData);
 
                         this.InitializePerformanceCollector();
@@ -193,10 +193,7 @@
 
         private void PlugInTelemetryInitializer(TelemetryConfiguration configuration)
         {
-            if (!configuration.TelemetryInitializers.Any(ti => ti is IQuickPulseTelemetryInitializer))
-            {
-                configuration.TelemetryInitializers.Add(this.telemetryInitializer);
-            }
+            configuration.TelemetryInitializers.Add(this.telemetryInitializer);
         }
 
         private void InitializeServiceClient()
@@ -263,7 +260,7 @@
             // For AI data, all we have to do is lock the current accumulator in
             QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
 
-            // For performance collection, we have to read perf samples from Windows and append them to the accumulator
+            // For performance collection, we have to read perf samples from Windows
             List<Tuple<PerformanceCounterData, float>> perfData =
                 this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
                     .ToList();
@@ -276,16 +273,6 @@
             IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
         {
             return new QuickPulseDataSample(accumulator, perfData.ToLookup(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
-        }
-
-        private void StartCollection()
-        {
-            this.telemetryInitializer.Enabled = true;
-        }
-
-        private void StopCollection()
-        {
-            this.telemetryInitializer.Enabled = false;
         }
 
         /// <summary>

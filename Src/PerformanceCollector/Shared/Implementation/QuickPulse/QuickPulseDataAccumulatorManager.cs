@@ -6,37 +6,10 @@
     /// <summary>
     /// Accumulator manager for QuickPulse data.
     /// </summary>
-    internal sealed class QuickPulseDataAccumulatorManager : IQuickPulseDataAccumulatorManager
+    internal class QuickPulseDataAccumulatorManager : IQuickPulseDataAccumulatorManager
     {
-        private static readonly object SyncRoot = new object();
-
-        private static volatile QuickPulseDataAccumulatorManager instance;
-
         private QuickPulseDataAccumulator currentDataAccumulator = new QuickPulseDataAccumulator();
         private QuickPulseDataAccumulator completedDataAccumulator;
-
-        private QuickPulseDataAccumulatorManager()
-        {
-        }
-
-        public static QuickPulseDataAccumulatorManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (SyncRoot)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new QuickPulseDataAccumulatorManager();
-                        }
-                    }
-                }
-
-                return instance;
-            }
-        }
 
         public QuickPulseDataAccumulator CurrentDataAccumulatorReference
         {
@@ -70,17 +43,6 @@
             this.currentDataAccumulator.StartTimestamp = timestamp;
 
             return this.completedDataAccumulator;
-        }
-
-        /// <summary>
-        /// Unit tests only.
-        /// </summary>
-        internal static void ResetInstance()
-        {
-            lock (SyncRoot)
-            {
-                instance = new QuickPulseDataAccumulatorManager();
-            }
         }
     }
 }

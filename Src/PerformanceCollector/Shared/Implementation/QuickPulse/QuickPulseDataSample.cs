@@ -23,6 +23,8 @@
             TimeSpan? sampleDuration = this.EndTimestamp - this.StartTimestamp;
 
             this.AIRequestsPerSecond = accumulator.AIRequestCount / sampleDuration?.TotalSeconds ?? 0;
+
+            // //!!! multithreading issue here - values might be out of sync
             this.AIRequestDurationAve = accumulator.AIRequestCount > 0 ? accumulator.AIRequestDurationInTicks / accumulator.AIRequestCount : 0;
             this.AIRequestsFailedPerSecond = accumulator.AIRequestFailureCount / sampleDuration?.TotalSeconds ?? 0;
             this.AIRequestsSucceededPerSecond = accumulator.AIRequestSuccessCount / sampleDuration?.TotalSeconds ?? 0;
