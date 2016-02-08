@@ -249,7 +249,6 @@
             {
                 if (this.timer != null)
                 {
-                    // //!!! File.AppendAllText(@"e:\qps.log", $"Request count: {accumulator.AIRequestCount}\tRequest average duration: {TimeSpan.FromTicks(accumulator.AIRequestCount > 0 ? accumulator.AIRequestDurationTicks / accumulator.AIRequestCount : 0)}{Environment.NewLine}");
                     this.timer.ScheduleNextTick(this.collectionStateManager.IsCollectingData ? this.collectionInterval : this.servicePollingInterval);
                 }
             }

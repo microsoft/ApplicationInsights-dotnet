@@ -16,12 +16,13 @@
         
         public bool Ping()
         {
-            return false;
+            return true;
         }
 
         public bool SubmitSample(QuickPulseDataSample sample)
         {
-            return false;
+            // //!!! System.IO.File.AppendAllText(@"e:\qps.log", $"AI RPS: {sample.AIRequestsPerSecond}\tIIS RPS: {sample.PerfIisRequestsPerSecond}{Environment.NewLine}");
+            return true;
         }
     }
 }
