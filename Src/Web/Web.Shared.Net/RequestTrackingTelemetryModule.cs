@@ -23,7 +23,7 @@
     public class RequestTrackingTelemetryModule : ITelemetryModule, IDisposable
     {
         private readonly EventListener listener;
-        private readonly IList<FilterRequest> handlersToFilter = new List<FilterRequest>();
+        private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
 
         /// <summary>
@@ -43,7 +43,7 @@
         /// Gets the list of handler types for which requests telemetry will not be collected
         /// if request was successful.
         /// </summary>
-        public IList<FilterRequest> Handlers
+        public IList<string> Handlers
         {
             get
             {
@@ -176,7 +176,7 @@
                 var handlerName = handler.GetType().FullName;
                 foreach (var h in this.Handlers)
                 {
-                    if (string.Equals(handlerName, h.Value, StringComparison.Ordinal))
+                    if (string.Equals(handlerName, h, StringComparison.Ordinal))
                     {
                         WebEventSource.Log.WebRequestFilteredOutByRequestHandler();
                         return true;

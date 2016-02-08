@@ -236,7 +236,7 @@
             requestTelemetry.Start();
 
             var module = new RequestTrackingTelemetryModule();
-            module.Handlers.Add(new FilterRequest { Value = "System.Web.Handlers.AssemblyResourceLoader" });
+            module.Handlers.Add("System.Web.Handlers.AssemblyResourceLoader");
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
 
@@ -274,10 +274,7 @@
 
             using (var module = new RequestTrackingTelemetryModule())
             {
-                module.Handlers.Add(new FilterRequest
-                {
-                    Value = "Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest+FakeHttpHandler"
-                });
+                module.Handlers.Add("Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest+FakeHttpHandler");
                 var configuration = TelemetryConfiguration.CreateDefault();
                 module.Initialize(configuration);
 
