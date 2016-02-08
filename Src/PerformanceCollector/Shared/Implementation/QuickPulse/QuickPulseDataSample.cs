@@ -10,29 +10,47 @@
     {
         public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, ILookup<string, float> perfData)
         {
-            if (!accumulator.EndTimestamp.HasValue)
+            if (accumulator == null)
             {
-                throw new ArgumentNullException(nameof(accumulator.EndTimestamp));    
+                throw new ArgumentNullException(nameof(accumulator));
             }
 
-            this.StartTimestamp = accumulator.StartTimestamp;
+            if (perfData == null)
+            {
+                throw new ArgumentNullException(nameof(perfData));
+            }
+
+            if (accumulator.StartTimestamp == null)
+            {
+                throw new ArgumentNullException(nameof(accumulator.StartTimestamp));
+            }
+
+            if (accumulator.EndTimestamp == null)
+            {
+                throw new ArgumentNullException(nameof(accumulator.EndTimestamp));
+            }
+
+            this.StartTimestamp = accumulator.StartTimestamp.Value;
             this.EndTimestamp = accumulator.EndTimestamp.Value;
 
-            // below we're utilizing a little-known fact that any operator defined on a value type will produce null if invoked on 
-            // a nullable instance of that type which is currently null
-            TimeSpan? sampleDuration = this.EndTimestamp - this.StartTimestamp;
+            if ((this.EndTimestamp - this.StartTimestamp) < TimeSpan.Zero)
+            {
+                throw new InvalidOperationException("StartTimestamp must be lesser than EndTimestamp.");
+            }
 
-            this.AIRequestsPerSecond = accumulator.AIRequestCount / sampleDuration?.TotalSeconds ?? 0;
+            TimeSpan sampleDuration = this.EndTimestamp - this.StartTimestamp;
+
+            this.AIRequestsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestCount / sampleDuration.TotalSeconds : 0;
 
             // //!!! multithreading issue here - values might be out of sync
             this.AIRequestDurationAve = accumulator.AIRequestCount > 0 ? accumulator.AIRequestDurationInTicks / accumulator.AIRequestCount : 0;
-            this.AIRequestsFailedPerSecond = accumulator.AIRequestFailureCount / sampleDuration?.TotalSeconds ?? 0;
-            this.AIRequestsSucceededPerSecond = accumulator.AIRequestSuccessCount / sampleDuration?.TotalSeconds ?? 0;
+            this.AIRequestsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestFailureCount / sampleDuration.TotalSeconds : 0;
+            this.AIRequestsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestSuccessCount / sampleDuration.TotalSeconds : 0;
 
-            this.AIDependencyCallsPerSecond = accumulator.AIDependencyCallCount / sampleDuration?.TotalSeconds ?? 0;
+            this.AIDependencyCallsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallCount / sampleDuration.TotalSeconds : 0;
             this.AIDependencyCallDurationAve = accumulator.AIDependencyCallCount > 0 ? accumulator.AIDependencyCallDurationInTicks / accumulator.AIDependencyCallCount : 0;
-            this.AIDependencyCallsFailedPerSecond = accumulator.AIDependencyCallFailureCount / sampleDuration?.TotalSeconds ?? 0;
-            this.AIDependencyCallsSucceededPerSecond = accumulator.AIDependencyCallSuccessCount / sampleDuration?.TotalSeconds ?? 0;
+            this.AIDependencyCallsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallFailureCount / sampleDuration.TotalSeconds : 0;
+            this.AIDependencyCallsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallSuccessCount / sampleDuration.TotalSeconds : 0;
 
             // avoiding reflection (Enum.GetNames()) to speed things up
             this.PerfIisRequestsPerSecond = perfData[QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString()].SingleOrDefault();
@@ -44,7 +62,7 @@
             this.PerfMemoryInBytes = perfData[QuickPulsePerfCounters.PerfMemoryInBytes.ToString()].SingleOrDefault();
         }
 
-        public DateTime? StartTimestamp;
+        public DateTime StartTimestamp;
 
         public DateTime EndTimestamp;
         

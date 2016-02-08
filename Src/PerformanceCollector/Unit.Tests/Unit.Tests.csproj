@@ -74,6 +74,7 @@
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="QuickPulse\QuickPulseDataSampleTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataAccumulatorManagerTests.cs" />
     <Compile Include="QuickPulse\QuickPulseCollectionStateManagerTests.cs" />
     <Compile Include="QuickPulse\QuickPulseServiceClientTests.cs" />

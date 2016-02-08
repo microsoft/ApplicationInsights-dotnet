@@ -61,22 +61,12 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModulePingsServiceWhenIdle()
+        public void QuickPulseTelemetryModulePingsService()
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
-            var serviceClient = new QuickPulseServiceClientMock()
-                                    {
-                                        ReturnValueFromPing = false,
-                                        ReturnValueFromSubmitSample = false
-                                    };
-            var module = new QuickPulseTelemetryModule(
-                null,
-                null,
-                serviceClient,
-                new PerformanceCollectorMock(),
-                interval,
-                interval);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var module = new QuickPulseTelemetryModule(null, null, serviceClient, new PerformanceCollectorMock(), interval, interval);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -93,21 +83,11 @@
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
-            var serviceClient = new QuickPulseServiceClientMock()
-                                    {
-                                        ReturnValueFromPing = true,
-                                        ReturnValueFromSubmitSample = true
-                                    };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryInitializer = new QuickPulseTelemetryInitializer();
 
-            var module = new QuickPulseTelemetryModule(
-                null,
-                telemetryInitializer,
-                serviceClient,
-                performanceCollector,
-                interval,
-                interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryInitializer, serviceClient, performanceCollector, interval, interval);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -126,6 +106,31 @@
             Assert.IsTrue(serviceClient.Samples.Any(s => s.AIRequestsPerSecond > 0));
             Assert.IsTrue(serviceClient.Samples.Any(s => s.AIDependencyCallsPerSecond > 0));
             Assert.IsTrue(serviceClient.Samples.Any(s => Math.Abs(s.PerfIisRequestsPerSecond) > double.Epsilon));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleTimestampsDataSamples()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryInitializer = new QuickPulseTelemetryInitializer();
+
+            var module = new QuickPulseTelemetryModule(null, telemetryInitializer, serviceClient, performanceCollector, interval, interval);
+
+            var timestampStart = DateTime.UtcNow;
+
+            // ACT
+            module.Initialize(new TelemetryConfiguration());
+
+            Thread.Sleep(interval.Milliseconds * 100);
+
+            // ASSERT
+            var timestampEnd = DateTime.UtcNow;
+            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp > timestampStart));
+            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp < timestampEnd));
+            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp <= s.EndTimestamp));
         }
 
         #region Helpers

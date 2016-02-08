@@ -114,7 +114,11 @@
 
                         this.collectionStateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
-                            () => this.telemetryInitializer.StartCollection(this.dataAccumulatorManager),
+                            () =>
+                                {
+                                    this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
+                                    this.telemetryInitializer.StartCollection(this.dataAccumulatorManager);
+                                },
                             () => this.telemetryInitializer.StopCollection(),
                             this.CollectData);
 
