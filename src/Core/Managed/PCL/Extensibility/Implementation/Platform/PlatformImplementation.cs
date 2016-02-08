@@ -6,8 +6,8 @@
 
     internal class PlatformImplementation : IPlatform
     {
-		private IDebugOutput debugOutput = null;
-		
+        private IDebugOutput debugOutput = null;
+        
         public IDictionary<string, object> GetApplicationSettings()
         {
             return null;
@@ -32,7 +32,7 @@
             {
                 this.debugOutput = new TelemetryDebugWriter(); 
             }
-			
+            
             return this.debugOutput;
         }
     }
