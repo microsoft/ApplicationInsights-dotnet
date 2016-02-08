@@ -10,7 +10,7 @@
 #endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector")]
-    internal class PerformanceCollectorEventSource : EventSource
+    internal sealed class PerformanceCollectorEventSource : EventSource
     {
         private static readonly PerformanceCollectorEventSource Logger = new PerformanceCollectorEventSource();
 
