@@ -121,7 +121,7 @@
         }
 
         [Event(23, Message = "TransmissionSendingFailed. TransmissionId: {0}. Message: {1}. StatusCode: {2}.", Level = EventLevel.Warning)]
-        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, HttpStatusCode statusCode, string appDomainName = "Incorrect")
+        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, int statusCode, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 23,
