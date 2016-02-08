@@ -11,7 +11,7 @@
         public void NoSystemWebReferences()
         {
             // Validate Platform assembly
-            foreach (var assembly in typeof(DebugOutput).Assembly.GetReferencedAssemblies())
+            foreach (var assembly in typeof(TelemetryDebugWriter).Assembly.GetReferencedAssemblies())
             {
                 Assert.True(!assembly.FullName.Contains("System.Web"));
             }
