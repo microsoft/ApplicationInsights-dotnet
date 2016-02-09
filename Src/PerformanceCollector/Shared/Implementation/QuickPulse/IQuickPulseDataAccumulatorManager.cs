@@ -5,7 +5,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
         /// <summary>
         /// Gets a reference to the accumulator that is currently under construction.
         /// </summary>
-        QuickPulseDataAccumulator CurrentDataAccumulatorReference { get; }
+        QuickPulseDataAccumulator CurrentDataAccumulator { get; }
 
         /// <summary>
         /// Locks in the current data accumulator and moves it into the Complete slot.

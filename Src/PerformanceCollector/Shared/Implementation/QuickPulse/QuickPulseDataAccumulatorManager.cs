@@ -11,7 +11,7 @@
         private QuickPulseDataAccumulator currentDataAccumulator = new QuickPulseDataAccumulator();
         private QuickPulseDataAccumulator completedDataAccumulator;
 
-        public QuickPulseDataAccumulator CurrentDataAccumulatorReference
+        public QuickPulseDataAccumulator CurrentDataAccumulator
         {
             get { return this.currentDataAccumulator; }
         }
@@ -23,8 +23,9 @@
                     - promote currentDataAccumulator to completedDataAccumulator
                     - reset (zero out) the new currentDataAccumulator
 
-                There's a low chance of data loss here (if a writer accesses the accumulator between the two Exchange calls below), but 
-                we should be ok with that given the overall number of items.
+                Even though there are two separate Exchange() calls below, no data loss will occure since completedDataAccuulator will not be read until later on this same thread,
+                so the first Exchange doesn't really do anything just yet.
+                However, certain telemetry items will be "sprayed" between two neighboring accumulators due to the fact that the snap might occure in the middle of a reader executing its Interlocked's.
             */ 
             
             Interlocked.Exchange(ref this.completedDataAccumulator, this.currentDataAccumulator);

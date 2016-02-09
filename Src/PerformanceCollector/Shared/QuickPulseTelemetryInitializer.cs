@@ -58,32 +58,32 @@
                 long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, request.Duration.Ticks);
 
                 Interlocked.Add(
-                    ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestCountAndDurationInTicks,
+                    ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
                     requestCountAndDurationInTicks);
 
                 if (request.Success == true)
                 {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestSuccessCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
                 }
                 else if (request.Success == false)
                 {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIRequestFailureCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
                 }
             }
             else if (dependencyCall != null)
             {
                 long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, dependencyCall.Duration.Ticks);
                 Interlocked.Add(
-                    ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCountAndDurationInTicks,
+                    ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
                     dependencyCallCountAndDurationInTicks);
 
                 if (dependencyCall.Success == true)
                 {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallSuccessCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
                 }
                 else if (dependencyCall.Success == false)
                 {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallFailureCount);
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
                 }
             }
         }

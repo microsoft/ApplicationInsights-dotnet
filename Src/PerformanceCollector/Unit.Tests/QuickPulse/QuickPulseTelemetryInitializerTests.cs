@@ -27,12 +27,12 @@
             telemetryInitializer.Initialize(new RequestTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
-            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
+            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
             Assert.AreEqual(
                 1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulatorReference.AIRequestDurationInTicks).TotalSeconds);
-            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulatorReference.AIRequestSuccessCount);
-            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulatorReference.AIRequestFailureCount);
+                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
+            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
         }
 
         [TestMethod]
@@ -50,12 +50,12 @@
             telemetryInitializer.Initialize(new DependencyTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
 
             // ASSERT
-            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
             Assert.AreEqual(
                 1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallDurationInTicks).TotalSeconds);
-            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallSuccessCount);
-            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallFailureCount);
+                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIDependencyCallDurationInTicks).TotalSeconds);
+            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
+            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
         }
 
         [TestMethod]
@@ -72,8 +72,8 @@
             telemetryInitializer.Initialize(new DependencyTelemetry());
 
             // ASSERT
-            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
-            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
         }
 
         [TestMethod]
@@ -94,8 +94,8 @@
             telemetryInitializer.Initialize(new TraceTelemetry());
 
             // ASSERT
-            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
-            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
         }
 
         [TestMethod]
@@ -124,8 +124,8 @@
             Task.WaitAll(tasks.ToArray());
 
             // ASSERT
-            Assert.AreEqual(taskCount, accumulatorManager.CurrentDataAccumulatorReference.AIRequestCount);
-            Assert.AreEqual(taskCount / 2, accumulatorManager.CurrentDataAccumulatorReference.AIRequestSuccessCount);
+            Assert.AreEqual(taskCount, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(taskCount / 2, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
         }
 
         [TestMethod]
@@ -146,11 +146,11 @@
             telemetryInitializer.StopCollection();
 
             // ASSERT
-            Assert.AreEqual(1, accumulatorManager1.CurrentDataAccumulatorReference.AIRequestCount);
-            Assert.AreEqual(0, accumulatorManager1.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(1, accumulatorManager1.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(0, accumulatorManager1.CurrentDataAccumulator.AIDependencyCallCount);
 
-            Assert.AreEqual(0, accumulatorManager2.CurrentDataAccumulatorReference.AIRequestCount);
-            Assert.AreEqual(1, accumulatorManager2.CurrentDataAccumulatorReference.AIDependencyCallCount);
+            Assert.AreEqual(0, accumulatorManager2.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(1, accumulatorManager2.CurrentDataAccumulator.AIDependencyCallCount);
         }
 
         [TestMethod]
