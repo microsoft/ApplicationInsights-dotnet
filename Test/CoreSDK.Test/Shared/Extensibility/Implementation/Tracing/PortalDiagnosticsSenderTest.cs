@@ -69,7 +69,6 @@
             Assert.AreEqual(
                 "AI (Internal): Error occured at My function, some failure", 
                 trace.Message);
-            Assert.AreEqual(2, trace.Properties.Count);
         }
 
         [TestMethod]
