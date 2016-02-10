@@ -59,6 +59,12 @@
         {
             this.WriteEvent(6, e, counter, this.ApplicationName);
         }
+
+        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"QuickPulseTelemetryModule could not locate a QuickPulseTelemetryProcessor in configuration. QuickPulse data will not be available.")]
+        public void CouldNotObtainQuickPulseTelemetryProcessorEvent(string applicationName = "dummy")
+        {
+            this.WriteEvent(7, this.ApplicationName);
+        }
         #endregion
 
         #region Data reading - success

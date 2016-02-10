@@ -2,7 +2,7 @@
 {
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
-    internal interface IQuickPulseTelemetryInitializer : ITelemetryInitializer
+    internal interface IQuickPulseTelemetryProcessor : ITelemetryProcessor
     {
         void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager);
 

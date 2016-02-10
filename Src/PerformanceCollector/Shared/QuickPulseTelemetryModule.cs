@@ -31,9 +31,9 @@
 
         private bool isInitialized = false;
 
-        private QuickPulseDataAccumulatorManager dataAccumulatorManager = null;
+        private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
-        private IQuickPulseTelemetryInitializer telemetryInitializer = null;
+        private IQuickPulseTelemetryProcessor telemetryProcessor = null;
 
         private QuickPulseCollectionStateManager collectionStateManager = null;
 
@@ -50,14 +50,14 @@
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class. Internal constructor for unit tests only.
         /// </summary>
         /// <param name="dataAccumulatorManager">Data hub to sink QuickPulse data to.</param>
-        /// <param name="telemetryInitializer">Telemetry initializer to inspect telemetry stream.</param>
+        /// <param name="telemetryProcessor">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
         /// <param name="performanceCollector">Performance counter collector.</param>
         /// <param name="servicePollingInterval">Interval to poll the service at.</param>
         /// <param name="collectionInterval">Interval to collect data at.</param>
         internal QuickPulseTelemetryModule(
             QuickPulseDataAccumulatorManager dataAccumulatorManager,
-            IQuickPulseTelemetryInitializer telemetryInitializer,
+            IQuickPulseTelemetryProcessor telemetryProcessor,
             IQuickPulseServiceClient serviceClient,
             IPerformanceCollector performanceCollector,
             TimeSpan? servicePollingInterval,
@@ -65,7 +65,7 @@
             : this()
         {
             this.dataAccumulatorManager = dataAccumulatorManager;
-            this.telemetryInitializer = telemetryInitializer;
+            this.telemetryProcessor = telemetryProcessor;
             this.serviceClient = serviceClient;
             this.performanceCollector = performanceCollector;
             this.servicePollingInterval = servicePollingInterval ?? this.servicePollingInterval;
@@ -109,17 +109,16 @@
 
                         this.InitializeServiceClient();
 
-                        this.telemetryInitializer = this.telemetryInitializer ?? new QuickPulseTelemetryInitializer();
-                        this.PlugInTelemetryInitializer(configuration);
-
+                        this.InitializeTelemetryProcessor(configuration);
+                        
                         this.collectionStateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
                             () =>
                                 {
                                     this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
-                                    this.telemetryInitializer.StartCollection(this.dataAccumulatorManager);
+                                    this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
                                 },
-                            () => this.telemetryInitializer.StopCollection(),
+                            () => this.telemetryProcessor.StopCollection(),
                             this.CollectData);
 
                         this.InitializePerformanceCollector();
@@ -129,6 +128,18 @@
                         this.isInitialized = true;
                     }
                 }
+            }
+        }
+
+        private void InitializeTelemetryProcessor(TelemetryConfiguration configuration)
+        {
+            this.telemetryProcessor = this.telemetryProcessor ?? this.FetchTelemetryProcessor(configuration);
+
+            if (this.telemetryProcessor == null)
+            {
+                QuickPulseEventSource.Log.CouldNotObtainQuickPulseTelemetryProcessorEvent();
+
+                throw new ArgumentException("Could not obtain an IQuickPulseTelemetryProcessor");
             }
         }
 
@@ -195,9 +206,9 @@
             this.timer.ScheduleNextTick(this.servicePollingInterval);
         }
 
-        private void PlugInTelemetryInitializer(TelemetryConfiguration configuration)
+        private IQuickPulseTelemetryProcessor FetchTelemetryProcessor(TelemetryConfiguration configuration)
         {
-            configuration.TelemetryInitializers.Add(this.telemetryInitializer);
+            return configuration.TelemetryProcessors.OfType<IQuickPulseTelemetryProcessor>().SingleOrDefault();
         }
 
         private void InitializeServiceClient()

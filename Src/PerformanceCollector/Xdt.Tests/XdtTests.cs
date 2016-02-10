@@ -73,7 +73,7 @@
 
                         var targetDocument = new XmlDocument();
                         targetDocument.LoadXml(original);
-
+                        
                         bool success = installTransformation.Apply(targetDocument);
                         Assert.IsTrue(
                             success,

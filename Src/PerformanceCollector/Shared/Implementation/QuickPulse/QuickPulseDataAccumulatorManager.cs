@@ -23,14 +23,10 @@
                     - promote currentDataAccumulator to completedDataAccumulator
                     - reset (zero out) the new currentDataAccumulator
 
-                Even though there are two separate Exchange() calls below, no data loss will occure since completedDataAccuulator will not be read until later on this same thread,
-                so the first Exchange doesn't really do anything just yet.
-                However, certain telemetry items will be "sprayed" between two neighboring accumulators due to the fact that the snap might occure in the middle of a reader executing its Interlocked's.
+                Certain telemetry items will be "sprayed" between two neighboring accumulators due to the fact that the snap might occure in the middle of a reader executing its Interlocked's.
             */ 
             
-            Interlocked.Exchange(ref this.completedDataAccumulator, this.currentDataAccumulator);
-
-            Interlocked.Exchange(ref this.currentDataAccumulator, new QuickPulseDataAccumulator());
+            this.completedDataAccumulator = Interlocked.Exchange(ref this.currentDataAccumulator, new QuickPulseDataAccumulator());
 
             var timestamp = DateTime.UtcNow;
             this.completedDataAccumulator.EndTimestamp = timestamp;

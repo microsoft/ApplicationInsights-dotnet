@@ -74,6 +74,7 @@
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="QuickPulse\QuickPulseEventSourceTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataAccumulatorTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataSampleTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataAccumulatorManagerTests.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="Mocks\StubTelemetryChannel.cs" />
     <Compile Include="TelemetryAction.cs" />
-    <Compile Include="QuickPulse\QuickPulseTelemetryInitializerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -91,6 +92,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Web\Web.Net40.Tests\Web.Net40.Tests.csproj">
+      <Project>{DB628EBB-3033-45CF-B2B6-623909D47C28}</Project>
+      <Name>Web.Net40.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Net40\Perf.Net40.csproj">
       <Project>{61fc6e01-b40d-4db2-9dab-b27b82f02244}</Project>
       <Name>Perf.Net40</Name>

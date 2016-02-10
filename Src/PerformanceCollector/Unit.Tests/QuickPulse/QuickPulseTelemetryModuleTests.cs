@@ -3,12 +3,15 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.Remoting.Messaging;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -18,7 +21,13 @@
         public void QuickPulseTelemetryModuleInitializesServiceClientFromConfiguration()
         {
             // ARRANGE
-            var module = new QuickPulseTelemetryModule();
+            var module = new QuickPulseTelemetryModule(
+                null,
+                new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
+                null,
+                null,
+                null,
+                null);
 
             SetPrivateProperty(module, nameof(module.QuickPulseServiceEndpoint), "https://test.com/api");
 
@@ -33,7 +42,13 @@
         public void QuickPulseTelemetryModuleInitializesServiceClientFromDefault()
         {
             // ARRANGE
-            var module = new QuickPulseTelemetryModule();
+            var module = new QuickPulseTelemetryModule(
+                null,
+                new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
+                null,
+                null,
+                null,
+                null);
 
             // ACT
             // do not provide module configuration, force default service client
@@ -47,26 +62,18 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModulePlugsInTelemetryInitializerCorrectly()
-        {
-            // ARRANGE
-            var module = new QuickPulseTelemetryModule();
-            var configuration = TelemetryConfiguration.CreateDefault();
-
-            // ACT
-            module.Initialize(configuration);
-
-            // ASSERT
-            Assert.IsInstanceOfType(configuration.TelemetryInitializers.Last(), typeof(IQuickPulseTelemetryInitializer));
-        }
-
-        [TestMethod]
         public void QuickPulseTelemetryModulePingsService()
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
-            var module = new QuickPulseTelemetryModule(null, null, serviceClient, new PerformanceCollectorMock(), interval, interval);
+            var module = new QuickPulseTelemetryModule(
+                null,
+                new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
+                serviceClient,
+                new PerformanceCollectorMock(),
+                interval,
+                interval);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -85,17 +92,17 @@
             var interval = TimeSpan.FromMilliseconds(1);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            var telemetryInitializer = new QuickPulseTelemetryInitializer();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            var module = new QuickPulseTelemetryModule(null, telemetryInitializer, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
 
             Thread.Sleep(interval.Milliseconds * 100);
 
-            telemetryInitializer.Initialize(new RequestTelemetry());
-            telemetryInitializer.Initialize(new DependencyTelemetry());
+            telemetryProcessor.Process(new RequestTelemetry());
+            telemetryProcessor.Process(new DependencyTelemetry());
 
             Thread.Sleep(interval.Milliseconds * 100);
 
@@ -115,9 +122,9 @@
             var interval = TimeSpan.FromMilliseconds(1);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            var telemetryInitializer = new QuickPulseTelemetryInitializer();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            var module = new QuickPulseTelemetryModule(null, telemetryInitializer, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
 
             var timestampStart = DateTime.UtcNow;
 
@@ -131,6 +138,37 @@
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp > timestampStart));
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp < timestampEnd));
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp <= s.EndTimestamp));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleFetchesTelemetryProcessorFromConfiguration()
+        {
+            // ARRANGE
+            var module = new QuickPulseTelemetryModule(null, null, null, null, null, null);
+
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var configuration = new TelemetryConfiguration();
+            var builder = configuration.TelemetryProcessorChainBuilder;
+            builder = builder.Use(current => telemetryProcessor);
+            builder.Build();
+
+            // ACT
+            module.Initialize(configuration);
+
+            // ASSERT
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void QuickPulseTelemetryModuleThrowsWhenNoTelemetryProcessorPresentInConfiguration()
+        {
+            // ARRANGE
+            var module = new QuickPulseTelemetryModule(null, null, null, null, null, null);
+
+            // ACT
+            module.Initialize(new TelemetryConfiguration());
+
+            // ASSERT
         }
 
         #region Helpers
