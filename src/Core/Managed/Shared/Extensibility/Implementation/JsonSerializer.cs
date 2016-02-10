@@ -420,13 +420,10 @@
                     writer.WriteProperty("name", dependencyTelemetry.Data.name);
                     writer.WriteProperty("id", dependencyTelemetry.Data.id);
                     writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
-                    writer.WriteProperty("kind", (int)dependencyTelemetry.Data.kind);
                     writer.WriteProperty("value", dependencyTelemetry.Data.value);
                     writer.WriteProperty("resultCode", dependencyTelemetry.Data.resultCode);
                     writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
-                    writer.WriteProperty("async", dependencyTelemetry.Data.async);
-                    writer.WriteProperty("dependencySource", (int)dependencyTelemetry.Data.dependencySource);
                     writer.WriteProperty("dependencyTypeName", dependencyTelemetry.Data.dependencyTypeName);
 
                     writer.WriteProperty("properties", dependencyTelemetry.Data.properties);
