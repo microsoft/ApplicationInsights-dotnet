@@ -48,27 +48,6 @@
         }
         
         /// <summary>
-        /// Gets or sets the date when the user accessed the application for the first time.
-        /// </summary>
-        /// <remarks>
-        /// Acquisition date is automatically supplied in default Application Insights configuration.
-        /// </remarks>
-        public DateTimeOffset? AcquisitionDate 
-        {
-            get { return this.tags.GetTagDateTimeOffsetValueOrNull(ContextTagKeys.Keys.UserAccountAcquisitionDate); }
-            set { this.tags.SetDateTimeOffsetValueOrRemove(ContextTagKeys.Keys.UserAccountAcquisitionDate, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the store region of an application-defined account associated with the user.
-        /// </summary>
-        public string StoreRegion
-        {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserStoreRegion); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserStoreRegion, value); }
-        }
-
-        /// <summary>
         /// Gets or sets the authenticated user id.
         /// Authenticated user id should be a persistent string that uniquely represents each authenticated user in the application or service.
         /// </summary>
