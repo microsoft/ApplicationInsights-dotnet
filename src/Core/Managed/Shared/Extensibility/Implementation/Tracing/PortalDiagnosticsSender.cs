@@ -19,6 +19,8 @@
         /// For user non actionable traces use AI Internal prefix.
         /// </summary>
         private const string AiNonUserActionable = "AI (Internal): ";
+
+        private const string SdkTelemetrySyntheticSourceName = "SDKTelemetry";
         
         private readonly TelemetryClient telemetryClient;
         private readonly IDiagnoisticsEventThrottlingManager throttlingManager;
@@ -114,6 +116,8 @@
             {
                 traceTelemetry.Context.InstrumentationKey = this.DiagnosticsInstrumentationKey;
             }
+
+            traceTelemetry.Context.Operation.SyntheticSource = SdkTelemetrySyntheticSourceName;
 
             this.telemetryClient.TrackTrace(traceTelemetry);
         }
