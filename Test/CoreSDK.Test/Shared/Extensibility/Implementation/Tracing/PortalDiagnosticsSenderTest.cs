@@ -69,7 +69,6 @@
             Assert.AreEqual(
                 "AI (Internal): Error occured at My function, some failure", 
                 trace.Message);
-            Assert.AreEqual(2, trace.Properties.Count);
         }
 
         [TestMethod]
@@ -95,6 +94,7 @@
             var trace = this.sendItems[0] as TraceTelemetry;
             Assert.IsNotNull(trace);
             Assert.AreEqual(diagnosticsInstrumentationKey, trace.Context.InstrumentationKey);
+            Assert.AreEqual("SDKTelemetry", trace.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]

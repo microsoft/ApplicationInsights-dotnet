@@ -19,6 +19,8 @@
         /// For user non actionable traces use AI Internal prefix.
         /// </summary>
         private const string AiNonUserActionable = "AI (Internal): ";
+
+        private const string SdkTelemetrySyntheticSourceName = "SDKTelemetry";
         
         private readonly TelemetryClient telemetryClient;
         private readonly IDiagnoisticsEventThrottlingManager throttlingManager;
@@ -95,24 +97,9 @@
 
             var traceTelemetry = new TraceTelemetry();
             
-            string message;
-            if (eventData.Payload != null)
-            {
-                const string ParameterNameFormat = "arg{0}";
-                    
-                for (int i = 1; i <= eventData.Payload.Count(); i++)
-                {
-                    traceTelemetry.Properties.Add(
-                        string.Format(CultureInfo.CurrentCulture, ParameterNameFormat, i),
-                        eventData.Payload[i - 1].ToString());
-                }
-
-                message = string.Format(CultureInfo.CurrentCulture, eventData.MetaData.MessageFormat, eventData.Payload.ToArray());
-            }
-            else
-            {
-                message = eventData.MetaData.MessageFormat;
-            }
+            string message = eventData.Payload != null ? 
+                string.Format(CultureInfo.CurrentCulture, eventData.MetaData.MessageFormat, eventData.Payload.ToArray()) : 
+                eventData.MetaData.MessageFormat;
 
             // Add "AI: " prefix (if keyword does not contain UserActionable = (EventKeywords)0x1, than prefix should be "AI (Internal):" )
             if ((eventData.MetaData.Keywords & EventSourceKeywords.UserActionable) == EventSourceKeywords.UserActionable)
@@ -129,6 +116,8 @@
             {
                 traceTelemetry.Context.InstrumentationKey = this.DiagnosticsInstrumentationKey;
             }
+
+            traceTelemetry.Context.Operation.SyntheticSource = SdkTelemetrySyntheticSourceName;
 
             this.telemetryClient.TrackTrace(traceTelemetry);
         }
