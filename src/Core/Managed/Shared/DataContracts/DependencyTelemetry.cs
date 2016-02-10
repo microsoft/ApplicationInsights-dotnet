@@ -131,32 +131,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets request count. Obsolete, use SamplingPercentage instead.
-        /// </summary>
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public int? Count
-        {
-            get { return 1; }
-            set { }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the dependency call was successful or not.
         /// </summary>
         public override bool? Success
         {
             get { return this.Data.success; }
             set { this.Data.success = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the dependency call was made asynchronously or not.
-        /// </summary>
-        public bool? Async
-        {
-            get { return this.Data.async; }
-            set { this.Data.async = value; }
         }
 
         /// <summary>

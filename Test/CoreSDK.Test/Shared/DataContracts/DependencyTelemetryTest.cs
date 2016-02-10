@@ -31,14 +31,11 @@
             Assert.Equal(expected.Id, item.Data.BaseData.Id);
             Assert.Equal(expected.ResultCode, item.Data.BaseData.ResultCode);
             Assert.Equal(expected.Name, item.Data.BaseData.Name);
-            Assert.Equal(DataPlatformModel.DataPointType.Aggregation, item.Data.BaseData.Kind);
             Assert.Equal(expected.Duration.TotalMilliseconds, item.Data.BaseData.Value);
             Assert.Equal(expected.DependencyKind.ToString(), item.Data.BaseData.DependencyKind.ToString());
             Assert.Equal(expected.DependencyTypeName, item.Data.BaseData.DependencyTypeName);
 
             Assert.Equal(expected.Success, item.Data.BaseData.Success);
-            Assert.Equal(expected.Async, item.Data.BaseData.Async);
-            
             Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
         }
 
@@ -50,7 +47,6 @@
             original.CommandName = null;
             original.DependencyTypeName = null;
             original.Success = null;
-            original.Async = null;
             original.DependencyKind = null;
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, DataPlatformModel.RemoteDependencyData>(original);
@@ -183,7 +179,6 @@
                                                 Name = "MyWebServer.cloudapp.net",
                                                 DependencyKind = BondDependencyKind.SQL.ToString(),
                                                 Duration = TimeSpan.FromMilliseconds(42),
-                                                Async = false,
                                                 Success = true,
                                                 Id = "DepID",
                                                 ResultCode = "200",
