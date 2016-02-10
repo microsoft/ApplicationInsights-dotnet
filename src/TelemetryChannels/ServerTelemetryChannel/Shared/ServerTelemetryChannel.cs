@@ -20,7 +20,8 @@
         internal Transmitter Transmitter;
 
         private bool? developerMode;
-        private int telemetryBufferCapacity;
+        private int originalCapacity;
+        private TimeSpan originalSendingInterval;
         private ITelemetryProcessor telemetryProcessor;
         private bool isInitialized;
         
@@ -45,8 +46,8 @@
 
             this.TelemetrySerializer = new TelemetrySerializer(this.Transmitter);
             this.TelemetryBuffer = new TelemetryBuffer(this.TelemetrySerializer, applicationLifecycle);
-            this.telemetryBufferCapacity = this.TelemetryBuffer.Capacity;
-
+            this.originalCapacity = this.TelemetryBuffer.Capacity;
+            this.originalSendingInterval = this.TelemetryBuffer.MaxTransmissionDelay;
             this.TelemetryProcessor = this.TelemetryBuffer;
             this.isInitialized = false;
         }
@@ -70,12 +71,13 @@
                 {
                     if (value.HasValue && value.Value)
                     {
-                        this.telemetryBufferCapacity = this.TelemetryBuffer.Capacity;
-                        this.TelemetryBuffer.Capacity = 1;
+                        this.TelemetryBuffer.Capacity = 15;
+                        this.TelemetryBuffer.MaxTransmissionDelay = TimeSpan.FromSeconds(5);
                     }
                     else
                     {
-                        this.TelemetryBuffer.Capacity = this.telemetryBufferCapacity;
+                        this.TelemetryBuffer.Capacity = this.originalCapacity;
+                        this.TelemetryBuffer.MaxTransmissionDelay = TimeSpan.FromSeconds(5);
                     }
 
                     this.developerMode = value;
@@ -98,8 +100,16 @@
         /// </summary>
         public TimeSpan MaxTelemetryBufferDelay 
         {
-            get { return this.TelemetryBuffer.MaxTransmissionDelay; }
-            set { this.TelemetryBuffer.MaxTransmissionDelay = value; }
+            get
+            {
+                return this.TelemetryBuffer.MaxTransmissionDelay;
+            }
+
+            set
+            {
+                this.originalSendingInterval = this.TelemetryBuffer.MaxTransmissionDelay;
+                this.TelemetryBuffer.MaxTransmissionDelay = value;
+            }
         }
 
         /// <summary>
@@ -108,8 +118,16 @@
         /// </summary>
         public int MaxTelemetryBufferCapacity 
         {
-            get { return this.TelemetryBuffer.Capacity; }
-            set { this.TelemetryBuffer.Capacity = value; } 
+            get
+            {
+                return this.TelemetryBuffer.Capacity;
+            }
+
+            set
+            {
+                this.TelemetryBuffer.Capacity = value;
+                this.originalCapacity = this.TelemetryBuffer.Capacity;
+            }
         }
 
         /// <summary>
