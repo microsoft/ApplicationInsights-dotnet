@@ -27,17 +27,6 @@
         }
 
         [TestMethod]
-        public void AcquisitionDateCanBeChangedByUserToSpecifyACustomValue()
-        {
-            var context = new UserContext(new Dictionary<string, string>());
-
-            DateTimeOffset testValue = DateTimeOffset.Now;
-            context.AcquisitionDate = testValue;
-
-            Assert.Equal(testValue, context.AcquisitionDate);
-        }
-
-        [TestMethod]
         public void UserAgentIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var context = new UserContext(new Dictionary<string, string>());

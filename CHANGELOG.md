@@ -11,7 +11,12 @@ item is being filtered out.
 - DependencyTelemetry.Async property was removed.
 - DependencyTelemetry.Count property was removed.
 - When configuration is loaded from ApplicationInsights.config incorrect and broken elements are skiped. That includes both high level evelemts like TelemetryInitializers as well as individual properties.  
-- Internal Application Insights SDK traces will be marked as synthetic and have `SyntheticSource` equals to 'SDKTelemetry'
+- Internal Application Insights SDK traces will be marked as synthetic and have `SyntheticSource` equals to 'SDKTelemetry'.
+- UserContext.AcquisitionDate property was removed.
+- UserContext.StoreRegion property was removed.
+- InMemoryChannel.DataUploadIntervalInSeconds was removed. Use SendingInterval instead.
+- DeviceContext.RoleName was removed. Use DeviceContext.Cloud.RoleName instead.
+- DeviceContext.RoleInstance was removed. Use DeviceContext.Cloud.RoleInstance instead.
 
 ## Version 2.0.0-beta4
 

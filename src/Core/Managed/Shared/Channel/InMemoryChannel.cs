@@ -1,12 +1,6 @@
-﻿// <copyright file="InMemoryChannel.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-
-namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -93,17 +87,6 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             get { return this.transmitter.EndpointAddress.ToString(); }
             set { this.transmitter.EndpointAddress = new Uri(value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum telemetry batching interval. Once the interval expires, <see cref="InMemoryChannel"/> 
-        /// serializes the accumulated telemetry items for transmission.
-        /// </summary>
-        [Obsolete("This value is now obsolete and will be removed in next release, use SendingInterval instead.")]
-        public double DataUploadIntervalInSeconds
-        {
-            get { return this.transmitter.SendingInterval.TotalSeconds; }
-            set { this.transmitter.SendingInterval = TimeSpan.FromSeconds(value); }
         }
 
         /// <summary>
