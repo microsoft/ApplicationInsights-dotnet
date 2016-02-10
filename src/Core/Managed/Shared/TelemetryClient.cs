@@ -104,6 +104,7 @@
 
         /// <summary>
         /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
+        /// Create a separate <see cref="EventTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackEvent(Microsoft.ApplicationInsights.Extensibility.DataContracts.EventTelemetry)"/>.
         /// </summary>
         /// <param name="telemetry">An event log item.</param>
         public void TrackEvent(EventTelemetry telemetry)
@@ -172,6 +173,7 @@
 
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
+        /// Create a separate <see cref="TraceTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackTrace(Microsoft.ApplicationInsights.Extensibility.DataContracts.TraceTelemetry)"/>.
         /// </summary>
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
@@ -199,6 +201,7 @@
 
         /// <summary>
         /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
+        /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackMetric(Microsoft.ApplicationInsights.Extensibility.DataContracts.MetricTelemetry)"/>.
         /// </summary>
         public void TrackMetric(MetricTelemetry telemetry)
         {
@@ -240,6 +243,7 @@
 
         /// <summary>
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
+        /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackException(Microsoft.ApplicationInsights.Extensibility.DataContracts.ExceptionTelemetry)"/>
         /// </summary>
         public void TrackException(ExceptionTelemetry telemetry)
         {
@@ -270,6 +274,7 @@
 
         /// <summary>
         /// Send information about external dependency call in the application.
+        /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackDependency(Microsoft.ApplicationInsights.Extensibility.DataContracts.DependencyTelemetry)"/>
         /// </summary>
         public void TrackDependency(DependencyTelemetry telemetry)
         {
@@ -372,6 +377,7 @@
 
         /// <summary>
         /// Send information about the page viewed in the application.
+        /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackPageView(Microsoft.ApplicationInsights.Extensibility.DataContracts.PageViewTelemetry)"/>.
         /// </summary>
         public void TrackPageView(PageViewTelemetry telemetry)
         {
@@ -398,6 +404,7 @@
 
         /// <summary>
         /// Send information about a request handled by the application.
+        /// Create a separate <see cref="RequestTelemetry"/> instance for each call to <see cref="Microsoft.ApplicationInsights.TelemetryClient.TrackRequest(Microsoft.ApplicationInsights.Extensibility.DataContracts.RequestTelemetry)"/>.
         /// </summary>
         public void TrackRequest(RequestTelemetry request)
         {
