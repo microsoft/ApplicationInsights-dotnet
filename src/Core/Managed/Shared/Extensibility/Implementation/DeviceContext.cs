@@ -1,8 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
-    using System;
     using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -88,26 +86,6 @@
         {
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceLanguage); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceLanguage, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the role name.
-        /// </summary>
-        [Obsolete("Use TelemetryContext.Cloud.RoleName")]
-        public string RoleName
-        {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleName); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleName, value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the role instance.
-        /// </summary>
-        [Obsolete("Use TelemetryContext.Cloud.RoleInstance")]
-        public string RoleInstance
-        {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleInstance); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleInstance, value); }
         }
     }
 }

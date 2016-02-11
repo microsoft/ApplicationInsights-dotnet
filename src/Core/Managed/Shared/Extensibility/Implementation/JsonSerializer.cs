@@ -411,7 +411,6 @@
             {
                 writer.WriteStartObject();
 
-                // TODO: DependencyTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 writer.WriteProperty("baseType", dependencyTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
@@ -421,13 +420,10 @@
                     writer.WriteProperty("name", dependencyTelemetry.Data.name);
                     writer.WriteProperty("id", dependencyTelemetry.Data.id);
                     writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
-                    writer.WriteProperty("kind", (int)dependencyTelemetry.Data.kind);
                     writer.WriteProperty("value", dependencyTelemetry.Data.value);
                     writer.WriteProperty("resultCode", dependencyTelemetry.Data.resultCode);
                     writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
-                    writer.WriteProperty("async", dependencyTelemetry.Data.async);
-                    writer.WriteProperty("dependencySource", (int)dependencyTelemetry.Data.dependencySource);
                     writer.WriteProperty("dependencyTypeName", dependencyTelemetry.Data.dependencyTypeName);
 
                     writer.WriteProperty("properties", dependencyTelemetry.Data.properties);
@@ -450,7 +446,6 @@
             {
                 jsonWriter.WriteStartObject();
 
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 jsonWriter.WriteProperty("baseType", requestTelemetry.BaseType);
                 jsonWriter.WritePropertyName("baseData");
                 {

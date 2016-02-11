@@ -61,7 +61,8 @@
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, httpWebResponse.StatusCode);
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)httpWebResponse.StatusCode);
+
                     switch (httpWebResponse.StatusCode)
                     {
                         case (HttpStatusCode)408:
@@ -91,7 +92,7 @@
                 }
                 else 
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, HttpStatusCode.InternalServerError);
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError);
                 }
             }
             else

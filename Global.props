@@ -86,8 +86,12 @@
         <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(EnlistmentRoot)\</SolutionDir>
         
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
-        <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
-                
+        <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>               
+
+        <!-- Forces EventRegister target to generate ETW manifest file --> 
+        <EtwManifestForceAll>true</EtwManifestForceAll>
+        <EtwManifestOutDir>$(BinRoot)\$(Configuration)\ETW\</EtwManifestOutDir>
+        
     </PropertyGroup>
    
     <PropertyGroup>

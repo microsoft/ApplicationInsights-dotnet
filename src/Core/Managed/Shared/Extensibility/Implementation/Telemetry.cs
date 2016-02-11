@@ -1,14 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System.Globalization;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
 
-    // TODO: Move Telemetry class to Microsoft.ApplicationInsights.DataContracts namespace for discoverability.
     internal static class Telemetry
     {
         public static void WriteEnvelopeProperties(this ITelemetry telemetry, IJsonWriter json)
         {
-            json.WriteProperty("time", telemetry.Timestamp);
+            json.WriteProperty("time", telemetry.Timestamp.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
 
             var samplingSupportingTelemetry = telemetry as ISupportSampling;
 

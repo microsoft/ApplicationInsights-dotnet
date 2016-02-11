@@ -2,6 +2,22 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.0.0
+
+- Writing telemetry items to debug output can be disabled with ```IsTracingDisabled``` property on ```TelemetryDebugWriter```. 
+Telemetry items that were filtered out by sampling are now indicated in debug output. Custom telemetry processors can now invoke
+method ```WriteTelemetry``` on ```TelemetryDebugWriter``` with ```filteredBy``` parameter to indicate in debug output that an
+item is being filtered out.
+- DependencyTelemetry.Async property was removed.
+- DependencyTelemetry.Count property was removed.
+- When configuration is loaded from ApplicationInsights.config incorrect and broken elements are skiped. That includes both high level evelemts like TelemetryInitializers as well as individual properties.  
+- Internal Application Insights SDK traces will be marked as synthetic and have `SyntheticSource` equals to 'SDKTelemetry'.
+- UserContext.AcquisitionDate property was removed.
+- UserContext.StoreRegion property was removed.
+- InMemoryChannel.DataUploadIntervalInSeconds was removed. Use SendingInterval instead.
+- DeviceContext.RoleName was removed. Use DeviceContext.Cloud.RoleName instead.
+- DeviceContext.RoleInstance was removed. Use DeviceContext.Cloud.RoleInstance instead.
+
 ## Version 2.0.0-beta4
 
 - UseSampling and UseAdaptiveSampling extensions were moved to Microsoft.ApplicationInsights.Extensibility

@@ -14,7 +14,6 @@
     {
         private const int ResponseCodeTooManyRequests = 429;
         private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
-        private const int ResponseCodePaymentRequired = 402;
 
         private readonly TaskTimer pauseTimer = new TaskTimer();
 
@@ -47,8 +46,7 @@
                 if (httpWebResponse != null)
                 {
                     if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequests ||
-                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequestsOverExtendedTime ||
-                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodePaymentRequired)
+                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequestsOverExtendedTime)
                     {
                         TimeSpan retryAfterTimeSpan;
                         if (!this.TryParseRetryAfter(httpWebResponse.Headers, out retryAfterTimeSpan))

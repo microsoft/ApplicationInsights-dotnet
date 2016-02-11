@@ -133,45 +133,5 @@
             context.Language = "test value";
             Assert.Equal("test value", context.Language);
         }
-
-        [TestMethod]
-        public void RoleNameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
-        {
-            var context = new DeviceContext(new Dictionary<string, string>());
-#pragma warning disable 618
-            Assert.Null(context.RoleName);
-#pragma warning restore 618
-        }
-
-        [TestMethod]
-        public void RoleNameCanBeChangedByUserSpecifyACustomValue()
-        {
-            var context = new DeviceContext(new Dictionary<string, string>());
-#pragma warning disable 618
-            context.RoleName = "Testing role name";
-
-            Assert.Equal("Testing role name", context.RoleName);
-#pragma warning restore 618
-        }
-
-        [TestMethod]
-        public void RoleInstanceIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
-        {
-            var context = new DeviceContext(new Dictionary<string, string>());
-#pragma warning disable 618
-            Assert.Null(context.RoleInstance);
-#pragma warning restore 618
-        }
-
-        [TestMethod]
-        public void RoleInstanceCanBeChangedByUserSpecifyACustomValue()
-        {
-            var context = new DeviceContext(new Dictionary<string, string>());
-#pragma warning disable 618
-            context.RoleInstance = "Testing role name";
-
-            Assert.Equal("Testing role name", context.RoleInstance);
-#pragma warning restore 618
-        }
     }
 }

@@ -22,13 +22,19 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1">
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1, Version=1.0.69.4007, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\External\DataPlatform\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2">
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2, Version=2.0.69.4007, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\External\DataPlatform\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -44,8 +50,8 @@
       <HintPath>..\..\..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
@@ -62,9 +68,6 @@
   <ItemGroup>
     <Compile Include="..\Net40\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
       <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
-    </Compile>
-    <Compile Include="..\Net40\Extensibility\Implementation\Tracing\CoreEventSourceTest.cs">
-      <Link>Extensibility\Implementation\Tracing\CoreEventSourceTest.cs</Link>
     </Compile>
     <Compile Include="Extensibility\Implementation\RichPayloadEventSourceTest.cs" />
     <Compile Include="FailOnAssertSetup.cs" />
@@ -83,9 +86,10 @@
     <None Include="..\Net40\app.config">
       <Link>app.config</Link>
     </None>
-    <None Include="..\Net40\packages.config">
-      <Link>packages.config</Link>
-    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensibility\Implementation\Tracing\" />
   </ItemGroup>
   <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Shared" />
   <Import Project="..\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems" Label="Shared" />
