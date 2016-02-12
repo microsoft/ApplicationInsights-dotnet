@@ -270,7 +270,21 @@
                 30,
                 this.ApplicationName);
         }
-      
+
+        [Event(
+            31,
+            Keywords = Keywords.UserActionable,
+            Message = "SyntheticUserAgentTelemetryInitializer failed to parse regular expression {0} with exception: {1}",
+            Level = EventLevel.Warning)]
+        public void SyntheticUserAgentTelemetryInitializerRegularExpressionParsingException(string pattern, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                31,
+                pattern,
+                exception,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

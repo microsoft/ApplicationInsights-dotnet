@@ -102,6 +102,41 @@
         }
 
         [TestMethod]
+        [Owner("mafletch")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void Mvc200RequestFW45BasicRequestSyntheticFiltering()
+        {
+            const string requestPath = "api/products";
+            const string expectedRequestName = "GET products";
+            string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
+
+            DateTimeOffset testStart = DateTimeOffset.UtcNow;
+
+            //Call an applicaiton page
+            var client = new HttpClient();
+            var requestMessage = new HttpRequestMessage
+            {
+                RequestUri = new Uri(expectedRequestUrl),
+                Method = HttpMethod.Get,
+            };
+
+            requestMessage.Headers.Add("User-Agent", "bingbot");
+
+            var responseTask = client.SendAsync(requestMessage);
+            responseTask.Wait(TimeoutInMs);
+            var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
+            responseTextTask.Wait(TimeoutInMs);
+            Assert.IsTrue(responseTextTask.Result.StartsWith("[{"));
+
+            var request = Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TimeoutInMs)[0];
+
+            var testFinish = DateTimeOffset.UtcNow;
+
+            this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
+            Assert.AreEqual("Spider", request.OperationContext.SyntheticSource);
+        }
+
+        [TestMethod]
         [Owner("abaranch")]
         [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
         public void TestMvc404Request()
