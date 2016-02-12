@@ -1,28 +1,189 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="QuickPulseServiceClient.cs" company="Microsoft">
+//   Copyright © Microsoft. All Rights Reserved.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Runtime.Serialization.Json;
+    using System.Web;
+
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
     /// Service client for QPS service.
     /// </summary>
     internal sealed class QuickPulseServiceClient : IQuickPulseServiceClient
     {
-        private Uri serviceUri;
+        private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
+
+        private const int RetryCount = 3;
+
+        private readonly Uri serviceUri;
 
         public QuickPulseServiceClient(Uri serviceUri)
         {
             this.serviceUri = serviceUri;
         }
-        
-        public bool Ping()
+
+        public bool? Ping(string instrumentationKey)
         {
-            return true;
+            var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Head, path, null);
+            if (response == null)
+            {
+                return null;
+            }
+            
+            return ProcessResponse(response);
         }
 
-        public bool SubmitSample(QuickPulseDataSample sample)
+        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            // //!!! System.IO.File.AppendAllText(@"e:\qps.log", $"AI RPS: {sample.AIRequestsPerSecond}\tIIS RPS: {sample.PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)sample.AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
-            return true;
+            //!!!
+            // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
+            var bodyStream = new MemoryStream();
+
+            WriteSamples(samples, bodyStream);
+            bodyStream.Position = 0;
+
+            var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", HttpUtility.UrlEncode(instrumentationKey));
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream);
+            if (response == null)
+            {
+                return null;
+            }
+
+            return ProcessResponse(response);
+        }
+
+        private static void WriteSamples(IEnumerable<QuickPulseDataSample> samples, MemoryStream bodyStream)
+        {
+            var monitoringPoints = new List<MonitoringDataPoint>();
+
+            foreach (var sample in samples)
+            {
+                var metricPoints = new List<MetricPoint>
+                                       {
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Requests/Sec",
+                                                   Value = sample.AIRequestsPerSecond,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Request Duration",
+                                                   Value = sample.AIRequestDurationAveInTicks,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Requests Failed/Sec",
+                                                   Value = sample.AIRequestsFailedPerSecond,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Requests Succeeded/Sec",
+                                                   Value = sample.AIRequestsSucceededPerSecond,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Dependency Calls/Sec",
+                                                   Value = sample.AIDependencyCallsPerSecond,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Dependency Call Duration",
+                                                   Value = sample.AIDependencyCallDurationAveInTicks,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Dependency Calls Failed/Sec",
+                                                   Value = sample.AIDependencyCallsFailedPerSecond,
+                                                   Weight = 1
+                                               },
+                                           new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Dependency Calls Succeeded/Sec",
+                                                   Value = sample.AIDependencyCallsSucceededPerSecond,
+                                                   Weight = 1
+                                               }
+                                       };
+
+                metricPoints.AddRange(sample.PerfCountersLookup.Select(counter => new MetricPoint { Name = counter.Key, Value = counter.Value, Weight = 1 }));
+
+                var dataPoint = new MonitoringDataPoint
+                                    {
+                                        // //!!!
+                                        Instance = "empty",
+                                        Timestamp = sample.EndTimestamp,
+                                        Metrics = metricPoints.ToArray()
+                                    };
+
+                monitoringPoints.Add(dataPoint);
+            }
+
+            var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
+
+            serializer.WriteObject(bodyStream, monitoringPoints.ToArray());
+        }
+
+        private static bool? ProcessResponse(HttpWebResponse response)
+        {
+            bool isSubscribed;
+            if (!bool.TryParse(response.GetResponseHeader(XMsQpsSubscribedHeaderName), out isSubscribed))
+            {
+                return null;
+            }
+
+            return isSubscribed;
+        }
+
+        private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body)
+        {
+            var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.serviceUri.AbsoluteUri.TrimEnd('/'), path);
+
+            int attempt = 0;
+            while (attempt < RetryCount)
+            {
+                try
+                {
+                    var request = WebRequest.Create(requestUri) as HttpWebRequest;
+                    request.Method = httpVerb;
+
+                    if (body != null)
+                    {
+                        var requestStream = request.GetRequestStream();
+                        body.CopyTo(requestStream);
+                    }
+
+                    var response = request.GetResponse() as HttpWebResponse;
+                    if (response != null)
+                    {
+                        return response;
+                    }
+                }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.ServiceCommunicationFailedEvent(e.ToString());
+                }
+
+                attempt++;
+            }
+
+            return null;
         }
     }
 }

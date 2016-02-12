@@ -17,7 +17,11 @@
     /// </summary>
     public sealed class QuickPulseTelemetryModule : ITelemetryModule, IDisposable
     {
+        private const int MaxSampleStorageSize = 10;
+
         private readonly object lockObject = new object();
+
+        private readonly object collectedSamplesLock = new object();
 
         private readonly TimeSpan servicePollingInterval = TimeSpan.FromSeconds(5);
 
@@ -25,17 +29,21 @@
 
         private readonly Uri serviceUriDefault = new Uri("https://qps.com/api");
 
+        private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
+         
         private IQuickPulseServiceClient serviceClient;
 
-        private Timer timer = null;
+        private Timer collectionTimer;
 
-        private bool isInitialized = false;
+        private Timer stateTimer;
+
+        private bool isInitialized;
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         private IQuickPulseTelemetryProcessor telemetryProcessor = null;
 
-        private QuickPulseCollectionStateManager collectionStateManager = null;
+        private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
 
@@ -110,20 +118,16 @@
                         this.InitializeServiceClient();
 
                         this.InitializeTelemetryProcessor(configuration);
-                        
-                        this.collectionStateManager = new QuickPulseCollectionStateManager(
+
+                        this.stateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
-                            () =>
-                                {
-                                    this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
-                                    this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
-                                },
-                            () => this.telemetryProcessor.StopCollection(),
-                            this.CollectData);
+                            this.OnStartCollection,
+                            this.OnStopCollection,
+                            this.OnSubmitSamples);
 
                         this.InitializePerformanceCollector();
 
-                        this.StartTimer();
+                        this.InitializeTimers();
 
                         this.isInitialized = true;
                     }
@@ -199,11 +203,12 @@
             }
         }
 
-        private void StartTimer()
+        private void InitializeTimers()
         {
-            this.timer = new Timer(this.TimerCallback);
+            this.collectionTimer = new Timer(this.CollectionTimerCallback);
 
-            this.timer.ScheduleNextTick(this.servicePollingInterval);
+            this.stateTimer = new Timer(this.StateTimerCallback);
+            this.stateTimer.ScheduleNextTick(this.servicePollingInterval);
         }
 
         private IQuickPulseTelemetryProcessor FetchTelemetryProcessor(TelemetryConfiguration configuration)
@@ -247,11 +252,13 @@
             this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri);
         }
 
-        private void TimerCallback(object state)
+        private void StateTimerCallback(object state)
         {
+            var currentCallbackStarted = DateTime.UtcNow;
+
             try
             {
-                this.collectionStateManager.PerformAction();
+                this.stateManager.UpdateState(TelemetryConfiguration.Active.InstrumentationKey);
             }
             catch (Exception e)
             {
@@ -259,18 +266,77 @@
             }
             finally
             {
-                if (this.timer != null)
+                if (this.stateTimer != null)
                 {
-                    this.timer.ScheduleNextTick(this.collectionStateManager.IsCollectingData ? this.collectionInterval : this.servicePollingInterval);
+                    // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
+                    TimeSpan timeSpentInThisCallback = DateTime.UtcNow - currentCallbackStarted;
+
+                    TimeSpan timeLeftUntilNextCallbackCollection = this.collectionInterval - timeSpentInThisCallback;
+                    TimeSpan timeLeftUntilNextCallbackPolling = this.servicePollingInterval - timeSpentInThisCallback;
+
+                    timeLeftUntilNextCallbackCollection = timeLeftUntilNextCallbackCollection > TimeSpan.Zero
+                                                              ? timeLeftUntilNextCallbackCollection
+                                                              : TimeSpan.Zero;
+
+                    timeLeftUntilNextCallbackPolling = timeLeftUntilNextCallbackPolling > TimeSpan.Zero
+                                                           ? timeLeftUntilNextCallbackPolling
+                                                           : TimeSpan.Zero;
+
+                    this.stateTimer.ScheduleNextTick(
+                        this.stateManager.IsCollectingData ? timeLeftUntilNextCallbackCollection : timeLeftUntilNextCallbackPolling);
                 }
             }
         }
 
-        /// <summary>
-        /// Data collection entry point.
-        /// </summary>
-        /// <returns><b>true</b> if we need to keep collecting data, <b>false</b> otherwise.</returns>
-        private QuickPulseDataSample CollectData()
+        private void CollectionTimerCallback(object state)
+        {
+            var currentCallbackStarted = DateTime.UtcNow;
+
+            try
+            {
+                this.CollectData();
+            }
+            catch (Exception e)
+            {
+                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToString());
+            }
+            finally
+            {
+                if (this.stateManager.IsCollectingData && this.collectionTimer != null)
+                {
+                    // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
+                    TimeSpan timeSpentInThisCallback = DateTime.UtcNow - currentCallbackStarted;
+
+                    TimeSpan timeLeftUntilNextCallback = this.collectionInterval - timeSpentInThisCallback;
+
+                    timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero ? timeLeftUntilNextCallback : TimeSpan.Zero;
+
+                    this.collectionTimer.ScheduleNextTick(timeLeftUntilNextCallback);
+                }
+            }
+        }
+        
+        private void CollectData()
+        {
+            var sample = this.CollectSample();
+
+            this.StoreSample(sample);
+        }
+
+        private void StoreSample(QuickPulseDataSample sample)
+        {
+            lock (this.collectedSamplesLock)
+            {
+                this.collectedSamples.AddLast(sample);
+
+                while (this.collectedSamples.Count > MaxSampleStorageSize)
+                {
+                    this.collectedSamples.RemoveFirst();
+                }
+            }
+        }
+
+        private QuickPulseDataSample CollectSample()
         {
             // For AI data, all we have to do is lock the current accumulator in
             QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
@@ -287,8 +353,44 @@
             QuickPulseDataAccumulator accumulator,
             IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
         {
-            return new QuickPulseDataSample(accumulator, perfData.ToLookup(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
+            return new QuickPulseDataSample(accumulator, perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
         }
+
+        #region Callbacks from the state manager
+        private void OnStartCollection()
+        {
+            this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
+            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
+
+            this.collectionTimer.ScheduleNextTick(TimeSpan.Zero);
+        }
+
+        private void OnStopCollection()
+        {
+            this.collectionTimer.Stop();
+
+            this.telemetryProcessor.StopCollection();
+
+            lock (this.collectedSamplesLock)
+            {
+                this.collectedSamples.Clear();
+            }
+        }
+
+        private IEnumerable<QuickPulseDataSample> OnSubmitSamples()
+        {
+            IEnumerable<QuickPulseDataSample> samples;
+
+            lock (this.collectedSamplesLock)
+            {
+                samples = this.collectedSamples.ToArray();
+
+                this.collectedSamples.Clear();
+            }
+
+            return samples;
+        }
+        #endregion
 
         /// <summary>
         /// Dispose implementation.
@@ -297,10 +399,16 @@
         {
             if (disposing)
             {
-                if (this.timer != null)
+                if (this.stateTimer != null)
                 {
-                    this.timer.Dispose();
-                    this.timer = null;
+                    this.stateTimer.Dispose();
+                    this.stateTimer = null;
+                }
+
+                if (this.collectionTimer != null)
+                {
+                    this.collectionTimer.Dispose();
+                    this.collectionTimer = null;
                 }
             }
         }

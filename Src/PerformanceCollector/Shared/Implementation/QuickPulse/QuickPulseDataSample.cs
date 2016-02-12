@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
@@ -8,7 +10,7 @@
     /// </summary>
     internal class QuickPulseDataSample
     {
-        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, ILookup<string, float> perfData)
+        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, float> perfData)
         {
             if (accumulator == null)
             {
@@ -54,20 +56,31 @@
             long dependencyDurationInTicks = dependencyCountAndDuration.Item2;
 
             this.AIDependencyCallsPerSecond = sampleDuration.TotalSeconds > 0 ? dependencyCount / sampleDuration.TotalSeconds : 0;
-            this.AIDependencyCallDurationAve = dependencyCount > 0 ? (double)dependencyDurationInTicks / dependencyCount : 0;
+            this.AIDependencyCallDurationAveInTicks = dependencyCount > 0 ? (double)dependencyDurationInTicks / dependencyCount : 0;
             this.AIDependencyCallsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallFailureCount / sampleDuration.TotalSeconds : 0;
             this.AIDependencyCallsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallSuccessCount / sampleDuration.TotalSeconds : 0;
 
             // avoiding reflection (Enum.GetNames()) to speed things up
-            this.PerfIisRequestsPerSecond = perfData[QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString()].SingleOrDefault();
-            this.PerfIisRequestDurationAveInTicks = perfData[QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString()].SingleOrDefault();
-            this.PerfIisRequestsFailedTotal = perfData[QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString()].SingleOrDefault();
-            this.PerfIisRequestsSucceededTotal = perfData[QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString()].SingleOrDefault();
-            this.PerfIisQueueSize = perfData[QuickPulsePerfCounters.PerfIisQueueSize.ToString()].SingleOrDefault();
-            this.PerfCpuUtilization = perfData[QuickPulsePerfCounters.PerfCpuUtilization.ToString()].SingleOrDefault();
-            this.PerfMemoryInBytes = perfData[QuickPulsePerfCounters.PerfMemoryInBytes.ToString()].SingleOrDefault();
-        }
+            float value;
 
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString(), out value);
+            this.PerfIisRequestsPerSecond = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString(), out value);
+            this.PerfIisRequestDurationAveInTicks = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString(), out value);
+            this.PerfIisRequestsFailedTotal = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString(), out value);
+            this.PerfIisRequestsSucceededTotal = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisQueueSize.ToString(), out value);
+            this.PerfIisQueueSize = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfCpuUtilization.ToString(), out value);
+            this.PerfCpuUtilization = value;
+            perfData.TryGetValue(QuickPulsePerfCounters.PerfMemoryInBytes.ToString(), out value);
+            this.PerfMemoryInBytes = value;
+
+            this.PerfCountersLookup = perfData;
+        }
+        
         public DateTime StartTimestamp { get; }
 
         public DateTime EndTimestamp { get; }
@@ -83,7 +96,7 @@
         
         public double AIDependencyCallsPerSecond { get; private set; }
 
-        public double AIDependencyCallDurationAve { get; private set; }
+        public double AIDependencyCallDurationAveInTicks { get; private set; }
 
         public double AIDependencyCallsFailedPerSecond { get; private set; }
 
@@ -92,6 +105,9 @@
         #endregion
 
         #region Performance counters
+
+        public IDictionary<string, float> PerfCountersLookup { get; private set; }
+
         public double PerfIisRequestsPerSecond { get; private set; }
 
         public double PerfIisRequestDurationAveInTicks { get; private set; }

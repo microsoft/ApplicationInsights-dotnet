@@ -10,7 +10,7 @@
 #endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-PerformanceCollector-QuickPulse")]
-    internal class QuickPulseEventSource : EventSource
+    internal sealed class QuickPulseEventSource : EventSource
     {
         private static readonly QuickPulseEventSource Logger = new QuickPulseEventSource();
 
@@ -84,7 +84,11 @@
         #endregion
 
         #region Data sending - failure
-
+        [Event(12, Level = EventLevel.Verbose, Message = @"Failed communicate with the QuickPulse service. Error text: {0}")]
+        public void ServiceCommunicationFailedEvent(string e, string applicationName = "dummy")
+        {
+            this.WriteEvent(12, e, this.ApplicationName);
+        }
         #endregion
 
         #region Unknown errors

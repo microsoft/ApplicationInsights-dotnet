@@ -6,33 +6,42 @@
 
     internal class QuickPulseServiceClientMock : IQuickPulseServiceClient
     {
+        private readonly object lockObject = new object();
+
         public int PingCount { get; private set; }
 
         public List<QuickPulseDataSample> Samples { get; } = new List<QuickPulseDataSample>();
 
-        public int SampleCount => this.Samples.Count;
+        public bool ReturnValueFromPing { private get; set; }
 
-        public bool ReturnValueFromPing { get; set; }
-
-        public bool ReturnValueFromSubmitSample { get; set; }
+        public bool ReturnValueFromSubmitSample { private get; set; }
 
         public void Reset()
         {
-            this.PingCount = 0;
-            
-            this.Samples.Clear();
+            lock (this.lockObject)
+            {
+                this.PingCount = 0;
+
+                this.Samples.Clear();
+            }
         }
 
-        public bool Ping()
+        public bool? Ping(string instrumentationKey)
         {
-            this.PingCount++;
+            lock (this.lockObject)
+            {
+                this.PingCount++;
+            }
 
             return this.ReturnValueFromPing;
         }
 
-        public bool SubmitSample(QuickPulseDataSample sample)
+        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            this.Samples.Add(sample);
+            lock (this.lockObject)
+            {
+                this.Samples.AddRange(samples);
+            }
 
             return this.ReturnValueFromSubmitSample;
         }

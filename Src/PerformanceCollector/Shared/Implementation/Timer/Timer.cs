@@ -26,11 +26,19 @@
 
         #region Public Methods and Operators
 
-        /// <summary>The change.</summary>
+        /// <summary>Changes the timer's parameters.</summary>
         /// <param name="dueTime">The due time.</param>
         public void ScheduleNextTick(TimeSpan dueTime)
         {
             this.timer.Change((long)dueTime.TotalMilliseconds, Timeout.Infinite);
+        }
+
+        /// <summary>
+        /// Stops the timer.
+        /// </summary>
+        public void Stop()
+        {
+            this.timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         #endregion

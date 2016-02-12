@@ -12,19 +12,19 @@
     [TestClass]
     public class QuickPulseDataSampleTests
     {
-        private ILookup<string, float> dummyLookup;
+        private IDictionary<string, float> dummyDictionary;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.dummyLookup = new Dictionary<string, float>().ToLookup(pair => pair.Key, pair => pair.Value);
+            this.dummyDictionary = new Dictionary<string, float>();
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorIsNull()
         {
-            new QuickPulseDataSample(null, this.dummyLookup);
+            new QuickPulseDataSample(null, this.dummyDictionary);
         }
 
         [TestMethod]
@@ -38,14 +38,14 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorStartTimestampIsNull()
         {
-            new QuickPulseDataSample(new QuickPulseDataAccumulator() { EndTimestamp = DateTime.UtcNow }, this.dummyLookup);
+            new QuickPulseDataSample(new QuickPulseDataAccumulator() { EndTimestamp = DateTime.UtcNow }, this.dummyDictionary);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorEndTimestampIsNull()
         {
-            new QuickPulseDataSample(new QuickPulseDataAccumulator() { StartTimestamp = DateTime.UtcNow }, this.dummyLookup);
+            new QuickPulseDataSample(new QuickPulseDataAccumulator() { StartTimestamp = DateTime.UtcNow }, this.dummyDictionary);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@
         {
             new QuickPulseDataSample(
                 new QuickPulseDataAccumulator() { StartTimestamp = DateTime.UtcNow, EndTimestamp = DateTime.UtcNow.AddSeconds(-1) },
-                this.dummyLookup);
+                this.dummyDictionary);
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@
             var accumulator = new QuickPulseDataAccumulator { StartTimestamp = timestampStart, EndTimestamp = timestampEnd };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(timestampStart, dataSample.StartTimestamp);
@@ -89,7 +89,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsPerSecond);
@@ -108,7 +108,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIRequestDurationAveInTicks);
@@ -126,7 +126,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsFailedPerSecond);
@@ -144,7 +144,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsSucceededPerSecond);
@@ -167,7 +167,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsPerSecond);
@@ -186,10 +186,10 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIDependencyCallDurationAve);
+            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIDependencyCallDurationAveInTicks);
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsFailedPerSecond);
@@ -222,7 +222,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsSucceededPerSecond);
@@ -241,7 +241,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(0.0, dataSample.AIRequestDurationAveInTicks);
@@ -260,10 +260,10 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.AIDependencyCallDurationAve);
+            Assert.AreEqual(0.0, dataSample.AIDependencyCallDurationAveInTicks);
         }
 
         #endregion
@@ -282,7 +282,7 @@
             };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyLookup);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
             Assert.AreEqual(0.0, dataSample.PerfIisRequestsPerSecond);

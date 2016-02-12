@@ -2,15 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class QuickPulseCollectionStateManagerTests
     {
-        const string StartCollection = "StartCollection";
-        const string StopCollection = "StopCollection";
-        const string Collect = "Collect";
+        const string StartCollectionMessage = "StartCollection";
+        const string StopCollectionMessage = "StopCollection";
+        const string CollectMessage = "Collect";
         
         [TestMethod]
         public void QuickPulseCollectionStateManagerInitiallyInIdleState()
@@ -42,7 +44,7 @@
             // ACT
             for (int i = 0; i < 10; i++)
             {
-                manager.PerformAction();
+                manager.UpdateState("empty iKey");
             }
 
             // ASSERT
@@ -64,13 +66,16 @@
             var manager = CreateManager(serviceClient, actions);
 
             // ACT
-            manager.PerformAction();
+            manager.UpdateState("empty iKey");
+
+            // on the next call it actually requests samples collected since the last call
+            manager.UpdateState("empty iKey");
             
             // ASSERT
             Assert.AreEqual(true, manager.IsCollectingData);
             Assert.AreEqual(2, actions.Count);
-            Assert.AreEqual(StartCollection, actions[0]);
-            Assert.AreEqual(Collect, actions[1]);
+            Assert.AreEqual(StartCollectionMessage, actions[0]);
+            Assert.AreEqual(CollectMessage, actions[1]);
         }
 
         [TestMethod]
@@ -87,14 +92,17 @@
             var manager = CreateManager(serviceClient, actions);
 
             // ACT
-            manager.PerformAction();
+            manager.UpdateState("empty iKey");
+
+            // requests samples collected since last call - and puts itself back into the idle state
+            manager.UpdateState("empty iKey");
 
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
             Assert.AreEqual(3, actions.Count);
-            Assert.AreEqual(StartCollection, actions[0]);
-            Assert.AreEqual(Collect, actions[1]);
-            Assert.AreEqual(StopCollection, actions[2]);
+            Assert.AreEqual(StartCollectionMessage, actions[0]);
+            Assert.AreEqual(CollectMessage, actions[1]);
+            Assert.AreEqual(StopCollectionMessage, actions[2]);
         }
 
         [TestMethod]
@@ -111,19 +119,22 @@
             var manager = CreateManager(serviceClient, actions);
 
             // ACT
+            manager.UpdateState("empty iKey");
+
+            // now we start sending samples
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.PerformAction();
+                manager.UpdateState("empty iKey");
             }
 
             // ASSERT
             Assert.AreEqual(true, manager.IsCollectingData);
             Assert.AreEqual(1 + collectionCount, actions.Count);
-            Assert.AreEqual(StartCollection, actions[0]);
+            Assert.AreEqual(StartCollectionMessage, actions[0]);
             for (int i = 1; i < collectionCount; i++)
             {
-                Assert.AreEqual(Collect, actions[i]);
+                Assert.AreEqual(CollectMessage, actions[i]);
             }
         }
 
@@ -141,7 +152,7 @@
             var manager = CreateManager(serviceClient, actions);
 
             // enter collect state
-            manager.PerformAction();
+            manager.UpdateState("empty iKey");
 
             serviceClient.ReturnValueFromPing = false;
             serviceClient.ReturnValueFromSubmitSample = false;
@@ -152,14 +163,14 @@
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.PerformAction();
+                manager.UpdateState("empty iKey");
             }
             
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
             Assert.AreEqual(2, actions.Count);
-            Assert.AreEqual(Collect, actions[0]);
-            Assert.AreEqual(StopCollection, actions[1]);
+            Assert.AreEqual(CollectMessage, actions[0]);
+            Assert.AreEqual(StopCollectionMessage, actions[1]);
         }
 
         [TestMethod]
@@ -179,17 +190,18 @@
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.PerformAction();
+                manager.UpdateState("empty iKey");
             }
 
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
-            Assert.AreEqual(3 * collectionCount, actions.Count);
+            Assert.AreEqual(1.5 * collectionCount, actions.Count);
             for (int i = 0; i < collectionCount; i += 3)
             {
-                Assert.AreEqual(StartCollection, actions[i + 0]);
-                Assert.AreEqual(Collect, actions[i + 1]);
-                Assert.AreEqual(StopCollection, actions[i + 2]);
+                Assert.AreEqual(StartCollectionMessage, actions[i + 0]);
+
+                Assert.AreEqual(CollectMessage, actions[i + 1]);
+                Assert.AreEqual(StopCollectionMessage, actions[i + 2]);
             }
         }
 
@@ -197,17 +209,13 @@
         public void QuickPulseCollectionStateManagerFlipFlopsBetweenCollectAndIdle()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = true
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
             var manager = CreateManager(serviceClient, actions);
 
             // enter collect state
-            manager.PerformAction();
+            manager.UpdateState("empty iKey");
 
             actions.Clear();
 
@@ -228,25 +236,18 @@
                     serviceClient.ReturnValueFromSubmitSample = true;
                 }
 
-                manager.PerformAction();
+                manager.UpdateState("empty iKey");
             }
 
             // ASSERT
             Assert.AreEqual(true, manager.IsCollectingData);
 
-            Assert.AreEqual(2 * collectionCount, actions.Count);
-            for (int i = 0; i < 2 * collectionCount; i += 2)
+            Assert.AreEqual(1.5 * collectionCount, actions.Count);
+            for (int i = 0; i < 1.5 * collectionCount; i += 3)
             {
-                if (i % 4 == 0)
-                {
-                    Assert.AreEqual(Collect, actions[i + 0]);
-                    Assert.AreEqual(StopCollection, actions[i + 1]);
-                }
-                else
-                {
-                    Assert.AreEqual(StartCollection, actions[i + 0]);
-                    Assert.AreEqual(Collect, actions[i + 1]);
-                }
+                Assert.AreEqual(CollectMessage, actions[i + 0]);
+                Assert.AreEqual(StopCollectionMessage, actions[i + 1]);
+                Assert.AreEqual(StartCollectionMessage, actions[i + 2]);
             }
         }
 
@@ -254,13 +255,13 @@
         {
             var manager = new QuickPulseCollectionStateManager(
                 serviceClient,
-                () => actions.Add(StartCollection),
-                () => actions.Add(StopCollection),
+                () => actions.Add(StartCollectionMessage),
+                () => actions.Add(StopCollectionMessage),
                 () =>
                 {
-                    actions.Add(Collect);
+                    actions.Add(CollectMessage);
 
-                    return null;
+                    return Enumerable.Empty<QuickPulseDataSample>();
                 });
 
             return manager;
