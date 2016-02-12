@@ -48,7 +48,6 @@
     <Compile Include="ConfigurationHelpers.cs" />
     <Compile Include="TelemetryInitailizersTests.cs" />
     <Compile Include="TelemetryModulesTests.cs" />
-    <Compile Include="TelemetryProcessorsTests.cs" />
     <Compile Include="WebConfigWithLocationTagTransformTest.cs" />
     <Compile Include="WebConfigTransformTest.cs" />
   </ItemGroup>
