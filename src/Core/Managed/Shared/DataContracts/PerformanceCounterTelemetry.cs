@@ -24,6 +24,7 @@
         public PerformanceCounterTelemetry()
         {
             this.Data = new PerformanceCounterData();
+            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
         }
 
         /// <summary>
@@ -33,7 +34,8 @@
         /// <param name="counterName">Performance counter name.</param>
         /// <param name="instanceName">Instance name.</param>
         /// <param name="value">Performance counter value.</param>
-        public PerformanceCounterTelemetry(string categoryName, string counterName, string instanceName, double value) : this()
+        public PerformanceCounterTelemetry(string categoryName, string counterName, string instanceName, double value) 
+            : this()
         {
             this.CategoryName = categoryName;
             this.CounterName = counterName;
@@ -58,7 +60,7 @@
         {
             get
             {
-                return LazyInitializer.EnsureInitialized(ref this.context);
+                return this.context;
             }
         }
 

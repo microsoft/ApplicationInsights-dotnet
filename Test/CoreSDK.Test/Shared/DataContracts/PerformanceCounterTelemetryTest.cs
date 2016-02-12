@@ -20,5 +20,15 @@
 
             Assert.Equal(2, item.Data.BaseData.Ver);
         }
+
+        [TestMethod]
+        public void ContextPropertiesUsedAsTelemetryItemProperties()
+        {
+            PerformanceCounterTelemetry item = new PerformanceCounterTelemetry();
+
+            item.Context.Properties["a"] = "b";
+
+            Assert.Equal("b", item.Properties["a"]);
+        }
     }
 }

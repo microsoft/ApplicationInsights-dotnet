@@ -58,7 +58,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SeverityLevel.g.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Tags.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\UserContextData.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\FixedSizeQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InternalContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IPlatform.cs" />
@@ -78,7 +77,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Telemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryContextExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryItemExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ExceptionDetails.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChain.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilder.cs" />
