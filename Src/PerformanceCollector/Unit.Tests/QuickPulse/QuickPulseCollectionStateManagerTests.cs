@@ -20,7 +20,7 @@
             // ARRANGE
             var serviceClient = new QuickPulseServiceClientMock();
 
-            var manager = new QuickPulseCollectionStateManager(serviceClient, () => { }, () => { }, () => null);
+            var manager = new QuickPulseCollectionStateManager(serviceClient, () => { }, () => { }, () => null, _ => { });
 
             // ACT
             
@@ -251,18 +251,53 @@
             }
         }
 
-        private static QuickPulseCollectionStateManager CreateManager(QuickPulseServiceClientMock serviceClient, List<string> actions)
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerReturnsFailedSamplesBack()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var manager = CreateManager(serviceClient, actions, returnedSamples);
+
+            // turn on collection
+            manager.UpdateState("empty iKey");
+
+            // ACT
+            // lost connection
+            serviceClient.ReturnValueFromSubmitSample = null;
+
+            manager.UpdateState("empty iKey");
+
+            // ASSERT
+            Assert.AreEqual(1, returnedSamples.Count);
+            Assert.AreEqual(5, returnedSamples[0].AIRequestsSucceededPerSecond);
+        }
+
+        private static QuickPulseCollectionStateManager CreateManager(
+            QuickPulseServiceClientMock serviceClient,
+            List<string> actions,
+            List<QuickPulseDataSample> returnedSamples = null)
         {
             var manager = new QuickPulseCollectionStateManager(
                 serviceClient,
                 () => actions.Add(StartCollectionMessage),
                 () => actions.Add(StopCollectionMessage),
                 () =>
-                {
-                    actions.Add(CollectMessage);
+                    {
+                        actions.Add(CollectMessage);
 
-                    return Enumerable.Empty<QuickPulseDataSample>();
-                });
+                        var now = DateTime.UtcNow;
+                        return
+                            new[]
+                                {
+                                    new QuickPulseDataSample(
+                                        new QuickPulseDataAccumulator { AIRequestSuccessCount = 5, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                                        new Dictionary<string, float>())
+                                }.ToList();
+                    },
+                samples => { returnedSamples?.AddRange(samples); });
 
             return manager;
         }

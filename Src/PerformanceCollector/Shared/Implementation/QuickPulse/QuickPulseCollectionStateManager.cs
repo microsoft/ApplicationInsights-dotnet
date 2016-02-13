@@ -2,15 +2,26 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     internal class QuickPulseCollectionStateManager
     {
         private readonly IQuickPulseServiceClient serviceClient = null;
+
         private readonly Action onStartCollection = null;
+
         private readonly Action onStopCollection = null;
-        private readonly Func<IEnumerable<QuickPulseDataSample>> onSubmitSamples = null;
-        
-        public QuickPulseCollectionStateManager(IQuickPulseServiceClient serviceClient, Action onStartCollection, Action onStopCollection, Func<IEnumerable<QuickPulseDataSample>> onSubmitSamples)
+
+        private readonly Func<IList<QuickPulseDataSample>> onSubmitSamples = null;
+
+        private readonly Action<IList<QuickPulseDataSample>> onReturnFailedSamples = null;
+
+        public QuickPulseCollectionStateManager(
+            IQuickPulseServiceClient serviceClient,
+            Action onStartCollection,
+            Action onStopCollection,
+            Func<IList<QuickPulseDataSample>> onSubmitSamples,
+            Action<IList<QuickPulseDataSample>> onReturnFailedSamples)
         {
             if (serviceClient == null)
             {
@@ -32,10 +43,16 @@
                 throw new ArgumentNullException(nameof(onSubmitSamples));
             }
 
+            if (onReturnFailedSamples == null)
+            {
+                throw new ArgumentNullException(nameof(onReturnFailedSamples));
+            }
+
             this.serviceClient = serviceClient;
             this.onStartCollection = onStartCollection;
             this.onStopCollection = onStopCollection;
             this.onSubmitSamples = onSubmitSamples;
+            this.onReturnFailedSamples = onReturnFailedSamples;
         }
 
         public bool IsCollectingData { get; private set; }
@@ -45,8 +62,17 @@
             if (this.IsCollectingData)
             {
                 // we are currently collecting
-                // //!!! stay in the same state if can't get response
-                this.IsCollectingData = this.serviceClient.SubmitSamples(this.onSubmitSamples(), instrumentationKey) ?? this.IsCollectingData;
+                // !!! handle back-off
+                IList<QuickPulseDataSample> dataSamplesToSubmit = this.onSubmitSamples();
+                bool? isCollectingData = dataSamplesToSubmit.Any() ? this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey) : true;
+
+                if (isCollectingData == null)
+                {
+                    // we need to return the samples back to the submitter since we have failed to send them
+                    this.onReturnFailedSamples(dataSamplesToSubmit);
+                }
+
+                this.IsCollectingData = isCollectingData ?? this.IsCollectingData;
 
                 if (!this.IsCollectingData)
                 {
@@ -57,7 +83,7 @@
             else
             {
                 // we are currently idle and pinging the service waiting for it to ask us for data
-                // //!!! stay in the same state if can't get response
+                // //!!! handle back-off
                 this.IsCollectingData = this.serviceClient.Ping(instrumentationKey) ?? this.IsCollectingData;
 
                 if (this.IsCollectingData)

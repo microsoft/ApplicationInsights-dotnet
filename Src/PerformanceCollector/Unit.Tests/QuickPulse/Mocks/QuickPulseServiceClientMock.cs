@@ -1,6 +1,7 @@
 ﻿namespace Unit.Tests
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
@@ -12,15 +13,20 @@
 
         public List<QuickPulseDataSample> Samples { get; } = new List<QuickPulseDataSample>();
 
-        public bool ReturnValueFromPing { private get; set; }
+        public bool? ReturnValueFromPing { private get; set; }
 
-        public bool ReturnValueFromSubmitSample { private get; set; }
+        public bool? ReturnValueFromSubmitSample { private get; set; }
+
+        public int? LastSampleBatchSize { get; private set; }
+
+        private List<int> batches = new List<int>(); 
 
         public void Reset()
         {
             lock (this.lockObject)
             {
                 this.PingCount = 0;
+                this.LastSampleBatchSize = null;
 
                 this.Samples.Clear();
             }
@@ -40,6 +46,8 @@
         {
             lock (this.lockObject)
             {
+                this.batches.Add(samples.Count());
+                this.LastSampleBatchSize = samples.Count();
                 this.Samples.AddRange(samples);
             }
 

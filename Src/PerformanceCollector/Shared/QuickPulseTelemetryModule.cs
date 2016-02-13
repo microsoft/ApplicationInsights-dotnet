@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.Linq;
 
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -30,7 +31,9 @@
         private readonly Uri serviceUriDefault = new Uri("https://qps.com/api");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
-         
+
+        private string instrumentationKey;
+
         private IQuickPulseServiceClient serviceClient;
 
         private Timer collectionTimer;
@@ -115,7 +118,7 @@
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
 
-                        this.InitializeServiceClient();
+                        this.InitializeServiceClient(configuration);
 
                         this.InitializeTelemetryProcessor(configuration);
 
@@ -123,7 +126,8 @@
                             this.serviceClient,
                             this.OnStartCollection,
                             this.OnStopCollection,
-                            this.OnSubmitSamples);
+                            this.OnSubmitSamples,
+                            this.OnReturnFailedSamples);
 
                         this.InitializePerformanceCollector();
 
@@ -216,7 +220,7 @@
             return configuration.TelemetryProcessors.OfType<IQuickPulseTelemetryProcessor>().SingleOrDefault();
         }
 
-        private void InitializeServiceClient()
+        private void InitializeServiceClient(TelemetryConfiguration configuration)
         {
             if (this.serviceClient != null)
             {
@@ -249,7 +253,24 @@
             }
 
             // create the default production implementation of the service client with the best service endpoint we could get
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri);
+            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, GetInstanceName(configuration));
+        }
+
+        private static string GetInstanceName(TelemetryConfiguration configuration)
+        {
+            // we need to initialize an item to get instance information
+            var fakeItem = new MetricTelemetry();
+
+            try
+            {
+                new TelemetryClient(configuration).Initialize(fakeItem);
+            }
+            catch (Exception)
+            {
+                // we don't care what happened there
+            }
+
+            return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
 
         private void StateTimerCallback(object state)
@@ -258,7 +279,19 @@
 
             try
             {
-                this.stateManager.UpdateState(TelemetryConfiguration.Active.InstrumentationKey);
+                // the first instrumentation key that we get from TelemetryConfiguration.Active
+                // will be our permanent instrumentation key
+                if (string.IsNullOrWhiteSpace(this.instrumentationKey))
+                {
+                    this.instrumentationKey = TelemetryConfiguration.Active.InstrumentationKey;
+                }
+
+                if (string.IsNullOrWhiteSpace(this.instrumentationKey))
+                {
+                    return;
+                }
+
+                this.stateManager.UpdateState(this.instrumentationKey);
             }
             catch (Exception e)
             {
@@ -377,18 +410,32 @@
             }
         }
 
-        private IEnumerable<QuickPulseDataSample> OnSubmitSamples()
+        private IList<QuickPulseDataSample> OnSubmitSamples()
         {
-            IEnumerable<QuickPulseDataSample> samples;
+            IList<QuickPulseDataSample> samples;
 
             lock (this.collectedSamplesLock)
             {
-                samples = this.collectedSamples.ToArray();
+                samples = this.collectedSamples.ToList();
 
                 this.collectedSamples.Clear();
             }
 
             return samples;
+        }
+
+        private void OnReturnFailedSamples(IList<QuickPulseDataSample> samples)
+        {
+            // put the samples that failed to get sent out back to the beginning of the list
+            // these will be pushed out as newer samples arrive, so we'll never get more than a certain number
+            // even if the network is lagging behind 
+            lock (this.collectedSamplesLock)
+            {
+                foreach (var sample in samples)
+                {
+                    this.collectedSamples.AddFirst(sample);
+                }
+            }
         }
         #endregion
 

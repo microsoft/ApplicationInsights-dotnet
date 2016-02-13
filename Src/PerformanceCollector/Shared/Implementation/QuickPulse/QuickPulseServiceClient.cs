@@ -28,15 +28,21 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
         private readonly Uri serviceUri;
 
-        public QuickPulseServiceClient(Uri serviceUri)
+        private readonly string instanceName;
+
+        private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
+
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, TimeSpan? timeout = null)
         {
             this.serviceUri = serviceUri;
+            this.instanceName = instanceName;
+            this.timeout = timeout ?? this.timeout;
         }
 
         public bool? Ping(string instrumentationKey)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Head, path, null);
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Head, path, null, true);
             if (response == null)
             {
                 return null;
@@ -51,11 +57,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
             var bodyStream = new MemoryStream();
 
-            WriteSamples(samples, bodyStream);
+            WriteSamples(samples, bodyStream, instrumentationKey, this.instanceName);
             bodyStream.Position = 0;
 
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", HttpUtility.UrlEncode(instrumentationKey));
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream);
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream, false);
             if (response == null)
             {
                 return null;
@@ -64,7 +70,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             return ProcessResponse(response);
         }
 
-        private static void WriteSamples(IEnumerable<QuickPulseDataSample> samples, MemoryStream bodyStream)
+        private static void WriteSamples(IEnumerable<QuickPulseDataSample> samples, MemoryStream bodyStream, string instrumentationKey, string instanceName)
         {
             var monitoringPoints = new List<MonitoringDataPoint>();
 
@@ -126,8 +132,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
                 var dataPoint = new MonitoringDataPoint
                                     {
-                                        // //!!!
-                                        Instance = "empty",
+                                        InstrumentationKey = instrumentationKey,
+                                        Instance = instanceName,
                                         Timestamp = sample.EndTimestamp,
                                         Metrics = metricPoints.ToArray()
                                     };
@@ -136,7 +142,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             }
 
             var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
-
             serializer.WriteObject(bodyStream, monitoringPoints.ToArray());
         }
 
@@ -151,17 +156,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             return isSubscribed;
         }
 
-        private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body)
+        private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body, bool enableRetry)
         {
-            var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.serviceUri.AbsoluteUri.TrimEnd('/'), path);
+            var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.serviceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
+            int attemptMaxCount = enableRetry ? RetryCount : 1;
             int attempt = 0;
-            while (attempt < RetryCount)
+            while (attempt < attemptMaxCount)
             {
                 try
                 {
                     var request = WebRequest.Create(requestUri) as HttpWebRequest;
                     request.Method = httpVerb;
+                    request.Timeout = (int)this.timeout.TotalMilliseconds;
 
                     if (body != null)
                     {
