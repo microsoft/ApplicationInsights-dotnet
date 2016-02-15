@@ -391,7 +391,7 @@
             QuickPulseDataAccumulator accumulator,
             IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
         {
-            return new QuickPulseDataSample(accumulator, perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple.Item2));
+            return new QuickPulseDataSample(accumulator, perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple));
         }
 
         #region Callbacks from the state manager

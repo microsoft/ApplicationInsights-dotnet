@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
 
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -448,7 +449,7 @@
                                                 StartTimestamp = now,
                                                 EndTimestamp = now.AddSeconds(1)
                                             },
-                                        new Dictionary<string, float>())
+                                        new Dictionary<string, Tuple<PerformanceCounterData, float>>())
                                 }.ToList();
                     },
                 samples =>

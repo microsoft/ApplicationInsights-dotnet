@@ -10,7 +10,7 @@
     /// </summary>
     internal class QuickPulseDataSample
     {
-        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, float> perfData)
+        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, float>> perfData)
         {
             if (accumulator == null)
             {
@@ -61,24 +61,44 @@
             this.AIDependencyCallsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallSuccessCount / sampleDuration.TotalSeconds : 0;
 
             // avoiding reflection (Enum.GetNames()) to speed things up
-            float value;
+            Tuple<PerformanceCounterData, float> value;
 
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString(), out value);
-            this.PerfIisRequestsPerSecond = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString(), out value);
-            this.PerfIisRequestDurationAveInTicks = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString(), out value);
-            this.PerfIisRequestsFailedTotal = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString(), out value);
-            this.PerfIisRequestsSucceededTotal = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfIisQueueSize.ToString(), out value);
-            this.PerfIisQueueSize = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfCpuUtilization.ToString(), out value);
-            this.PerfCpuUtilization = value;
-            perfData.TryGetValue(QuickPulsePerfCounters.PerfMemoryInBytes.ToString(), out value);
-            this.PerfMemoryInBytes = value;
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString(), out value))
+            {
+                this.PerfIisRequestsPerSecond = value.Item2;
+            }
 
-            this.PerfCountersLookup = perfData;
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString(), out value))
+            {
+                this.PerfIisRequestDurationAveInTicks = value.Item2;
+            }
+
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString(), out value))
+            {
+                this.PerfIisRequestsFailedTotal = value.Item2;
+            }
+
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString(), out value))
+            {
+                this.PerfIisRequestsSucceededTotal = value.Item2;
+            }
+
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisQueueSize.ToString(), out value))
+            {
+                this.PerfIisQueueSize = value.Item2;
+            }
+
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfCpuUtilization.ToString(), out value))
+            {
+                this.PerfCpuUtilization = value.Item2;
+            }
+
+            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfMemoryInBytes.ToString(), out value))
+            {
+                this.PerfMemoryInBytes = value.Item2;
+            }
+
+            this.PerfCountersLookup = perfData.ToDictionary(p => p.Value.Item1.OriginalString, p => p.Value.Item2);
         }
         
         public DateTime StartTimestamp { get; }

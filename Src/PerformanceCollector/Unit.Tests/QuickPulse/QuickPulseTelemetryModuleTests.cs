@@ -22,7 +22,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModuleIsInitializedBySDK()
+        public void QuickPulseTelemetryModuleIsInitializedBySdk()
         {
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
             var configuration = new TelemetryConfiguration();

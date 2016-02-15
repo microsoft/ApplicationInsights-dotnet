@@ -2,22 +2,20 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class QuickPulseDataSampleTests
     {
-        private IDictionary<string, float> dummyDictionary;
+        private IDictionary<string, Tuple<PerformanceCounterData, float>> dummyDictionary;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.dummyDictionary = new Dictionary<string, float>();
+            this.dummyDictionary = new Dictionary<string, Tuple<PerformanceCounterData, float>>();
         }
 
         [TestMethod]

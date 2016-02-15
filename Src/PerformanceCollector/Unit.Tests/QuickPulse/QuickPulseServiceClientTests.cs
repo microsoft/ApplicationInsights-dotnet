@@ -4,14 +4,12 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Runtime.Serialization.Json;
-    using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -106,12 +104,12 @@
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIRequestSuccessCount = 5, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
-                    new Dictionary<string, float>());
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             var sample2 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIDependencyCallSuccessCount = 10, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
-                    new Dictionary<string, float>());
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
             bool? sendMore = serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty);
@@ -294,7 +292,7 @@
             var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, string.Empty);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
-                new Dictionary<string, float>());
+                new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
             serviceClient.SubmitSamples(new[] { sample }, string.Empty);
@@ -333,7 +331,7 @@
             var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, version);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
-                new Dictionary<string, float>());
+                new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
             serviceClient.SubmitSamples(new[] { sample }, string.Empty);
@@ -354,7 +352,7 @@
             var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
-                new Dictionary<string, float>());
+                new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
             serviceClient.SubmitSamples(new[] { sample }, ikey);
