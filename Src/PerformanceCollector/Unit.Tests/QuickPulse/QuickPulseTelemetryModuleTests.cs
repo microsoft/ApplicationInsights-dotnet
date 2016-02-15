@@ -22,6 +22,18 @@
         }
 
         [TestMethod]
+        public void QuickPulseTelemetryModuleIsInitializedBySDK()
+        {
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var configuration = new TelemetryConfiguration();
+            var builder = configuration.TelemetryProcessorChainBuilder;
+            builder = builder.Use(current => telemetryProcessor);
+            builder.Build();
+
+            new QuickPulseTelemetryModule().Initialize(configuration);
+        }
+
+        [TestMethod]
         public void QuickPulseTelemetryModuleInitializesServiceClientFromConfiguration()
         {
             // ARRANGE

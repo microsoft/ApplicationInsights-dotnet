@@ -20,14 +20,10 @@
     {
         private const int MaxSampleStorageSize = 10;
 
-        private readonly QuickPulseTimeProvider timeProvider;
-
         private readonly TimeSpan catastrophicFailureTimeout = TimeSpan.FromSeconds(5);
 
         private readonly TimeSpan initialDelay = TimeSpan.Zero;
 
-        private readonly QuickPulseTimings timings;
-            
         private readonly object lockObject = new object();
 
         private readonly object collectedSamplesLock = new object();
@@ -43,6 +39,10 @@
         private Timer collectionTimer;
 
         private Timer stateTimer;
+
+        private QuickPulseTimeProvider timeProvider;
+
+        private QuickPulseTimings timings;
 
         private bool isInitialized;
 
@@ -81,8 +81,7 @@
             this.telemetryProcessor = telemetryProcessor;
             this.serviceClient = serviceClient;
             this.performanceCollector = performanceCollector;
-            this.timings = timings ?? QuickPulseTimings.Default;
-            this.timeProvider = new QuickPulseTimeProvider();
+            this.timings = timings;
         }
 
         /// <summary>
@@ -119,6 +118,8 @@
 
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
+                        this.timeProvider = this.timeProvider ?? new QuickPulseTimeProvider();
+                        this.timings = timings ?? QuickPulseTimings.Default;
 
                         this.InitializeServiceClient(configuration);
 
