@@ -158,7 +158,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             else
             {
                 // we are currently idle and pinging the service waiting for it to ask us to start collecting data
-                bool? startCollection = this.serviceClient.Ping(instrumentationKey);
+                bool? startCollection = this.serviceClient.Ping(instrumentationKey, this.timeProvider.UtcNow);
 
                 switch (startCollection)
                 {

@@ -32,6 +32,10 @@
         private int pingCount;
         private int submitCount;
 
+        private DateTime? lastPingTimestamp;
+
+        private string lastPingInstance;
+
         private bool emulateTimeout;
         
         [TestInitialize]
@@ -39,6 +43,8 @@
         {
             this.pingCount = 0;
             this.submitCount = 0;
+            this.lastPingTimestamp = null;
+            this.lastPingInstance = string.Empty;
             this.samples.Clear();
             this.emulateTimeout = false;
 
@@ -70,17 +76,22 @@
         public void QuickPulseServiceClientPingsTheService()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty);
+            string instance = Guid.NewGuid().ToString();
+            var timestamp = DateTime.UtcNow;
+
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance);
 
             // ACT
-            serviceClient.Ping(string.Empty);
-            serviceClient.Ping(string.Empty);
-            serviceClient.Ping(string.Empty);
+            serviceClient.Ping(string.Empty, timestamp);
+            serviceClient.Ping(string.Empty, timestamp);
+            serviceClient.Ping(string.Empty, timestamp);
 
             // ASSERT
             this.listener.Stop();
 
             Assert.AreEqual(3, this.pingCount);
+            Assert.AreEqual(timestamp.ToLongTimeString(), this.lastPingTimestamp.Value.ToLongTimeString());
+            Assert.AreEqual(instance, this.lastPingInstance);
         }
 
         [TestMethod]
@@ -119,7 +130,7 @@
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
-            bool? response = serviceClient.Ping(string.Empty);
+            bool? response = serviceClient.Ping(string.Empty, DateTime.UtcNow);
 
             // ASSERT
             this.listener.Stop();
@@ -135,7 +146,7 @@
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
-            bool? response = serviceClient.Ping(string.Empty);
+            bool? response = serviceClient.Ping(string.Empty, DateTime.UtcNow);
 
             // ASSERT
             this.listener.Stop();
@@ -151,7 +162,7 @@
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
-            bool? response = serviceClient.Ping(string.Empty);
+            bool? response = serviceClient.Ping(string.Empty, DateTime.UtcNow);
 
             // ASSERT
             this.listener.Stop();
@@ -167,7 +178,7 @@
 
             // ACT
             this.pingResponse = r => { };
-            bool? response = serviceClient.Ping(string.Empty);
+            bool? response = serviceClient.Ping(string.Empty, DateTime.UtcNow);
 
             // ASSERT
             this.listener.Stop();
@@ -247,7 +258,7 @@
             this.emulateTimeout = true;
 
             // ACT
-            serviceClient.Ping(string.Empty);
+            serviceClient.Ping(string.Empty, DateTime.UtcNow);
 
             // ASSERT
             this.listener.Stop();
@@ -331,6 +342,12 @@
                     this.pingCount++;
                     
                     this.pingResponse(context.Response);
+
+                    var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
+                    var dataPoint = (MonitoringDataPoint)serializer.ReadObject(context.Request.InputStream);
+
+                    this.lastPingTimestamp = dataPoint.Timestamp;
+                    this.lastPingInstance = dataPoint.Instance;
                 }
                 else if (request.Url.LocalPath == "/post")
                 {

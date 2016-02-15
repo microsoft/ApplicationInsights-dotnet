@@ -1,5 +1,6 @@
 ﻿namespace Unit.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -21,22 +22,29 @@
 
         private List<int> batches = new List<int>();
 
+        public DateTime? LastPingTimestamp { get; private set; }
+
+        public string LastPingInstance { get; private set; }
+
         public void Reset()
         {
             lock (this.lockObject)
             {
                 this.PingCount = 0;
                 this.LastSampleBatchSize = null;
+                this.LastPingTimestamp = null;
+                this.LastPingInstance = string.Empty;
 
                 this.Samples.Clear();
             }
         }
 
-        public bool? Ping(string instrumentationKey)
+        public bool? Ping(string instrumentationKey, DateTime timestamp)
         {
             lock (this.lockObject)
             {
                 this.PingCount++;
+                this.LastPingTimestamp = timestamp;
             }
 
             return this.ReturnValueFromPing;

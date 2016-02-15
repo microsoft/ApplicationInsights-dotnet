@@ -39,10 +39,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             this.timeout = timeout ?? this.timeout;
         }
 
-        public bool? Ping(string instrumentationKey)
+        public bool? Ping(string instrumentationKey, DateTime timestamp)
         {
+            MemoryStream bodyStream = this.WritePingData(timestamp);
+
             var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Head, path, null, true);
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream, true);
             if (response == null)
             {
                 return null;
@@ -50,15 +52,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             
             return ProcessResponse(response);
         }
-
+        
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
             // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
-            var bodyStream = new MemoryStream();
-
-            WriteSamples(samples, bodyStream, instrumentationKey, this.instanceName);
-            bodyStream.Position = 0;
-
+            MemoryStream bodyStream = WriteSamples(samples, instrumentationKey);
+            
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", HttpUtility.UrlEncode(instrumentationKey));
             HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream, false);
             if (response == null)
@@ -69,8 +68,38 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             return ProcessResponse(response);
         }
 
-        private static void WriteSamples(IEnumerable<QuickPulseDataSample> samples, MemoryStream bodyStream, string instrumentationKey, string instanceName)
+        private static bool? ProcessResponse(HttpWebResponse response)
         {
+            bool isSubscribed;
+            if (!bool.TryParse(response.GetResponseHeader(XMsQpsSubscribedHeaderName), out isSubscribed))
+            {
+                return null;
+            }
+
+            return isSubscribed;
+        }
+
+        private MemoryStream WritePingData(DateTime timestamp)
+        {
+            var bodyStream = new MemoryStream();
+
+            var dataPoint = new MonitoringDataPoint
+            {
+                //InstrumentationKey = instrumentationKey,
+                Instance = this.instanceName,
+                Timestamp = timestamp
+            };
+
+            var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
+            serializer.WriteObject(bodyStream, dataPoint);
+            bodyStream.Position = 0;
+
+            return bodyStream;
+        }
+
+        private MemoryStream WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
+        {
+            var bodyStream = new MemoryStream();
             var monitoringPoints = new List<MonitoringDataPoint>();
 
             foreach (var sample in samples)
@@ -132,7 +161,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
                 var dataPoint = new MonitoringDataPoint
                                     {
                                         InstrumentationKey = instrumentationKey,
-                                        Instance = instanceName,
+                                        Instance = this.instanceName,
                                         Timestamp = sample.EndTimestamp,
                                         Metrics = metricPoints.ToArray()
                                     };
@@ -142,19 +171,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
             var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
             serializer.WriteObject(bodyStream, monitoringPoints.ToArray());
+
+            bodyStream.Position = 0;
+
+            return bodyStream;
         }
-
-        private static bool? ProcessResponse(HttpWebResponse response)
-        {
-            bool isSubscribed;
-            if (!bool.TryParse(response.GetResponseHeader(XMsQpsSubscribedHeaderName), out isSubscribed))
-            {
-                return null;
-            }
-
-            return isSubscribed;
-        }
-
+        
         private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body, bool enableRetry)
         {
             var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.serviceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
@@ -171,6 +193,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
                     if (body != null)
                     {
+                        body.Position = 0;
+
                         var requestStream = request.GetRequestStream();
                         body.CopyTo(requestStream);
                     }

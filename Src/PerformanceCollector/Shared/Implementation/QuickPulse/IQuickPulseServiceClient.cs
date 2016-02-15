@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
+    using System;
     using System.Collections.Generic;
 
     internal interface IQuickPulseServiceClient
@@ -8,8 +9,9 @@
         /// Pings QPS to check if it expects data right now.
         /// </summary>
         /// <param name="instrumentationKey">InstrumentationKey for which to submit data samples.</param>
+        /// <param name="timestamp">Timestamp to pass to the server.</param>
         /// <returns><b>true</b> if data is expected, otherwise <b>false</b>.</returns>
-        bool? Ping(string instrumentationKey);
+        bool? Ping(string instrumentationKey, DateTime timestamp);
 
         /// <summary>
         /// Submits a data samples to QPS.
