@@ -20,14 +20,18 @@
     {
         private const int MaxSampleStorageSize = 10;
 
+        private readonly QuickPulseTimeProvider timeProvider;
+
+        private readonly TimeSpan catastrophicFailureTimeout = TimeSpan.FromSeconds(5);
+
+        private readonly TimeSpan initialDelay = TimeSpan.Zero;
+
+        private readonly QuickPulseTimings timings;
+            
         private readonly object lockObject = new object();
 
         private readonly object collectedSamplesLock = new object();
-
-        private readonly TimeSpan servicePollingInterval = TimeSpan.FromSeconds(5);
-
-        private readonly TimeSpan collectionInterval = TimeSpan.FromSeconds(1);
-
+        
         private readonly Uri serviceUriDefault = new Uri("https://qps.com/api");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
@@ -49,7 +53,7 @@
         private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
         /// </summary>
@@ -64,23 +68,21 @@
         /// <param name="telemetryProcessor">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
         /// <param name="performanceCollector">Performance counter collector.</param>
-        /// <param name="servicePollingInterval">Interval to poll the service at.</param>
-        /// <param name="collectionInterval">Interval to collect data at.</param>
+        /// <param name="timings">Timings for the module.</param>
         internal QuickPulseTelemetryModule(
             QuickPulseDataAccumulatorManager dataAccumulatorManager,
             IQuickPulseTelemetryProcessor telemetryProcessor,
             IQuickPulseServiceClient serviceClient,
             IPerformanceCollector performanceCollector,
-            TimeSpan? servicePollingInterval,
-            TimeSpan? collectionInterval)
+            QuickPulseTimings timings)
             : this()
         {
             this.dataAccumulatorManager = dataAccumulatorManager;
             this.telemetryProcessor = telemetryProcessor;
             this.serviceClient = serviceClient;
             this.performanceCollector = performanceCollector;
-            this.servicePollingInterval = servicePollingInterval ?? this.servicePollingInterval;
-            this.collectionInterval = collectionInterval ?? this.collectionInterval;
+            this.timings = timings ?? QuickPulseTimings.Default;
+            this.timeProvider = new QuickPulseTimeProvider();
         }
 
         /// <summary>
@@ -124,6 +126,8 @@
 
                         this.stateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
+                            this.timeProvider,
+                            this.timings,
                             this.OnStartCollection,
                             this.OnStopCollection,
                             this.OnSubmitSamples,
@@ -212,7 +216,7 @@
             this.collectionTimer = new Timer(this.CollectionTimerCallback);
 
             this.stateTimer = new Timer(this.StateTimerCallback);
-            this.stateTimer.ScheduleNextTick(this.servicePollingInterval);
+            this.stateTimer.ScheduleNextTick(this.initialDelay);
         }
 
         private IQuickPulseTelemetryProcessor FetchTelemetryProcessor(TelemetryConfiguration configuration)
@@ -275,7 +279,8 @@
 
         private void StateTimerCallback(object state)
         {
-            var currentCallbackStarted = DateTime.UtcNow;
+            var currentCallbackStarted = this.timeProvider.UtcNow;
+            TimeSpan? timeToNextUpdate = null;
 
             try
             {
@@ -285,13 +290,8 @@
                 {
                     this.instrumentationKey = TelemetryConfiguration.Active.InstrumentationKey;
                 }
-
-                if (string.IsNullOrWhiteSpace(this.instrumentationKey))
-                {
-                    return;
-                }
-
-                this.stateManager.UpdateState(this.instrumentationKey);
+                
+                timeToNextUpdate = this.stateManager.UpdateState(this.instrumentationKey);
             }
             catch (Exception e)
             {
@@ -301,29 +301,26 @@
             {
                 if (this.stateTimer != null)
                 {
+                    // the 5 second fallback is for the case when we've catastrophically failed some place above
+                    timeToNextUpdate = timeToNextUpdate ?? this.catastrophicFailureTimeout;
+
                     // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
-                    TimeSpan timeSpentInThisCallback = DateTime.UtcNow - currentCallbackStarted;
+                    TimeSpan timeSpentInThisCallback = this.timeProvider.UtcNow - currentCallbackStarted;
 
-                    TimeSpan timeLeftUntilNextCallbackCollection = this.collectionInterval - timeSpentInThisCallback;
-                    TimeSpan timeLeftUntilNextCallbackPolling = this.servicePollingInterval - timeSpentInThisCallback;
-
-                    timeLeftUntilNextCallbackCollection = timeLeftUntilNextCallbackCollection > TimeSpan.Zero
-                                                              ? timeLeftUntilNextCallbackCollection
+                    TimeSpan timeLeftUntilNextCallback = timeToNextUpdate.Value - timeSpentInThisCallback;
+                    
+                    timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero
+                                                              ? timeLeftUntilNextCallback
                                                               : TimeSpan.Zero;
 
-                    timeLeftUntilNextCallbackPolling = timeLeftUntilNextCallbackPolling > TimeSpan.Zero
-                                                           ? timeLeftUntilNextCallbackPolling
-                                                           : TimeSpan.Zero;
-
-                    this.stateTimer.ScheduleNextTick(
-                        this.stateManager.IsCollectingData ? timeLeftUntilNextCallbackCollection : timeLeftUntilNextCallbackPolling);
+                    this.stateTimer.ScheduleNextTick(timeLeftUntilNextCallback);
                 }
             }
         }
 
         private void CollectionTimerCallback(object state)
         {
-            var currentCallbackStarted = DateTime.UtcNow;
+            var currentCallbackStarted = this.timeProvider.UtcNow;
 
             try
             {
@@ -335,12 +332,14 @@
             }
             finally
             {
+                // this is in a race condition with stopping timer from OnStopCollection, so we need to ensure that we don't schedule the next tick more than once
+                // after the timer has been ordered to stop
                 if (this.stateManager.IsCollectingData && this.collectionTimer != null)
                 {
-                    // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
-                    TimeSpan timeSpentInThisCallback = DateTime.UtcNow - currentCallbackStarted;
+                    // try to factor in the time spent in this tick when scheduling the next one so that the average period is close to the intended
+                    TimeSpan timeSpentInThisCallback = this.timeProvider.UtcNow - currentCallbackStarted;
 
-                    TimeSpan timeLeftUntilNextCallback = this.collectionInterval - timeSpentInThisCallback;
+                    TimeSpan timeLeftUntilNextCallback = this.timings.CollectionInterval - timeSpentInThisCallback;
 
                     timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero ? timeLeftUntilNextCallback : TimeSpan.Zero;
 
@@ -426,7 +425,7 @@
 
         private void OnReturnFailedSamples(IList<QuickPulseDataSample> samples)
         {
-            // put the samples that failed to get sent out back to the beginning of the list
+            // append the samples that failed to get sent out back to the beginning of the list
             // these will be pushed out as newer samples arrive, so we'll never get more than a certain number
             // even if the network is lagging behind 
             lock (this.collectedSamplesLock)

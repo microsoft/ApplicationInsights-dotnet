@@ -297,22 +297,21 @@
         {
             // ARRANGE
             var now = DateTime.UtcNow;
-            var iKey = "some ikey";
+            var ikey = "some ikey";
             var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, float>());
 
             // ACT
-            serviceClient.SubmitSamples(new[] { sample }, iKey);
+            serviceClient.SubmitSamples(new[] { sample }, ikey);
 
             // ASSERT
             this.listener.Stop();
 
             Assert.AreEqual(1, this.samples.Count);
-            Assert.AreEqual(iKey, this.samples[0].InstrumentationKey);
+            Assert.AreEqual(ikey, this.samples[0].InstrumentationKey);
         }
-
 
         public void Dispose()
         {

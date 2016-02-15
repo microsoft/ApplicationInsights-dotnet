@@ -53,7 +53,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            //!!!
             // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
             var bodyStream = new MemoryStream();
 

@@ -19,7 +19,7 @@
 
         public int? LastSampleBatchSize { get; private set; }
 
-        private List<int> batches = new List<int>(); 
+        private List<int> batches = new List<int>();
 
         public void Reset()
         {

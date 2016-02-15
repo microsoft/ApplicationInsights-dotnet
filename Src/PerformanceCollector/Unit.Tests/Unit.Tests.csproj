@@ -47,6 +47,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.24\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.LoadTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime.Serialization" />
@@ -73,6 +76,7 @@
     <Compile Include="PerformanceCollectorEventSourceTests.cs" />
     <Compile Include="PerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseTimeProviderMock.cs" />
     <Compile Include="QuickPulse\Mocks\QuickPulseServiceClientMock.cs">
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>

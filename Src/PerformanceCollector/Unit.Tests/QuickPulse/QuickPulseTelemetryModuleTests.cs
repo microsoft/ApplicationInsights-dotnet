@@ -3,12 +3,10 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Remoting.Messaging;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Helpers;
@@ -17,6 +15,12 @@
     [TestClass]
     public class QuickPulseTelemetryModuleTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            TelemetryConfiguration.Active.InstrumentationKey = string.Empty;
+        }
+
         [TestMethod]
         public void QuickPulseTelemetryModuleInitializesServiceClientFromConfiguration()
         {
@@ -24,7 +28,6 @@
             var module = new QuickPulseTelemetryModule(
                 null,
                 new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
-                null,
                 null,
                 null,
                 null);
@@ -47,7 +50,6 @@
                 new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
                 null,
                 null,
-                null,
                 null);
 
             // ACT
@@ -66,11 +68,12 @@
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
             module.Initialize(new TelemetryConfiguration());
 
@@ -78,8 +81,32 @@
             Thread.Sleep(TimeSpan.FromMilliseconds(100));
 
             // ASSERT
-            Assert.AreEqual(0, serviceClient.Samples.Count);
             Assert.AreEqual(0, serviceClient.PingCount);
+            Assert.AreEqual(0, serviceClient.Samples.Count);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModulePicksUpInstrumentationKeyAsItGoes()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, timings);
+            
+            module.Initialize(new TelemetryConfiguration());
+
+            // ACT
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // ASSERT
+            Assert.IsTrue(serviceClient.PingCount > 0);
+            Assert.IsTrue(serviceClient.Samples.Count > 0);
         }
 
         [TestMethod]
@@ -87,6 +114,7 @@
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
 
@@ -95,8 +123,7 @@
                 new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy()),
                 serviceClient,
                 new PerformanceCollectorMock(),
-                interval,
-                interval);
+                timings);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -113,12 +140,13 @@
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
             TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
 
-            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -144,11 +172,12 @@
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
             var timestampStart = DateTime.UtcNow;
 
@@ -168,7 +197,7 @@
         public void QuickPulseTelemetryModuleFetchesTelemetryProcessorFromConfiguration()
         {
             // ARRANGE
-            var module = new QuickPulseTelemetryModule(null, null, null, null, null, null);
+            var module = new QuickPulseTelemetryModule(null, null, null, null, null);
 
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
             var configuration = new TelemetryConfiguration();
@@ -187,7 +216,7 @@
         public void QuickPulseTelemetryModuleThrowsWhenNoTelemetryProcessorPresentInConfiguration()
         {
             // ARRANGE
-            var module = new QuickPulseTelemetryModule(null, null, null, null, null, null);
+            var module = new QuickPulseTelemetryModule(null, null, null, null, null);
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -199,8 +228,7 @@
         public void QuickPulseTelemetryModuleManagesTimersCorrectly()
         {
             // ARRANGE
-            var pollingInterval = TimeSpan.FromMilliseconds(100);
-            var collectionInterval = TimeSpan.FromMilliseconds(10);
+            var timings = new QuickPulseTimings(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(10));
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
@@ -211,17 +239,16 @@
                 telemetryProcessor,
                 serviceClient,
                 performanceCollector,
-                pollingInterval,
-                collectionInterval);
+                timings);
 
             // ACT & ASSERT
             module.Initialize(new TelemetryConfiguration());
 
             // initially, the module is in the polling state
-            Thread.Sleep((int)(2.5 * pollingInterval.TotalMilliseconds));
+            Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
 
-            // 2.5 polling intervals have elapsed, we must have pinged the service twice, but no samples yet
-            Assert.AreEqual(2, serviceClient.PingCount);
+            // 2.5 polling intervals have elapsed, we must have pinged the service 3 times (the first time immediately upon initialization), but no samples yet
+            Assert.AreEqual(3, serviceClient.PingCount);
             Assert.AreEqual(0, serviceClient.Samples.Count);
 
             serviceClient.Reset();
@@ -230,7 +257,7 @@
             serviceClient.ReturnValueFromPing = true;
             serviceClient.ReturnValueFromSubmitSample = true;
 
-            Thread.Sleep((int)(30 * collectionInterval.TotalMilliseconds));
+            Thread.Sleep((int)(30 * TimeSpan.FromMilliseconds(10).TotalMilliseconds));
 
             // 30  collection intervals have elapsed, we must have pinged the service once, and then started sending samples
             Assert.AreEqual(1, serviceClient.PingCount);
@@ -242,7 +269,7 @@
             serviceClient.ReturnValueFromPing = false;
             serviceClient.ReturnValueFromSubmitSample = false;
 
-            Thread.Sleep((int)(2.5 * pollingInterval.TotalMilliseconds));
+            Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
 
             // 2.5 polling intervals have elapsed, we must have submitted one sample, stopped collecting and pinged the service twice afterwards
             Assert.AreEqual(1, serviceClient.Samples.Count);
@@ -250,28 +277,17 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModulePingBacksOff()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
-        public void QuickPulseTelemetryModuleSubmitBacksOff()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
         public void QuickPulseTelemetryModuleResendsFailedSamples()
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = null };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
             TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
 
-            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, interval, interval);
+            var module = new QuickPulseTelemetryModule(null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
             module.Initialize(new TelemetryConfiguration());
 

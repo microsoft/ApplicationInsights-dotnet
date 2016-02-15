@@ -3,27 +3,58 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class QuickPulseCollectionStateManagerTests
     {
-        const string StartCollectionMessage = "StartCollection";
-        const string StopCollectionMessage = "StopCollection";
-        const string CollectMessage = "Collect";
-        
+        private const string StartCollectionMessage = "StartCollection";
+
+        private const string StopCollectionMessage = "StopCollection";
+
+        private const string CollectMessage = "Collect";
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerDoesNothingWithoutInstrumentationKey()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            // ACT
+            manager.UpdateState(string.Empty);
+            manager.UpdateState(null);
+
+            // ASSERT
+            Assert.AreEqual(0, serviceClient.PingCount);
+            Assert.AreEqual(0, serviceClient.Samples.Count);
+        }
+
         [TestMethod]
         public void QuickPulseCollectionStateManagerInitiallyInIdleState()
         {
             // ARRANGE
             var serviceClient = new QuickPulseServiceClientMock();
 
-            var manager = new QuickPulseCollectionStateManager(serviceClient, () => { }, () => { }, () => null, _ => { });
+            var manager = new QuickPulseCollectionStateManager(
+                serviceClient,
+                new QuickPulseTimeProvider(),
+                QuickPulseTimings.Default,
+                () => { },
+                () => { },
+                () => null,
+                _ => { });
 
             // ACT
-            
+
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
         }
@@ -32,14 +63,10 @@
         public void QuickPulseCollectionStateManagerStaysInIdleState()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = false,
-                ReturnValueFromSubmitSample = false
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // ACT
             for (int i = 0; i < 10; i++)
@@ -56,21 +83,17 @@
         public void QuickPulseCollectionStateManagerTransitionsFromIdleToCollect()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = true
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
 
             // on the next call it actually requests samples collected since the last call
             manager.UpdateState("empty iKey");
-            
+
             // ASSERT
             Assert.AreEqual(true, manager.IsCollectingData);
             Assert.AreEqual(2, actions.Count);
@@ -82,14 +105,10 @@
         public void QuickPulseCollectionStateManagerTransitionsFromIdleToCollectAndImmediatelyBack()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = false
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
@@ -109,14 +128,10 @@
         public void QuickPulseCollectionStateManagerTransitionsFromIdleToCollectAndStaysStable()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = true
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
@@ -142,14 +157,10 @@
         public void QuickPulseCollectionStateManagerTransitionsFromCollectToIdleAndStaysStable()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = true
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // enter collect state
             manager.UpdateState("empty iKey");
@@ -165,7 +176,7 @@
             {
                 manager.UpdateState("empty iKey");
             }
-            
+
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
             Assert.AreEqual(2, actions.Count);
@@ -177,15 +188,11 @@
         public void QuickPulseCollectionStateManagerFlipFlopsBetweenIdleAndCollect()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClientMock
-            {
-                ReturnValueFromPing = true,
-                ReturnValueFromSubmitSample = false
-            };
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
-            
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+
             // ACT
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
@@ -212,7 +219,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, actions);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
 
             // enter collect state
             manager.UpdateState("empty iKey");
@@ -256,10 +263,9 @@
         {
             // ARRANGE
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
-
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var manager = CreateManager(serviceClient, actions, returnedSamples);
+            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions, returnedSamples);
 
             // turn on collection
             manager.UpdateState("empty iKey");
@@ -275,13 +281,156 @@
             Assert.AreEqual(5, returnedSamples[0].AIRequestsSucceededPerSecond);
         }
 
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerPingBacksOff()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            // ACT & ASSERT
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+
+            serviceClient.ReturnValueFromPing = null;
+            timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(-1)));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerPingBacksOffWhenConnectionInitiallyDown()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = null, ReturnValueFromSubmitSample = null };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            // ACT & ASSERT
+            manager.UpdateState("some ikey");
+
+            timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(-1)));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+        }
+        
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerPingDoesNotBackOffOnFirstPing()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            // ACT
+            serviceClient.ReturnValueFromPing = null;
+            timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(1)));
+
+            // ASSERT
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerPingRecovers()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+
+            // ACT
+            serviceClient.ReturnValueFromPing = null;
+            timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(1)));
+            manager.UpdateState(string.Empty);
+
+            timeProvider.FastForward(TimeSpan.FromMinutes(1));
+            serviceClient.ReturnValueFromPing = false;
+
+            // ASSERT
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+        }
+        
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerSubmitBacksOff()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            manager.UpdateState(string.Empty);
+
+            // ACT & ASSERT
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+
+            serviceClient.ReturnValueFromSubmitSample = null;
+            timeProvider.FastForward(timings.TimeToCollectionBackOff.Add(TimeSpan.FromSeconds(-1)));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(true, manager.IsCollectingData);
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(false, manager.IsCollectingData);
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerSubmitBacksOffWhenConnectionInitiallyDown()
+        {
+            // ARRANGE
+            var timings = QuickPulseTimings.Default;
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = null };
+            var actions = new List<string>();
+            var returnedSamples = new List<QuickPulseDataSample>();
+            var timeProvider = new QuickPulseTimeProviderMock();
+            var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
+
+            // ACT & ASSERT
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.IsTrue(manager.IsCollectingData);
+
+            timeProvider.FastForward(timings.TimeToCollectionBackOff.Add(TimeSpan.FromSeconds(-1)));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.IsTrue(manager.IsCollectingData);
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(false, manager.IsCollectingData);
+        }
+
+        #region Helpers
+
         private static QuickPulseCollectionStateManager CreateManager(
-            QuickPulseServiceClientMock serviceClient,
+            IQuickPulseServiceClient serviceClient,
+            QuickPulseTimeProvider timeProvider,
             List<string> actions,
-            List<QuickPulseDataSample> returnedSamples = null)
+            List<QuickPulseDataSample> returnedSamples = null,
+            QuickPulseTimings timings = null)
         {
             var manager = new QuickPulseCollectionStateManager(
                 serviceClient,
+                timeProvider,
+                timings ?? QuickPulseTimings.Default,
                 () => actions.Add(StartCollectionMessage),
                 () => actions.Add(StopCollectionMessage),
                 () =>
@@ -293,13 +442,26 @@
                             new[]
                                 {
                                     new QuickPulseDataSample(
-                                        new QuickPulseDataAccumulator { AIRequestSuccessCount = 5, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                                        new QuickPulseDataAccumulator
+                                            {
+                                                AIRequestSuccessCount = 5,
+                                                StartTimestamp = now,
+                                                EndTimestamp = now.AddSeconds(1)
+                                            },
                                         new Dictionary<string, float>())
                                 }.ToList();
                     },
-                samples => { returnedSamples?.AddRange(samples); });
+                samples =>
+                    {
+                        if (returnedSamples != null)
+                        {
+                            returnedSamples.AddRange(samples);
+                        }
+                    });
 
             return manager;
         }
+
+        #endregion
     }
 }
