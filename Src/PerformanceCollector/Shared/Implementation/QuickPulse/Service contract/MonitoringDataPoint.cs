@@ -7,6 +7,9 @@
     internal struct MonitoringDataPoint
     {
         [DataMember]
+        public string Version { get; set; }
+
+        [DataMember]
         public string InstrumentationKey { get; set; }
 
         [DataMember]

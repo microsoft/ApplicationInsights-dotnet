@@ -30,12 +30,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
         private readonly string instanceName;
 
+        private readonly string version;
+
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
 
-        public QuickPulseServiceClient(Uri serviceUri, string instanceName, TimeSpan? timeout = null)
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string version, TimeSpan? timeout = null)
         {
             this.serviceUri = serviceUri;
             this.instanceName = instanceName;
+            this.version = version;
             this.timeout = timeout ?? this.timeout;
         }
 
@@ -85,6 +88,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
             var dataPoint = new MonitoringDataPoint
             {
+                Version = this.version,
                 //InstrumentationKey = instrumentationKey,
                 Instance = this.instanceName,
                 Timestamp = timestamp
@@ -160,6 +164,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
                 var dataPoint = new MonitoringDataPoint
                                     {
+                                        Version = this.version,
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
                                         Timestamp = sample.EndTimestamp,
