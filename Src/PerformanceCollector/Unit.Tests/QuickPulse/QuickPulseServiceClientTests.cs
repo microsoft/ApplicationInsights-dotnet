@@ -124,6 +124,63 @@
         }
 
         [TestMethod]
+        public void QuickPulseServiceClientRoundsSampleValuesWhenSubmittingToService()
+        {
+            // ARRANGE
+            var now = DateTime.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var sample1 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator { AIRequestSuccessCount = 1, StartTimestamp = now, EndTimestamp = now.AddSeconds(3) },
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
+            
+            // ACT
+            serviceClient.SubmitSamples(new[] { sample1 }, string.Empty);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(0.3333, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientFillsInSampleWeightWhenSubmittingToService()
+        {
+            // ARRANGE
+            var now = DateTime.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var sample1 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator
+                        {
+                            AIRequestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(3, 10000),
+                            StartTimestamp = now,
+                            EndTimestamp = now.AddSeconds(1)
+                        },
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
+
+            var sample2 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator
+                        {
+                            AIDependencyCallCountAndDurationInTicks =
+                                QuickPulseDataAccumulator.EncodeCountAndDuration(4, 10000),
+                            StartTimestamp = now,
+                            EndTimestamp = now.AddSeconds(1)
+                        },
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
+
+            // ACT
+            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(3, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Request Duration").Weight);
+            Assert.AreEqual(4, this.samples[1].Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Call Duration").Weight);
+        }
+
+        [TestMethod]
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderTrue()
         {
             // ARRANGE

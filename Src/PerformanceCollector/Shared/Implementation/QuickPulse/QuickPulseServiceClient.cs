@@ -82,6 +82,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
             return isSubscribed;
         }
 
+        private static double Round(double value)
+        {
+            return Math.Round(value, 4, MidpointRounding.AwayFromZero);
+        }
+
         private MemoryStream WritePingData(DateTime timestamp)
         {
             var bodyStream = new MemoryStream();
@@ -113,54 +118,54 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Requests/Sec",
-                                                   Value = sample.AIRequestsPerSecond,
+                                                   Value = Round(sample.AIRequestsPerSecond),
                                                    Weight = 1
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Request Duration",
-                                                   Value = sample.AIRequestDurationAveInMs,
-                                                   Weight = 1
+                                                   Value = Round(sample.AIRequestDurationAveInMs),
+                                                   Weight = sample.AIRequests
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Requests Failed/Sec",
-                                                   Value = sample.AIRequestsFailedPerSecond,
+                                                   Value = Round(sample.AIRequestsFailedPerSecond),
                                                    Weight = 1
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Requests Succeeded/Sec",
-                                                   Value = sample.AIRequestsSucceededPerSecond,
+                                                   Value = Round(sample.AIRequestsSucceededPerSecond),
                                                    Weight = 1
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Dependency Calls/Sec",
-                                                   Value = sample.AIDependencyCallsPerSecond,
+                                                   Value = Round(sample.AIDependencyCallsPerSecond),
                                                    Weight = 1
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Dependency Call Duration",
-                                                   Value = sample.AIDependencyCallDurationAveInMs,
-                                                   Weight = 1
+                                                   Value = Round(sample.AIDependencyCallDurationAveInMs),
+                                                   Weight = sample.AIDependencyCalls
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Dependency Calls Failed/Sec",
-                                                   Value = sample.AIDependencyCallsFailedPerSecond,
+                                                   Value = Round(sample.AIDependencyCallsFailedPerSecond),
                                                    Weight = 1
                                                },
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Dependency Calls Succeeded/Sec",
-                                                   Value = sample.AIDependencyCallsSucceededPerSecond,
+                                                   Value = Round(sample.AIDependencyCallsSucceededPerSecond),
                                                    Weight = 1
                                                }
                                        };
 
-                metricPoints.AddRange(sample.PerfCountersLookup.Select(counter => new MetricPoint { Name = counter.Key, Value = counter.Value, Weight = 1 }));
+                metricPoints.AddRange(sample.PerfCountersLookup.Select(counter => new MetricPoint { Name = counter.Key, Value = Round(counter.Value), Weight = 1 }));
 
                 var dataPoint = new MonitoringDataPoint
                                     {

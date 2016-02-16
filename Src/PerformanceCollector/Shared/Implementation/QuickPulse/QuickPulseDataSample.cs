@@ -45,7 +45,8 @@
             Tuple<long, long> requestCountAndDuration = QuickPulseDataAccumulator.DecodeCountAndDuration(accumulator.AIRequestCountAndDurationInTicks);
             long requestCount = requestCountAndDuration.Item1;
             long requestDurationInTicks = requestCountAndDuration.Item2;
-            
+
+            this.AIRequests = (int)requestCount;
             this.AIRequestsPerSecond = sampleDuration.TotalSeconds > 0 ? requestCount / sampleDuration.TotalSeconds : 0;
             this.AIRequestDurationAveInMs = requestCount > 0 ? (double)requestDurationInTicks / TimeSpan.TicksPerMillisecond / requestCount : 0;
             this.AIRequestsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIRequestFailureCount / sampleDuration.TotalSeconds : 0;
@@ -55,6 +56,7 @@
             long dependencyCount = dependencyCountAndDuration.Item1;
             long dependencyDurationInTicks = dependencyCountAndDuration.Item2;
 
+            this.AIDependencyCalls = (int)dependencyCount;
             this.AIDependencyCallsPerSecond = sampleDuration.TotalSeconds > 0 ? dependencyCount / sampleDuration.TotalSeconds : 0;
             this.AIDependencyCallDurationAveInMs = dependencyCount > 0 ? (double)dependencyDurationInTicks / TimeSpan.TicksPerMillisecond / dependencyCount : 0;
             this.AIDependencyCallsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallFailureCount / sampleDuration.TotalSeconds : 0;
@@ -106,6 +108,8 @@
         public DateTime EndTimestamp { get; }
         
         #region AI
+        public int AIRequests { get; private set; }
+
         public double AIRequestsPerSecond { get; private set; }
 
         public double AIRequestDurationAveInMs { get; private set; }
@@ -114,6 +118,8 @@
 
         public double AIRequestsSucceededPerSecond { get; private set; }
         
+        public int AIDependencyCalls { get; private set; }
+
         public double AIDependencyCallsPerSecond { get; private set; }
 
         public double AIDependencyCallDurationAveInMs { get; private set; }
