@@ -33,7 +33,7 @@
                         Tuple.Create(QuickPulsePerfCounters.PerfIisRequestsFailedTotal, @"\ASP.NET Applications(__Total__)\Requests Failed"),
                         Tuple.Create(QuickPulsePerfCounters.PerfIisRequestsSucceededTotal, @"\ASP.NET Applications(__Total__)\Requests Succeeded"),
                         Tuple.Create(QuickPulsePerfCounters.PerfIisQueueSize, @"\ASP.NET Applications(__Total__)\Requests In Application Queue"),
-                        Tuple.Create(QuickPulsePerfCounters.PerfCpuUtilization, @"\Memory\Available Bytes"),
+                        Tuple.Create(QuickPulsePerfCounters.PerfCpuUtilization, @"\Memory\Committed Bytes"),
                         Tuple.Create(QuickPulsePerfCounters.PerfMemoryInBytes, @"\Processor(_Total)\% Processor Time")
                     };
     }
