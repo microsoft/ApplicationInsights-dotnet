@@ -19,10 +19,8 @@
     {
         private static readonly string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
 
-        // Test is timing out on AI_WebSDK_NET45 build definition.
         [TestMethod]
         [Timeout(5000)]
-        [Ignore]
         public void TestHttpPostRequestsAreCollected()
         {
             ITelemetry sentTelemetry = null;
