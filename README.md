@@ -1,5 +1,6 @@
 ![Build Status](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/1822/badge)
 [![Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights/)
+[![codecov.io](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet/coverage.svg?branch=develop)](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet?branch=develop)
 
 # Application Insights for .NET
 
