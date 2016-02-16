@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
         
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInTicks).TotalMilliseconds} ms{Environment.NewLine}");
+            // //!!!System.IO.File.AppendAllText(@"e:\qps.log", $"Sample count: {samples.Count()}{Environment.NewLine}\tAI RPS: {samples.First().AIRequestsPerSecond}\tIIS RPS: {samples.First().PerfIisRequestsPerSecond}\tAI Duration: {TimeSpan.FromTicks((long)samples.First().AIRequestDurationAveInMs).TotalMilliseconds} ms{Environment.NewLine}");
             MemoryStream bodyStream = WriteSamples(samples, instrumentationKey);
             
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", HttpUtility.UrlEncode(instrumentationKey));
@@ -119,7 +119,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Request Duration",
-                                                   Value = sample.AIRequestDurationAveInTicks,
+                                                   Value = sample.AIRequestDurationAveInMs,
                                                    Weight = 1
                                                },
                                            new MetricPoint
@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
                                            new MetricPoint
                                                {
                                                    Name = @"\ApplicationInsights\Dependency Call Duration",
-                                                   Value = sample.AIDependencyCallDurationAveInTicks,
+                                                   Value = sample.AIDependencyCallDurationAveInMs,
                                                    Weight = 1
                                                },
                                            new MetricPoint

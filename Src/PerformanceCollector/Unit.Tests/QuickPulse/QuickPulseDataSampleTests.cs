@@ -109,7 +109,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIRequestDurationAveInTicks);
+            Assert.AreEqual(TimeSpan.FromSeconds(5).TotalMilliseconds / 10.0, dataSample.AIRequestDurationAveInMs);
         }
 
         [TestMethod]
@@ -187,7 +187,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(TimeSpan.FromSeconds(5).Ticks / 10.0, dataSample.AIDependencyCallDurationAveInTicks);
+            Assert.AreEqual(TimeSpan.FromSeconds(5).TotalMilliseconds / 10.0, dataSample.AIDependencyCallDurationAveInMs);
         }
 
         [TestMethod]
@@ -242,7 +242,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.AIRequestDurationAveInTicks);
+            Assert.AreEqual(0.0, dataSample.AIRequestDurationAveInMs);
         }
 
         [TestMethod]
@@ -261,7 +261,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.AIDependencyCallDurationAveInTicks);
+            Assert.AreEqual(0.0, dataSample.AIDependencyCallDurationAveInMs);
         }
 
         #endregion
