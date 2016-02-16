@@ -33,11 +33,12 @@
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MetricPoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryModule.cs">
-	  <!--C# 6-->
-	  <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-	</Compile>
+      <!--C# 6-->
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterCollectionRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\Timer.cs" />

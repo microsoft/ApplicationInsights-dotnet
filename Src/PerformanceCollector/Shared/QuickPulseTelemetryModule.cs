@@ -258,14 +258,10 @@
             }
 
             // create the default production implementation of the service client with the best service endpoint we could get
-            string instanceName;
-            string version;
-            GetInstanceName(configuration, out instanceName, out version);
-
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, version);
+            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, GetInstanceName(configuration), SdkVersionUtils.GetAssemblyVersion());
         }
 
-        private static void GetInstanceName(TelemetryConfiguration configuration, out string instanceName, out string version)
+        private static string GetInstanceName(TelemetryConfiguration configuration)
         {
             // we need to initialize an item to get instance information
             var fakeItem = new MetricTelemetry();
@@ -279,8 +275,7 @@
                 // we don't care what happened there
             }
 
-            instanceName = string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
-            version = fakeItem.Context?.Component?.Version;
+            return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
 
         private void StateTimerCallback(object state)
