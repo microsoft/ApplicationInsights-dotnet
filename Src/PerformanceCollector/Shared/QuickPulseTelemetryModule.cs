@@ -46,6 +46,8 @@
 
         private bool isInitialized;
 
+        private QuickPulseCollectionTimeSlotManager collectionTimeSlotManager = null;
+
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         private IQuickPulseTelemetryProcessor telemetryProcessor = null;
@@ -64,12 +66,14 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class. Internal constructor for unit tests only.
         /// </summary>
+        /// <param name="collectionTimeSlotManager">Collection time slot manager.</param>
         /// <param name="dataAccumulatorManager">Data hub to sink QuickPulse data to.</param>
         /// <param name="telemetryProcessor">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
         /// <param name="performanceCollector">Performance counter collector.</param>
         /// <param name="timings">Timings for the module.</param>
         internal QuickPulseTelemetryModule(
+            QuickPulseCollectionTimeSlotManager collectionTimeSlotManager,
             QuickPulseDataAccumulatorManager dataAccumulatorManager,
             IQuickPulseTelemetryProcessor telemetryProcessor,
             IQuickPulseServiceClient serviceClient,
@@ -77,6 +81,7 @@
             QuickPulseTimings timings)
             : this()
         {
+            this.collectionTimeSlotManager = collectionTimeSlotManager;
             this.dataAccumulatorManager = dataAccumulatorManager;
             this.telemetryProcessor = telemetryProcessor;
             this.serviceClient = serviceClient;
@@ -116,6 +121,7 @@
 
                         this.ValidateConfiguration(configuration);
 
+                        this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
                         this.timeProvider = this.timeProvider ?? new QuickPulseTimeProvider();
@@ -277,7 +283,7 @@
 
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
-
+        
         private void StateTimerCallback(object state)
         {
             var currentCallbackStarted = this.timeProvider.UtcNow;
@@ -321,8 +327,6 @@
 
         private void CollectionTimerCallback(object state)
         {
-            var currentCallbackStarted = this.timeProvider.UtcNow;
-
             try
             {
                 this.CollectData();
@@ -337,14 +341,8 @@
                 // after the timer has been ordered to stop
                 if (this.stateManager.IsCollectingData && this.collectionTimer != null)
                 {
-                    // try to factor in the time spent in this tick when scheduling the next one so that the average period is close to the intended
-                    TimeSpan timeSpentInThisCallback = this.timeProvider.UtcNow - currentCallbackStarted;
-
-                    TimeSpan timeLeftUntilNextCallback = this.timings.CollectionInterval - timeSpentInThisCallback;
-
-                    timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero ? timeLeftUntilNextCallback : TimeSpan.Zero;
-
-                    this.collectionTimer.ScheduleNextTick(timeLeftUntilNextCallback);
+                    DateTime scheduledTime = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
+                    this.collectionTimer.ScheduleNextTick(scheduledTime - this.timeProvider.UtcNow);
                 }
             }
         }
@@ -395,9 +393,10 @@
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
-            this.collectionTimer.ScheduleNextTick(TimeSpan.Zero);
+            DateTime scheduledTime = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
+            this.collectionTimer.ScheduleNextTick(scheduledTime - this.timeProvider.UtcNow);
         }
-
+        
         private void OnStopCollection()
         {
             this.collectionTimer.Stop();

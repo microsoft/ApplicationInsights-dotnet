@@ -76,11 +76,13 @@
     <Compile Include="PerformanceCollectorEventSourceTests.cs" />
     <Compile Include="PerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseCollectionTimeSlotManagerMock.cs" />
     <Compile Include="QuickPulse\Mocks\QuickPulseTimeProviderMock.cs" />
     <Compile Include="QuickPulse\Mocks\QuickPulseServiceClientMock.cs">
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="QuickPulse\QuickPulseCollectionTimeSlotManagerTests.cs" />
     <Compile Include="QuickPulse\QuickPulseEventSourceTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataAccumulatorTests.cs" />
     <Compile Include="QuickPulse\QuickPulseDataSampleTests.cs" />
