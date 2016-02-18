@@ -2,7 +2,7 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version 2.0.0
+## Version 2.0.0-rc1
 
 - Writing telemetry items to debug output can be disabled with ```IsTracingDisabled``` property on ```TelemetryDebugWriter```. 
 Telemetry items that were filtered out by sampling are now indicated in debug output. Custom telemetry processors can now invoke
