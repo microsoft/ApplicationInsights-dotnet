@@ -341,8 +341,7 @@
                 // after the timer has been ordered to stop
                 if (this.stateManager.IsCollectingData && this.collectionTimer != null)
                 {
-                    DateTime scheduledTime = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
-                    this.collectionTimer.ScheduleNextTick(scheduledTime - this.timeProvider.UtcNow);
+                    this.ScheduleNextCollection();
                 }
             }
         }
@@ -393,8 +392,13 @@
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
-            DateTime scheduledTime = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
-            this.collectionTimer.ScheduleNextTick(scheduledTime - this.timeProvider.UtcNow);
+            this.ScheduleNextCollection();
+        }
+
+        private void ScheduleNextCollection()
+        {
+            DateTime nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
+            this.collectionTimer.ScheduleNextTick((nextTick - this.timeProvider.UtcNow).Duration());
         }
         
         private void OnStopCollection()

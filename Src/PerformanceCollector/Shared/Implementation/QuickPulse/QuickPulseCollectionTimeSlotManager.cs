@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
     {
         public virtual DateTime GetNextCollectionTimeSlot(DateTime currentTime)
         {
-            return currentTime.Millisecond <= 500 ? currentTime.AddMilliseconds(500 - currentTime.Millisecond) : currentTime.AddSeconds(1).AddMilliseconds(500 - currentTime.Millisecond);
+            return currentTime.Millisecond < 500 ? currentTime.AddMilliseconds(500 - currentTime.Millisecond) : currentTime.AddSeconds(1).AddMilliseconds(500 - currentTime.Millisecond);
         }
     }
 }

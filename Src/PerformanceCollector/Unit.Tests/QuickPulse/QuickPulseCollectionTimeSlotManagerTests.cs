@@ -53,7 +53,7 @@
             DateTime slot = manager.GetNextCollectionTimeSlot(now);
 
             // ASSERT
-            Assert.AreEqual(now, slot);
+            Assert.AreEqual(now.AddSeconds(1), slot);
         }
     }
 }
