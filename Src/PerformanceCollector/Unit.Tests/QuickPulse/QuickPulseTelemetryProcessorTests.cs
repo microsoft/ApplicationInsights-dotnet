@@ -43,18 +43,17 @@
             telemetryProcessor.StartCollection(accumulatorManager);
 
             // ACT
-            telemetryProcessor.Process(new RequestTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = false, Duration = TimeSpan.FromSeconds(2) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(2) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = "", Duration = TimeSpan.FromSeconds(3) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "", Duration = TimeSpan.FromSeconds(4) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "404", Duration = TimeSpan.FromSeconds(5) });
 
             // ASSERT
-            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
-            Assert.AreEqual(
-                1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
-            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
-            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
+            Assert.AreEqual(5, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(1 + 2 + 3 + 4 + 5, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
+            Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
         }
 
         [TestMethod]

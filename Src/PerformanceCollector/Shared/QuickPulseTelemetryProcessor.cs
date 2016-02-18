@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse
 {
     using System;
+    using System.Globalization;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -69,17 +70,19 @@
 
                 if (request != null)
                 {
+                    bool success = IsRequestSuccessful(request);
+
                     long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, request.Duration.Ticks);
 
                     Interlocked.Add(
                         ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
                         requestCountAndDurationInTicks);
 
-                    if (request.Success == true)
+                    if (success)
                     {
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
                     }
-                    else if (request.Success == false)
+                    else
                     {
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
                     }
@@ -87,6 +90,7 @@
                 else if (dependencyCall != null)
                 {
                     long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, dependencyCall.Duration.Ticks);
+
                     Interlocked.Add(
                         ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
                         dependencyCallCountAndDurationInTicks);
@@ -105,6 +109,32 @@
             {
                 this.Next.Process(telemetry);
             }
+        }
+
+        private static bool IsRequestSuccessful(RequestTelemetry request)
+        {
+            string responseCode = request.ResponseCode;
+            bool? success = request.Success;
+
+            if (string.IsNullOrWhiteSpace(responseCode))
+            {
+                responseCode = "200";
+            }
+
+            if (success == null)
+            {
+                int responseCodeInt;
+                if (int.TryParse(responseCode, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCodeInt))
+                {
+                    success = (responseCodeInt < 400) || (responseCodeInt == 401);
+                }
+                else
+                {
+                    success = true;
+                }
+            }
+
+            return success.Value;
         }
     }
 }
