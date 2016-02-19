@@ -43,7 +43,7 @@
             telemetryProcessor.StartCollection(accumulatorManager);
 
             // ACT
-            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1) });
             telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(2) });
             telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(3) });
             telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(4) });
@@ -53,8 +53,8 @@
             // ASSERT
             Assert.AreEqual(6, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
             Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
-            Assert.AreEqual(5, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
-            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
+            Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@
             Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
         }
-
+        
         [TestMethod]
         public void QuickPulseTelemetryProcessorKeepsAccurateCountOfExceptions()
         {
@@ -194,7 +194,7 @@
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void QuickPulseTelemetryProcessorDoesHasToBeStoppedBeforeReceingStartCommand()
+        public void QuickPulseTelemetryProcessorMustBeStoppedBeforeReceivingStartCommand()
         {
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
