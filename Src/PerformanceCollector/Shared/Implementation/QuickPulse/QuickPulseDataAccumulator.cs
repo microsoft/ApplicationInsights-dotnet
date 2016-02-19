@@ -28,6 +28,8 @@
 
         public long AIDependencyCallFailureCount;
 
+        public long AIExceptionCount;
+
         #endregion
 
         /// <summary>

@@ -45,15 +45,16 @@
             // ACT
             telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1) });
             telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(2) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = "", Duration = TimeSpan.FromSeconds(3) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "", Duration = TimeSpan.FromSeconds(4) });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "404", Duration = TimeSpan.FromSeconds(5) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(3) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(4) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(5) });
+            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "404", Duration = TimeSpan.FromSeconds(6) });
 
             // ASSERT
-            Assert.AreEqual(5, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
-            Assert.AreEqual(1 + 2 + 3 + 4 + 5, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
-            Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
-            Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
+            Assert.AreEqual(6, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
+            Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
+            Assert.AreEqual(5, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+            Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
         }
 
         [TestMethod]
@@ -77,6 +78,23 @@
                 TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIDependencyCallDurationInTicks).TotalSeconds);
             Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorKeepsAccurateCountOfExceptions()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            telemetryProcessor.StartCollection(accumulatorManager);
+
+            // ACT
+            telemetryProcessor.Process(new ExceptionTelemetry());
+            telemetryProcessor.Process(new ExceptionTelemetry());
+            telemetryProcessor.Process(new ExceptionTelemetry());
+
+            // ASSERT
+            Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.AIExceptionCount);
         }
 
         [TestMethod]
@@ -133,7 +151,7 @@
 
             for (int i = 0; i < taskCount; i++)
             {
-                var requestTelemetry = new RequestTelemetry() { Success = i % 2 == 0, Duration = TimeSpan.FromMilliseconds(i) };
+                var requestTelemetry = new RequestTelemetry() { ResponseCode = (i % 2 == 0) ? "200" : "500", Duration = TimeSpan.FromMilliseconds(i) };
 
                 var task = new Task(() => telemetryProcessor.Process(requestTelemetry));
                 tasks.Add(task);

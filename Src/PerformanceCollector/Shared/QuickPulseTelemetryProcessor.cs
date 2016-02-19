@@ -67,6 +67,7 @@
                 // (most likely TelemetryConfiguration.Active.InstrumentationKey)
                 var request = telemetry as RequestTelemetry;
                 var dependencyCall = telemetry as DependencyTelemetry;
+                var exception = telemetry as ExceptionTelemetry;
 
                 if (request != null)
                 {
@@ -104,6 +105,10 @@
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
                     }
                 }
+                else if (exception != null)
+                {
+                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
+                }
             }
             finally
             {
@@ -119,6 +124,7 @@
             if (string.IsNullOrWhiteSpace(responseCode))
             {
                 responseCode = "200";
+                success = true;
             }
 
             if (success == null)

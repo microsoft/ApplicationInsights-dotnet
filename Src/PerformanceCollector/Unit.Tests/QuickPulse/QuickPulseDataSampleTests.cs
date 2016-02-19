@@ -266,6 +266,27 @@
 
         #endregion
 
+        #region Exceptions
+        [TestMethod]
+        public void QuickPulseDataSampleCalculatesAIExceptionsPerSecondCorrectly()
+        {
+            // ARRANGE
+            var accumulator = new QuickPulseDataAccumulator
+            {
+                StartTimestamp = DateTime.UtcNow,
+                EndTimestamp = DateTime.UtcNow.AddSeconds(2),
+                AIExceptionCount = 3
+            };
+
+            // ACT
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+
+            // ASSERT
+            Assert.AreEqual(3.0 / 2, dataSample.AIExceptionsPerSecond);
+        }
+
+        #endregion
+
         #endregion
 
         #region Perf data calculation checks

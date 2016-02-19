@@ -62,6 +62,8 @@
             this.AIDependencyCallsFailedPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallFailureCount / sampleDuration.TotalSeconds : 0;
             this.AIDependencyCallsSucceededPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIDependencyCallSuccessCount / sampleDuration.TotalSeconds : 0;
 
+            this.AIExceptionsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIExceptionCount / sampleDuration.TotalSeconds : 0;
+
             // avoiding reflection (Enum.GetNames()) to speed things up
             Tuple<PerformanceCounterData, float> value;
 
@@ -127,6 +129,8 @@
         public double AIDependencyCallsFailedPerSecond { get; private set; }
 
         public double AIDependencyCallsSucceededPerSecond { get; private set; }
+
+        public double AIExceptionsPerSecond { get; private set; }
 
         #endregion
 

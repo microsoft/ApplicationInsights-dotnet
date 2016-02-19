@@ -162,6 +162,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
                                                    Name = @"\ApplicationInsights\Dependency Calls Succeeded/Sec",
                                                    Value = Round(sample.AIDependencyCallsSucceededPerSecond),
                                                    Weight = 1
+                                               },
+                                            new MetricPoint
+                                               {
+                                                   Name = @"\ApplicationInsights\Exceptions/Sec",
+                                                   Value = Round(sample.AIExceptionsPerSecond),
+                                                   Weight = 1
                                                }
                                        };
 

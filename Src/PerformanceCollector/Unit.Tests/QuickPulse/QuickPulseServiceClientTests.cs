@@ -111,17 +111,23 @@
                     new QuickPulseDataAccumulator { AIDependencyCallSuccessCount = 10, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                     new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
+            var sample3 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator { AIExceptionCount = 15, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
+
             // ACT
-            bool? sendMore = serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty);
+            bool? sendMore = serviceClient.SubmitSamples(new[] { sample1, sample2, sample3 }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
 
             Assert.AreEqual(true, sendMore);
-            Assert.AreEqual(2, this.samples.Count);
+            Assert.AreEqual(3, this.samples.Count);
             Assert.AreEqual(5, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
             Assert.AreEqual(10, this.samples[1].Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Calls Succeeded/Sec").Value);
-        }
+            Assert.AreEqual(15, this.samples[2].Metrics.Single(m => m.Name == @"\ApplicationInsights\Exceptions/Sec").Value);
+    }
 
         [TestMethod]
         public void QuickPulseServiceClientRoundsSampleValuesWhenSubmittingToService()
