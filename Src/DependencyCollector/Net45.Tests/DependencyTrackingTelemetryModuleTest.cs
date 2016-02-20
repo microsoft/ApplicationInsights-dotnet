@@ -21,6 +21,7 @@
 
         [TestMethod]
         [Timeout(5000)]
+        [TestCategory("Required_4_5_1")]
         public void TestHttpPostRequestsAreCollected()
         {
             ITelemetry sentTelemetry = null;
@@ -57,6 +58,7 @@
 
         [TestMethod]
         [Timeout(5000)]
+        [TestCategory("Required_4_5_1")]
         public void TestHttpRequestsWithQueryStringAreCollected()
         {
             ITelemetry sentTelemetry = null;
@@ -95,6 +97,7 @@
         /// </summary>
         [TestMethod]
         [Timeout(5000)]
+        [TestCategory("Required_4_5_1")]
         public void TestHttpGetRequestsAreCollected()
         {
             ITelemetry sentTelemetry = null;
