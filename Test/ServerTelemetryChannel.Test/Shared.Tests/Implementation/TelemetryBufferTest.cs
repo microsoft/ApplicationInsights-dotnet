@@ -197,7 +197,7 @@
         public class FlushAsync : TelemetryBufferTest
         {
             [TestMethod]
-            [Timeout(5000)]
+            [Timeout(10000)]
             public void DoesntSerializeTelemetryIfBufferIsEmpty()
             {
                 bool telemetrySerialized = false;
@@ -214,7 +214,7 @@
             }
 
             [TestMethod]
-            [Timeout(5000)]
+            [Timeout(10000)]
             public void SerializesTelemetryIfBufferIsNotEmpty()
             {
                 List<ITelemetry> serializedTelemetry = null;
@@ -256,7 +256,7 @@
             }
 
             [TestMethod]
-            [Timeout(5000)]
+            [Timeout(10000)]
             public void EmptiesBufferAfterSerialization()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
@@ -285,7 +285,7 @@
             }
 
             [TestMethod]
-            [Timeout(5000)]
+            [Timeout(10000)]
             public void CancelsPreviouslyStartedAutomaticFlushToPreventPreventPrematureTransmission()
             {
                 var serializer = new StubTelemetrySerializer();
@@ -308,7 +308,7 @@
             }
 
             [TestMethod]
-            [Timeout(5000)]
+            [Timeout(10000)]
             public void DoesNotContinueOnCapturedSynchronizationContextToImprovePerformance()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
