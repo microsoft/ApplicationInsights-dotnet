@@ -40,7 +40,7 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ACT
             telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1) });
@@ -63,7 +63,7 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ACT
             telemetryProcessor.Process(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1) });
@@ -86,7 +86,7 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ACT
             telemetryProcessor.Process(new ExceptionTelemetry());
@@ -105,7 +105,7 @@
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
             telemetryProcessor.Process(new RequestTelemetry());
             telemetryProcessor.StopCollection();
             telemetryProcessor.Process(new DependencyTelemetry());
@@ -121,7 +121,7 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ACT
             telemetryProcessor.Process(new EventTelemetry());
@@ -143,7 +143,7 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // expected data loss if threading is misimplemented is around 10% (established through experiment)
             int taskCount = 10000;
@@ -176,11 +176,11 @@
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager1);
+            telemetryProcessor.StartCollection(accumulatorManager1, null);
             telemetryProcessor.Process(new RequestTelemetry());
             telemetryProcessor.StopCollection();
 
-            telemetryProcessor.StartCollection(accumulatorManager2);
+            telemetryProcessor.StartCollection(accumulatorManager2, null);
             telemetryProcessor.Process(new DependencyTelemetry());
             telemetryProcessor.StopCollection();
 
@@ -200,13 +200,33 @@
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager);
+            telemetryProcessor.StartCollection(accumulatorManager, null);
 
             // ASSERT
             // must throw
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseService()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
+            telemetryProcessor.StartCollection(accumulatorManager, new Uri("https://qps.cloudapp.net/endpoint.svc"));
+
+            // ACT
+            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://microsoft.ru" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://qps.cloudapp.net/blabla" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Name = "https://bing.com" });
+
+            // ASSERT
+            Assert.AreEqual(2, simpleTelemetryProcessorSpy.ReceivedCalls);
+            Assert.AreEqual("http://microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Name);
+            Assert.AreEqual("https://bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Name);
         }
     }
 }

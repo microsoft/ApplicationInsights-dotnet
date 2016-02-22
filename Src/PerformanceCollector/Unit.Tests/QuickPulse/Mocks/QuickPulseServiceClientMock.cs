@@ -39,6 +39,8 @@
             }
         }
 
+        public Uri ServiceUri { get; }
+
         public bool? Ping(string instrumentationKey, DateTime timestamp)
         {
             lock (this.lockObject)

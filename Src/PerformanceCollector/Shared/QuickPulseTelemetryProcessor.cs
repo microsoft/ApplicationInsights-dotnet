@@ -16,6 +16,8 @@
     {
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
+        private Uri serviceEndpoint = null;
+
         private bool isCollecting = false;
         
         public QuickPulseTelemetryProcessor(ITelemetryProcessor next)
@@ -30,7 +32,7 @@
 
         private ITelemetryProcessor Next { get; }
 
-        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager)
+        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint)
         {
             if (this.isCollecting)
             {
@@ -38,6 +40,8 @@
             }
 
             this.dataAccumulatorManager = accumulatorManager;
+            this.serviceEndpoint = serviceEndpoint;
+
             this.isCollecting = true;
         }
 
@@ -54,6 +58,8 @@
         /// <remarks>This method is performance critical since every AI telemetry item goes through it.</remarks>
         public void Process(ITelemetry telemetry)
         {
+            bool letItemThrough = true;
+
             try
             {
                 if (!this.isCollecting || this.dataAccumulatorManager == null)
@@ -104,6 +110,15 @@
                     {
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
                     }
+
+                    if (this.serviceEndpoint != null && !string.IsNullOrWhiteSpace(dependencyCall.Name))
+                    {
+                        if (dependencyCall.Name.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            // this is an Http request to QuickPulse service, we don't want to let it through
+                            letItemThrough = false;
+                        }
+                    }
                 }
                 else if (exception != null)
                 {
@@ -112,7 +127,10 @@
             }
             finally
             {
-                this.Next.Process(telemetry);
+                if (letItemThrough)
+                {
+                    this.Next.Process(telemetry);
+                }
             }
         }
 

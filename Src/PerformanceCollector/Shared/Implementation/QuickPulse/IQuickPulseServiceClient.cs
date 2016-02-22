@@ -2,9 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Security.Cryptography.X509Certificates;
 
     internal interface IQuickPulseServiceClient
     {
+        /// <summary>
+        /// Gets the QPS URI.
+        /// </summary>
+        Uri ServiceUri { get; }
+
         /// <summary>
         /// Pings QPS to check if it expects data right now.
         /// </summary>

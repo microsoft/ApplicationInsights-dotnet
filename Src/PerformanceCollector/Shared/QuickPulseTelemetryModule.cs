@@ -390,7 +390,7 @@
         private void OnStartCollection()
         {
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
-            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
+            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager, this.serviceClient.ServiceUri);
 
             this.ScheduleNextCollection();
         }

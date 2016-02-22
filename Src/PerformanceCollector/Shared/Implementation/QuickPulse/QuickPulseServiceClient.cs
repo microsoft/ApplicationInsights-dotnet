@@ -25,22 +25,22 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
         private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
 
         private const int RetryCount = 3;
-
-        private readonly Uri serviceUri;
-
+        
         private readonly string instanceName;
 
         private readonly string version;
 
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
-
+        
         public QuickPulseServiceClient(Uri serviceUri, string instanceName, string version, TimeSpan? timeout = null)
         {
-            this.serviceUri = serviceUri;
+            this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
             this.version = version;
             this.timeout = timeout ?? this.timeout;
         }
+
+        public Uri ServiceUri { get; }
 
         public bool? Ping(string instrumentationKey, DateTime timestamp)
         {
@@ -195,7 +195,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
         
         private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body, bool enableRetry)
         {
-            var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.serviceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
+            var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.ServiceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
             int attemptMaxCount = enableRetry ? RetryCount : 1;
             int attempt = 0;

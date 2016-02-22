@@ -3,11 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     
     public class SimpleTelemetryProcessorSpy : ITelemetryProcessor
     {
-        private int processCalls;
+        private List<Channel.ITelemetry> receivedItems = new List<ITelemetry>();
 
         public SimpleTelemetryProcessorSpy()
         {
@@ -17,13 +19,21 @@
         {
             get
             {
-                return this.processCalls;
+                return this.receivedItems.Count;
             }
         }
 
+        public List<Channel.ITelemetry> ReceivedItems
+        {
+            get
+            {
+                return this.receivedItems;
+            }
+        } 
+
         public void Process(Channel.ITelemetry item)
         {
-            this.processCalls++;
+            this.receivedItems.Add(item);
         }
     }
 }
