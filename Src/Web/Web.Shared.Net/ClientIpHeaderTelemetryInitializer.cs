@@ -146,7 +146,8 @@
                 }
             }
 
-            location.Ip = !string.IsNullOrEmpty(resultIp) ? resultIp : platformContext.Request.UserHostAddress;
+            var requestWrapper = new HttpRequestWrapper(platformContext.Request);
+            location.Ip = !string.IsNullOrEmpty(resultIp) ? resultIp : requestWrapper.GetUserHostAddress();
 
             WebEventSource.Log.WebLocationIdSet(location.Ip);
         }

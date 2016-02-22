@@ -3,7 +3,10 @@
     using System;
     using System.Web;
 
-    internal static class HttpRequestExtensions
+    /// <summary>
+    /// HttpRequest extension methods.
+    /// </summary>
+    internal static partial class HttpRequestExtensions
     {
         public static HttpCookie UnvalidatedGetCookie(this HttpRequest httpRequest, string name)
         {
