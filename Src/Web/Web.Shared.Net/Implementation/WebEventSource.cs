@@ -86,6 +86,18 @@
         }
 
         [Event(
+            5,
+            Message = "[msg=UserHostNotCollectedWarning];[exception={0}];",
+            Level = EventLevel.Warning)]
+        public void UserHostNotCollectedWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                5,
+                exception ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
             8,
             Message = "[msg=RequestTelemetryCreated];",
             Level = EventLevel.Verbose)]
