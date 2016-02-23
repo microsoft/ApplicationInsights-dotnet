@@ -1,14 +1,7 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DiagnoisticsEventThrottlingManager.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-// <author>Sergei Nikitin: sergeyni@microsoft.com</author>
-// <summary></summary>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
+    using System.Globalization;
 
     internal class DiagnoisticsEventThrottlingManager<T> : IDiagnoisticsEventThrottlingManager
         where T : IDiagnoisticsEventThrottling
@@ -52,10 +45,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
                 keywords,
                 out justExceededThreshold);
 
-            if (true == justExceededThreshold)
+            if (justExceededThreshold)
             {
-                CoreEventSource.Log.DiagnosticsEventThrottlingHasBeenStartedForTheEvent(
-                    eventId);
+                CoreEventSource.Log.DiagnosticsEventThrottlingHasBeenStartedForTheEvent(eventId.ToString(CultureInfo.InvariantCulture));
             }
 
             return throttleEvent;
