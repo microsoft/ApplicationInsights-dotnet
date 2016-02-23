@@ -160,6 +160,8 @@
 
                 throw new ArgumentException("Could not obtain an IQuickPulseTelemetryProcessor");
             }
+
+            this.telemetryProcessor.Initialize(this.serviceClient.ServiceUri);
         }
 
         private void InitializePerformanceCollector()
@@ -390,7 +392,7 @@
         private void OnStartCollection()
         {
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
-            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager, this.serviceClient.ServiceUri);
+            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
             this.ScheduleNextCollection();
         }

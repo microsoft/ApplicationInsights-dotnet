@@ -32,7 +32,12 @@
 
         private ITelemetryProcessor Next { get; }
 
-        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint)
+        public void Initialize(Uri serviceEndpoint)
+        {
+            this.serviceEndpoint = serviceEndpoint;
+        }
+
+        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager)
         {
             if (this.isCollecting)
             {
@@ -40,8 +45,7 @@
             }
 
             this.dataAccumulatorManager = accumulatorManager;
-            this.serviceEndpoint = serviceEndpoint;
-
+            
             this.isCollecting = true;
         }
 
@@ -62,6 +66,19 @@
 
             try
             {
+                // filter out QPS requests from dependencies even when we're not collecting (for Pings)
+                var dependencyCall = telemetry as DependencyTelemetry;
+                if (this.serviceEndpoint != null && dependencyCall != null && !string.IsNullOrWhiteSpace(dependencyCall.Name))
+                {
+                    if (dependencyCall.Name.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        // this is an HTTP request to QuickPulse service, we don't want to let it through
+                        letItemThrough = false;
+
+                        return;
+                    }
+                }
+
                 if (!this.isCollecting || this.dataAccumulatorManager == null)
                 {
                     return;
@@ -72,7 +89,6 @@
                 // the iKey passed to the module through configuration at initialization time 
                 // (most likely TelemetryConfiguration.Active.InstrumentationKey)
                 var request = telemetry as RequestTelemetry;
-                var dependencyCall = telemetry as DependencyTelemetry;
                 var exception = telemetry as ExceptionTelemetry;
 
                 if (request != null)
@@ -109,15 +125,6 @@
                     else if (dependencyCall.Success == false)
                     {
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
-                    }
-
-                    if (this.serviceEndpoint != null && !string.IsNullOrWhiteSpace(dependencyCall.Name))
-                    {
-                        if (dependencyCall.Name.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            // this is an Http request to QuickPulse service, we don't want to let it through
-                            letItemThrough = false;
-                        }
                     }
                 }
                 else if (exception != null)

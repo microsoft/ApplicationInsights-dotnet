@@ -9,7 +9,9 @@
     
     public class SimpleTelemetryProcessorSpy : ITelemetryProcessor
     {
-        private List<Channel.ITelemetry> receivedItems = new List<ITelemetry>();
+        private readonly object lockObject = new object();
+
+        private readonly List<Channel.ITelemetry> receivedItems = new List<ITelemetry>();
 
         public SimpleTelemetryProcessorSpy()
         {
@@ -19,7 +21,10 @@
         {
             get
             {
-                return this.receivedItems.Count;
+                lock (this.lockObject)
+                {
+                    return this.receivedItems.Count;
+                }
             }
         }
 
@@ -33,7 +38,10 @@
 
         public void Process(Channel.ITelemetry item)
         {
-            this.receivedItems.Add(item);
+            lock (this.lockObject)
+            {
+                this.receivedItems.Add(item);
+            }
         }
     }
 }
