@@ -436,7 +436,7 @@
         }
 
         #region Helpers
-        static void AddAddress(string address, string domain, string user)
+        private static void AddAddress(string address, string domain, string user)
         {
             string args = string.Format(CultureInfo.InvariantCulture, @"http add urlacl url={0} user=""{1}\{2}"" listen=yes", address, domain, user);
 
