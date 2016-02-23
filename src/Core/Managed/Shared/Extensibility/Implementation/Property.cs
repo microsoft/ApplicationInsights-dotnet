@@ -141,8 +141,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                     string sanitizedKey = SanitizeKey(entry.Key, dictionary);
 
+                    // Disallow Nan and Infinity since Breeze does not accept it
+                    double sanitizeValue = entry.Value;
+                    if (double.IsInfinity(sanitizeValue) || double.IsNaN(sanitizeValue))
+                    {
+                        sanitizeValue = 0;
+                    }
+
                     // add it back (sanitized at this point).
-                    dictionary.Add(sanitizedKey, entry.Value);
+                    dictionary.Add(sanitizedKey, sanitizeValue);
                 }
             }
         }

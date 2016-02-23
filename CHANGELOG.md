@@ -4,6 +4,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.0.0
 
+- Disallow Nan, +-Infinity measurements. Value will be replaced on 0.
+
+## Version 2.0.0-rc1
+
 - Writing telemetry items to debug output can be disabled with ```IsTracingDisabled``` property on ```TelemetryDebugWriter```. 
 Telemetry items that were filtered out by sampling are now indicated in debug output. Custom telemetry processors can now invoke
 method ```WriteTelemetry``` on ```TelemetryDebugWriter``` with ```filteredBy``` parameter to indicate in debug output that an

@@ -298,7 +298,46 @@
             Assert.Equal(3, original.Count);
             Assert.Equal(Property.MaxDictionaryNameLength, original.Keys.Max(key => key.Length));
         }
-        
+
+        [TestMethod]
+        public void SanitizeMeasurementsReplacesNanWith0()
+        {
+            var original = new Dictionary<string, double>
+            {
+                { "Key", double.NaN },
+            };
+
+            original.SanitizeMeasurements();
+
+            Assert.Equal(0, original["Key"]);
+        }
+
+        [TestMethod]
+        public void SanitizeMeasurementsReplacesPositiveInfinityWith0()
+        {
+            var original = new Dictionary<string, double>
+            {
+                { "Key", double.PositiveInfinity },
+            };
+
+            original.SanitizeMeasurements();
+
+            Assert.Equal(0, original["Key"]);
+        }
+
+        [TestMethod]
+        public void SanitizeMeasurementsReplacesNegativeInfinityWith0()
+        {
+            var original = new Dictionary<string, double>
+            {
+                { "Key", double.NegativeInfinity },
+            };
+
+            original.SanitizeMeasurements();
+
+            Assert.Equal(0, original["Key"]);
+        }
+
         private static IEnumerable<char> GetInvalidNameCharacters()
         {
             var invalidCharacters = new List<char>();
