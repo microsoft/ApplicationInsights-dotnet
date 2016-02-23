@@ -59,8 +59,11 @@
                 response.AddHeader("x-ms-qps-subscribed", true.ToString());
             };
 
+            string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://*:{0}/", Port);
+            AddAddress(uriPrefix, Environment.UserDomainName, Environment.UserName);
+
             this.listener = new HttpListener();
-            this.listener.Prefixes.Add(string.Format(CultureInfo.InvariantCulture, "http://*:{0}/", Port));
+            this.listener.Prefixes.Add(uriPrefix);
             this.listener.Start();
 
             Task.Factory.StartNew(() => this.ProcessRequest(this.listener));
@@ -433,6 +436,19 @@
         }
 
         #region Helpers
+        static void AddAddress(string address, string domain, string user)
+        {
+            string args = string.Format(CultureInfo.InvariantCulture, @"http add urlacl url={0} user=""{1}\{2}""", address, domain, user);
+
+            ProcessStartInfo psi = new ProcessStartInfo("netsh", args);
+            psi.Verb = "runas";
+            psi.CreateNoWindow = true;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.UseShellExecute = true;
+
+            Process.Start(psi).WaitForExit();
+        }
+
         private void ProcessRequest(HttpListener listener)
         {
             while (listener.IsListening)
@@ -471,7 +487,7 @@
                 }
             }
         }
-
+        
         #endregion
     }
 }
