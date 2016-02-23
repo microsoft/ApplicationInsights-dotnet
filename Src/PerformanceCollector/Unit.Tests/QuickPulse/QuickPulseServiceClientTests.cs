@@ -17,7 +17,7 @@
     [TestClass]
     public sealed class QuickPulseServiceClientTests : IDisposable
     {
-        private const int Port = 49152 + 10;
+        private const int Port = 49152 + 11;
         private readonly Uri serviceEndpoint = new Uri(string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}", Port));
 
         private readonly List<MonitoringDataPoint> samples = new List<MonitoringDataPoint>();
@@ -59,7 +59,7 @@
                 response.AddHeader("x-ms-qps-subscribed", true.ToString());
             };
 
-            string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://*:{0}/", Port);
+            string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/", Port);
             AddAddress(uriPrefix, Environment.UserDomainName, Environment.UserName);
 
             this.listener = new HttpListener();
@@ -438,7 +438,7 @@
         #region Helpers
         static void AddAddress(string address, string domain, string user)
         {
-            string args = string.Format(CultureInfo.InvariantCulture, @"http add urlacl url={0} user=""{1}\{2}""", address, domain, user);
+            string args = string.Format(CultureInfo.InvariantCulture, @"http add urlacl url={0} user=""{1}\{2}"" listen=yes", address, domain, user);
 
             ProcessStartInfo psi = new ProcessStartInfo("netsh", args);
             psi.Verb = "runas";
