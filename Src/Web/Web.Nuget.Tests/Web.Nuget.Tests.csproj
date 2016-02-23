@@ -28,7 +28,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.0.0-beta5-build21781\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.0.0-rc1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Web.XmlTransform">
@@ -48,7 +48,6 @@
     <Compile Include="ConfigurationHelpers.cs" />
     <Compile Include="TelemetryInitailizersTests.cs" />
     <Compile Include="TelemetryModulesTests.cs" />
-    <Compile Include="TelemetryProcessorsTests.cs" />
     <Compile Include="WebConfigWithLocationTagTransformTest.cs" />
     <Compile Include="WebConfigTransformTest.cs" />
   </ItemGroup>
