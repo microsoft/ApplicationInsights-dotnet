@@ -60,7 +60,6 @@
             };
 
             string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/", Port);
-            AddAddress(uriPrefix, Environment.UserDomainName, Environment.UserName);
 
             this.listener = new HttpListener();
             this.listener.Prefixes.Add(uriPrefix);
@@ -436,19 +435,7 @@
         }
 
         #region Helpers
-        private static void AddAddress(string address, string domain, string user)
-        {
-            string args = string.Format(CultureInfo.InvariantCulture, @"http add urlacl url={0} user=""{1}\{2}"" listen=yes", address, domain, user);
-
-            ProcessStartInfo psi = new ProcessStartInfo("netsh", args);
-            psi.Verb = "runas";
-            psi.CreateNoWindow = true;
-            psi.WindowStyle = ProcessWindowStyle.Hidden;
-            psi.UseShellExecute = true;
-
-            Process.Start(psi).WaitForExit();
-        }
-
+        
         private void ProcessRequest(HttpListener listener)
         {
             while (listener.IsListening)
