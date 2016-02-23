@@ -81,10 +81,7 @@
 
             Assert.AreEqual(2, evt.Payload.Length, "Unexpected payload items count");
 
-            Assert.IsNotNull(evt.Payload[0], "Payload item[0] is null");
-            Assert.IsInstanceOfType(evt.Payload[0], typeof(int), "Payload item[0] has wrong type");
-            var eventId = Convert.ToInt32(evt.Payload[0], CultureInfo.InvariantCulture);
-            Assert.AreEqual(SampleEventId, eventId, "Unexpected event Id in payload item");
+            Assert.AreEqual(SampleEventId.ToString(), evt.Payload[0], "Unexpected event Id in payload item");
 
             Assert.IsNotNull(evt.Payload[1], "Payload item[1] is null");
             Assert.IsInstanceOfType(evt.Payload[1], typeof(string), "Payload item[1] has wrong type");
