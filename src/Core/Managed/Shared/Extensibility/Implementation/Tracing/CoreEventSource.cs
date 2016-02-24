@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-    using System;
-
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
@@ -53,10 +51,10 @@
             Message = "Diagnostics event throttling has been started for the event {0}",
             Level = EventLevel.Informational)]
         public void DiagnosticsEventThrottlingHasBeenStartedForTheEvent(
-            int eventId,
+            string eventId,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(4, eventId, this.nameProvider.Name);
+            this.WriteEvent(4, eventId ?? "NULL", this.nameProvider.Name);
         }
 
         [Event(
@@ -93,10 +91,10 @@
             Message = "A scheduler timer was created for the interval: {0}",
             Level = EventLevel.Verbose)]
         public void DiagnoisticsEventThrottlingSchedulerTimerWasCreated(
-            int intervalInMilliseconds,
+            string intervalInMilliseconds,
             string appDomainName = "Incorrect")
         {
-            this.WriteEvent(7, intervalInMilliseconds, this.nameProvider.Name);
+            this.WriteEvent(7, intervalInMilliseconds ?? "NULL", this.nameProvider.Name);
         }
 
         [Event(
@@ -262,6 +260,20 @@
         {
             this.WriteEvent(
                 21,
+                type ?? string.Empty,
+                error ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            22,
+            Keywords = Keywords.UserActionable,
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be initialized. Error: '{1}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Level = EventLevel.Error)]
+        public void ComponentInitializationConfigurationError(string type, string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                22,
                 type ?? string.Empty,
                 error ?? string.Empty,
                 this.nameProvider.Name);
