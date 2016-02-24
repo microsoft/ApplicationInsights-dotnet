@@ -324,7 +324,7 @@
 
             countersToRefresh.ForEach(pcd => this.RefreshCounter(pcd, win32Instances, clrInstances));
 
-            PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count);
+            PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count.ToString(CultureInfo.InvariantCulture));
         }
 
         private void RefreshCounter(

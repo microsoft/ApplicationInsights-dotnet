@@ -4,6 +4,7 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
@@ -129,7 +130,7 @@
             Keywords = Keywords.RddEventKeywords,
             Message = "End callback called for id = '{0}'",
             Level = EventLevel.Verbose)]
-        public void EndCallbackCalled(long id, string appDomainName = "Incorrect")
+        public void EndCallbackCalled(string id, string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, id, this.ApplicationName);
         }
@@ -139,7 +140,7 @@
             Keywords = Keywords.RddEventKeywords,
             Message = "End callback - cannot find start of operation for id = '{0}'",
             Level = EventLevel.Verbose)]
-        public void EndCallbackWithNoBegin(long id, string appDomainName = "Incorrect")
+        public void EndCallbackWithNoBegin(string id, string appDomainName = "Incorrect")
         {
             this.WriteEvent(12, id, this.ApplicationName);
         }
@@ -147,9 +148,9 @@
         [NonEvent]
         public void CallbackError(long id, string callbackName, Exception exception)
         {
-            if (this.IsEnabled(EventLevel.Error, (EventKeywords)Keywords.RddEventKeywords))
+            if (this.IsEnabled(EventLevel.Error, Keywords.RddEventKeywords))
             {
-                this.CallbackError(id, callbackName ?? string.Empty, exception == null ? "null" : exception.ToInvariantString());
+                this.CallbackError(id.ToString(CultureInfo.InvariantCulture), callbackName ?? string.Empty, exception == null ? "null" : exception.ToInvariantString());
             }
         }
 
@@ -158,7 +159,7 @@
             Keywords = Keywords.RddEventKeywords,
             Message = "Callback '{1}' failed for id = '{0}'. Exception: {2}",
             Level = EventLevel.Error)]
-        public void CallbackError(long id, string callbackName, string exceptionString, string appDomainName = "Incorrect")
+        public void CallbackError(string id, string callbackName, string exceptionString, string appDomainName = "Incorrect")
         {
             this.WriteEvent(13, id, callbackName ?? string.Empty, exceptionString ?? string.Empty, this.ApplicationName);
         }
