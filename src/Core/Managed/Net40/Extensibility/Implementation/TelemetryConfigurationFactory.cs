@@ -272,6 +272,7 @@
             InitializeComponent(configuration.TelemetryChannel, configuration);
             InitializeComponents(configuration.TelemetryInitializers, configuration);
             InitializeComponents(configuration.TelemetryProcessorChain.TelemetryProcessors, configuration);
+
             if (modules != null)
             {
                 InitializeComponents(modules.Modules, configuration);
@@ -291,7 +292,14 @@
             var configurable = component as ITelemetryModule;
             if (configurable != null)
             {
-                configurable.Initialize(configuration);
+                try
+                {
+                    configurable.Initialize(configuration);
+                }
+                catch (Exception exp)
+                {
+                    CoreEventSource.Log.ComponentInitializationConfigurationError(component.ToString(), exp.ToInvariantString());
+                }
             }
         }
 

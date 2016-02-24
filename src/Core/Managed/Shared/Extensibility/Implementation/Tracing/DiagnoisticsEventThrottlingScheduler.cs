@@ -1,16 +1,9 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DiagnoisticsEventThrottlingScheduler.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-// <author>Sergei Nikitin: sergeyni@microsoft.com</author>
-// <summary></summary>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -56,7 +49,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
             var token = InternalCreateAndStartTimer(interval, actionToExecute);
             this.timers.Add(token);
 
-            CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerTimerWasCreated(interval);
+            CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerTimerWasCreated(interval.ToString(CultureInfo.InvariantCulture));
 
             return token;
         }

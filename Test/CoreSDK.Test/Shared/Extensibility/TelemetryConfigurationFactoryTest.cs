@@ -551,26 +551,6 @@
             Assert.IsType<DiagnosticsTelemetryModule>(modules.Modules[0]);
         }
 
-        [TestMethod]
-        public void InitializeAddTelemetryInitializersWithOneInvalid()
-        {
-            string configFileContents = Configuration(
-                @"<TelemetryInitializers>
-                    <Add Type=""Invalid, Invalid"" />
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
-                  </TelemetryInitializers>"
-                );
-
-            var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
-
-            Assert.Equal(3, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
-            Assert.NotNull(configuration.TelemetryInitializers.First(item => item.GetType().Name == "StubTelemetryInitializer"));
-        }
-
-        #endregion
-
-        #region TelemetryInitializers
 
         [TestMethod]
         public void InitializeTelemetryModulesFromConfigurationFileWhenOneModuleCannotBeLoaded()
@@ -588,6 +568,52 @@
 
             Assert.Equal(3, modules.Modules.Count); // Diagnostics module is added by default
         }
+
+        [TestMethod]
+        public void InitializeDoesNotThrowIsModuleInitializationFails()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryModules>
+                    <Add Type = """ + typeof (StubConfigurableWithProperties).AssemblyQualifiedName + @"""  />
+                  </TelemetryModules>"
+                );
+
+            var module = new StubConfigurableWithProperties(null)
+            {
+                OnInitialize = _ => { throw new ArgumentException(); }
+            };
+
+            var modules = new TestableTelemetryModules();
+            modules.Modules.Add(module);
+
+            Assert.DoesNotThrow(
+                () =>
+                    new TestableTelemetryConfigurationFactory().Initialize(
+                        new TelemetryConfiguration(), 
+                        modules,
+                        configFileContents));
+        }
+
+        #endregion
+
+        #region TelemetryInitializers
+        [TestMethod]
+        public void InitializeAddTelemetryInitializersWithOneInvalid()
+        {
+            string configFileContents = Configuration(
+                @"<TelemetryInitializers>
+                    <Add Type=""Invalid, Invalid"" />
+                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                  </TelemetryInitializers>"
+                );
+
+            var configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(3, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
+            Assert.NotNull(configuration.TelemetryInitializers.First(item => item.GetType().Name == "StubTelemetryInitializer"));
+        }
+
 
         #endregion
 
