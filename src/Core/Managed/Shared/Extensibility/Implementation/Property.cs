@@ -140,9 +140,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     dictionary.Remove(entry.Key);
 
                     string sanitizedKey = SanitizeKey(entry.Key, dictionary);
-
+                    double sanitizeValue = Utils.SanitizeNanAndInfinity(entry.Value);
+                    
                     // add it back (sanitized at this point).
-                    dictionary.Add(sanitizedKey, entry.Value);
+                    dictionary.Add(sanitizedKey, sanitizeValue);
                 }
             }
         }

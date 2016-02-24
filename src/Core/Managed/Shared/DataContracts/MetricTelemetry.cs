@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
@@ -18,8 +17,7 @@
 
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
-        private readonly TelemetryContext context;
-
+        
         private bool isAggregation = false;
 
         /// <summary>
@@ -30,7 +28,7 @@
         {
             this.Data = new MetricData();
             this.Metric = new DataPoint();
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.Context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
 
             // We always have a single 'metric'.
             this.Data.metrics.Add(this.Metric);
@@ -60,10 +58,7 @@
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
-        public TelemetryContext Context
-        {
-            get { return this.context; }
-        }
+        public TelemetryContext Context { get; }
 
         /// <summary>
         /// Gets or sets the name of the metric.
@@ -167,6 +162,22 @@
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
             this.Properties.SanitizeProperties();
+            this.Value = Utils.SanitizeNanAndInfinity(this.Value);
+
+            if (this.Min.HasValue)
+            {
+                this.Min = Utils.SanitizeNanAndInfinity(this.Min.Value);
+            }
+
+            if (this.Max.HasValue)
+            {
+                this.Max = Utils.SanitizeNanAndInfinity(this.Max.Value);
+            }
+
+            if (this.StandardDeviation.HasValue)
+            {
+                this.StandardDeviation = Utils.SanitizeNanAndInfinity(this.StandardDeviation.Value);
+            }
         }
 
         private void UpdateKind() 
@@ -175,14 +186,7 @@
 
             if (this.isAggregation != isAggregation)
             {
-                if (isAggregation)
-                {
-                    this.Metric.kind = DataPointType.Aggregation;
-                }
-                else
-                {
-                    this.Metric.kind = DataPointType.Measurement;
-                }
+                this.Metric.kind = isAggregation ? DataPointType.Aggregation : DataPointType.Measurement;
             }
 
             this.isAggregation = isAggregation;
