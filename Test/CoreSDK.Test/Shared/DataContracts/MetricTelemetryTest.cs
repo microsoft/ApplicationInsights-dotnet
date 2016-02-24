@@ -1,15 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
     using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
@@ -169,6 +164,42 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(original);
 
             Assert.Equal(2, item.Data.BaseData.Ver);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesNaNValueOn0()
+        {
+            MetricTelemetry original = new MetricTelemetry("test", double.NaN);
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(0, original.Value);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesNaNMinOn0()
+        {
+            MetricTelemetry original = new MetricTelemetry { Min = double.NaN };
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(0, original.Min.Value);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesNaNMaxOn0()
+        {
+            MetricTelemetry original = new MetricTelemetry { Max = double.NaN };
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(0, original.Max.Value);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesNaNStandardDeviationOn0()
+        {
+            MetricTelemetry original = new MetricTelemetry { StandardDeviation = double.NaN };
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(0, original.StandardDeviation.Value);
         }
     }
 }

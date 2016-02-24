@@ -5,6 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.0.0
 
 - Disallow Nan, +-Infinity measurements. Value will be replaced on 0.
+- Disallow Nan, +-Infinity metrics (Value, Min, Max and StandardDeviation). Values will be replaced on 0.
 
 ## Version 2.0.0-rc1
 
