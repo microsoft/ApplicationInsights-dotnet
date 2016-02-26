@@ -43,9 +43,9 @@
                     "Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
             }
 
-            this.configuration.TelemetryChannel.Send(item);
-
             TelemetryDebugWriter.WriteTelemetry(item);
+
+            this.configuration.TelemetryChannel.Send(item);
         }
     }
 }
