@@ -14,11 +14,11 @@
             // ARRANGE
             var manager = new QuickPulseCollectionTimeSlotManager();
 
-            var now = new DateTime(2016, 1, 1, 0, 0, 1);
+            var now = new DateTimeOffset(2016, 1, 1, 0, 0, 1, TimeSpan.Zero);
             now = now.AddMilliseconds(499);
 
             // ACT
-            DateTime slot = manager.GetNextCollectionTimeSlot(now);
+            DateTimeOffset slot = manager.GetNextCollectionTimeSlot(now);
 
             // ASSERT
             Assert.AreEqual(now.AddMilliseconds(1), slot);
@@ -30,11 +30,11 @@
             // ARRANGE
             var manager = new QuickPulseCollectionTimeSlotManager();
 
-            var now = new DateTime(2016, 1, 1, 0, 0, 1);
+            var now = new DateTimeOffset(2016, 1, 1, 0, 0, 1, TimeSpan.Zero);
             now = now.AddMilliseconds(501);
 
             // ACT
-            DateTime slot = manager.GetNextCollectionTimeSlot(now);
+            DateTimeOffset slot = manager.GetNextCollectionTimeSlot(now);
 
             // ASSERT
             Assert.AreEqual(now.AddSeconds(1).AddMilliseconds(-1), slot);
@@ -46,11 +46,11 @@
             // ARRANGE
             var manager = new QuickPulseCollectionTimeSlotManager();
 
-            var now = new DateTime(2016, 1, 1, 0, 0, 1);
+            var now = new DateTimeOffset(2016, 1, 1, 0, 0, 1, TimeSpan.Zero);
             now = now.AddMilliseconds(500);
 
             // ACT
-            DateTime slot = manager.GetNextCollectionTimeSlot(now);
+            DateTimeOffset slot = manager.GetNextCollectionTimeSlot(now);
 
             // ASSERT
             Assert.AreEqual(now.AddSeconds(1), slot);

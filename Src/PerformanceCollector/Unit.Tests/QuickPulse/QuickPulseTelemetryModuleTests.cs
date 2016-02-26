@@ -202,7 +202,7 @@
 
             var module = new QuickPulseTelemetryModule(null, null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
-            var timestampStart = DateTime.UtcNow;
+            var timestampStart = DateTimeOffset.UtcNow;
 
             // ACT
             module.Initialize(new TelemetryConfiguration());
@@ -210,7 +210,7 @@
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
             // ASSERT
-            var timestampEnd = DateTime.UtcNow;
+            var timestampEnd = DateTimeOffset.UtcNow;
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp > timestampStart));
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp < timestampEnd));
             Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp <= s.EndTimestamp));

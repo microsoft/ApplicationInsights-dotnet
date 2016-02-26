@@ -34,7 +34,6 @@
         [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. {0}")]
         public void ModuleIsBeingInitializedEvent(
             string message,
-            string dummy = "dummy",
             string applicationName = "dummy")
         {
             this.WriteEvent(1, message, this.ApplicationName);

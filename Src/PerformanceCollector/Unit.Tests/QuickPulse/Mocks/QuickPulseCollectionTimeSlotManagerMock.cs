@@ -14,7 +14,7 @@
             this.interval = timings.CollectionInterval;
         }
 
-        public override DateTime GetNextCollectionTimeSlot(DateTime currentTime)
+        public override DateTimeOffset GetNextCollectionTimeSlot(DateTimeOffset currentTime)
         {
             return currentTime + this.interval;
         }

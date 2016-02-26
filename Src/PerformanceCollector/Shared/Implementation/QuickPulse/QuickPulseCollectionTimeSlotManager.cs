@@ -4,7 +4,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Imple
 
     internal class QuickPulseCollectionTimeSlotManager
     {
-        public virtual DateTime GetNextCollectionTimeSlot(DateTime currentTime)
+        public virtual DateTimeOffset GetNextCollectionTimeSlot(DateTimeOffset currentTime)
         {
             return currentTime.Millisecond < 500 ? currentTime.AddMilliseconds(500 - currentTime.Millisecond) : currentTime.AddSeconds(1).AddMilliseconds(500 - currentTime.Millisecond);
         }

@@ -22,7 +22,7 @@
 
         private List<int> batches = new List<int>();
 
-        public DateTime? LastPingTimestamp { get; private set; }
+        public DateTimeOffset? LastPingTimestamp { get; private set; }
 
         public string LastPingInstance { get; private set; }
 
@@ -41,7 +41,7 @@
 
         public Uri ServiceUri { get; }
 
-        public bool? Ping(string instrumentationKey, DateTime timestamp)
+        public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
             lock (this.lockObject)
             {

@@ -8,6 +8,7 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
@@ -28,7 +29,7 @@
 
         private readonly object collectedSamplesLock = new object();
         
-        private readonly Uri serviceUriDefault = new Uri("https://qps.com/api");
+        private readonly Uri serviceUriDefault = new Uri("https://microsoft.com/qps/api");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
@@ -40,7 +41,7 @@
 
         private Timer stateTimer;
 
-        private QuickPulseTimeProvider timeProvider;
+        private Clock timeProvider;
 
         private QuickPulseTimings timings;
 
@@ -124,7 +125,7 @@
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
-                        this.timeProvider = this.timeProvider ?? new QuickPulseTimeProvider();
+                        this.timeProvider = this.timeProvider ?? new Clock();
                         this.timings = timings ?? QuickPulseTimings.Default;
 
                         this.InitializeServiceClient(configuration);
@@ -304,7 +305,7 @@
             }
             catch (Exception e)
             {
-                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToString());
+                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
             }
             finally
             {
@@ -335,7 +336,7 @@
             }
             catch (Exception e)
             {
-                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToString());
+                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
             }
             finally
             {
@@ -399,7 +400,7 @@
 
         private void ScheduleNextCollection()
         {
-            DateTime nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
+            DateTimeOffset nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
             this.collectionTimer.ScheduleNextTick((nextTick - this.timeProvider.UtcNow).Duration());
         }
         

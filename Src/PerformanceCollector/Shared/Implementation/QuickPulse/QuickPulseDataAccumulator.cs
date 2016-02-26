@@ -8,9 +8,9 @@
     /// <remarks>This is performance-critical DTO that needs to be quickly accessed in a thread-safe manner.</remarks>
     internal class QuickPulseDataAccumulator
     {
-        public DateTime? StartTimestamp = null;
+        public DateTimeOffset? StartTimestamp = null;
 
-        public DateTime? EndTimestamp = null;
+        public DateTimeOffset? EndTimestamp = null;
 
         #region AI
 

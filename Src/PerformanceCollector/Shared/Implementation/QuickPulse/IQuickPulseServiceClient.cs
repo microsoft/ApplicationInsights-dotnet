@@ -17,7 +17,7 @@
         /// <param name="instrumentationKey">InstrumentationKey for which to submit data samples.</param>
         /// <param name="timestamp">Timestamp to pass to the server.</param>
         /// <returns><b>true</b> if data is expected, otherwise <b>false</b>.</returns>
-        bool? Ping(string instrumentationKey, DateTime timestamp);
+        bool? Ping(string instrumentationKey, DateTimeOffset timestamp);
 
         /// <summary>
         /// Submits a data samples to QPS.

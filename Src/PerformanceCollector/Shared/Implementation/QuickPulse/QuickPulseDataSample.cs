@@ -105,9 +105,9 @@
             this.PerfCountersLookup = perfData.ToDictionary(p => p.Value.Item1.OriginalString, p => p.Value.Item2);
         }
         
-        public DateTime StartTimestamp { get; }
+        public DateTimeOffset StartTimestamp { get; }
 
-        public DateTime EndTimestamp { get; }
+        public DateTimeOffset EndTimestamp { get; }
         
         #region AI
         public int AIRequests { get; private set; }

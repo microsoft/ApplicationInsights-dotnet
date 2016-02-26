@@ -10,7 +10,7 @@
     {
         private readonly IQuickPulseServiceClient serviceClient;
 
-        private readonly QuickPulseTimeProvider timeProvider;
+        private readonly Clock timeProvider;
 
         private readonly QuickPulseTimings timings;
 
@@ -22,9 +22,9 @@
 
         private readonly Action<IList<QuickPulseDataSample>> onReturnFailedSamples;
 
-        private DateTime lastSuccessfulPing;
+        private DateTimeOffset lastSuccessfulPing;
         
-        private DateTime lastSuccessfulSubmit;
+        private DateTimeOffset lastSuccessfulSubmit;
 
         private bool isCollectingData;
 
@@ -32,7 +32,7 @@
 
         public QuickPulseCollectionStateManager(
             IQuickPulseServiceClient serviceClient, 
-            QuickPulseTimeProvider timeProvider, 
+            Clock timeProvider, 
             QuickPulseTimings timings, 
             Action onStartCollection, 
             Action onStopCollection, 
@@ -192,7 +192,7 @@
                 this.IsCollectingData = false;
 
                 // we're going back to idling and pinging, but we need to back off immediately
-                this.lastSuccessfulPing = DateTime.MinValue;
+                this.lastSuccessfulPing = DateTimeOffset.MinValue;
 
                 return this.timings.ServicePollingBackedOffInterval;
             }

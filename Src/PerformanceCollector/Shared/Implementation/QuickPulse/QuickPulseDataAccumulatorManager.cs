@@ -28,7 +28,7 @@
             
             this.completedDataAccumulator = Interlocked.Exchange(ref this.currentDataAccumulator, new QuickPulseDataAccumulator());
 
-            var timestamp = DateTime.UtcNow;
+            var timestamp = DateTimeOffset.UtcNow;
             this.completedDataAccumulator.EndTimestamp = timestamp;
             this.currentDataAccumulator.StartTimestamp = timestamp;
 

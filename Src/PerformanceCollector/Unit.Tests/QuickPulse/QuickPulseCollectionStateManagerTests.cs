@@ -27,7 +27,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT
@@ -47,7 +47,7 @@
 
             var manager = new QuickPulseCollectionStateManager(
                 serviceClient,
-                new QuickPulseTimeProvider(),
+                new Clock(),
                 QuickPulseTimings.Default,
                 () => { },
                 () => { },
@@ -67,7 +67,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
             for (int i = 0; i < 10; i++)
@@ -87,7 +87,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
@@ -109,7 +109,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
@@ -132,7 +132,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
             manager.UpdateState("empty iKey");
@@ -161,7 +161,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // enter collect state
             manager.UpdateState("empty iKey");
@@ -192,7 +192,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = false };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
             int collectionCount = 10;
@@ -220,7 +220,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
 
             var actions = new List<string>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions);
+            var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // enter collect state
             manager.UpdateState("empty iKey");
@@ -266,7 +266,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var manager = CreateManager(serviceClient, new QuickPulseTimeProvider(), actions, returnedSamples);
+            var manager = CreateManager(serviceClient, new Clock(), actions, returnedSamples);
 
             // turn on collection
             manager.UpdateState("empty iKey");
@@ -290,7 +290,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
@@ -312,7 +312,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = null, ReturnValueFromSubmitSample = null };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
@@ -333,7 +333,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT
@@ -352,7 +352,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
@@ -377,7 +377,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             manager.UpdateState(string.Empty);
@@ -403,7 +403,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = null };
             var actions = new List<string>();
             var returnedSamples = new List<QuickPulseDataSample>();
-            var timeProvider = new QuickPulseTimeProviderMock();
+            var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
@@ -423,7 +423,7 @@
 
         private static QuickPulseCollectionStateManager CreateManager(
             IQuickPulseServiceClient serviceClient,
-            QuickPulseTimeProvider timeProvider,
+            Clock timeProvider,
             List<string> actions,
             List<QuickPulseDataSample> returnedSamples = null,
             QuickPulseTimings timings = null)
@@ -438,7 +438,7 @@
                     {
                         actions.Add(CollectMessage);
 
-                        var now = DateTime.UtcNow;
+                        var now = DateTimeOffset.UtcNow;
                         return
                             new[]
                                 {

@@ -9,6 +9,7 @@
     using System.Runtime.Serialization.Json;
     using System.Web;
 
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -36,12 +37,11 @@
 
         public Uri ServiceUri { get; }
 
-        public bool? Ping(string instrumentationKey, DateTime timestamp)
+        public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
-            MemoryStream bodyStream = this.WritePingData(timestamp);
-
             var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream, true);
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, true, stream => this.WritePingData(timestamp, stream));
+
             if (response == null)
             {
                 return null;
@@ -52,10 +52,13 @@
         
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            MemoryStream bodyStream = WriteSamples(samples, instrumentationKey);
-            
-            var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", HttpUtility.UrlEncode(instrumentationKey));
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, bodyStream, false);
+            var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", Uri.EscapeUriString(instrumentationKey));
+            HttpWebResponse response = this.SendRequest(
+                WebRequestMethods.Http.Post,
+                path,
+                false,
+                stream => this.WriteSamples(samples, instrumentationKey, stream));
+
             if (response == null)
             {
                 return null;
@@ -80,28 +83,22 @@
             return Math.Round(value, 4, MidpointRounding.AwayFromZero);
         }
 
-        private MemoryStream WritePingData(DateTime timestamp)
+        private void WritePingData(DateTimeOffset timestamp, Stream stream)
         {
-            var bodyStream = new MemoryStream();
-
             var dataPoint = new MonitoringDataPoint
             {
                 Version = this.version,
-                //InstrumentationKey = instrumentationKey,
+                //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
-                Timestamp = timestamp
+                Timestamp = timestamp.UtcDateTime
             };
 
             var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
-            serializer.WriteObject(bodyStream, dataPoint);
-            bodyStream.Position = 0;
-
-            return bodyStream;
+            serializer.WriteObject(stream, dataPoint);
         }
 
-        private MemoryStream WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
+        private void WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Stream stream)
         {
-            var bodyStream = new MemoryStream();
             var monitoringPoints = new List<MonitoringDataPoint>();
 
             foreach (var sample in samples)
@@ -171,7 +168,7 @@
                                         Version = this.version,
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
-                                        Timestamp = sample.EndTimestamp,
+                                        Timestamp = sample.EndTimestamp.UtcDateTime,
                                         Metrics = metricPoints.ToArray()
                                     };
 
@@ -179,14 +176,10 @@
             }
 
             var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
-            serializer.WriteObject(bodyStream, monitoringPoints.ToArray());
-
-            bodyStream.Position = 0;
-
-            return bodyStream;
+            serializer.WriteObject(stream, monitoringPoints.ToArray());
         }
         
-        private HttpWebResponse SendRequest(string httpVerb, string path, MemoryStream body, bool enableRetry)
+        private HttpWebResponse SendRequest(string httpVerb, string path, bool enableRetry, Action<Stream> onWriteBody)
         {
             var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.ServiceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
@@ -200,13 +193,7 @@
                     request.Method = httpVerb;
                     request.Timeout = (int)this.timeout.TotalMilliseconds;
 
-                    if (body != null)
-                    {
-                        body.Position = 0;
-
-                        var requestStream = request.GetRequestStream();
-                        body.CopyTo(requestStream);
-                    }
+                    onWriteBody?.Invoke(request.GetRequestStream());
 
                     var response = request.GetResponse() as HttpWebResponse;
                     if (response != null)
@@ -216,7 +203,7 @@
                 }
                 catch (Exception e)
                 {
-                    QuickPulseEventSource.Log.ServiceCommunicationFailedEvent(e.ToString());
+                    QuickPulseEventSource.Log.ServiceCommunicationFailedEvent(e.ToInvariantString());
                 }
 
                 attempt++;

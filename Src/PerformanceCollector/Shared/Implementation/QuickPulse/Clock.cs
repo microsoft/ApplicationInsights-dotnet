@@ -2,13 +2,13 @@
 {
     using System;
 
-    internal class QuickPulseTimeProvider
+    internal class Clock
     {
-        public virtual DateTime UtcNow
+        public virtual DateTimeOffset UtcNow
         {
             get
             {
-                return DateTime.UtcNow;
+                return DateTimeOffset.UtcNow;
             }
         }
     }

@@ -4,11 +4,11 @@
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
-    internal class QuickPulseTimeProviderMock : QuickPulseTimeProvider
+    internal class ClockMock : Clock
     {
-        private DateTime now = DateTime.UtcNow;
+        private DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        public override DateTime UtcNow
+        public override DateTimeOffset UtcNow
         {
             get
             {
