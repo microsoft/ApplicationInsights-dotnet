@@ -94,7 +94,7 @@
         /// Gets the QuickPulse service endpoint to send to.
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
-        public string QuickPulseServiceEndpoint { get; private set; }
+        public string QuickPulseServiceEndpoint { get; set; }
 
         /// <summary>
         /// Disposes resources allocated by this type.
@@ -215,9 +215,9 @@
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            if (configuration.TelemetryInitializers == null)
+            if (configuration.TelemetryProcessors == null)
             {
-                throw new ArgumentNullException(nameof(configuration.TelemetryInitializers));
+                throw new ArgumentNullException(nameof(configuration.TelemetryProcessors));
             }
         }
 

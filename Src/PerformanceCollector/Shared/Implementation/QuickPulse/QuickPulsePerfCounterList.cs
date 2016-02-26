@@ -2,23 +2,6 @@
 {
     using System;
 
-    internal enum QuickPulsePerfCounters
-    {
-        PerfIisRequestsPerSecond,
-
-        PerfIisRequestDurationAve,
-
-        PerfIisRequestsFailedTotal,
-
-        PerfIisRequestsSucceededTotal,
-
-        PerfIisQueueSize,
-
-        PerfCpuUtilization,
-
-        PerfMemoryInBytes
-    }
-
     /// <summary>
     /// Represents a list of performance counters to collect for QPS.
     /// </summary>

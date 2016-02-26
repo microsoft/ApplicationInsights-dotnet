@@ -45,7 +45,7 @@
                 null,
                 null);
 
-            SetPrivateProperty(module, nameof(module.QuickPulseServiceEndpoint), "https://test.com/api");
+            module.QuickPulseServiceEndpoint = "https://test.com/api";
 
             // ACT
             module.Initialize(new TelemetryConfiguration());

@@ -14,6 +14,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionTimeSlotManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseDataAccumulatorManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseServiceClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulsePerfCounters.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseTimings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionStateManager.cs" />
