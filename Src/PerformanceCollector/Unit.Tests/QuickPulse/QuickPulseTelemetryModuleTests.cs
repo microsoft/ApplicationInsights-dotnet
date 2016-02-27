@@ -117,12 +117,13 @@
                 serviceClient,
                 performanceCollector,
                 timings);
-            
-            module.Initialize(new TelemetryConfiguration());
+
+            var config = new TelemetryConfiguration();
+            module.Initialize(config);
 
             // ACT
             Thread.Sleep(TimeSpan.FromMilliseconds(100));
-            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
+            config.InstrumentationKey = "some ikey";
             Thread.Sleep(TimeSpan.FromMilliseconds(100));
 
             // ASSERT
@@ -137,8 +138,7 @@
             var interval = TimeSpan.FromMilliseconds(1);
             var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
-            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
-
+            
             var module = new QuickPulseTelemetryModule(
                 null,
                 null,
@@ -148,7 +148,7 @@
                 timings);
 
             // ACT
-            module.Initialize(new TelemetryConfiguration());
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ASSERT
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
@@ -167,17 +167,16 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
-
+            
             var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, telemetryProcessor, serviceClient, performanceCollector, timings);
 
             // ACT
-            module.Initialize(new TelemetryConfiguration());
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
-            telemetryProcessor.Process(new RequestTelemetry());
-            telemetryProcessor.Process(new DependencyTelemetry());
+            telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
 
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
@@ -256,8 +255,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
-
+           
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -267,7 +265,7 @@
                 timings);
 
             // ACT & ASSERT
-            module.Initialize(new TelemetryConfiguration());
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // initially, the module is in the polling state
             Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
@@ -311,8 +309,7 @@
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = null };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            TelemetryConfiguration.Active.InstrumentationKey = "some ikey";
-
+            
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -321,7 +318,7 @@
                 performanceCollector,
                 timings);
 
-            module.Initialize(new TelemetryConfiguration());
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
             // below timeout should be sufficient for the module to get to maximum storage capacity

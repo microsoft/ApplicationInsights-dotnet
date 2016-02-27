@@ -47,7 +47,7 @@
         #endregion
 
         #region Infra init - failure
-        [Event(5, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Performance counter {1} has failed to register with QuickPulse performance collector. This might happen whenever an application is running on a platform that doesn't provide access to performance counters. Technical details: {0}")]
+        [Event(5, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"Performance counter {1} has failed to register with QuickPulse performance collector. This might happen whenever an application is running on a platform that doesn't provide access to performance counters. Technical details: {0}")]
         public void CounterRegistrationFailedEvent(string e, string counter, string applicationName = "dummy")
         {
             this.WriteEvent(5, e, counter, this.ApplicationName);
@@ -59,7 +59,7 @@
             this.WriteEvent(6, e, counter, this.ApplicationName);
         }
 
-        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"QuickPulseTelemetryModule could not locate a QuickPulseTelemetryProcessor in configuration. QuickPulse data will not be available.")]
+        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"QuickPulseTelemetryModule could not locate a QuickPulseTelemetryProcessor in configuration. QuickPulse data will not be available. Make sure QuickPulseTelemetryProcessor is in ApplicationInsights.config or otherwise present.")]
         public void CouldNotObtainQuickPulseTelemetryProcessorEvent(string applicationName = "dummy")
         {
             this.WriteEvent(7, this.ApplicationName);
@@ -92,7 +92,7 @@
 
         #region Unknown errors
 
-        [Event(13, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Unknown error in QuickPulse infrastructure: {0}")]
+        [Event(13, Level = EventLevel.Error, Message = @"Unexpected error in QuickPulse infrastructure: {0}. QuickPulse data will not be available.")]
         public void UnknownErrorEvent(string e, string applicationName = "dummy")
         {
             this.WriteEvent(13, e, this.ApplicationName);

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -129,6 +130,8 @@
 
                 bool? keepCollecting = this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey);
 
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Sample submitted. Response: '{0}'", keepCollecting));
+
                 switch (keepCollecting)
                 {
                     case null:
@@ -153,6 +156,8 @@
             {
                 // we are currently idle and pinging the service waiting for it to ask us to start collecting data
                 bool? startCollection = this.serviceClient.Ping(instrumentationKey, this.timeProvider.UtcNow);
+
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Ping sent. Response: '{0}'", startCollection));
 
                 switch (startCollection)
                 {
@@ -186,6 +191,8 @@
                 {
                     return this.timings.CollectionInterval;
                 }
+
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent("Collection is failing. Back off.");
 
                 // we have been failing to send samples for a while
                 this.onStopCollection();

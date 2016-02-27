@@ -6,7 +6,7 @@
 
     internal interface IQuickPulseTelemetryProcessor : ITelemetryProcessor
     {
-        void Initialize(Uri serviceEndpoint);
+        void Initialize(Uri serviceEndpoint, TelemetryConfiguration configuration);
 
         void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager);
 

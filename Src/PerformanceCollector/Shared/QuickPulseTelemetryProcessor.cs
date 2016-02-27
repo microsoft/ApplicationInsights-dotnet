@@ -18,7 +18,11 @@
 
         private Uri serviceEndpoint = null;
 
+        private TelemetryConfiguration config = null;
+
         private bool isCollecting = false;
+
+        private bool isInitialized = false;
         
         public QuickPulseTelemetryProcessor(ITelemetryProcessor next)
         {
@@ -32,13 +36,31 @@
 
         private ITelemetryProcessor Next { get; }
 
-        public void Initialize(Uri serviceEndpoint)
+        public void Initialize(Uri serviceEndpoint, TelemetryConfiguration configuration)
         {
+            if (this.isInitialized)
+            {
+                return;
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             this.serviceEndpoint = serviceEndpoint;
+            this.config = configuration;
+
+            this.isInitialized = true;
         }
 
         public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager)
         {
+            if (!this.isInitialized)
+            {
+                throw new InvalidOperationException("Can't start collection without initializing first.");    
+            }
+
             if (this.isCollecting)
             {
                 throw new InvalidOperationException("Can't start collection while it is already running.");
@@ -84,52 +106,54 @@
                     return;
                 }
 
-                // we don't care about the actual instrumentation key to which this item is going to go
-                // (telemetry.Context.InstrumentationKey), for now all QuickPulse data is being sent to 
-                // the iKey passed to the module through configuration at initialization time 
-                // (most likely TelemetryConfiguration.Active.InstrumentationKey)
-                var request = telemetry as RequestTelemetry;
-                var exception = telemetry as ExceptionTelemetry;
-
-                if (request != null)
+                // only process items that are going to the instrumentation key that our module is initialized with
+                if (telemetry.Context != null && string.Equals(telemetry.Context.InstrumentationKey, this.config.InstrumentationKey))
                 {
-                    bool success = IsRequestSuccessful(request);
+                    var request = telemetry as RequestTelemetry;
+                    var exception = telemetry as ExceptionTelemetry;
 
-                    long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, request.Duration.Ticks);
-
-                    Interlocked.Add(
-                        ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
-                        requestCountAndDurationInTicks);
-
-                    if (success)
+                    if (request != null)
                     {
-                        Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
-                    }
-                    else
-                    {
-                        Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
-                    }
-                }
-                else if (dependencyCall != null)
-                {
-                    long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, dependencyCall.Duration.Ticks);
+                        bool success = IsRequestSuccessful(request);
 
-                    Interlocked.Add(
-                        ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
-                        dependencyCallCountAndDurationInTicks);
+                        long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, request.Duration.Ticks);
 
-                    if (dependencyCall.Success == true)
-                    {
-                        Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
+                        Interlocked.Add(
+                            ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
+                            requestCountAndDurationInTicks);
+
+                        if (success)
+                        {
+                            Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+                        }
+                        else
+                        {
+                            Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
+                        }
                     }
-                    else if (dependencyCall.Success == false)
+                    else if (dependencyCall != null)
                     {
-                        Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
+                        long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(
+                            1,
+                            dependencyCall.Duration.Ticks);
+
+                        Interlocked.Add(
+                            ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
+                            dependencyCallCountAndDurationInTicks);
+
+                        if (dependencyCall.Success == true)
+                        {
+                            Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
+                        }
+                        else if (dependencyCall.Success == false)
+                        {
+                            Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
+                        }
                     }
-                }
-                else if (exception != null)
-                {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
+                    else if (exception != null)
+                    {
+                        Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
+                    }
                 }
             }
             finally

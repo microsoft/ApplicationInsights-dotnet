@@ -29,11 +29,11 @@
 
         private readonly object collectedSamplesLock = new object();
         
-        private readonly Uri serviceUriDefault = new Uri("https://microsoft.com/qps/api");
+        private readonly Uri serviceUriDefault = new Uri("https://rt.services.visualstudio.com/QuickPulseService.svc");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
-        private string instrumentationKey;
+        private TelemetryConfiguration config;
 
         private IQuickPulseServiceClient serviceClient;
 
@@ -120,8 +120,11 @@
                         QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(
                             string.Format(CultureInfo.InvariantCulture, "QuickPulseServiceEndpoint: '{0}'", this.QuickPulseServiceEndpoint));
 
+                        QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
                         this.ValidateConfiguration(configuration);
+                        this.config = configuration;
 
+                        QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
@@ -162,7 +165,7 @@
                 throw new ArgumentException("Could not obtain an IQuickPulseTelemetryProcessor");
             }
 
-            this.telemetryProcessor.Initialize(this.serviceClient.ServiceUri);
+            this.telemetryProcessor.Initialize(this.serviceClient.ServiceUri, configuration);
         }
 
         private void InitializePerformanceCollector()
@@ -267,7 +270,17 @@
             }
 
             // create the default production implementation of the service client with the best service endpoint we could get
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, GetInstanceName(configuration), SdkVersionUtils.GetAssemblyVersion());
+            string instanceName = GetInstanceName(configuration);
+            var assemblyVersion = SdkVersionUtils.GetAssemblyVersion();
+            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, assemblyVersion);
+
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Service client initialized. Endpoint: '{0}', instance name: '{1}', assembly version: '{2}'",
+                    serviceEndpointUri,
+                    instanceName,
+                    assemblyVersion));
         }
 
         private static string GetInstanceName(TelemetryConfiguration configuration)
@@ -289,19 +302,14 @@
         
         private void StateTimerCallback(object state)
         {
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("State timer tick");
+            
             var currentCallbackStarted = this.timeProvider.UtcNow;
             TimeSpan? timeToNextUpdate = null;
 
             try
             {
-                // the first instrumentation key that we get from TelemetryConfiguration.Active
-                // will be our permanent instrumentation key
-                if (string.IsNullOrWhiteSpace(this.instrumentationKey))
-                {
-                    this.instrumentationKey = TelemetryConfiguration.Active.InstrumentationKey;
-                }
-                
-                timeToNextUpdate = this.stateManager.UpdateState(this.instrumentationKey);
+                timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
             }
             catch (Exception e)
             {
@@ -330,6 +338,8 @@
 
         private void CollectionTimerCallback(object state)
         {
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Collection timer tick");
+
             try
             {
                 this.CollectData();
@@ -360,6 +370,8 @@
         {
             lock (this.collectedSamplesLock)
             {
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Sample stored. Buffer length: {0}", this.collectedSamples.Count + 1));
+
                 this.collectedSamples.AddLast(sample);
 
                 while (this.collectedSamples.Count > MaxSampleStorageSize)
@@ -392,6 +404,8 @@
         #region Callbacks from the state manager
         private void OnStartCollection()
         {
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Starting collection...");
+
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
@@ -406,6 +420,8 @@
         
         private void OnStopCollection()
         {
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Stopping collection...");
+
             this.collectionTimer.Stop();
 
             this.telemetryProcessor.StopCollection();
@@ -435,6 +451,8 @@
             // append the samples that failed to get sent out back to the beginning of the list
             // these will be pushed out as newer samples arrive, so we'll never get more than a certain number
             // even if the network is lagging behind 
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Returning samples...");
+
             lock (this.collectedSamplesLock)
             {
                 foreach (var sample in samples)
