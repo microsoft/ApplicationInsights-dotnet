@@ -107,7 +107,8 @@
                 }
 
                 // only process items that are going to the instrumentation key that our module is initialized with
-                if (telemetry.Context != null && string.Equals(telemetry.Context.InstrumentationKey, this.config.InstrumentationKey))
+                if (!string.IsNullOrWhiteSpace(this.config.InstrumentationKey) && telemetry.Context != null
+                    && string.Equals(telemetry.Context.InstrumentationKey, this.config.InstrumentationKey, StringComparison.OrdinalIgnoreCase))
                 {
                     var request = telemetry as RequestTelemetry;
                     var exception = telemetry as ExceptionTelemetry;
