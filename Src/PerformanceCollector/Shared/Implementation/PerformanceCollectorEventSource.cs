@@ -48,7 +48,7 @@
 
         [Event(4, Level = EventLevel.Informational, Message = @"Performance counters have been refreshed. Refreshed counters count is {0}.")]
         public void CountersRefreshedEvent(
-            long countersRefreshedCount,
+            string countersRefreshedCount,
             string applicationName = "dummy")
         {
             this.WriteEvent(4, countersRefreshedCount, this.ApplicationName);

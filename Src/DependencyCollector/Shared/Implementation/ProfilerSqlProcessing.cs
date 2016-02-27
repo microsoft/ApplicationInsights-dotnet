@@ -321,7 +321,7 @@
                     return;
                 }
 
-                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode());
+                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
 
                 DependencyTelemetry telemetry = null;
                 Tuple<DependencyTelemetry, bool> telemetryTuple = null;
@@ -336,7 +336,7 @@
 
                 if (telemetry == null)
                 {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode());
+                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
                     return;
                 }
 

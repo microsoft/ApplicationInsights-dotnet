@@ -92,13 +92,13 @@
         /// <param name="statusCode">The HTTP status code of the response.</param>
         public void OnEndHttpCallback(long id, bool? success, bool synchronous, int? statusCode)
         {
-            DependencyCollectorEventSource.Log.EndCallbackCalled(id);
+            DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
 
             var telemetryTuple = this.TelemetryTable.Get(id);
 
             if (telemetryTuple == null)
             {
-                DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(id);
+                DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(id.ToString(CultureInfo.InvariantCulture));
                 return;
             }
 
