@@ -10,9 +10,9 @@
     {
         private readonly object lockObject = new object();
 
-        public int PingCount { get; private set; }
+        private List<QuickPulseDataSample> samples = new List<QuickPulseDataSample>();
 
-        public List<QuickPulseDataSample> Samples { get; } = new List<QuickPulseDataSample>();
+        public int PingCount { get; private set; }
 
         public bool? ReturnValueFromPing { private get; set; }
 
@@ -26,6 +26,19 @@
 
         public string LastPingInstance { get; private set; }
 
+        public List<QuickPulseDataSample> SnappedSamples
+        {
+            get
+            {
+                lock (this.lockObject)
+                {
+                    return this.samples.ToList();
+                }
+            }
+        }
+
+        public Uri ServiceUri { get; }
+
         public void Reset()
         {
             lock (this.lockObject)
@@ -35,12 +48,10 @@
                 this.LastPingTimestamp = null;
                 this.LastPingInstance = string.Empty;
 
-                this.Samples.Clear();
+                this.samples.Clear();
             }
         }
-
-        public Uri ServiceUri { get; }
-
+        
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
             lock (this.lockObject)
@@ -58,7 +69,7 @@
             {
                 this.batches.Add(samples.Count());
                 this.LastSampleBatchSize = samples.Count();
-                this.Samples.AddRange(samples);
+                this.samples.AddRange(samples);
             }
 
             return this.ReturnValueFromSubmitSample;

@@ -96,7 +96,7 @@
 
             // ASSERT
             Assert.AreEqual(0, serviceClient.PingCount);
-            Assert.AreEqual(0, serviceClient.Samples.Count);
+            Assert.AreEqual(0, serviceClient.SnappedSamples.Count);
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@
 
             // ASSERT
             Assert.IsTrue(serviceClient.PingCount > 0);
-            Assert.IsTrue(serviceClient.Samples.Count > 0);
+            Assert.IsTrue(serviceClient.SnappedSamples.Count > 0);
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
             Assert.IsTrue(serviceClient.PingCount > 0);
-            Assert.AreEqual(0, serviceClient.Samples.Count);
+            Assert.AreEqual(0, serviceClient.SnappedSamples.Count);
         }
 
         [TestMethod]
@@ -182,11 +182,11 @@
 
             // ASSERT
             Assert.AreEqual(1, serviceClient.PingCount);
-            Assert.IsTrue(serviceClient.Samples.Count > 0);
+            Assert.IsTrue(serviceClient.SnappedSamples.Count > 0);
 
-            Assert.IsTrue(serviceClient.Samples.Any(s => s.AIRequestsPerSecond > 0));
-            Assert.IsTrue(serviceClient.Samples.Any(s => s.AIDependencyCallsPerSecond > 0));
-            Assert.IsTrue(serviceClient.Samples.Any(s => Math.Abs(s.PerfIisRequestsPerSecond) > double.Epsilon));
+            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIRequestsPerSecond > 0));
+            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
+            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisRequestsPerSecond) > double.Epsilon));
         }
 
         [TestMethod]
@@ -210,9 +210,9 @@
 
             // ASSERT
             var timestampEnd = DateTimeOffset.UtcNow;
-            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp > timestampStart));
-            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp < timestampEnd));
-            Assert.IsTrue(serviceClient.Samples.All(s => s.StartTimestamp <= s.EndTimestamp));
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => s.StartTimestamp > timestampStart));
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => s.StartTimestamp < timestampEnd));
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => s.StartTimestamp <= s.EndTimestamp));
         }
 
         [TestMethod]
@@ -272,7 +272,7 @@
 
             // 2.5 polling intervals have elapsed, we must have pinged the service 3 times (the first time immediately upon initialization), but no samples yet
             Assert.AreEqual(3, serviceClient.PingCount);
-            Assert.AreEqual(0, serviceClient.Samples.Count);
+            Assert.AreEqual(0, serviceClient.SnappedSamples.Count);
 
             serviceClient.Reset();
 
@@ -284,7 +284,7 @@
 
             // 30  collection intervals have elapsed, we must have pinged the service once, and then started sending samples
             Assert.AreEqual(1, serviceClient.PingCount);
-            Assert.IsTrue(serviceClient.Samples.Count > 0);
+            Assert.IsTrue(serviceClient.SnappedSamples.Count > 0);
 
             serviceClient.Reset();
 
@@ -295,7 +295,7 @@
             Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
 
             // 2.5 polling intervals have elapsed, we must have submitted one sample, stopped collecting and pinged the service twice afterwards
-            Assert.AreEqual(1, serviceClient.Samples.Count);
+            Assert.AreEqual(1, serviceClient.SnappedSamples.Count);
             Assert.AreEqual(2, serviceClient.PingCount);
         }
 

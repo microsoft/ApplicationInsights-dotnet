@@ -36,7 +36,7 @@
 
             // ASSERT
             Assert.AreEqual(0, serviceClient.PingCount);
-            Assert.AreEqual(0, serviceClient.Samples.Count);
+            Assert.AreEqual(0, serviceClient.SnappedSamples.Count);
         }
 
         [TestMethod]
