@@ -73,5 +73,16 @@
 
             return interval;
         }
+
+        public static double SanitizeNanAndInfinity(double value)
+        {
+            // Disallow Nan and Infinity since Breeze does not accept it
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                value = 0;
+            }
+
+            return value;
+        }
     }
 }
