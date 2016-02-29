@@ -36,13 +36,13 @@
             string message,
             string applicationName = "dummy")
         {
-            this.WriteEvent(1, message, this.ApplicationName);
+            this.WriteEvent(1, message ?? string.Empty, this.ApplicationName);
         }
 
         [Event(3, Level = EventLevel.Informational, Message = @"Performance counter {0} has been successfully registered with QuickPulse performance collector.")]
         public void CounterRegisteredEvent(string counter, string applicationName = "dummy")
         {
-            this.WriteEvent(3, counter, this.ApplicationName);
+            this.WriteEvent(3, counter ?? string.Empty, this.ApplicationName);
         }
         #endregion
 
@@ -50,13 +50,13 @@
         [Event(5, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"Performance counter {1} has failed to register with QuickPulse performance collector. This might happen whenever an application is running on a platform that doesn't provide access to performance counters. Technical details: {0}")]
         public void CounterRegistrationFailedEvent(string e, string counter, string applicationName = "dummy")
         {
-            this.WriteEvent(5, e, counter, this.ApplicationName);
+            this.WriteEvent(5, e ?? string.Empty, counter ?? string.Empty, this.ApplicationName);
         }
 
         [Event(6, Level = EventLevel.Warning, Message = @"Performance counter specified in QuickPulse as {1} was not parsed correctly. Technical details: {0}")]
         public void CounterParsingFailedEvent(string e, string counter, string applicationName = "dummy")
         {
-            this.WriteEvent(6, e, counter, this.ApplicationName);
+            this.WriteEvent(6, e ?? string.Empty, counter ?? string.Empty, this.ApplicationName);
         }
 
         [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"QuickPulseTelemetryModule could not locate a QuickPulseTelemetryProcessor in configuration. QuickPulse data will not be available. Make sure QuickPulseTelemetryProcessor is in ApplicationInsights.config or otherwise present.")]
@@ -74,7 +74,7 @@
         [Event(11, Level = EventLevel.Warning, Message = @"Performance counter {1} has failed the reading operation in QuickPulse. Error message: {0}")]
         public void CounterReadingFailedEvent(string e, string counter, string applicationName = "dummy")
         {
-            this.WriteEvent(11, e, counter, this.ApplicationName);
+            this.WriteEvent(11, e ?? string.Empty, counter ?? string.Empty, this.ApplicationName);
         }
         #endregion
 
@@ -86,7 +86,7 @@
         [Event(12, Level = EventLevel.Verbose, Message = @"Failed to communicate with the QuickPulse service. Error text: {0}")]
         public void ServiceCommunicationFailedEvent(string e, string applicationName = "dummy")
         {
-            this.WriteEvent(12, e, this.ApplicationName);
+            this.WriteEvent(12, e ?? string.Empty, this.ApplicationName);
         }
         #endregion
 
@@ -95,7 +95,7 @@
         [Event(13, Level = EventLevel.Error, Message = @"Unexpected error in QuickPulse infrastructure: {0}. QuickPulse data will not be available.")]
         public void UnknownErrorEvent(string e, string applicationName = "dummy")
         {
-            this.WriteEvent(13, e, this.ApplicationName);
+            this.WriteEvent(13, e ?? string.Empty, this.ApplicationName);
         }
 
         #endregion
@@ -105,7 +105,7 @@
         [Event(14, Message = "{0}", Level = EventLevel.Verbose)]
         public void TroubleshootingMessageEvent(string message, string applicationName = "dummy")
         {
-            this.WriteEvent(14, message, this.ApplicationName);
+            this.WriteEvent(14, message ?? string.Empty, this.ApplicationName);
         }
 
         #endregion
