@@ -6,6 +6,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     /// <summary>
@@ -156,6 +157,11 @@
                         Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                // whatever happened up there - we don't want to interrupt the chain of processors
+                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
             }
             finally
             {
