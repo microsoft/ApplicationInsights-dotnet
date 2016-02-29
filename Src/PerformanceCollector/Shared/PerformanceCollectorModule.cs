@@ -266,32 +266,33 @@
 
             if (this.lastRefreshTimestamp == DateTime.MinValue)
             {
+                // this is the initial registration, register everything
                 this.ProcessCustomCounters();
 
                 string error;
                 var errors = new List<string>();
                 
-                // this is the initial registration, register everything
                 this.defaultCounters.ForEach(pcName => this.RegisterCounter(pcName, string.Empty, win32Instances, clrInstances, false, out error));
-                foreach (PerformanceCounterCollectionRequest req in this.Counters)
-                        {
-                            this.RegisterCounter(
-                                req.PerformanceCounter,
-                                req.ReportAs,
-                                win32Instances,
-                                clrInstances,
-                                true,
-                                out error);
 
-                            if (!string.IsNullOrWhiteSpace(error))
-                            {
-                                errors.Add(
-                                    string.Format(
-                                        CultureInfo.InvariantCulture,
-                                        Resources.PerformanceCounterCheckConfigurationEntry,
-                                        req.PerformanceCounter,
-                                        error));
-                            }
+                foreach (PerformanceCounterCollectionRequest req in this.Counters)
+                {
+                    this.RegisterCounter(
+                        req.PerformanceCounter,
+                        req.ReportAs,
+                        win32Instances,
+                        clrInstances,
+                        true,
+                        out error);
+
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        errors.Add(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                Resources.PerformanceCounterCheckConfigurationEntry,
+                                req.PerformanceCounter,
+                                error));
+                    }
                 }
 
                 if (errors.Any())
@@ -447,12 +448,13 @@
             // assign and sanitize reportsAs
             int i = 0;
             foreach (PerformanceCounterCollectionRequest req in this.Counters)
-                    {
-                        // TODO remove workaround
-                        req.ReportAs = string.IsNullOrWhiteSpace(req.ReportAs)
-                                           ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
-                                           : req.ReportAs;
-                        req.ReportAs = this.SanitizeReportAs(req.ReportAs, req.PerformanceCounter, ref i);
+            {
+                // TODO remove workaround
+                req.ReportAs = string.IsNullOrWhiteSpace(req.ReportAs)
+                    ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
+                    : req.ReportAs;
+
+                req.ReportAs = this.SanitizeReportAs(req.ReportAs, req.PerformanceCounter, ref i);
             }
         }
 

@@ -47,8 +47,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.24\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.LoadTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -58,19 +63,36 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="PerformanceCollectorMock.cs" />
+    <Compile Include="Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />
     <Compile Include="PerformanceCollectorModuleTests.cs" />
     <Compile Include="PerformanceCollectorEventSourceTests.cs" />
     <Compile Include="PerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StubTelemetryChannel.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseCollectionTimeSlotManagerMock.cs" />
+    <Compile Include="QuickPulse\Mocks\ClockMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseServiceClientMock.cs">
+      <!--C# 6-->
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="QuickPulse\QuickPulseCollectionTimeSlotManagerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseEventSourceTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseDataAccumulatorTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseDataSampleTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseDataAccumulatorManagerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseCollectionStateManagerTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseServiceClientTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseTelemetryModuleTests.cs" />
+    <Compile Include="Mocks\StubTelemetryChannel.cs" />
     <Compile Include="TelemetryAction.cs" />
+    <Compile Include="QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -79,6 +101,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Web\Web.Net40.Tests\Web.Net40.Tests.csproj">
+      <Project>{DB628EBB-3033-45CF-B2B6-623909D47C28}</Project>
+      <Name>Web.Net40.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Net40\Perf.Net40.csproj">
       <Project>{61fc6e01-b40d-4db2-9dab-b27b82f02244}</Project>
       <Name>Perf.Net40</Name>
