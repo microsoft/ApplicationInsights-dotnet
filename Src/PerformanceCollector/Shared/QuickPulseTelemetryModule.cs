@@ -302,14 +302,17 @@
         
         private void StateTimerCallback(object state)
         {
-            QuickPulseEventSource.Log.TroubleshootingMessageEvent("State timer tick");
-            
+            var stopwatch = new Stopwatch();
             var currentCallbackStarted = this.timeProvider.UtcNow;
             TimeSpan? timeToNextUpdate = null;
 
             try
             {
+                stopwatch.Start();
+
                 timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
+
+                stopwatch.Stop();
             }
             catch (Exception e)
             {
@@ -317,9 +320,11 @@
             }
             finally
             {
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "State timer tick finished: {0} ms", stopwatch.ElapsedMilliseconds));
+
                 if (this.stateTimer != null)
                 {
-                    // the 5 second fallback is for the case when we've catastrophically failed some place above
+                    // the catastrophic fallback is for the case when we've catastrophically failed some place above
                     timeToNextUpdate = timeToNextUpdate ?? this.catastrophicFailureTimeout;
 
                     // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
@@ -338,11 +343,15 @@
 
         private void CollectionTimerCallback(object state)
         {
-            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Collection timer tick");
-
+            var stopwatch = new Stopwatch();
+            
             try
             {
+                stopwatch.Start();
+
                 this.CollectData();
+
+                stopwatch.Stop();
             }
             catch (Exception e)
             {
@@ -350,6 +359,8 @@
             }
             finally
             {
+                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Collection timer tick finished: {0} ms", stopwatch.ElapsedMilliseconds));
+
                 // this is in a race condition with stopping timer from OnStopCollection, so we need to ensure that we don't schedule the next tick more than once
                 // after the timer has been ordered to stop
                 if (this.stateManager.IsCollectingData && this.collectionTimer != null)
