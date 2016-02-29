@@ -74,12 +74,12 @@
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
-            var extesionBaseDirectory = string.IsNullOrWhiteSpace(AppDomain.CurrentDomain.RelativeSearchPath)
+            var extensionBaseDirectory = string.IsNullOrWhiteSpace(AppDomain.CurrentDomain.RelativeSearchPath)
                 ? AppDomain.CurrentDomain.BaseDirectory
                 : AppDomain.CurrentDomain.RelativeSearchPath;
 
-            DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("extesionBaseDirectrory is " + extesionBaseDirectory);
-            Decorator.InitializeExtension(extesionBaseDirectory);
+            DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("extesionBaseDirectrory is " + extensionBaseDirectory);
+            Decorator.InitializeExtension(extensionBaseDirectory);
 
             // obtain agent version
             var agentVersion = Decorator.GetAgentVersion();
