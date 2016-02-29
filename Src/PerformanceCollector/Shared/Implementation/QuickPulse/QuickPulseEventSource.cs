@@ -108,6 +108,36 @@
             this.WriteEvent(14, message ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(15, Message = "Sample submitted. Response: '{0}'", Level = EventLevel.Verbose)]
+        public void SampleSubmittedEvent(string response, string applicationName = "dummy")
+        {
+            this.WriteEvent(15, response ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(16, Message = "Ping sent. Response: '{0}'", Level = EventLevel.Verbose)]
+        public void PingSentEvent(string response, string applicationName = "dummy")
+        {
+            this.WriteEvent(16, response ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(17, Message = "State timer tick finished: {0} ms", Level = EventLevel.Verbose)]
+        public void StateTimerTickFinishedEvent(long elapsedMs, string applicationName = "dummy")
+        {
+            this.WriteEvent(17, elapsedMs, this.ApplicationName);
+        }
+
+        [Event(18, Message = "Collection timer tick finished: {0} ms", Level = EventLevel.Verbose)]
+        public void CollectionTimerTickFinishedEvent(long elapsedMs, string applicationName = "dummy")
+        {
+            this.WriteEvent(18, elapsedMs, this.ApplicationName);
+        }
+
+        [Event(19, Message = "Sample stored. Buffer length: {0}", Level = EventLevel.Verbose)]
+        public void SampleStoredEvent(int bufferLength, string applicationName = "dummy")
+        {
+            this.WriteEvent(19, bufferLength, this.ApplicationName);
+        }
+
         #endregion
 
         [NonEvent]

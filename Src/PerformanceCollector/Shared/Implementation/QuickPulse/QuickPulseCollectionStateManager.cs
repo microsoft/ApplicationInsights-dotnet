@@ -130,7 +130,7 @@
 
                 bool? keepCollecting = this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey);
 
-                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Sample submitted. Response: '{0}'", keepCollecting));
+                QuickPulseEventSource.Log.SampleSubmittedEvent(keepCollecting.ToString());
 
                 switch (keepCollecting)
                 {
@@ -157,7 +157,7 @@
                 // we are currently idle and pinging the service waiting for it to ask us to start collecting data
                 bool? startCollection = this.serviceClient.Ping(instrumentationKey, this.timeProvider.UtcNow);
 
-                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Ping sent. Response: '{0}'", startCollection));
+                QuickPulseEventSource.Log.PingSentEvent(startCollection.ToString());
 
                 switch (startCollection)
                 {

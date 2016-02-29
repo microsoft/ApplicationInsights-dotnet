@@ -318,7 +318,7 @@
             }
             finally
             {
-                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "State timer tick finished: {0} ms", stopwatch.ElapsedMilliseconds));
+                QuickPulseEventSource.Log.StateTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
 
                 if (this.stateTimer != null)
                 {
@@ -357,7 +357,7 @@
             }
             finally
             {
-                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Collection timer tick finished: {0} ms", stopwatch.ElapsedMilliseconds));
+                QuickPulseEventSource.Log.CollectionTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
 
                 // this is in a race condition with stopping timer from OnStopCollection, so we need to ensure that we don't schedule the next tick more than once
                 // after the timer has been ordered to stop
@@ -379,7 +379,7 @@
         {
             lock (this.collectedSamplesLock)
             {
-                QuickPulseEventSource.Log.TroubleshootingMessageEvent(string.Format(CultureInfo.InvariantCulture, "Sample stored. Buffer length: {0}", this.collectedSamples.Count + 1));
+                QuickPulseEventSource.Log.SampleStoredEvent(this.collectedSamples.Count + 1);
 
                 this.collectedSamples.AddLast(sample);
 
