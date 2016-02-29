@@ -329,7 +329,7 @@
             // ASSERT
             this.listener.Stop();
             
-            Assert.AreEqual(3, this.pingCount);
+            Assert.AreEqual(2, this.pingCount);
         }
 
         [TestMethod]

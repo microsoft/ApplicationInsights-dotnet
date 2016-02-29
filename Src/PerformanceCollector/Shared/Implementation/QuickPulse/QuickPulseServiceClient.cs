@@ -19,7 +19,7 @@
     {
         private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
 
-        private const int RetryCount = 3;
+        private const int RetryCount = 2;
         
         private readonly string instanceName;
 
