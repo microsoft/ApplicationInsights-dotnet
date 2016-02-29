@@ -9,13 +9,15 @@
             TimeSpan servicePollingBackedOffInterval,
             TimeSpan timeToServicePollingBackOff,
             TimeSpan collectionInterval,
-            TimeSpan timeToCollectionBackOff)
+            TimeSpan timeToCollectionBackOff,
+            TimeSpan catastrophicFailuretimeout)
         {
             this.ServicePollingInterval = servicePollingInterval;
             this.ServicePollingBackedOffInterval = servicePollingBackedOffInterval;
             this.TimeToServicePollingBackOff = timeToServicePollingBackOff;
             this.CollectionInterval = collectionInterval;
             this.TimeToCollectionBackOff = timeToCollectionBackOff;
+            this.CatastrophicFailureTimeout = catastrophicFailuretimeout;
         }
 
         public QuickPulseTimings(TimeSpan servicePollingInterval, TimeSpan collectionInterval)
@@ -26,6 +28,7 @@
             this.ServicePollingBackedOffInterval = TimeSpan.MaxValue;
             this.TimeToServicePollingBackOff = TimeSpan.MaxValue;
             this.TimeToCollectionBackOff = TimeSpan.MaxValue;
+            this.CatastrophicFailureTimeout = TimeSpan.MaxValue;
         }
 
         public static QuickPulseTimings Default
@@ -37,7 +40,8 @@
                     TimeSpan.FromMinutes(1),
                     TimeSpan.FromMinutes(1),
                     TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(20));
+                    TimeSpan.FromSeconds(20),
+                    TimeSpan.FromSeconds(5));
             }
         }
 
@@ -50,5 +54,7 @@
         public TimeSpan CollectionInterval { get; private set; }
 
         public TimeSpan TimeToCollectionBackOff { get; private set; }
+
+        public TimeSpan CatastrophicFailureTimeout { get; private set; }
     }
 }

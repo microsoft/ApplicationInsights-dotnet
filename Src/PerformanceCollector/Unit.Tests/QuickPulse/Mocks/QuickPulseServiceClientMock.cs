@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     internal class QuickPulseServiceClientMock : IQuickPulseServiceClient
@@ -25,6 +25,8 @@
         public DateTimeOffset? LastPingTimestamp { get; private set; }
 
         public string LastPingInstance { get; private set; }
+
+        public bool AlwaysThrow { get; set; } = false;
 
         public List<QuickPulseDataSample> SnappedSamples
         {
@@ -51,13 +53,18 @@
                 this.samples.Clear();
             }
         }
-        
+
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
             lock (this.lockObject)
             {
                 this.PingCount++;
                 this.LastPingTimestamp = timestamp;
+            }
+
+            if (this.AlwaysThrow)
+            {
+                throw new InvalidOperationException("Mock is set to always throw");
             }
 
             return this.ReturnValueFromPing;
@@ -70,6 +77,11 @@
                 this.batches.Add(samples.Count());
                 this.LastSampleBatchSize = samples.Count();
                 this.samples.AddRange(samples);
+            }
+
+            if (this.AlwaysThrow)
+            {
+                throw new InvalidOperationException("Mock is set to always throw");
             }
 
             return this.ReturnValueFromSubmitSample;

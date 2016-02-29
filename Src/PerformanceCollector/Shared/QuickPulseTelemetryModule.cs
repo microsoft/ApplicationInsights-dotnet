@@ -21,14 +21,12 @@
     {
         private const int MaxSampleStorageSize = 10;
 
-        private readonly TimeSpan catastrophicFailureTimeout = TimeSpan.FromSeconds(5);
-
         private readonly TimeSpan initialDelay = TimeSpan.Zero;
 
         private readonly object lockObject = new object();
 
         private readonly object collectedSamplesLock = new object();
-        
+
         private readonly Uri serviceUriDefault = new Uri("https://rt.services.visualstudio.com/QuickPulseService.svc");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
@@ -56,7 +54,7 @@
         private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
         /// </summary>
@@ -299,7 +297,7 @@
 
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
-        
+
         private void StateTimerCallback(object state)
         {
             var stopwatch = new Stopwatch();
@@ -325,13 +323,13 @@
                 if (this.stateTimer != null)
                 {
                     // the catastrophic fallback is for the case when we've catastrophically failed some place above
-                    timeToNextUpdate = timeToNextUpdate ?? this.catastrophicFailureTimeout;
+                    timeToNextUpdate = timeToNextUpdate ?? this.timings.CatastrophicFailureTimeout;
 
                     // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
                     TimeSpan timeSpentInThisCallback = this.timeProvider.UtcNow - currentCallbackStarted;
 
                     TimeSpan timeLeftUntilNextCallback = timeToNextUpdate.Value - timeSpentInThisCallback;
-                    
+
                     timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero
                                                               ? timeLeftUntilNextCallback
                                                               : TimeSpan.Zero;
@@ -344,7 +342,7 @@
         private void CollectionTimerCallback(object state)
         {
             var stopwatch = new Stopwatch();
-            
+
             try
             {
                 stopwatch.Start();
@@ -369,7 +367,7 @@
                 }
             }
         }
-        
+
         private void CollectData()
         {
             var sample = this.CollectSample();
@@ -428,7 +426,7 @@
             DateTimeOffset nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
             this.collectionTimer.ScheduleNextTick((nextTick - this.timeProvider.UtcNow).Duration());
         }
-        
+
         private void OnStopCollection()
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Stopping collection...");
