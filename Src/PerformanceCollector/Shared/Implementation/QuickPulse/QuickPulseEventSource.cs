@@ -83,7 +83,7 @@
         #endregion
 
         #region Data sending - failure
-        [Event(12, Level = EventLevel.Verbose, Message = @"Failed communicate with the QuickPulse service. Error text: {0}")]
+        [Event(12, Level = EventLevel.Verbose, Message = @"Failed to communicate with the QuickPulse service. Error text: {0}")]
         public void ServiceCommunicationFailedEvent(string e, string applicationName = "dummy")
         {
             this.WriteEvent(12, e, this.ApplicationName);
