@@ -357,6 +357,34 @@
             Assert.IsTrue(serviceClient.PingCount > 5);
         }
 
+        [TestMethod]
+        public void QuickPulseTelemetryModuleDisposesCorrectly()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval, interval, interval, interval, interval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(
+                collectionTimeSlotManager,
+                null,
+                telemetryProcessor,
+                serviceClient,
+                performanceCollector,
+                timings);
+
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            // ACT
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // ASSERT
+            module.Dispose();
+        }
+
         #region Helpers
         private static void SetPrivateProperty(object obj, string propertyName, string propertyValue)
         {

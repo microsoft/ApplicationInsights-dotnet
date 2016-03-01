@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -21,8 +22,6 @@
     {
         private const int MaxSampleStorageSize = 10;
 
-        private readonly TimeSpan initialDelay = TimeSpan.Zero;
-
         private readonly object lockObject = new object();
 
         private readonly object collectedSamplesLock = new object();
@@ -35,9 +34,11 @@
 
         private IQuickPulseServiceClient serviceClient;
 
-        private Timer collectionTimer;
+        private ManualResetEventSlim collectionEnabledEvent = new ManualResetEventSlim(false);
 
-        private Timer stateTimer;
+        private Thread collectionThread;
+
+        private Thread stateThread;
 
         private Clock timeProvider;
 
@@ -54,6 +55,10 @@
         private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
+
+        private CancellationTokenSource collectionCancellationTokenSource = new CancellationTokenSource();
+
+        private CancellationTokenSource stateCancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
@@ -224,10 +229,11 @@
 
         private void InitializeTimers()
         {
-            this.collectionTimer = new Timer(this.CollectionTimerCallback);
+            this.collectionThread = new Thread(this.CollectionThreadWorker) { IsBackground = true };
+            this.collectionThread.Start();
 
-            this.stateTimer = new Timer(this.StateTimerCallback);
-            this.stateTimer.ScheduleNextTick(this.initialDelay);
+            this.stateThread = new Thread(this.StateThreadWorker) { IsBackground = true };
+            this.stateThread.Start();
         }
 
         private IQuickPulseTelemetryProcessor FetchTelemetryProcessor(TelemetryConfiguration configuration)
@@ -298,73 +304,76 @@
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
         }
 
-        private void StateTimerCallback(object state)
+        private void StateThreadWorker(object state)
         {
             var stopwatch = new Stopwatch();
-            var currentCallbackStarted = this.timeProvider.UtcNow;
             TimeSpan? timeToNextUpdate = null;
 
-            try
+            while (true)
             {
-                stopwatch.Start();
+                var currentCallbackStarted = this.timeProvider.UtcNow;
 
-                timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
-
-                stopwatch.Stop();
-            }
-            catch (Exception e)
-            {
-                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
-            }
-            finally
-            {
-                QuickPulseEventSource.Log.StateTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
-
-                if (this.stateTimer != null)
+                try
                 {
-                    // the catastrophic fallback is for the case when we've catastrophically failed some place above
-                    timeToNextUpdate = timeToNextUpdate ?? this.timings.CatastrophicFailureTimeout;
+                    if (this.stateCancellationTokenSource.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    stopwatch.Restart();
 
-                    // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
-                    TimeSpan timeSpentInThisCallback = this.timeProvider.UtcNow - currentCallbackStarted;
+                    timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
 
-                    TimeSpan timeLeftUntilNextCallback = timeToNextUpdate.Value - timeSpentInThisCallback;
-
-                    timeLeftUntilNextCallback = timeLeftUntilNextCallback > TimeSpan.Zero
-                                                              ? timeLeftUntilNextCallback
-                                                              : TimeSpan.Zero;
-
-                    this.stateTimer.ScheduleNextTick(timeLeftUntilNextCallback);
+                    QuickPulseEventSource.Log.StateTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
                 }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
+                }
+                
+                // the catastrophic fallback is for the case when we've catastrophically failed some place above
+                timeToNextUpdate = timeToNextUpdate ?? this.timings.CatastrophicFailureTimeout;
+
+                // try to factor in the time spend in this tick when scheduling the next one so that the average period is close to the intended
+                TimeSpan timeSpentInThisTick = this.timeProvider.UtcNow - currentCallbackStarted;
+                TimeSpan timeLeftUntilNextTick = timeToNextUpdate.Value - timeSpentInThisTick;
+                timeLeftUntilNextTick = timeLeftUntilNextTick > TimeSpan.Zero ? timeLeftUntilNextTick : TimeSpan.Zero;
+
+                Thread.Sleep(timeLeftUntilNextTick);
             }
         }
 
-        private void CollectionTimerCallback(object state)
+        private void CollectionThreadWorker(object state)
         {
             var stopwatch = new Stopwatch();
 
-            try
+            while (true)
             {
-                stopwatch.Start();
-
-                this.CollectData();
-
-                stopwatch.Stop();
-            }
-            catch (Exception e)
-            {
-                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
-            }
-            finally
-            {
-                QuickPulseEventSource.Log.CollectionTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
-
-                // this is in a race condition with stopping timer from OnStopCollection, so we need to ensure that we don't schedule the next tick more than once
-                // after the timer has been ordered to stop
-                if (this.stateManager.IsCollectingData && this.collectionTimer != null)
+                try
                 {
-                    this.ScheduleNextCollection();
+                    try
+                    {
+                        this.collectionEnabledEvent.Wait(this.collectionCancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
+                    }
+
+                    stopwatch.Restart();
+
+                    this.CollectData();
+
+                    QuickPulseEventSource.Log.CollectionTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
                 }
+                catch (Exception e)
+                {
+                    QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
+                }
+                
+                DateTimeOffset nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
+                TimeSpan timeLeftUntilNextTick = nextTick - this.timeProvider.UtcNow;
+                Thread.Sleep(timeLeftUntilNextTick > TimeSpan.Zero ? timeLeftUntilNextTick : TimeSpan.Zero);
             }
         }
 
@@ -418,20 +427,14 @@
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
-            this.ScheduleNextCollection();
-        }
-
-        private void ScheduleNextCollection()
-        {
-            DateTimeOffset nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
-            this.collectionTimer.ScheduleNextTick((nextTick - this.timeProvider.UtcNow).Duration());
+            this.collectionEnabledEvent.Set();
         }
 
         private void OnStopCollection()
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Stopping collection...");
 
-            this.collectionTimer.Stop();
+            this.collectionEnabledEvent.Reset();
 
             this.telemetryProcessor.StopCollection();
 
@@ -479,17 +482,24 @@
         {
             if (disposing)
             {
-                if (this.stateTimer != null)
+                if (this.stateThread != null)
                 {
-                    this.stateTimer.Dispose();
-                    this.stateTimer = null;
+                    this.stateCancellationTokenSource.Cancel();
+                    this.stateThread.Join();
+                    this.stateThread = null;
                 }
 
-                if (this.collectionTimer != null)
+                if (this.collectionThread != null)
                 {
-                    this.collectionTimer.Dispose();
-                    this.collectionTimer = null;
+                    this.collectionCancellationTokenSource.Cancel();
+                    this.collectionThread.Join();
+                    this.collectionThread = null;
                 }
+
+                this.stateCancellationTokenSource.Dispose();
+                this.collectionCancellationTokenSource.Dispose();
+
+                this.collectionEnabledEvent.Dispose();
             }
         }
     }
