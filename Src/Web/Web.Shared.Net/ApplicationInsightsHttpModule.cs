@@ -1,11 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
-    using System.Threading;
     using System.Web;
     
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
     
