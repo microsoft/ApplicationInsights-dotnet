@@ -304,7 +304,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.PerfIisRequestsPerSecond);
+            Assert.AreEqual(0.0, dataSample.PerfIisQueueSize);
         }
         #endregion
     }

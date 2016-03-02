@@ -67,26 +67,6 @@
             // avoiding reflection (Enum.GetNames()) to speed things up
             Tuple<PerformanceCounterData, float> value;
 
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsPerSecond.ToString(), out value))
-            {
-                this.PerfIisRequestsPerSecond = value.Item2;
-            }
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestDurationAve.ToString(), out value))
-            {
-                this.PerfIisRequestDurationAveInTicks = value.Item2;
-            }
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsFailedTotal.ToString(), out value))
-            {
-                this.PerfIisRequestsFailedTotal = value.Item2;
-            }
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisRequestsSucceededTotal.ToString(), out value))
-            {
-                this.PerfIisRequestsSucceededTotal = value.Item2;
-            }
-
             if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisQueueSize.ToString(), out value))
             {
                 this.PerfIisQueueSize = value.Item2;
@@ -137,14 +117,6 @@
         #region Performance counters
 
         public IDictionary<string, float> PerfCountersLookup { get; private set; }
-
-        public double PerfIisRequestsPerSecond { get; private set; }
-
-        public double PerfIisRequestDurationAveInTicks { get; private set; }
-
-        public double PerfIisRequestsFailedTotal { get; private set; }
-
-        public double PerfIisRequestsSucceededTotal { get; private set; }
 
         public double PerfIisQueueSize { get; private set; }
 

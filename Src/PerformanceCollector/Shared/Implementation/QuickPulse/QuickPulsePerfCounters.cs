@@ -2,14 +2,6 @@
 {
     internal enum QuickPulsePerfCounters
     {
-        PerfIisRequestsPerSecond,
-
-        PerfIisRequestDurationAve,
-
-        PerfIisRequestsFailedTotal,
-
-        PerfIisRequestsSucceededTotal,
-
         PerfIisQueueSize,
 
         PerfCpuUtilization,

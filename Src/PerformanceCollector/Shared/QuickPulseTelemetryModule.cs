@@ -44,7 +44,9 @@
 
         private QuickPulseTimings timings;
 
-        private bool isInitialized;
+        private bool isInitialized = false;
+
+        private bool isPerformanceCollectorInitialized = false;
 
         private QuickPulseCollectionTimeSlotManager collectionTimeSlotManager = null;
 
@@ -147,8 +149,6 @@
                             this.OnSubmitSamples,
                             this.OnReturnFailedSamples);
 
-                        this.InitializePerformanceCollector();
-
                         this.InitializeTimers();
 
                         this.isInitialized = true;
@@ -171,6 +171,19 @@
             this.telemetryProcessor.Initialize(this.serviceClient.ServiceUri, configuration);
         }
 
+        private void EnsurePerformanceCollectorInitialized()
+        {
+            if (this.isPerformanceCollectorInitialized)
+            {
+                return;
+            }
+
+            this.isPerformanceCollectorInitialized = true;
+
+            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing performance collector...");
+
+            this.InitializePerformanceCollector();
+        }
         private void InitializePerformanceCollector()
         {
             foreach (var counter in QuickPulsePerfCounterList.CountersToCollect)
@@ -190,8 +203,8 @@
 
                 if (usesPlaceholder)
                 {
-                    throw new InvalidOperationException(
-                        "Instance placeholders are not currently supported since they require refresh. Refresh is not implemented at this time.");
+                    // Instance placeholders are not currently supported since they require refresh. Refresh is not implemented at this time.
+                    continue;
                 }
 
                 try
@@ -207,7 +220,7 @@
 
                     QuickPulseEventSource.Log.CounterRegisteredEvent(counter.Item2);
                 }
-                catch (InvalidOperationException e)
+                catch (Exception e)
                 {
                     QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
                 }
@@ -423,6 +436,8 @@
         private void OnStartCollection()
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Starting collection...");
+
+            this.EnsurePerformanceCollectorInitialized();
 
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);

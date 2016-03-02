@@ -186,7 +186,35 @@
 
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIRequestsPerSecond > 0));
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
-            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisRequestsPerSecond) > double.Epsilon));
+            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleOnlyInitializesPerformanceCollectorAfterCollectionStarts()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, telemetryProcessor, serviceClient, performanceCollector, timings);
+
+            // ACT & ASSERT
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            Thread.Sleep((int)(interval.TotalMilliseconds * 100));
+            
+            Assert.IsFalse(performanceCollector.Counters.Any());
+
+            serviceClient.ReturnValueFromPing = true;
+            
+            Thread.Sleep((int)(interval.TotalMilliseconds * 100));
+
+            Assert.IsTrue(performanceCollector.Counters.Any());
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
         }
 
         [TestMethod]
