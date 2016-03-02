@@ -15,7 +15,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
     {
         internal static void ExecuteSpinWaitLock(this object syncRoot, Action action)
         {
-            while (false == Monitor.TryEnter(syncRoot, 0))
+            while (!Monitor.TryEnter(syncRoot, 0))
             {
             }
 
