@@ -10,6 +10,8 @@
         /// </summary>
         internal const string RequestTelemetryItemName = "Microsoft.ApplicationInsights.RequestTelemetry";
 
+        internal const string EndRequestCallFlag = "Microsoft.ApplicationInsights.EndRequestCallFlag";
+
         /// <summary>
         /// Type name for the transfer handler. This handler is used to enable extension(less) URI 
         /// and it produces extra request, which should not be counted.

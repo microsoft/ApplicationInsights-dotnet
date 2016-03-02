@@ -78,10 +78,41 @@
         {
             if (this.isEnabled)
             {
-                this.TraceCallback("OnEndRequest", (HttpApplication)sender);
-                WebEventsPublisher.Log.OnError();
-                WebEventsPublisher.Log.OnEnd();
+                var httpApplication = (HttpApplication)sender;
+                this.TraceCallback("OnEndRequest", httpApplication);
+
+                if (this.IsFirstRequest(httpApplication))
+                {
+                    WebEventsPublisher.Log.OnError();
+                    WebEventsPublisher.Log.OnEnd();
+                }
+                else
+                {
+                    WebEventSource.Log.RequestFiltered();
+                }
             }
+        }
+
+        private bool IsFirstRequest(HttpApplication application)
+        {
+            var firstRequest = true;
+            try
+            {
+                if (application.Context != null)
+                {
+                    firstRequest = application.Context.Items[RequestTrackingConstants.EndRequestCallFlag] == null;
+                    if (firstRequest)
+                    {
+                        application.Context.Items.Add(RequestTrackingConstants.EndRequestCallFlag, true);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                WebEventSource.Log.FlagCheckFailure(exc.ToInvariantString());
+            }
+
+            return firstRequest;
         }
 
         private void TraceCallback(string callback, HttpApplication application)
