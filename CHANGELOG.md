@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.1.0-beta1
+
+- Upgraded to depend on EventSource.Redist nuget version 1.1.28
+- Upgraded to depend on Microsoft.Bcl nuget version 1.1.10
+
 ## Version 2.0.0-rc1
 
 **Dependencies:**

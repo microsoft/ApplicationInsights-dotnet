@@ -19,7 +19,8 @@
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <NuGetPackageImportStamp>39592d2f</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,9 +51,10 @@
       <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.68-build00708\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Diagnostics.Tracing.TraceEvent, Version=1.0.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Diagnostics.Tracing.TraceEvent, Version=1.0.41.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(PackagesDir)\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.29\lib\net40\Microsoft.Diagnostics.Tracing.TraceEvent.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.41\lib\net40\Microsoft.Diagnostics.Tracing.TraceEvent.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <SpecificVersion>False</SpecificVersion>
@@ -146,6 +148,10 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="TraceEvent.ReadMe.txt" />
+    <Content Include="TraceEvent.ReleaseNotes.txt" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
@@ -170,7 +176,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('$(PackagesDir)\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.29\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(PackagesDir)\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.29\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.41\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.41\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets'))" />
   </Target>
-  <Import Project="$(PackagesDir)\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.29\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets" Condition="Exists('$(PackagesDir)\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.29\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets')" />
+  <Import Project="..\..\..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.41\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent.1.0.41\build\Microsoft.Diagnostics.Tracing.TraceEvent.targets')" />
 </Project>

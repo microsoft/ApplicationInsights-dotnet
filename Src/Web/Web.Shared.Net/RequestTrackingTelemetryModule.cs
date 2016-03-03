@@ -83,7 +83,7 @@
             }
 
             var platformContext = this.ResolvePlatformContext();
-            if (false == this.NeedProcessRequest(platformContext))
+            if (!this.NeedProcessRequest(platformContext))
             {
                 return;
             }

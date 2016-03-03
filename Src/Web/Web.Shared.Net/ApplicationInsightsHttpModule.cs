@@ -124,7 +124,7 @@
                         // Url.ToString internally builds local member once and then always returns it
                         // During serialization we will anyway call same ToString() so we do not force unnesesary formatting just for tracing 
                         var url = application.Context.Request.UnvalidatedGetUrl();
-                        string logUrl = (null != url) ? url.ToString() : string.Empty;
+                        string logUrl = (url != null) ? url.ToString() : string.Empty;
 
                         WebEventSource.Log.WebModuleCallback(callback, logUrl);
                     }
