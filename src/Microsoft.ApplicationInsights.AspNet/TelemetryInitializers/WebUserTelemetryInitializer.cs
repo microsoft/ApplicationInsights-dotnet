@@ -32,11 +32,6 @@
             {
                 telemetry.Context.User.Id = requestTelemetry.Context.User.Id;
             }
-
-            if (requestTelemetry.Context.User.AcquisitionDate.HasValue)
-            {
-                telemetry.Context.User.AcquisitionDate = requestTelemetry.Context.User.AcquisitionDate;
-            }
         }
 
         private static void UpdateRequestTelemetryFromPlatformContext(RequestTelemetry requestTelemetry, HttpContext platformContext)
@@ -47,16 +42,9 @@
                 if (!string.IsNullOrEmpty(userCookieValue))
                 {
                     var userCookieParts = ((string)userCookieValue).Split('|');
-                    if (userCookieParts.Length >= 2)
+                    if (userCookieParts.Length >= 1)
                     {
-                        // todo: add tracing
-                        DateTimeOffset acquisitionDate = DateTimeOffset.MinValue;
-                        if (!string.IsNullOrEmpty(userCookieParts[1]) 
-                            && DateTimeOffset.TryParse(userCookieParts[1], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out acquisitionDate))
-                        {
-                            requestTelemetry.Context.User.Id = userCookieParts[0];
-                            requestTelemetry.Context.User.AcquisitionDate = acquisitionDate;
-                        }
+                        requestTelemetry.Context.User.Id = userCookieParts[0];
                     }
                 }
             }

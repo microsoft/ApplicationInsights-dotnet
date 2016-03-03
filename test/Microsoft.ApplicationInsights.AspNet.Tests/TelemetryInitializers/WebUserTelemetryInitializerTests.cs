@@ -48,7 +48,6 @@
             initializer.Initialize(requestTelemetry);
 
             Assert.Equal("test", requestTelemetry.Context.User.Id);
-            Assert.Equal(DateTimeOffset.Parse("2015-04-09T21:51:59.993Z", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal), requestTelemetry.Context.User.AcquisitionDate.Value);
         }
 
         [Fact]
@@ -87,8 +86,7 @@
             var initializer = new WebUserTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
-            Assert.Equal(null, requestTelemetry.Context.User.Id);
-            Assert.Equal(false, requestTelemetry.Context.User.AcquisitionDate.HasValue);
+            Assert.Equal("test", requestTelemetry.Context.User.Id);
         }
     }
 }
