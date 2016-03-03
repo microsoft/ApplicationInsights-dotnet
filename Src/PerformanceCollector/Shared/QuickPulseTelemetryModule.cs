@@ -13,8 +13,6 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
-    using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
-
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
     /// </summary>
@@ -34,11 +32,13 @@
 
         private IQuickPulseServiceClient serviceClient;
 
-        private ManualResetEventSlim collectionEnabledEvent = new ManualResetEventSlim(false);
-
         private Thread collectionThread;
 
+        private QuickPulseThreadState collectionThreadState;
+
         private Thread stateThread;
+
+        private QuickPulseThreadState stateThreadState;
 
         private Clock timeProvider;
 
@@ -57,10 +57,6 @@
         private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
-
-        private CancellationTokenSource collectionCancellationTokenSource = new CancellationTokenSource();
-
-        private CancellationTokenSource stateCancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
@@ -149,7 +145,7 @@
                             this.OnSubmitSamples,
                             this.OnReturnFailedSamples);
 
-                        this.InitializeTimers();
+                        this.CreateStateThread();
 
                         this.isInitialized = true;
                     }
@@ -240,11 +236,9 @@
             }
         }
 
-        private void InitializeTimers()
+        private void CreateStateThread()
         {
-            this.collectionThread = new Thread(this.CollectionThreadWorker) { IsBackground = true };
-            this.collectionThread.Start();
-
+            this.stateThreadState = new QuickPulseThreadState();
             this.stateThread = new Thread(this.StateThreadWorker) { IsBackground = true };
             this.stateThread.Start();
         }
@@ -328,7 +322,7 @@
 
                 try
                 {
-                    if (this.stateCancellationTokenSource.IsCancellationRequested)
+                    if (this.stateThreadState.IsStopRequested)
                     {
                         return;
                     }
@@ -359,16 +353,13 @@
         private void CollectionThreadWorker(object state)
         {
             var stopwatch = new Stopwatch();
+            var threadState = (QuickPulseThreadState)state;
 
             while (true)
             {
                 try
                 {
-                    try
-                    {
-                        this.collectionEnabledEvent.Wait(this.collectionCancellationTokenSource.Token);
-                    }
-                    catch (OperationCanceledException)
+                    if (threadState.IsStopRequested)
                     {
                         return;
                     }
@@ -437,19 +428,36 @@
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Starting collection...");
 
-            this.EnsurePerformanceCollectorInitialized();
+            this.EndCollectionThread();
 
+            this.EnsurePerformanceCollectorInitialized();
+            
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
-            this.collectionEnabledEvent.Set();
+            this.CreateCollectionThread();
+        }
+
+        private void CreateCollectionThread()
+        {
+            this.collectionThread = new Thread(this.CollectionThreadWorker) { IsBackground = true };
+            this.collectionThreadState = new QuickPulseThreadState();
+            this.collectionThread.Start(this.collectionThreadState);
+        }
+
+        private void EndCollectionThread()
+        {
+            if (this.collectionThreadState != null)
+            {
+                this.collectionThreadState.IsStopRequested = true;
+            }
         }
 
         private void OnStopCollection()
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Stopping collection...");
 
-            this.collectionEnabledEvent.Reset();
+            this.EndCollectionThread();
 
             this.telemetryProcessor.StopCollection();
 
@@ -499,22 +507,21 @@
             {
                 if (this.stateThread != null)
                 {
-                    this.stateCancellationTokenSource.Cancel();
+                    if (this.stateThreadState != null)
+                    {
+                        this.stateThreadState.IsStopRequested = true;
                     this.stateThread.Join();
+                    }
+
                     this.stateThread = null;
                 }
 
                 if (this.collectionThread != null)
                 {
-                    this.collectionCancellationTokenSource.Cancel();
+                    this.EndCollectionThread();
                     this.collectionThread.Join();
                     this.collectionThread = null;
                 }
-
-                this.stateCancellationTokenSource.Dispose();
-                this.collectionCancellationTokenSource.Dispose();
-
-                this.collectionEnabledEvent.Dispose();
             }
         }
     }
