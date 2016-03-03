@@ -50,7 +50,7 @@
             var properties = new List<PropertyInfo>();
             properties.AddRange(type.GetTypeInfo().DeclaredProperties);
             var baseType = type.GetTypeInfo().BaseType;
-            if (null != baseType)
+            if (baseType != null)
             {
                 properties.AddRange(baseType.GetProperties());
             }

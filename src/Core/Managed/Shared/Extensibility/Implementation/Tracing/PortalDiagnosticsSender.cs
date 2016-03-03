@@ -32,12 +32,12 @@
             TelemetryConfiguration configuration,
             IDiagnoisticsEventThrottlingManager throttlingManager)
         {
-            if (null == configuration)
+            if (configuration == null)
             {
                 throw new ArgumentNullException("configuration");
             }
 
-            if (null == throttlingManager)
+            if (throttlingManager == null)
             {
                 throw new ArgumentNullException("throttlingManager");
             }
