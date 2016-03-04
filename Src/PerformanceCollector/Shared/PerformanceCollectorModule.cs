@@ -104,6 +104,12 @@
         public IList<PerformanceCounterCollectionRequest> Counters { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether performance counters should be collected under IIS Express.
+        /// </summary>
+        /// <remarks>Loaded from configuration.</remarks>
+        public bool EnableIISExpressPerformanceCounters { get; set; }
+
+        /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
         /// </summary>
         public void Initialize(TelemetryConfiguration configuration)
@@ -125,6 +131,12 @@
                             throw new ArgumentNullException("configuration");
                         }
 
+                        if (!this.EnableIISExpressPerformanceCounters && IsRunningUnderIisExpress())
+                        {
+                            PerformanceCollectorEventSource.Log.RunningUnderIisExpress();
+                            return;
+                        }
+
                         this.telemetryConfiguration = configuration;
                         this.client = new TelemetryClient(configuration);
 
@@ -133,14 +145,13 @@
                         this.timer = new Timer(this.TimerCallback);
 
                         // schedule the first tick
-                        // we skip the first collection interval to allow process to load otherwise deadlock may occur 
-                        this.timer.ScheduleNextTick(this.collectionPeriod);
+                        this.timer.ScheduleNextTick(TimeSpan.Zero);
                         this.isInitialized = true;
                     }
                 }
             }
         }
-
+        
         /// <summary>
         /// Disposes resources allocated by this type.
         /// </summary>
@@ -173,6 +184,21 @@
             else
             {
                 return new PerformanceCounterTelemetry(pc.CategoryName, pc.CounterName, pc.InstanceName, value);
+            }
+        }
+
+        private static bool IsRunningUnderIisExpress()
+        {
+            var iisExpressProcessName = "iisexpress";
+
+            try
+            {
+                return Process.GetCurrentProcess().ProcessName.IndexOf(iisExpressProcessName, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            catch (Exception)
+            {
+                // we are unable to determine if we're running under IIS Express, assume we are not
+                return false;
             }
         }
 
