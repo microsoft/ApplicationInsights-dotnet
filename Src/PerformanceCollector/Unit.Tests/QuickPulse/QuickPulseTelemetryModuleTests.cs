@@ -1,6 +1,7 @@
 ﻿namespace Unit.Tests
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -186,7 +187,35 @@
 
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIRequestsPerSecond > 0));
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
-            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisRequestsPerSecond) > double.Epsilon));
+            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleOnlyInitializesPerformanceCollectorAfterCollectionStarts()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, telemetryProcessor, serviceClient, performanceCollector, timings);
+
+            // ACT & ASSERT
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            Thread.Sleep((int)(interval.TotalMilliseconds * 100));
+            
+            Assert.IsFalse(performanceCollector.Counters.Any());
+
+            serviceClient.ReturnValueFromPing = true;
+            
+            Thread.Sleep((int)(interval.TotalMilliseconds * 100));
+
+            Assert.IsTrue(performanceCollector.Counters.Any());
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
         }
 
         [TestMethod]
@@ -355,6 +384,90 @@
             // ASSERT
             // it shouldn't throw and must keep pinging
             Assert.IsTrue(serviceClient.PingCount > 5);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleDisposesCorrectly()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval, interval, interval, interval, interval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(
+                collectionTimeSlotManager,
+                null,
+                telemetryProcessor,
+                serviceClient,
+                performanceCollector,
+                timings);
+
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            // ACT
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // ASSERT
+            module.Dispose();
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryModuleEndsInternalThreads()
+        {
+            // ARRANGE
+            var interval = TimeSpan.FromMilliseconds(1);
+            var timings = new QuickPulseTimings(interval, interval, interval, interval, interval, interval);
+            var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var performanceCollector = new PerformanceCollectorMock();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+
+            var module = new QuickPulseTelemetryModule(
+                collectionTimeSlotManager,
+                null,
+                telemetryProcessor,
+                serviceClient,
+                performanceCollector,
+                timings);
+
+            var initialThreadCount = Process.GetCurrentProcess().Threads.Count;
+
+            module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // ACT & ASSERT
+            // state thread expected
+            Assert.AreEqual(initialThreadCount + 1, Process.GetCurrentProcess().Threads.Count);
+
+            // this will flip-flop between collection and no collection, creating and ending a collection thread each time
+            serviceClient.ReturnValueFromPing = true;
+            serviceClient.ReturnValueFromSubmitSample = false;
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            serviceClient.ReturnValueFromPing = true;
+            serviceClient.ReturnValueFromSubmitSample = true;
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // state and collection threads expected
+            Assert.AreEqual(initialThreadCount + 2, Process.GetCurrentProcess().Threads.Count);
+
+            serviceClient.ReturnValueFromPing = false;
+            serviceClient.ReturnValueFromSubmitSample = false;
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // only state thread expected
+            Assert.AreEqual(initialThreadCount + 1, Process.GetCurrentProcess().Threads.Count);
+
+            module.Dispose();
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+
+            // no threads expected
+            Assert.AreEqual(initialThreadCount, Process.GetCurrentProcess().Threads.Count);
         }
 
         #region Helpers
