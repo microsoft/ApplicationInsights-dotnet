@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
 
@@ -145,7 +146,7 @@
                         this.timer = new Timer(this.TimerCallback);
 
                         // schedule the first tick
-                        this.timer.ScheduleNextTick(TimeSpan.Zero);
+                        this.timer.ScheduleNextTick(this.collectionPeriod);
                         this.isInitialized = true;
                     }
                 }
@@ -195,9 +196,12 @@
             {
                 return Process.GetCurrentProcess().ProcessName.IndexOf(iisExpressProcessName, StringComparison.OrdinalIgnoreCase) >= 0;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // we are unable to determine if we're running under IIS Express, assume we are not
+                PerformanceCollectorEventSource.Log.UnknownErrorEvent(
+                    string.Format(CultureInfo.InvariantCulture, "Unable to get process name. {0}", e.ToInvariantString()));
+
                 return false;
             }
         }

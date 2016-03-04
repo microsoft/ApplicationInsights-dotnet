@@ -88,7 +88,7 @@
             this.WriteEvent(8, misconfiguredCountersCount, overallConfiguredCountersCount, e, this.ApplicationName);
         }
 
-        [Event(15, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
+        [Event(15, Level = EventLevel.Verbose,
             Message = @"Performance counters are unavailable when the application is running under IIS Express. Use EnableIISExpressPerformanceCounters element with a value of 'true' within the Performance Collector Module element to override this behavior.")]
         public void RunningUnderIisExpress(string applicationName = "dummy")
         {
