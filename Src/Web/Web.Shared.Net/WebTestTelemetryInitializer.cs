@@ -39,7 +39,7 @@
                     telemetry.Context.Operation.SyntheticSource = GsmSource;
 
                     // User id will be Pop location name and RunId (We cannot use just location because of sampling)
-                    telemetry.Context.User.Id = locationHeader + " " + runIdHeader;
+                    telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
                     telemetry.Context.Session.Id = runIdHeader;
                 }
             }

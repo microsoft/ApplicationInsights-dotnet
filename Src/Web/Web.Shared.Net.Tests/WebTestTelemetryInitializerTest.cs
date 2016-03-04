@@ -54,7 +54,7 @@
 
             source.Initialize(metricTelemetry);
 
-            Assert.AreEqual("LOCATION ID", metricTelemetry.Context.User.Id);
+            Assert.AreEqual("LOCATION_ID", metricTelemetry.Context.User.Id);
         }
 
         [TestMethod]
