@@ -13,10 +13,13 @@
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
+
             metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
-                    { "synthetictest-runid", "ID" }
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
                 });
 
             source.Initialize(metricTelemetry);
@@ -30,14 +33,9 @@
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
-                    { "SyntheticTest-RunId", "ID" }
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
                 });
-
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring"
-            });
 
             source.Initialize(metricTelemetry);
 
@@ -45,64 +43,66 @@
         }
 
         [TestMethod]
-        public void SyntheticSourceIsSetToFilterHeaderIfNoWellKnownValueProvided()
+        public void UserIdIsSetToLocationPlusRun()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
-                    { "SyntheticTest-RunId", "ID" }
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
                 });
-
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId"
-            });
 
             source.Initialize(metricTelemetry);
 
-            Assert.AreEqual("SyntheticTest-RunId", metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.AreEqual("LOCATION_ID", metricTelemetry.Context.User.Id);
         }
 
         [TestMethod]
-        public void UserIdIsSetToLocation()
+        public void UserSessionSourceAreNotSetIfLocationIsNotSet()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
-            {
-                { "SyntheticTest-Location", "LOCATION" },
-                { "SyntheticTest-RunId", "ID" }
-            });
-
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring",
-                UserIdHeader = "SyntheticTest-Location"
-            });
+                {
+                    { "synthetictest-runid", "ID" },
+                });
 
             source.Initialize(metricTelemetry);
 
-            Assert.AreEqual("LOCATION", metricTelemetry.Context.User.Id);
+            Assert.IsNull(metricTelemetry.Context.User.Id);
+            Assert.IsNull(metricTelemetry.Context.Session.Id);
+            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+        }
+
+        [TestMethod]
+        public void UserSessionSourceAreNotSetIfRunIsNotSet()
+        {
+            var metricTelemetry = new MetricTelemetry("name", 0);
+            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
+                {
+                    { "SyntheticTest-Location", "LOCATION" },
+                });
+
+            source.Initialize(metricTelemetry);
+
+            Assert.IsNull(metricTelemetry.Context.User.Id);
+            Assert.IsNull(metricTelemetry.Context.Session.Id);
+            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void UserIdIsNotOverriden()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
+
             metricTelemetry.Context.User.Id = "UserId";
+            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
-            {
-                { "SyntheticTest-Location", "LOCATION" },
-                { "SyntheticTest-RunId", "ID" }
-            });
-
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring",
-                UserIdHeader = "SyntheticTest-Location"
-            });
-
+                {
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
+                });
+            
             source.Initialize(metricTelemetry);
 
             Assert.AreEqual("UserId", metricTelemetry.Context.User.Id);
@@ -112,15 +112,15 @@
         public void SessionIdIsNotOverriden()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
-            metricTelemetry.Context.Session.Id = "SessionId";
-            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string> { { "SyntheticTest-RunId", "ID" } });
 
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring",
-                UserIdHeader = "SyntheticTest-Location"
-            });
+            metricTelemetry.Context.Session.Id = "SessionId";
+            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+
+            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
+                {
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
+                });
 
             source.Initialize(metricTelemetry);
 
@@ -131,37 +131,16 @@
         public void SessionIdIsSetToRunId()
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
-            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string> { { "SyntheticTest-RunId", "ID" } });
 
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring",
-                UserIdHeader = "SyntheticTest-Location"
-            });
+            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
+                {
+                    { "SyntheticTest-Location", "LOCATION" },
+                    { "synthetictest-runid", "ID" },
+                });
 
             source.Initialize(metricTelemetry);
 
             Assert.AreEqual("ID", metricTelemetry.Context.Session.Id);
-        }
-
-        [TestMethod]
-        public void SessionIdIsSetToSessionHeader()
-        {
-            var metricTelemetry = new MetricTelemetry("name", 0);
-            var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string> { { "SyntheticTest-RunId", "ID" }, { "SyntheticTest-Session", "SESSIONID" } });
-
-            source.Filters.Add(new WebTestHeaderFilter
-            {
-                FilterHeader = "SyntheticTest-RunId",
-                SourceName = "Application Insights Availability Monitoring",
-                UserIdHeader = "SyntheticTest-Location",
-                SessionIdHeader = "SyntheticTest-Session"
-            });
-
-            source.Initialize(metricTelemetry);
-
-            Assert.AreEqual("SESSIONID", metricTelemetry.Context.Session.Id);
         }
 
         private class TestableWebTestTelemetryInitializer : WebTestTelemetryInitializer
