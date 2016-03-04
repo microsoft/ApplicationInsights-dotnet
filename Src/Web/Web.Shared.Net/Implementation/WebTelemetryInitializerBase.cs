@@ -27,7 +27,7 @@
             {
                 var platformContext = this.ResolvePlatformContext();
 
-                if (null == platformContext)
+                if (platformContext == null)
                 {
                     WebEventSource.Log.WebTelemetryInitializerNotExecutedOnNullHttpContext();
                     return;

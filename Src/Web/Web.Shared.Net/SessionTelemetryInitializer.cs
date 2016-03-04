@@ -16,7 +16,7 @@
 
         internal void GetSessionContextFromUserCookie(HttpCookie sessionCookie, RequestTelemetry requestTelemetry)
         {
-            if (null == sessionCookie)
+            if (sessionCookie == null)
             {
                 WebEventSource.Log.WebSessionTrackingSessionCookieIsNotSecifiedInRequest();
                 return;

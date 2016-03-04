@@ -238,7 +238,7 @@
         {
             SqlCommand command = thisObj as SqlCommand;
 
-            if (null != command && null != command.Connection)
+            if (command != null && command.Connection != null)
             {
                 return command.CommandText ?? string.Empty;
             }
