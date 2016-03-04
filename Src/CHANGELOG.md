@@ -1,7 +1,9 @@
 # Changelog
 
-## Version 2.0.0-beta4
+## Version 2.0.0 
+- Performance counter collection is no longer supported when running under IIS Express.
 
+## Version 2.0.0-beta4
 - WebApps AlwaysOn requests with ResponseCode less than 400 will be filtered out. 
 - User agent and request handler filters can be configured. Previous behavior filtered out only a default set of request handlers and user agent strings, 
   now custom filters can be added to the ApplicationInsights.config file through the ```TelemetryProcessors``` section. 
