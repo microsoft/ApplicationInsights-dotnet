@@ -6,6 +6,8 @@
 - User agent and request handler filters can be configured. Previous behavior filtered out only a default set of request handlers and user agent strings, 
   now custom filters can be added to the ApplicationInsights.config file through the ```TelemetryProcessors``` section. 
   Telemetry for requests with HttpContext.Current that matches these filters will not be sent.
+- If multiple simultaneous calls are made on a ```SqlCommand``` object, only one dependency is recorded. The second
+  call will be failed immediately by ```SqlCommand``` and will not be recorded as a dependency.
 
 ## Version 2.0.0-beta3
 - Use ```OperationCorrelationTelemetryInitializer``` instead of ```OperationIdTelemetryInitializer```

@@ -15,13 +15,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HandlerTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticTrafficManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsPublisher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsSubscriber.cs" />
@@ -34,9 +32,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)OperationNameTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SessionTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SyntheticTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FilterRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)UserAgentTelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebTestHeaderFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebTestTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SyntheticUserAgentFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SyntheticUserAgentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UserTelemetryInitializer.cs" />
   </ItemGroup>
 </Project>

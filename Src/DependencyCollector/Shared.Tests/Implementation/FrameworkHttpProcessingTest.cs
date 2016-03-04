@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, null, false, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, null, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         /// <summary>
@@ -137,8 +137,65 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed as invalid id is passed");
         }
 
+        [TestMethod]
+        public void OnEndHttpCallbackSetsSuccessToFalseForNegativeStatusCode()
+        {
+            // -1 StatusCode is returned in case of no response
+            int statusCode = -1;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            var actual = this.sendItems[0] as DependencyTelemetry;
+
+            Assert.IsFalse(actual.Success.Value);
+        }
+
+        [TestMethod]
+        public void OnEndHttpCallbackSetsSuccessToTrueForLessThan400()
+        {
+            int statusCode = 399;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            var actual = this.sendItems[0] as DependencyTelemetry;
+
+            Assert.IsTrue(actual.Success.Value);
+        }
+
+        [TestMethod]
+        public void OnEndHttpCallbackSetsSuccessToFalseForMoreThan400()
+        {
+            int statusCode = 400;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            var actual = this.sendItems[0] as DependencyTelemetry;
+
+            Assert.IsFalse(actual.Success.Value);
+        }
+
+        [TestMethod]
+        public void OnEndHttpCallbackSetsStatusCodeToEmptyIfNotProvided()
+        {
+            int? statusCode = null;
+           
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            this.httpProcessingFramework.OnEndHttpCallback(100, true, false, statusCode);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            var actual = this.sendItems[0] as DependencyTelemetry;
+
+            Assert.AreEqual(string.Empty, actual.ResultCode);
+        }
+
         #endregion //BeginEndCallBacks
-        
+
         #region AsyncScenarios
 
         /// <summary>

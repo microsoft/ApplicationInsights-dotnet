@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
+    using System;
     using System.Web;
 
     internal static class HttpContextExtensions
