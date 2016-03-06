@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -279,7 +280,9 @@
         public void QuickPulseTelemetryModuleManagesTimersCorrectly()
         {
             // ARRANGE
-            var timings = new QuickPulseTimings(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(10));
+            var pollingInterval = TimeSpan.FromMilliseconds(200);
+            var collectionInterval = TimeSpan.FromMilliseconds(80);
+            var timings = new QuickPulseTimings(pollingInterval, collectionInterval);
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
@@ -297,35 +300,42 @@
             module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // initially, the module is in the polling state
-            Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
-
+            Thread.Sleep((int)(2.5 * pollingInterval.TotalMilliseconds));
+            serviceClient.CountersEnabled = false;
+            
             // 2.5 polling intervals have elapsed, we must have pinged the service 3 times (the first time immediately upon initialization), but no samples yet
-            Assert.AreEqual(3, serviceClient.PingCount);
-            Assert.AreEqual(0, serviceClient.SnappedSamples.Count);
-
-            serviceClient.Reset();
+            Assert.AreEqual(3, serviceClient.PingCount, "Ping count 1");
+            Assert.AreEqual(0, serviceClient.SnappedSamples.Count, "Sample count 1");
 
             // now the service wants the data
+            serviceClient.Reset();
             serviceClient.ReturnValueFromPing = true;
             serviceClient.ReturnValueFromSubmitSample = true;
 
-            Thread.Sleep((int)(30 * TimeSpan.FromMilliseconds(10).TotalMilliseconds));
+            serviceClient.CountersEnabled = true;
+            Thread.Sleep((int)(5 * collectionInterval.TotalMilliseconds));
+            serviceClient.CountersEnabled = false;
+            
+            // a number of  collection intervals have elapsed, we must have pinged the service once, and then started sending samples
+            Assert.AreEqual(1, serviceClient.PingCount, "Ping count 2");
+            Assert.IsTrue(serviceClient.SnappedSamples.Count > 0, "Sample count 2");
 
-            // 30  collection intervals have elapsed, we must have pinged the service once, and then started sending samples
-            Assert.AreEqual(1, serviceClient.PingCount);
-            Assert.IsTrue(serviceClient.SnappedSamples.Count > 0);
+            lock (serviceClient.ResponseLock)
+            {
+                // the service doesn't want the data anymore
+                serviceClient.ReturnValueFromPing = false;
+                serviceClient.ReturnValueFromSubmitSample = false;
 
-            serviceClient.Reset();
-
-            // the service doesn't want the data anymore
-            serviceClient.ReturnValueFromPing = false;
-            serviceClient.ReturnValueFromSubmitSample = false;
-
-            Thread.Sleep((int)(2.5 * TimeSpan.FromMilliseconds(100).TotalMilliseconds));
-
-            // 2.5 polling intervals have elapsed, we must have submitted one sample, stopped collecting and pinged the service twice afterwards
-            Assert.AreEqual(1, serviceClient.SnappedSamples.Count);
-            Assert.AreEqual(2, serviceClient.PingCount);
+                serviceClient.Reset();
+                serviceClient.CountersEnabled = true;
+            }
+            
+            Thread.Sleep((int)(2.9 * pollingInterval.TotalMilliseconds));
+            serviceClient.CountersEnabled = false;
+            
+            // 2 polling intervals have elapsed, we must have submitted one sample, stopped collecting and pinged the service twice afterwards
+            Assert.AreEqual(1, serviceClient.SnappedSamples.Count, "Sample count 3");
+            Assert.AreEqual(2, serviceClient.PingCount, "Ping count 3");
         }
 
         [TestMethod]
@@ -415,13 +425,15 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryModuleEndsInternalThreads()
+        public void QuickPulseTelemetryModuleDoesNotLeakThreads()
         {
             // ARRANGE
             var interval = TimeSpan.FromMilliseconds(1);
             var timings = new QuickPulseTimings(interval, interval, interval, interval, interval, interval);
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
-            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            
+            // this will flip-flop between collection and no collection, creating and ending a collection thread each time
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = false };
             var performanceCollector = new PerformanceCollectorMock();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
@@ -433,41 +445,17 @@
                 performanceCollector,
                 timings);
 
-            var initialThreadCount = Process.GetCurrentProcess().Threads.Count;
-
             module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            int initialThreadCount = Process.GetCurrentProcess().Threads.Count;
 
-            // ACT & ASSERT
-            // state thread expected
-            Assert.AreEqual(initialThreadCount + 1, Process.GetCurrentProcess().Threads.Count);
-
-            // this will flip-flop between collection and no collection, creating and ending a collection thread each time
-            serviceClient.ReturnValueFromPing = true;
-            serviceClient.ReturnValueFromSubmitSample = false;
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-            serviceClient.ReturnValueFromPing = true;
-            serviceClient.ReturnValueFromSubmitSample = true;
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-            // state and collection threads expected
-            Assert.AreEqual(initialThreadCount + 2, Process.GetCurrentProcess().Threads.Count);
-
-            serviceClient.ReturnValueFromPing = false;
-            serviceClient.ReturnValueFromSubmitSample = false;
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-            // only state thread expected
-            Assert.AreEqual(initialThreadCount + 1, Process.GetCurrentProcess().Threads.Count);
-
-            module.Dispose();
-
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-            // no threads expected
-            Assert.AreEqual(initialThreadCount, Process.GetCurrentProcess().Threads.Count);
+            // ACT
+            Thread.Sleep(TimeSpan.FromMilliseconds(300));
+            
+            // ASSERT
+            // we don't expect to find many more threads, even though other components might be spinning new ones up and down
+            var threadDelta = Process.GetCurrentProcess().Threads.Count - initialThreadCount;
+            Assert.IsTrue(Math.Abs(threadDelta) < 5, threadDelta.ToString(CultureInfo.InvariantCulture));
         }
 
         #region Helpers
@@ -482,7 +470,6 @@
             FieldInfo fieldInfo = obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
             return fieldInfo.GetValue(obj);
         }
-
         #endregion
     }
 }

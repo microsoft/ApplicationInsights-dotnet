@@ -90,8 +90,6 @@
             serviceClient.Ping(string.Empty, timestamp);
 
             // ASSERT
-            this.listener.Stop();
-
             Assert.AreEqual(3, this.pingCount);
             Assert.AreEqual(timestamp.DateTime.ToLongTimeString(), this.lastPingTimestamp.Value.DateTime.ToLongTimeString());
             Assert.AreEqual(instance, this.lastPingInstance);
@@ -317,7 +315,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientRetriesPing()
+        public void QuickPulseServiceClientDoesNotRetryPing()
         {
             // ARRANGE
             var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, TimeSpan.FromMilliseconds(50));
@@ -329,7 +327,7 @@
             // ASSERT
             this.listener.Stop();
             
-            Assert.AreEqual(2, this.pingCount);
+            Assert.AreEqual(1, this.pingCount);
         }
 
         [TestMethod]
@@ -438,6 +436,9 @@
         
         private void ProcessRequest(HttpListener listener)
         {
+            var serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
+            var serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
+
             while (listener.IsListening)
             {
                 HttpListenerContext context = listener.GetContext();
@@ -449,8 +450,7 @@
                     
                     this.pingResponse(context.Response);
 
-                    var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
-                    var dataPoint = (MonitoringDataPoint)serializer.ReadObject(context.Request.InputStream);
+                    var dataPoint = (MonitoringDataPoint)serializerDataPoint.ReadObject(context.Request.InputStream);
 
                     this.lastPingTimestamp = dataPoint.Timestamp;
                     this.lastPingInstance = dataPoint.Instance;
@@ -461,9 +461,8 @@
                     this.submitCount++;
 
                     this.submitResponse(context.Response);
-
-                    var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
-                    var dataPoints = serializer.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
+                    
+                    var dataPoints = serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
 
                     this.samples.AddRange(dataPoints);
                 }
