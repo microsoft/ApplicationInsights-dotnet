@@ -333,8 +333,8 @@
             Thread.Sleep((int)(2.9 * pollingInterval.TotalMilliseconds));
             serviceClient.CountersEnabled = false;
             
-            // 2 polling intervals have elapsed, we must have submitted one sample, stopped collecting and pinged the service twice afterwards
-            Assert.AreEqual(1, serviceClient.SnappedSamples.Count, "Sample count 3");
+            // 2 polling intervals have elapsed, we must have submitted one batch of samples, stopped collecting and pinged the service twice afterwards
+            Assert.AreEqual(1, serviceClient.SnappedSamples.Count / serviceClient.LastSampleBatchSize, "Sample count 3");
             Assert.AreEqual(2, serviceClient.PingCount, "Ping count 3");
         }
 
