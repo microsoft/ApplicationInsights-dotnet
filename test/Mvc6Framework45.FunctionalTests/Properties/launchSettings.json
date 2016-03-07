@@ -12,14 +12,20 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "ASPNET_ENV": "Development",
         "Hosting:Environment": "Development"
       }
     },
     "web": {
       "commandName": "web",
       "environmentVariables": {
+        "ASPNET_ENV": "Development",
         "Hosting:Environment": "Development"
       }
+    },
+    "test": {
+      "ASPNET_ENV": "Development",
+      "commandName": "test"
     }
   }
 }

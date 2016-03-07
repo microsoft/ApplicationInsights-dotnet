@@ -1,0 +1,50 @@
+﻿{
+  "title": "Application Insights for ASP.NET Core Web Applications",
+  "description": "Application Insights for ASP.NET Core web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
+  "authors": [ "Microsoft" ],
+  "version": "1.0.0-rc2-beta1",
+  "copyright": "Copyright © Microsoft. All Rights Reserved.",
+  "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
+  "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
+  "requireLicenseAcceptance": true,
+  "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
+  "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET 5" ],
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true
+  },
+  "dependencies": {
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Http.Features": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-*",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Configuration": "1.0.0-rc2-*",
+    "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights": "2.0.0"
+  },
+
+  "frameworks": {
+    "net451": {
+      "compilationOptions": {
+        "define": [ "net451" ]
+      },
+      "dependencies": {
+        "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0",
+        "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0"
+      }
+    },
+    "netstandard1.3": {
+      "imports": [
+        "dotnet5.4",
+        "dnxcore50",
+        "portable-net45+win8"
+      ],
+      "dependencies": {
+        "NETStandard.Library": "1.0.0-*",
+        "System.Net.NameResolution": "4.0.0-beta-23302",
+        "System.Security.Cryptography.X509Certificates": "4.0.0-rc3-*"
+      }
+    }
+  }
+}

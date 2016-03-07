@@ -28,3 +28,5 @@ project.lock.json
 bower_components/
 node_modules/
 **/wwwroot/lib
+.build/
+.testPublish/
