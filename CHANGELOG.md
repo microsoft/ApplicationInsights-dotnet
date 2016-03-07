@@ -4,6 +4,10 @@
 
 - Upgraded to depend on EventSource.Redist nuget version 1.1.28
 - Upgraded to depend on Microsoft.Bcl nuget version 1.1.10
+- QuickPulse feature is introduced
+
+## Version 2.0.0 
+- Performance counter collection is no longer supported when running under IIS Express.
 
 ## Version 2.0.0-rc1
 

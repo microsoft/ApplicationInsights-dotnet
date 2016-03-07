@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web
+﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
     using System.Text.RegularExpressions;
@@ -11,13 +11,6 @@
     public class SyntheticUserAgentFilter
     {
         private string pattern;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SyntheticUserAgentFilter"/> class.
-        /// </summary>
-        public SyntheticUserAgentFilter()
-        {
-        }
 
         /// <summary>
         /// Gets or sets the regular expression pattern applied to the user agent string to determine whether traffic is synthetic.

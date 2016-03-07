@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
-    using System.Collections.Generic;
     using System.Web;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -11,25 +10,9 @@
     /// </summary>
     public class WebTestTelemetryInitializer : WebTelemetryInitializerBase
     {
-        private readonly IList<WebTestHeaderFilter> filters = new List<WebTestHeaderFilter>();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebTestTelemetryInitializer"/> class.
-        /// </summary>
-        public WebTestTelemetryInitializer()
-        {
-        }
-
-        /// <summary>
-        /// Gets the configured headers for recognizing and setting telemetry context for requests originating from web tests.
-        /// </summary>
-        public IList<WebTestHeaderFilter> Filters
-        {
-            get
-            {
-                return this.filters;
-            }
-        }
+        private const string GsmSource = "Application Insights Availability Monitoring";
+        private const string TestRunHeader = "SyntheticTest-RunId";
+        private const string TestLocationHeader = "SyntheticTest-Location";
 
         /// <summary>
         /// Implements initialization logic.
@@ -42,34 +25,22 @@
             RequestTelemetry requestTelemetry,
             ITelemetry telemetry)
         {
-            if (platformContext != null)
+            if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
+                // platformContext and request != null checks are in the base class
                 var request = platformContext.GetRequest();
-                if (request != null)
+
+                var runIdHeader = request.UnvalidatedGetHeader(TestRunHeader);
+                var locationHeader = request.UnvalidatedGetHeader(TestLocationHeader);
+
+                if (!string.IsNullOrEmpty(runIdHeader) &&
+                    !string.IsNullOrEmpty(locationHeader))
                 {
-                    foreach (var filter in this.filters)
-                    {
-                        var filterHeader = request.UnvalidatedGetHeader(filter.FilterHeader);
-                        if (!string.IsNullOrEmpty(filterHeader))
-                        {
-                            if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
-                            {
-                                telemetry.Context.Operation.SyntheticSource = !string.IsNullOrEmpty(filter.SourceName) ? filter.SourceName : filter.FilterHeader;
-                            }
+                    telemetry.Context.Operation.SyntheticSource = GsmSource;
 
-                            if (string.IsNullOrEmpty(telemetry.Context.User.Id))
-                            {
-                                telemetry.Context.User.Id = request.UnvalidatedGetHeader(filter.UserIdHeader);
-                            }
-
-                            if (string.IsNullOrEmpty(telemetry.Context.Session.Id))
-                            {
-                                telemetry.Context.Session.Id = !string.IsNullOrEmpty(filter.SessionIdHeader) ? 
-                                    request.UnvalidatedGetHeader(filter.SessionIdHeader) :
-                                    filterHeader;
-                            }
-                        }
-                    }
+                    // User id will be Pop location name and RunId (We cannot use just location because of sampling)
+                    telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
+                    telemetry.Context.Session.Id = runIdHeader;
                 }
             }
         }

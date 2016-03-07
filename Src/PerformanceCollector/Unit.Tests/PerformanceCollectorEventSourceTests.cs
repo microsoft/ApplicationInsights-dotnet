@@ -20,6 +20,7 @@
             PerformanceCollectorEventSource.Log.CounterParsingFailedEvent("Test exception", "counter");
             PerformanceCollectorEventSource.Log.CounterReportAsStrippedEvent("Counter", "Stripped", "Original");
             PerformanceCollectorEventSource.Log.CounterCheckConfigurationEvent("1", "2", "Test message");
+            PerformanceCollectorEventSource.Log.RunningUnderIisExpress();
             PerformanceCollectorEventSource.Log.CounterCollectionAttemptEvent();
             PerformanceCollectorEventSource.Log.CounterCollectionSuccessEvent(0, 0);
             PerformanceCollectorEventSource.Log.CounterReadingFailedEvent("Test exception", "counter");

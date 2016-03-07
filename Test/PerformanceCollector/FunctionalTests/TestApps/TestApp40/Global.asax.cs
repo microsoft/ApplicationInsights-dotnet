@@ -24,6 +24,9 @@
 
             var module = new PerformanceCollectorModule();
 
+            // we're running under IIS Express, so override the default behavior designed to prevent a deadlock
+            module.EnableIISExpressPerformanceCounters = true;
+
             // set test-friendly timings
             var privateObject = new PrivateObject(module);
             privateObject.SetField("collectionPeriod", TimeSpan.FromMilliseconds(10));
