@@ -3,14 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    
+    using System.Threading;
+
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     internal class QuickPulseServiceClientMock : IQuickPulseServiceClient
     {
-        private readonly object lockObject = new object();
-
         private List<QuickPulseDataSample> samples = new List<QuickPulseDataSample>();
+
+        private readonly object countersLock = new object();
+
+        public volatile bool CountersEnabled = true;
+
+        public readonly object ResponseLock = new object();
 
         public int PingCount { get; private set; }
 
@@ -32,7 +37,7 @@
         {
             get
             {
-                lock (this.lockObject)
+                lock (this.countersLock)
                 {
                     return this.samples.ToList();
                 }
@@ -43,7 +48,7 @@
 
         public void Reset()
         {
-            lock (this.lockObject)
+            lock (this.countersLock)
             {
                 this.PingCount = 0;
                 this.LastSampleBatchSize = null;
@@ -56,35 +61,47 @@
 
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
-            lock (this.lockObject)
+            lock (this.ResponseLock)
             {
-                this.PingCount++;
-                this.LastPingTimestamp = timestamp;
-            }
+                if (this.CountersEnabled)
+                {
+                    lock (this.countersLock)
+                    {
+                        this.PingCount++;
+                        this.LastPingTimestamp = timestamp;
+                    }
+                }
 
-            if (this.AlwaysThrow)
-            {
-                throw new InvalidOperationException("Mock is set to always throw");
-            }
+                if (this.AlwaysThrow)
+                {
+                    throw new InvalidOperationException("Mock is set to always throw");
+                }
 
-            return this.ReturnValueFromPing;
+                return this.ReturnValueFromPing;
+            }
         }
 
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
-            lock (this.lockObject)
+            lock (this.ResponseLock)
             {
-                this.batches.Add(samples.Count());
-                this.LastSampleBatchSize = samples.Count();
-                this.samples.AddRange(samples);
-            }
+                if (this.CountersEnabled)
+                {
+                    lock (this.countersLock)
+                    {
+                        this.batches.Add(samples.Count());
+                        this.LastSampleBatchSize = samples.Count();
+                        this.samples.AddRange(samples);
+                    }
+                }
 
-            if (this.AlwaysThrow)
-            {
-                throw new InvalidOperationException("Mock is set to always throw");
-            }
+                if (this.AlwaysThrow)
+                {
+                    throw new InvalidOperationException("Mock is set to always throw");
+                }
 
-            return this.ReturnValueFromSubmitSample;
+                return this.ReturnValueFromSubmitSample;
+            }
         }
     }
 }

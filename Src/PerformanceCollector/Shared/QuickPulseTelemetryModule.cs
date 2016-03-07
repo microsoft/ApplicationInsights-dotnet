@@ -180,6 +180,7 @@
 
             this.InitializePerformanceCollector();
         }
+
         private void InitializePerformanceCollector()
         {
             foreach (var counter in QuickPulsePerfCounterList.CountersToCollect)
@@ -326,7 +327,7 @@
                     {
                         return;
                     }
-                    
+
                     stopwatch.Restart();
 
                     timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
@@ -337,7 +338,7 @@
                 {
                     QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
                 }
-                
+
                 // the catastrophic fallback is for the case when we've catastrophically failed some place above
                 timeToNextUpdate = timeToNextUpdate ?? this.timings.CatastrophicFailureTimeout;
 
@@ -374,7 +375,7 @@
                 {
                     QuickPulseEventSource.Log.UnknownErrorEvent(e.ToInvariantString());
                 }
-                
+
                 DateTimeOffset nextTick = this.collectionTimeSlotManager.GetNextCollectionTimeSlot(this.timeProvider.UtcNow);
                 TimeSpan timeLeftUntilNextTick = nextTick - this.timeProvider.UtcNow;
                 Thread.Sleep(timeLeftUntilNextTick > TimeSpan.Zero ? timeLeftUntilNextTick : TimeSpan.Zero);
@@ -424,6 +425,7 @@
         }
 
         #region Callbacks from the state manager
+
         private void OnStartCollection()
         {
             QuickPulseEventSource.Log.TroubleshootingMessageEvent("Starting collection...");
@@ -431,7 +433,7 @@
             this.EndCollectionThread();
 
             this.EnsurePerformanceCollectorInitialized();
-            
+
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
             this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
 
@@ -494,8 +496,14 @@
                 {
                     this.collectedSamples.AddFirst(sample);
                 }
+
+                while (this.collectedSamples.Count > MaxSampleStorageSize)
+                {
+                    this.collectedSamples.RemoveFirst();
+                }
             }
         }
+
         #endregion
 
         /// <summary>
@@ -510,7 +518,7 @@
                     if (this.stateThreadState != null)
                     {
                         this.stateThreadState.IsStopRequested = true;
-                    this.stateThread.Join();
+                        this.stateThread.Join();
                     }
 
                     this.stateThread = null;

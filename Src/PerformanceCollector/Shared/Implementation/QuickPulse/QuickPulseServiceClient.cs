@@ -7,7 +7,6 @@
     using System.Linq;
     using System.Net;
     using System.Runtime.Serialization.Json;
-    using System.Web;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
@@ -19,14 +18,16 @@
     {
         private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
 
-        private const int RetryCount = 2;
-        
         private readonly string instanceName;
 
         private readonly string version;
 
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
-        
+
+        private readonly DataContractJsonSerializer serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
+
+        private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
+
         public QuickPulseServiceClient(Uri serviceUri, string instanceName, string version, TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
@@ -93,8 +94,7 @@
                 Timestamp = timestamp.UtcDateTime
             };
 
-            var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
-            serializer.WriteObject(stream, dataPoint);
+            this.serializerDataPoint.WriteObject(stream, dataPoint);
         }
 
         private void WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Stream stream)
@@ -175,38 +175,30 @@
                 monitoringPoints.Add(dataPoint);
             }
 
-            var serializer = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
-            serializer.WriteObject(stream, monitoringPoints.ToArray());
+            this.serializerDataPointArray.WriteObject(stream, monitoringPoints.ToArray());
         }
-        
+
         private HttpWebResponse SendRequest(string httpVerb, string path, bool enableRetry, Action<Stream> onWriteBody)
         {
             var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.ServiceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
-            int attemptMaxCount = enableRetry ? RetryCount : 1;
-            int attempt = 0;
-            while (attempt < attemptMaxCount)
+            try
             {
-                try
+                var request = WebRequest.Create(requestUri) as HttpWebRequest;
+                request.Method = httpVerb;
+                request.Timeout = (int)this.timeout.TotalMilliseconds;
+
+                onWriteBody?.Invoke(request.GetRequestStream());
+
+                var response = request.GetResponse() as HttpWebResponse;
+                if (response != null)
                 {
-                    var request = WebRequest.Create(requestUri) as HttpWebRequest;
-                    request.Method = httpVerb;
-                    request.Timeout = (int)this.timeout.TotalMilliseconds;
-
-                    onWriteBody?.Invoke(request.GetRequestStream());
-
-                    var response = request.GetResponse() as HttpWebResponse;
-                    if (response != null)
-                    {
-                        return response;
-                    }
+                    return response;
                 }
-                catch (Exception e)
-                {
-                    QuickPulseEventSource.Log.ServiceCommunicationFailedEvent(e.ToInvariantString());
-                }
-
-                attempt++;
+            }
+            catch (Exception e)
+            {
+                QuickPulseEventSource.Log.ServiceCommunicationFailedEvent(e.ToInvariantString());
             }
 
             return null;

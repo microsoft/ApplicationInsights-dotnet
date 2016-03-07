@@ -31,7 +31,7 @@
         {
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
-            int taskCount = 1000;
+            int taskCount = 100;
             var writeTasks = new List<Task>(taskCount);
             var pause = TimeSpan.FromMilliseconds(10);
 
