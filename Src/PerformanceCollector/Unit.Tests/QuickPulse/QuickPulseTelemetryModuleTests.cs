@@ -360,8 +360,8 @@
             module.Initialize(new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
-            // below timeout should be sufficient for the module to get to maximum storage capacity
-            Thread.Sleep(TimeSpan.FromMilliseconds(200));
+            // below timeout should be sufficient for the module to get to the maximum storage capacity
+            Thread.Sleep(TimeSpan.FromMilliseconds(300));
 
             // ASSERT
             Assert.AreEqual(10, serviceClient.LastSampleBatchSize);
