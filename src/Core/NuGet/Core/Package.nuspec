@@ -24,7 +24,7 @@
       </group>
       <group targetFramework="net46">
       </group>
-      <group targetFramework=".NETStandard,Version=v1.5">
+      <group targetFramework="dotnet5.4">
         <dependency id="System.Collections" version="4.0.10" />
         <dependency id="System.Diagnostics.Debug" version="4.0.10" />
         <dependency id="System.Diagnostics.Tools" version="4.0.0" />
@@ -49,9 +49,9 @@
   </metadata>
   <files>
     <!-- Binaries for .NET PCL -->
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.dll" target="lib\netstandard1.5" />
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.pdb" target="lib\netstandard1.5" />
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.xml" target="lib\netstandard1.5" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.dll" target="lib\dotnet5.4" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.pdb" target="lib\dotnet5.4" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.xml" target="lib\dotnet5.4" />
 
     <!-- Binaries for .NET 4.0 projects -->
     <file src="$configuration$\Core\Managed\Net40\Microsoft.ApplicationInsights.dll" target="lib\net40" />
