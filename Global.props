@@ -137,7 +137,7 @@
       NuGet package version is derived from AssemblyFileVersion.
     -->
     <AssemblyAttributes Include="AssemblyVersion">
-      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
+      <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</_Parameter1>
     </AssemblyAttributes>
     <AssemblyAttributes Include="AssemblyFileVersion">
       <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
