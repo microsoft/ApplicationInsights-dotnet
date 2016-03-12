@@ -517,7 +517,7 @@
                     this.submitResponse(context.Response);
 
                     var dataPoints = serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
-                    var transmissionTime = long.Parse(context.Request.Headers["x-ms-qps-transmission-time"]);
+                    var transmissionTime = long.Parse(context.Request.Headers["x-ms-qps-transmission-time"], CultureInfo.InvariantCulture);
 
                     this.samples.AddRange(dataPoints.Select(dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero), dp)));
                 }
