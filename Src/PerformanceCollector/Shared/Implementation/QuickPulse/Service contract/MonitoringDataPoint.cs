@@ -19,9 +19,6 @@
         public DateTime Timestamp { get; set; }
 
         [DataMember]
-        public DateTime TransmissionTimestamp { get; set; }
-
-        [DataMember]
         public MetricPoint[] Metrics { get; set; }
     }
 }

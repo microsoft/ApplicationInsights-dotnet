@@ -24,8 +24,7 @@
         /// </summary>
         /// <param name="samples">Data samples.</param>
         /// <param name="instrumentationKey">InstrumentationKey for which to submit data samples.</param>
-        /// <param name="timeProvider">Time provider.</param>
         /// <returns><b>true</b> if the client is expected to keep sending data samples, <b>false</b> otherwise.</returns>
-        bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Clock timeProvider);
+        bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey);
     }
 }

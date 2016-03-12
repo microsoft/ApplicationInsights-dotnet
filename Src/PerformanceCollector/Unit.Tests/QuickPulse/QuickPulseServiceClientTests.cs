@@ -117,7 +117,7 @@
                     new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
-            bool? sendMore = serviceClient.SubmitSamples(new[] { sample1, sample2, sample3 }, string.Empty, new Clock());
+            bool? sendMore = serviceClient.SubmitSamples(new[] { sample1, sample2, sample3 }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -127,46 +127,7 @@
             Assert.AreEqual(5, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
             Assert.AreEqual(10, this.samples[1].Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Calls Succeeded/Sec").Value);
             Assert.AreEqual(15, this.samples[2].Metrics.Single(m => m.Name == @"\ApplicationInsights\Exceptions/Sec").Value);
-        }
-
-        [TestMethod]
-        public void QuickPulseServiceClientSetsTransmissionTimestampWhenSubmittingToService()
-        {
-            // ARRANGE
-            var dummy = new Dictionary<string, Tuple<PerformanceCounterData, float>>();
-            var timeProvider = new ClockMock();
-
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
-            var sample1 =
-                new QuickPulseDataSample(
-                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
-                    dummy);
-
-            timeProvider.FastForward(TimeSpan.FromSeconds(1));
-            var sample2 =
-                new QuickPulseDataSample(
-                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
-                    dummy);
-
-            timeProvider.FastForward(TimeSpan.FromSeconds(1));
-            var sample3 =
-                new QuickPulseDataSample(
-                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
-                    dummy);
-
-            // ACT
-            timeProvider.FastForward(TimeSpan.FromSeconds(5));
-            serviceClient.SubmitSamples(new[] { sample1, sample2, sample3 }, string.Empty, timeProvider);
-
-            // ASSERT
-            this.listener.Stop();
-
-            Assert.AreEqual(3, this.samples.Count);
-            Assert.IsTrue((timeProvider.UtcNow.UtcDateTime - this.samples[0].TransmissionTimestamp).Duration() < TimeSpan.FromMilliseconds(1));
-            Assert.IsTrue((timeProvider.UtcNow.UtcDateTime - this.samples[1].TransmissionTimestamp).Duration() < TimeSpan.FromMilliseconds(1));
-            Assert.IsTrue((timeProvider.UtcNow.UtcDateTime - this.samples[2].TransmissionTimestamp).Duration() < TimeSpan.FromMilliseconds(1));
-            Assert.IsTrue(this.samples.All(s => s.Timestamp < timeProvider.UtcNow));
-        }
+    }
 
         [TestMethod]
         public void QuickPulseServiceClientRoundsSampleValuesWhenSubmittingToService()
@@ -180,7 +141,7 @@
                     new Dictionary<string, Tuple<PerformanceCounterData, float>>());
             
             // ACT
-            serviceClient.SubmitSamples(new[] { sample1 }, string.Empty, new Clock());
+            serviceClient.SubmitSamples(new[] { sample1 }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -216,7 +177,7 @@
                     new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
-            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty, new Clock());
+            serviceClient.SubmitSamples(new[] { sample1, sample2 }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -297,7 +258,7 @@
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
-            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty, new Clock());
+            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -313,7 +274,7 @@
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
-            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty, new Clock());
+            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -329,7 +290,7 @@
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
-            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty, new Clock());
+            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -345,7 +306,7 @@
 
             // ACT
             this.submitResponse = r => { };
-            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty, new Clock());
+            bool? response = serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -377,7 +338,7 @@
             this.emulateTimeout = true;
 
             // ACT
-            serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty, new Clock());
+            serviceClient.SubmitSamples(new QuickPulseDataSample[] { }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -397,7 +358,7 @@
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, new Clock());
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -436,7 +397,7 @@
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
-            serviceClient.SubmitSamples(new[] { sample }, string.Empty, new Clock());
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
@@ -457,7 +418,7 @@
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
 
             // ACT
-            serviceClient.SubmitSamples(new[] { sample }, ikey, new Clock());
+            serviceClient.SubmitSamples(new[] { sample }, ikey);
 
             // ASSERT
             this.listener.Stop();

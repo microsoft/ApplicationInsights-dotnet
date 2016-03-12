@@ -128,7 +128,7 @@
                     return this.DetermineBackOffs();
                 }
 
-                bool? keepCollecting = this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey, this.timeProvider);
+                bool? keepCollecting = this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey);
 
                 QuickPulseEventSource.Log.SampleSubmittedEvent(keepCollecting.ToString());
 
