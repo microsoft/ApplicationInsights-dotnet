@@ -284,7 +284,7 @@
             // create the default production implementation of the service client with the best service endpoint we could get
             string instanceName = GetInstanceName(configuration);
             var assemblyVersion = SdkVersionUtils.GetAssemblyVersion();
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, assemblyVersion);
+            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, assemblyVersion, this.timeProvider);
 
             QuickPulseEventSource.Log.TroubleshootingMessageEvent(
                 string.Format(
