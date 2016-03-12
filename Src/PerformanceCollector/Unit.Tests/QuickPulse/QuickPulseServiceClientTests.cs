@@ -133,7 +133,7 @@
         }
 
         [TestMethod]
-        public void QuickPulseServiceClientTimestampsSampleBatchCorrectly()
+        public void QuickPulseServiceClientSetsTransmissionTimeCorrectly()
         {
             // ARRANGE
             var dummy = new Dictionary<string, Tuple<PerformanceCounterData, float>>();
@@ -168,7 +168,7 @@
             Assert.IsTrue((timeProvider.UtcNow - this.samples[0].Item1).Duration() < TimeSpan.FromMilliseconds(1));
             Assert.IsTrue((timeProvider.UtcNow - this.samples[1].Item1).Duration() < TimeSpan.FromMilliseconds(1));
             Assert.IsTrue((timeProvider.UtcNow - this.samples[2].Item1).Duration() < TimeSpan.FromMilliseconds(1));
-            Assert.IsTrue(this.samples.All(s => s.Item2.Timestamp < timeProvider.UtcNow));
+            Assert.IsTrue(this.samples.All(s => (s.Item2.Timestamp - timeProvider.UtcNow).Duration() > TimeSpan.FromSeconds(1)));
         }
 
         [TestMethod]
