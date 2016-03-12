@@ -18,21 +18,26 @@
     {
         private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
 
+        private const string XMsQpsTransmissionTimeHeaderName = "x-ms-qps-transmission-time";
+
         private readonly string instanceName;
 
         private readonly string version;
 
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
 
+        private readonly Clock timeProvider;
+
         private readonly DataContractJsonSerializer serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
 
         private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
 
-        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string version, TimeSpan? timeout = null)
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string version, Clock timeProvider, TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
             this.version = version;
+            this.timeProvider = timeProvider;
             this.timeout = timeout ?? this.timeout;
         }
 
@@ -41,7 +46,7 @@
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, true, stream => this.WritePingData(timestamp, stream));
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, stream => this.WritePingData(timestamp, stream));
 
             if (response == null)
             {
@@ -57,7 +62,6 @@
             HttpWebResponse response = this.SendRequest(
                 WebRequestMethods.Http.Post,
                 path,
-                false,
                 stream => this.WriteSamples(samples, instrumentationKey, stream));
 
             if (response == null)
@@ -178,7 +182,7 @@
             this.serializerDataPointArray.WriteObject(stream, monitoringPoints.ToArray());
         }
 
-        private HttpWebResponse SendRequest(string httpVerb, string path, bool enableRetry, Action<Stream> onWriteBody)
+        private HttpWebResponse SendRequest(string httpVerb, string path, Action<Stream> onWriteBody)
         {
             var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.ServiceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
@@ -187,6 +191,7 @@
                 var request = WebRequest.Create(requestUri) as HttpWebRequest;
                 request.Method = httpVerb;
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
+                request.Headers.Add(XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
 
                 onWriteBody?.Invoke(request.GetRequestStream());
 

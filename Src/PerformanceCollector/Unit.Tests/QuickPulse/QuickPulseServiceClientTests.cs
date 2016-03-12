@@ -18,16 +18,19 @@
     public sealed class QuickPulseServiceClientTests : IDisposable
     {
         private const int Port = 49152 + 11;
+
         private readonly Uri serviceEndpoint = new Uri(string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}", Port));
 
-        private readonly List<MonitoringDataPoint> samples = new List<MonitoringDataPoint>();
+        private readonly List<Tuple<DateTimeOffset, MonitoringDataPoint>> samples = new List<Tuple<DateTimeOffset, MonitoringDataPoint>>();
 
         private Action<HttpListenerResponse> pingResponse;
+
         private Action<HttpListenerResponse> submitResponse;
 
         private HttpListener listener;
 
         private int pingCount;
+
         private int submitCount;
 
         private DateTimeOffset? lastPingTimestamp;
@@ -37,7 +40,7 @@
         private string lastVersion;
 
         private bool emulateTimeout;
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -50,14 +53,14 @@
             this.emulateTimeout = false;
 
             this.pingResponse = response =>
-            {
-                response.AddHeader("x-ms-qps-subscribed", true.ToString());
-            };
+                {
+                    response.AddHeader("x-ms-qps-subscribed", true.ToString());
+                };
 
             this.submitResponse = response =>
-            {
-                response.AddHeader("x-ms-qps-subscribed", true.ToString());
-            };
+                {
+                    response.AddHeader("x-ms-qps-subscribed", true.ToString());
+                };
 
             string uriPrefix = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/", Port);
 
@@ -82,7 +85,7 @@
             string instance = Guid.NewGuid().ToString();
             var timestamp = DateTimeOffset.UtcNow;
 
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, string.Empty, new Clock());
 
             // ACT
             serviceClient.Ping(string.Empty, timestamp);
@@ -100,7 +103,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIRequestSuccessCount = 5, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -124,29 +127,68 @@
 
             Assert.AreEqual(true, sendMore);
             Assert.AreEqual(3, this.samples.Count);
-            Assert.AreEqual(5, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
-            Assert.AreEqual(10, this.samples[1].Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Calls Succeeded/Sec").Value);
-            Assert.AreEqual(15, this.samples[2].Metrics.Single(m => m.Name == @"\ApplicationInsights\Exceptions/Sec").Value);
-    }
+            Assert.AreEqual(5, this.samples[0].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
+            Assert.AreEqual(10, this.samples[1].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Calls Succeeded/Sec").Value);
+            Assert.AreEqual(15, this.samples[2].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Exceptions/Sec").Value);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientTimestampsSampleBatchCorrectly()
+        {
+            // ARRANGE
+            var dummy = new Dictionary<string, Tuple<PerformanceCounterData, float>>();
+            var timeProvider = new ClockMock();
+
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, timeProvider);
+            var sample1 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
+                    dummy);
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(1));
+            var sample2 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
+                    dummy);
+
+            timeProvider.FastForward(TimeSpan.FromSeconds(1));
+            var sample3 =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
+                    dummy);
+
+            // ACT
+            timeProvider.FastForward(TimeSpan.FromSeconds(5));
+            serviceClient.SubmitSamples(new[] { sample1, sample2, sample3 }, string.Empty);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(3, this.samples.Count);
+            Assert.IsTrue((timeProvider.UtcNow - this.samples[0].Item1).Duration() < TimeSpan.FromMilliseconds(1));
+            Assert.IsTrue((timeProvider.UtcNow - this.samples[1].Item1).Duration() < TimeSpan.FromMilliseconds(1));
+            Assert.IsTrue((timeProvider.UtcNow - this.samples[2].Item1).Duration() < TimeSpan.FromMilliseconds(1));
+            Assert.IsTrue(this.samples.All(s => s.Item2.Timestamp < timeProvider.UtcNow));
+        }
 
         [TestMethod]
         public void QuickPulseServiceClientRoundsSampleValuesWhenSubmittingToService()
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIRequestSuccessCount = 1, StartTimestamp = now, EndTimestamp = now.AddSeconds(3) },
                     new Dictionary<string, Tuple<PerformanceCounterData, float>>());
-            
+
             // ACT
             serviceClient.SubmitSamples(new[] { sample1 }, string.Empty);
 
             // ASSERT
             this.listener.Stop();
 
-            Assert.AreEqual(0.3333, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
+            Assert.AreEqual(0.3333, this.samples[0].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Requests Succeeded/Sec").Value);
         }
 
         [TestMethod]
@@ -154,7 +196,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator
@@ -182,15 +224,15 @@
             // ASSERT
             this.listener.Stop();
 
-            Assert.AreEqual(3, this.samples[0].Metrics.Single(m => m.Name == @"\ApplicationInsights\Request Duration").Weight);
-            Assert.AreEqual(4, this.samples[1].Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Call Duration").Weight);
+            Assert.AreEqual(3, this.samples[0].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Request Duration").Weight);
+            Assert.AreEqual(4, this.samples[1].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Call Duration").Weight);
         }
 
         [TestMethod]
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderTrue()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
@@ -206,7 +248,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderFalse()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
@@ -222,7 +264,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderInvalid()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
@@ -238,7 +280,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderMissing()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.pingResponse = r => { };
@@ -254,7 +296,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderTrue()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
@@ -270,7 +312,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderFalse()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
@@ -286,7 +328,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderInvalid()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
@@ -302,7 +344,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderMissing()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
 
             // ACT
             this.submitResponse = r => { };
@@ -318,7 +360,13 @@
         public void QuickPulseServiceClientDoesNotRetryPing()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, TimeSpan.FromMilliseconds(50));
+            var serviceClient = new QuickPulseServiceClient(
+                this.serviceEndpoint,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                TimeSpan.FromMilliseconds(50));
+
             this.emulateTimeout = true;
 
             // ACT
@@ -326,7 +374,7 @@
 
             // ASSERT
             this.listener.Stop();
-            
+
             Assert.AreEqual(1, this.pingCount);
         }
 
@@ -334,7 +382,13 @@
         public void QuickPulseServiceClientDoesNotRetrySubmitSamples()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, TimeSpan.FromMilliseconds(50));
+            var serviceClient = new QuickPulseServiceClient(
+                this.serviceEndpoint,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                TimeSpan.FromMilliseconds(50));
+
             this.emulateTimeout = true;
 
             // ACT
@@ -352,7 +406,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var instanceName = "this instance";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, string.Empty, new Clock());
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
@@ -364,7 +418,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.samples.Count);
-            Assert.AreEqual(instanceName, this.samples[0].Instance);
+            Assert.AreEqual(instanceName, this.samples[0].Item2.Instance);
         }
 
         [TestMethod]
@@ -373,8 +427,8 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var version = "this version";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, version);
-           
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, version, new Clock());
+
             // ACT
             serviceClient.Ping("some ikey", now);
 
@@ -384,14 +438,14 @@
             Assert.AreEqual(1, this.pingCount);
             Assert.AreEqual(version, this.lastVersion);
         }
-        
+
         [TestMethod]
         public void QuickPulseServiceClientSubmitsVersionToServiceWithSubmitSamples()
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var version = "this version";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, version);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, version, new Clock());
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
@@ -403,7 +457,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.samples.Count);
-            Assert.AreEqual(version, this.samples[0].Version);
+            Assert.AreEqual(version, this.samples[0].Item2.Version);
         }
 
         [TestMethod]
@@ -412,7 +466,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var ikey = "some ikey";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, new Clock());
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, float>>());
@@ -424,7 +478,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.samples.Count);
-            Assert.AreEqual(ikey, this.samples[0].InstrumentationKey);
+            Assert.AreEqual(ikey, this.samples[0].Item2.InstrumentationKey);
         }
 
         public void Dispose()
@@ -433,7 +487,7 @@
         }
 
         #region Helpers
-        
+
         private void ProcessRequest(HttpListener listener)
         {
             var serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
@@ -447,7 +501,7 @@
                 if (request.Url.LocalPath == "/ping")
                 {
                     this.pingCount++;
-                    
+
                     this.pingResponse(context.Response);
 
                     var dataPoint = (MonitoringDataPoint)serializerDataPoint.ReadObject(context.Request.InputStream);
@@ -461,10 +515,11 @@
                     this.submitCount++;
 
                     this.submitResponse(context.Response);
-                    
-                    var dataPoints = serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
 
-                    this.samples.AddRange(dataPoints);
+                    var dataPoints = serializerDataPointArray.ReadObject(context.Request.InputStream) as MonitoringDataPoint[];
+                    var transmissionTime = long.Parse(context.Request.Headers["x-ms-qps-transmission-time"]);
+
+                    this.samples.AddRange(dataPoints.Select(dp => Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero), dp)));
                 }
 
                 if (!this.emulateTimeout)
@@ -473,7 +528,7 @@
                 }
             }
         }
-        
+
         #endregion
     }
 }
