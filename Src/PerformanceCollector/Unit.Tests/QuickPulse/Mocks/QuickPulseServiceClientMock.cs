@@ -81,7 +81,7 @@
             }
         }
 
-        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
+        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Clock timeProvider)
         {
             lock (this.ResponseLock)
             {

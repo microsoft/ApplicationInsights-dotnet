@@ -51,14 +51,14 @@
             return ProcessResponse(response);
         }
         
-        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
+        public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Clock timeProvider)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", Uri.EscapeUriString(instrumentationKey));
             HttpWebResponse response = this.SendRequest(
                 WebRequestMethods.Http.Post,
                 path,
                 false,
-                stream => this.WriteSamples(samples, instrumentationKey, stream));
+                stream => this.WriteSamples(samples, instrumentationKey, stream, timeProvider));
 
             if (response == null)
             {
@@ -97,9 +97,10 @@
             this.serializerDataPoint.WriteObject(stream, dataPoint);
         }
 
-        private void WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Stream stream)
+        private void WriteSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey, Stream stream, Clock timeProvider)
         {
             var monitoringPoints = new List<MonitoringDataPoint>();
+            var transmissionTime = timeProvider.UtcNow.UtcDateTime;
 
             foreach (var sample in samples)
             {
@@ -169,6 +170,7 @@
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
+                                        TransmissionTimestamp = transmissionTime,
                                         Metrics = metricPoints.ToArray()
                                     };
 
