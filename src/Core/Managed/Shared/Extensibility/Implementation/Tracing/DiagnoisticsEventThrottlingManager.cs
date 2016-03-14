@@ -13,17 +13,17 @@
             IDiagnoisticsEventThrottlingScheduler scheduler,
             uint throttlingRecycleIntervalInMinutes)
         {
-            if (null == snapshotContainer)
+            if (snapshotContainer == null)
             {
                 throw new ArgumentNullException("snapshotContainer");
             }
 
-            if (null == scheduler)
+            if (scheduler == null)
             {
                 throw new ArgumentNullException("scheduler");
             }
 
-            if (false == throttlingRecycleIntervalInMinutes.IsInRangeThrottlingRecycleInterval())
+            if (!throttlingRecycleIntervalInMinutes.IsInRangeThrottlingRecycleInterval())
             {
                 throw new ArgumentOutOfRangeException("throttlingRecycleIntervalInMinutes");
             }

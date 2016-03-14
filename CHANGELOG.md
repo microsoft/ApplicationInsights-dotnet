@@ -2,7 +2,12 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-## Version 2.0.0
+## Version 2.1.0-beta1
+
+- Upgraded to depend on EventSource.Redist nuget version 1.1.28
+- Upgraded to depend on Microsoft.Bcl nuget version 1.1.10
+
+## Version 2.0.0 (stable)
 
 - Disallow Nan, +-Infinity measurements. Value will be replaced on 0.
 - Disallow Nan, +-Infinity metrics (Value, Min, Max and StandardDeviation). Values will be replaced on 0.

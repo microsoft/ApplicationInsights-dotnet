@@ -154,7 +154,7 @@
 
         private void Dispose(bool managed)
         {
-            if (true == managed && false == this.disposed)
+            if (managed && !this.disposed)
             {
                 this.EventListener.Dispose();
                 (this.throttlingScheduler as IDisposable).Dispose();

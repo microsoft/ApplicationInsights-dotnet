@@ -98,7 +98,7 @@
             else
             {
                 var theException = e.Exception as Exception;
-                if (null != theException)
+                if (theException != null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, theException.Message);
                 }

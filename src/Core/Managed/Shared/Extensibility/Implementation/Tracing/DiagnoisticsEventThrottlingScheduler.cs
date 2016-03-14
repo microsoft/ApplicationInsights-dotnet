@@ -41,7 +41,7 @@
                 throw new ArgumentOutOfRangeException("interval");
             }
 
-            if (null == actionToExecute)
+            if (actionToExecute == null)
             {
                 throw new ArgumentNullException("actionToExecute");
             }
@@ -56,18 +56,18 @@
 
         public void RemoveScheduledRoutine(object token)
         {
-            if (null == token)
+            if (token == null)
             {
                 throw new ArgumentNullException("token");
             }
 
             var timer = token as TaskTimer;
-            if (null == timer)
+            if (timer == null)
             {
                 throw new ArgumentException("token");
             }
 
-            if (true == this.timers.Remove(timer))
+            if (this.timers.Remove(timer))
             {
                 DisposeTimer(timer);
 
@@ -117,7 +117,7 @@
 
         private void Dispose(bool managed)
         {
-            if (true == managed && false == this.disposed)
+            if (managed && !this.disposed)
             {
                 this.DisposeAllTimers();
 

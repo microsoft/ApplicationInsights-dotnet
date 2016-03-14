@@ -13,7 +13,7 @@
 
         internal DiagnoisticsEventThrottling(int throttleAfterCount)
         {
-            if (false == throttleAfterCount.IsInRangeThrottleAfterCount())
+            if (!throttleAfterCount.IsInRangeThrottleAfterCount())
             {
                 throw new ArgumentOutOfRangeException("throttleAfterCount");
             }
@@ -28,7 +28,7 @@
 
         public bool ThrottleEvent(int eventId, long keywords, out bool justExceededThreshold)
         {
-            if (false == IsExcludedFromThrottling(keywords))
+            if (!IsExcludedFromThrottling(keywords))
             {
                 var counter = this.InternalGetEventCounter(eventId);
 
@@ -57,7 +57,7 @@
 
         private static bool IsExcludedFromThrottling(long keywords)
         {
-            return 0 != (keywords & DiagnoisticsEventThrottlingDefaults.KeywordsExcludedFromEventThrottling);
+            return (keywords & DiagnoisticsEventThrottlingDefaults.KeywordsExcludedFromEventThrottling) != 0;
         }
 
         private DiagnoisticsEventCounters InternalGetEventCounter(
@@ -67,7 +67,7 @@
             this.syncRoot.ExecuteSpinWaitLock(
             () =>
             {
-                if (false == this.counters.TryGetValue(eventId, out result))
+                if (!this.counters.TryGetValue(eventId, out result))
                 {
                     result = new DiagnoisticsEventCounters();
                     this.counters.Add(eventId, result);
