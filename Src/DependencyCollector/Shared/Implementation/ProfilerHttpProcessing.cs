@@ -266,19 +266,19 @@
                     return;
                 }
 
-                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode());
+                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
 
                 Tuple<DependencyTelemetry, bool> telemetryTuple = this.TelemetryTable.Get(thisObj);
 
                 if (telemetryTuple == null)
                 {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode());
+                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
                     return;
                 }
 
                 if (telemetryTuple.Item1 == null)
                 {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode());
+                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
                     return;
                 }
 

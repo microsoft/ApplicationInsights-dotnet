@@ -15,10 +15,7 @@
         /// </summary>
         public IEnumerable<PerformanceCounterData> PerformanceCounters
         {
-            get
-            {
-                return this.performanceCounters;
-            }   
+            get { return this.performanceCounters; }
         }
 
         /// <summary>

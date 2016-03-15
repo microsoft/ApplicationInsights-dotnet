@@ -84,13 +84,13 @@
         /// <param name="sqlExceptionNumber">SQL exception number.</param>
         public void OnEndExecuteCallback(long id, bool success, bool synchronous, int sqlExceptionNumber)
         {
-            DependencyCollectorEventSource.Log.EndCallbackCalled(id);
+            DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
 
             var telemetryTuple = this.TelemetryTable.Get(id);
 
             if (telemetryTuple == null)
             {
-                DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(id);
+                DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(id.ToString(CultureInfo.InvariantCulture));
                 return;
             }
 

@@ -3,9 +3,7 @@
   <Import Project=".\GlobalStaticVersion.props" />
   <Import Project=".\Global.props" />
   <PropertyGroup>
-    <!-- Temorary fix for the stable version so we have file version bigger that all other 2.X SDKs -->
-    <PreReleaseVersion>25000</PreReleaseVersion>
-    <!--PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion-->
+    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />

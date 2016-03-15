@@ -17,7 +17,7 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.24"/>
+        <dependency id="Microsoft.Diagnostics.Tracing.EventSource.Redist" version="1.1.28"/>
         <dependency id="Microsoft.ApplicationInsights.WindowsServer" version="$version$" />
       </group>
       <group targetFramework="net45">

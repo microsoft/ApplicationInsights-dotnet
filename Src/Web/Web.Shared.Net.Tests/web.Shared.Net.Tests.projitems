@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SimpleTelemetryProcessorSpy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\WebTelemetryModuleBaseFake.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtensionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsSubscriberTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClientIpHeaderTelemetryModuleTest.cs" />

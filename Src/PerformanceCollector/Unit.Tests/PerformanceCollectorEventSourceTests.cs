@@ -15,7 +15,7 @@
             // check for FormatExceptions and ETW exceptions
             PerformanceCollectorEventSource.Log.ModuleIsBeingInitializedEvent("Test message");
             PerformanceCollectorEventSource.Log.CounterRegisteredEvent("counter");
-            PerformanceCollectorEventSource.Log.CountersRefreshedEvent(10, "values");
+            PerformanceCollectorEventSource.Log.CountersRefreshedEvent("10", "values");
             PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent("Test exception", "counter");
             PerformanceCollectorEventSource.Log.CounterParsingFailedEvent("Test exception", "counter");
             PerformanceCollectorEventSource.Log.CounterReportAsStrippedEvent("Counter", "Stripped", "Original");

@@ -1,11 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
-    using System.Threading;
     using System.Web;
     
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
     
@@ -78,10 +76,41 @@
         {
             if (this.isEnabled)
             {
-                this.TraceCallback("OnEndRequest", (HttpApplication)sender);
-                WebEventsPublisher.Log.OnError();
-                WebEventsPublisher.Log.OnEnd();
+                var httpApplication = (HttpApplication)sender;
+                this.TraceCallback("OnEndRequest", httpApplication);
+
+                if (this.IsFirstRequest(httpApplication))
+                {
+                    WebEventsPublisher.Log.OnError();
+                    WebEventsPublisher.Log.OnEnd();
+                }
+                else
+                {
+                    WebEventSource.Log.RequestFiltered();
+                }
             }
+        }
+
+        private bool IsFirstRequest(HttpApplication application)
+        {
+            var firstRequest = true;
+            try
+            {
+                if (application.Context != null)
+                {
+                    firstRequest = application.Context.Items[RequestTrackingConstants.EndRequestCallFlag] == null;
+                    if (firstRequest)
+                    {
+                        application.Context.Items.Add(RequestTrackingConstants.EndRequestCallFlag, true);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                WebEventSource.Log.FlagCheckFailure(exc.ToInvariantString());
+            }
+
+            return firstRequest;
         }
 
         private void TraceCallback(string callback, HttpApplication application)
@@ -95,7 +124,7 @@
                         // Url.ToString internally builds local member once and then always returns it
                         // During serialization we will anyway call same ToString() so we do not force unnesesary formatting just for tracing 
                         var url = application.Context.Request.UnvalidatedGetUrl();
-                        string logUrl = (null != url) ? url.ToString() : string.Empty;
+                        string logUrl = (url != null) ? url.ToString() : string.Empty;
 
                         WebEventSource.Log.WebModuleCallback(callback, logUrl);
                     }

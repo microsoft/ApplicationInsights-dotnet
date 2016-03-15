@@ -76,7 +76,7 @@
         /// <returns>true if the cache contains a cache entry with the same key value as key; otherwise, false.</returns>
         public bool Contains(long key)
         {
-            if (null != this.readerWriterLock)
+            if (this.readerWriterLock != null)
             {
                 this.readerWriterLock.EnterReadLock();
             }
@@ -87,7 +87,7 @@
             }
             finally
             {
-                if (null != this.readerWriterLock)
+                if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.ExitReadLock();
                 }
@@ -101,7 +101,7 @@
         /// <returns>A reference to the cache entry identified by key if the entry exists; otherwise, null.</returns>
         public TValue Get(long key)
         {
-            if (null != this.readerWriterLock)
+            if (this.readerWriterLock != null)
             {
                 this.readerWriterLock.EnterReadLock();
             }
@@ -125,7 +125,7 @@
             }
             finally
             {
-                if (null != this.readerWriterLock)
+                if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.ExitReadLock();
                 }
@@ -149,7 +149,7 @@
         /// <returns>An object that represents the value of the removed cache entry that was specified by the key, or null if the specified entry was not found.</returns>
         public bool Remove(long key)
         {
-            if (null != this.readerWriterLock)
+            if (this.readerWriterLock != null)
             {
                 this.readerWriterLock.EnterWriteLock();
             }
@@ -168,7 +168,7 @@
             }
             finally
             {
-                if (null != this.readerWriterLock)
+                if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.ExitWriteLock();
                 }
@@ -192,7 +192,7 @@
         /// <param name="state">An object containing information to be used by the callback method, or null.</param>
         private void ClearExpiredCacheItems(object state)
         {
-            if (null != this.readerWriterLock)
+            if (this.readerWriterLock != null)
             {
                 this.readerWriterLock.EnterWriteLock();
             }
@@ -236,7 +236,7 @@
                 }
                 finally
                 {
-                    if (null != this.readerWriterLock)
+                    if (this.readerWriterLock != null)
                     {
                         this.readerWriterLock.ExitWriteLock();
                     }
@@ -252,7 +252,7 @@
         /// <param name="overwrite">If true, will overwrite an existing key.</param>
         private void Add(long key, TValue value, bool overwrite)
         {
-            if (null != this.readerWriterLock)
+            if (this.readerWriterLock != null)
             {
                 this.readerWriterLock.EnterWriteLock();
             }
@@ -282,7 +282,7 @@
             }
             finally
             {
-                if (null != this.readerWriterLock)
+                if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.ExitWriteLock();
                 }

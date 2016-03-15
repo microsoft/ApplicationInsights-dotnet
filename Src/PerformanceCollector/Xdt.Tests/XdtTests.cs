@@ -68,10 +68,12 @@
 
                         var original = GetInnerXml(item.XPathSelectElement("./original"));
                         var expectedPostTransform = GetInnerXml(item.XPathSelectElement("./expectedPostTransform"));
+                        var expectedPostUninstallElement = item.XPathSelectElement("./expectedPostUninstall");
+                        var expectedPostUninstall = expectedPostUninstallElement != null ? GetInnerXml(expectedPostUninstallElement) : original;
 
                         var targetDocument = new XmlDocument();
                         targetDocument.LoadXml(original);
-
+                        
                         bool success = installTransformation.Apply(targetDocument);
                         Assert.IsTrue(
                             success,
@@ -103,12 +105,12 @@
                         // validate the transformation result
                         Assert.IsTrue(
                             string.Equals(
-                                original,
+                                expectedPostUninstall,
                                 targetDocument.OuterXml.Replace("\r", null),
                                 StringComparison.Ordinal),
                             "Unexpected transform (uninstall) result. Expected:{0}{1}{0}{0} Actual:{0}{2}",
                             Environment.NewLine,
-                            original,
+                            expectedPostUninstall,
                             targetDocument.OuterXml);
                     }
                 }

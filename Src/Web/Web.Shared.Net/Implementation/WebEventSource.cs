@@ -86,6 +86,18 @@
         }
 
         [Event(
+            5,
+            Message = "[msg=UserHostNotCollectedWarning];[exception={0}];",
+            Level = EventLevel.Warning)]
+        public void UserHostNotCollectedWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                5,
+                exception ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
             8,
             Message = "[msg=RequestTelemetryCreated];",
             Level = EventLevel.Verbose)]
@@ -282,6 +294,29 @@
                 31,
                 pattern,
                 exception,
+                this.ApplicationName);
+        }
+
+        [Event(
+            32,
+            Message = "FlagCheckFailure {0}.",
+            Level = EventLevel.Error)]
+        public void FlagCheckFailure(string excMessage, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                32,
+                excMessage ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+            33,
+            Message = "RequestFiltered",
+            Level = EventLevel.Verbose)]
+        public void RequestFiltered(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                33,
                 this.ApplicationName);
         }
 
