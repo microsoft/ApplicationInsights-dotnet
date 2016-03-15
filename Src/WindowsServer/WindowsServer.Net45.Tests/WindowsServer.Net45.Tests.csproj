@@ -25,8 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.1.0-beta1-build00144\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.ApplicationInsights.2.1.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
