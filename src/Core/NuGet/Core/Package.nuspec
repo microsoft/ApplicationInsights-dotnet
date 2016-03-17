@@ -77,5 +77,8 @@
 
     <!-- portable-win81+wpa81: Windows Runtime projects (Phone & Store, Managed)-->
     <file src="$configuration$\Core\Managed\DummyCore\Portable81Files\Microsoft.ApplicationInsights.dll" target="lib\portable-win81+wpa81" />
+	
+	<!-- UWP-->
+    <file src="$configuration$\Core\Managed\DummyCore\Portable81Files\Microsoft.ApplicationInsights.dll" target="lib\uap10.0" />
   </files>
 </package>
