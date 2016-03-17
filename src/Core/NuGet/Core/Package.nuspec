@@ -12,7 +12,9 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Application Insights Core API. This package provides core functionality for transmission of all Application Insights Telemetry Types and is a dependent package for all other Application Insights packages. Please install the platform specific package for the best experience.</description>
     <copyright>$copyright$</copyright>
-    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <releaseNotes>
+      You should not use this nuget package for Win Phone, WinStore and UWP applications. It is not supported starting 2.0.0.
+      For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net40">
@@ -22,6 +24,9 @@
       <group targetFramework="net45">
       </group>
       <group targetFramework="net46">
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
       </group>
       <group targetFramework="dotnet5.4">
         <dependency id="System.Collections" version="4.0.10" />
@@ -67,5 +72,10 @@
     <file src="$configuration$\Core\Managed\Net46\Microsoft.ApplicationInsights.pdb" target="lib\net46" />
     <file src="$configuration$\Core\Managed\Net46\Microsoft.ApplicationInsights.xml" target="lib\net46" />
 
+    <!-- wp8: Binaries for Windows Phone 8.0 and 8.1 (Silverlight Runtime) projects -->
+    <file src="$configuration$\Core\Managed\DummyCore\Wp8Files\Microsoft.ApplicationInsights.dll" target="lib\wp8" />
+
+    <!-- portable-win81+wpa81: Windows Runtime projects (Phone & Store, Managed)-->
+    <file src="$configuration$\Core\Managed\DummyCore\Portable81Files\Microsoft.ApplicationInsights.dll" target="lib\portable-win81+wpa81" />
   </files>
 </package>
