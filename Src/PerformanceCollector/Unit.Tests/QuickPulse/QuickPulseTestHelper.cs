@@ -22,9 +22,9 @@
             t.SetStaticField(fieldName, value);
         }
 
-        public static List<IQuickPulseTelemetryProcessor> GetTelemetryProcessors(QuickPulseTelemetryModule module)
+        public static LinkedList<IQuickPulseTelemetryProcessor> GetTelemetryProcessors(QuickPulseTelemetryModule module)
         {
-            return GetPrivateField(module, "telemetryProcessors") as List<IQuickPulseTelemetryProcessor>;
+            return GetPrivateField(module, "telemetryProcessors") as LinkedList<IQuickPulseTelemetryProcessor>;
         }
 
         public static void ClearEnvironment()

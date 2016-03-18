@@ -30,7 +30,7 @@
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
-        private readonly List<IQuickPulseTelemetryProcessor> telemetryProcessors = new List<IQuickPulseTelemetryProcessor>();
+        private readonly LinkedList<IQuickPulseTelemetryProcessor> telemetryProcessors = new LinkedList<IQuickPulseTelemetryProcessor>();
 
         private TelemetryConfiguration config;
 
@@ -166,11 +166,16 @@
             lock (this.telemetryProcessorsLock)
             {
                 const int MaxTelemetryProcessorCount = 100;
-                if (!this.telemetryProcessors.Contains(quickPulseTelemetryProcessor) && this.telemetryProcessors.Count < MaxTelemetryProcessorCount)
+                if (!this.telemetryProcessors.Contains(quickPulseTelemetryProcessor))
                 {
-                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count);
+                    this.telemetryProcessors.AddLast(quickPulseTelemetryProcessor);
 
-                    this.telemetryProcessors.Add(quickPulseTelemetryProcessor);
+                    if (this.telemetryProcessors.Count > MaxTelemetryProcessorCount)
+                    {
+                        this.telemetryProcessors.RemoveFirst();
+                    }
+
+                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count);
                 }
             }
         }
