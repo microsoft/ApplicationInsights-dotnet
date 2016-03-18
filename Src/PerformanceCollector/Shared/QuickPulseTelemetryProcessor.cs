@@ -2,18 +2,19 @@
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     /// <summary>
     /// Extracts QuickPulse data from the telemetry stream.
     /// </summary>
-    /// <remarks>Unlike other telemetry initializers, this class does not modify telemetry items.</remarks>
-    internal class QuickPulseTelemetryProcessor : IQuickPulseTelemetryProcessor
+    public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
@@ -22,9 +23,12 @@
         private TelemetryConfiguration config = null;
 
         private bool isCollecting = false;
-
-        private bool isInitialized = false;
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QuickPulseTelemetryProcessor"/> class.
+        /// </summary>
+        /// <param name="next">The next TelemetryProcessor in the chain.</param>
+        /// <exception cref="ArgumentNullException">Thrown if next is null.</exception>
         public QuickPulseTelemetryProcessor(ITelemetryProcessor next)
         {
             if (next == null)
@@ -32,47 +36,41 @@
                 throw new ArgumentNullException(nameof(next));
             }
 
+            this.Register();
+
             this.Next = next;
         }
 
         private ITelemetryProcessor Next { get; }
 
-        public void Initialize(Uri serviceEndpoint, TelemetryConfiguration configuration)
+        /// <summary>
+        /// Initialize method is called after all configuration properties have been loaded from the configuration.
+        /// </summary>
+        public void Initialize(TelemetryConfiguration configuration)
         {
-            if (this.isInitialized)
-            {
-                return;
-            }
+            /*
+            The configuration that is being passed into this method is the configuration that is the reason
+            why this instance of telemetry processor was created. Regardless of which instrumentation key is passed in,
+            this telemetry processor will only collect for whichever instrumentation key is specified by the module in SetParameters call.
+            */
 
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            this.serviceEndpoint = serviceEndpoint;
-            this.config = configuration;
-
-            this.isInitialized = true;
+            this.Register();
         }
-
-        public void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager)
+        
+        void IQuickPulseTelemetryProcessor.StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint, TelemetryConfiguration configuration)
         {
-            if (!this.isInitialized)
-            {
-                throw new InvalidOperationException("Can't start collection without initializing first.");    
-            }
-
             if (this.isCollecting)
             {
                 throw new InvalidOperationException("Can't start collection while it is already running.");
             }
-
-            this.dataAccumulatorManager = accumulatorManager;
             
+            this.dataAccumulatorManager = accumulatorManager;
+            this.serviceEndpoint = serviceEndpoint;
+            this.config = configuration;
             this.isCollecting = true;
         }
 
-        public void StopCollection()
+        void IQuickPulseTelemetryProcessor.StopCollection()
         {
             this.dataAccumulatorManager = null;
             this.isCollecting = false;
@@ -108,7 +106,7 @@
                 }
 
                 // only process items that are going to the instrumentation key that our module is initialized with
-                if (!string.IsNullOrWhiteSpace(this.config.InstrumentationKey) && telemetry.Context != null
+                if (this.config != null && !string.IsNullOrWhiteSpace(this.config.InstrumentationKey) && telemetry.Context != null
                     && string.Equals(telemetry.Context.InstrumentationKey, this.config.InstrumentationKey, StringComparison.OrdinalIgnoreCase))
                 {
                     var request = telemetry as RequestTelemetry;
@@ -120,9 +118,7 @@
 
                         long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, request.Duration.Ticks);
 
-                        Interlocked.Add(
-                            ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
-                            requestCountAndDurationInTicks);
+                        Interlocked.Add(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks, requestCountAndDurationInTicks);
 
                         if (success)
                         {
@@ -135,13 +131,9 @@
                     }
                     else if (dependencyCall != null)
                     {
-                        long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(
-                            1,
-                            dependencyCall.Duration.Ticks);
+                        long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, dependencyCall.Duration.Ticks);
 
-                        Interlocked.Add(
-                            ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
-                            dependencyCallCountAndDurationInTicks);
+                        Interlocked.Add(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks, dependencyCallCountAndDurationInTicks);
 
                         if (dependencyCall.Success == true)
                         {
@@ -197,6 +189,15 @@
             }
 
             return success.Value;
+        }
+
+        private void Register()
+        {
+            var module = TelemetryModules.Instance.Modules.OfType<QuickPulseTelemetryModule>().SingleOrDefault();
+            if (module != null)
+            {
+                module.RegisterTelemetryProcessor(this);
+            }
         }
     }
 }

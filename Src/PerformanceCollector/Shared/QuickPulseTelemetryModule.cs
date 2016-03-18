@@ -22,11 +22,15 @@
 
         private readonly object lockObject = new object();
 
+        private readonly object telemetryProcessorsLock = new object();
+
         private readonly object collectedSamplesLock = new object();
 
         private readonly Uri serviceUriDefault = new Uri("https://rt.services.visualstudio.com/QuickPulseService.svc");
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
+
+        private readonly List<IQuickPulseTelemetryProcessor> telemetryProcessors = new List<IQuickPulseTelemetryProcessor>();
 
         private TelemetryConfiguration config;
 
@@ -52,8 +56,6 @@
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
-        private IQuickPulseTelemetryProcessor telemetryProcessor = null;
-
         private QuickPulseCollectionStateManager stateManager = null;
 
         private IPerformanceCollector performanceCollector = null;
@@ -70,14 +72,12 @@
         /// </summary>
         /// <param name="collectionTimeSlotManager">Collection time slot manager.</param>
         /// <param name="dataAccumulatorManager">Data hub to sink QuickPulse data to.</param>
-        /// <param name="telemetryProcessor">Telemetry initializer to inspect telemetry stream.</param>
         /// <param name="serviceClient">QPS service client.</param>
         /// <param name="performanceCollector">Performance counter collector.</param>
         /// <param name="timings">Timings for the module.</param>
         internal QuickPulseTelemetryModule(
             QuickPulseCollectionTimeSlotManager collectionTimeSlotManager,
             QuickPulseDataAccumulatorManager dataAccumulatorManager,
-            IQuickPulseTelemetryProcessor telemetryProcessor,
             IQuickPulseServiceClient serviceClient,
             IPerformanceCollector performanceCollector,
             QuickPulseTimings timings)
@@ -85,7 +85,6 @@
         {
             this.collectionTimeSlotManager = collectionTimeSlotManager;
             this.dataAccumulatorManager = dataAccumulatorManager;
-            this.telemetryProcessor = telemetryProcessor;
             this.serviceClient = serviceClient;
             this.performanceCollector = performanceCollector;
             this.timings = timings;
@@ -134,8 +133,6 @@
 
                         this.InitializeServiceClient(configuration);
 
-                        this.InitializeTelemetryProcessor(configuration);
-
                         this.stateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
                             this.timeProvider,
@@ -153,18 +150,27 @@
             }
         }
 
-        private void InitializeTelemetryProcessor(TelemetryConfiguration configuration)
+        /// <summary>
+        /// Registers an instance of type <see cref="QuickPulseTelemetryProcessor"/> with this module.
+        /// </summary>
+        /// <remarks>This call is only necessary when the module is created in code and not in configuration.</remarks>
+        /// <param name="telemetryProcessor">QuickPulseTelemetryProcessor instance to be registered with the module.</param>
+        public void RegisterTelemetryProcessor(ITelemetryProcessor telemetryProcessor)
         {
-            this.telemetryProcessor = this.telemetryProcessor ?? this.FetchTelemetryProcessor(configuration);
-
-            if (this.telemetryProcessor == null)
+            var quickPulseTelemetryProcessor = telemetryProcessor as IQuickPulseTelemetryProcessor;
+            if (quickPulseTelemetryProcessor == null)
             {
-                QuickPulseEventSource.Log.CouldNotObtainQuickPulseTelemetryProcessorEvent();
-
-                throw new ArgumentException("Could not obtain an IQuickPulseTelemetryProcessor");
+                throw new ArgumentNullException(nameof(telemetryProcessor), @"The argument must be of type QuickPulseTelemetryProcessor");
             }
 
-            this.telemetryProcessor.Initialize(this.serviceClient.ServiceUri, configuration);
+            lock (this.telemetryProcessorsLock)
+            {
+                const int MaxTelemetryProcessorCount = 100;
+                if (!this.telemetryProcessors.Contains(quickPulseTelemetryProcessor) && this.telemetryProcessors.Count < MaxTelemetryProcessorCount)
+                {
+                    this.telemetryProcessors.Add(quickPulseTelemetryProcessor);
+                }
+            }
         }
 
         private void EnsurePerformanceCollectorInitialized()
@@ -243,12 +249,7 @@
             this.stateThread = new Thread(this.StateThreadWorker) { IsBackground = true };
             this.stateThread.Start();
         }
-
-        private IQuickPulseTelemetryProcessor FetchTelemetryProcessor(TelemetryConfiguration configuration)
-        {
-            return configuration.TelemetryProcessors.OfType<IQuickPulseTelemetryProcessor>().SingleOrDefault();
-        }
-
+        
         private void InitializeServiceClient(TelemetryConfiguration configuration)
         {
             if (this.serviceClient != null)
@@ -435,7 +436,14 @@
             this.EnsurePerformanceCollectorInitialized();
 
             this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
-            this.telemetryProcessor.StartCollection(this.dataAccumulatorManager);
+
+            lock (this.telemetryProcessorsLock)
+            {
+                foreach (var telemetryProcessor in this.telemetryProcessors)
+                {
+                    telemetryProcessor.StartCollection(this.dataAccumulatorManager, this.serviceClient.ServiceUri, this.config);
+                }
+            }
 
             this.CreateCollectionThread();
         }
@@ -461,7 +469,13 @@
 
             this.EndCollectionThread();
 
-            this.telemetryProcessor.StopCollection();
+            lock (this.telemetryProcessorsLock)
+            {
+                foreach (var telemetryProcessor in this.telemetryProcessors)
+                {
+                    telemetryProcessor.StopCollection();
+                }
+            }
 
             lock (this.collectedSamplesLock)
             {
