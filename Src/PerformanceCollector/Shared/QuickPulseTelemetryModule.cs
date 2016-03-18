@@ -168,6 +168,8 @@
                 const int MaxTelemetryProcessorCount = 100;
                 if (!this.telemetryProcessors.Contains(quickPulseTelemetryProcessor) && this.telemetryProcessors.Count < MaxTelemetryProcessorCount)
                 {
+                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count);
+
                     this.telemetryProcessors.Add(quickPulseTelemetryProcessor);
                 }
             }
