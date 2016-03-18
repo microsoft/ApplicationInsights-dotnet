@@ -17,7 +17,7 @@
             QuickPulseEventSource.Log.CounterRegisteredEvent("counter");
             QuickPulseEventSource.Log.CounterRegistrationFailedEvent("Test exception", "counter");
             QuickPulseEventSource.Log.CounterParsingFailedEvent("Test exception", "counter");
-            QuickPulseEventSource.Log.ProcessorRegistered(0);
+            QuickPulseEventSource.Log.ProcessorRegistered("count");
             QuickPulseEventSource.Log.CounterReadingFailedEvent("Test exception", "counter");
             QuickPulseEventSource.Log.ServiceCommunicationFailedEvent("Test exception");
             QuickPulseEventSource.Log.UnknownErrorEvent("Test exception");

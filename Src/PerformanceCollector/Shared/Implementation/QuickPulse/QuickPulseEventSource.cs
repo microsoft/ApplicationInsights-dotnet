@@ -133,7 +133,7 @@
         }
 
         [Event(7, Level = EventLevel.Verbose, Message = @"QuickPulseTelemetryModule has received a registration request from a QuickPulseTelemetryProcessor.")]
-        public void ProcessorRegistered(int count, string applicationName = "dummy")
+        public void ProcessorRegistered(string count, string applicationName = "dummy")
         {
             this.WriteEvent(7, count, this.ApplicationName);
         }

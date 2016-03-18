@@ -175,7 +175,7 @@
                         this.telemetryProcessors.RemoveFirst();
                     }
 
-                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count);
+                    QuickPulseEventSource.Log.ProcessorRegistered(this.telemetryProcessors.Count.ToString(CultureInfo.InvariantCulture));
                 }
             }
         }
