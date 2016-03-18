@@ -25,7 +25,7 @@ namespace EmptyApp.FunctionalTests
 
             var builder = new ConfigurationBuilder();
             builder.AddApplicationInsightsSettings(instrumentationKey: "Foo");
-            services.AddApplicationInsightsTelemetry(builder.Build());
+            services.AddApplicationInsightsTelemetry(builder.Build(), false);
         }
 
         public void Configure(IApplicationBuilder app)
