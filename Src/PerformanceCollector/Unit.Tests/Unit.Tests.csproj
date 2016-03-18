@@ -92,6 +92,7 @@
     <Compile Include="QuickPulse\QuickPulseServiceClientTests.cs" />
     <Compile Include="QuickPulse\QuickPulseTelemetryModuleTests.cs" />
     <Compile Include="Mocks\StubTelemetryChannel.cs" />
+    <Compile Include="QuickPulse\QuickPulseTestHelper.cs" />
     <Compile Include="TelemetryAction.cs" />
     <Compile Include="QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
   </ItemGroup>
