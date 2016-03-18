@@ -2,10 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Helpers;
@@ -14,11 +16,34 @@
     [TestClass]
     public class QuickPulseTelemetryProcessorTests
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            QuickPulseTestHelper.ClearEnvironment();
+        }
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseTelemetryProcessorThrowsIfNextIsNull()
         {
             new QuickPulseTelemetryProcessor(null);
+        }
+        
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorRegistersWithModule()
+        {
+            // ARRANGE
+            var module = new QuickPulseTelemetryModule(null, null, null, null, null);
+
+            TelemetryModules.Instance.Modules.Add(module);
+
+            // ACT
+            var spy = new SimpleTelemetryProcessorSpy();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(spy);
+            telemetryProcessor.Initialize(new TelemetryConfiguration());
+
+            // ASSERT
+            Assert.AreEqual(telemetryProcessor, QuickPulseTestHelper.GetTelemetryProcessors(module).Single());
         }
 
         [TestMethod]
@@ -27,10 +52,10 @@
             // ARRANGE
             var spy = new SimpleTelemetryProcessorSpy();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(spy);
-            
+
             // ACT
             telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            
+
             // ASSERT
             Assert.AreEqual(1, spy.ReceivedCalls);
         }
@@ -41,20 +66,66 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
-            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = "200", Duration = TimeSpan.FromSeconds(1), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = "200", Duration = TimeSpan.FromSeconds(2), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = false, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(3), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(4), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = true, ResponseCode = string.Empty, Duration = TimeSpan.FromSeconds(5), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new RequestTelemetry() { Success = null, ResponseCode = "404", Duration = TimeSpan.FromSeconds(6), Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = false,
+                        ResponseCode = "200",
+                        Duration = TimeSpan.FromSeconds(1),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = true,
+                        ResponseCode = "200",
+                        Duration = TimeSpan.FromSeconds(2),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = false,
+                        ResponseCode = string.Empty,
+                        Duration = TimeSpan.FromSeconds(3),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = null,
+                        ResponseCode = string.Empty,
+                        Duration = TimeSpan.FromSeconds(4),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = true,
+                        ResponseCode = string.Empty,
+                        Duration = TimeSpan.FromSeconds(5),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
+            telemetryProcessor.Process(
+                new RequestTelemetry()
+                    {
+                        Success = null,
+                        ResponseCode = "404",
+                        Duration = TimeSpan.FromSeconds(6),
+                        Context = { InstrumentationKey = "some ikey" }
+                    });
 
             // ASSERT
             Assert.AreEqual(6, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
-            Assert.AreEqual(1 + 2 + 3 + 4 + 5 + 6, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
+            Assert.AreEqual(
+                1 + 2 + 3 + 4 + 5 + 6,
+                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIRequestDurationInTicks).TotalSeconds);
             Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
             Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
         }
@@ -65,20 +136,24 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
-            telemetryProcessor.Process(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new DependencyTelemetry() { Success = false, Duration = TimeSpan.FromSeconds(2), Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new DependencyTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3), Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1), Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Success = true, Duration = TimeSpan.FromSeconds(1), Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Success = false, Duration = TimeSpan.FromSeconds(2), Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Success = null, Duration = TimeSpan.FromSeconds(3), Context = { InstrumentationKey = "some ikey" } });
 
             // ASSERT
             Assert.AreEqual(4, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
-            Assert.AreEqual(
-                1 + 1 + 2 + 3,
-                TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIDependencyCallDurationInTicks).TotalSeconds);
+            Assert.AreEqual(1 + 1 + 2 + 3, TimeSpan.FromTicks(accumulatorManager.CurrentDataAccumulator.AIDependencyCallDurationInTicks).TotalSeconds);
             Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
         }
@@ -89,8 +164,10 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
             telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
@@ -107,12 +184,13 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-
+            var endpoint = new Uri("http://microsoft.com");
+            var config = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
+            
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(accumulatorManager, endpoint, config);
             telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.StopCollection();
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StopCollection();
             telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
 
             // ASSERT
@@ -126,8 +204,10 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
             telemetryProcessor.Process(new EventTelemetry() { Context = { InstrumentationKey = "some ikey" } });
@@ -149,14 +229,16 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-        
-            telemetryProcessor.StartCollection(accumulatorManager);
+
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
             telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some other ikey" } });
             telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            
+
             // ASSERT
             Assert.AreEqual(1, accumulatorManager.CurrentDataAccumulator.AIRequestCount);
         }
@@ -167,8 +249,11 @@
             // ARRANGE
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            telemetryProcessor.StartCollection(accumulatorManager);
+
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // expected data loss if threading is misimplemented is around 10% (established through experiment)
             int taskCount = 10000;
@@ -204,16 +289,23 @@
             var accumulatorManager1 = new QuickPulseDataAccumulatorManager();
             var accumulatorManager2 = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
-            telemetryProcessor.Initialize(new Uri("http://microsoft.com"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
 
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager1);
+            var serviceEndpoint = new Uri("http://microsoft.com");
+            var config = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager1,
+                serviceEndpoint,
+                config);
             telemetryProcessor.Process(new RequestTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.StopCollection();
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StopCollection();
 
-            telemetryProcessor.StartCollection(accumulatorManager2);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager2,
+                serviceEndpoint,
+                config);
             telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.StopCollection();
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StopCollection();
 
             // ASSERT
             Assert.AreEqual(1, accumulatorManager1.CurrentDataAccumulator.AIRequestCount);
@@ -231,10 +323,16 @@
             var accumulatorManager = new QuickPulseDataAccumulatorManager();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://test.com"),
+                new TelemetryConfiguration());
 
             // ACT
-            telemetryProcessor.StartCollection(accumulatorManager);
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://test.com"),
+                new TelemetryConfiguration());
 
             // ASSERT
             // must throw
@@ -248,8 +346,11 @@
             var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
             var config = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
-            telemetryProcessor.Initialize(new Uri("https://qps.cloudapp.net/endpoint.svc"), config);
-            telemetryProcessor.StartCollection(accumulatorManager);
+
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("https://qps.cloudapp.net/endpoint.svc"),
+                config);
 
             // ACT
             telemetryProcessor.Process(
@@ -272,8 +373,11 @@
             // ARRANGE
             var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
-            telemetryProcessor.Initialize(new Uri("https://qps.cloudapp.net/endpoint.svc"), new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-            
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                new QuickPulseDataAccumulatorManager(),
+                new Uri("https://qps.cloudapp.net/endpoint.svc"),
+                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
+
             // ACT
             telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://microsoft.ru" });
             telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://qps.cloudapp.net/blabla" });
@@ -284,5 +388,5 @@
             Assert.AreEqual("http://microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Name);
             Assert.AreEqual("https://bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Name);
         }
-}
+    }
 }

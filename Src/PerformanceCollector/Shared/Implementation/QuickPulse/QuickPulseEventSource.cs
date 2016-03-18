@@ -58,12 +58,6 @@
         {
             this.WriteEvent(6, e ?? string.Empty, counter ?? string.Empty, this.ApplicationName);
         }
-
-        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"QuickPulseTelemetryModule could not locate a QuickPulseTelemetryProcessor in configuration. QuickPulse data will not be available. Make sure QuickPulseTelemetryProcessor is in ApplicationInsights.config or otherwise present.")]
-        public void CouldNotObtainQuickPulseTelemetryProcessorEvent(string applicationName = "dummy")
-        {
-            this.WriteEvent(7, this.ApplicationName);
-        }
         #endregion
 
         #region Data reading - success
@@ -136,6 +130,12 @@
         public void SampleStoredEvent(int bufferLength, string applicationName = "dummy")
         {
             this.WriteEvent(19, bufferLength, this.ApplicationName);
+        }
+
+        [Event(7, Level = EventLevel.Verbose, Message = @"QuickPulseTelemetryModule has received a registration request from a QuickPulseTelemetryProcessor.")]
+        public void ProcessorRegistered(string count, string applicationName = "dummy")
+        {
+            this.WriteEvent(7, count, this.ApplicationName);
         }
 
         #endregion
