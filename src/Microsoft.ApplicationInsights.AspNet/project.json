@@ -14,14 +14,15 @@
         "delaySign": true
     },
     "dependencies": {
-        "Microsoft.ApplicationInsights": "2.0.0-*",
+        "Microsoft.ApplicationInsights": "2.0.0-beta4",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Features": "1.0.0-rc1-final",
         "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
         "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc1-final",
         "Microsoft.Extensions.Configuration": "1.0.0-rc1-final",
-        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc1-final"
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc1-final",
+        "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final"
     },
 
     "frameworks": {

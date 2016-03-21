@@ -41,6 +41,7 @@
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
