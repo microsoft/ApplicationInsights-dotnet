@@ -35,7 +35,7 @@
       ],
       "dependencies": {
         "moq.netcore": "4.4.0-*",
-        "NETStandard.Library": "1.0.0-*",
+        "NETStandard.Library": "1.0.0-rc2-*",
         "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-23604"
       }
     }

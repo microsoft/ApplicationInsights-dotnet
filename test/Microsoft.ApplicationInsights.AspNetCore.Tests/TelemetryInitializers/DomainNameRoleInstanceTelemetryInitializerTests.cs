@@ -17,7 +17,7 @@
         [Fact]
         public void InitializeThrowIfHttpContextAccessorIsNull()
         {
-           var ex = Assert.ThrowsAny<ArgumentNullException>(() =>
+            Assert.ThrowsAny<ArgumentNullException>(() =>
             {
                 var initializer = new DomainNameRoleInstanceTelemetryInitializer(null);
             });
