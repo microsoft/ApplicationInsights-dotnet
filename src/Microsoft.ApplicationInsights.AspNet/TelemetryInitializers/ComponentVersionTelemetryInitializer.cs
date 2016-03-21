@@ -14,23 +14,25 @@
     /// </summary>
     public class ComponentVersionTelemetryInitializer : TelemetryInitializerBase
     {
-        private const string versionConfigurationOption = "dependencies:Microsoft.ApplicationInsights.AspNet";
+        private const string _versionConfigurationOption = "dependencies:Microsoft.ApplicationInsights.AspNet";
+        private IConfiguration _configuration;
 
-        public ComponentVersionTelemetryInitializer(IHttpContextAccessor httpContextAccessor):base(httpContextAccessor)
+        public ComponentVersionTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IConfiguration configuration):base(httpContextAccessor)
         {
-            //No need to initialize anything
+            if (configuration != null)
+            {
+                _configuration = configuration;
+            }
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Component.Version))
             {
-                var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
-
-                if (config == null) {                
+                if (_configuration == null) {                
                     telemetry.Context.Component.Version = null;
                 } else {
-                    telemetry.Context.Component.Version = config[versionConfigurationOption].ToString();
+                    telemetry.Context.Component.Version = _configuration[_versionConfigurationOption].ToString();
                 }
             }
         }

@@ -15,15 +15,16 @@ namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
         [Fact]
         public void InitializeThrowIfHttpContextAccessorIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => { var initializer = new ComponentVersionTelemetryInitializer(null); });
+            Assert.Throws<ArgumentNullException>(() => { var initializer = new ComponentVersionTelemetryInitializer(null, null); });
         }
 
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
             var ac = new HttpContextAccessor() { HttpContext = null };
+            var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
 
-            var initializer = new ComponentVersionTelemetryInitializer(ac);
+            var initializer = new ComponentVersionTelemetryInitializer(ac, config);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -32,8 +33,9 @@ namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
             var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
 
-            var initializer = new ComponentVersionTelemetryInitializer(ac);
+            var initializer = new ComponentVersionTelemetryInitializer(ac, config);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -43,12 +45,26 @@ namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            
-            var initializer = new ComponentVersionTelemetryInitializer(contextAccessor);
+            var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
+
+            var initializer = new ComponentVersionTelemetryInitializer(contextAccessor, config);
 
             initializer.Initialize(requestTelemetry);
 
             Assert.NotNull(requestTelemetry.Context.Component.Version);
+        }
+
+        [Fact]
+        public void InitializeConfigurationWithNullReturnsNull()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            
+            var initializer = new ComponentVersionTelemetryInitializer(contextAccessor, null);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Null(requestTelemetry.Context.Component.Version);
         }
     }
 }
