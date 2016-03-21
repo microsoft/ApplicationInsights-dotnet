@@ -49,8 +49,7 @@
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
 
-            var projectJsonConfiguration = new ConfigurationBuilder().AddJsonFile("project.json").Build();
-            services.AddInstance<IConfiguration>(projectJsonConfiguration);
+            services.AddInstance<IConfiguration>(config);
 
 #if dnx451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
