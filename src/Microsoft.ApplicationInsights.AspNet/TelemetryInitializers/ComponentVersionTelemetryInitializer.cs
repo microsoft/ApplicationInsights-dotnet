@@ -14,7 +14,7 @@
     /// </summary>
     public class ComponentVersionTelemetryInitializer : TelemetryInitializerBase
     {
-        private const string _versionConfigurationOption = "dependencies:Microsoft.ApplicationInsights.AspNet";
+        private const string _versionConfigurationOption = "version";
         private IConfiguration _configuration;
 
         public ComponentVersionTelemetryInitializer(IHttpContextAccessor httpContextAccessor, IConfiguration configuration):base(httpContextAccessor)
@@ -29,9 +29,7 @@
         {
             if (string.IsNullOrEmpty(telemetry.Context.Component.Version))
             {
-                if (_configuration == null) {                
-                    telemetry.Context.Component.Version = null;
-                } else {
+                if (_configuration != null) {                
                     telemetry.Context.Component.Version = _configuration[_versionConfigurationOption].ToString();
                 }
             }
