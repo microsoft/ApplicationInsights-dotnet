@@ -42,7 +42,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
+            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_user=test";
             var initializer = new WebUserTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
@@ -56,37 +56,12 @@
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.User.Id = "Inline";
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_user=test|2015-04-09T21:51:59.993Z";
-            var initializer = new WebUserTelemetryInitializer(contextAccessor);
-
-            initializer.Initialize(requestTelemetry);
-
-            Assert.Equal("Inline", requestTelemetry.Context.User.Id);
-        }
-
-        [Fact]
-        public void InitializeDoesNotThrowOnMalformedUserCookie()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
             contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_user=test";
             var initializer = new WebUserTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
 
-            Assert.Equal(null, requestTelemetry.Context.User.Id);
-        }
-
-        [Fact]
-        public void InitializeDoesNotNotThrowOnMalformedAcquisitionDate()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers["Cookie"] = "ai_user=test|malformeddate";
-            var initializer = new WebUserTelemetryInitializer(contextAccessor);
-
-            initializer.Initialize(requestTelemetry);
-            Assert.Equal("test", requestTelemetry.Context.User.Id);
+            Assert.Equal("Inline", requestTelemetry.Context.User.Id);
         }
     }
 }
