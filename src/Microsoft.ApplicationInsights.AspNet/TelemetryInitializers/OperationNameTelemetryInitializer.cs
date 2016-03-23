@@ -1,22 +1,19 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-    using System;
-    using System.Diagnostics;
-    using System.Diagnostics.Tracing;
-    using System.Linq;
+  using System;
+  using System.Diagnostics;
+  using System.Linq;
 
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Mvc;
-    using Microsoft.AspNet.Mvc.Abstractions;
-    using Microsoft.AspNet.Mvc.Routing;
-    using Microsoft.AspNet.Routing;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.DiagnosticAdapter;
-    
-    public class OperationNameTelemetryInitializer : TelemetryInitializerBase
+  using Microsoft.ApplicationInsights.Channel;
+  using Microsoft.ApplicationInsights.DataContracts;
+  using Microsoft.AspNet.Http;
+  using Microsoft.AspNet.Mvc.Abstractions;
+  using Microsoft.AspNet.Mvc.Routing;
+  using Microsoft.AspNet.Routing;
+  using Microsoft.Extensions.DependencyInjection;
+  using Microsoft.Extensions.DiagnosticAdapter;
+
+  public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";
 
@@ -60,13 +57,16 @@
         [DiagnosticName(BeforeActionNotificationName)]
         public void OnBeforeAction(ActionDescriptor actionDescriptor, HttpContext httpContext, RouteData routeData)
         {
-            string name = this.GetNameFromRouteContext(routeData);
             var telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
-
-            if (!string.IsNullOrEmpty(name) && telemetry != null && telemetry is RequestTelemetry)
+            if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
-                name = httpContext.Request.Method + " " + name;
-                ((RequestTelemetry)telemetry).Name = name;
+                string name = this.GetNameFromRouteContext(routeData);
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    name = httpContext.Request.Method + " " + name;
+                    telemetry.Name = name;
+                }
             }
         }
 
