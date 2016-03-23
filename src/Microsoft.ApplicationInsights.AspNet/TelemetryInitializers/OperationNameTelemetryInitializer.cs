@@ -1,23 +1,23 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-  using System;
-  using System.Diagnostics;
-  using System.Linq;
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
 
-  using Microsoft.ApplicationInsights.Channel;
-  using Microsoft.ApplicationInsights.DataContracts;
-  using Microsoft.AspNet.Http;
-  using Microsoft.AspNet.Mvc.Abstractions;
-  using Microsoft.AspNet.Mvc.Routing;
-  using Microsoft.AspNet.Routing;
-  using Microsoft.Extensions.DependencyInjection;
-  using Microsoft.Extensions.DiagnosticAdapter;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Http;
+    using Microsoft.AspNet.Mvc.Abstractions;
+    using Microsoft.AspNet.Mvc.Routing;
+    using Microsoft.AspNet.Routing;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DiagnosticAdapter;
 
-  public class OperationNameTelemetryInitializer : TelemetryInitializerBase
+    public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";
 
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener) 
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener)
             : base(httpContextAccessor)
         {
             if (telemetryListener == null)

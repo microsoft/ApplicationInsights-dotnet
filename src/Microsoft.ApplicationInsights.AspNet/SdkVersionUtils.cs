@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet
-{ 
+{
     using System.Linq;
     using System.Reflection;
 
@@ -14,20 +14,20 @@
            // F representing the full framework
            framework = "F:"; 
 #elif dnxcore50
-          // C representing the core framework
-          framework = "C:";
+            // C representing the core framework
+            framework = "C:";
 #else
           // O representing other framework
           framework = "O:";
 #endif
-          return framework;
+            return framework;
         }
 
         internal static string GetAssemblyVersion()
         {
-          return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>()
-                    .First()
-                    .InformationalVersion;
+            return typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>()
+                      .First()
+                      .InformationalVersion;
         }
     }
 }

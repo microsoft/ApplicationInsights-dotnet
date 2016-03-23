@@ -1,15 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-  using System;
-  using System.Diagnostics;
+    using System;
+    using System.Diagnostics;
 
-  using Microsoft.ApplicationInsights.Channel;
-  using Microsoft.ApplicationInsights.DataContracts;
-  using Microsoft.ApplicationInsights.Extensibility;
-  using Microsoft.AspNet.Http;
-  using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNet.Http;
+    using Microsoft.Extensions.DependencyInjection;
 
-  public abstract class TelemetryInitializerBase : ITelemetryInitializer
+    public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
         private IHttpContextAccessor httpContextAccessor;
 
