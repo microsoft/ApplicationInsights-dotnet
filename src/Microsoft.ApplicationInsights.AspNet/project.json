@@ -14,7 +14,7 @@
         "delaySign": true
     },
     "dependencies": {
-        "Microsoft.ApplicationInsights": "2.0.0-beta4",
+        "Microsoft.ApplicationInsights": "2.0.0-*",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Features": "1.0.0-rc1-final",
