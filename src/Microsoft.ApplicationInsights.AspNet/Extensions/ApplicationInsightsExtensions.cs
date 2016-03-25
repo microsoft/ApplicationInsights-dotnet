@@ -41,12 +41,18 @@
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool reuseActiveConfig = true)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer>(ComponentVersionTelemetryInitializer =>
+            {
+                return new ComponentVersionTelemetryInitializer(config);
+            });
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
+
+            services.AddInstance<IConfiguration>(config);
 
 #if dnx451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
