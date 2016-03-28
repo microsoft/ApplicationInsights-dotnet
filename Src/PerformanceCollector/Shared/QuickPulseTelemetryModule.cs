@@ -26,8 +26,6 @@
 
         private readonly object collectedSamplesLock = new object();
 
-        private readonly Uri serviceUriDefault = new Uri("https://rt.services.visualstudio.com/QuickPulseService.svc");
-
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
         private readonly LinkedList<IQuickPulseTelemetryProcessor> telemetryProcessors = new LinkedList<IQuickPulseTelemetryProcessor>();
@@ -269,7 +267,7 @@
             if (string.IsNullOrWhiteSpace(this.QuickPulseServiceEndpoint))
             {
                 // endpoint is not specified in configuration, use the default one
-                serviceEndpointUri = this.serviceUriDefault;
+                serviceEndpointUri = QuickPulseDefaults.ServiceEndpoint;
             }
             else
             {
