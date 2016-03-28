@@ -18,7 +18,7 @@
     {
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
-        private Uri serviceEndpoint = null;
+        private Uri serviceEndpoint = QuickPulseDefaults.ServiceEndpoint;
 
         private TelemetryConfiguration config = null;
 
@@ -51,7 +51,7 @@
             /*
             The configuration that is being passed into this method is the configuration that is the reason
             why this instance of telemetry processor was created. Regardless of which instrumentation key is passed in,
-            this telemetry processor will only collect for whichever instrumentation key is specified by the module in SetParameters call.
+            this telemetry processor will only collect for whichever instrumentation key is specified by the module in StartCollection call.
             */
 
             this.Register();

@@ -107,7 +107,7 @@
             IQuickPulseServiceClient serviceClient = (IQuickPulseServiceClient)QuickPulseTestHelper.GetPrivateField(module, "serviceClient");
 
             Assert.IsInstanceOfType(serviceClient, typeof(QuickPulseServiceClient));
-            Assert.AreEqual(QuickPulseTestHelper.GetPrivateField(module, "serviceUriDefault"), serviceClient.ServiceUri);
+            Assert.AreEqual(QuickPulseDefaults.ServiceEndpoint, serviceClient.ServiceUri);
         }
 
         [TestMethod]

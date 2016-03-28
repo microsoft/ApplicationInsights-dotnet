@@ -368,19 +368,15 @@
         }
 
         [TestMethod]
-        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToQuickPulseServiceInIdleMode()
+        public void QuickPulseTelemetryProcessorFiltersOutDependencyCallsToDefaultQuickPulseServiceEndpointInIdleMode()
         {
             // ARRANGE
             var simpleTelemetryProcessorSpy = new SimpleTelemetryProcessorSpy();
             var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
-            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
-                new QuickPulseDataAccumulatorManager(),
-                new Uri("https://qps.cloudapp.net/endpoint.svc"),
-                new TelemetryConfiguration() { InstrumentationKey = "some ikey" });
-
+            
             // ACT
             telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://microsoft.ru" });
-            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://qps.cloudapp.net/blabla" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://rt.services.visualstudio.com/blabla" });
             telemetryProcessor.Process(new DependencyTelemetry() { Name = "https://bing.com" });
 
             // ASSERT
