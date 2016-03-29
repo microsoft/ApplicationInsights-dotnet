@@ -90,7 +90,6 @@
                 // Reconfigure the PerformanceCollectorModule timer.
                 Type perfModuleType = typeof(PerformanceCollectorModule);
                 PerformanceCollectorModule perfModule = (PerformanceCollectorModule)server.ApplicationServices.GetServices<ITelemetryModule>().FirstOrDefault(m => m.GetType() == perfModuleType);
-                //perfModuleType.GetField("collectionPeriod", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(perfModule, TimeSpan.FromSeconds(1));
                 FieldInfo timerField = perfModuleType.GetField("timer", BindingFlags.NonPublic | BindingFlags.Instance);
                 var timer = timerField.GetValue(perfModule);
                 timerField.FieldType.InvokeMember("ScheduleNextTick", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, timer, new object[] { TimeSpan.FromMilliseconds(10) });
