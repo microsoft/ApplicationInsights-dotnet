@@ -30,6 +30,24 @@
             }
         }
 
+        [Event(5, Message = "Backend response {1} was not parsed. Some items may be dropped: {0}.", Level = EventLevel.Warning)]
+        public void BreezeResponseWasNotParsedWarning(string exception, string response, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(5, exception ?? string.Empty, response ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(6, Message = "Unexpected backend response. Items # in batch {0} >= Error index in response: {1}.", Level = EventLevel.Warning)]
+        public void UnexpectedBreezeResponseWarning(int size, int index, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(6, size, index, this.ApplicationName);
+        }
+
+        [Event(7, Message = "Item was rejected by endpoint. Message: {0}", Level = EventLevel.Warning)]
+        public void ItemRejectedByEndpointWarning(string message, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(7, message ?? string.Empty, this.ApplicationName);
+        }
+
         [Event(8, Keywords = Keywords.UserActionable, Message = "User-defined sampling callback failed. Exception: {0}.", Level = EventLevel.Error)]
         public void SamplingCallbackError(string exception, string appDomainName = "Incorrect")
         {

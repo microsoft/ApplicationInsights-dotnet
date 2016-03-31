@@ -5,23 +5,17 @@
     
     internal class TransmissionProcessedEventArgs : EventArgs
     {
-        private readonly Transmission transmission;
-        private readonly Exception exception;
-
-        public TransmissionProcessedEventArgs(Transmission transmission, Exception exception = null)
+        public TransmissionProcessedEventArgs(Transmission transmission, Exception exception = null, string responseContent = null)
         {
-            this.transmission = transmission;
-            this.exception = exception;
+            this.Transmission = transmission;
+            this.Exception = exception;
+            this.ResponseContent = responseContent;
         }
 
-        public Transmission Transmission
-        {
-            get { return this.transmission; }
-        }
+        public Transmission Transmission { get; }
 
-        public Exception Exception
-        {
-            get { return this.exception; }
-        }
+        public Exception Exception { get; }
+
+        public string ResponseContent { get; }
     }
 }

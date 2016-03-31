@@ -1,4 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿using System.Collections.Generic;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
+namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.IO;
@@ -51,7 +55,7 @@
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenContentIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), null, "content/type", "content/encoding"));
+                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
             }
 
             [TestMethod]

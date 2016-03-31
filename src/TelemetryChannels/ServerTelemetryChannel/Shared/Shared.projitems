@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationStoppingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\BreezeResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExceptionHandler.cs" />

@@ -83,10 +83,12 @@
         private async Task StartSending(Transmission transmission)
         {
             Exception exception = null;
+            string responseContent = null;
+
             try
             {
                 TelemetryChannelEventSource.Log.TransmissionSendStarted(transmission.Id);
-                await transmission.SendAsync().ConfigureAwait(false);                
+                responseContent = await transmission.SendAsync().ConfigureAwait(false);          
             }
             catch (Exception e)
             {
@@ -104,7 +106,7 @@
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(transmission.Id, exception.ToString());
                 }
 
-                this.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception));
+                this.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception, responseContent));
             }
         }
     }

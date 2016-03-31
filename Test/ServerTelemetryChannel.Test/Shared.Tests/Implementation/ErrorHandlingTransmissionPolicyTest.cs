@@ -4,11 +4,14 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
@@ -94,6 +97,249 @@
                 Assert.True(policyApplied.WaitOne(100));
                 Assert.True(policyApplied.WaitOne(100));
                 Assert.Null(policy.MaxSenderCapacity);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfItemIsRejectedOnlyThisItemIsUploadedBack()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+                var transmitter = new StubTransmitter
+                {
+                    OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+                };
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 2," +
+                    "\"itemsAccepted\": 1," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 0," +
+                                      "\"statusCode\": 402," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(1, enqueuedTransmissions.Count);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfItemsAreRejectedTheyAreUploadedBackGroupedByStatusCode()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+                var transmitter = new StubTransmitter
+                {
+                    OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+                };
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 2," +
+                    "\"itemsAccepted\": 0," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 0," +
+                                      "\"statusCode\": 408," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}," +
+                                    "{" +
+                                      "\"index\": 1," +
+                                      "\"statusCode\": 408," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(1, enqueuedTransmissions.Count);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfNumberOfRecievedItemsEqualsToNumberOfAcceptedErrorsListIsIgnored()
+            {
+                var transmitter = new StubTransmitter();
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 2," +
+                    "\"itemsAccepted\": 2," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 0," +
+                                      "\"statusCode\": 429," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}," +
+                                    "{" +
+                                      "\"index\": 1," +
+                                      "\"statusCode\": 429," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(0, policy.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessNewTransmissionCreatedByIndexesFromBreezeResponse()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+                var transmitter = new StubTransmitter
+                {
+                    OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+                };
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry>
+                {
+                    new EventTelemetry("1"),
+                    new EventTelemetry("2"),
+                    new EventTelemetry("3"),
+                };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 3," +
+                    "\"itemsAccepted\": 1," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 0," +
+                                      "\"statusCode\": 439," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}," +
+                                    "{" +
+                                      "\"index\": 2," +
+                                      "\"statusCode\": 439," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                string[] newItems = JsonSerializer
+                    .Deserialize(enqueuedTransmissions[0].Content)
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                Assert.Equal(2, newItems.Length);
+                Assert.True(newItems[0].Contains("\"name\":\"1\""));
+                Assert.True(newItems[1].Contains("\"name\":\"3\""));
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfMultipleItemsAreRejectedNumberOfErrorsIsIncreasedByOne()
+            {
+                // Number of errors determine backoff timeout. 
+                // When we get several bad items in one batch we want to increase errors by 1 only since it is one attempt to access Breeze
+
+                var transmitter = new StubTransmitter();
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 2," +
+                    "\"itemsAccepted\": 0," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 0," +
+                                      "\"statusCode\": 500," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}," +
+                                    "{" +
+                                      "\"index\": 1," +
+                                      "\"statusCode\": 503," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(1, policy.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfBreezeResponseIsBadJsonWeDoNotIncreaseErrorCount()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+                var transmitter = new StubTransmitter
+                {
+                    OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+                };
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string breezeResponse = "[,]";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(0, policy.ConsecutiveErrors);
+                Assert.Equal(0, enqueuedTransmissions.Count);
+            }
+
+            [TestMethod]
+            public void ForPartialSuccessIfBreezeIndexMoreThanItemsInTransmissionIgnoreError()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+                var transmitter = new StubTransmitter
+                {
+                    OnEnqueue = t => { enqueuedTransmissions.Add(t); }
+                };
+
+                var policy = new ErrorHandlingTransmissionPolicy();
+                policy.Initialize(transmitter);
+
+                var items = new List<ITelemetry> { new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                // Index is 0-based
+                string breezeResponse =
+                   "{" +
+                    "\"itemsReceived\": 2," +
+                    "\"itemsAccepted\": 1," +
+                    "\"errors\": [" +
+                                    "{" +
+                                      "\"index\": 1," +
+                                      "\"statusCode\": 402," +
+                                      "\"message\": \"Explanation\"" +
+                                    "}" +
+                   "]}";
+
+                transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, breezeResponse));
+
+                Assert.Equal(0, policy.ConsecutiveErrors);
+                Assert.Equal(0, enqueuedTransmissions.Count);
             }
 
             [TestMethod]
