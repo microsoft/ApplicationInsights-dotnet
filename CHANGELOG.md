@@ -1,10 +1,14 @@
 # Changelog
 
+## Version 2.1.0-beta2
+- Http requests to LiveMetricsStream (Feature not surfaced in UI yet) backend were tracked as dependencies. They will be filtered out starting this version.
+- There are no other changes 
+
 ## Version 2.1.0-beta1
 
 - Upgraded to depend on EventSource.Redist nuget version 1.1.28
 - Upgraded to depend on Microsoft.Bcl nuget version 1.1.10
-- QuickPulse feature is introduced
+- LiveMetricsStream feature is introduced (Not surfaced in UI yet)
 
 ## Version 2.0.0 
 - Performance counter collection is no longer supported when running under IIS Express.
