@@ -38,7 +38,6 @@
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
                 new ErrorHandlingTransmissionPolicy(),
                 new NetworkAvailabilityTransmissionPolicy(network),
-                new ThrottlingTransmissionPolicy()
             };
 
             this.Transmitter = new Transmitter(policies: policies);

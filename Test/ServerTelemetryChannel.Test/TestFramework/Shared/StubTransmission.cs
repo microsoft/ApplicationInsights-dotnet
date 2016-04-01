@@ -13,7 +13,7 @@
     {
         public Action<Stream> OnSave = stream => { };
 
-        public Action OnSend = () => { };
+        public Func<string> OnSend = () => null;
 
         public StubTransmission()
             : base(new Uri("any://uri"), new byte[0], string.Empty, string.Empty)
@@ -30,7 +30,7 @@
             return TaskEx.Run(() => this.OnSave(stream));
         }
 
-        public override Task SendAsync()
+        public override Task<string> SendAsync()
         {
             return TaskEx.Run(this.OnSend);
         }

@@ -1,9 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
 
+    using System.Web.Script.Serialization;
+
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     
 #if NET45
@@ -12,11 +16,21 @@
 
     internal class ErrorHandlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
+        private const int ResponseCodePaymentRequired = 402;
+        private const int RequestTimeout = 408;
+        private const int ResponseCodeTooManyRequests = 429;
+        private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
+        private const int InternalServerError = 500;
+        private const int ServiceUnavailable = 503;
+
         private const int SlotDelayInSeconds = 10;
         private const int MaxDelayInSeconds = 3600;
+
         private readonly Random random = new Random();
+        private readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
+
         private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
-        
+
         internal int ConsecutiveErrors { get; set; }
 
         public override void Initialize(Transmitter transmitter)
@@ -63,47 +77,141 @@
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)httpWebResponse.StatusCode);
 
-                    switch (httpWebResponse.StatusCode)
-                    {
-                        case (HttpStatusCode)408:
-                        case (HttpStatusCode)503:
-                        case (HttpStatusCode)500:
-                            // Disable sending and buffer capacity (=EnqueueAsync will enqueue to the Storage)
-                            this.MaxSenderCapacity = 0;
-                            this.MaxBufferCapacity = 0;
-                            this.LogCapacityChanged();
-                            this.Apply();
-
-                            // Back-off for the Delay duration and enable sending capacity
-                            this.pauseTimer.Delay = this.GetBackOffTime();
-                            this.pauseTimer.Start(() =>
-                            {
-                                this.MaxBufferCapacity = null;
-                                this.MaxSenderCapacity = null;
-                                this.LogCapacityChanged();
-                                this.Apply();
-
-                                return TaskEx.FromResult<object>(null);
-                            });
-
-                            this.Transmitter.Enqueue(e.Transmission);
-                            break;
-                    }
+                    this.HandleStatusCode((int)httpWebResponse.StatusCode, e.Transmission);
                 }
-                else 
+                else
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError);
                 }
             }
             else
             {
-                var theException = e.Exception as Exception;
-                if (theException != null)
+                if (!string.IsNullOrEmpty(e.ResponseContent))
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, theException.Message);
+                    // Partial success case (206)
+                    var newTransmissions = this.ParsePartialSuccessResponse(e.Transmission, e.ResponseContent);
+
+                    if (newTransmissions != null)
+                    {
+                        foreach (int statusCode in newTransmissions.Keys)
+                        {
+                            byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions[statusCode]);
+                            Transmission newTransmission = new Transmission(
+                                e.Transmission.EndpointAddress,
+                                data,
+                                e.Transmission.ContentType,
+                                e.Transmission.ContentEncoding,
+                                e.Transmission.Timeout);
+
+                            this.HandleStatusCode(statusCode, newTransmission);
+                        }
+                    }
+                }
+                else
+                {
+                    if (e.Exception != null)
+                    {
+                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
+                    }
+
+                    this.ConsecutiveErrors = 0;
+                }
+            }
+        }
+
+        private IDictionary<int, string> ParsePartialSuccessResponse(Transmission initialTransmission, string response)
+        {
+            BackendResponse backendResponse;
+            try
+            {
+                backendResponse = this.serializer.Deserialize<BackendResponse>(response);
+            }
+            catch (ArgumentException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, response);
+                this.ConsecutiveErrors = 0;
+                return null;
+            }
+            catch (InvalidOperationException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, response);
+                this.ConsecutiveErrors = 0;
+                return null;
+            }
+
+            IDictionary<int, string> newTransmissions = null;
+
+            if (backendResponse != null && backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
+            {
+                string[] items = JsonSerializer
+                    .Deserialize(initialTransmission.Content)
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                newTransmissions = new Dictionary<int, string>();
+
+                foreach (var error in backendResponse.Errors)
+                {
+                    if (error != null)
+                    {
+                        if (error.Index >= items.Length || error.Index < 0)
+                        {
+                            TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
+                            continue;
+                        }
+
+                        TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
+                        
+                        if (!newTransmissions.ContainsKey(error.StatusCode))
+                        {
+                            newTransmissions.Add(error.StatusCode, items[error.Index]);
+                        }
+                        else
+                        {
+                            string transmissions = newTransmissions[error.StatusCode];
+                            newTransmissions[error.StatusCode] = transmissions + Environment.NewLine + items[error.Index];
+                        }
+                    }
                 }
 
-                this.ConsecutiveErrors = 0;
+                if (newTransmissions.Count > 0)
+                {
+                    this.ConsecutiveErrors++;
+                }
+            }
+
+            return newTransmissions;
+        }
+
+        private void HandleStatusCode(int statusCode, Transmission transmission)
+        {
+            switch (statusCode)
+            {
+                case RequestTimeout:
+                case ServiceUnavailable:
+                case InternalServerError:
+                case ResponseCodeTooManyRequests:
+                case ResponseCodeTooManyRequestsOverExtendedTime:
+                case ResponseCodePaymentRequired:
+                    // Disable sending and buffer capacity (=EnqueueAsync will enqueue to the Storage)
+                    this.MaxSenderCapacity = 0;
+                    this.MaxBufferCapacity = 0;
+                    this.LogCapacityChanged();
+                    this.Apply();
+
+                    // Back-off for the Delay duration and enable sending capacity
+                    this.pauseTimer.Delay = this.GetBackOffTime();
+                    this.pauseTimer.Start(() =>
+                    {
+                        this.MaxBufferCapacity = null;
+                        this.MaxSenderCapacity = null;
+                        this.LogCapacityChanged();
+                        this.Apply();
+
+                        return TaskEx.FromResult<object>(null);
+                    });
+
+                    this.Transmitter.Enqueue(transmission);
+                    break;
             }
         }
 

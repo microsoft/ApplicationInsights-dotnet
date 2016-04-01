@@ -1,17 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if NET45
-    using System.Diagnostics.Tracing;
-#endif
-    using System.Linq;
-    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
@@ -50,7 +43,7 @@
             public void StartsSendingTransmissionAndReturnsImmediatelyToUnblockCallingThread()
             {
                 var transmissionCanFinishSending = new ManualResetEventSlim();
-                var transmission = new StubTransmission { OnSend = () => transmissionCanFinishSending.Wait() };
+                var transmission = new StubTransmission { OnSend = () => { transmissionCanFinishSending.Wait(); return null; } };
                 var sender = new TransmissionSender();
 
                 sender.Enqueue(() => transmission);
@@ -213,6 +206,30 @@
                 Assert.Same(sender, eventSender);
                 Assert.Same(transmission, eventArgs.Transmission);
                 Assert.Same(exception, eventArgs.Exception);
+            }
+
+            [TestMethod]
+            public void IsRaisedWhenTransmissionReturnsPartialSuccessResult()
+            {
+                var sender = new TransmissionSender();
+
+                var eventIsRaised = new ManualResetEventSlim();
+                object eventSender = null;
+                TransmissionProcessedEventArgs eventArgs = null;
+                sender.TransmissionSent += (s, a) =>
+                {
+                    eventSender = s;
+                    eventArgs = a;
+                    eventIsRaised.Set();
+                };
+
+                Transmission transmission = new StubTransmission { OnSend = () => "test" };
+                sender.Enqueue(() => transmission);
+
+                Assert.True(eventIsRaised.Wait(50));
+                Assert.Same(sender, eventSender);
+                Assert.Same(transmission, eventArgs.Transmission);
+                Assert.Equal("test", eventArgs.ResponseContent);
             }
         }
     }
