@@ -15,7 +15,7 @@
         public Error[] Errors { get; set; }
 
         [DataContract]
-        public class Error
+        internal class Error
         {
             [DataMember(Name = "index")]
             public int Index { get; set; }
