@@ -25,7 +25,9 @@
 
         private const int SlotDelayInSeconds = 10;
         private const int MaxDelayInSeconds = 3600;
+
         private readonly Random random = new Random();
+        private readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
 
         private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
 
@@ -119,10 +121,10 @@
 
         private IDictionary<int, string> ParsePartialSuccessResponse(Transmission initialTransmission, string response)
         {
-            BreezeResponse breezeResponse;
+            BackendResponse backendResponse;
             try
             {
-                breezeResponse = new JavaScriptSerializer().Deserialize<BreezeResponse>(response);
+                backendResponse = serializer.Deserialize<BackendResponse>(response);
             }
             catch (ArgumentException exp)
             {
@@ -139,7 +141,7 @@
 
             IDictionary<int, string> newTransmissions = null;
 
-            if (breezeResponse != null && breezeResponse.ItemsAccepted != breezeResponse.ItemsReceived)
+            if (backendResponse != null && backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
                 string[] items = JsonSerializer
                     .Deserialize(initialTransmission.Content)
@@ -147,11 +149,11 @@
 
                 newTransmissions = new Dictionary<int, string>();
 
-                foreach (var error in breezeResponse.Errors)
+                foreach (var error in backendResponse.Errors)
                 {
                     if (error != null)
                     {
-                        if (error.Index >= items.Length)
+                        if (error.Index >= items.Length || error.Index < 0)
                         {
                             TelemetryChannelEventSource.Log.UnexpectedBreezeResponseWarning(items.Length, error.Index);
                             continue;

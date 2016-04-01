@@ -3,7 +3,7 @@
     using System.Runtime.Serialization;
 
     [DataContract]
-    internal class BreezeResponse
+    internal class BackendResponse
     {
         [DataMember(Name = "itemsReceived")]
         public int ItemsReceived { get; set; }
