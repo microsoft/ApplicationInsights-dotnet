@@ -124,7 +124,7 @@
             BackendResponse backendResponse;
             try
             {
-                backendResponse = serializer.Deserialize<BackendResponse>(response);
+                backendResponse = this.serializer.Deserialize<BackendResponse>(response);
             }
             catch (ArgumentException exp)
             {
