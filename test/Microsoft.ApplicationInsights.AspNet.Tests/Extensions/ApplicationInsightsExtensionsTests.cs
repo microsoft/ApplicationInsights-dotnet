@@ -23,6 +23,7 @@
     {
         /// <summary>Constant instrumentation key value for testintg.</summary>
         public const string TestInstrumentationKey = "11111111-2222-3333-4444-555555555555";
+        private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
 
         public static ServiceCollection GetServiceCollectionWithContextAccessor()
         {
@@ -106,7 +107,7 @@
                 ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 IConfiguration config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key-new.json").Build();
 
-                Assert.NotEqual(existingActiveIkey, config.GetSection("ApplicationInsights:InstrumentationKey").Value);
+                Assert.NotEqual(existingActiveIkey, config.GetSection(InstrumentationKeyFromConfig).Value);
                 services.AddApplicationInsightsTelemetry(config, false);
             
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
