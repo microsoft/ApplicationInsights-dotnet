@@ -109,7 +109,7 @@
 
                 Assert.NotEqual(existingActiveIkey, config.GetSection(InstrumentationKeyFromConfig).Value);
                 services.AddApplicationInsightsTelemetry(config, false);
-            
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal(existingActiveIkey, TelemetryConfiguration.Active.InstrumentationKey);
