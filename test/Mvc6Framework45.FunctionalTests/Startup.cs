@@ -1,20 +1,23 @@
-﻿using FunctionalTestUtils;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.AspNet.Authentication.Facebook;
-using Microsoft.AspNet.Authentication.MicrosoftAccount;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Diagnostics;
-using Microsoft.AspNet.Diagnostics.Entity;
-using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Data.Entity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Mvc6Framework45.FunctionalTests.Models;
+﻿using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Mvc6Framework45.FunctionalTests
 {
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.AspNet.Authentication.Facebook;
+    using Microsoft.AspNet.Authentication.MicrosoftAccount;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Diagnostics;
+    using Microsoft.AspNet.Diagnostics.Entity;
+    using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNet.Identity.EntityFramework;
+    using Microsoft.Data.Entity;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using Mvc6Framework45.FunctionalTests.Models;
+
     public class Startup
     {
         public Startup(IHostingEnvironment env)

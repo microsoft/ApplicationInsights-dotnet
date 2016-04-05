@@ -1,13 +1,16 @@
-﻿using System;
-using FunctionalTestUtils;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ApplicationInsights.Channel;
+﻿using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace SampleWebAPIIntegration
 {
+    using System;
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Hosting;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+
     public class Startup
     {
         public Startup(IHostingEnvironment env)
