@@ -101,14 +101,17 @@
             [Fact]
             public static void ConfigurationFactoryMethodDoesNotUpdateTheActiveConfigurationSingletonWhenSetToFalse()
             {
+                string existingActiveIkey = TelemetryConfiguration.Active.InstrumentationKey;
+
                 ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                IConfiguration config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key.json").Build();
+                IConfiguration config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key-new.json").Build();
 
+                Assert.NotEqual(existingActiveIkey, config.GetSection("ApplicationInsights:InstrumentationKey").Value);
                 services.AddApplicationInsightsTelemetry(config, false);
-
+            
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Equal(string.Empty, TelemetryConfiguration.Active.InstrumentationKey);
+                Assert.Equal(existingActiveIkey, TelemetryConfiguration.Active.InstrumentationKey);
             }
 
             /// <summary>
