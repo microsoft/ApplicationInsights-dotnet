@@ -330,7 +330,7 @@ namespace FuncTest
 
             AzureStorageHelper.Initialize();
 
-            LocalDb.CreateLocalDb("RDDTestDatabase", aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
+            // LocalDb.CreateLocalDb("RDDTestDatabase", aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
 
             if (DotNetVersionCheck.IsNet46Installed)
             {
@@ -1019,7 +1019,12 @@ namespace FuncTest
         private void ValidateRddTelemetryValues(TelemetryItem<RemoteDependencyData> itemToValidate, string remoteDependencyNameExpected, string commandNameExpected, int countExpected, TimeSpan accessTimeMax, bool successFlagExpected, bool asyncFlagExpected)
         {
             DependencySourceType source = sourceExpected;
-            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect");
+            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect: " + remoteDependencyNameExpected);
+
+            if (DependencySourceType.Apmc == sourceExpected)
+            {
+                Assert.IsTrue(itemToValidate.Data.BaseData.Name.StartsWith("VERB:GET "), "For StatusMonitor implementation we expect verb to be collected. Name: " + remoteDependencyNameExpected);
+            }
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
             if (DependencySourceType.Apmc == sourceExpected)

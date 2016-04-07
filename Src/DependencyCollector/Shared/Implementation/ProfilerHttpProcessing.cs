@@ -173,22 +173,39 @@
 #endregion // Http callbacks
 
         /// <summary>
-        /// Gets HTTP request resource name.
+        /// Gets HTTP request url.
         /// </summary>
         /// <param name="thisObj">Represents web request.</param>
-        /// <returns>The resource name if possible otherwise empty string.</returns>
-        internal string GetResourceName(object thisObj)
+        /// <returns>The url if possible otherwise empty string.</returns>
+        internal string GetUrl(object thisObj)
         {
             WebRequest webRequest = thisObj as WebRequest;
             string resource = string.Empty;
             if (webRequest != null && webRequest.RequestUri != null)
             {
                 resource = webRequest.RequestUri.ToString();
-            }
+            }            
 
             return resource;
         }
-          
+
+        /// <summary>
+        /// Gets HTTP request Verb.
+        /// </summary>
+        /// <param name="thisObj">Represents web request.</param>
+        /// <returns>The Verb if possible otherwise empty string.</returns>
+        private string GetMethod(object thisObj)
+        {
+            WebRequest webRequest = thisObj as WebRequest;
+            string method = string.Empty;
+            if (webRequest != null)
+            {
+                method = webRequest.Method;
+            }
+
+            return method;
+        }
+
         /// <summary>
         /// Common helper for all Begin Callbacks.
         /// </summary>
@@ -205,17 +222,27 @@
                     return null;
                 }
 
-                string resourceName = this.GetResourceName(thisObj);
+                string url = this.GetUrl(thisObj);
+                string httMethod = this.GetMethod(thisObj);
+
+                string resourceName = url;
+
+                if (!string.IsNullOrEmpty(httMethod))
+                {
+                    // We add prefix that we will remove on the backend
+                    // We need prefix because url can contain spaces and we need better separator to distinguish from previous versions
+                    resourceName = "VERB:" + httMethod + " " + resourceName;
+                }                
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
 
-                if (string.IsNullOrEmpty(resourceName))
+                if (string.IsNullOrEmpty(url))
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp", "resourceName is empty");
                     return null;
                 }
 
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(resourceName))
+                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url))
                 {
                     // Not logging as we will be logging for all outbound AI calls
                     return null;
