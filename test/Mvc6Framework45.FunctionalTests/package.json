@@ -2,9 +2,10 @@
   "name": "ASP.NET",
   "version": "0.0.0",
   "devDependencies": {
-    "bower": "^1.4.1",
-    "flatten-packages": "^0.1.4",
     "gulp": "3.8.11",
+    "gulp-concat": "2.5.2",
+    "gulp-cssmin": "0.1.7",
+    "gulp-uglify": "1.2.0",
     "rimraf": "2.2.8"
   }
 }
