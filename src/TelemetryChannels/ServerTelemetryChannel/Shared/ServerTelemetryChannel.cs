@@ -36,7 +36,9 @@
             var policies = new TransmissionPolicy[] 
             { 
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
+                new ThrottlingTransmissionPolicy(), 
                 new ErrorHandlingTransmissionPolicy(),
+                new PartialSuccessTransmissionPolicy(), 
                 new NetworkAvailabilityTransmissionPolicy(network),
             };
 

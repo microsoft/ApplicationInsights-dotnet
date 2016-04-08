@@ -38,6 +38,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\HttpWebResponseWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryDebugWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />

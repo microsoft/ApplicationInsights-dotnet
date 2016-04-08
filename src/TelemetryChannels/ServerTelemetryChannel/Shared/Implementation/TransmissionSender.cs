@@ -4,7 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
     internal class TransmissionSender
     {
         private int transmissionCount = 0;
@@ -83,7 +84,7 @@
         private async Task StartSending(Transmission transmission)
         {
             Exception exception = null;
-            string responseContent = null;
+            HttpWebResponseWrapper responseContent = null;
 
             try
             {
