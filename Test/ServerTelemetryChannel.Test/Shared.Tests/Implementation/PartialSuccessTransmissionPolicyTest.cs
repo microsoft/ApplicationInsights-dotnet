@@ -55,7 +55,7 @@
         }
 
         [TestMethod]
-        public void IfItemsAreRejectedTheyAreUploadedBackGroupedByStatusCode()
+        public void IfItemsAreRejectedTheyAreUploadedBackAsASingleTransmission()
         {
             IList<Transmission> enqueuedTransmissions = new List<Transmission>();
             var transmitter = new StubTransmitter
@@ -70,9 +70,9 @@
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
             string response = this.GetBackendResponse(
-                itemsReceived: 2,
+                itemsReceived: 3,
                 itemsAccepted: 0,
-                errorCodes: new[] { "408", "408" });
+                errorCodes: new[] { "408", "503", "500" });
 
             var wrapper = new HttpWebResponseWrapper
             {

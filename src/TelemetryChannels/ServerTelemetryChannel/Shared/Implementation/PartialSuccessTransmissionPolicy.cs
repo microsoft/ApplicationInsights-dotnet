@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using System.Web.Script.Serialization;
@@ -35,30 +34,27 @@
         {
             if (args.Response != null && args.Response.StatusCode == 206)
             {
-                var newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args);
+                string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args);
 
-                if (newTransmissions != null && newTransmissions.Count > 0)
+                if (!string.IsNullOrEmpty(newTransmissions))
                 {
                     this.ConsecutiveErrors++;
                     this.DelayFutureProcessing(args.Response);
+                    
+                    byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
+                    Transmission newTransmission = new Transmission(
+                        args.Transmission.EndpointAddress,
+                        data,
+                        args.Transmission.ContentType,
+                        args.Transmission.ContentEncoding,
+                        args.Transmission.Timeout);
 
-                    foreach (string newTransmissionString in newTransmissions.Values)
-                    {
-                        byte[] data = JsonSerializer.ConvertToByteArray(newTransmissionString);
-                        Transmission newTransmission = new Transmission(
-                            args.Transmission.EndpointAddress,
-                            data,
-                            args.Transmission.ContentType,
-                            args.Transmission.ContentEncoding,
-                            args.Transmission.Timeout);
-
-                        this.Transmitter.Enqueue(newTransmission);
-                    }
+                    this.Transmitter.Enqueue(newTransmission);
                 }
             }
         }
 
-        private IDictionary<int, string> ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args)
+        private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args)
         {
             BackendResponse backendResponse;
             string responseContent = args.Response.Content;
@@ -79,15 +75,13 @@
                 return null;
             }
 
-            IDictionary<int, string> newTransmissions = null;
+            string newTransmissions = null;
 
             if (backendResponse != null && backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
                 string[] items = JsonSerializer
                     .Deserialize(initialTransmission.Content)
                     .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                newTransmissions = new Dictionary<int, string>();
 
                 foreach (var error in backendResponse.Errors)
                 {
@@ -107,14 +101,13 @@
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequests ||
                             error.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                         {
-                            if (!newTransmissions.ContainsKey(error.StatusCode))
+                            if (string.IsNullOrEmpty(newTransmissions))
                             {
-                                newTransmissions.Add(error.StatusCode, items[error.Index]);
+                                newTransmissions = items[error.Index];
                             }
                             else
                             {
-                                string transmissions = newTransmissions[error.StatusCode];
-                                newTransmissions[error.StatusCode] = transmissions + Environment.NewLine + items[error.Index];
+                                newTransmissions += Environment.NewLine + items[error.Index];
                             }
                         }
                     }
