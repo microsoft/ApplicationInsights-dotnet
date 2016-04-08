@@ -44,7 +44,7 @@
                     var userCookieParts = ((string)userCookieValue).Split('|');
                     if (userCookieParts.Length >= 1)
                     {
-                            requestTelemetry.Context.User.Id = userCookieParts[0];
+                         requestTelemetry.Context.User.Id = userCookieParts[0];
                     }
                 }
             }
