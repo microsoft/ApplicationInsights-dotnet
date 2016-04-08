@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
-    using System.IO;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     
     /// <summary>
@@ -18,9 +18,11 @@
     /// </summary>
     public sealed class TelemetryClient
     {
+        private const string VersionPrefix = "dotnet: ";
+
         private readonly TelemetryConfiguration configuration;
-        private readonly IDebugOutput debugOutput;
-        private TelemetryContext context;        
+        private TelemetryContext context;
+        private string sdkVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the active configuration, usually loaded from ApplicationInsights.config.
@@ -42,7 +44,6 @@
             }
 
             this.configuration = configuration;
-            this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
         /// <summary>
@@ -364,6 +365,13 @@
             {
                 telemetry.Timestamp = Clock.Instance.Time;
             }
+
+            // Currenly backend requires SDK version to comply "name: version"
+            if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
+            {
+                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetAssemblyVersion);
+                telemetry.Context.Internal.SdkVersion = version;
+            }
         }
 
         /// <summary>
@@ -422,6 +430,20 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
+        }
+
+        private string GetAssemblyVersion()
+        {
+#if !CORE_PCL
+            return VersionPrefix + typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
+#else
+            return VersionPrefix + typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
+#endif
         }
     }
 }
