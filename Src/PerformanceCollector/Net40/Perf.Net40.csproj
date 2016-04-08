@@ -67,12 +67,6 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="PerformanceCollector\Telemetry\AppInsightsTypes.g.cs" />
-    <Compile Include="PerformanceCollector\Telemetry\DependencyKind.g.cs" />
-    <Compile Include="PerformanceCollector\Telemetry\PerformanceCounterData.g.cs" />
-    <Compile Include="PerformanceCollector\Telemetry\SeverityLevel.g.cs" />
-  </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" Condition="Exists('..\Shared\Shared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
