@@ -1021,9 +1021,9 @@ namespace FuncTest
             DependencySourceType source = sourceExpected;
             Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect: " + remoteDependencyNameExpected);
 
-            if (DependencySourceType.Apmc == sourceExpected)
+            if (DependencySourceType.Apmc == sourceExpected && itemToValidate.Data.BaseData.DependencyKind == DependencyKind.Http)
             {
-                Assert.IsTrue(itemToValidate.Data.BaseData.Name.StartsWith("VERB:GET "), "For StatusMonitor implementation we expect verb to be collected. Name: " + remoteDependencyNameExpected);
+                Assert.IsTrue(itemToValidate.Data.BaseData.Name.StartsWith("GET "), "For StatusMonitor implementation we expect verb to be collected. Name: " + remoteDependencyNameExpected);
             }
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null

@@ -565,7 +565,7 @@
         private static void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, RemoteDependencyKind kind, bool success, bool async, int count, double expectedValue, string resultCode)
         {
-            Assert.AreEqual("VERB:GET " + uri, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual("GET " + uri, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");

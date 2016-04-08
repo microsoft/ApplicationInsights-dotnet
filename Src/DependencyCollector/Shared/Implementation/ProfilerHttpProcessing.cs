@@ -231,7 +231,7 @@
                 {
                     // We add prefix that we will remove on the backend
                     // We need prefix because url can contain spaces and we need better separator to distinguish from previous versions
-                    resourceName = "VERB:" + httMethod + " " + resourceName;
+                    resourceName = httMethod + " " + resourceName;
                 }                
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
