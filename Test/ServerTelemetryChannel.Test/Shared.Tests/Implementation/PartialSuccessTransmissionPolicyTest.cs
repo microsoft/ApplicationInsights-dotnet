@@ -1,10 +1,9 @@
-﻿using System.Globalization;
-using System.Net;
-
-namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
