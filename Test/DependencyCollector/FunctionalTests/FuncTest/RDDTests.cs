@@ -213,12 +213,12 @@ namespace FuncTest
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
-        private const string ResourceNameHttpToBing = "http://www.bing.com";
+        private const string ResourceNameHttpToBing = "http://www.bing.com/";
 
         /// <summary>
         /// Resource Name for failed request.
         /// </summary>
-        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com";
+        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com/";
 
         /// <summary>
         /// Resource Name for dev database.
@@ -757,7 +757,7 @@ namespace FuncTest
                     {
                             if (DependencySourceType.Apmc == sourceExpected)
                             {
-                                Assert.AreEqual(httpItem.Data.BaseData.Name, "GET " + resourceNameExpected, "For StatusMonitor implementation we expect verb to be collected.");
+                                Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                             }
 
                             this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, true);
@@ -845,7 +845,7 @@ namespace FuncTest
                     {
                         if (DependencySourceType.Apmc == sourceExpected)
                         {
-                            Assert.AreEqual(httpItem.Data.BaseData.Name, "GET " + resourceNameExpected, "For StatusMonitor implementation we expect verb to be collected.");
+                            Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                         }
 
                         this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, count, accessTimeMax, success, false);
@@ -879,7 +879,7 @@ namespace FuncTest
                     {
                         if (DependencySourceType.Apmc == sourceExpected)
                         {
-                            Assert.AreEqual(httpItem.Data.BaseData.Name, "GET " + resourceNameExpected, "For StatusMonitor implementation we expect verb to be collected.");
+                            Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                         }
 
                         this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, false, false);
@@ -920,7 +920,7 @@ namespace FuncTest
 
                         if (DependencySourceType.Apmc == sourceExpected)
                         {
-                            Assert.AreEqual(httpItem.Data.BaseData.Name, "POST " + resourceNameExpected, "For StatusMonitor implementation we expect verb to be collected.");
+                            Assert.AreEqual("POST " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                         }
                     }
                 });
