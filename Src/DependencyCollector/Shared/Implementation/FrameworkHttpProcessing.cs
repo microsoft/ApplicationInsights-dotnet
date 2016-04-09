@@ -110,15 +110,17 @@
 
                 if (!statusCode.HasValue)
                 {
-                    statusCode = -1;
+                    // No statuscode from framework in 4.5.2
+                    telemetry.Success = success ?? true;
                 }
-
-                telemetry.ResultCode = statusCode.Value > 0 ? statusCode.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
-
-                // We calculate success on the base of http code and do not use the 'success' method argument
-                // because framework returns true all the time if you use HttpClient to create a request
-                // statusCode == -1 if there is no Response
-                telemetry.Success = (statusCode > 0) && (statusCode < 400);
+                else
+                {
+                    // We calculate success on the base of http code and do not use the 'success' method argument
+                    // because framework returns true all the time if you use HttpClient to create a request
+                    // statusCode == -1 if there is no Response
+                    telemetry.Success = (statusCode > 0) && (statusCode < 400);
+                    telemetry.ResultCode = statusCode.Value > 0 ? statusCode.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                }
 
                 ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
             }

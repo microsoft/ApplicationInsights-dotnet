@@ -115,7 +115,50 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, null, false, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+        }
+
+        [TestMethod]
+        public void IfNoStatusCodeSuccessIsTrue()
+        {
+            int? statusCode = null;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            var dependency = this.sendItems[0] as DependencyTelemetry;
+            Assert.IsTrue(dependency.Success.Value);
+            Assert.AreEqual(string.Empty, dependency.ResultCode);
+        }
+
+        [TestMethod]
+        public void IfNegativeStatusCodeSuccessIsFalse()
+        {
+            int? statusCode = -1;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            var dependency = this.sendItems[0] as DependencyTelemetry;
+            Assert.IsFalse(dependency.Success.Value);
+            Assert.AreEqual(string.Empty, dependency.ResultCode);
+        }
+
+        [TestMethod]
+        public void ForCorrectStatusCodeSuccessIsSetOnBaseOfIt()
+        {
+            int? statusCode = 200;
+            bool success = false;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, success, false, statusCode);
+
+            var dependency = this.sendItems[0] as DependencyTelemetry;
+            Assert.IsTrue(dependency.Success.Value);
+            Assert.AreEqual("200", dependency.ResultCode);
         }
 
         /// <summary>
