@@ -330,7 +330,7 @@ namespace FuncTest
 
             AzureStorageHelper.Initialize();
 
-            // LocalDb.CreateLocalDb("RDDTestDatabase", aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
+            LocalDb.CreateLocalDb("RDDTestDatabase", aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
 
             if (DotNetVersionCheck.IsNet46Installed)
             {
