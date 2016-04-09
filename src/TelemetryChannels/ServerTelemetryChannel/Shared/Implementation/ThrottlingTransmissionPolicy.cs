@@ -12,11 +12,12 @@
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private readonly TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
 
         public void Dispose()
         {
-            this.pauseTimer.Dispose();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public override void Initialize(Transmitter transmitter)
@@ -77,6 +78,18 @@
             this.MaxStorageCapacity = null;
             this.LogCapacityChanged();
             this.Apply();     
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.pauseTimer != null)
+                {
+                    this.pauseTimer.Dispose();
+                    this.pauseTimer = null;
+                }
+            }
         }
     }
 }

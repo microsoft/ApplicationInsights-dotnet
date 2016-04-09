@@ -32,7 +32,7 @@
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
         {
-            if (args.Response != null && args.Response.StatusCode == 206)
+            if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
             {
                 string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args);
 
