@@ -859,7 +859,7 @@ namespace FuncTest
                 (application) =>
                 {
                     var queryString = "?type=httpClient&count=1";
-                    var resourceNameExpected = "http://www.google.com";
+                    var resourceNameExpected = "http://www.google.com/404";
                     string commandNameExpected = string.Empty;
                     application.ExecuteAnonymousRequest(queryString);
 
