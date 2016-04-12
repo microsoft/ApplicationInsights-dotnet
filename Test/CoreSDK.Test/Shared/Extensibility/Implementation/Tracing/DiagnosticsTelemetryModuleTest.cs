@@ -8,7 +8,10 @@
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Assert = Xunit.Assert;
 
     [TestClass]
     public class DiagnosticsTelemetryModuleTest
@@ -20,12 +23,12 @@
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
-                Assert.IsTrue(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
-                Assert.AreEqual("Error", initializedModule.Severity);
+                Assert.True(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
+                Assert.Equal("Error", initializedModule.Severity);
 
-                Assert.AreEqual(2, initializedModule.Senders.Count);
-                Assert.AreEqual(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
-                Assert.AreEqual(1, initializedModule.Senders.OfType<F5DiagnosticsSender>().Count());
+                Assert.Equal(2, initializedModule.Senders.Count);
+                Assert.Equal(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
+                Assert.Equal(1, initializedModule.Senders.OfType<F5DiagnosticsSender>().Count());
             }
         }
 
@@ -38,9 +41,9 @@
                 initializedModule.Initialize(new TelemetryConfiguration());
                 initializedModule.DiagnosticsInstrumentationKey = diagnosticsInstrumentationKey;
 
-                Assert.AreEqual(diagnosticsInstrumentationKey, initializedModule.DiagnosticsInstrumentationKey);
+                Assert.Equal(diagnosticsInstrumentationKey, initializedModule.DiagnosticsInstrumentationKey);
 
-                Assert.AreEqual(
+                Assert.Equal(
                     diagnosticsInstrumentationKey,
                     initializedModule.Senders.OfType<PortalDiagnosticsSender>().First().DiagnosticsInstrumentationKey);
             }
@@ -53,20 +56,47 @@
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
-                Assert.AreEqual(EventLevel.Error.ToString(), initializedModule.Severity);
+                Assert.Equal(EventLevel.Error.ToString(), initializedModule.Severity);
 
                 initializedModule.Severity = "Informational";
 
-                Assert.AreEqual(EventLevel.Informational, initializedModule.EventListener.LogLevel);
+                Assert.Equal(EventLevel.Informational, initializedModule.EventListener.LogLevel);
             }
         }
 
         [TestMethod]
         public void TestDiagnosticModuleDoesNotThrowIfInitailizedTwice()
         {
-            DiagnosticsTelemetryModule module = new DiagnosticsTelemetryModule();
-            module.Initialize(TelemetryConfiguration.Active);
-            module.Initialize(TelemetryConfiguration.Active);
+            using (DiagnosticsTelemetryModule module = new DiagnosticsTelemetryModule())
+            {
+                module.Initialize(new TelemetryConfiguration());
+                module.Initialize(new TelemetryConfiguration());
+            }
+        }
+
+        [TestMethod]
+        public void DiagnosticModuleDoesNotThrowIfQueueSenderContinuesRecieveEvents()
+        {
+            using (DiagnosticsTelemetryModule module = new DiagnosticsTelemetryModule())
+            {
+                var queueSender = module.Senders.OfType<PortalDiagnosticsQueueSender>().First();
+
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                TaskEx.Run(() =>
+                {
+                    while (!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        queueSender.Send(new TraceEvent());
+                        Thread.Sleep(1);
+                    }
+                }, cancellationTokenSource.Token);
+
+
+                Assert.DoesNotThrow(() => module.Initialize(new TelemetryConfiguration()));
+
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
+            }
         }
     }
 }
