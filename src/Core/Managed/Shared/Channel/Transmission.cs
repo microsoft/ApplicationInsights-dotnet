@@ -1,12 +1,7 @@
-﻿// <copyright file="Transmission.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-
-namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Net;
 #if CORE_PCL
@@ -63,6 +58,11 @@ namespace Microsoft.ApplicationInsights.Channel
 #if CORE_PCL
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif
+        }
+
+        internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan)) 
+            : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
+        {
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// Executes the request that the current transmission represents.
         /// </summary>
         /// <returns>The task to await.</returns>
-        public virtual async Task SendAsync()
+        public virtual async Task<HttpWebResponseWrapper> SendAsync()
         {
             if (Interlocked.CompareExchange(ref this.isSending, 1, 0) != 0)
             {
@@ -143,11 +143,13 @@ namespace Microsoft.ApplicationInsights.Channel
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
                     await this.client.SendAsync(request).ConfigureAwait(false);
+                    return null;
                 }
 #else
                 WebRequest request = this.CreateRequest(this.EndpointAddress);
                 Task timeoutTask = TaskEx.Delay(this.Timeout);
-                Task sendTask = this.SendRequestAsync(request);                
+                Task<HttpWebResponseWrapper> sendTask = this.SendRequestAsync(request);
+                                
                 Task completedTask = await TaskEx.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);
                 if (completedTask == timeoutTask)
                 {
@@ -155,7 +157,8 @@ namespace Microsoft.ApplicationInsights.Channel
                 }
 
                 // Observe any exceptions the sendTask may have thrown and propagate them to the caller.
-                await sendTask.ConfigureAwait(false);
+                HttpWebResponseWrapper responseContent = await sendTask.ConfigureAwait(false);
+                return responseContent;
 #endif
             }
             finally
@@ -215,7 +218,7 @@ namespace Microsoft.ApplicationInsights.Channel
             return request;
         }
 
-        private async Task SendRequestAsync(WebRequest request)
+        private async Task<HttpWebResponseWrapper> SendRequestAsync(WebRequest request)
         {
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
             {
@@ -224,6 +227,33 @@ namespace Microsoft.ApplicationInsights.Channel
 
             using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
             {
+                HttpWebResponseWrapper wrapper = null;
+                
+                var httpResponse = response as HttpWebResponse;
+                if (httpResponse != null)
+                {
+                    // Return content only for 206 for performance reasons
+                    // Currently we do not need it in other cases
+                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
+                    {
+                        wrapper = new HttpWebResponseWrapper
+                        {
+                            StatusCode = (int)httpResponse.StatusCode,
+                        };
+
+                        if (httpResponse.Headers != null)
+                        {
+                            wrapper.RetryAfterHeader = httpResponse.Headers["Retry-After"];
+                        }
+
+                        using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            wrapper.Content = content.ReadToEnd();
+                        }
+                    }
+                }
+
+                return wrapper;
             }
         }
     }

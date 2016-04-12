@@ -36,9 +36,10 @@
             var policies = new TransmissionPolicy[] 
             { 
                 new ApplicationLifecycleTransmissionPolicy(applicationLifecycle),
+                new ThrottlingTransmissionPolicy(), 
                 new ErrorHandlingTransmissionPolicy(),
+                new PartialSuccessTransmissionPolicy(), 
                 new NetworkAvailabilityTransmissionPolicy(network),
-                new ThrottlingTransmissionPolicy()
             };
 
             this.Transmitter = new Transmitter(policies: policies);

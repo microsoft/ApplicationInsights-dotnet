@@ -1,27 +1,23 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+
     using Microsoft.ApplicationInsights.Channel;
-    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
     internal class TransmissionProcessedEventArgs : EventArgs
     {
-        private readonly Transmission transmission;
-        private readonly Exception exception;
-
-        public TransmissionProcessedEventArgs(Transmission transmission, Exception exception = null)
+        public TransmissionProcessedEventArgs(Transmission transmission, Exception exception = null, HttpWebResponseWrapper response = null)
         {
-            this.transmission = transmission;
-            this.exception = exception;
+            this.Transmission = transmission;
+            this.Exception = exception;
+            this.Response = response;
         }
 
-        public Transmission Transmission
-        {
-            get { return this.transmission; }
-        }
+        public Transmission Transmission { get; }
 
-        public Exception Exception
-        {
-            get { return this.exception; }
-        }
+        public Exception Exception { get; }
+
+        public HttpWebResponseWrapper Response { get; protected set; }
     }
 }

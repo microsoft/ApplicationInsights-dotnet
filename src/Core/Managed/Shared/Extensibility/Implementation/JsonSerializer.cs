@@ -54,6 +54,51 @@
         }
 
         /// <summary>
+        /// Converts serialized telemetry items to a byte array.
+        /// </summary>
+        /// <param name="telemetryItems">Serialized telemetry items.</param>
+        /// <param name="compress">Should serialization also perform compression.</param>
+        /// <returns>The compressed and serialized telemetry items.</returns>
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Disposing a MemoryStream multiple times is harmless.")]
+        public static byte[] ConvertToByteArray(string telemetryItems, bool compress = true)
+        {
+            if (string.IsNullOrEmpty(telemetryItems))
+            {
+                throw new ArgumentNullException("telemetryItems");
+            }
+
+            var memoryStream = new MemoryStream();
+            using (Stream compressedStream = compress ? CreateCompressedStream(memoryStream) : memoryStream)
+            using (var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding))
+            {
+                streamWriter.Write(telemetryItems);
+            }
+
+            return memoryStream.ToArray();
+        }
+
+        /// <summary>
+        /// Deserializes and decompress the telemetry items into a JSON string.
+        /// </summary>
+        /// <param name="telemetryItemsData">Serialized telemetry items.</param>
+        /// <param name="compress">Should deserialization also perform decompression.</param>
+        /// <returns>Telemetry items serialized as a string.</returns>
+        public static string Deserialize(byte[] telemetryItemsData, bool compress = true)
+        {
+            var memoryStream = new MemoryStream(telemetryItemsData);
+            
+            using (Stream decompressedStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+            {
+                using (MemoryStream str = new MemoryStream())
+                {
+                    decompressedStream.CopyTo(str);
+                    byte[] output = str.ToArray();
+                    return Encoding.UTF8.GetString(output, 0, output.Length);
+                }
+            }
+        }
+
+        /// <summary>
         ///  Serialize and compress a telemetry item. 
         /// </summary>
         /// <param name="telemetryItem">A telemetry item.</param>

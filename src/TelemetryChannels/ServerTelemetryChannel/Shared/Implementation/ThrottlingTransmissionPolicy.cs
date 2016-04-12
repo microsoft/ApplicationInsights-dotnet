@@ -12,23 +12,12 @@
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private const int ResponseCodeTooManyRequests = 429;
-        private const int ResponseCodeTooManyRequestsOverExtendedTime = 439;
-
-        private readonly TaskTimer pauseTimer = new TaskTimer();
-
-        /// <summary>
-        /// Gets a value that determines amount of time transmission sending will
-        /// be paused before attempting to resume transmission after a network error is detected.
-        /// </summary>
-        public TimeSpan PauseDuration
-        {
-            get { return this.pauseTimer.Delay; }
-        }
+        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
 
         public void Dispose()
         {
-            this.pauseTimer.Dispose();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public override void Initialize(Transmitter transmitter)
@@ -42,47 +31,43 @@
             var webException = e.Exception as WebException;
             if (webException != null)
             {
+                this.ConsecutiveErrors++;
+
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {
-                    if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequests ||
-                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequestsOverExtendedTime)
+                    if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequests ||
+                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                     {
-                        TimeSpan retryAfterTimeSpan;
-                        if (!this.TryParseRetryAfter(httpWebResponse.Headers, out retryAfterTimeSpan))
+                        this.pauseTimer.Delay = this.GetBackOffTime(httpWebResponse.Headers);
+                        TelemetryChannelEventSource.Log.ThrottlingRetryAfterParsedInSec(this.pauseTimer.Delay.TotalSeconds);
+
+                        this.MaxSenderCapacity = 0;
+                        this.MaxBufferCapacity =
+                            httpWebResponse.StatusCode ==
+                            (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime ? (int?)0 : null;
+                        this.MaxStorageCapacity =
+                            httpWebResponse.StatusCode ==
+                            (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime ? (int?)0 : null;
+
+                        this.LogCapacityChanged();
+
+                        this.Apply();
+
+                        // Back-off for the Delay duration and enable sending capacity
+                        this.pauseTimer.Start(() =>
                         {
-                            this.ResetPolicy();                         
-                        }
-                        else
-                        {
-                            this.pauseTimer.Delay = retryAfterTimeSpan;
-                            TelemetryChannelEventSource.Log.ThrottlingRetryAfterParsedInSec(retryAfterTimeSpan.TotalSeconds);
+                            this.ResetPolicy();
+                            return TaskEx.FromResult<object>(null);
+                        });
 
-                            this.MaxSenderCapacity = 0;
-                            this.MaxBufferCapacity =
-                                httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequestsOverExtendedTime ?
-                                (int?)0 :
-                                null;
-                            this.MaxStorageCapacity =
-                                httpWebResponse.StatusCode == (HttpStatusCode)ResponseCodeTooManyRequestsOverExtendedTime ?
-                                (int?)0 :
-                                null;
-
-                            this.LogCapacityChanged();
-
-                            this.Apply();
-
-                            // Back-off for the Delay duration and enable sending capacity
-                            this.pauseTimer.Start(() =>
-                            {
-                                this.ResetPolicy();
-                                return TaskEx.FromResult<object>(null);
-                            });
-
-                            this.Transmitter.Enqueue(e.Transmission);
-                        }
+                        this.Transmitter.Enqueue(e.Transmission);
                     }
                 }
+            }
+            else
+            {
+                this.ConsecutiveErrors = 0;
             }
         }
 
@@ -95,33 +80,16 @@
             this.Apply();     
         }
 
-        private bool TryParseRetryAfter(WebHeaderCollection headers, out TimeSpan retryAfterTimeSpan)
+        private void Dispose(bool disposing)
         {
-            retryAfterTimeSpan = TimeSpan.FromSeconds(0);
-            var retryAfter = headers.Get("Retry-After");
-            if (retryAfter == null)
+            if (disposing)
             {
-                return false;
-            }
-
-            var now = DateTime.Now;
-            DateTime retryAfterDate;
-            if (DateTime.TryParse(retryAfter, out retryAfterDate))
-            {
-                if (retryAfterDate > now)
+                if (this.pauseTimer != null)
                 {
-                    retryAfterTimeSpan = retryAfterDate - now;
-                    return true;
-                }
-                else
-                {
-                    return false;
+                    this.pauseTimer.Dispose();
+                    this.pauseTimer = null;
                 }
             }
-
-            TelemetryChannelEventSource.Log.TransmissionPolicyRetryAfterParseFailedWarning(retryAfter);
-
-            return false;
         }
     }
 }

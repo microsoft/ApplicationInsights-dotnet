@@ -4,7 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
     internal class TransmissionSender
     {
         private int transmissionCount = 0;
@@ -83,10 +84,12 @@
         private async Task StartSending(Transmission transmission)
         {
             Exception exception = null;
+            HttpWebResponseWrapper responseContent = null;
+
             try
             {
                 TelemetryChannelEventSource.Log.TransmissionSendStarted(transmission.Id);
-                await transmission.SendAsync().ConfigureAwait(false);                
+                responseContent = await transmission.SendAsync().ConfigureAwait(false);          
             }
             catch (Exception e)
             {
@@ -104,7 +107,7 @@
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(transmission.Id, exception.ToString());
                 }
 
-                this.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception));
+                this.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception, responseContent));
             }
         }
     }

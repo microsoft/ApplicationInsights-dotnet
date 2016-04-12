@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
@@ -13,7 +14,7 @@
     {
         public Action<Stream> OnSave = stream => { };
 
-        public Action OnSend = () => { };
+        public Func<HttpWebResponseWrapper> OnSend = () => null;
 
         public StubTransmission()
             : base(new Uri("any://uri"), new byte[0], string.Empty, string.Empty)
@@ -30,7 +31,7 @@
             return TaskEx.Run(() => this.OnSave(stream));
         }
 
-        public override Task SendAsync()
+        public override Task<HttpWebResponseWrapper> SendAsync()
         {
             return TaskEx.Run(this.OnSend);
         }

@@ -5,19 +5,14 @@
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
     internal class ErrorHandlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private const int SlotDelayInSeconds = 10;
-        private const int MaxDelayInSeconds = 3600;
-        private readonly Random random = new Random();
         private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
-        
-        internal int ConsecutiveErrors { get; set; }
 
         public override void Initialize(Transmitter transmitter)
         {
@@ -29,27 +24,6 @@
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        // Calculates the time to wait before retrying in case of an error based on
-        // http://en.wikipedia.org/wiki/Exponential_backoff
-        internal virtual TimeSpan GetBackOffTime()
-        {
-            double delayInSeconds;
-
-            if (this.ConsecutiveErrors <= 1)
-            {
-                delayInSeconds = SlotDelayInSeconds;
-            }
-            else
-            {
-                double backOffSlot = (Math.Pow(2, this.ConsecutiveErrors) - 1) / 2;
-                var backOffDelay = this.random.Next(1, (int)Math.Min(backOffSlot * SlotDelayInSeconds, int.MaxValue));
-                delayInSeconds = Math.Max(Math.Min(backOffDelay, MaxDelayInSeconds), SlotDelayInSeconds);
-            }
-
-            TelemetryChannelEventSource.Log.BackoffTimeSetInSeconds(delayInSeconds);
-            return TimeSpan.FromSeconds(delayInSeconds);
         }
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
@@ -75,7 +49,7 @@
                             this.Apply();
 
                             // Back-off for the Delay duration and enable sending capacity
-                            this.pauseTimer.Delay = this.GetBackOffTime();
+                            this.pauseTimer.Delay = this.GetBackOffTime(httpWebResponse.Headers);
                             this.pauseTimer.Start(() =>
                             {
                                 this.MaxBufferCapacity = null;
@@ -90,17 +64,16 @@
                             break;
                     }
                 }
-                else 
+                else
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError);
                 }
             }
             else
             {
-                var theException = e.Exception as Exception;
-                if (theException != null)
+                if (e.Exception != null)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, theException.Message);
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
                 }
 
                 this.ConsecutiveErrors = 0;

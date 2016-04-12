@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationStoppingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\BackendResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExceptionHandler.cs" />
@@ -29,8 +30,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IRandomNumberBatchGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Network.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PartialSuccessTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ResponseStatusCodes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGenerator.cs" />

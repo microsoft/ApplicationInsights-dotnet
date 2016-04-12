@@ -79,23 +79,11 @@
             var configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
-            // Assume that SdkVersionInitializer is added by default
-            var contextInitializer = configuration.TelemetryInitializers[1];
+            var contextInitializer = configuration.TelemetryInitializers[0];
             Assert.IsType<OperationCorrelationTelemetryInitializer>(contextInitializer);
         }
 #endif
-        [TestMethod]
-        public void InitializeAddsSdkVersionTelemetryInitializerByDefault()
-        {
-            var configuration = new TelemetryConfiguration();
-            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
-
-            // Assume that SdkVersionInitializer is added by default
-            var contextInitializer = configuration.TelemetryInitializers[0];
-            Assert.IsType<SdkVersionPropertyTelemetryInitializer>(contextInitializer);
-        }
-
-
+        
         [TestMethod]
         public void InitializeNotifiesTelemetryInitializersImplementingITelemetryModuleInterface()
         {
@@ -610,7 +598,7 @@
             var configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
-            Assert.Equal(3, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
+            Assert.Equal(2, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
             Assert.NotNull(configuration.TelemetryInitializers.First(item => item.GetType().Name == "StubTelemetryInitializer"));
         }
 

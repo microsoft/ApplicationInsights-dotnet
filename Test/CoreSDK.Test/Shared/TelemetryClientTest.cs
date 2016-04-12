@@ -730,6 +730,33 @@
             Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
         }
 
+        [TestMethod]
+        public void TrackAddsSdkVerionByDefault()
+        {
+            var configuration = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString() };
+            var client = new TelemetryClient(configuration);
+
+            client.Context.InstrumentationKey = "Test";
+            EventTelemetry eventTelemetry = new EventTelemetry("test");
+            client.Track(eventTelemetry);
+
+            Assert.StartsWith("dotnet: ", eventTelemetry.Context.Internal.SdkVersion);
+        }
+
+        [TestMethod]
+        public void TrackDoesNotOverrideSdkVersion()
+        {
+            var configuration = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString() };
+            var client = new TelemetryClient(configuration);
+
+            client.Context.InstrumentationKey = "Test";
+            EventTelemetry eventTelemetry = new EventTelemetry("test");
+            eventTelemetry.Context.Internal.SdkVersion = "test";
+            client.Track(eventTelemetry);
+
+            Assert.Equal("test", eventTelemetry.Context.Internal.SdkVersion);
+        }
+
         #endregion
 
         #region Sampling

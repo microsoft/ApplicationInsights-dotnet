@@ -86,30 +86,6 @@
             }
 
             [TestMethod]
-            public void AssertIfDateParseErrorCausesDefaultDelay()
-            {
-                var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter();
-                transmitter.OnApplyPolicies = () =>
-                {
-                    policyApplied.Set();
-                };
-
-                var policy = new ThrottlingTransmissionPolicy();
-                policy.Initialize(transmitter);
-
-                transmitter.OnTransmissionSent(
-                    new TransmissionProcessedEventArgs(
-                        new StubTransmission(),
-                    CreateThrottledResponse(ResponseCodeTooManyRequests, "no one can parse me! :)")));
-
-                Assert.True(policyApplied.WaitOne(100));
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
-                Assert.Null(policy.MaxStorageCapacity);
-            }
-
-            [TestMethod]
             public void CannotParseRetryAfterWritesToEventSource()
             {
                 const string UnparsableDate = "no one can parse me! :)";
@@ -131,33 +107,6 @@
                     EventWrittenEventArgs trace = listener.Messages.First(args => args.EventId == 24);
                     Assert.Equal(UnparsableDate, (string)trace.Payload[0]);
                 }
-            }
-
-            [TestMethod]
-            public void RetryAfterOlderThanNow()
-            {
-                // An old date
-                string retryAfterDateString = DateTime.Now.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
-
-                var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter();
-                transmitter.OnApplyPolicies = () =>
-                {
-                    policyApplied.Set();
-                };
-
-                var policy = new ThrottlingTransmissionPolicy();
-                policy.Initialize(transmitter);
-
-                transmitter.OnTransmissionSent(
-                    new TransmissionProcessedEventArgs(
-                        new StubTransmission(),
-                    CreateThrottledResponse(ResponseCodeTooManyRequests, retryAfterDateString)));
-
-                Assert.True(policyApplied.WaitOne(100));
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
-                Assert.Null(policy.MaxStorageCapacity);
             }
 
             private static WebException CreateThrottledResponse(int throttledStatusCode, int retryAfter)

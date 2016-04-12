@@ -121,6 +121,7 @@
                     if (!this.isInitialized)
                     {
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
+                        queueSender.IsDisabled = true;
                         this.Senders.Remove(queueSender);
                         
                         PortalDiagnosticsSender portalSender = new PortalDiagnosticsSender(

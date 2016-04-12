@@ -51,5 +51,13 @@
             Assert.True(json.Contains("\"time\":\"0001-01-01T00:00:00.0000000Z\""));
         }
 
+        [TestMethod]
+        public void IfCallConvertToArrayAndThanDeserializeYouGetSameResult()
+        {
+            byte[] array = JsonSerializer.ConvertToByteArray("test");
+            string result = JsonSerializer.Deserialize(array);
+
+            Assert.Equal("test", result);
+        }
     }
 }

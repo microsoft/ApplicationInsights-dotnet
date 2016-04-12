@@ -55,8 +55,6 @@
                 modules.Modules.Add(new DiagnosticsTelemetryModule());
             }
 
-            configuration.TelemetryInitializers.Add(new SdkVersionPropertyTelemetryInitializer());
-
 #if !CORE_PCL
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 #endif

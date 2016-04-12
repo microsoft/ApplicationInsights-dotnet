@@ -4,11 +4,15 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
+    using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Linq;
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
@@ -22,36 +26,6 @@
 
     public class ErrorHandlingTransmissionPolicyTest
     {
-        [TestClass]
-        public class GetBackOffTime : ErrorHandlingTransmissionPolicyTest
-        {
-            [TestMethod]
-            public void NoErrorDelayIsSameAsSlotDelay()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                TimeSpan delay = policy.GetBackOffTime();
-                Assert.Equal(TimeSpan.FromSeconds(10), delay);
-            }
-
-            [TestMethod]
-            public void FirstErrorDelayIsSameAsSlotDelay()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                policy.ConsecutiveErrors = 1;
-                TimeSpan delay = policy.GetBackOffTime();
-                Assert.Equal(TimeSpan.FromSeconds(10), delay);
-            }
-
-            [TestMethod]
-            public void UpperBoundOfDelayIsMaxDelay()
-            {
-                var policy = new ErrorHandlingTransmissionPolicy();
-                policy.ConsecutiveErrors = int.MaxValue;
-                TimeSpan delay = policy.GetBackOffTime();
-                Assert.InRange(delay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
-            }
-        }
-
         [TestClass]
         public class HandleTransmissionSentEvent : ErrorHandlingTransmissionPolicyTest
         {
@@ -245,7 +219,7 @@
         {
             public TimeSpan BackOffTime { get; set; }
 
-            internal override TimeSpan GetBackOffTime()
+            public override TimeSpan GetBackOffTime(NameValueCollection headers = null)
             {
                 return this.BackOffTime;
             }

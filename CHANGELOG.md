@@ -2,12 +2,20 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.1.0-beta3
+- Support partial success (206) from the Application Insights backend. Before this change SDK may have lost data because some items of the batch were accepted and some items of the batch were asked to be retried (because of burst throttling or intermittent issues).
+- Bug fixes
+
 ## Version 2.1.0-beta1
 
 - Upgraded to depend on EventSource.Redist nuget version 1.1.28
 - Upgraded to depend on Microsoft.Bcl nuget version 1.1.10
 
-## Version 2.0.0 (stable)
+## Version 2.0.1
+
+- Add Win Phone, Win Store and UWP targets that include 1.2.3 version of ApplicationInsights.dll. It is included to prevent applications that upgrade to 2.0.0 from crashing. In any case using this nuget for Win Phone, Win Store and UWP targets is not recommended and not supported. 
+
+## Version 2.0.0
 
 - Disallow Nan, +-Infinity measurements. Value will be replaced on 0.
 - Disallow Nan, +-Infinity metrics (Value, Min, Max and StandardDeviation). Values will be replaced on 0.
