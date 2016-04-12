@@ -108,21 +108,23 @@
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
                 telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
 
-                if (!statusCode.HasValue)
-                {
-                    // No statuscode from framework in 4.5.2
-                    telemetry.Success = success ?? true;
-                }
-                else
+                if (statusCode.HasValue)
                 {
                     // We calculate success on the base of http code and do not use the 'success' method argument
                     // because framework returns true all the time if you use HttpClient to create a request
                     // statusCode == -1 if there is no Response
                     telemetry.Success = (statusCode > 0) && (statusCode < 400);
                     telemetry.ResultCode = statusCode.Value > 0 ? statusCode.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
-                }
 
-                ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
+                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
+                }
+                else
+                {
+                    // This case is for For 4.5.2
+                    // We never not collected statusCode or success
+                    // We also have duplicates if runtime is also 4.5.2 (4.6 runtime has no such problem)
+                    // So starting 2.1.0-beta4 we are cutting support of http dependencies for 4.5.2
+                }
             }
         }   
 

@@ -137,7 +137,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 long id = Convert.ToInt64(eventData.Payload[0], CultureInfo.InvariantCulture);
 
                 bool? success = null;
-                bool synchronous = false;
                 int? statusCode = null;
 
                 // .NET 4.6 onwards will be passing the following additional params.
@@ -148,10 +147,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         success = Convert.ToBoolean(eventData.Payload[1], CultureInfo.InvariantCulture);
                     }
 
-                    if (eventData.Payload[2] != null)
-                    {
-                        synchronous = Convert.ToBoolean(eventData.Payload[2], CultureInfo.InvariantCulture);
-                    }
+                    ////if (eventData.Payload[2] != null)
+                    ////{
+                    ////    synchronous = Convert.ToBoolean(eventData.Payload[2], CultureInfo.InvariantCulture);
+                    ////}
 
                     if (eventData.Payload[3] != null)
                     {
@@ -161,14 +160,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
                 else
                 {
-                    // In previous versions - .NET 4.5.1-4.5.2 - we cannot differentiate whether it's sync or async, 
-                    // but we know that we collect only async dependency calls
-                    synchronous = false;
+                    // This case is for .NET 4.5.1-4.5.2
                 }
 
                 if (this.HttpProcessingFramework != null)
                 {                    
-                    this.HttpProcessingFramework.OnEndHttpCallback(id, success, synchronous, statusCode);
+                    this.HttpProcessingFramework.OnEndHttpCallback(id, success, false, statusCode);
                 }
             }
         }
