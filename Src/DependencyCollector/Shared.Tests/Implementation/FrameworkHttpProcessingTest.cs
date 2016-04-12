@@ -99,23 +99,45 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, "500");
         }
 
-        /// <summary>
-        /// Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback with no success flag passed.
-        /// </summary>
         [TestMethod]
-        [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback with no success flag passed.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestHttpProcessingFrameworkOnEndHttpCallbackEmptySuccessFlag()
+        public void IfNoStatusCodeItemIsNotTracked()
         {
-            var id = 100;
-            this.httpProcessingFramework.OnBeginHttpCallback(id, TestUrl);
-            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id, null, false, null);
+            int? statusCode = null;
 
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            Assert.AreEqual(0, this.sendItems.Count);
+        }
+
+        [TestMethod]
+        public void IfNegativeStatusCodeSuccessIsFalse()
+        {
+            int? statusCode = -1;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, statusCode);
+
+            var dependency = this.sendItems[0] as DependencyTelemetry;
+            Assert.IsFalse(dependency.Success.Value);
+            Assert.AreEqual(string.Empty, dependency.ResultCode);
+        }
+
+        [TestMethod]
+        public void ForCorrectStatusCodeSuccessIsSetOnBaseOfIt()
+        {
+            int? statusCode = 200;
+            bool success = false;
+
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            this.httpProcessingFramework.OnEndHttpCallback(100, success, false, statusCode);
+
+            var dependency = this.sendItems[0] as DependencyTelemetry;
+            Assert.IsTrue(dependency.Success.Value);
+            Assert.AreEqual("200", dependency.ResultCode);
         }
 
         /// <summary>
@@ -178,20 +200,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var actual = this.sendItems[0] as DependencyTelemetry;
 
             Assert.IsFalse(actual.Success.Value);
-        }
-
-        [TestMethod]
-        public void OnEndHttpCallbackSetsStatusCodeToEmptyIfNotProvided()
-        {
-            int? statusCode = null;
-           
-            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrl);
-            this.httpProcessingFramework.OnEndHttpCallback(100, true, false, statusCode);
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            var actual = this.sendItems[0] as DependencyTelemetry;
-
-            Assert.AreEqual(string.Empty, actual.ResultCode);
         }
 
         #endregion //BeginEndCallBacks
