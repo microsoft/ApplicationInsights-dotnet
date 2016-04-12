@@ -12,13 +12,19 @@
         public PortalDiagnosticsQueueSender()
         {
             this.EventData = new List<TraceEvent>();
+            this.IsDisabled = false;
         }
 
-        public IList<TraceEvent> EventData { get; private set; }
+        public IList<TraceEvent> EventData { get; }
+
+        public bool IsDisabled { get; set; }
 
         public void Send(TraceEvent eventData)
         {
-            this.EventData.Add(eventData);
+            if (!this.IsDisabled)
+            {
+                this.EventData.Add(eventData);
+            }
         }
     }
 }
