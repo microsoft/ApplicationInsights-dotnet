@@ -81,21 +81,25 @@
             {
                 var queueSender = module.Senders.OfType<PortalDiagnosticsQueueSender>().First();
 
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                TaskEx.Run(() =>
+                using (var cancellationTokenSource = new CancellationTokenSource())
                 {
-                    while (!cancellationTokenSource.IsCancellationRequested)
+                    var taskStarted = new AutoResetEvent(false);
+                    TaskEx.Run(() =>
                     {
-                        queueSender.Send(new TraceEvent());
-                        Thread.Sleep(1);
-                    }
-                }, cancellationTokenSource.Token);
+                        taskStarted.Set();
+                        while (!cancellationTokenSource.IsCancellationRequested)
+                        {
+                            queueSender.Send(new TraceEvent());
+                            Thread.Sleep(1);
+                        }
+                    }, cancellationTokenSource.Token);
 
+                    taskStarted.WaitOne(TimeSpan.FromSeconds(5));
 
-                Assert.DoesNotThrow(() => module.Initialize(new TelemetryConfiguration()));
+                    Assert.DoesNotThrow(() => module.Initialize(new TelemetryConfiguration()));
 
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
+                    cancellationTokenSource.Cancel();
+                }
             }
         }
     }
