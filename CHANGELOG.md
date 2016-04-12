@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.1.0-beta3
+- Support partial success (206) from the Application Insights backend. Before this change SDK may have lost data because some items of the batch were accepted and some items of the batch were asked to be retried (because of burst throttling or intermittent issues).
+- Bug fixes
+
 ## Version 2.1.0-beta1
 
 - Upgraded to depend on EventSource.Redist nuget version 1.1.28
