@@ -170,40 +170,22 @@
             this.OnEnd(exception, thisObj, null);
         }
 
-#endregion // Http callbacks
+        #endregion // Http callbacks
 
         /// <summary>
         /// Gets HTTP request url.
         /// </summary>
-        /// <param name="thisObj">Represents web request.</param>
+        /// <param name="webRequest">Represents web request.</param>
         /// <returns>The url if possible otherwise empty string.</returns>
-        internal string GetUrl(object thisObj)
+        internal string GetUrl(WebRequest webRequest)
         {
-            WebRequest webRequest = thisObj as WebRequest;
             string resource = string.Empty;
             if (webRequest != null && webRequest.RequestUri != null)
             {
                 resource = webRequest.RequestUri.ToString();
-            }            
-
-            return resource;
-        }
-
-        /// <summary>
-        /// Gets HTTP request Verb.
-        /// </summary>
-        /// <param name="thisObj">Represents web request.</param>
-        /// <returns>The Verb if possible otherwise empty string.</returns>
-        private string GetMethod(object thisObj)
-        {
-            WebRequest webRequest = thisObj as WebRequest;
-            string method = string.Empty;
-            if (webRequest != null)
-            {
-                method = webRequest.Method;
             }
 
-            return method;
+            return resource;
         }
 
         /// <summary>
@@ -222,15 +204,19 @@
                     return null;
                 }
 
-                string url = this.GetUrl(thisObj);
-                string httMethod = this.GetMethod(thisObj);
+                WebRequest webRequest = thisObj as WebRequest;
+                if (webRequest == null)
+                {
+                    DependencyCollectorEventSource.Log.UnexpectedCallbackParameter("WebRequest");
+                }
+
+                string url = this.GetUrl(webRequest);
+                string httMethod = webRequest.Method;
 
                 string resourceName = url;
 
                 if (!string.IsNullOrEmpty(httMethod))
                 {
-                    // We add prefix that we will remove on the backend
-                    // We need prefix because url can contain spaces and we need better separator to distinguish from previous versions
                     resourceName = httMethod + " " + resourceName;
                 }                
 

@@ -218,6 +218,16 @@
             this.WriteEvent(19, error ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(
+            20,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "UnexpectedCallbackParameter. Expected type: {0}.",
+            Level = EventLevel.Warning)]
+        public void UnexpectedCallbackParameter(string expectedType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(20, expectedType ?? string.Empty, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

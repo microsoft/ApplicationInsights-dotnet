@@ -546,7 +546,7 @@
                 DependencyTelemetry operationReturned = (DependencyTelemetry)this.httpProcessingProfiler.OnBeginForGetResponse(request);
                 
                 Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-                TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);                
+                TestUtils.ValidateEventLogMessage(listener, "UnexpectedCallbackParameter", EventLevel.Warning);                
             }
         }
 
