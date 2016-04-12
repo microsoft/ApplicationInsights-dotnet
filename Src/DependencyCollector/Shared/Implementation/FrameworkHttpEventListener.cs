@@ -142,15 +142,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // .NET 4.6 onwards will be passing the following additional params.
                 if (eventData.Payload.Count >= 4)
                 {
+                    // Payload[1] = success
+                    // Payload[2] = synchronous
+                    // Payload[3] = statusCode
                     if (eventData.Payload[1] != null)
                     {
                         success = Convert.ToBoolean(eventData.Payload[1], CultureInfo.InvariantCulture);
                     }
-
-                    ////if (eventData.Payload[2] != null)
-                    ////{
-                    ////    synchronous = Convert.ToBoolean(eventData.Payload[2], CultureInfo.InvariantCulture);
-                    ////}
 
                     if (eventData.Payload[3] != null)
                     {
