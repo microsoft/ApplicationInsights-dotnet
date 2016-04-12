@@ -170,16 +170,15 @@
             this.OnEnd(exception, thisObj, null);
         }
 
-#endregion // Http callbacks
+        #endregion // Http callbacks
 
         /// <summary>
-        /// Gets HTTP request resource name.
+        /// Gets HTTP request url.
         /// </summary>
-        /// <param name="thisObj">Represents web request.</param>
-        /// <returns>The resource name if possible otherwise empty string.</returns>
-        internal string GetResourceName(object thisObj)
+        /// <param name="webRequest">Represents web request.</param>
+        /// <returns>The url if possible otherwise empty string.</returns>
+        internal string GetUrl(WebRequest webRequest)
         {
-            WebRequest webRequest = thisObj as WebRequest;
             string resource = string.Empty;
             if (webRequest != null && webRequest.RequestUri != null)
             {
@@ -188,7 +187,7 @@
 
             return resource;
         }
-          
+
         /// <summary>
         /// Common helper for all Begin Callbacks.
         /// </summary>
@@ -205,17 +204,31 @@
                     return null;
                 }
 
-                string resourceName = this.GetResourceName(thisObj);
+                WebRequest webRequest = thisObj as WebRequest;
+                if (webRequest == null)
+                {
+                    DependencyCollectorEventSource.Log.UnexpectedCallbackParameter("WebRequest");
+                }
+
+                string url = this.GetUrl(webRequest);
+                string httMethod = webRequest.Method;
+
+                string resourceName = url;
+
+                if (!string.IsNullOrEmpty(httMethod))
+                {
+                    resourceName = httMethod + " " + resourceName;
+                }                
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
 
-                if (string.IsNullOrEmpty(resourceName))
+                if (string.IsNullOrEmpty(url))
                 {
                     DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp", "resourceName is empty");
                     return null;
                 }
 
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(resourceName))
+                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url))
                 {
                     // Not logging as we will be logging for all outbound AI calls
                     return null;

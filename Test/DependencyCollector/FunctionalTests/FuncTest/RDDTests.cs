@@ -213,12 +213,12 @@ namespace FuncTest
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
-        private const string ResourceNameHttpToBing = "http://www.bing.com";
+        private const string ResourceNameHttpToBing = "http://www.bing.com/";
 
         /// <summary>
         /// Resource Name for failed request.
         /// </summary>
-        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com";
+        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com/";
 
         /// <summary>
         /// Resource Name for dev database.
@@ -755,7 +755,12 @@ namespace FuncTest
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
                     foreach (var httpItem in httpItems)
                     {
-                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, true);
+                            if (DependencySourceType.Apmc == sourceExpected)
+                            {
+                                Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
+                            }
+
+                            this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, true);
                     }
                 });
         }
@@ -838,6 +843,11 @@ namespace FuncTest
 
                     foreach (var httpItem in httpItems)
                     {
+                        if (DependencySourceType.Apmc == sourceExpected)
+                        {
+                            Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
+                        }
+
                         this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, count, accessTimeMax, success, false);
                     }
                 });
@@ -849,7 +859,7 @@ namespace FuncTest
                 (application) =>
                 {
                     var queryString = "?type=httpClient&count=1";
-                    var resourceNameExpected = "http://www.google.com";
+                    var resourceNameExpected = "http://www.google.com/404";
                     string commandNameExpected = string.Empty;
                     application.ExecuteAnonymousRequest(queryString);
 
@@ -867,6 +877,11 @@ namespace FuncTest
 
                     foreach (var httpItem in httpItems)
                     {
+                        if (DependencySourceType.Apmc == sourceExpected)
+                        {
+                            Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
+                        }
+
                         this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, false, false);
                     }
                 });
@@ -902,6 +917,11 @@ namespace FuncTest
                     foreach (var httpItem in httpItems)
                     {
                         this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, false);
+
+                        if (DependencySourceType.Apmc == sourceExpected)
+                        {
+                            Assert.AreEqual("POST " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
+                        }
                     }
                 });
         }        
@@ -1019,7 +1039,7 @@ namespace FuncTest
         private void ValidateRddTelemetryValues(TelemetryItem<RemoteDependencyData> itemToValidate, string remoteDependencyNameExpected, string commandNameExpected, int countExpected, TimeSpan accessTimeMax, bool successFlagExpected, bool asyncFlagExpected)
         {
             DependencySourceType source = sourceExpected;
-            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect");
+            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected + ". Collected: " + itemToValidate.Data.BaseData.Name);
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
             if (DependencySourceType.Apmc == sourceExpected)
