@@ -1039,7 +1039,14 @@ namespace FuncTest
         private void ValidateRddTelemetryValues(TelemetryItem<RemoteDependencyData> itemToValidate, string remoteDependencyNameExpected, string commandNameExpected, int countExpected, TimeSpan accessTimeMax, bool successFlagExpected, bool asyncFlagExpected)
         {
             DependencySourceType source = sourceExpected;
-            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected), "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected + ". Collected: " + itemToValidate.Data.BaseData.Name);
+
+            if (itemToValidate.Data.BaseData.DependencyKind == DependencyKind.SQL)
+            {
+                // For http name is validated in test itself
+                Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected),
+                    "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
+                    ". Collected: " + itemToValidate.Data.BaseData.Name);
+            }
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
             if (DependencySourceType.Apmc == sourceExpected)
