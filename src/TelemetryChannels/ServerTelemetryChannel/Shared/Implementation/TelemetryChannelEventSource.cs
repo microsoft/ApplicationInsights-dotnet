@@ -30,6 +30,12 @@
             }
         }
 
+        [Event(4, Message = "Backoff interval in seconds {0}.", Level = EventLevel.Verbose)]
+        public void BackoffInterval(double intervalInSec, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(4, intervalInSec, this.ApplicationName);
+        }
+
         [Event(5, Message = "Backend response {1} was not parsed. Some items may be dropped: {0}.", Level = EventLevel.Warning)]
         public void BreezeResponseWasNotParsedWarning(string exception, string response, string appDomainName = "Incorrect")
         {

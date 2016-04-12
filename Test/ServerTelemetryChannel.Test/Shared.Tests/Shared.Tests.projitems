@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounterTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FileSystemTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PartialSuccessTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFileTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettingsTest.cs" />

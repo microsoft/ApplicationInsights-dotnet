@@ -129,7 +129,7 @@
         /// Executes the request that the current transmission represents.
         /// </summary>
         /// <returns>The task to await.</returns>
-        public virtual async Task<string> SendAsync()
+        public virtual async Task<HttpWebResponseWrapper> SendAsync()
         {
             if (Interlocked.CompareExchange(ref this.isSending, 1, 0) != 0)
             {
@@ -148,7 +148,7 @@
 #else
                 WebRequest request = this.CreateRequest(this.EndpointAddress);
                 Task timeoutTask = TaskEx.Delay(this.Timeout);
-                Task<string> sendTask = this.SendRequestAsync(request);
+                Task<HttpWebResponseWrapper> sendTask = this.SendRequestAsync(request);
                                 
                 Task completedTask = await TaskEx.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);
                 if (completedTask == timeoutTask)
@@ -157,7 +157,7 @@
                 }
 
                 // Observe any exceptions the sendTask may have thrown and propagate them to the caller.
-                string responseContent = await sendTask.ConfigureAwait(false);
+                HttpWebResponseWrapper responseContent = await sendTask.ConfigureAwait(false);
                 return responseContent;
 #endif
             }
@@ -218,7 +218,7 @@
             return request;
         }
 
-        private async Task<string> SendRequestAsync(WebRequest request)
+        private async Task<HttpWebResponseWrapper> SendRequestAsync(WebRequest request)
         {
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
             {
@@ -227,18 +227,34 @@
 
             using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
             {
-                HttpWebResponse r = response as HttpWebResponse;
-
-                if (r != null && (int)r.StatusCode == 206)
+                HttpWebResponseWrapper wrapper = null;
+                
+                var httpResponse = response as HttpWebResponse;
+                if (httpResponse != null)
                 {
-                    using (StreamReader responseContent = new StreamReader(r.GetResponseStream()))
+                    // Return content only for 206 for performance reasons
+                    // Currently we do not need it in other cases
+                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
                     {
-                        return responseContent.ReadToEnd();
+                        wrapper = new HttpWebResponseWrapper
+                        {
+                            StatusCode = (int)httpResponse.StatusCode,
+                        };
+
+                        if (httpResponse.Headers != null)
+                        {
+                            wrapper.RetryAfterHeader = httpResponse.Headers["Retry-After"];
+                        }
+
+                        using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            wrapper.Content = content.ReadToEnd();
+                        }
                     }
                 }
-            }
 
-            return string.Empty;
+                return wrapper;
+            }
         }
     }
 }

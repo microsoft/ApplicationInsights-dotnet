@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
-namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.IO;

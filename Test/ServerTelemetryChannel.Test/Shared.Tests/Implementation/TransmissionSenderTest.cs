@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -223,13 +224,14 @@
                     eventIsRaised.Set();
                 };
 
-                Transmission transmission = new StubTransmission { OnSend = () => "test" };
+                var wrapper = new HttpWebResponseWrapper();
+                Transmission transmission = new StubTransmission { OnSend = () => wrapper };
                 sender.Enqueue(() => transmission);
 
                 Assert.True(eventIsRaised.Wait(50));
                 Assert.Same(sender, eventSender);
                 Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Equal("test", eventArgs.ResponseContent);
+                Assert.Same(wrapper, eventArgs.Response);
             }
         }
     }
