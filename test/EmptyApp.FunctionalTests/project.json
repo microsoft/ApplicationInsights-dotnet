@@ -6,18 +6,12 @@
     "delaySign": true,
     "preserveCompilationContext": true
   },
-  "dependencies": {
-    "Microsoft.AspNetCore.Server.WebListener": "0.1.0-rc2-*",
+  "dependencies": { 
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
     "FunctionalTestUtils": "1.0.0-rc2"
   },
   "testRunner": "xunit",
-  "commands": {
-    "web": "Microsoft.AspNetCore.Hosting --server Microsoft.AspNetCore.Server.WebListener --server.urls http://localhost:5000",
-    "test": "xunit.runner.aspnet"
-  },
-
   "frameworks": {
     "netstandardapp1.5": {
       "imports": [
@@ -27,9 +21,8 @@
       ],
       "dependencies": {
         "moq.netcore": "4.4.0-beta8",
-        "NETStandard.Library": "1.0.0-rc2-*",
         "dotnet-test-xunit": "1.0.0-dev-*",
-        "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-23604"
+        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*"
       }
     }
   },

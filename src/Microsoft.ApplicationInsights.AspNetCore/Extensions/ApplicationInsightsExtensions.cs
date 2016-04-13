@@ -80,30 +80,31 @@
 
         public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
         {
-            var telemetryConfigurationSource = new MemoryConfigurationProvider();
+            var telemetryConfigValues = new List<KeyValuePair<string, string>>();
+            
             bool wasAnythingSet = false;
 
             if (developerMode != null)
             {
-                telemetryConfigurationSource.Set(DeveloperModeForWebSites, developerMode.Value.ToString());
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites, developerMode.Value.ToString()));
                 wasAnythingSet = true;
             } 
   
             if (instrumentationKey != null)
             {
-                telemetryConfigurationSource.Set(InstrumentationKeyForWebSites, instrumentationKey);
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites, instrumentationKey));
                 wasAnythingSet = true;
             }
 
             if (endpointAddress != null)
             {
-                telemetryConfigurationSource.Set(EndpointAddressForWebSites, endpointAddress);
+                telemetryConfigValues.Add(new KeyValuePair<string, string>(EndpointAddressForWebSites, endpointAddress));
                 wasAnythingSet = true;
             }
 
             if (wasAnythingSet)
             {
-                configurationSourceRoot.Add(telemetryConfigurationSource);
+                configurationSourceRoot.Add(new MemoryConfigurationSource() { InitialData = telemetryConfigValues });
             }
 
             return configurationSourceRoot;

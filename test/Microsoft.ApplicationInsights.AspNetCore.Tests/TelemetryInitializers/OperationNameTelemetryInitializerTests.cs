@@ -13,7 +13,7 @@
     using Microsoft.AspNetCore.Routing;
     using Xunit;
     using Microsoft.AspNetCore.Routing.Tree;
-
+    using Microsoft.AspNetCore.Http;
     public class OperationNameTelemetryInitializerTests
     {
         private const string TestListenerName = "TestListener";

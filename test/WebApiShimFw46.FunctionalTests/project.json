@@ -11,18 +11,16 @@
 
   "dependencies": {
     "FunctionalTestUtils": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
     "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Server.WebListener": "0.1.0-rc2-*",
     "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
-    "Microsoft.AspNet.WebApi.Client": "5.2.3",
+    "Microsoft.AspNet.WebApi.Client": "5.2.2",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
     "xunit": "2.1.0"
   },
 
   "commands": {
-    "web": "Microsoft.AspNetCore.Hosting --server Microsoft.AspNetCore.Server.WebListener --server.urls http://localhost:5000",
     "test": "xunit.runner.aspnet"
   },
 
@@ -35,7 +33,7 @@
       ],
       "dependencies": {
         "moq.netcore": "4.4.0-beta8",
-        "NETStandard.Library": "1.0.0-rc2-*",
+        "NETStandard.Library": "1.5.0-rc2-*",
         "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*"
       }

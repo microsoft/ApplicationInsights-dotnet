@@ -3,7 +3,6 @@ using Microsoft.ApplicationInsights.Channel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -123,7 +122,7 @@ namespace Mvc6Framework45.FunctionalTests
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{actionIndex}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
 
                 // Uncomment the following line to add a route for porting Web API 2 controllers.
                 // routes.MapWebApiRoute("DefaultApi", "api/{controller}/{id?}");

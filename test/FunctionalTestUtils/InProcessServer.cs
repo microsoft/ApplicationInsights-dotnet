@@ -46,17 +46,13 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new MemoryConfigurationProvider();
-            customConfig.Set("server.urls", this.BaseHost);
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.Add(customConfig);
-            var config = configBuilder.Build();
-
-            this.hostingEngine = CreateBuilder(config)
-                .UseServer("Microsoft.AspNetCore.Server.WebListener")
+            this.hostingEngine = CreateBuilder()
+                .UseUrls(this.BaseHost)
+                .UseServer("Microsoft.AspNetCore.Server.Kestrel")
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production")
                 .Build();
+
             this.hostingEngine.Start();
             
             
@@ -71,10 +67,10 @@
             }
         }
         
-        private WebHostBuilder CreateBuilder(IConfiguration config)
+        private WebHostBuilder CreateBuilder()
         {
             var hostBuilder = new WebHostBuilder();
-            hostBuilder.UseConfiguration(config);
+            hostBuilder.UseDefaultHostingConfiguration();
             return hostBuilder;
         }
     }

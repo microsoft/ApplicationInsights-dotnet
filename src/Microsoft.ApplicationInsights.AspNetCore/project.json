@@ -1,14 +1,14 @@
 ﻿{
   "title": "Application Insights for ASP.NET Core Web Applications",
-  "description": "Application Insights for ASP.NET Core web applications. See  https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
+  "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
   "authors": [ "Microsoft" ],
-  "version": "1.0.0-rc2-beta1",
+  "version": "1.0.0-rc2",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
   "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
   "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
   "requireLicenseAcceptance": true,
   "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
-  "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "ASP.NET Core" ],
+  "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "aspnetcore" ],
   "compilationOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
@@ -16,8 +16,7 @@
   "dependencies": {
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Http.Features": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-*",
+    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc2-*",
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration": "1.0.0-rc2-*",
     "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-*",
@@ -34,15 +33,13 @@
         "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0"
       }
     },
-    "netstandard1.3": {
+    "netstandard1.5": {
       "imports": [
         "dotnet5.4",
-        "dnxcore50",
-        "portable-net45+win8"
+        "portable-net451+win8"
       ],
       "dependencies": {
-        "NETStandard.Library": "1.0.0-rc2-*",
-        "System.Net.NameResolution": "4.0.0-beta-23302",
+        "System.Net.NameResolution": "4.0.0-rc2-*",
         "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-*"
       }
     }

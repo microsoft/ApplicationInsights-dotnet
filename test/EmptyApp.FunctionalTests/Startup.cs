@@ -35,7 +35,7 @@ namespace EmptyApp.FunctionalTests
         public void Configure(IApplicationBuilder app)
         {
             app.UseApplicationInsightsRequestTelemetry();
-            app.UseDeveloperExceptionPage(new DeveloperExceptionPageOptions());
+            app.UseDeveloperExceptionPage();
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.Use(next =>
