@@ -105,7 +105,7 @@ namespace Mvc6Framework45.FunctionalTests
             // Add Application Insights exceptions handling to the request pipeline.
             app.UseApplicationInsightsExceptionTelemetry();
             // Add static files to the request pipeline.
-            app.UseStaticFiles();        
+            app.UseStaticFiles();
 
             // Add cookie-based authentication to the request pipeline.
             app.UseIdentity();
