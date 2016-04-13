@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Mvc6Framework45.FunctionalTests.Models
