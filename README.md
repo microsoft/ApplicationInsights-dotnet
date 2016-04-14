@@ -34,6 +34,8 @@ logger.Trace("trace log message");
 - If you configure NLog programmatically than create Application Insights target in code and add it to your other targets:
 
 ```csharp
+var config = new LoggingConfiguration();
+
 ApplicationInsightsTarget target = new ApplicationInsightsTarget();
 // You need this only if you did not define InstrumentationKey in ApplicationInsights.config or want to use different instrumentation key
 target.InstrumentationKey = "Your_Resource_Key";
