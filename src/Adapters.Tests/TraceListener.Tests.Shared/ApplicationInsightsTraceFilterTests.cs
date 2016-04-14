@@ -78,63 +78,6 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
                     SourceLevels.Verbose);
         }
 
-        [TestMethod, Ignore]
-        public void RespectFilterForTraceEventWithMessage()
-        {
-            Tuple<TraceEventType, bool> expect = this.LookupTraceFiterExpections();
-
-            this.TraceFilterTestHelper(
-                (ApplicationInsightsTraceListener traceListener, TraceEventCache shimTraceEventCache) =>
-                    traceListener.TraceEvent(shimTraceEventCache, "hello", expect.Item1, 0, "test"),
-                    expect.Item2);
-        }
-
-        [TestMethod, Ignore]
-        public void RespectFilterForTraceEventWithoutMessage()
-        {
-            Tuple<TraceEventType, bool> expect = this.LookupTraceFiterExpections(false);
-
-            this.TraceFilterTestHelper(
-                (ApplicationInsightsTraceListener traceListener, TraceEventCache shimTraceEventCache) =>
-                    traceListener.TraceEvent(shimTraceEventCache, "hello", expect.Item1, 0),
-                    expect.Item2,
-                    SourceLevels.Error);
-        }
-
-        [TestMethod, Ignore]
-        public void RespectFilterForTraceEventWithFormat()
-        {
-            Tuple<TraceEventType, bool> expect = this.LookupTraceFiterExpections();
-
-            this.TraceFilterTestHelper(
-                (ApplicationInsightsTraceListener traceListener, TraceEventCache shimTraceEventCache) =>
-                    traceListener.TraceEvent(shimTraceEventCache, "hello", expect.Item1, 0, "{0} event", 1),
-                    expect.Item2);
-        }
-
-        [TestMethod, Ignore]
-        public void RespectFilterForTraceDataSingleObject()
-        {
-            Tuple<TraceEventType, bool> expect = this.LookupTraceFiterExpections();
-
-            this.TraceFilterTestHelper(
-                (ApplicationInsightsTraceListener traceListener, TraceEventCache shimTraceEventCache) =>
-                    traceListener.TraceData(shimTraceEventCache, "hello", expect.Item1, 0, "data"),
-                    expect.Item2);
-        }
-
-        [TestMethod, Ignore]
-        public void RespectFilterForTraceDataMultipleObjects()
-        {
-            Tuple<TraceEventType, bool> expect = this.LookupTraceFiterExpections();
-
-            string[] data = new[] { "data", "data2" };
-            this.TraceFilterTestHelper(
-                (ApplicationInsightsTraceListener traceListener, TraceEventCache shimTraceEventCache) =>
-                    traceListener.TraceData(shimTraceEventCache, "hello", expect.Item1, 0, data),
-                    expect.Item2);
-        }
-
         private void TraceFilterTestHelper(
             Action<ApplicationInsightsTraceListener, TraceEventCache> callTraceEent,
             bool shouldTrace,

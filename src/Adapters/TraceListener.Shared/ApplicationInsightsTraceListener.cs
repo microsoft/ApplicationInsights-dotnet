@@ -158,6 +158,11 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 return;
             }
 
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = message.TrimEnd();
+            }
+
             var trace = new TraceTelemetry(message);
             this.CreateTraceData(new TraceEventCache(), TraceEventType.Verbose, null, trace);
             this.TelemetryClient.Track(trace);
