@@ -24,10 +24,18 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     /// NLog Target that routes all logging output to the Application Insights logging framework.
     /// The messages will be uploaded to the Application Insights cloud service.
     /// </summary>
-    [Target("ApplicationInsightsTarget")]
-    public sealed class ApplicationInsightsTarget : Target
+    [Target("ApplicationInsightsTarget")]   
+    public sealed class ApplicationInsightsTarget : TargetWithLayout
     {
         private TelemetryClient telemetryClient;
+
+        /// <summary>
+        /// Initializers a new instance of ApplicationInsightsTarget type.
+        /// </summary>
+        public ApplicationInsightsTarget()
+        {
+            this.Layout = @"${message}";
+        }
 
         /// <summary>
         /// The Application Insights instrumentationKey for your application. 
@@ -100,7 +108,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
 
         private void SendTrace(LogEventInfo logEvent)
         {
-            var trace = new TraceTelemetry(logEvent.FormattedMessage)
+            string logMessage = this.Layout.Render(logEvent);
+            
+            var trace = new TraceTelemetry(logMessage)
             {
                 SeverityLevel = this.GetSeverityLevel(logEvent.Level)
             };
