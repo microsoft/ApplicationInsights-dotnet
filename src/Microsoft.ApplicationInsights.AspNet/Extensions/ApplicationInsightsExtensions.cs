@@ -17,7 +17,8 @@
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.DependencyCollector;
 #endif
-
+    using ApplicationInsights.AspNet.Extensibility.Implementation.Tracing;
+    using Logging;
     public static class ApplicationInsightsExtensions
     {
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
@@ -78,7 +79,12 @@
             });
         }
 
-        public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
+        public static IConfigurationBuilder AddApplicationInsightsSettings(
+            this IConfigurationBuilder configurationSourceRoot,
+            bool? developerMode = null,
+            string endpointAddress = null,
+            string instrumentationKey = null,
+            LogLevel? level = null)
         {
             var telemetryConfigurationSource = new MemoryConfigurationProvider();
             bool wasAnythingSet = false;
@@ -98,6 +104,12 @@
             if (endpointAddress != null)
             {
                 telemetryConfigurationSource.Set(EndpointAddressForWebSites, endpointAddress);
+                wasAnythingSet = true;
+            }
+
+            if (level != null)
+            {
+                TelemetryLogger.Instance.Level = level.Value;
                 wasAnythingSet = true;
             }
 

@@ -1,4 +1,4 @@
-﻿{
+{
     "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
@@ -30,8 +30,9 @@
           "define": [ "dnx451" ]
         },
         "dependencies": {
-          "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0-*",
-          "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0-*"
+            "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0-*",
+            "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0-*",
+            "Microsoft.Diagnostics.Tracing.EventSource.Redist": "1.1.28"
         }
       },
         "dnxcore50": {
@@ -39,8 +40,9 @@
                 "define": [ "dnxcore50" ]
             },
             "dependencies": {
-              "System.Net.NameResolution": "4.0.0-beta-23302",
-              "System.Reflection": "4.0.10-beta-23109"
+                "System.AppContext": "4.0.1-beta-23516",
+                "System.Net.NameResolution": "4.0.0-beta-23302",
+                "System.Reflection": "4.0.10-beta-23109"
             }
         }
     }

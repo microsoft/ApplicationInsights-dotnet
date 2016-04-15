@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
-
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Features;
-
+    using Microsoft.Extensions.Logging;
 
 
     /// <summary>
@@ -112,7 +112,8 @@
         {
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
-                //already populated
+                // Ip is already populated.
+                TelemetryLogger.Instance.LogVerbose("ClientIpHeaderTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Location.Ip is already set, returning.");
                 return;
             }
 
@@ -146,6 +147,7 @@
 
                 requestTelemetry.Context.Location.Ip = resultIp;
             }
+
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
         }
     }

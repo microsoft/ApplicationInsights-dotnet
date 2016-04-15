@@ -2,10 +2,12 @@
 {
     using System;
     using System.Globalization;
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
+    using Microsoft.Extensions.Logging;
 
     public class WebUserTelemetryInitializer : TelemetryInitializerBase
     {
@@ -20,6 +22,7 @@
         {
             if (!string.IsNullOrEmpty(telemetry.Context.User.Id))
             {
+                TelemetryLogger.Instance.LogVerbose("WebUserTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.");
                 return;
             }
 

@@ -1,10 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
     using System;
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
+    using Microsoft.Extensions.Logging;
 
     public class WebSessionTelemetryInitializer : TelemetryInitializerBase
     {
@@ -19,6 +21,7 @@
         {
             if (!string.IsNullOrEmpty(telemetry.Context.Session.Id))
             {
+                TelemetryLogger.Instance.LogVerbose("WebSessionTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.");
                 return;
             }
 
