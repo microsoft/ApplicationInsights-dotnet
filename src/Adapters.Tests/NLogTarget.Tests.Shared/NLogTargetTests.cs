@@ -126,6 +126,37 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+        public void TraceMessageCanBeFormedUsingLayout()
+        {
+            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            target.Layout = @"${uppercase:${level}} ${message}";
+
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey("test", null, target);
+            
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+
+            Assert.AreEqual("DEBUG Message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void TraceMessageWithoutLayoutDefaultsToMessagePassed()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("My Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            Assert.IsNotNull(telemetry, "Didn't get the log event from the channel");
+
+            Assert.AreEqual("My Message", telemetry.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
         public void TraceHasSequesnceId()
         {
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
@@ -262,12 +293,16 @@
 
         private Logger CreateTargetWithGivenInstrumentationKey(
             string instrumentationKey = "TEST",
-            Action<Logger> loggerAction = null)
+            Action<Logger> loggerAction = null,
+            ApplicationInsightsTarget target = null)
         {
             // Mock channel to validate that our appender is trying to send logs
             TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
 
-            ApplicationInsightsTarget target = new ApplicationInsightsTarget();
+            if (target == null)
+            {
+                target = new ApplicationInsightsTarget();
+            }
 
             target.InstrumentationKey = instrumentationKey;
             LoggingRule rule = new LoggingRule("*", LogLevel.Trace, target);
