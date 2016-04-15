@@ -200,7 +200,7 @@
             catch (Exception exception)
             {
                 expectedException = exception;
-                aiLogger.DebugException("testing exception scenario", exception);
+                aiLogger.Debug(exception, "testing exception scenario");
             }
 
             var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();

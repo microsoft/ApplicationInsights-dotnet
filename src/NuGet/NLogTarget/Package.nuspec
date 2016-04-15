@@ -18,7 +18,7 @@
     <dependencies>      
       <group>
         <dependency id="Microsoft.ApplicationInsights" version="$coresdkversion$" />
-        <dependency id="NLog" version="2.1.0" />
+        <dependency id="NLog" version="4.2.3" />
       </group>
     </dependencies>
   </metadata>

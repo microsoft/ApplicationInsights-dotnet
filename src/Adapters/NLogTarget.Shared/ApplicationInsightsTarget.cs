@@ -63,7 +63,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = "NLog: " + GetAssemblyVersion();
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = "NLog:" + GetAssemblyVersion();
         }
 
         /// <summary>

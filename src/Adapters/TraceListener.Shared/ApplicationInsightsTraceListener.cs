@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
-            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD: " + GetAssemblyVersion();
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD:" + GetAssemblyVersion();
         }
 
         internal TelemetryClient TelemetryClient { get; set; }
