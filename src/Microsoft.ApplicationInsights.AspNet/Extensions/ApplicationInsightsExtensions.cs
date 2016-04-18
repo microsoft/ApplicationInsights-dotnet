@@ -40,10 +40,10 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
+        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool DisableSampling = false)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer>(ComponentVersionTelemetryInitializer =>
+            services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
             {
                 return new ComponentVersionTelemetryInitializer(config);
             });
@@ -63,8 +63,8 @@
 
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
-                var telemetryConfiguration = serviceProvider.GetService<TelemetryConfiguration>() ?? TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration);
+                var telemetryConfiguration = TelemetryConfiguration.Active;
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, DisableSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
@@ -185,16 +185,15 @@
             }
         }
 
-        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration)
+        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool DisableSampling)
         {
 #if dnx451
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
 
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
             {
-                if (!configuration.TelemetryProcessors.Any<ITelemetryProcessor>(processor => processor.GetType() == typeof(AdaptiveSamplingTelemetryProcessor)))
+                if (!DisableSampling)
                 {
-                    //These can be applied with any channel, until and unless they are in full framework.
                     configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
                     configuration.TelemetryProcessorChainBuilder.Build();
                 }
