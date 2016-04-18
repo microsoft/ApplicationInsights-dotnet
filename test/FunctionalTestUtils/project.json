@@ -1,12 +1,12 @@
 ﻿{
-    "version": "1.0.0-rc1-*",
+    "version": "1.0.0-rc1",
     "compilationOptions": {
         "keyFile": "../../keys/35MSSharedLib1024.snk",
         "delaySign": true
     },
   "dependencies": {
     "Microsoft.ApplicationInsights": "2.0.0-*",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-update3",
     "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
     "Microsoft.Dnx.Runtime": "1.0.0-rc1-final",

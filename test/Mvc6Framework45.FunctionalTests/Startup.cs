@@ -45,7 +45,7 @@ namespace Mvc6Framework45.FunctionalTests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddInstance<ITelemetryChannel>(new BackTelemetryChannel());
-            services.AddApplicationInsightsTelemetry(Configuration, false);
+            services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add Application settings to the services container.
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));

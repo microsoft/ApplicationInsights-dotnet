@@ -1,13 +1,12 @@
 {
     "webroot": "wwwroot",
-    "version": "1.0.0-beta8-*",
     "compilationOptions": {
         "keyFile": "../../keys/35MSSharedLib1024.snk",
         "delaySign": true
     },
   "dependencies": {
-    "FunctionalTestUtils": "1.0.0-rc1-final",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
+    "FunctionalTestUtils": "1.0.0-rc1",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-update3",
     "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
     "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-rc1-final",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",

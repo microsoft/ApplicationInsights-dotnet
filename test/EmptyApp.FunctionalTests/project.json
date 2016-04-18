@@ -1,14 +1,13 @@
 ﻿{
   "webroot": "wwwroot",
-  "version": "1.0.0-*",
   "compilationOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
     },
   "dependencies": {
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
-    "FunctionalTestUtils": "1.0.0-rc1-final",
+    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-update3",
+    "FunctionalTestUtils": "1.0.0-rc1",
     "xunit.runner.dnx": "2.1.0-rc1-*",
     "xunit": "2.1.0-rc1-*",
     "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final"
