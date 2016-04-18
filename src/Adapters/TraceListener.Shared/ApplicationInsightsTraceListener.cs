@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
-            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD: " + GetAssemblyVersion();
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD:" + GetAssemblyVersion();
         }
 
         internal TelemetryClient TelemetryClient { get; set; }
@@ -156,6 +156,11 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.Filter.ShouldTrace(null, string.Empty, TraceEventType.Verbose, 0, message, null, null, null) == false)
             {
                 return;
+            }
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = message.TrimEnd();
             }
 
             var trace = new TraceTelemetry(message);
