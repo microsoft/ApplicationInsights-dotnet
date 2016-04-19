@@ -1,4 +1,7 @@
-﻿namespace Microsoft.Extensions.DependencyInjection
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
     using System.Diagnostics;
@@ -12,11 +15,11 @@
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Xunit;
 
 #if dnx451
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
+    using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
 
     public static class ApplicationInsightsExtensionsTests
@@ -48,10 +51,7 @@
             [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Scoped)]
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
-
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
                 ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
                 Assert.Equal(lifecycle, service.Lifetime);
             }
@@ -59,20 +59,13 @@
             [Fact]
             public static void DoesNotThrowWithoutInstrumentationKey()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                //Empty configuration that doesn't have instrumentation key
-                IConfiguration config = new ConfigurationBuilder().Build();
-
-                services.AddApplicationInsightsTelemetry(config, false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
             }
 
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatCreatesDefaultInstance()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -85,34 +78,11 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromConfiguration()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key.json").Build();
-
-                services.AddApplicationInsightsTelemetry(config, false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal(TestInstrumentationKey, telemetryConfiguration.InstrumentationKey);
-            }
-
-            /// <summary>
-            /// Tests that the Active configuration singleton is not updated by the configuration factory when specifying false for re-using
-            /// the Active config singleton when registering Application Insights services for dependency injection.
-            /// </summary>
-            [Fact]
-            public static void ConfigurationFactoryMethodDoesNotUpdateTheActiveConfigurationSingletonWhenSetToFalse()
-            {
-                string existingActiveIkey = TelemetryConfiguration.Active.InstrumentationKey;
-
-                ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                IConfiguration config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key-new.json").Build();
-
-                Assert.NotEqual(existingActiveIkey, config.GetSection(InstrumentationKeyFromConfig).Value);
-                services.AddApplicationInsightsTelemetry(config, false);
-
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                TelemetryConfiguration telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Equal(existingActiveIkey, TelemetryConfiguration.Active.InstrumentationKey);
             }
 
             /// <summary>
@@ -123,10 +93,7 @@
             [Fact]
             public static void ConfigurationFactoryMethodUpdatesTheActiveConfigurationSingletonByDefault()
             {
-                ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                IConfiguration config = new ConfigurationBuilder().AddJsonFile("content\\config-instrumentation-key.json").Build();
-
-                services.AddApplicationInsightsTelemetry(config); // The default should be the same as explicitly passing true: (config, true).
+                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-instrumentation-key.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 TelemetryConfiguration telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -136,10 +103,7 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromConfiguration()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddJsonFile("content\\config-developer-mode.json").Build();
-
-                services.AddApplicationInsightsTelemetry(config, false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-developer-mode.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -149,10 +113,7 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddJsonFile("content\\config-endpoint-address.json").Build();
-
-                services.AddApplicationInsightsTelemetry(config, false);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -168,7 +129,7 @@
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
-                    services.AddApplicationInsightsTelemetry(config, false);
+                    services.AddApplicationInsightsTelemetry(config);
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -188,7 +149,7 @@
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
-                    services.AddApplicationInsightsTelemetry(config, false);
+                    services.AddApplicationInsightsTelemetry(config);
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -208,7 +169,7 @@
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
                 {
-                    services.AddApplicationInsightsTelemetry(config, false);
+                    services.AddApplicationInsightsTelemetry(config);
 
                     IServiceProvider serviceProvider = services.BuildServiceProvider();
                     var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -227,7 +188,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -241,7 +202,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddInstance<ITelemetryChannel>(telemetryChannel);
 
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -251,10 +212,7 @@
             [Fact]
             public static void DoesNotOverrideDefaultTelemetryChannelIfTelemetryChannelServiceIsNotRegistered()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
-
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.NotNull(telemetryConfiguration.TelemetryChannel);
@@ -265,11 +223,7 @@
             {
                 ITelemetry sentTelemetry = null;
                 var telemetryChannel = new FakeTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
-
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var configuration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 configuration.InstrumentationKey = Guid.NewGuid().ToString();
@@ -287,10 +241,7 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
-                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build(), false);
-
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -301,6 +252,51 @@
 
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
+            }
+
+            [Fact]
+            public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
+            {
+                var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount + 1);
+                Assert.True(telemetryConfiguration.TelemetryProcessors.Any<ITelemetryProcessor>(processor => processor.GetType() == typeof(AdaptiveSamplingTelemetryProcessor)));
+            }
+
+            [Fact]
+            public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
+            {
+                var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config, true);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount);
+            }
+
+            [Fact]
+            public static void AddsServerTelemetryChannelInFullFramework()
+            {
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(ServerTelemetryChannel));
+            }
+
+            [Fact]
+            public static void DoesNotOverWriteExistingChannelInFullFramework()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<ITelemetryChannel, InMemoryChannel>();
+                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
+                services.AddApplicationInsightsTelemetry(config);
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(InMemoryChannel));
             }
 #endif
         }
@@ -313,7 +309,7 @@
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(instrumentationKey: TestInstrumentationKey).Build();
-                services.AddApplicationInsightsTelemetry(config, false);
+                services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -325,7 +321,7 @@
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(developerMode: true).Build();
-                services.AddApplicationInsightsTelemetry(config, false);
+                services.AddApplicationInsightsTelemetry(config);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -335,14 +331,32 @@
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromSettings()
             {
-                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                var config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: "http://localhost:1234/v2/track/").Build();
-                services.AddApplicationInsightsTelemetry(config, false);
-
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
         }
+        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress)
+        {
+            var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            IConfigurationRoot config = null;
+
+            if (jsonPath != null)
+            {
+                config = new ConfigurationBuilder().AddJsonFile(jsonPath).Build();
+            }
+            else  if (channelEndPointAddress != null)
+            {
+                config = new ConfigurationBuilder().AddApplicationInsightsSettings(endpointAddress: channelEndPointAddress).Build();
+            }
+            else
+            {
+                config = new ConfigurationBuilder().Build();
+            }
+
+             services.AddApplicationInsightsTelemetry(config);
+             return services;
+         }
     }
 }
