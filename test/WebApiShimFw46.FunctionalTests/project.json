@@ -1,47 +1,58 @@
 {
-    "webroot": "wwwroot",
-    "version": "1.0.0-beta8-*",
-    "compilationOptions": {
-        "keyFile": "../../keys/35MSSharedLib1024.snk",
-        "delaySign": true
-    },
-  "dependencies": {
-    "FunctionalTestUtils": "1.0.0-rc1-final",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1",
-    "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
-    "Microsoft.AspNet.Mvc.WebApiCompatShim": "6.0.0-rc1-final",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
-    "Microsoft.AspNet.WebApi.Client": "5.2.0",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
-    "xunit.runner.dnx": "2.1.0-rc1-*",
-    "xunit": "2.1.0-rc1-*"
+  "webroot": "wwwroot",
+  "version": "1.0.0-rc2",
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true,
+    "preserveCompilationContext": true
   },
 
-    "commands": {
-        "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
-        "test": "xunit.runner.dnx"
-    },
+  "testRunner": "xunit",
 
-    "frameworks": {
-      "dnx451": {
-        "compilationOptions": {
-          "define": [ "dnx451" ]
-        }
-      },
-        "dnxcore50": { }
-    },
+  "dependencies": {
+    "FunctionalTestUtils": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
+    "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
+    "Microsoft.AspNet.WebApi.Client": "5.2.2",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "xunit": "2.1.0"
+  },
 
-    "exclude": [
-        "wwwroot",
-        "node_modules",
-        "bower_components"
-    ],
-    "publishExclude": [
-        "node_modules",
-        "bower_components",
-        "**.xproj",
-        "**.user",
-        "**.vspscc"
-    ]
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+
+  "frameworks": {
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "dotnet5.4",
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "moq.netcore": "4.4.0-beta8",
+        "NETStandard.Library": "1.5.0-rc2-*",
+        "dotnet-test-xunit": "1.0.0-dev-*",
+        "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*"
+      }
+    }
+  },
+
+  "exclude": [
+    "wwwroot",
+    "node_modules",
+    "bower_components"
+  ],
+  "publishExclude": [
+    "node_modules",
+    "bower_components",
+    "**.xproj",
+    "**.user",
+    "**.vspscc"
+  ],
+  "content": [
+    "config.json"
+  ]
 }

@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ApplicationInsights.AspNet.Extensions;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.ApplicationInsights.Channel;
 using FunctionalTestUtils;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNet.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace EmptyApp.FunctionalTests
 {
@@ -21,7 +23,9 @@ namespace EmptyApp.FunctionalTests
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddInstance<ITelemetryChannel>(new BackTelemetryChannel());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
 
             var builder = new ConfigurationBuilder();
             builder.AddApplicationInsightsSettings(instrumentationKey: "Foo");
@@ -31,7 +35,7 @@ namespace EmptyApp.FunctionalTests
         public void Configure(IApplicationBuilder app)
         {
             app.UseApplicationInsightsRequestTelemetry();
-            app.UseDeveloperExceptionPage(new ErrorPageOptions());
+            app.UseDeveloperExceptionPage();
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.Use(next =>

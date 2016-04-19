@@ -1,70 +1,58 @@
 {
-  "webroot": "wwwroot",
-  "userSecretsId": "aspnet5-Mvc6Framework45.FunctionalTests-42f45116-363a-40d3-9c44-bc58885d6e96",
-  "version": "1.0.0-rc1-*",
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true,
+    "preserveCompilationContext": true
+  },
   "dependencies": {
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final",
-    "EntityFramework.Commands": "7.0.0-rc1-final",
-    "FunctionalTestUtils": "1.0.0-rc1-final",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
-    "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.Facebook": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.Google": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.MicrosoftAccount": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.Twitter": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Diagnostics.Entity": "7.0.0-rc1-final",
-    "Microsoft.AspNet.Identity.EntityFramework": "3.0.0-rc1-final",
-    "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Tooling.Razor": "1.0.0-rc1-final",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
-    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc1-final",
-    "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc1-final",
-    "Microsoft.Extensions.Logging": "1.0.0-rc1-final",
-    "Microsoft.Extensions.Logging.Console": "1.0.0-rc1-final",
-    "xunit.runner.dnx": "2.1.0-rc1-*",
-    "xunit": "2.1.0-rc1-*"
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-rc2-*",
+    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-rc2-*",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-rc2-*",
+    "FunctionalTestUtils": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
+    "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Authentication.Facebook": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Authentication.Google": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Authentication.MicrosoftAccount": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Authentication.Twitter": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Tooling.Razor": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.IISPlatformHandler": "1.0.0-*",
+    "xunit": "2.1.0"
   },
-
-  "commands": {
-    "web": "Microsoft.AspNet.Server.Kestrel",
-    "gen": "Microsoft.Framework.CodeGeneration",
-    "ef": "EntityFramework.Commands",
-    "test": "xunit.runner.dnx"
-  },
-
   "frameworks": {
-    "dnx451": {
-      "compilationOptions": {
-        "define": [ "dnx451" ]
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "dotnet5.4",
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "moq.netcore": "4.4.0-beta8",
+        "NETStandard.Library": "1.5.0-rc2-*",
+        "dotnet-test-xunit": "1.0.0-dev-*",
+        "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*"
       }
-    },
-    "dnxcore50": { }
+    }
   },
-
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ],
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "testRunner": "xunit",
+  "tools": {
+    "dotnet-publish-iis": "1.0-0-rc2-*"
+  },
   "scripts": {
-    "postrestore": [
-      "npm install",
-      "node_modules/.bin/flatten-packages", 
-      "node_modules/.bin/bower install"
-    ],
-    "prepare": [
-      "node_modules/.bin/gulp copy"
-    ]
+    "postpublish": "dotnet publish-iis --publish-folder %publish:OutputPath%"
   }
 }

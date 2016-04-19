@@ -4,10 +4,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.AspNet.Hosting;
-    using Microsoft.AspNet.Hosting.Server;
-    using Microsoft.AspNet.Http.Features;
-    using Microsoft.Dnx.Runtime;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Hosting.Server;
+    using Microsoft.AspNetCore.Http.Features;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
@@ -18,7 +17,7 @@
     {
         private static Random random = new Random();
         
-        private IDisposable hostingEngine;
+        private IWebHost hostingEngine;
         private string url;
 
         private readonly BackTelemetryChannel backChannel;
@@ -47,20 +46,17 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-            var customConfig = new MemoryConfigurationProvider();
-            customConfig.Set("server.urls", this.BaseHost);
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.Add(customConfig);
-            var config = configBuilder.Build();
-
-            var engine = CreateBuilder(config)
-                .UseServer("Microsoft.AspNet.Server.WebListener")
+            this.hostingEngine = CreateBuilder()
+                .UseUrls(this.BaseHost)
+                .UseServer("Microsoft.AspNetCore.Server.Kestrel")
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production")
                 .Build();
-            this.hostingEngine = engine.Start();
+
+            this.hostingEngine.Start();
             
-            return (BackTelemetryChannel)engine.ApplicationServices.GetService<ITelemetryChannel>();
+            
+            return (BackTelemetryChannel)this.hostingEngine.Services.GetService<ITelemetryChannel>();
         }
 
         public void Dispose()
@@ -71,9 +67,11 @@
             }
         }
         
-        private WebHostBuilder CreateBuilder(IConfiguration config)
+        private WebHostBuilder CreateBuilder()
         {
-            return new WebHostBuilder(config);
+            var hostBuilder = new WebHostBuilder();
+            hostBuilder.UseDefaultHostingConfiguration();
+            return hostBuilder;
         }
     }
 }

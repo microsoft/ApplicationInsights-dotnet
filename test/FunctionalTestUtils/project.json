@@ -1,31 +1,30 @@
-﻿{
-    "version": "1.0.0-rc1-*",
-    "compilationOptions": {
-        "keyFile": "../../keys/35MSSharedLib1024.snk",
-        "delaySign": true
-    },
-  "dependencies": {
-    "Microsoft.ApplicationInsights": "2.0.0-*",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
-    "Microsoft.Dnx.Runtime": "1.0.0-rc1-final",
-    "xunit.runner.dnx": "2.1.0-rc1-*",
-    "xunit": "2.1.0-rc-*",
-    "System.Net.Http": "4.0.0-beta-*"
+{
+  "version": "1.0.0-rc2",
+  "compilationOptions": {
+    "keyFile": "../../keys/35MSSharedLib1024.snk",
+    "delaySign": true,
+    "preserveCompilationContext": true
   },
-
-    "frameworks": {
-      "dnx451": {
-        "compilationOptions": {
-          "define": [ "dnx451" ]
-        },
-        "dependencies": {
-        }
-      },
-        "dnxcore50": {
-            "dependencies": {
-            }
-        }
+  "dependencies": {
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
+    "xunit": "2.1.0",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "dotnet5.4",
+        "portable-net45+win8"
+      ],
+      "dependencies": {
+        "moq.netcore": "4.4.0-beta8",
+        "NETStandard.Library": "1.5.0-rc2-*",
+        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*"
+      }
     }
+  }
 }

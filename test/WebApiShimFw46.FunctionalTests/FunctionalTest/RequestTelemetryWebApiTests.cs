@@ -17,7 +17,7 @@
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.HttpMethod = "GET";
-                expectedRequestTelemetry.Name = "GET Values/Get";
+                expectedRequestTelemetry.Name = "GET /api/values";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);
@@ -53,7 +53,7 @@
 
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.HttpMethod = "GET";
-                expectedRequestTelemetry.Name = "GET Values/Get [id]";
+                expectedRequestTelemetry.Name = "GET /api/values/1";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);

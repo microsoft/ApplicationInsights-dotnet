@@ -1,13 +1,9 @@
 ﻿using FunctionalTestUtils;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.AspNet.Authentication.Facebook;
-using Microsoft.AspNet.Authentication.MicrosoftAccount;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Diagnostics;
-using Microsoft.AspNet.Diagnostics.Entity;
-using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Data.Entity;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -41,17 +37,19 @@ namespace Mvc6Framework45.FunctionalTests
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddInstance<ITelemetryChannel>(new BackTelemetryChannel());
+            services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add Application settings to the services container.
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.Configure<AppSettings>(appSettings =>
+            {
+                appSettings.SiteTitle = Configuration.GetSection("AppSettings").Value;
+            });
 
-            // Add EF services to the services container.
-            services.AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<ApplicationDbContext>(options =>
-                    Microsoft.Data.Entity.SqlServerDbContextOptionsExtensions.UseSqlServer(options, Configuration["Data:DefaultConnection:ConnectionString"]));
+            services.AddDbContext<ApplicationDbContext>(options => 
+            options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"])
+            );
+
             // Add Identity services to the services container.
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -94,7 +92,7 @@ namespace Mvc6Framework45.FunctionalTests
                 loggerfactory.AddConsole(minLevel: LogLevel.Warning);
 
                 //app.UseBrowserLink();
-                app.UseDeveloperExceptionPage(new ErrorPageOptions());
+                app.UseDeveloperExceptionPage(new DeveloperExceptionPageOptions());
                 app.UseDatabaseErrorPage();
             }
             else
@@ -124,8 +122,7 @@ namespace Mvc6Framework45.FunctionalTests
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller}/{action}/{id?}",
-                    defaults: new { controller = "Home", action = "Index" });
+                    template: "{controller=Home}/{action=Index}/{id?}");
 
                 // Uncomment the following line to add a route for porting Web API 2 controllers.
                 // routes.MapWebApiRoute("DefaultApi", "api/{controller}/{id?}");

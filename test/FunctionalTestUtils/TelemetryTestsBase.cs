@@ -6,7 +6,7 @@
     using System.Net.Http;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
-#if dnx451
+#if net451
     using System.Net;
 #endif
     using System.Threading;
@@ -19,7 +19,11 @@
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
             var timer = Stopwatch.StartNew();
-            var httpClient = new HttpClient();
+
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -39,7 +43,10 @@
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
-            var httpClient = new HttpClient();
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -53,12 +60,15 @@
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
 
-#if dnx451
+#if net451
         public void ValidateBasicDependency(InProcessServer server, string requestPath, DependencyTelemetry expected)
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
             var timer = Stopwatch.StartNew();
-            var httpClient = new HttpClient();
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;

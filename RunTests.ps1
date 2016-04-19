@@ -2,7 +2,7 @@
 $VerbosePreference = "Continue";
 
 $TestProjects = @(
-	'.\test\Microsoft.ApplicationInsights.AspNet.Tests',
+	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
 	'.\test\Mvc6Framework45.FunctionalTests',
 	'.\test\WebApiShimFw46.FunctionalTests'
 )
