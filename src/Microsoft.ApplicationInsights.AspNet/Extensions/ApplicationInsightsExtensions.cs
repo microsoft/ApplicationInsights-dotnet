@@ -40,7 +40,7 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool DisableSampling = false)
+        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool disableSampling = false)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
@@ -64,7 +64,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, DisableSampling);
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, disableSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
@@ -185,14 +185,14 @@
             }
         }
 
-        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool DisableSampling)
+        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool disableSampling)
         {
 #if dnx451
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
 
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
             {
-                if (!DisableSampling)
+                if (!disableSampling)
                 {
                     configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
                     configuration.TelemetryProcessorChainBuilder.Build();
