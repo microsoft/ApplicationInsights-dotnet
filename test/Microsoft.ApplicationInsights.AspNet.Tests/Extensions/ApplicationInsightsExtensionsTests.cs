@@ -112,7 +112,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
-            {             
+            {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
