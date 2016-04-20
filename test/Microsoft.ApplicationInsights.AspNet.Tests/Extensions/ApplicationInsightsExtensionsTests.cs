@@ -112,7 +112,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromConfiguration()
-            {
+            {             
                 var services = CreateServicesAndAddApplicationinsightsTelemetry("content\\config-endpoint-address.json", null);
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
@@ -145,6 +145,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
@@ -165,6 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
                 var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
                 try
@@ -186,6 +188,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 var telemetryInitializer = new FakeTelemetryInitializer();
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 services.AddInstance<ITelemetryInitializer>(telemetryInitializer);
 
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
@@ -241,7 +244,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
@@ -258,7 +261,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
             {
                 var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount + 1);
@@ -280,7 +283,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AddsServerTelemetryChannelInFullFramework()
             {
-                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/");
+                var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
                 Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(ServerTelemetryChannel));
@@ -307,7 +310,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(instrumentationKey: TestInstrumentationKey).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -320,6 +323,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(developerMode: true).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -337,9 +341,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
         }
-        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress)
+        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, bool addChannel = true)
         {
             var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+            if (addChannel)
+            {
+                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+            }
             IConfigurationRoot config = null;
 
             if (jsonPath != null)
