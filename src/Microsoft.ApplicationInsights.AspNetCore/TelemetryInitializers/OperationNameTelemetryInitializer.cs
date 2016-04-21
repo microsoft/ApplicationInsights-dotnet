@@ -15,7 +15,7 @@
 
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
-        public const string BeforeActionNotificationName = "Microsoft.AspNet.Mvc.BeforeAction";
+        public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 
         public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener) 
             : base(httpContextAccessor)

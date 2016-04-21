@@ -6,23 +6,27 @@
     "delaySign": true,
     "preserveCompilationContext": true
   },
-  "dependencies": { 
+  "dependencies": {
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
     "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
-    "FunctionalTestUtils": "1.0.0-rc2"
+    "FunctionalTestUtils": "1.0.0-rc2",
+    "Microsoft.NETCore.Platforms": "1.0.1-*"
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "dotnet5.4",
         "portable-net451+win8"
       ],
       "dependencies": {
-        "moq.netcore": "4.4.0-beta8",
         "dotnet-test-xunit": "1.0.0-dev-*",
-        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*"
+        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*",
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002374"
+        }
       }
     }
   },

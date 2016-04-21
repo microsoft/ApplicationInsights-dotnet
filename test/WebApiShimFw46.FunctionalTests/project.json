@@ -10,7 +10,7 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "FunctionalTestUtils": "1.0.0-rc2-*",
+    "FunctionalTestUtils": "1.0.0-rc2",
     "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
     "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0-rc2-*",
@@ -25,17 +25,19 @@
   },
 
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "dotnet5.4",
         "portable-net451+win8"
       ],
       "dependencies": {
-        "moq.netcore": "4.4.0-beta8",
-        "NETStandard.Library": "1.5.0-rc2-*",
         "dotnet-test-xunit": "1.0.0-dev-*",
-        "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*"
+        "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*",
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002374"
+        }
       }
     }
   },

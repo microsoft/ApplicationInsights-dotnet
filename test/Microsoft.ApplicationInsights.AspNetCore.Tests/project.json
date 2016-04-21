@@ -15,11 +15,11 @@
     "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
     "xunit": "2.1.0",
-    "FunctionalTestUtils": "1.0.0-rc2-*"
+    "FunctionalTestUtils": "1.0.0-rc2"
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "dotnet5.4",
@@ -27,7 +27,11 @@
       ],
       "dependencies": {
         "moq.netcore": "4.4.0-beta8",
-        "dotnet-test-xunit": "1.0.0-dev-*"
+        "dotnet-test-xunit": "1.0.0-dev-*",
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002374"
+        }
       }
     }
   },

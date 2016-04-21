@@ -9,7 +9,7 @@
     <ProjectGuid>2766d8af-c20b-4f3a-8260-6c2d39b7a8a0</ProjectGuid>
     <RootNamespace>Microsoft.ApplicationInsights.AspNetCore.Tests</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">..\..\artifacts\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
-    <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\bin\$(MSBuildProjectName)\</OutputPath>
+    <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.AspNetCore.Tests</AssemblyName>

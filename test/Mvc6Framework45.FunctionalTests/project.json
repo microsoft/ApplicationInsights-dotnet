@@ -4,55 +4,76 @@
     "delaySign": true,
     "preserveCompilationContext": true
   },
+
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-rc2-*",
-    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-rc2-*",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-rc2-*",
-    "FunctionalTestUtils": "1.0.0-rc2-*",
+    "dotnet-razor-tooling": {
+      "type": "build",
+      "version": "1.0.0-rc2-20542"
+    },
+    "FunctionalTestUtils": "1.0.0-rc2",
     "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
-    "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Authentication.Facebook": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Authentication.Google": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Authentication.MicrosoftAccount": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Authentication.Twitter": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Tooling.Razor": "1.0.0-rc2-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
-    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc2-*",
-    "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
-    "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.IISPlatformHandler": "1.0.0-*",
+    "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Identity": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-20542",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Logging": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-20542",
+    "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-20542",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0-rc2-23931"
+    },
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-20542",
     "xunit": "2.1.0"
   },
+  "testRunner": "xunit",
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
-        "dnxcore50",
         "dotnet5.4",
-        "portable-net451+win8"
+        "dnxcore50",
+        "portable-net45+win8"
       ],
       "dependencies": {
-        "moq.netcore": "4.4.0-beta8",
         "NETStandard.Library": "1.5.0-rc2-*",
         "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*"
       }
     }
   },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-  "testRunner": "xunit",
+
   "tools": {
-    "dotnet-publish-iis": "1.0-0-rc2-*"
+    "dotnet-aspnet-codegenerator": "1.0.0-rc2-20542",
+    "dotnet-ef": "1.0.0-rc2-20542",
+    "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-rc2-20542",
+    "dotnet-razor-tooling": {
+      "version": "1.0.0-rc2-20542",
+      "imports": "portable-net45+win8"
+    }
   },
-  "scripts": {
-    "postpublish": "dotnet publish-iis --publish-folder %publish:OutputPath%"
-  }
+
+  "content": [
+    "config.json"
+  ],
+
+  "exclude": [
+    "node_modules"
+  ],
+
+  "scripts": {}
 }
