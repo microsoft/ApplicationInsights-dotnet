@@ -14,8 +14,10 @@
     using Microsoft.Extensions.Configuration.Memory;
 
 #if dnx451
+    using System.Linq;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.DependencyCollector;
+    using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
     using ApplicationInsights.AspNet.Extensibility.Implementation.Tracing;
     using Logging;
@@ -39,10 +41,10 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool reuseActiveConfig = true)
+        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool disableDefaultAdaptiveSampling = false)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer>(ComponentVersionTelemetryInitializer =>
+            services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
             {
                 return new ComponentVersionTelemetryInitializer(config);
             });
@@ -62,7 +64,8 @@
 
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
-                var telemetryConfiguration = reuseActiveConfig ? TelemetryConfiguration.Active : TelemetryConfiguration.CreateDefault();
+                var telemetryConfiguration = TelemetryConfiguration.Active;
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, disableDefaultAdaptiveSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
@@ -192,6 +195,23 @@
             {
                 service.Initialize(configuration);
             }
+        }
+
+        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool disableSampling)
+        {
+#if dnx451
+            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
+
+            if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
+            {
+                if (!disableSampling)
+                {
+                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                    configuration.TelemetryProcessorChainBuilder.Build();
+                }
+                (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
+            }
+#endif
         }
     }
 }

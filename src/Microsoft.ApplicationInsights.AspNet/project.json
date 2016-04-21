@@ -14,7 +14,7 @@
         "delaySign": true
     },
     "dependencies": {
-        "Microsoft.ApplicationInsights": "2.0.0-*",
+        "Microsoft.ApplicationInsights": "2.0.0",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Features": "1.0.0-rc1-final",
@@ -30,9 +30,10 @@
           "define": [ "dnx451" ]
         },
         "dependencies": {
-            "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0-*",
-            "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0-*",
-            "Microsoft.Diagnostics.Tracing.EventSource.Redist": "1.1.28"
+          "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0",
+          "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0",
+          "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.0.0"
+          "Microsoft.Diagnostics.Tracing.EventSource.Redist": "1.1.28"
         }
       },
         "dnxcore50": {
