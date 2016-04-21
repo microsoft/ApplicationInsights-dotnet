@@ -4,6 +4,7 @@
 namespace Microsoft.Extensions.DependencyInjection.Test
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights;
@@ -271,37 +272,38 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
             {
-                var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
+                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount + 1);
-                Assert.True(telemetryConfiguration.TelemetryProcessors.Any<ITelemetryProcessor>(processor => processor.GetType() == typeof(AdaptiveSamplingTelemetryProcessor)));
+                var updatedCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
             }
 
             [Fact]
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
             {
-                var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
+                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 var serviceOptions = new ApplicationInsightsServiceOptions();
                 serviceOptions.DisableDefaultSampling = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount);
+                var updatedCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(updatedCount, exisitingProcessorCount);
             }
 
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkWithServiceOptions()
             {
-                var exisitingProcessorCount = TelemetryConfiguration.Active.TelemetryProcessors.Count;
+                var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 var serviceOptions = new ApplicationInsightsServiceOptions();
                 serviceOptions.DisableDefaultSampling = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
-                Assert.Equal(telemetryConfiguration.TelemetryProcessors.Count, exisitingProcessorCount + 1);
-                Assert.True(telemetryConfiguration.TelemetryProcessors.Any<ITelemetryProcessor>(processor => processor.GetType() == typeof(AdaptiveSamplingTelemetryProcessor)));
+                var updatedCount =  GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(updatedCount, exisitingProcessorCount + 1);
             }
 
             [Fact]
@@ -326,6 +328,10 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(telemetryConfiguration.TelemetryChannel.GetType(), typeof(InMemoryChannel));
             }
 #endif
+            private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
+            {
+                return telemetryConfiguration.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
+            }
         }
 
         public static class AddApplicationInsightsSettings
