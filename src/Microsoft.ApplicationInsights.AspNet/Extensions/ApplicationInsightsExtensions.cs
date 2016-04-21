@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.AspNet.Extensions;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -40,7 +41,7 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, bool disableDefaultAdaptiveSampling = false)
+        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
@@ -64,7 +65,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, disableDefaultAdaptiveSampling);
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, serviceOptions.GetDisableDefaultSampling());
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
