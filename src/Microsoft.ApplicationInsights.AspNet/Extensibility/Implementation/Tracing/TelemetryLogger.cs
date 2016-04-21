@@ -15,14 +15,14 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
     /// </summary>
     internal sealed class TelemetryLogger : ILogger
     {
+        /// <summary>Instance of </summary>
+        private static TelemetryLogger instance = new TelemetryLogger();
+
         /// <summary>The underlying event source that internal telemetry is logged to.</summary>
         private AspNetEventSource eventSource;
 
         /// <summary>Lookup table of event source log calls indexed by LogLevel.</summary>
         private EventSourceLogCall[] eventSourceLogCalls;
-
-        /// <summary>Instance of </summary>
-        private static TelemetryLogger instance = new TelemetryLogger();
 
         /// <summary>
         /// Initializes a new instance of the TelemetryLogger class.
@@ -54,6 +54,13 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         }
 
         /// <summary>
+        /// Delegate of basic event source function calls.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        private delegate void EventSourceLogCall(string message, string appDomainName = "Incorrect");
+
+        /// <summary>
         /// Gets an instance of the telemetry logger.
         /// </summary>
         public static TelemetryLogger Instance
@@ -63,12 +70,6 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
                 return TelemetryLogger.instance;
             }
         }
-
-        /// <summary>
-        /// Delegate of basic event source function calls.
-        /// </summary>
-        /// <param name="message">The message to log.</param>
-        private delegate void EventSourceLogCall(string message);
 
         /// <summary>Gets or sets the currently configured logging level.</summary>
         public LogLevel Level { get; set; }

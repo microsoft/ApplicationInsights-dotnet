@@ -14,25 +14,25 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNet")]
     internal sealed class AspNetEventSource : EventSource
     {
-        /// <summary>Singleton instance variable.</summary>
-        private static readonly AspNetEventSource SingletonInstance = new AspNetEventSource();
+        /// <summary>
+        /// The singleton instance of this event source.
+        /// Due to how EventSource initialization works this has to be a public field and not
+        /// a property otherwise the internal state of the event source will not be enabled.
+        /// </summary>
+        public static readonly AspNetEventSource Instance = new AspNetEventSource();
 
         /// <summary>
         /// Prevents a default instance of the AspNetEventSource class from being created.
         /// </summary>
-        private AspNetEventSource()
+        private AspNetEventSource() : base()
         {
-            this.ApplicationName = this.GetApplicationName();
-        }
-
-        /// <summary>
-        /// Gets the instance of this event source.
-        /// </summary>
-        public static AspNetEventSource Instance
-        {
-            get
+            try
             {
-                return SingletonInstance;
+                this.ApplicationName = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName;
+            }
+            catch (Exception exp)
+            {
+                this.ApplicationName = "Undefined " + exp.Message;
             }
         }
 
@@ -45,20 +45,20 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// Logs an event for the always message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.LogAlways, Message = "{0}", Level = EventLevel.LogAlways)]
-        public void LogAlways(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(6, Message = "{0}", Level = EventLevel.LogAlways, Keywords = Keywords.Diagnostics)]
+        public void LogAlways(string message, string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.LogAlways, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(6, message ?? string.Empty, this.ApplicationName);
         }
 
         /// <summary>
         /// Logs an event for the critical message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.Critical, Message = "{0}", Level = EventLevel.Critical)]
-        public void LogCritical(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event((int)EventLevel.Critical, Message = "{0}", Level = EventLevel.Critical, Keywords = Keywords.Diagnostics)]
+        public void LogCritical(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent((int)EventLevel.Critical, message ?? string.Empty, this.ApplicationName);
         }
@@ -67,9 +67,9 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// Logs an event for the error message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.Error, Message = "{0}", Level = EventLevel.Error)]
-        public void LogError(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event((int)EventLevel.Error, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
+        public void LogError(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent((int)EventLevel.Error, message ?? string.Empty, this.ApplicationName);
         }
@@ -78,9 +78,9 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// Logs an event for the warning message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.Warning, Message = "{0}", Level = EventLevel.Warning)]
-        public void LogWarning(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event((int)EventLevel.Warning, Message = "{0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogWarning(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent((int)EventLevel.Warning, message ?? string.Empty, this.ApplicationName);
         }
@@ -89,9 +89,9 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// Logs an event for the informational message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.Informational, Message = "{0}", Level = EventLevel.Informational)]
-        public void LogInformational(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event((int)EventLevel.Informational, Message = "{0}", Level = EventLevel.Informational, Keywords = Keywords.Diagnostics)]
+        public void LogInformational(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent((int)EventLevel.Informational, message ?? string.Empty, this.ApplicationName);
         }
@@ -100,32 +100,22 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// Logs an event for the verbose message level.
         /// </summary>
         /// <param name="message">The message to write an event for.</param>
-        /// <param name="appDomainName">The name of the application domain.</param>
-        [Event((int)EventLevel.Verbose, Message = "{0}", Level = EventLevel.Verbose)]
-        public void LogVerbose(string message)
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event((int)EventLevel.Verbose, Message = "{0}", Level = EventLevel.Verbose, Keywords = Keywords.Diagnostics)]
+        public void LogVerbose(string message, string appDomainName = "Incorrect")
         {
             this.WriteEvent((int)EventLevel.Verbose, message ?? string.Empty, this.ApplicationName);
         }
 
         /// <summary>
-        /// Gets the friendly name of the current application domain if possible otherwise
-        /// it is equal to undefined and an exception message.
+        /// Keywords for the AspNetEventSource.
         /// </summary>
-        /// <returns>The application name.</returns>
-        [NonEvent]
-        private string GetApplicationName()
+        public sealed class Keywords
         {
-            string name;
-            try
-            {
-                name = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName;
-            }
-            catch (Exception exp)
-            {
-                name = "Undefined " + exp.Message;
-            }
-
-            return name;
+            /// <summary>
+            /// Keyword for errors that trace at Verbose level.
+            /// </summary>
+            public const EventKeywords Diagnostics = (EventKeywords)0x1;
         }
     }
 }
