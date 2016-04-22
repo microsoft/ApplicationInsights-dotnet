@@ -20,7 +20,8 @@
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
-
+    using ApplicationInsights.AspNet.Extensibility.Implementation.Tracing;
+    using Logging;
     public static class ApplicationInsightsExtensions
     {
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
@@ -79,7 +80,11 @@
             });
         }
 
-        public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
+        public static IConfigurationBuilder AddApplicationInsightsSettings(
+            this IConfigurationBuilder configurationSourceRoot,
+            bool? developerMode = null,
+            string endpointAddress = null,
+            string instrumentationKey = null)
         {
             var telemetryConfigurationSource = new MemoryConfigurationProvider();
             bool wasAnythingSet = false;

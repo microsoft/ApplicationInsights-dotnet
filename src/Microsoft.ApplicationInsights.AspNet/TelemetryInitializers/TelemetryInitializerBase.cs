@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -31,13 +31,13 @@
 
                 if (context == null)
                 {
-                    //TODO: Diagnostics!
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
                     return;
                 }
 
                 if (context.RequestServices == null)
                 {
-                    //TODO: Diagnostics!
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
                     return;
                 }
 
@@ -45,7 +45,7 @@
 
                 if (request == null)
                 {
-                    //TODO: Diagnostics!
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
                     return;
                 }
 
@@ -53,7 +53,7 @@
             }
             catch (Exception exp)
             {
-                //TODO: Diagnostics!
+                AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
                 Debug.WriteLine(exp);
             }
         }
