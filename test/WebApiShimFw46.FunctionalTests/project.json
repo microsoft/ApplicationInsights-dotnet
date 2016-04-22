@@ -1,6 +1,6 @@
 {
-    "version": "1.0.0-rc1",
     "webroot": "wwwroot",
+    "version": "1.0.0-rc1",
     "compilationOptions": {
       "keyFile": "../../keys/35MSSharedLib1024.snk",
       "delaySign": true
@@ -19,8 +19,8 @@
     },
 
     "commands": {
-      "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
-      "test": "xunit.runner.dnx"
+        "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
+        "test": "xunit.runner.dnx"
     },
 
     "frameworks": {
@@ -29,19 +29,19 @@
           "define": [ "dnx451" ]
         }
       },
-      "dnxcore50": { }
+        "dnxcore50": { }
     },
 
     "exclude": [
-      "wwwroot",
-      "node_modules",
-      "bower_components"
+        "wwwroot",
+        "node_modules",
+        "bower_components"
     ],
     "publishExclude": [
-      "node_modules",
-      "bower_components",
-      "**.xproj",
-      "**.user",
-      "**.vspscc"
+        "node_modules",
+        "bower_components",
+        "**.xproj",
+        "**.user",
+        "**.vspscc"
     ]
 }
