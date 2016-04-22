@@ -53,7 +53,7 @@
             }
             catch (Exception exp)
             {
-                AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp);
+                AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
                 Debug.WriteLine(exp);
             }
         }

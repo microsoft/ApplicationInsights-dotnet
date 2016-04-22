@@ -44,12 +44,12 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         /// <summary>
         /// Logs an event for the an exception in the TelemetryInitializerBase Initialize method.
         /// </summary>
-        /// <param name="exception">The exception to write an event for.</param>
+        /// <param name="errorMessage">The error message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
         [Event(1, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
-        public void LogTelemetryInitializerBaseInitializeException(Exception exception, string appDomainName = "Incorrect")
+        public void LogTelemetryInitializerBaseInitializeException(string errorMessage, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(1, exception, this.ApplicationName);
+            this.WriteEvent(1, errorMessage, this.ApplicationName);
         }
 
         /// <summary>
