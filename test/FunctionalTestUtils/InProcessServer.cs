@@ -48,6 +48,7 @@
         private BackTelemetryChannel Start(string assemblyName)
         {
             this.hostingEngine = CreateBuilder()
+                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(this.BaseHost)
                 .UseKestrel()
                 .UseStartup(assemblyName)
@@ -70,6 +71,7 @@
         private WebHostBuilder CreateBuilder()
         {
             var hostBuilder = new WebHostBuilder();
+            hostBuilder.UseDefaultHostingConfiguration();
             return hostBuilder;
         }
     }
