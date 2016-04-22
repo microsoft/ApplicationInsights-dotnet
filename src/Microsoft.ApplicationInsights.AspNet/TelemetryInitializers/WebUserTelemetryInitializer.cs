@@ -1,10 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
 {
-    using System;
-    using System.Globalization;
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
 
     public class WebUserTelemetryInitializer : TelemetryInitializerBase
@@ -20,6 +18,7 @@
         {
             if (!string.IsNullOrEmpty(telemetry.Context.User.Id))
             {
+                AspNetEventSource.Instance.LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull();
                 return;
             }
 
