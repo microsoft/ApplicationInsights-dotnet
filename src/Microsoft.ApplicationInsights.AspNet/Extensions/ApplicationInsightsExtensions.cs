@@ -43,6 +43,7 @@
 
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
+            var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
             {
@@ -65,7 +66,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, serviceOptions.GetDisableDefaultSampling());
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, options.DisableDefaultSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
