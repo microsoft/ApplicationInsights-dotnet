@@ -1,47 +1,39 @@
-﻿
-namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
-    using System;
     using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Hosting;
-    using Xunit;
     using Microsoft.AspNet.Http.Internal;
-    using Microsoft.Extensions.Configuration;
+    using Xunit;
 
     public class ComponentVersionTelemetryInitializerTests
     {
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
-
-            var initializer = new ComponentVersionTelemetryInitializer(config);
-
+            var ac = new HttpContextAccessor() { HttpContext = null };
+            var initializer = new ComponentVersionTelemetryInitializer(ac);
             initializer.Initialize(new RequestTelemetry());
         }
 
         [Fact]
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
-            var config = new ConfigurationBuilder().AddJsonFile("project.json").Build();
-
-            var initializer = new ComponentVersionTelemetryInitializer(config);
-
+            var ac = new HttpContextAccessor() { HttpContext = null };
+            var initializer = new ComponentVersionTelemetryInitializer(ac);
             initializer.Initialize(new RequestTelemetry());
         }
 
         [Fact]
-        public void InitializeConfigurationWithNullReturnsNull()
+        public void InitializeDoesNotOverrideExistingVersion()
         {
-            var requestTelemetry = new RequestTelemetry();
-            
-            var initializer = new ComponentVersionTelemetryInitializer(null);
+            var ac = new HttpContextAccessor() { HttpContext = null };
+            var initializer = new ComponentVersionTelemetryInitializer(ac);
 
-            initializer.Initialize(requestTelemetry);
+            var telemetry = new RequestTelemetry();
+            telemetry.Context.Component.Version = "TestVersion";
+            initializer.Initialize(telemetry);
 
-            Assert.Null(requestTelemetry.Context.Component.Version);
+            Assert.Equal("TestVersion", telemetry.Context.Component.Version);
         }
     }
 }

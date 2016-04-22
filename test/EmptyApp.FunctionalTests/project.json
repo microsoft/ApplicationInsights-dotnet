@@ -1,9 +1,10 @@
 ﻿{
+  "version": "1.0.0-rc1",
   "webroot": "wwwroot",
   "compilationOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
-    },
+  },
   "dependencies": {
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
     "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-update3",
