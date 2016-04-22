@@ -7,10 +7,8 @@
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Hosting;
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Features;
-    using Microsoft.Extensions.Logging;
 
 
     /// <summary>
@@ -113,7 +111,7 @@
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
                 // Ip is already populated.
-                TelemetryLogger.Instance.LogVerbose("ClientIpHeaderTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Location.Ip is already set, returning.");
+                AspNetEventSource.Instance.LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull();
                 return;
             }
 

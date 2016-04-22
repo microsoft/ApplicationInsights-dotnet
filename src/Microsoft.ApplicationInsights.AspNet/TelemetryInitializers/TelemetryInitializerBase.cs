@@ -8,7 +8,6 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNet.Http;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
 
     public abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
@@ -32,13 +31,13 @@
 
                 if (context == null)
                 {
-                    TelemetryLogger.Instance.LogVerbose("TelemetryInitializerBase.Initialize - httpContextAccessor.HttpContext is null, returning.");
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
                     return;
                 }
 
                 if (context.RequestServices == null)
                 {
-                    TelemetryLogger.Instance.LogVerbose("TelemetryInitializerBase.Initialize - context.RequestServices is null, returning.");
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
                     return;
                 }
 
@@ -46,7 +45,7 @@
 
                 if (request == null)
                 {
-                    TelemetryLogger.Instance.LogVerbose("TelemetryInitializerBase.Initialize - request is null, returning.");
+                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
                     return;
                 }
 
@@ -54,7 +53,7 @@
             }
             catch (Exception exp)
             {
-                TelemetryLogger.Instance.LogError("TelemetryInitializerBase.Initialize error.", exp);
+                AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp);
                 Debug.WriteLine(exp);
             }
         }

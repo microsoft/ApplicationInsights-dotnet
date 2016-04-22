@@ -86,8 +86,7 @@
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
             string endpointAddress = null,
-            string instrumentationKey = null,
-            LogLevel? level = null)
+            string instrumentationKey = null)
         {
             var telemetryConfigurationSource = new MemoryConfigurationProvider();
             bool wasAnythingSet = false;
@@ -107,12 +106,6 @@
             if (endpointAddress != null)
             {
                 telemetryConfigurationSource.Set(EndpointAddressForWebSites, endpointAddress);
-                wasAnythingSet = true;
-            }
-
-            if (level != null)
-            {
-                TelemetryLogger.Instance.Level = level.Value;
                 wasAnythingSet = true;
             }
 

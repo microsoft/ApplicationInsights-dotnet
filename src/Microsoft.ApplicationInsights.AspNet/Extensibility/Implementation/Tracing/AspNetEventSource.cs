@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
     /// <summary>
     /// Event source for Application Insights ASP.NET 5 SDK.
     /// </summary>
-    [EventSource(Name = "Microsoft-ApplicationInsights-AspNet")]
+    [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
     internal sealed class AspNetEventSource : EventSource
     {
         /// <summary>
@@ -42,69 +42,74 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         public string ApplicationName { [NonEvent] get; [NonEvent]private set; }
 
         /// <summary>
-        /// Logs an event for the always message level.
+        /// Logs an event for the an exception in the TelemetryInitializerBase Initialize method.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
+        /// <param name="exception">The exception to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event(6, Message = "{0}", Level = EventLevel.LogAlways, Keywords = Keywords.Diagnostics)]
-        public void LogAlways(string message, string appDomainName = "Incorrect")
+        [Event(1, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
+        public void LogTelemetryInitializerBaseInitializeException(Exception exception, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(6, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(1, exception, this.ApplicationName);
         }
 
         /// <summary>
-        /// Logs an event for the critical message level.
+        /// Logs an event for the TelemetryInitializerBase Initialize method when the HttpContext is null.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event((int)EventLevel.Critical, Message = "{0}", Level = EventLevel.Critical, Keywords = Keywords.Diagnostics)]
-        public void LogCritical(string message, string appDomainName = "Incorrect")
+        [Event(2, Message = "TelemetryInitializerBase.Initialize - httpContextAccessor.HttpContext is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogTelemetryInitializerBaseInitializeContextNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.Critical, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(2, this.ApplicationName);
         }
 
         /// <summary>
-        /// Logs an event for the error message level.
+        /// Logs an event for the TelemetryInitializerBase Initialize method when RequestServices is null.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event((int)EventLevel.Error, Message = "{0}", Level = EventLevel.Error, Keywords = Keywords.Diagnostics)]
-        public void LogError(string message, string appDomainName = "Incorrect")
+        [Event(3, Message = "TelemetryInitializerBase.Initialize - context.RequestServices is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogTelemetryInitializerBaseInitializeRequestServicesNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.Error, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(3, this.ApplicationName);
         }
 
         /// <summary>
-        /// Logs an event for the warning message level.
+        /// Logs an event for the TelemetryInitializerBase Initialize method when the request is null.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event((int)EventLevel.Warning, Message = "{0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
-        public void LogWarning(string message, string appDomainName = "Incorrect")
+        [Event(4, Message = "TelemetryInitializerBase.Initialize - request is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogTelemetryInitializerBaseInitializeRequestNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.Warning, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(4, this.ApplicationName);
         }
 
         /// <summary>
-        /// Logs an event for the informational message level.
+        /// Logs an event for the ClientIpHeaderTelemetryInitializer OnInitializeTelemetry method when the location IP is null.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event((int)EventLevel.Informational, Message = "{0}", Level = EventLevel.Informational, Keywords = Keywords.Diagnostics)]
-        public void LogInformational(string message, string appDomainName = "Incorrect")
+        [Event(5, Message = "ClientIpHeaderTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Location.Ip is already set, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.Informational, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(5, this.ApplicationName);
         }
 
         /// <summary>
-        /// Logs an event for the verbose message level.
+        /// Logs an event for the WebSessionTelemetryInitializer OnInitializeTelemetry method when the session Id is null.
         /// </summary>
-        /// <param name="message">The message to write an event for.</param>
         /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
-        [Event((int)EventLevel.Verbose, Message = "{0}", Level = EventLevel.Verbose, Keywords = Keywords.Diagnostics)]
-        public void LogVerbose(string message, string appDomainName = "Incorrect")
+        [Event(6, Message = "WebSessionTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogWebSessionTelemetryInitializerOnInitializeTelemetrySessionIdNull(string appDomainName = "Incorrect")
         {
-            this.WriteEvent((int)EventLevel.Verbose, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(6, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an event for the WebUserTelemetryInitializer OnInitializeTelemetry method when the session Id is null.
+        /// </summary>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(7, Message = "WebUserTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Session.Id is null or empty, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(7, this.ApplicationName);
         }
 
         /// <summary>
