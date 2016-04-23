@@ -33,7 +33,7 @@
             }
             catch(Exception e)
             {
-                AspNetEventSource.Instance.LogWebUserTelemetryInitializerOnInitializeTelemetrySessionIdNull();
+                AspNetEventSource.Instance.LogComponentVersionTelemetryInitializerFailsToAccessProjectJson();
             }
         }
 
