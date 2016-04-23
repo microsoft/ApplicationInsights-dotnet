@@ -113,6 +113,16 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         }
 
         /// <summary>
+        /// Logs an event for the ComponentVersionTelemetryInitializer constructor method when accessing project.json throws an exception.
+        /// </summary>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(8, Message = "ComponentVersionTelemetryInitializer - acessing project.json failed.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogComponentVersionTelemetryInitializerFailsToAccessProjectJson(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(8, this.ApplicationName);
+        }
+
+        /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
         public sealed class Keywords

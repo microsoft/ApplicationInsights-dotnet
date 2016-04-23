@@ -10,8 +10,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { HttpContext = null };
-            var initializer = new ComponentVersionTelemetryInitializer(ac);
+            var initializer = new ComponentVersionTelemetryInitializer();
             initializer.Initialize(new RequestTelemetry());
         }
 
@@ -19,15 +18,14 @@
         public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
         {
             var ac = new HttpContextAccessor() { HttpContext = null };
-            var initializer = new ComponentVersionTelemetryInitializer(ac);
+            var initializer = new ComponentVersionTelemetryInitializer();
             initializer.Initialize(new RequestTelemetry());
         }
 
         [Fact]
         public void InitializeDoesNotOverrideExistingVersion()
         {
-            var ac = new HttpContextAccessor() { HttpContext = null };
-            var initializer = new ComponentVersionTelemetryInitializer(ac);
+            var initializer = new ComponentVersionTelemetryInitializer();
 
             var telemetry = new RequestTelemetry();
             telemetry.Context.Component.Version = "TestVersion";
