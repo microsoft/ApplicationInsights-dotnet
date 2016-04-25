@@ -34,7 +34,6 @@ namespace MVCFramework45.FunctionalTests
             if (env.IsDevelopment())
             {
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                builder.SetProjectPath(env.ContentRootPath).AddUserSecrets();
                 builder.AddApplicationInsightsSettings(developerMode: true);
             }
 
