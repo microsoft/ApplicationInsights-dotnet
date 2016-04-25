@@ -11,7 +11,7 @@
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
-#if dnx451
+#if net451
 
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
