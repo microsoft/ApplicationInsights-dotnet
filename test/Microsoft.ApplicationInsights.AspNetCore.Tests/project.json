@@ -1,5 +1,4 @@
 {
-  "version": "1.0.0-rc2",
   "compilationOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
