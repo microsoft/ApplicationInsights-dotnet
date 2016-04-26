@@ -53,7 +53,7 @@
             
             string hostName = Dns.GetHostName();
 
-#if net451
+#if NET451
             string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
             if (hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase) == false)
             {

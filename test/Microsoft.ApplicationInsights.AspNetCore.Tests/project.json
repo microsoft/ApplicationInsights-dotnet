@@ -5,7 +5,6 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
-    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2",
     "Microsoft.AspNetCore.Http.Features": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Http": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Http.Extensions": "1.0.0-rc2-*",
@@ -14,7 +13,7 @@
     "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
     "xunit": "2.1.0",
-    "FunctionalTestUtils": "1.0.0-rc2"
+    "FunctionalTestUtils": "*"
   },
   "testRunner": "xunit",
   "frameworks": {

@@ -14,7 +14,6 @@
   "testRunner": "xunit",
   "frameworks": {
     "net451": {
-      "compilationOptions": { "define": [ "net451" ] },
       "dependencies": {
         "System.Net.Http": "4.0.1-rc2-*"
       }

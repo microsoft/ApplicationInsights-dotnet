@@ -6,7 +6,7 @@
     using System.Net.Http;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
-#if net451
+#if NET451
     using System.Net;
 #endif
     using System.Threading;
@@ -60,7 +60,7 @@
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
 
-#if net451
+#if NET451
         public void ValidateBasicDependency(InProcessServer server, string requestPath, DependencyTelemetry expected)
         {
             DateTimeOffset testStart = DateTimeOffset.Now;

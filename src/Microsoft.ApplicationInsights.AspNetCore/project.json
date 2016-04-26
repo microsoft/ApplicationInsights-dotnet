@@ -25,9 +25,6 @@
 
   "frameworks": {
     "net451": {
-      "compilationOptions": {
-        "define": [ "net451" ]
-      },
       "dependencies": {
         "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0",
         "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0"
@@ -40,7 +37,6 @@
       ],
       "dependencies": {
         "System.Net.NameResolution": "4.0.0-rc2-*",
-        "System.Security.Cryptography.X509Certificates": "4.0.0-rc2-*"
       }
     }
   }
