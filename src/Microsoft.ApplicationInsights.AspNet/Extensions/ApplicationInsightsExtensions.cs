@@ -188,14 +188,14 @@
             }
         }
 
-        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool disableSampling)
+        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool enableAdaptiveSampling)
         {
 #if dnx451
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
 
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
             {
-                if (!disableSampling)
+                if (enableAdaptiveSampling)
                 {
                     configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
                     configuration.TelemetryProcessorChainBuilder.Build();
