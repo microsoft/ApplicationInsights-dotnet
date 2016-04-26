@@ -45,6 +45,8 @@
             }
         }
 
+        public IServiceProvider ApplicationServices { get; private set; }
+
         private BackTelemetryChannel Start(string assemblyName)
         {
             var customConfig = new MemoryConfigurationProvider();
@@ -59,7 +61,7 @@
                 .UseEnvironment("Production")
                 .Build();
             this.hostingEngine = engine.Start();
-            
+            this.ApplicationServices = engine.ApplicationServices;
             return (BackTelemetryChannel)engine.ApplicationServices.GetService<ITelemetryChannel>();
         }
 

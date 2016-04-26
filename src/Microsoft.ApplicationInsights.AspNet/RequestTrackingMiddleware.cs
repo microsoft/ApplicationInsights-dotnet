@@ -23,7 +23,7 @@
         {
             this.telemetryClient = client;
             this.next = next;
-            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
+            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetFrameworkType() + SdkVersionUtils.GetAssemblyVersion();
         }
 
         public async Task Invoke(HttpContext httpContext, RequestTelemetry telemetry)
