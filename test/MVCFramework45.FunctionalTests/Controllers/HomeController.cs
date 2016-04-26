@@ -15,14 +15,6 @@ namespace MVCFramework45.FunctionalTests.Controllers
             this.telemetryClient = telemetryClient;
         }
 
-        //private IApplicationEnvironment applicationEnvironment;
-
-        //public HomeController(TelemetryClient telemetryClient, IApplicationEnvironment applicationEnvironment)
-        //{
-        //    this.telemetryClient = telemetryClient;
-        //    this.applicationEnvironment = applicationEnvironment;
-        //}
-
         public IActionResult Index()
         {
             return View();
@@ -52,19 +44,5 @@ namespace MVCFramework45.FunctionalTests.Controllers
         {
             return View("~/Views/Shared/Error.cshtml");
         }
-
-        //private async Task<string> GetContactDetails()
-        //{
-        //    var contactFilePath = Path.Combine(this.applicationEnvironment.ApplicationBasePath, "contact.txt");
-        //    this.telemetryClient.TrackEvent("GetContact");
-
-        //    using (var reader = System.IO.File.OpenText(contactFilePath))
-        //    {
-        //        var contactDetails = await reader.ReadToEndAsync();
-        //        this.telemetryClient.TrackMetric("ContactFile", 1);
-        //        this.telemetryClient.TrackTrace("Fetched contact details.", SeverityLevel.Information);
-        //        return contactDetails;
-        //    }
-        //}
     }
 }
