@@ -285,7 +285,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.DisableDefaultSampling = true;
+                serviceOptions.EnableAdaptiveSampling = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -298,7 +298,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
                 var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.DisableDefaultSampling = false;
+                serviceOptions.EnableAdaptiveSampling = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();

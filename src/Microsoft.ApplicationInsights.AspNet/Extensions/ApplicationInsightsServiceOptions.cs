@@ -5,21 +5,21 @@
     /// </summary>
     public class ApplicationInsightsServiceOptions
     {
-        private bool disableDefaultSampling = false;
+        private bool enableAdaptiveSampling = true;
 
         /// <summary>
-        /// Setting DisableDefaultSampling to true, will disable the default adaptive sampling feature. As a result, no telemetry processor 
-        /// that controls sampling is added to the service.
+        /// Setting EnableAdaptiveSampling to false, will disable the default adaptive sampling feature. As a result, no telemetry processor 
+        /// that controls sampling is added to the service by default.
         /// </summary>
-        public bool DisableDefaultSampling
+        public bool EnableAdaptiveSampling
         {
             get
             {
-                return disableDefaultSampling;
+                return enableAdaptiveSampling;
             }
             set
             {
-                disableDefaultSampling = value;
+                enableAdaptiveSampling = value;
             }
         }
     }

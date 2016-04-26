@@ -63,7 +63,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, options.DisableDefaultSampling);
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, options.EnableAdaptiveSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
