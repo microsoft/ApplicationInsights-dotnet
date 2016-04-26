@@ -13,7 +13,7 @@
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Xunit;
-#if net451
+#if NET451
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
@@ -237,7 +237,7 @@
                 Assert.Equal(configuration.InstrumentationKey, sentTelemetry.Context.InstrumentationKey);
             }
 
-#if net451
+#if NET451
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
             {

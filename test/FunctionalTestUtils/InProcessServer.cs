@@ -11,6 +11,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
     using Microsoft.Extensions.PlatformAbstractions;
+    using System.IO;
 
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
@@ -47,15 +48,15 @@
         private BackTelemetryChannel Start(string assemblyName)
         {
             this.hostingEngine = CreateBuilder()
+                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(this.BaseHost)
-                .UseServer("Microsoft.AspNetCore.Server.Kestrel")
+                .UseKestrel()
                 .UseStartup(assemblyName)
                 .UseEnvironment("Production")
                 .Build();
 
             this.hostingEngine.Start();
-            
-            
+
             return (BackTelemetryChannel)this.hostingEngine.Services.GetService<ITelemetryChannel>();
         }
 

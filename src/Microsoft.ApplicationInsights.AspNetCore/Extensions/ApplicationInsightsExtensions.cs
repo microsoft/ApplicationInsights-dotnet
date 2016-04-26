@@ -16,7 +16,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
 
-#if net451
+#if NET451
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.DependencyCollector;
 #endif
@@ -54,7 +54,7 @@
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
 
-#if net451
+#if NET451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif

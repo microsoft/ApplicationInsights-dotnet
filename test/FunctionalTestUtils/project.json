@@ -1,5 +1,4 @@
 {
-  "version": "1.0.0-rc2",
   "compilationOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
@@ -14,16 +13,22 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netstandardapp1.5": {
+    "net451": {
+      "dependencies": {
+        "System.Net.Http": "4.0.1-rc2-*"
+      }
+    },
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "dotnet5.4",
         "portable-net45+win8"
       ],
       "dependencies": {
-        "moq.netcore": "4.4.0-beta8",
-        "NETStandard.Library": "1.5.0-rc2-*",
-        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*"
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002374"
+        }
       }
     }
   }
