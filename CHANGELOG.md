@@ -76,7 +76,7 @@ item is being filtered out.
 
 ## Version 1.2.3
 - Bug fixes.
-- Telemetry item will be serialized to Debug Ouput even when Instrumentaiton Key was not set.
+- Telemetry item will be serialized to Debug Ouput even when Instrumentation Key was not set.
 
 ## Version 1.2
 - First version shipped from github
