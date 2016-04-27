@@ -279,6 +279,18 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            23,
+            Message = "ApplicationInsights configuration file was not found. Directory '{0}'.",
+            Level = EventLevel.Warning)]
+        public void ApplicationInsightsConfigNotFoundWarning(string directory, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                23,
+                directory ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
