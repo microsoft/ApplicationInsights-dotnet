@@ -35,7 +35,7 @@
                 return File.ReadAllText(configFilePath);
             }
             
-            CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(AppDomain.CurrentDomain.BaseDirectory);
+            CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
             return string.Empty;
         }
 

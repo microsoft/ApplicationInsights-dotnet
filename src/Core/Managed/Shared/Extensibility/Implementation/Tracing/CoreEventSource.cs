@@ -281,7 +281,7 @@
 
         [Event(
             23,
-            Message = "ApplicationInsights configuration file was not found. Directory '{0}'.",
+            Message = "ApplicationInsights configuration file '{0}' was not found.",
             Level = EventLevel.Warning)]
         public void ApplicationInsightsConfigNotFoundWarning(string directory, string appDomainName = "Incorrect")
         {
