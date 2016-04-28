@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.1.0-beta4
+
+- No code changes. Updated to Core 2.1-beta4.
+
 ## Version 2.1.0-beta3
 - Remove support for HTTP dependencies in .NET 4.5.2 (4.5.2 applications running on 4.5.2; 4.5.2 applications running on 4.6 are still supported) without Status Monitor on the box.
 - Add http verb to dependency name collected by SDK without Status Monitor on the box
