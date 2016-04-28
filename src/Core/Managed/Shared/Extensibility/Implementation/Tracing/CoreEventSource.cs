@@ -283,11 +283,11 @@
             23,
             Message = "ApplicationInsights configuration file '{0}' was not found.",
             Level = EventLevel.Warning)]
-        public void ApplicationInsightsConfigNotFoundWarning(string directory, string appDomainName = "Incorrect")
+        public void ApplicationInsightsConfigNotFoundWarning(string file, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 23,
-                directory ?? string.Empty,
+                file ?? string.Empty,
                 this.nameProvider.Name);
         }
 
