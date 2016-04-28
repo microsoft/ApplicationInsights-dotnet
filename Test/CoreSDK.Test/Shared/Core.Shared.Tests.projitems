@@ -45,7 +45,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContextTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SeverityLevelExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollectionTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingDictionaryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingListTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TagsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimerTest.cs" />

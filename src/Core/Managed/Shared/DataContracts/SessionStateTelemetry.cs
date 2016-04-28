@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -22,7 +20,7 @@
         public SessionStateTelemetry()
         {
             this.Data = new SessionStateData();
-            this.context = new TelemetryContext(new Dictionary<string, string>(), new Dictionary<string, string>());
+            this.context = new TelemetryContext();
         }
 
         /// <summary>

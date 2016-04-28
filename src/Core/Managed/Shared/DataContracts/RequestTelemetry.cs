@@ -6,7 +6,6 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Encapsulates information about a web request handled by the application.
@@ -33,7 +32,7 @@
         public RequestTelemetry()
         {
             this.Data = new RequestData();
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.context = new TelemetryContext(this.Data.properties);
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 

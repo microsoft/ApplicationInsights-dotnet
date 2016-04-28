@@ -24,7 +24,7 @@
         public PerformanceCounterTelemetry()
         {
             this.Data = new PerformanceCounterData();
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>

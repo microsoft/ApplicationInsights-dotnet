@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Globalization;
     using System.IO;
     using System.Reflection;
@@ -28,7 +29,7 @@
         public void ConstructorInitializesTagsWithThreadSafeDictionaryObjects()
         {
             var context = new TelemetryContext();
-            Assert.IsType<SnapshottingDictionary<string, string>>(context.Tags);
+            Assert.IsType<ConcurrentDictionary<string, string>>(context.Tags);
         }
 
         [TestMethod]

@@ -403,8 +403,9 @@
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(2, telemetry.Metrics.Count);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), telemetry.Metrics.Keys.ToArray()[0]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Metrics.Keys.ToArray()[1]);
+            string[] keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
         }
 
         [TestMethod]
