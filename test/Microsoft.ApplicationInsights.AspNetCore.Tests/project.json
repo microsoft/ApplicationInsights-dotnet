@@ -13,7 +13,8 @@
     "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
     "xunit": "2.1.0",
-    "FunctionalTestUtils": "*"
+    "FunctionalTestUtils": "*",
+    "Microsoft.ApplicationInsights.AspNetCore": "*"
   },
   "testRunner": "xunit",
   "frameworks": {
