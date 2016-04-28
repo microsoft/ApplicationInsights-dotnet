@@ -35,7 +35,8 @@
       "version": "1.0.0-rc2-3002374"
     },
     "xunit": "2.1.0",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-*"
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-*",
+    "Microsoft.ApplicationInsights.AspNetCore": "*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
