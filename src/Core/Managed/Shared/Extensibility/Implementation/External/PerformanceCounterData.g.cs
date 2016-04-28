@@ -22,9 +22,10 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal partial class PerformanceCounterData
     {
@@ -73,17 +74,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             counterName = string.Empty;
             instanceName = string.Empty;
             kind = DataPointType.Aggregation;
-            properties = new Dictionary<string, string>();
+            properties = new ConcurrentDictionary<string, string>();
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-

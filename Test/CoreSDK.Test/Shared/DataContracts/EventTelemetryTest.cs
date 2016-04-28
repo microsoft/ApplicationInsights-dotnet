@@ -97,14 +97,17 @@
             Assert.Equal(new string('Z', Property.MaxEventNameLength), telemetry.Name);
 
             Assert.Equal(2, telemetry.Properties.Count);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Properties.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
+            string[] keys = telemetry.Properties.Keys.OrderBy(s => s).ToArray();
+            string[] values = telemetry.Properties.Values.OrderBy(s => s).ToArray();
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.Equal(new string('X', Property.MaxValueLength), values[1]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
+            Assert.Equal(new string('X', Property.MaxValueLength), values[0]);
 
             Assert.Equal(2, telemetry.Metrics.Count);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), telemetry.Metrics.Keys.ToArray()[0]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Metrics.Keys.ToArray()[1]);
+            keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
         }
 
         [TestMethod]

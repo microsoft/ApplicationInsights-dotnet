@@ -73,7 +73,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SessionContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SeverityLevelExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Telemetry.cs" />

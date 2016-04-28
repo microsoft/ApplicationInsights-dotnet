@@ -29,7 +29,7 @@
         public ExceptionTelemetry()
         {
             this.Data = new ExceptionData();
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.context = new TelemetryContext(this.Data.properties);
             this.HandledAt = default(ExceptionHandledAt);
         }
 

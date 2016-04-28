@@ -28,7 +28,7 @@
         {
             this.Data = new MetricData();
             this.Metric = new DataPoint();
-            this.Context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.Context = new TelemetryContext(this.Data.properties);
 
             // We always have a single 'metric'.
             this.Data.metrics.Add(this.Metric);

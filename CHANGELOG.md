@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.1.0-beta4
+- [Bug fix](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/76)
+
 ## Version 2.1.0-beta3
 - Support partial success (206) from the Application Insights backend. Before this change SDK may have lost data because some items of the batch were accepted and some items of the batch were asked to be retried (because of burst throttling or intermittent issues).
 - Bug fixes
@@ -76,7 +79,7 @@ item is being filtered out.
 
 ## Version 1.2.3
 - Bug fixes.
-- Telemetry item will be serialized to Debug Ouput even when Instrumentaiton Key was not set.
+- Telemetry item will be serialized to Debug Ouput even when Instrumentation Key was not set.
 
 ## Version 1.2
 - First version shipped from github
