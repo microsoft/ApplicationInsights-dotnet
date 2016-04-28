@@ -1,4 +1,4 @@
-Microsoft Application Insights for ASP.NET 5 applications
+Microsoft Application Insights for ASP.NET Core applications
 =============================================================
 
 This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
