@@ -3,7 +3,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
@@ -30,7 +29,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DependencyTelemetry()
         {
             this.Data = new RemoteDependencyData() { kind = DataPointType.Aggregation };
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.context = new TelemetryContext(this.Data.properties);
             this.Data.dependencyKind = BondDependencyKind.Other;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }

@@ -22,9 +22,10 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    
+
     [System.CodeDom.Compiler.GeneratedCode("gbc", "3.02")]
     internal enum DataPointType
     {
@@ -90,7 +91,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             metrics = new List<DataPoint>();
-            properties = new Dictionary<string, string>();
+            properties = new ConcurrentDictionary<string, string>();
         }
     }
 
@@ -175,7 +176,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             dependencySource = DependencySourceType.Undefined;
             commandName = string.Empty;
             dependencyTypeName = string.Empty;
-            properties = new Dictionary<string, string>();
+            properties = new ConcurrentDictionary<string, string>();
         }
     }
 
@@ -233,8 +234,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             responseCode = string.Empty;
             httpMethod = string.Empty;
             url = string.Empty;
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 
@@ -347,8 +348,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             handledAt = string.Empty;
             exceptions = new List<ExceptionDetails>();
             problemId = string.Empty;
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 
@@ -377,7 +378,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             message = string.Empty;
-            properties = new Dictionary<string, string>();
+            properties = new ConcurrentDictionary<string, string>();
         }
     }
 
@@ -406,8 +407,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             this.name = string.Empty;
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 
@@ -592,8 +593,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             result = new TestResult();
             runLocation = string.Empty;
             message = string.Empty;
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 } // AI

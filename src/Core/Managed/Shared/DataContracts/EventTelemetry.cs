@@ -26,7 +26,7 @@
         public EventTelemetry()
         {
             this.Data = new EventData();
-            this.context = new TelemetryContext(this.Data.properties, new Dictionary<string, string>());
+            this.context = new TelemetryContext(this.Data.properties);
         }
 
         /// <summary>

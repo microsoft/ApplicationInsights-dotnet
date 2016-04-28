@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
@@ -30,16 +31,15 @@
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
         /// </summary>
         public TelemetryContext()
-            : this(new SnapshottingDictionary<string, string>(), new SnapshottingDictionary<string, string>())
+            : this(new ConcurrentDictionary<string, string>())
         {
         }
 
-        internal TelemetryContext(IDictionary<string, string> properties, IDictionary<string, string> tags)
+        internal TelemetryContext(IDictionary<string, string> properties)
         {
             Debug.Assert(properties != null, "properties");
-            Debug.Assert(tags != null, "tags");
             this.properties = properties;
-            this.tags = tags;
+            this.tags = new ConcurrentDictionary<string, string>();
         }
 
         /// <summary>
