@@ -289,8 +289,9 @@
 
             // create the default production implementation of the service client with the best service endpoint we could get
             string instanceName = GetInstanceName(configuration);
+            string streamId = GetStreamId();
             var assemblyVersion = SdkVersionUtils.GetAssemblyVersion();
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, assemblyVersion, this.timeProvider);
+            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, streamId, assemblyVersion, this.timeProvider);
 
             QuickPulseEventSource.Log.TroubleshootingMessageEvent(
                 string.Format(
@@ -316,6 +317,11 @@
             }
 
             return string.IsNullOrWhiteSpace(fakeItem.Context?.Cloud?.RoleInstance) ? Environment.MachineName : fakeItem.Context.Cloud.RoleInstance;
+        }
+
+        private static string GetStreamId()
+        {
+            return Guid.NewGuid().ToString("N");
         }
 
         private void StateThreadWorker(object state)
