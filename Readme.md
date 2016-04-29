@@ -104,15 +104,15 @@ services.AddFunctionalTestTelemetryChannel();
 You can run unit tests using Visual Studio.
 
 You can run unit tests using DNX from command line. Prerequisite to this is that you should make sure you have the exact versions of DNX runtimes. You can check the available runtimes in %userprofile%\.dnx\runtimes folder (or using ```dnvm list``` in command prompt). They should be:
-* dnx-clr-win-x64.1.0.0-rc1-update1
-* dnx-clr-win-x86.1.0.0-rc1-update1
-* dnx-coreclr-win-x64.1.0.0-rc1-update1
-* dnx-coreclr-win-x86.1.0.0-rc1-update1
+* dnx-clr-win-x64.1.0.0-rc1-update2
+* dnx-clr-win-x86.1.0.0-rc1-update2
+* dnx-coreclr-win-x64.1.0.0-rc1-update2
+* dnx-coreclr-win-x86.1.0.0-rc1-update2
 
 If you are seeing that dnx.exe is not available (or defined), use the following two commands to set the required DNX runtime to the user path:
 
 ```
-dnvm alias default 1.0.0-rc1-update1 -r clr -arch x86
+dnvm alias default 1.0.0-rc1-update2 -r clr -arch x86
 dnvm use default
 ```
 
