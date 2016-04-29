@@ -5,7 +5,7 @@ This repository has a code for [Application Insights monitoring](http://azure.mi
 
 Recent updates
 --------------
-We have upgraded ASP.NET Core SDK to use Windows Server Telemetry channel which enables Telemetry processors, filtering, sampling as well as Metrics Stream functionality. Please read more [here](https://github.com/Microsoft/ApplicationInsights-aspnetcore/wiki/Telemetry-Processors:-Sampling-and-Quick-Pulse).
+We have upgraded ASP.NET Core SDK to use Windows Server Telemetry channel which enables Telemetry processors, filtering, sampling as well as Metrics Stream functionality. Please read more [here](https://github.com/Microsoft/ApplicationInsights-aspnetcore/wiki/Telemetry-Processors:-Sampling-and-Metrics-Stream).
 
 Getting Started
 ---------------
