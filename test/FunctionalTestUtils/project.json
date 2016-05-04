@@ -9,7 +9,7 @@
     "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
     "xunit": "2.1.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2"
+    "Microsoft.ApplicationInsights.AspNetCore": "*"
   },
   "testRunner": "xunit",
   "frameworks": {
