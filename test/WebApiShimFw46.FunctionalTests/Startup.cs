@@ -14,7 +14,6 @@ namespace SampleWebAPIIntegration
             // Setup configuration sources.
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("config.json")
-                .AddEnvironmentVariables()
                 .Build();
         }
 

@@ -28,7 +28,7 @@
         "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0-rc2-3002374"
+          "version": "1.0.0-rc2-3002520"
         }
       }
     }

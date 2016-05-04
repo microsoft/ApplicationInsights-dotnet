@@ -32,11 +32,10 @@
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002374"
+      "version": "1.0.0-rc2-3002520"
     },
     "xunit": "2.1.0",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "*"
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
