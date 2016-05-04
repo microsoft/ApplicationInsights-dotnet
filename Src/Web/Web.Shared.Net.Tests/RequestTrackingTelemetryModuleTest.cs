@@ -303,11 +303,11 @@
         }
 
         [TestMethod]
-        public void NeedProcessRequestDoesNotThrowIfHttpContextIsNull()
+        public void NeedProcessRequestReturnsFalseOnNullHttpContext()
         {
             using (var module = new RequestTrackingTelemetryModule())
             {
-                Assert.DoesNotThrow(() => module.NeedProcessRequest(null));
+                Assert.False(module.NeedProcessRequest(null));
             }
         }
 
@@ -339,7 +339,10 @@
 
         internal class FakeHttpHandler : IHttpHandler
         {
-            public bool IsReusable => false;
+            bool IHttpHandler.IsReusable
+            {
+                get { return false; }
+            }
 
             public void ProcessRequest(System.Web.HttpContext context)
             {
