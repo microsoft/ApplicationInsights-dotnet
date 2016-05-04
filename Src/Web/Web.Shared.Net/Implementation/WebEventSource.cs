@@ -320,6 +320,17 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            34,
+            Message = "[msg=NoHttpContext];",
+            Level = EventLevel.Warning)]
+        public void NoHttpContextWarning(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                34,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
