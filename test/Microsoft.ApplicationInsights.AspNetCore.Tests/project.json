@@ -13,6 +13,7 @@
     "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
     "xunit": "2.1.0",
+    "dotnet-test-xunit": "1.0.0-*",
     "FunctionalTestUtils": "*",
     "Microsoft.ApplicationInsights.AspNetCore": "*"
   },
@@ -25,11 +26,15 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0-rc2-3002520"
         }
+      }
+    },
+    "net451": {
+      "dependencies": {
+        "Moq": "4.2.1312.1622"
       }
     }
   },

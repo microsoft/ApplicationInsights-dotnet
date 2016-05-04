@@ -5,9 +5,7 @@
     "delaySign": true,
     "preserveCompilationContext": true
   },
-
   "testRunner": "xunit",
-
   "dependencies": {
     "FunctionalTestUtils": "*",
     "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
@@ -15,13 +13,9 @@
     "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
     "Microsoft.AspNet.WebApi.Client": "5.2.2",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "xunit": "2.1.0"
   },
-
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
@@ -30,28 +24,19 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc2-*",
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.0.0-rc2-3002520"
         }
       }
+    },
+    "net451": {
+      "dependencies": {
+        "Moq":"4.2.1312.1622"
+      }
     }
   },
-
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ],
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
   "content": [
     "config.json"
   ]
