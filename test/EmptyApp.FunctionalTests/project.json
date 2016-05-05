@@ -1,6 +1,6 @@
 ﻿{
   "webroot": "wwwroot",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
     "preserveCompilationContext": true

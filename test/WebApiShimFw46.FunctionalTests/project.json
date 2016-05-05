@@ -1,9 +1,12 @@
 {
   "webroot": "wwwroot",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": {
+      "includeFiles": [ "config.json" ]
+    }
   },
   "testRunner": "xunit",
   "dependencies": {
@@ -36,8 +39,5 @@
         "Moq":"4.2.1312.1622"
       }
     }
-  },
-  "content": [
-    "config.json"
-  ]
+  }
 }

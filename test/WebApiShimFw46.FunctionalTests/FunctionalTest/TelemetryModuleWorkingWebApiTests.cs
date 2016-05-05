@@ -1,11 +1,13 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace SampleWebAppIntegration.FunctionalTest
 {
     using System.Linq;
     using System.Net.Http;
     using System.Threading;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
 
     public class TelemetryModuleWorkingWebApiTests : TelemetryTestsBase
     {

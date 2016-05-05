@@ -1,4 +1,7 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace SampleWebAppIntegration.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;

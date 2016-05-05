@@ -1,9 +1,19 @@
 {
   "userSecretsId": "aspnet-MVCFramework45.FunctionalTests-60cfc765-2dc9-454c-bb34-dc379ed92cd0",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": {
+      "includeFiles": [
+        "appsettings.json",
+        "web.config"
+      ],
+      "include": [
+        "wwwroot",
+        "Views"
+      ]
+    }
   },
 
   "dependencies": {
@@ -51,6 +61,7 @@
     },
     "net451": {
       "dependencies": {
+        "MSBuild.Microsoft.VisualStudio.Web.targets": "14.0.0",
         "Moq": "4.2.1312.1622"
       }
     }
@@ -63,12 +74,5 @@
         "portable-net45+wp80+win8+wpa81+dnxcore50"
       ]
     }
-  },
-
-  "content": [
-    "wwwroot",
-    "Views",
-    "appsettings.json",
-    "web.config"
-  ]
+  }
 }
