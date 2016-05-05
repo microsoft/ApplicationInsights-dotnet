@@ -1,9 +1,11 @@
-﻿using FunctionalTestUtils;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿namespace SampleWebAPIIntegration
+{
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
 
     public class Startup
     {

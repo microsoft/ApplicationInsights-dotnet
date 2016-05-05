@@ -7,7 +7,7 @@
     {
         private const string assemblyName = "MVCFramework45.FunctionalTests";
 
-#if dnx451
+#if NET451
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.AspNet.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.ContextInitializers;
@@ -11,9 +11,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Internal;
-    using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
 
@@ -22,8 +19,7 @@
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
-    using ApplicationInsights.AspNet.Extensibility.Implementation.Tracing;
-    using Logging;
+
     public static class ApplicationInsightsExtensions
     {
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
@@ -47,9 +43,6 @@
         public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
             var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
-
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
@@ -196,7 +189,7 @@
 
         private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool enableAdaptiveSampling)
         {
-#if net451
+#if NET451
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
 
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))

@@ -5,15 +5,15 @@
 
     internal class SdkVersionUtils
     {
-        internal const string VersionPrefix = "aspnet5-";
+        internal const string VersionPrefix = "aspnetCore-";
 
         internal static string GetFrameworkType()
         {
             string framework;
-#if net451
+#if NET451
            // F representing the full framework
            framework = "F:"; 
-#elif netstandard1.5
+#elif NETSTANDARD1_5
             // C representing the core framework
             framework = "C:";
 #else

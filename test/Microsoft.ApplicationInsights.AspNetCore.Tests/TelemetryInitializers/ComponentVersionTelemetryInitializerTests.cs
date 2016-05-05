@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
-    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Http.Internal;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Internal;
     using Xunit;
 
     public class ComponentVersionTelemetryInitializerTests

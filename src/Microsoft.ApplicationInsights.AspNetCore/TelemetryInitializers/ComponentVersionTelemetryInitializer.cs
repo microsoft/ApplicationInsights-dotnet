@@ -1,10 +1,8 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
     using Channel;
-    using DataContracts;
     using Extensibility.Implementation.Tracing;
-    using Microsoft.AspNet.Http;
     using Microsoft.Extensions.Configuration;
     using ApplicationInsights.Extensibility;
 
@@ -33,7 +31,7 @@
             }
             catch(Exception e)
             {
-                AspNetEventSource.Instance.LogComponentVersionTelemetryInitializerFailsToAccessProjectJson();
+                AspNetCoreEventSource.Instance.LogComponentVersionTelemetryInitializerFailsToAccessProjectJson();
             }
         }
 

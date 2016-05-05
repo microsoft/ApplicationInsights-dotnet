@@ -31,13 +31,13 @@
 
                 if (context == null)
                 {
-                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
                     return;
                 }
 
                 if (context.RequestServices == null)
                 {
-                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
                     return;
                 }
 
@@ -45,7 +45,7 @@
 
                 if (request == null)
                 {
-                    AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
                     return;
                 }
 
@@ -53,7 +53,7 @@
             }
             catch (Exception exp)
             {
-                AspNetEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
                 Debug.WriteLine(exp);
             }
         }

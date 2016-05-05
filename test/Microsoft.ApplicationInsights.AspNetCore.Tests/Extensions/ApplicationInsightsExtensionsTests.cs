@@ -17,6 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
     using Xunit;
+    using ApplicationInsights.AspNetCore.Extensions;
 #if NET451
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -125,7 +126,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
                 var config = new ConfigurationBuilder().Build();
                 try
@@ -145,7 +146,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
                 var config = new ConfigurationBuilder().Build();
                 try
@@ -166,7 +167,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
                 var config = new ConfigurationBuilder().Build();
                 try
@@ -337,7 +338,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(instrumentationKey: TestInstrumentationKey).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -350,7 +351,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromSettings()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 var config = new ConfigurationBuilder().AddApplicationInsightsSettings(developerMode: true).Build();
                 services.AddApplicationInsightsTelemetry(config);
 
@@ -368,12 +369,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
         }
+
         public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, ApplicationInsightsServiceOptions serviceOptions = null, bool addChannel = true)
         {
             var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
             if (addChannel)
             {
-                services.AddInstance<ITelemetryChannel>(new InMemoryChannel());
+                services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
             }
             IConfigurationRoot config = null;
 

@@ -1,30 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AspNetEventSource.cs" company="Microsoft">
+// <copyright file="AspNetCoreEventSource.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Tracing
+namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Diagnostics.Tracing;
 
     /// <summary>
-    /// Event source for Application Insights ASP.NET 5 SDK.
+    /// Event source for Application Insights ASP.NET Core SDK.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-AspNetCore")]
-    internal sealed class AspNetEventSource : EventSource
+    internal sealed class AspNetCoreEventSource : EventSource
     {
         /// <summary>
         /// The singleton instance of this event source.
         /// Due to how EventSource initialization works this has to be a public field and not
         /// a property otherwise the internal state of the event source will not be enabled.
         /// </summary>
-        public static readonly AspNetEventSource Instance = new AspNetEventSource();
+        public static readonly AspNetCoreEventSource Instance = new AspNetCoreEventSource();
 
         /// <summary>
         /// Prevents a default instance of the AspNetEventSource class from being created.
         /// </summary>
-        private AspNetEventSource() : base()
+        private AspNetCoreEventSource() : base()
         {
             try
             {

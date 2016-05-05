@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet.Extensions
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of featuers obtained from Application Insights.

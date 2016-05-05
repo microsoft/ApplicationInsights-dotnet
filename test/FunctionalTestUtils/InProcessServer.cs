@@ -59,6 +59,7 @@
 
             this.hostingEngine.Start();
 
+            this.ApplicationServices = this.hostingEngine.Services;
             return (BackTelemetryChannel)this.hostingEngine.Services.GetService<ITelemetryChannel>();
         }
 

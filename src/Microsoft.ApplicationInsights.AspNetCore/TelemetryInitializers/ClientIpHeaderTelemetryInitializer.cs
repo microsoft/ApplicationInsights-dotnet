@@ -112,7 +112,7 @@
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
                 // Ip is already populated.
-                AspNetEventSource.Instance.LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull();
+                AspNetCoreEventSource.Instance.LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull();
                 return;
             }
 
