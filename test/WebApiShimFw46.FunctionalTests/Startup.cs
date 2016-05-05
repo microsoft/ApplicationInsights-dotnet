@@ -1,15 +1,9 @@
-﻿using Xunit;
-
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace SampleWebAPIIntegration
-{
-    using System;
-    using FunctionalTestUtils;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Hosting;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
+﻿using FunctionalTestUtils;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
     public class Startup
     {
@@ -18,7 +12,6 @@ namespace SampleWebAPIIntegration
             // Setup configuration sources.
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("config.json")
-                .AddEnvironmentVariables()
                 .Build();
         }
 
@@ -28,7 +21,7 @@ namespace SampleWebAPIIntegration
         // Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddInstance<ITelemetryChannel>(new BackTelemetryChannel());
+            services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Uncomment the following line to add Web API services which makes it easier to port Web API 2 controllers.

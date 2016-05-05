@@ -7,9 +7,8 @@
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.Extensions.DependencyInjection;
-#if dnx451
+    using Xunit;
+#if NET451
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
@@ -23,7 +22,11 @@
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
             var timer = Stopwatch.StartNew();
-            var httpClient = new HttpClient();
+
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -44,7 +47,10 @@
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
-            var httpClient = new HttpClient();
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -59,8 +65,8 @@
             Assert.True(actual.Context.Component.Version.StartsWith("1.0.0"));
         }
 
-#if dnx451
-        public void ValidateBasicDependency(string assemblyName, string requestPath)
+#if NET451
+        public void ValidateBasicDependency(InProcessServer server, string requestPath, DependencyTelemetry expected)
         {
             using (InProcessServer server = new InProcessServer(assemblyName))
             {
