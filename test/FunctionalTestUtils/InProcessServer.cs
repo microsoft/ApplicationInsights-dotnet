@@ -45,6 +45,8 @@
             }
         }
 
+        public IServiceProvider ApplicationServices { get; private set; }
+
         private BackTelemetryChannel Start(string assemblyName)
         {
             this.hostingEngine = CreateBuilder()
@@ -57,6 +59,7 @@
 
             this.hostingEngine.Start();
 
+            this.ApplicationServices = this.hostingEngine.Services;
             return (BackTelemetryChannel)this.hostingEngine.Services.GetService<ITelemetryChannel>();
         }
 

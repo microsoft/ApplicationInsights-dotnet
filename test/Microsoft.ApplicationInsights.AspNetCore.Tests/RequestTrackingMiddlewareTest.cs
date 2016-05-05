@@ -18,7 +18,7 @@
         private readonly PathString httpRequestPath = new PathString("/path/path");
         private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
 
-        private const string ExpectedSdkVersion = "aspnet5";
+        private const string ExpectedSdkVersion = "aspnetCore";
 
         private ITelemetry sentTelemetry;
 

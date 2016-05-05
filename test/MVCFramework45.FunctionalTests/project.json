@@ -41,7 +41,7 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-*",
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-*",
     "xunit": "2.1.0",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc2-*",
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-*",
     "dotnet-test-xunit": "1.0.0-*"
   },
   "testRunner": "xunit",
@@ -61,7 +61,6 @@
     },
     "net451": {
       "dependencies": {
-        "MSBuild.Microsoft.VisualStudio.Web.targets": "14.0.0",
         "Moq": "4.2.1312.1622"
       }
     }

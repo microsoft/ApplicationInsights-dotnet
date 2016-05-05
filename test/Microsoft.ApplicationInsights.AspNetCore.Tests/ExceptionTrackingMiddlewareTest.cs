@@ -33,7 +33,7 @@
             await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
 
             Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains("aspnet5", sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains("aspnetCore", sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
     }
 }

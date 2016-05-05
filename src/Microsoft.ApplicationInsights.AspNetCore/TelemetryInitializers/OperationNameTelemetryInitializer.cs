@@ -17,7 +17,7 @@
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener) 
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener)
             : base(httpContextAccessor)
         {
             if (telemetryListener == null)
@@ -57,13 +57,16 @@
         [DiagnosticName(BeforeActionNotificationName)]
         public void OnBeforeAction(ActionDescriptor actionDescriptor, HttpContext httpContext, RouteData routeData)
         {
-            string name = this.GetNameFromRouteContext(routeData);
             var telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
-
-            if (!string.IsNullOrEmpty(name) && telemetry != null && telemetry is RequestTelemetry)
+            if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
-                name = httpContext.Request.Method + " " + name;
-                ((RequestTelemetry)telemetry).Name = name;
+                string name = this.GetNameFromRouteContext(routeData);
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    name = httpContext.Request.Method + " " + name;
+                    telemetry.Name = name;
+                }
             }
         }
 

@@ -26,14 +26,17 @@
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration": "1.0.0-rc2-*",
     "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights": "2.0.0"
+    "Microsoft.ApplicationInsights": "2.1.0-beta4",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-*"
   },
 
   "frameworks": {
     "net451": {
       "dependencies": {
-        "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0",
-        "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0"
+        "Microsoft.ApplicationInsights.PerfCounterCollector": "2.1.0-beta4",
+        "Microsoft.ApplicationInsights.DependencyCollector": "2.1.0-beta4",
+        "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.1.0-beta4"
       }
     },
     "netstandard1.5": {
@@ -42,7 +45,7 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "System.Net.NameResolution": "4.0.0-rc2-*",
+        "System.Net.NameResolution": "4.0.0-rc2-*"
       }
     }
   }

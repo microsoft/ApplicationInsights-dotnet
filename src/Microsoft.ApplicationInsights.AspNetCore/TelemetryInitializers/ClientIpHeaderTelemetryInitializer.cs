@@ -4,13 +4,12 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
-
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Features;
-
 
 
     /// <summary>
@@ -112,7 +111,8 @@
         {
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
             {
-                //already populated
+                // Ip is already populated.
+                AspNetCoreEventSource.Instance.LogClientIpHeaderTelemetryInitializerOnInitializeTelemetryIpNull();
                 return;
             }
 
@@ -146,6 +146,7 @@
 
                 requestTelemetry.Context.Location.Ip = resultIp;
             }
+
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
         }
     }
