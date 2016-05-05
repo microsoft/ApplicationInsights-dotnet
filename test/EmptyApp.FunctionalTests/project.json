@@ -1,6 +1,6 @@
 ﻿{
   "webroot": "wwwroot",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
     "preserveCompilationContext": true
@@ -9,7 +9,8 @@
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
     "FunctionalTestUtils": "*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "*"
+    "dotnet-test-xunit": "1.0.0-*",
+    "xunit": "2.1.0"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -20,26 +21,16 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "dotnet-test-xunit": "1.0.0-dev-*",
-        "System.Security.Cryptography.X509Certificates": "4.1.0-rc2-*",
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0-rc2-3002374"
+          "version": "1.0.0-rc2-3002520"
         }
       }
+    },
+    "net451": {
+      "dependencies": {
+        "Moq": "4.2.1312.1622"
+      }
     }
-  },
-
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ]
+  }
 }

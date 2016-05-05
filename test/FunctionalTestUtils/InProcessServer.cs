@@ -70,8 +70,11 @@
         
         private WebHostBuilder CreateBuilder()
         {
+            var config = new ConfigurationBuilder()
+                .Build();
+
             var hostBuilder = new WebHostBuilder();
-            hostBuilder.UseDefaultHostingConfiguration();
+            hostBuilder.UseConfiguration(config);
             return hostBuilder;
         }
     }

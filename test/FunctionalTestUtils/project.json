@@ -1,5 +1,5 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
     "preserveCompilationContext": true
@@ -9,7 +9,7 @@
     "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
     "xunit": "2.1.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "*"
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -27,7 +27,7 @@
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0-rc2-3002374"
+          "version": "1.0.0-rc2-3002520"
         }
       }
     }

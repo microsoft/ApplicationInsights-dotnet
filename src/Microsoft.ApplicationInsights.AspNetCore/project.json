@@ -4,12 +4,18 @@
   "authors": [ "Microsoft" ],
   "version": "1.0.0-rc2",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
-  "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
-  "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
-  "requireLicenseAcceptance": true,
-  "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
-  "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "aspnetcore" ],
-  "compilationOptions": {
+  "packOptions": {
+    "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
+    "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
+    "requireLicenseAcceptance": true,
+    "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
+    "tags": [ "Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "aspnetcore" ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Microsoft/ApplicationInsights-aspnetcore.git"
+    }
+  },
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
   },

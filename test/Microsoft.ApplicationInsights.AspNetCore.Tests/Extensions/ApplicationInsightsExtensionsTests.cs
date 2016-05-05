@@ -113,13 +113,13 @@
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
 
-            [Fact]
+
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
 
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", "11111111-2222-3333-4444-555555555555");
-                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+                var config = new ConfigurationBuilder().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -134,12 +134,11 @@
                 }
             }
 
-            [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
-                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+                var config = new ConfigurationBuilder().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -154,12 +153,12 @@
                 }
             }
 
-            [Fact]
+
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
-                var config = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+                var config = new ConfigurationBuilder().Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);

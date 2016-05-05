@@ -1,9 +1,11 @@
-﻿namespace EmptyApp.FunctionalTests.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace EmptyApp.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
 
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase
     {
