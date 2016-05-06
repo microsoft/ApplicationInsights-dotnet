@@ -1,11 +1,19 @@
 #enable verbose mode
 $VerbosePreference = "Continue";
 
-$TestProjects = @(
+
+$Projects = @(
+    '.\src\Microsoft.ApplicationInsights.AspNetCore',
 	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
 	'.\test\MVCFramework45.FunctionalTests',
 	'.\test\WebApiShimFw46.FunctionalTests',
     '.\test\EmptyApp.FunctionalTests'
+)
+
+$Commands = @(
+    'restore',
+    'build',
+    'pack'
 )
 
 Function Execute-DotnetProcess {
@@ -42,27 +50,29 @@ Function Execute-DotnetProcess {
 [PSObject[]]$global:failed = @();
 $global:WorkingDirectory = (pwd).Path;
 
-$dotnetPath = "C:\Program Files\dotnet\dotnet.exe";
+$dotnetPath = 'dotnet';
 
-$TestProjects |% {
-	[String]$arguments = "test";
+$Projects |% {
 	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
-	Write-Host "=========================================================";
-	Write-Host "== Executing tests";
-	Write-Host "== Working Folder: $currentWorkingDirectory";
-	Write-Host "== Runtime:$dotnetPath";
-	Write-Host "== Args:$arguments";
-	Write-Host "=========================================================";
-	$executeResult = Execute-DotnetProcess `
-	-RuntimePath $dotnetPath `
-	-Arguments $arguments `
-	-WorkingDirectory $currentWorkingDirectory;
-	Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
-	Write-Host "Output:";
-	Write-Host $executeResult.Output;
-	If ($executeResult.ExitCode -ne 0) {
-    	$global:failed += $executeResult;
-	}
+    $Commands |% {
+        $command = $_;
+        Write-Host "=========================================================";
+	    Write-Host "== Restoring and building the projects";
+	    Write-Host "== Working Folder: $currentWorkingDirectory";
+	    Write-Host "== Runtime:$dotnetPath";
+	    Write-Host "== Args:$command";
+	    Write-Host "=========================================================";
+	    $executeResult = Execute-DotnetProcess `
+	    -RuntimePath $dotnetPath `
+	    -Arguments $command `
+	    -WorkingDirectory $currentWorkingDirectory;
+	    Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
+	    Write-Host "Output:";
+	    Write-Host $executeResult.Output;
+	    If ($executeResult.ExitCode -ne 0) {
+    	    $global:failed += $executeResult;
+	    }
+    }
 }
 
 If ($global:failed.Count -gt 0) {
