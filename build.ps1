@@ -1,6 +1,7 @@
 #enable verbose mode
 $VerbosePreference = "Continue";
 
+
 $Projects = @(
     '.\src\Microsoft.ApplicationInsights.AspNetCore',
 	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
@@ -12,7 +13,7 @@ $Projects = @(
 $Commands = @(
     'restore',
     'build',
-    '-v pack'
+    'pack'
 )
 
 Function Execute-DotnetProcess {
@@ -26,10 +27,10 @@ Function Execute-DotnetProcess {
 	)
 
 	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
-	$pinfo.FileName = $dotnetPath;
+	$pinfo.FileName = $RuntimePath;
 	$pinfo.RedirectStandardOutput = $true;
 	$pinfo.UseShellExecute = $false;
-	$pinfo.Arguments = $arguments;
+	$pinfo.Arguments = $Arguments;
 	$pinfo.WorkingDirectory = $WorkingDirectory;
 
 	$p = New-Object System.Diagnostics.Process;
@@ -49,21 +50,21 @@ Function Execute-DotnetProcess {
 [PSObject[]]$global:failed = @();
 $global:WorkingDirectory = (pwd).Path;
 
-$dotnetPath = "C:\Program Files\dotnet\dotnet.exe";
+$dotnetPath = 'dotnet';
 
 $Projects |% {
 	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
     $Commands |% {
         $command = $_;
         Write-Host "=========================================================";
-	    Write-Host "== Executing tests";
+	    Write-Host "== Restoring and building the projects";
 	    Write-Host "== Working Folder: $currentWorkingDirectory";
 	    Write-Host "== Runtime:$dotnetPath";
 	    Write-Host "== Args:$command";
 	    Write-Host "=========================================================";
 	    $executeResult = Execute-DotnetProcess `
 	    -RuntimePath $dotnetPath `
-	    -Arguments $arguments `
+	    -Arguments $command `
 	    -WorkingDirectory $currentWorkingDirectory;
 	    Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
 	    Write-Host "Output:";

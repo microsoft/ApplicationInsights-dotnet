@@ -19,10 +19,10 @@ Function Execute-DotnetProcess {
 	)
 
 	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
-	$pinfo.FileName = $dotnetPath;
+	$pinfo.FileName = $RuntimePath;
 	$pinfo.RedirectStandardOutput = $true;
 	$pinfo.UseShellExecute = $false;
-	$pinfo.Arguments = $arguments;
+	$pinfo.Arguments = $Arguments;
 	$pinfo.WorkingDirectory = $WorkingDirectory;
 
 	$p = New-Object System.Diagnostics.Process;
