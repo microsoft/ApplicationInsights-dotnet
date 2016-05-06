@@ -1,9 +1,11 @@
-﻿namespace EmptyApp.FunctionalTests.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace EmptyApp.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Xunit;
 
     public class ExceptionTelemetryEmptyAppTests : TelemetryTestsBase
     {
@@ -19,7 +21,6 @@
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.HttpMethod = "GET";
 
-                // Request name is tracked incorretly in case of errors right now, tracked by https://github.com/Microsoft/ApplicationInsights-aspnet5/issues/91
                 expectedRequestTelemetry.Name = "GET /Exception";
                 expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
