@@ -50,7 +50,7 @@ Function Execute-DotnetProcess {
 [PSObject[]]$global:failed = @();
 $global:WorkingDirectory = (pwd).Path;
 
-$dotnetPath = 'dotnet';
+$dotnetPath = 'C:\Program Files\dotnet\dotnet.exe';
 
 $Projects |% {
 	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
