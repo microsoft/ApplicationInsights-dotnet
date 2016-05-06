@@ -16,7 +16,8 @@
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("project.json")
-                .Build(); var initializer = new ComponentVersionTelemetryInitializer(config);
+                .Build();
+            var initializer = new ComponentVersionTelemetryInitializer(config);
             initializer.Initialize(new RequestTelemetry());
         }
 
@@ -26,7 +27,8 @@
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("project.json")
-                .Build(); var initializer = new ComponentVersionTelemetryInitializer(config);
+                .Build();
+            var initializer = new ComponentVersionTelemetryInitializer(config);
             initializer.Initialize(new RequestTelemetry());
         }
 
@@ -49,13 +51,25 @@
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("project.json")
-                .Build(); var initializer = new ComponentVersionTelemetryInitializer(config);
+                .Build();
+            var initializer = new ComponentVersionTelemetryInitializer(config);
 
             var telemetry = new RequestTelemetry();
             telemetry.Context.Component.Version = "TestVersion";
             initializer.Initialize(telemetry);
 
             Assert.Equal("TestVersion", telemetry.Context.Component.Version);
+        }
+
+        [Fact]
+        public void InitializeDoesNotThrowIfVersionDoesNotExist()
+        {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .Build();
+            var initializer = new ComponentVersionTelemetryInitializer(config);
+            var telemetry = new RequestTelemetry();
+            initializer.Initialize(telemetry);
         }
     }
 }
