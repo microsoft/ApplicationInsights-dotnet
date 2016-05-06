@@ -5,12 +5,13 @@
     using System.Web;
 
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Assert = Xunit.Assert;
 
     [TestClass]
     public class RequestTrackingTelemetryModuleTest
@@ -29,7 +30,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 module.OnBeginRequest(null);
 
-                Assert.AreEqual(startTime, requestTelemetry.Timestamp);
+                Assert.Equal(startTime, requestTelemetry.Timestamp);
             }
         }
 
@@ -45,7 +46,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 module.OnBeginRequest(null);
 
-                Assert.AreNotEqual(default(DateTimeOffset), requestTelemetry.Timestamp);
+                Assert.NotEqual(default(DateTimeOffset), requestTelemetry.Timestamp);
             }
         }
 
@@ -60,7 +61,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 module.OnBeginRequest(null);
 
-                Assert.IsTrue(!string.IsNullOrEmpty(requestTelemetry.Id));
+                Assert.True(!string.IsNullOrEmpty(requestTelemetry.Id));
             }
         }
 
@@ -74,7 +75,7 @@
             module.OnBeginRequest(null);
             module.OnEndRequest(null);
 
-            Assert.IsTrue(context.GetRequestTelemetry().Duration.TotalMilliseconds >= 0);
+            Assert.True(context.GetRequestTelemetry().Duration.TotalMilliseconds >= 0);
         }
 
         [TestMethod]
@@ -87,7 +88,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 module.OnEndRequest(null);
 
-                Assert.IsNotNull(context.GetRequestTelemetry());
+                Assert.NotNull(context.GetRequestTelemetry());
             }
         }
 
@@ -101,7 +102,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 module.OnEndRequest(null);
 
-                Assert.AreEqual(0, context.GetRequestTelemetry().Duration.Ticks);
+                Assert.Equal(0, context.GetRequestTelemetry().Duration.Ticks);
             }
         }
 
@@ -121,7 +122,7 @@
 
                 module.OnEndRequest(null);
 
-                Assert.AreEqual("Test", requestTelemetry.ResponseCode);
+                Assert.Equal("Test", requestTelemetry.ResponseCode);
             }
         }
 
@@ -139,7 +140,7 @@
 
                 module.OnEndRequest(null);
 
-                Assert.AreEqual("http://test/", requestTelemetry.Url.OriginalString);
+                Assert.Equal("http://test/", requestTelemetry.Url.OriginalString);
             }
         }
 
@@ -157,7 +158,7 @@
 
                 module.OnEndRequest(null);
 
-                Assert.AreEqual("Test", requestTelemetry.HttpMethod);
+                Assert.Equal("Test", requestTelemetry.HttpMethod);
             }
         }
 
@@ -173,7 +174,7 @@
                 module.OnBeginRequest(null);
                 module.OnEndRequest(null);
 
-                Assert.AreEqual("401", context.GetRequestTelemetry().ResponseCode);
+                Assert.Equal("401", context.GetRequestTelemetry().ResponseCode);
             }
         }
 
@@ -188,7 +189,7 @@
                 module.OnBeginRequest(null);
                 module.OnEndRequest(null);
 
-                Assert.AreEqual(context.Request.Url, context.GetRequestTelemetry().Url);
+                Assert.Equal(context.Request.Url, context.GetRequestTelemetry().Url);
             }
         }
 
@@ -202,7 +203,7 @@
             module.OnBeginRequest(null);
             module.OnEndRequest(null);
 
-            Assert.AreEqual(context.Request.HttpMethod, context.GetRequestTelemetry().HttpMethod);
+            Assert.Equal(context.Request.HttpMethod, context.GetRequestTelemetry().HttpMethod);
         }
 
         public void OnEndTracksRequest()
@@ -221,7 +222,7 @@
                 module.OnBeginRequest(null);
                 module.OnEndRequest(null);
 
-                Assert.AreEqual(1, sendItems.Count);
+                Assert.Equal(1, sendItems.Count);
             }
         }
 
@@ -240,7 +241,7 @@
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
 
-            Assert.IsFalse(module.NeedProcessRequest(context));
+            Assert.False(module.NeedProcessRequest(context));
         }
 
         [TestMethod]
@@ -258,7 +259,7 @@
                 var configuration = TelemetryConfiguration.CreateDefault();
                 module.Initialize(configuration);
 
-                Assert.IsTrue(module.NeedProcessRequest(context));
+                Assert.True(module.NeedProcessRequest(context));
             }
         }
 
@@ -278,7 +279,7 @@
                 var configuration = TelemetryConfiguration.CreateDefault();
                 module.Initialize(configuration);
 
-                Assert.IsFalse(module.NeedProcessRequest(context));
+                Assert.False(module.NeedProcessRequest(context));
             }
         }
 
@@ -297,7 +298,16 @@
                 var configuration = TelemetryConfiguration.CreateDefault();
                 module.Initialize(configuration);
 
-                Assert.IsTrue(module.NeedProcessRequest(context));
+                Assert.True(module.NeedProcessRequest(context));
+            }
+        }
+
+        [TestMethod]
+        public void NeedProcessRequestReturnsFalseOnNullHttpContext()
+        {
+            using (var module = new RequestTrackingTelemetryModule())
+            {
+                Assert.False(module.NeedProcessRequest(null));
             }
         }
 
@@ -310,7 +320,7 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 WebEventsPublisher.Log.OnBegin();
 
-                Assert.IsNotNull(context.GetRequestTelemetry());
+                Assert.NotNull(context.GetRequestTelemetry());
             }
         }
 
@@ -323,13 +333,13 @@
                 module.Initialize(TelemetryConfiguration.CreateDefault());
                 WebEventsPublisher.Log.OnEnd();
 
-                Assert.IsNotNull(context.GetRequestTelemetry());
+                Assert.NotNull(context.GetRequestTelemetry());
             }
         }
 
         internal class FakeHttpHandler : IHttpHandler
         {
-            public bool IsReusable
+            bool IHttpHandler.IsReusable
             {
                 get { return false; }
             }
