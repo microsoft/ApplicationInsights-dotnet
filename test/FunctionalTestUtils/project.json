@@ -1,35 +1,37 @@
 {
-  "buildOptions": {
+   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true
-  },
-  "dependencies": {
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-*",
-    "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
-    "xunit": "2.1.0",
-    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-rc2"
-  },
-  "testRunner": "xunit",
-  "frameworks": {
-    "net451": {
-      "dependencies": {
-        "System.Net.Http": "4.0.1-rc2-*"
+    "preserveCompilationContext": true,
+    },
+    "dependencies": {
+      "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-*",
+      "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
+      "xunit": "2.1.0",
+      "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc2-*",
+      "Microsoft.ApplicationInsights.AspNetCore": {
+        "target": "project"
       }
     },
-    "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "dotnet5.4",
-        "portable-net45+win8"
-      ],
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0-rc2-3002520"
+    "testRunner": "xunit",
+    "frameworks": {
+      "net451": {
+        "dependencies": {
+          "System.Net.Http": "4.0.1-rc2-*"
+        }
+      },
+      "netcoreapp1.0": {
+        "imports": [
+          "dnxcore50",
+          "dotnet5.4",
+          "portable-net45+win8"
+        ],
+        "dependencies": {
+          "Microsoft.NETCore.App": {
+            "type": "platform",
+            "version": "1.0.0-rc2-3002520"
+          }
         }
       }
     }
-  }
 }

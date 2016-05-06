@@ -32,7 +32,7 @@ namespace MVCFramework45.FunctionalTests.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Contact()
+        public IActionResult Contact()
         {
             this.telemetryClient.TrackEvent("GetContact");
             this.telemetryClient.TrackMetric("ContactFile", 1);

@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
-    "FunctionalTestUtils": "*",
+    "FunctionalTestUtils": { "target": "project" },
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "dotnet-test-xunit": "1.0.0-*",
     "xunit": "2.1.0"

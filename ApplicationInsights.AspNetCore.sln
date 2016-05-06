@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{62AD20FD-640F-4F99-94EF-96A7581F1CF9}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
+		build.ps1 = build.ps1
 		Common.targets = Common.targets
 		dirs.proj = dirs.proj
 		global.json = global.json
