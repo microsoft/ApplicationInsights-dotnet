@@ -21,7 +21,8 @@
       "type": "build",
       "version": "1.0.0-*"
     },
-    "FunctionalTestUtils": "*",
+    "FunctionalTestUtils": { "target": "project" },
+    "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0-rc2-*",
@@ -41,7 +42,6 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-*",
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-*",
     "xunit": "2.1.0",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-*",
     "dotnet-test-xunit": "1.0.0-*"
   },
   "testRunner": "xunit",

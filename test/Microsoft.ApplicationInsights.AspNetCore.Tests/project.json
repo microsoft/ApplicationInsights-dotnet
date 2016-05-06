@@ -1,46 +1,45 @@
 {
+  "version": "1.0.0",
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
     "preserveCompilationContext": true,
     "copyToOutput": {
       "include": [ "content/*" ]
-      }
-   },
-    "dependencies": {
-      "Microsoft.AspNetCore.Http.Features": "1.0.0-rc2-*",
-      "Microsoft.AspNetCore.Http": "1.0.0-rc2-*",
-      "Microsoft.AspNetCore.Http.Extensions": "1.0.0-rc2-*",
-      "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
-      "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc2-*",
-      "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
-      "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
-      "xunit": "2.1.0",
-      "dotnet-test-xunit": "1.0.0-*",
-      "FunctionalTestUtils": "*"
-    },
-    "testRunner": "xunit",
-    "frameworks": {
-      "netcoreapp1.0": {
-        "imports": [
-          "dnxcore50",
-          "dotnet5.4",
-          "portable-net451+win8"
-        ],
-        "dependencies": {
-          "Microsoft.NETCore.App": {
-            "type": "platform",
-            "version": "1.0.0-rc2-3002520"
-          }
-        }
-      },
-      "net451": {
-        "dependencies": {
-          "Moq": "4.2.1312.1622"
+    }
+  },
+  "dependencies": {
+    "Microsoft.AspNetCore.Http.Features": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Http": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Http.Extensions": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Hosting": "1.0.0-rc2-*",
+    "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Logging": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "xunit": "2.1.0",
+    "dotnet-test-xunit": "1.0.0-*",
+    "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc2-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "dotnet5.4",
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002520"
         }
       }
     },
-    "content": [
-
-    ]
+    "net451": {
+      "dependencies": {
+        "Moq": "4.2.1312.1622"
+      }
+    }
   }
+}

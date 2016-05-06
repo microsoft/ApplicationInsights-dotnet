@@ -43,7 +43,6 @@
             Assert.InRange<DateTimeOffset>(actual.Timestamp, testStart, DateTimeOffset.Now);
             Assert.True(actual.Duration < timer.Elapsed, "duration");
             Assert.Equal(expected.HttpMethod, actual.HttpMethod);
-            // Assert.True(actual.Context.Component.Version.StartsWith("1.0.0"));
         }
 
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
@@ -64,7 +63,6 @@
             Assert.Equal(actual.HandledAt, actual.HandledAt);
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
-            // Assert.True(actual.Context.Component.Version.StartsWith("1.0.0"));
         }
 
 #if NET451

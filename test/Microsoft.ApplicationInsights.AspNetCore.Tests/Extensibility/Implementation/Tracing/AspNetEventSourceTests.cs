@@ -21,11 +21,11 @@ namespace Microsoft.ApplicationInsights.AspNet.Tests.Extensibility.Implementatio
         [Fact]
         public void TestThatEventSourceMethodsAreImplementedConsistentlyWithTheirAttributes()
         {
-            Assembly asm = Assembly.Load(new AssemblyName("Microsoft.ApplicationInsights.AspNet"));
-            Type eventSourceType = asm.GetType("Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Tracing.AspNetEventSource");
-            EventSource aspNetEventSource = (EventSource)eventSourceType.GetField("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+            Assembly asm = Assembly.Load(new AssemblyName("Microsoft.ApplicationInsights.AspNetCore"));
+            Type eventSourceType = asm.GetType("Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing.AspNetCoreEventSource");
+            EventSource aspNetCoreEventSource = (EventSource)eventSourceType.GetField("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
 
-            EventSourceTests.MethodsAreImplementedConsistentlyWithTheirAttributes(aspNetEventSource);
+            EventSourceTests.MethodsAreImplementedConsistentlyWithTheirAttributes(aspNetCoreEventSource);
         }
     }
 }

@@ -10,7 +10,8 @@
   },
   "testRunner": "xunit",
   "dependencies": {
-    "FunctionalTestUtils": "*",
+    "FunctionalTestUtils": { "target": "project" },
+    "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0-rc2-*",
     "Microsoft.AspNetCore.StaticFiles": "1.0.0-rc2-*",
