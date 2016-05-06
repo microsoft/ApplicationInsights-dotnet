@@ -2,13 +2,12 @@
 $VerbosePreference = "Continue";
 
 $TestProjects = @(
-	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
-	'.\test\MVCFramework45.FunctionalTests',
-	'.\test\WebApiShimFw46.FunctionalTests',
-    '.\test\EmptyApp.FunctionalTests'
+	'.\test\Microsoft.ApplicationInsights.AspNet.Tests',
+	'.\test\Mvc6Framework45.FunctionalTests',
+	'.\test\WebApiShimFw46.FunctionalTests'
 )
 
-Function Execute-DotnetProcess {
+Function Execute-DnxProcess {
 	Param (
 		[Parameter(Mandatory=$True)]
 		[String]$RuntimePath,
@@ -19,10 +18,10 @@ Function Execute-DotnetProcess {
 	)
 
 	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
-	$pinfo.FileName = $RuntimePath;
+	$pinfo.FileName = $dnxPath;
 	$pinfo.RedirectStandardOutput = $true;
 	$pinfo.UseShellExecute = $false;
-	$pinfo.Arguments = $Arguments;
+	$pinfo.Arguments = $arguments;
 	$pinfo.WorkingDirectory = $WorkingDirectory;
 
 	$p = New-Object System.Diagnostics.Process;
@@ -39,29 +38,63 @@ Function Execute-DotnetProcess {
 	};
 }
 
+Function Get-DnxRuntimePaths {
+	[String]$runtimesRoot = [System.Environment]::ExpandEnvironmentVariables(
+		'%USERPROFILE%\.dnx\runtimes');
+
+	Write-Verbose "Start discovering DNX runtimes, rutimeRoot:$runtimesRoot";
+
+	[string[]]$results = @();
+	# lists folders only
+	Get-ChildItem $runtimesRoot | ?{ $_.PSIsContainer } |%{
+		$runtimePath = """$runtimesRoot\$($_.Name)\bin\dnx.exe""";
+
+		Write-Verbose "DNX runtime path discovered, path:$runtimePath";
+
+		$results += $runtimePath;
+	};
+
+	Write-Verbose "Stop discovering DNX runtimes";
+
+	Return $results;
+}
+
 [PSObject[]]$global:failed = @();
 $global:WorkingDirectory = (pwd).Path;
 
-$dotnetPath = "C:\Program Files\dotnet\dotnet.exe";
+$dnxRuntimePaths = Get-DnxRuntimePaths;
 
-$TestProjects |% {
-	[String]$arguments = "test";
-	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
-	Write-Host "=========================================================";
-	Write-Host "== Executing tests";
-	Write-Host "== Working Folder: $currentWorkingDirectory";
-	Write-Host "== Runtime:$dotnetPath";
-	Write-Host "== Args:$arguments";
-	Write-Host "=========================================================";
-	$executeResult = Execute-DotnetProcess `
-	-RuntimePath $dotnetPath `
-	-Arguments $arguments `
-	-WorkingDirectory $currentWorkingDirectory;
-	Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
-	Write-Host "Output:";
-	Write-Host $executeResult.Output;
-	If ($executeResult.ExitCode -ne 0) {
-    	$global:failed += $executeResult;
+If ($dnxRuntimePaths.Count -ne 4){
+	Throw "Unexpected number of DNX runtimes were discovered, $($dnxRuntimePaths.Count)";
+}
+
+$dnxRuntimePaths |% {
+	
+	$dnxPath = $_;
+
+	$TestProjects |% {
+		[String]$arguments = "test";
+		[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
+
+		Write-Host "=========================================================";
+		Write-Host "== Executing tests";
+		Write-Host "== Working Folder: $currentWorkingDirectory";
+		Write-Host "== Runtime:$dnxPath";
+		Write-Host "== Args:$arguments";
+		Write-Host "=========================================================";
+
+		$executeResult = Execute-DnxProcess `
+			-RuntimePath $dnxPath `
+			-Arguments $arguments `
+			-WorkingDirectory $currentWorkingDirectory;
+
+		Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
+		Write-Host "Output:";
+		Write-Host $executeResult.Output;
+
+		If ($executeResult.ExitCode -ne 0) {
+			$global:failed += $executeResult;
+		}
 	}
 }
 
