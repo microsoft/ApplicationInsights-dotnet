@@ -26,9 +26,7 @@
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-*",
     "Microsoft.Extensions.Configuration": "1.0.0-rc2-*",
     "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-*",
-    "Microsoft.ApplicationInsights": "2.1.0-beta4",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-*"
+    "Microsoft.ApplicationInsights": "2.1.0-beta4"
   },
 
   "frameworks": {

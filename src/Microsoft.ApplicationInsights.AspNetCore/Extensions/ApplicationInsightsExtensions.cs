@@ -13,6 +13,8 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
+    using AspNetCore.Http;
+    using AspNetCore.Mvc.Infrastructure;
 
 #if NET451
     using ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -44,8 +46,14 @@
         {
             var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
+            {
+                return new ComponentVersionTelemetryInitializer(config);
+            });
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();

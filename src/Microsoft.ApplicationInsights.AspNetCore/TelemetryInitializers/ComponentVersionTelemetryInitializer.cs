@@ -1,45 +1,37 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
-    using System;
     using Channel;
-    using Extensibility.Implementation.Tracing;
     using Microsoft.Extensions.Configuration;
     using ApplicationInsights.Extensibility;
 
     /// <summary>
-    /// A telemetry initializer that populates telemetry.Context.Component.Version to the value read from project.json
+    /// A telemetry initializer that populates telemetry.Context.Component.Version to the value read from configuration
     /// </summary>
     public class ComponentVersionTelemetryInitializer : ITelemetryInitializer
     {
         private const string _versionConfigurationOption = "version";
-        private bool _isConfigBuilt = false;
         private IConfiguration _configuration;
-        private string _appVersion;
 
-        public ComponentVersionTelemetryInitializer()
+        public ComponentVersionTelemetryInitializer(IConfiguration configuration)
         {
-            try
+            if (configuration != null)
             {
-                if (!this._isConfigBuilt)
-                {
-                    var config = new ConfigurationBuilder()
-                        .AddJsonFile("project.json")
-                        .Build();
-                    this._appVersion = config[_versionConfigurationOption];
-                    this._isConfigBuilt = true;
-                }
-            }
-            catch(Exception e)
-            {
-                AspNetCoreEventSource.Instance.LogComponentVersionTelemetryInitializerFailsToAccessProjectJson();
+                this._configuration = configuration;
             }
         }
 
         public void Initialize(ITelemetry telemetry)
         {
-            if (string.IsNullOrEmpty(telemetry.Context.Component.Version) && !string.IsNullOrEmpty(this._appVersion))
+            if (string.IsNullOrEmpty(telemetry.Context.Component.Version))
             {
-               telemetry.Context.Component.Version = this._appVersion;
+                if (this._configuration != null)
+                {
+                    string version = this._configuration[_versionConfigurationOption];
+                    if (!string.IsNullOrEmpty(version))
+                    {
+                        telemetry.Context.Component.Version = version;
+                    }
+                }
             }
         }
     }

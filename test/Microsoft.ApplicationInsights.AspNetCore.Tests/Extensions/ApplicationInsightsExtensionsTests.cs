@@ -122,13 +122,15 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
 
-
+            [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsInstrumentationKeyFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", TestInstrumentationKey);
-                var config = new ConfigurationBuilder().Build();
+                var config = new ConfigurationBuilder()
+                    .AddEnvironmentVariables()
+                    .Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -143,12 +145,15 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
+            [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsDeveloperModeFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_DEVELOPER_MODE", "true");
-                var config = new ConfigurationBuilder().Build();
+                var config = new ConfigurationBuilder()
+                    .AddEnvironmentVariables()
+                    .Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);
@@ -163,13 +168,15 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
-
+            [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatReadsEndpointAddressFromEnvironment()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
                 services.AddSingleton<ITelemetryChannel>(new InMemoryChannel());
                 Environment.SetEnvironmentVariable("APPINSIGHTS_ENDPOINTADDRESS", "http://localhost:1234/v2/track/");
-                var config = new ConfigurationBuilder().Build();
+                var config = new ConfigurationBuilder()
+                    .AddEnvironmentVariables()
+                    .Build();
                 try
                 {
                     services.AddApplicationInsightsTelemetry(config);

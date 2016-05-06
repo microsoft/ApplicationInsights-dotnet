@@ -73,7 +73,6 @@ namespace MVCFramework45.FunctionalTests
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-                app.UseBrowserLink();
             }
             else
             {
