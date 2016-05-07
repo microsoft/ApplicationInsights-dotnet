@@ -4,6 +4,7 @@ $VerbosePreference = "Continue";
 
 $Projects = @(
     '.\src\Microsoft.ApplicationInsights.AspNetCore',
+    '.\test\FunctionalTests'
 	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
 	'.\test\MVCFramework45.FunctionalTests',
 	'.\test\WebApiShimFw46.FunctionalTests',
@@ -13,7 +14,7 @@ $Projects = @(
 $Commands = @(
     'restore',
     'build',
-    '-v pack'
+    'pack'
 )
 
 Function Execute-DotnetProcess {
