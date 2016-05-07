@@ -17,7 +17,7 @@
     "frameworks": {
       "net451": {
         "dependencies": {
-          "System.Net.Http": "4.0.1-rc2-*"
+          "System.Net.Http": "4.0.0"
         }
       },
       "netcoreapp1.0": {
@@ -29,7 +29,7 @@
         "dependencies": {
           "Microsoft.NETCore.App": {
             "type": "platform",
-            "version": "1.0.0-rc2-3002520"
+            "version": "1.0.0-*"
           }
         }
       }
