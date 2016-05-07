@@ -13,7 +13,7 @@ $Projects = @(
 $Commands = @(
     'restore',
     'build',
-    'pack'
+    '-v pack'
 )
 
 Function Execute-DotnetProcess {
@@ -26,25 +26,14 @@ Function Execute-DotnetProcess {
 		[String]$WorkingDirectory
 	)
 
-	$pinfo = New-Object System.Diagnostics.ProcessStartInfo;
-	$pinfo.FileName = $RuntimePath;
-	$pinfo.RedirectStandardOutput = $true;
-	$pinfo.UseShellExecute = $false;
-	$pinfo.Arguments = $Arguments;
-	$pinfo.WorkingDirectory = $WorkingDirectory;
+	$p = Start-Process $RuntimePath $Arguments -PassThru -NoNewWindow -Wait;
 
-	$p = New-Object System.Diagnostics.Process;
-	$p.StartInfo = $pinfo;
-	$p.Start() | Out-Null;
-	$p.WaitForExit();
-
-	Return New-Object PSObject -Property @{
-		RuntimePath =  [String]$RuntimePath;
-		Arguments = [String]$Arguments;
-		WorkingDirectory = [String]$WorkingDirectory;
-		Output = [String]$p.StandardOutput.ReadToEnd();
-		ExitCode = [int]$p.ExitCode;
-	};
+    Write-Host "Process executed, ExitCode:$($p.ExitCode)";
+	Write-Host "Output:";
+	Write-Host $p.StandardOutput;
+	If ($p.ExitCode -ne 0) {
+      $global:failed += $executeResult;
+	}
 }
 
 [PSObject[]]$global:failed = @();
@@ -62,16 +51,11 @@ $Projects |% {
 	    Write-Host "== Runtime:$dotnetPath";
 	    Write-Host "== Args:$command";
 	    Write-Host "=========================================================";
+        Set-Location -Path $currentWorkingDirectory;
 	    $executeResult = Execute-DotnetProcess `
 	    -RuntimePath $dotnetPath `
 	    -Arguments $command `
-	    -WorkingDirectory $currentWorkingDirectory;
-	    Write-Host "Test process executed, ExitCode:$($executeResult.ExitCode)";
-	    Write-Host "Output:";
-	    Write-Host $executeResult.Output;
-	    If ($executeResult.ExitCode -ne 0) {
-    	    $global:failed += $executeResult;
-	    }
+	    -WorkingDirectory $currentWorkingDirectory;	    
     }
 }
 
