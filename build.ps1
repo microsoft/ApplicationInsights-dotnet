@@ -4,7 +4,7 @@ $VerbosePreference = "Continue";
 
 $Projects = @(
     '.\src\Microsoft.ApplicationInsights.AspNetCore',
-    '.\test\FunctionalTests'
+    '.\test\FunctionalTestUtils'
 	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
 	'.\test\MVCFramework45.FunctionalTests',
 	'.\test\WebApiShimFw46.FunctionalTests',
