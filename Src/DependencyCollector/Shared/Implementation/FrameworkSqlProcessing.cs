@@ -99,7 +99,7 @@
                 this.TelemetryTable.Remove(id);
                 var telemetry = telemetryTuple.Item1 as DependencyTelemetry;
                 telemetry.Success = success;
-                telemetry.ResultCode = sqlExceptionNumber != 0 ? sqlExceptionNumber.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                telemetry.ResultCode = sqlExceptionNumber.ToString(CultureInfo.InvariantCulture);
 
                 ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
             }

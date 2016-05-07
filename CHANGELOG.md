@@ -1,5 +1,9 @@
 # Changelog
 
+## Future
+
+- ResultCode for successful Sql calls will be collected as 0 (before it was not sent).
+
 ## Version 2.1.0-beta4
 
 - No code changes. Updated to Core 2.1-beta4.

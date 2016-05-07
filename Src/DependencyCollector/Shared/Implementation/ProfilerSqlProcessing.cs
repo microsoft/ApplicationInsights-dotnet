@@ -345,10 +345,7 @@
                     this.TelemetryTable.Remove(thisObj);
                     telemetry.Success = exception == null;
                     var sqlEx = exception as SqlException;
-                    if (sqlEx != null)
-                    {
-                        telemetry.ResultCode = sqlEx.Number.ToString(CultureInfo.InvariantCulture);
-                    }
+                    telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }               
