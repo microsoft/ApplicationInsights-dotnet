@@ -5,7 +5,24 @@
     /// </summary>
     public class ApplicationInsightsServiceOptions
     {
+        private bool enableQuickPulseMetricStream = true;
         private bool enableAdaptiveSampling = true;
+
+        /// <summary>
+        /// Setting EnableQuickPulseMetricStream to false, will disable the default quick pulse metric stream. As a result, QuickPulseTelemetryModule
+        /// and QuickPulseTelemetryProcessor are not registered with the configuration by default.
+        /// </summary>
+        public bool EnableQuickPulseMetricStream
+        {
+            get
+            {
+                return enableQuickPulseMetricStream;
+            }
+            set
+            {
+                enableQuickPulseMetricStream = value;
+            }
+        }
 
         /// <summary>
         /// Setting EnableAdaptiveSampling to false, will disable the default adaptive sampling feature. As a result, no telemetry processor 

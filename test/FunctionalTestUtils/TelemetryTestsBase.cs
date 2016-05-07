@@ -14,7 +14,6 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility;
 #endif
-    using Xunit;
 
     public abstract class TelemetryTestsBase
     {

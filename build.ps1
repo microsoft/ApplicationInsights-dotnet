@@ -32,7 +32,7 @@ Function Execute-DotnetProcess {
     Write-Host "Process executed, ExitCode:$($p.ExitCode)";
 	Write-Host "Output:";
 	Write-Host $p.StandardOutput;
-	If ($p.ExitCode -ne 0) {
+	If (($Arguments -eq 'build') -and ($p.ExitCode -ne 0)) {
       $global:failed += $executeResult;
 	}
 }

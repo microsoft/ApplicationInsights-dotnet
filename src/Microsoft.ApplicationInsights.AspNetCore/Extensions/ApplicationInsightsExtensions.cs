@@ -17,8 +17,9 @@
     using AspNetCore.Mvc.Infrastructure;
 
 #if NET451
-    using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.DependencyCollector;
+    using ApplicationInsights.Extensibility.PerfCounterCollector;
+    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
 
@@ -50,7 +51,7 @@
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer>(serviceProvider =>
+            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>(serviceProvider =>
             {
                 return new ComponentVersionTelemetryInitializer(config);
             });
@@ -69,7 +70,7 @@
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
                 var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, options.EnableAdaptiveSampling);
+                AddTelemetryChannelAndProcessorsForFullFramework(serviceProvider, telemetryConfiguration, options);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
@@ -195,20 +196,39 @@
             }
         }
 
-        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool enableAdaptiveSampling)
+
+        private static void AddTelemetryChannelAndProcessorsForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, ApplicationInsightsServiceOptions serviceOptions)
         {
 #if NET451
-            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
+            // Adding Server Telemetry Channel if services doesn't have an existing channel
+            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? new ServerTelemetryChannel();
 
+
+            // Enabling Quick Pulse Metric Stream 
+            if (serviceOptions.EnableQuickPulseMetricStream)
+            {
+                var quickPulseModule = new QuickPulseTelemetryModule();
+                quickPulseModule.Initialize(configuration);
+
+                QuickPulseTelemetryProcessor processor = null;
+                configuration.TelemetryProcessorChainBuilder.Use((next) => {
+                    processor = new QuickPulseTelemetryProcessor(next);
+                    quickPulseModule.RegisterTelemetryProcessor(processor);
+                    return processor;
+                });
+            }
+
+            // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
             {
-                if (enableAdaptiveSampling)
+                if (serviceOptions.EnableAdaptiveSampling)
                 {
                     configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                    configuration.TelemetryProcessorChainBuilder.Build();
                 }
                 (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
             }
+
+            configuration.TelemetryProcessorChainBuilder.Build();
 #endif
         }
     }
