@@ -4,8 +4,7 @@ $VerbosePreference = "Continue";
 $TestProjects = @(
 	'.\test\Microsoft.ApplicationInsights.AspNetCore.Tests',
 	'.\test\MVCFramework45.FunctionalTests',
-	'.\test\WebApiShimFw46.FunctionalTests',
-    '.\test\EmptyApp.FunctionalTests'
+	'.\test\WebApiShimFw46.FunctionalTests'
 )
 
 Function Execute-DotnetProcess {
@@ -34,7 +33,7 @@ $global:WorkingDirectory = (pwd).Path;
 $dotnetPath = "C:\Program Files\dotnet\dotnet.exe";
 
 $TestProjects |% {
-	[String]$arguments = "test";
+	[String]$arguments = "test -f netcoreapp1.0";
 	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
 	Write-Host "=========================================================";
 	Write-Host "== Executing tests";
