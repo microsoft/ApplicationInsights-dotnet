@@ -94,7 +94,7 @@
                 false,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -201,7 +201,7 @@
                 false,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -228,7 +228,7 @@
                 false,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
         #endregion //SynCallBacks
 
@@ -274,7 +274,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -301,7 +301,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -374,7 +374,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -401,7 +401,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -472,7 +472,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -499,7 +499,7 @@
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>

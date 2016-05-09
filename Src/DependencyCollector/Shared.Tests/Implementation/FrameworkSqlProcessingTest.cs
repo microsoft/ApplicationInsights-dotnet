@@ -69,7 +69,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 false,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd,
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 true,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd,
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 false,
                 1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
         #endregion
 
