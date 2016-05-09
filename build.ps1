@@ -13,8 +13,8 @@ $Projects = @(
 
 $Commands = @(
     'restore',
-    'build',
-    'pack'
+    'build -c Release',
+    'pack -c Release'
 )
 
 Function Execute-DotnetProcess {
