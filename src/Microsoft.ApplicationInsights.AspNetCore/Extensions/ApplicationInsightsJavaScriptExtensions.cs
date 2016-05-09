@@ -1,4 +1,4 @@
-﻿namespace Microsoft.AspNet.Mvc.Rendering
+﻿namespace Microsoft.AspNetCore.Mvc.Rendering
 {
     using AspNetCore.Mvc.Rendering;
     using Microsoft.ApplicationInsights.AspNetCore;

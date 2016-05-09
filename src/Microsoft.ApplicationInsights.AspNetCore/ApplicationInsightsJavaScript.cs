@@ -1,10 +1,6 @@
-﻿
-namespace Microsoft.ApplicationInsights.AspNetCore
+﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
-    using System;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNet.Mvc.Rendering;
-
 
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into applicaiton code.

@@ -5,7 +5,7 @@
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
-    /// Set of extension methods for Microsoft.AspNet.Http.HttpRequest
+    /// Set of extension methods for Microsoft.AspNetCore.Http.HttpRequest
     /// </summary>
     public static class HttpRequestExtensions
     {

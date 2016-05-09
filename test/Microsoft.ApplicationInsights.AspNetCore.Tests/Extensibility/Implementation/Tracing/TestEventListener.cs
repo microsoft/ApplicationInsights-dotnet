@@ -3,7 +3,7 @@
 //     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Microsoft.ApplicationInsights.AspNet.Tests.Extensibility.Implementation.Tracing
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Collections.Generic;

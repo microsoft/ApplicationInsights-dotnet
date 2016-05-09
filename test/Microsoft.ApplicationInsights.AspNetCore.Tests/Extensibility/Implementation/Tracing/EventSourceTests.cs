@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 #define DEBUG
-namespace Microsoft.ApplicationInsights.AspNet.Tests.Extensibility.Implementation.Tracing
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implementation.Tracing
 {
     using System;
     using System.Collections.Generic;
