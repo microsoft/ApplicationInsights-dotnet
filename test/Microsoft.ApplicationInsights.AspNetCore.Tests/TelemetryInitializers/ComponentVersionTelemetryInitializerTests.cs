@@ -1,9 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
-    using Extensions.Configuration;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.Extensions.Configuration;
     using Xunit;
 
     public class ComponentVersionTelemetryInitializerTests
