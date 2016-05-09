@@ -1,5 +1,4 @@
-﻿
-namespace FunctionalTestUtils
+﻿namespace FunctionalTestUtils
 {
     using System;
     using System.Collections.Generic;

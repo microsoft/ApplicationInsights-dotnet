@@ -1,17 +1,11 @@
 ﻿namespace FunctionalTestUtils
 {
     using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using System.IO;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Hosting.Server;
-    using Microsoft.AspNetCore.Http.Features;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.Memory;
-    using Microsoft.Extensions.PlatformAbstractions;
-    using System.IO;
 
     // a variant of aspnet/Hosting/test/Microsoft.AspNet.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
