@@ -2,7 +2,7 @@
     "title": "Application Insights for ASP.NET 5 Web Applications",
     "description": "Application Insights for ASP.NET 5 web applications. See http://go.microsoft.com/fwlink/?LinkID=510752 for more information.",
     "authors": [ "Microsoft" ],
-    "version": "1.0.0-rc1-update2",
+    "version": "1.0.0-rc1-update4",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnet5",
     "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
@@ -14,13 +14,14 @@
         "delaySign": true
     },
     "dependencies": {
-        "Microsoft.ApplicationInsights": "2.0.0-*",
+        "Microsoft.ApplicationInsights": "2.1.0-beta3",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Abstractions": "1.0.0-rc1-final",
         "Microsoft.AspNet.Http.Features": "1.0.0-rc1-final",
         "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
         "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc1-final",
         "Microsoft.Extensions.Configuration": "1.0.0-rc1-final",
+        "Microsoft.Extensions.Configuration.json": "1.0.0-rc1-final",
         "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc1-final"
     },
 
@@ -30,8 +31,10 @@
           "define": [ "dnx451" ]
         },
         "dependencies": {
-          "Microsoft.ApplicationInsights.PerfCounterCollector": "2.0.0-*",
-          "Microsoft.ApplicationInsights.DependencyCollector": "2.0.0-*"
+          "Microsoft.ApplicationInsights.PerfCounterCollector": "2.1.0-beta3",
+          "Microsoft.ApplicationInsights.DependencyCollector": "2.1.0-beta3",
+          "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.1.0-beta3",
+          "Microsoft.Diagnostics.Tracing.EventSource.Redist": "1.1.28"
         }
       },
         "dnxcore50": {
@@ -39,8 +42,9 @@
                 "define": [ "dnxcore50" ]
             },
             "dependencies": {
-              "System.Net.NameResolution": "4.0.0-beta-23302",
-              "System.Reflection": "4.0.10-beta-23109"
+                "System.AppContext": "4.0.1-beta-23516",
+                "System.Net.NameResolution": "4.0.0-beta-23302",
+                "System.Reflection": "4.0.10-beta-23109"
             }
         }
     }

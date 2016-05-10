@@ -19,8 +19,7 @@
                 var expectedRequestTelemetry = new RequestTelemetry();
                 expectedRequestTelemetry.HttpMethod = "GET";
 
-                // Request name is tracked incorretly in case of errors right now, tracked by https://github.com/Microsoft/ApplicationInsights-aspnet5/issues/91
-                expectedRequestTelemetry.Name = "GET Home/Error";
+                expectedRequestTelemetry.Name = "GET Home/Exception";
                 expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
                 expectedRequestTelemetry.Url = new System.Uri(server.BaseHost + RequestPath);

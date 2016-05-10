@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ApplicationInsights.AspNet.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
-using Microsoft.ApplicationInsights.Channel;
-using FunctionalTestUtils;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNet.Diagnostics;
+﻿using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace EmptyApp.FunctionalTests
 {
+    using System;
+    using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNet.Extensions;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNet.Diagnostics;
+    using Microsoft.AspNet.Http;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+
     public class Startup
     {
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940

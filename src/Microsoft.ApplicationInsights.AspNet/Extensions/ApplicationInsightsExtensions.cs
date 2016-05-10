@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.AspNet.Extensions;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNet;
     using Microsoft.ApplicationInsights.AspNet.ContextInitializers;
@@ -14,10 +15,13 @@
     using Microsoft.Extensions.Configuration.Memory;
 
 #if dnx451
+    using System.Linq;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.DependencyCollector;
+    using ApplicationInsights.WindowsServer.TelemetryChannel;
 #endif
-
+    using ApplicationInsights.AspNet.Extensibility.Implementation.Tracing;
+    using Logging;
     public static class ApplicationInsightsExtensions
     {
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
@@ -38,21 +42,18 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config)
+        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
+            var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
+
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer>(ComponentVersionTelemetryInitializer =>
-            {
-                return new ComponentVersionTelemetryInitializer(config);
-            });
+            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
-
-            services.AddInstance<IConfiguration>(config);
 
 #if dnx451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
@@ -61,7 +62,8 @@
 
             services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
             {
-                var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                var telemetryConfiguration = TelemetryConfiguration.Active;
+                AddServerTelemetryChannelAndSamplingForFullFramework(serviceProvider, telemetryConfiguration, options.EnableAdaptiveSampling);
                 telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
                 AddTelemetryConfiguration(config, telemetryConfiguration);
                 AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
@@ -78,7 +80,11 @@
             });
         }
 
-        public static IConfigurationBuilder AddApplicationInsightsSettings(this IConfigurationBuilder configurationSourceRoot, bool? developerMode = null, string endpointAddress = null, string instrumentationKey = null)
+        public static IConfigurationBuilder AddApplicationInsightsSettings(
+            this IConfigurationBuilder configurationSourceRoot,
+            bool? developerMode = null,
+            string endpointAddress = null,
+            string instrumentationKey = null)
         {
             var telemetryConfigurationSource = new MemoryConfigurationProvider();
             bool wasAnythingSet = false;
@@ -180,6 +186,23 @@
             {
                 service.Initialize(configuration);
             }
+        }
+
+        private static void AddServerTelemetryChannelAndSamplingForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, bool enableAdaptiveSampling)
+        {
+#if dnx451
+            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ??  new ServerTelemetryChannel();
+
+            if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
+            {
+                if (enableAdaptiveSampling)
+                {
+                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                    configuration.TelemetryProcessorChainBuilder.Build();
+                }
+                (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
+            }
+#endif
         }
     }
 }

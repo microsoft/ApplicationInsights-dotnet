@@ -1,13 +1,16 @@
-Microsoft Application Insights for ASP.NET 5 applications
+Microsoft Application Insights for ASP.NET Core applications
 =============================================================
 
 This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
+Recent updates
+--------------
+We have upgraded ASP.NET Core SDK to use Windows Server Telemetry channel which enables Telemetry processors, filtering, sampling as well as Metrics Stream functionality. Please read more [here](https://github.com/Microsoft/ApplicationInsights-aspnetcore/wiki/Telemetry-Processors:-Sampling-and-Metrics-Stream).
 
 Getting Started
 ---------------
 
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET 5 web application to use Application Insights SDK.
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET Core web application to use Application Insights SDK.
 
 Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
@@ -98,7 +101,29 @@ services.AddFunctionalTestTelemetryChannel();
 ```
 
 *Running Tests*
-Open a developer command prompt, navigate to project folder and run:
+You can run unit tests using Visual Studio.
+
+You can run unit tests using DNX from command line. Prerequisite to this is that you should make sure you have the exact versions of DNX runtimes. You can check the available runtimes in %userprofile%\.dnx\runtimes folder (or using ```dnvm list``` in command prompt). They should be:
+* dnx-clr-win-x64.1.0.0-rc1-update2
+* dnx-clr-win-x86.1.0.0-rc1-update2
+* dnx-coreclr-win-x64.1.0.0-rc1-update2
+* dnx-coreclr-win-x86.1.0.0-rc1-update2
+
+If you are seeing that dnx.exe is not available (or defined), use the following two commands to set the required DNX runtime to the user path:
+
 ```
-dnx . test
+dnvm alias default 1.0.0-rc1-update2 -r clr -arch x86
+dnvm use default
 ```
+
+After that you can open a developer command prompt, navigate to each test folder and run:
+```
+dnx test
+```
+
+You can also run all tests using the following Powershell from root directory. Prerequisite to this is that you should make sure to have exactly four DNX runtimes (in %userprofile%\.dnx\runtimes folder):
+
+```
+powershell .\RunTests.ps1
+```
+
