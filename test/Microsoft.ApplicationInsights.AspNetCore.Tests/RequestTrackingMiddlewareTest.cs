@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
     using System.Threading.Tasks;
@@ -6,10 +6,8 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
     using Xunit;
-    using Microsoft.AspNetCore.Http.Internal;
 
     public class RequestTrackingMiddlewareTest
     {
@@ -17,9 +15,7 @@
         private readonly HostString httpRequestHost = new HostString("testHost");
         private readonly PathString httpRequestPath = new PathString("/path/path");
         private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
-
-        private const string ExpectedSdkVersion = "aspnetCore";
-
+        
         private ITelemetry sentTelemetry;
 
         private readonly RequestDelegate nextMiddleware = async httpContext => {
@@ -46,7 +42,7 @@
             await middleware.Invoke(context, new RequestTelemetry());
 
             Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains(ExpectedSdkVersion, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(SdkVersionTestUtils.GetExpectedSdkVersion(), this.sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
 
         [Fact]

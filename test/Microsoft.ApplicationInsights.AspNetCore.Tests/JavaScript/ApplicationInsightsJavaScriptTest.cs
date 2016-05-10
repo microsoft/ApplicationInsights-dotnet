@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Framework.DependencyInjection
+﻿namespace Microsoft.Framework.DependencyInjection.Test
 {
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.Extensibility;
