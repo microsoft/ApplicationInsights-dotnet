@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
@@ -33,7 +33,7 @@
             await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
 
             Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains("aspnetCore", sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(SdkVersionTestUtils.VersionPrefix, sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
     }
 }
