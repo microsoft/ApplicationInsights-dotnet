@@ -4,12 +4,12 @@
     {
         public static string GetExpectedSdkVersion()
         {
-            string expectedSdkVersion = "aspnet5";
+            string expectedSdkVersion;
 
 #if NET451
-        expectedSdkVersion = expectedSdkVersion + "F";
+        expectedSdkVersion = "aspnet5F";
 #else
-        expectedSdkVersion = expectedSdkVersion + "C";
+        expectedSdkVersion = "aspnet5C";
 #endif
             return expectedSdkVersion;
         }
