@@ -33,7 +33,7 @@
             await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
 
             Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains(SdkVersionTestUtils.GetExpectedSdkVersion(), sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(SdkVersionTestUtils.VersionPrefix, sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
     }
 }

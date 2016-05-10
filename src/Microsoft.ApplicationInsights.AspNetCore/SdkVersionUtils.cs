@@ -5,18 +5,11 @@
 
     internal class SdkVersionUtils
     {
-        internal static string GetFrameworkType()
-        {
-            string framework;
 #if NET451
-           // F representing the full framework
-           framework = "aspnet5f:";
+        public const string VersionPrefix = "aspnet5f:";
 #else
-            // C representing the core framework
-            framework = "aspnet5c:";
+        public const string VersionPrefix = "aspnet5c:";
 #endif
-            return framework;
-        }
 
         internal static string GetAssemblyVersion()
         {

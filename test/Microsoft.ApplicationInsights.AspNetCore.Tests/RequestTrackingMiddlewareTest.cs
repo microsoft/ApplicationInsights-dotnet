@@ -42,7 +42,7 @@
             await middleware.Invoke(context, new RequestTelemetry());
 
             Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains(SdkVersionTestUtils.GetExpectedSdkVersion(), this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+            Assert.Contains(SdkVersionTestUtils.VersionPrefix, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
 
         [Fact]
