@@ -10,10 +10,10 @@
             string framework;
 #if NET451
            // F representing the full framework
-           framework = "aspnet5F:";
+           framework = "aspnet5f:";
 #else
             // C representing the core framework
-            framework = "aspnet5C:";
+            framework = "aspnet5c:";
 #endif
             return framework;
         }

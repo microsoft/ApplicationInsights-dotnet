@@ -7,9 +7,9 @@
             string expectedSdkVersion;
 
 #if NET451
-        expectedSdkVersion = "aspnet5F";
+        expectedSdkVersion = "aspnet5f";
 #else
-        expectedSdkVersion = "aspnet5C";
+        expectedSdkVersion = "aspnet5c";
 #endif
             return expectedSdkVersion;
         }
