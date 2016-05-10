@@ -279,6 +279,48 @@
             Assert.AreEqual(SeverityLevel.Critical, telemetry.SeverityLevel);
         }
 
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogPropertyDuplicateKeyDuplicateValue()
+        {
+            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var logEventInfo = new LogEventInfo();
+            var loggerNameVal = "thisisaloggername";
+
+            logEventInfo.LoggerName = loggerNameVal;
+            logEventInfo.Properties.Add("LoggerName", loggerNameVal);
+
+            var traceTelemetry = new TraceTelemetry();
+
+            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+
+            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
+            Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void NLogPropertyDuplicateKeyDifferentValue()
+        {
+            var aiTarget = new PrivateObject(typeof(ApplicationInsightsTarget));
+            var logEventInfo = new LogEventInfo();
+            var loggerNameVal = "thisisaloggername";
+            var loggerNameVal2 = "thisisadifferentloggername";
+
+            logEventInfo.LoggerName = loggerNameVal;
+            logEventInfo.Properties.Add("LoggerName", loggerNameVal2);
+
+            var traceTelemetry = new TraceTelemetry();
+
+            aiTarget.Invoke("BuildPropertyBag", logEventInfo, traceTelemetry);
+
+            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName"));
+            Assert.AreEqual(loggerNameVal, traceTelemetry.Properties["LoggerName"]);
+
+            Assert.IsTrue(traceTelemetry.Properties.ContainsKey("LoggerName_1"));
+            Assert.AreEqual(loggerNameVal2, traceTelemetry.Properties["LoggerName_1"]);
+        }
+
         private void VerifyMessagesInMockChannel(Logger aiLogger, string instrumentationKey)
         {
             aiLogger.Trace("Sample trace message");

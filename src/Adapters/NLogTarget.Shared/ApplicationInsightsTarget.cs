@@ -153,11 +153,21 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 {
                     string key = keyValuePair.Key.ToString();
                     object valueObj = keyValuePair.Value;
-                    if (valueObj != null)
+                    if (valueObj == null)
                     {
-                        string value = valueObj.ToString();
-                        propertyBag.Add(key, value);
+                        continue;
                     }
+
+                    string value = valueObj.ToString();
+                    if (propertyBag.ContainsKey(key))
+                    {
+                        if (value == propertyBag[key])
+                        {
+                            continue;
+                        }
+                        key += "_1";
+                    }
+                    propertyBag.Add(key, value);
                 }
             }
         }
