@@ -42,6 +42,8 @@
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
             contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-Location", new string[] { "location" });
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-RunId", new string[] { "runId" });
 
             var initializer = new SyntheticTelemetryInitializer(contextAccessor);
 
@@ -56,6 +58,38 @@
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
             contextAccessor.HttpContext.Request.Headers.Remove("GsmSyntheticTestRunId");
+
+            var initializer = new SyntheticTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Null(requestTelemetry.Context.Operation.SyntheticSource);
+        }
+
+        [Fact]
+        public void InitializeRequestDoesNotHaveRunIdHeaderButHasLocationHeader()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-Location", new string[] { "location" });
+            contextAccessor.HttpContext.Request.Headers.Remove("SyntheticTest-RunId");
+
+            var initializer = new SyntheticTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Null(requestTelemetry.Context.Operation.SyntheticSource);
+        }
+
+        [Fact]
+        public void InitializeRequestDoesHaveRunIdHeaderButNoLocationHeader()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            contextAccessor.HttpContext.Request.Headers.Remove("SyntheticTest-Location");
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-RunId", new string[] { "runId" });
 
             var initializer = new SyntheticTelemetryInitializer(contextAccessor);
 

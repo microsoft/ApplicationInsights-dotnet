@@ -34,27 +34,19 @@
                 var headerValue = platformContext.Request.Headers[HeaderNameDefault];
                 if (!string.IsNullOrEmpty(headerValue))
                 {
-                    telemetry.Context.Operation.SyntheticSource = SyntheticSourceHeaderValue;
-
-                    var locationHeader = platformContext.Request.Headers[SyntheticTestLocation];
-                    if (!string.IsNullOrEmpty(headerValue))
-                    {
-                        telemetry.Context.User.Id = locationHeader;
-                    }
-
                     var runIdHeader = platformContext.Request.Headers[SyntheticTestRunId];
-                    if (!string.IsNullOrEmpty(headerValue))
+                    var locationHeader = platformContext.Request.Headers[SyntheticTestLocation];
+
+                    if (!string.IsNullOrEmpty(runIdHeader) &&
+                        !string.IsNullOrEmpty(locationHeader))
                     {
+                        telemetry.Context.Operation.SyntheticSource = SyntheticSourceHeaderValue;
+
+                        telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
                         telemetry.Context.Session.Id = runIdHeader;
                     }
-                } else
-                {
-                    telemetry.Context.Operation.SyntheticSource = null;
-                }
-            } else
-            {
-                AspNetEventSource.Instance.SyntheticTelemetryInitializerOnInitializeTelemetryHeaderNotPresent();
-            }
+                } 
+            } 
         }
     }
 }
