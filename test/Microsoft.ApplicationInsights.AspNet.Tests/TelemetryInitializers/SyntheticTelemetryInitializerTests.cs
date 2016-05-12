@@ -37,11 +37,11 @@
         }
 
         [Fact]
-        public void InitializeSetSyntheticTrafficHeaderToTrue()
+        public void InitializeSetSyntheticTrafficToDesiredValue()
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            requestTelemetry.Context.Operation.SyntheticSource = null;
             contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-Location", new string[] { "location" });
             contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-RunId", new string[] { "runId" });
 
@@ -53,17 +53,17 @@
         }
 
         [Fact]
-        public void InitializeDoesNotHaveSyntheticTrafficHeader()
+        public void InitializeDoesNotHaveSyntheticTrafficSpecified()
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers.Remove("GsmSyntheticTestRunId");
+            requestTelemetry.Context.Operation.SyntheticSource = "some value";
 
             var initializer = new SyntheticTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(requestTelemetry);
 
-            Assert.Null(requestTelemetry.Context.Operation.SyntheticSource);
+            Assert.Equal("some value", requestTelemetry.Context.Operation.SyntheticSource);
         }
 
         [Fact]
@@ -71,7 +71,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            requestTelemetry.Context.Operation.SyntheticSource = null;
             contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-Location", new string[] { "location" });
             contextAccessor.HttpContext.Request.Headers.Remove("SyntheticTest-RunId");
 
@@ -87,7 +87,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
-            contextAccessor.HttpContext.Request.Headers.Add("GsmSyntheticTestRunId", new string[] { "." });
+            requestTelemetry.Context.Operation.SyntheticSource = null;
             contextAccessor.HttpContext.Request.Headers.Remove("SyntheticTest-Location");
             contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-RunId", new string[] { "runId" });
 
@@ -96,6 +96,25 @@
             initializer.Initialize(requestTelemetry);
 
             Assert.Null(requestTelemetry.Context.Operation.SyntheticSource);
+        }
+
+        [Fact]
+        public void InitializeRequestValidateLocationAndUserAreSetCorrectly()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+            var desiredLocation = "location_runId";
+
+            requestTelemetry.Context.Operation.SyntheticSource = null;
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-Location", new string[] { "location" });
+            contextAccessor.HttpContext.Request.Headers.Add("SyntheticTest-RunId", new string[] { "runId" });
+
+            var initializer = new SyntheticTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Equal(desiredLocation, requestTelemetry.Context.User.Id);
+            Assert.Equal("runId", requestTelemetry.Context.Session.Id);
         }
     }
 }

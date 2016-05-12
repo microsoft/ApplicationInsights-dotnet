@@ -15,7 +15,6 @@
     /// </summary>
     public class SyntheticTelemetryInitializer : TelemetryInitializerBase
     {
-        private const string HeaderNameDefault = "GsmSyntheticTestRunId";
         private const string SyntheticTestRunId = "SyntheticTest-RunId";
         private const string SyntheticTestLocation = "SyntheticTest-Location";
 
@@ -31,21 +30,17 @@
         {
             if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
-                var headerValue = platformContext.Request.Headers[HeaderNameDefault];
-                if (!string.IsNullOrEmpty(headerValue))
+                var runIdHeader = platformContext.Request.Headers[SyntheticTestRunId];
+                var locationHeader = platformContext.Request.Headers[SyntheticTestLocation];
+
+                if (!string.IsNullOrEmpty(runIdHeader) &&
+                    !string.IsNullOrEmpty(locationHeader))
                 {
-                    var runIdHeader = platformContext.Request.Headers[SyntheticTestRunId];
-                    var locationHeader = platformContext.Request.Headers[SyntheticTestLocation];
+                    telemetry.Context.Operation.SyntheticSource = SyntheticSourceHeaderValue;
 
-                    if (!string.IsNullOrEmpty(runIdHeader) &&
-                        !string.IsNullOrEmpty(locationHeader))
-                    {
-                        telemetry.Context.Operation.SyntheticSource = SyntheticSourceHeaderValue;
-
-                        telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
-                        telemetry.Context.Session.Id = runIdHeader;
-                    }
-                } 
+                    telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
+                    telemetry.Context.Session.Id = runIdHeader;
+                }
             } 
         }
     }
