@@ -203,7 +203,7 @@
             // Adding Server Telemetry Channel if services doesn't have an existing channel
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? new ServerTelemetryChannel();
 
-            if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
+            if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
                 // Enabling Quick Pulse Metric Stream 
                 if (serviceOptions.EnableQuickPulseMetricStream)
