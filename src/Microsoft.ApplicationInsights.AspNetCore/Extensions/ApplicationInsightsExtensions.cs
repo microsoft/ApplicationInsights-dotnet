@@ -203,32 +203,34 @@
             // Adding Server Telemetry Channel if services doesn't have an existing channel
             configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? new ServerTelemetryChannel();
 
-
-            // Enabling Quick Pulse Metric Stream 
-            if (serviceOptions.EnableQuickPulseMetricStream)
-            {
-                var quickPulseModule = new QuickPulseTelemetryModule();
-                quickPulseModule.Initialize(configuration);
-
-                QuickPulseTelemetryProcessor processor = null;
-                configuration.TelemetryProcessorChainBuilder.Use((next) => {
-                    processor = new QuickPulseTelemetryProcessor(next);
-                    quickPulseModule.RegisterTelemetryProcessor(processor);
-                    return processor;
-                });
-            }
-
-            // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
             if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
             {
-                if (serviceOptions.EnableAdaptiveSampling)
+                // Enabling Quick Pulse Metric Stream 
+                if (serviceOptions.EnableQuickPulseMetricStream)
                 {
-                    configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                }
-                (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
-            }
+                    var quickPulseModule = new QuickPulseTelemetryModule();
+                    quickPulseModule.Initialize(configuration);
 
-            configuration.TelemetryProcessorChainBuilder.Build();
+                    QuickPulseTelemetryProcessor processor = null;
+                    configuration.TelemetryProcessorChainBuilder.Use((next) => {
+                        processor = new QuickPulseTelemetryProcessor(next);
+                        quickPulseModule.RegisterTelemetryProcessor(processor);
+                        return processor;
+                    });
+                }
+
+                // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
+                if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
+                {
+                    if (serviceOptions.EnableAdaptiveSampling)
+                    {
+                        configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
+                    }
+                    (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
+                }
+
+                configuration.TelemetryProcessorChainBuilder.Build();
+            }
 #endif
         }
     }
