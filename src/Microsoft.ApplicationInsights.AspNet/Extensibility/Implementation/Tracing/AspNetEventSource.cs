@@ -123,6 +123,16 @@ namespace Microsoft.ApplicationInsights.AspNet.Extensibility.Implementation.Trac
         }
 
         /// <summary>
+        /// Logs an event for the SyntheticTelemetryInitializer OnInitializeTelemetry method when the SyntheticSource is already set
+        /// </summary>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(9, Message = "SyntheticTelemetryInitializer.OnInitializeTelemetry - telemetry.Context.Operation.SyntheticSource is already set, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void SyntheticTelemetryInitializerOnInitializeTelemetryHeaderNotPresent(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(9, this.ApplicationName);
+        }
+
+        /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
         public sealed class Keywords
