@@ -371,6 +371,17 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var updatedCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
                 Assert.Equal(updatedCount, exisitingProcessorCount + 1);
             }
+
+            [Fact]
+            public static void ProcessorsAreNotAddedToTheConfigurationWithExistingNonServerChannel()
+            {
+                int exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
+                ServiceCollection services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", null, true);
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                TelemetryConfiguration telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+                int updatedCount =  GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(telemetryConfiguration);
+                Assert.Equal(updatedCount, exisitingProcessorCount);
+            }
 #endif
             private static int GetTelemetryProcessorsCountInConfiguration<T>(TelemetryConfiguration telemetryConfiguration)
             {
