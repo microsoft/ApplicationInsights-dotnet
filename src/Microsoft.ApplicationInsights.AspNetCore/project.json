@@ -43,7 +43,7 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "System.Net.NameResolution": "4.0.0-rc2-*"
+        "System.Net.NameResolution": "4.0.0-rc2-24027"
       }
     }
   }
