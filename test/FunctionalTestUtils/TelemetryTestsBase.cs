@@ -7,13 +7,13 @@
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.DependencyInjection;
-#if dnx451
+    using Xunit;
+#if NET451
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+    using Microsoft.ApplicationInsights.Extensibility;
 #endif
-    using Xunit;
 
     public abstract class TelemetryTestsBase
     {
@@ -23,7 +23,11 @@
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
             var timer = Stopwatch.StartNew();
-            var httpClient = new HttpClient();
+
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -38,13 +42,15 @@
             Assert.InRange<DateTimeOffset>(actual.Timestamp, testStart, DateTimeOffset.Now);
             Assert.True(actual.Duration < timer.Elapsed, "duration");
             Assert.Equal(expected.HttpMethod, actual.HttpMethod);
-            Assert.True(actual.Context.Component.Version.StartsWith("1.0.0"));
         }
 
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
         {
             DateTimeOffset testStart = DateTimeOffset.Now;
-            var httpClient = new HttpClient();
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseDefaultCredentials = true;
+
+            var httpClient = new HttpClient(httpClientHandler, true);
             var task = httpClient.GetAsync(server.BaseHost + requestPath);
             task.Wait(TestTimeoutMs);
             var result = task.Result;
@@ -56,10 +62,9 @@
             Assert.Equal(actual.HandledAt, actual.HandledAt);
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
-            Assert.True(actual.Context.Component.Version.StartsWith("1.0.0"));
         }
 
-#if dnx451
+#if NET451
         public void ValidateBasicDependency(string assemblyName, string requestPath)
         {
             using (InProcessServer server = new InProcessServer(assemblyName))

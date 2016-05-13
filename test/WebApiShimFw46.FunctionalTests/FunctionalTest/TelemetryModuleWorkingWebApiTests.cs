@@ -1,13 +1,17 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+namespace SampleWebAppIntegration.FunctionalTest
 {
     using FunctionalTestUtils;
-    using Xunit;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     public class TelemetryModuleWorkingWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
-#if dnx451
+#if NET451
+
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {

@@ -7,7 +7,8 @@
     {
         private const string assemblyName = "EmptyApp.FunctionalTests";
 
-#if dnx451
+#if NET451
+
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {

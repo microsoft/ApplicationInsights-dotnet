@@ -1,43 +1,37 @@
 ﻿{
   "version": "1.0.0-rc1",
   "webroot": "wwwroot",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
-    "delaySign": true
-    },
+    "delaySign": true,
+    "preserveCompilationContext": true
+  },
   "dependencies": {
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
-    "Microsoft.ApplicationInsights.AspNet": "1.0.0-rc1-update4",
-    "FunctionalTestUtils": "1.0.0-rc1",
-    "xunit.runner.dnx": "2.1.0-rc1-*",
-    "xunit": "2.1.0",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final"
+    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-final",
+    "FunctionalTestUtils": { "target": "project" },
+    "Microsoft.NETCore.Platforms": "1.0.1-*",
+    "dotnet-test-xunit": "1.0.0-*",
+    "xunit": "2.1.0"
   },
-
-  "commands": {
-    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
-    "test": "xunit.runner.dnx"
-  },
-
+  "testRunner": "xunit",
   "frameworks": {
-    "dnx451": {
-      "compilationOptions": {
-        "define": [ "dnx451" ]
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "dotnet5.4",
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-*"
+        }
       }
     },
-    "dnxcore50": { }
-  },
-
-  "publishExclude": [
-    "node_modules",
-    "bower_components",
-    "**.xproj",
-    "**.user",
-    "**.vspscc"
-  ],
-  "exclude": [
-    "wwwroot",
-    "node_modules",
-    "bower_components"
-  ]
+    "net451": {
+      "dependencies": {
+        "Moq": "4.2.1312.1622"
+      }
+    }
+  }
 }

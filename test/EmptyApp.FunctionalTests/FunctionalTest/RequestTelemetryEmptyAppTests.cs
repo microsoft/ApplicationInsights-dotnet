@@ -60,7 +60,7 @@
                 var metricTelemetry = server.BackChannel.Buffer.OfType<MetricTelemetry>().Single();
                 var traceTelemetry = server.BackChannel.Buffer.OfType<TraceTelemetry>().Single();
 
-#if dnx451
+#if NET451
                 var dependencyTelemetry = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
                 Assert.NotNull(dependencyTelemetry);               
 #endif
@@ -70,7 +70,7 @@
                 Assert.NotNull(eventTelemetry);
                 Assert.NotNull(metricTelemetry);
                 Assert.NotNull(traceTelemetry);
-            }
+            } 
         }
     }
 }
