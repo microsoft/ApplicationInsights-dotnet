@@ -1,11 +1,11 @@
 Microsoft Application Insights for ASP.NET Core applications
 =============================================================
 
-This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET 5](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
+This repository has a code for [Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) of [ASP.NET Core](https://github.com/aspnet/home) applications. Read about contribution policies on Application Insights Home [repository](https://github.com/microsoft/ApplicationInsights-home)
 
 Recent updates
 --------------
-We have upgraded ASP.NET Core SDK to use Windows Server Telemetry channel which enables Telemetry processors, filtering, sampling as well as Metrics Stream functionality. Please read more [here](https://github.com/Microsoft/ApplicationInsights-aspnetcore/wiki/Telemetry-Processors:-Sampling-and-Metrics-Stream).
+We have updated ASP.NET Core SDK to use dotnet CLI runtime environment that picks the latest set of RC2 dependencies. Please note that this version is only supported by rc2 bits of dotnet CLI, and will not work with rc1 bits of DNX environments.
 
 Getting Started
 ---------------
@@ -20,15 +20,15 @@ Repository structure
 
 ```
 root\
-    ApplicationInsights.AspNet.sln - Main Solution
+    ApplicationInsights.AspNetCore.sln - Main Solution
 
     src\
-        ApplicationInsights.AspNet - Application Insights package
+        ApplicationInsights.AspNetCore - Application Insights package
 
     test\
-        ApplicationInsights.AspNet.Tests - Unit tests
+        ApplicationInsights.AspNetCore.Tests - Unit tests
         FunctionalTestUtils - test utilities for functional tests
-        Mvc6Framework45.FunctionalTests - functional tests for MVC application
+        MVCFramework45.FunctionalTests - functional tests for MVC application
         WebApiShimFw46.FunctionalTests - functional tests for Web API application
         PerfTest - performance test
 ```
@@ -37,7 +37,9 @@ Developing
 ----------
 
 ## Pre-requisites
-- [Visual Studio 2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Visual Studio 2015 Update 2](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [dotnet CLI](https://github.com/dotnet/cli#installers-and-binaries).
+- [.NET Core RC2 Tooling]()
 - [Node.js](https://nodejs.org/download).
 - [Git](http://git-scm.com/download).
 - Source Code.
@@ -48,21 +50,23 @@ git clone https://github.com/Microsoft/ApplicationInsights-aspnetcore.git
 ## Building
 From Visual Studio 2015
 ```
-devenv ApplicationInsights.AspNet.sln
+devenv ApplicationInsights.AspNetCore.sln
 ```
 
-From Visual Studio 2015 Developer Command Prompt.
+From Visual Studio 2015 Developer Command Prompt: Navigate to the source project folder and use the following commands to build the project:
+
 ```
-msbuild ApplicationInsights.AspNet.sln
+dotnet restore &REM Restores the dependency packages
+dotnet build &REM Builds the project
 ```
 - If you get NPM package restore errors, make sure Node and NPM are added to PATH.
 - If you get Bower pacakge restore errors, make sure Git is added to PATH.
-- If you get Dnu package restore errors, make sure [Dnx is installed](https://github.com/dotnet/coreclr/blob/master/Documentation/get-dotnetcore-dnx-windows.md) or open the solution in Visual Studio 2015, which will take care of this.
+- If you get dotnet package restore errors, make sure [.NET CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
 
 ## Branches
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
-- [master](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNet).
-- [develop](https://github.com/Microsoft/ApplicationInsights-aspnet5/tree/develop) has the code for the _next_ release.
+- [master](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/master) has the _latest_ version released on [NuGet.org](https://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore).
+- [develop](https://github.com/Microsoft/ApplicationInsights-aspnetcore/tree/develop) has the code for the _next_ release.
 
 Running and writing tests
 -------------------------
@@ -84,14 +88,14 @@ Add dependencies to project.json:
 
 ```
 "FunctionalTestUtils": "1.0.0-*",
-"xunit.runner.dnx": "2.1.0-rc1-*",
-"xunit": "2.1.0-rc1-*"
+"dotnet.test.xunit": "1.0.0-*",
+"xunit": "2.1.0"
 ```
 
 and test command:
 
 ```
-"test": "xunit.runner.dnx"
+"test": "xunit"
 ```
 
 Add this initialization logic to Startup.cs:
@@ -103,27 +107,23 @@ services.AddFunctionalTestTelemetryChannel();
 *Running Tests*
 You can run unit tests using Visual Studio.
 
-You can run unit tests using DNX from command line. Prerequisite to this is that you should make sure you have the exact versions of DNX runtimes. You can check the available runtimes in %userprofile%\.dnx\runtimes folder (or using ```dnvm list``` in command prompt). They should be:
-* dnx-clr-win-x64.1.0.0-rc1-update2
-* dnx-clr-win-x86.1.0.0-rc1-update2
-* dnx-coreclr-win-x64.1.0.0-rc1-update2
-* dnx-coreclr-win-x86.1.0.0-rc1-update2
-
-If you are seeing that dnx.exe is not available (or defined), use the following two commands to set the required DNX runtime to the user path:
-
+You can run unit tests using .NET CLI from command line. Prerequisite to this is that you should make sure you have the latest version of .NET CLI. You can check the available runtime using the following command:
 ```
-dnvm alias default 1.0.0-rc1-update2 -r clr -arch x86
-dnvm use default
+dotnet --version
 ```
+
+If you are seeing that ```dotnet``` is not available (or defined), install .NET CLI: [.NET Core + CLI tools](https://github.com/dotnet/cli).
 
 After that you can open a developer command prompt, navigate to each test folder and run:
 ```
-dnx test
+dotnet restore &REM Restores the dependency packages
+dotnet build &REM Builds the test project
+dotnet test &REM Runs the tests within the test project
 ```
 
-You can also run all tests using the following Powershell from root directory. Prerequisite to this is that you should make sure to have exactly four DNX runtimes (in %userprofile%\.dnx\runtimes folder):
+You can also run all tests using the following Powershell from root directory.
 
 ```
-powershell .\RunTests.ps1
+powershell .\RunTestsCore.ps1
 ```
 
