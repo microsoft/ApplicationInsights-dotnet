@@ -36,13 +36,16 @@ root\
 Developing
 ----------
 
+**Note: The current version (Microsoft.ApplicationInsights.AspNetCore: 1.0.0-rc2-final) is no longer compatible with DNX runtime and ASP.NET 5 RC1 bits. Please visit [Migration to ASP.NET Core](https://docs.asp.net/en/latest/migration/index.html) to upgrade the application to ASP.NET Core with RC2 bits.**
+
 ## Pre-requisites
 - [Visual Studio 2015 Update 2](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
-- [.NET Core CLI](https://github.com/dotnet/cli#installers-and-binaries).
-- [.NET Core RC2 Tooling]()
+- [Visual Studio 2015 CLI Tools](https://go.microsoft.com/fwlink/?LinkId=798481).
+- [.NET Core CLI](https://www.microsoft.com/net/download).
 - [Node.js](https://nodejs.org/download).
 - [Git](http://git-scm.com/download).
 - Source Code.
+
 ```
 git clone https://github.com/Microsoft/ApplicationInsights-aspnetcore.git
 ```
@@ -61,7 +64,7 @@ dotnet build &REM Builds the project
 ```
 - If you get NPM package restore errors, make sure Node and NPM are added to PATH.
 - If you get Bower pacakge restore errors, make sure Git is added to PATH.
-- If you get dotnet package restore errors, make sure [.NET CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
+- If you get dotnet package restore errors, make sure [.NET Core CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
 
 ## Branches
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
