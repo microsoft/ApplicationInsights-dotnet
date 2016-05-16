@@ -16,6 +16,9 @@
         public string Instance { get; set; }
 
         [DataMember]
+        public string StreamId { get; set; }
+
+        [DataMember]
         public DateTime Timestamp { get; set; }
 
         [DataMember]
