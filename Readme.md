@@ -65,6 +65,16 @@ dotnet build &REM Builds the project
 - If you get NPM package restore errors, make sure Node and NPM are added to PATH.
 - If you get Bower pacakge restore errors, make sure Git is added to PATH.
 - If you get dotnet package restore errors, make sure [.NET Core CLI is installed](https://github.com/dotnet/cli/blob/rel/1.0.0/Documentation/cli-installation-scenarios.md) and the nuget feeds are up to date.
+- In case of **.NET Core** applications, if you run into restore errors with respect to application insights dependency, please add ```"dnxcore50"``` and ```"portable-net45+win8" ``` to the imports list (if it does not exist), under ```frameoworks``` section of ```project.json```, as described below. Please visit [Migrating from DNX](http://dotnet.github.io/docs/core-concepts/dnx-migration.html) for more details.
+``` json
+{
+    "frameworks": {
+        "netcoreapp1.0": { 
+            "imports": ["dnxcore50", "portable-net45+win8"]
+        }
+    }
+}
+```
 
 ## Branches
 - We follow the [Git Flow](http://nvie.com/posts/a-successful-git-branching-model) model.
