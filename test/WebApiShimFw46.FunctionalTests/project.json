@@ -18,7 +18,8 @@
     "Microsoft.AspNet.WebApi.Client": "5.2.2",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-final",
     "dotnet-test-xunit": "1.0.0-*",
-    "xunit": "2.1.0"
+    "xunit": "2.1.0",
+    "Microsoft.VisualStudio.Web.CodeGeneration.Utils": "1.0.0-preview1-final"
   },
   "frameworks": {
     "netcoreapp1.0": {
