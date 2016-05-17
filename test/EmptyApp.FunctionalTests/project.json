@@ -10,7 +10,7 @@
     "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-final",
     "FunctionalTestUtils": { "target": "project" },
     "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "dotnet-test-xunit": "1.0.0-*",
+    "dotnet-test-xunit": "1.0.0-rc2-187791-49",
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
