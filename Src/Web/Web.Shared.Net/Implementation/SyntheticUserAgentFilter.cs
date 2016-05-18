@@ -8,6 +8,7 @@
     /// <summary>
     /// Allows configuration of patterns for synthetic traffic filters.
     /// </summary>
+    [Obsolete]
     public class SyntheticUserAgentFilter
     {
         private string pattern;

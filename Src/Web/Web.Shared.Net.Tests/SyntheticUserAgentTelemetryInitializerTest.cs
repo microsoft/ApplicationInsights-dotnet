@@ -5,29 +5,12 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Web.Helpers;
-    using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class SyntheticUserAgentTelemetryInitializerTest
     {
-        // These should match what's in ApplicationInsights.config.install.xdt.
-        private SyntheticUserAgentFilter botRegex = new SyntheticUserAgentFilter
-        {
-            Pattern = "(YottaaMonitor|BrowserMob|HttpMonitor|YandexBot|BingPreview|PagePeeker|ThumbShotsBot|WebThumb|URL2PNG|ZooShot|GomezA|Catchpoint bot|Willow Internet Crawler|Google SketchUp|Read%20Later|KTXN|Pingdom|AlwaysOn)",
-        };
-
-        private SyntheticUserAgentFilter yahooBotRegex = new SyntheticUserAgentFilter
-        {
-            Pattern = "Slurp",
-            SourceName = "Yahoo Bot"
-        };
-
-        private SyntheticUserAgentFilter spiderRegex = new SyntheticUserAgentFilter
-        {
-            Pattern = @"(bot|zao|borg|Bot|oegp|silk|Xenu|zeal|^NING|crawl|Crawl|htdig|lycos|slurp|teoma|voila|yahoo|Sogou|CiBra|Nutch|^Java/|^JNLP/|Daumoa|Genieo|ichiro|larbin|pompos|Scrapy|snappy|speedy|spider|Spider|vortex|favicon|indexer|Riddler|scooter|scraper|scrubby|WhatWeb|WinHTTP|^voyager|archiver|Icarus6j|mogimogi|Netvibes|altavista|charlotte|findlinks|Retreiver|TLSProber|WordPress|wsr\-agent|Squrl Java|A6\-Indexer|netresearch|searchsight|http%20client|Python-urllib|dataparksearch|Screaming Frog|AppEngine-Google|YahooCacheSystem|semanticdiscovery|facebookexternalhit|Google.*/\+/web/snippet|Google-HTTP-Java-Client)",
-            SourceName = "Spider"
-        };
+        string botRegex = "search|spider|crawl|Bot|Monitor|BrowserMob|BingPreview|PagePeeker|WebThumb|URL2PNG|ZooShot|GomezA|Google SketchUp|Read Later|KTXN|KHTE|Keynote|Pingdom|AlwaysOn|zao|borg|oegp|silk|Xenu|zeal|NING|htdig|lycos|slurp|teoma|voila|yahoo|Sogou|CiBra|Nutch|Java|JNLP|Daumoa|Genieo|ichiro|larbin|pompos|Scrapy|snappy|speedy|vortex|favicon|indexer|Riddler|scooter|scraper|scrubby|WhatWeb|WinHTTP|voyager|archiver|Icarus6j|mogimogi|Netvibes|altavista|charlotte|findlinks|Retreiver|TLSProber|WordPress|wsr-agent|http client|Python-urllib|AppEngine-Google|semanticdiscovery|facebookexternalhit|web/snippet|Google-HTTP-Java-Client";          
 
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
@@ -39,53 +22,11 @@
                     { "User-Agent", "YandexBot" }
                 });
 
-            source.Filters.Add(new SyntheticUserAgentFilter
-            {
-                Pattern = "(YottaaMonitor|BrowserMob|HttpMonitor|YandexBot|BingPreview|PagePeeker|ThumbShotsBot|WebThumb|URL2PNG|ZooShot|GomezA|Catchpoint bot|Willow Internet Crawler|Google SketchUp|Read%20Later)",
-            });
+            source.Filters = botRegex;
 
             source.Initialize(metricTelemetry);
 
             Assert.AreEqual("SOURCE", metricTelemetry.Context.Operation.SyntheticSource);
-        }
-
-        [TestMethod]
-        public void SyntheticSourceIsSetToRegexMatchIfNoReadableSourceProvided()
-        {
-            var metricTelemetry = new MetricTelemetry("name", 0);
-            var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
-                {
-                    { "User-Agent", "YandexBot 102983" }
-                });
-
-            source.Filters.Add(new SyntheticUserAgentFilter
-            {
-                Pattern = "(YottaaMonitor|BrowserMob|HttpMonitor|YandexBot|BingPreview|PagePeeker|ThumbShotsBot|WebThumb|URL2PNG|ZooShot|GomezA|Catchpoint bot|Willow Internet Crawler|Google SketchUp|Read%20Later)",
-            });
-
-            source.Initialize(metricTelemetry);
-
-            Assert.AreEqual("YandexBot", metricTelemetry.Context.Operation.SyntheticSource);
-        }
-
-        [TestMethod]
-        public void SyntheticSourceIsSetToProvidedSourceName()
-        {
-            var metricTelemetry = new MetricTelemetry("name", 0);
-            var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
-                {
-                    { "User-Agent", "YandexBot 102983" }
-                });
-
-            source.Filters.Add(new SyntheticUserAgentFilter
-            {
-                Pattern = "(YottaaMonitor|BrowserMob|HttpMonitor|YandexBot|BingPreview|PagePeeker|ThumbShotsBot|WebThumb|URL2PNG|ZooShot|GomezA|Catchpoint bot|Willow Internet Crawler|Google SketchUp|Read%20Later)",
-                SourceName = "Robot"
-            });
-
-            source.Initialize(metricTelemetry);
-
-            Assert.AreEqual("Robot", metricTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
@@ -94,14 +35,10 @@
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
                 {
-                    { "User-Agent", "Yan23232dexBot" }
+                    { "User-Agent", "Yan23232dexBooot" }
                 });
 
-            source.Filters.Add(new SyntheticUserAgentFilter
-            {
-                Pattern = "(YottaaMonitor|BrowserMob|HttpMonitor|YandexBot|BingPreview|PagePeeker|ThumbShotsBot|WebThumb|URL2PNG|ZooShot|GomezA|Catchpoint bot|Willow Internet Crawler|Google SketchUp|Read%20Later)",
-                SourceName = "Robot"
-            });
+            source.Filters = botRegex;
 
             source.Initialize(metricTelemetry);
 
@@ -109,126 +46,130 @@
         }
 
         [TestMethod]
+        public void SyntheticSourceIsNotSetIfContextIsNull()
+        {
+            var metricTelemetry = new MetricTelemetry("name", 0);
+            var source = new SyntheticUserAgentTelemetryInitializer();
+
+            source.Filters = botRegex;
+
+            source.Initialize(metricTelemetry);
+
+            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+        }                                                            
+
+        [TestMethod]
         public void SyntheticSourceIsSetForAllBots()
         {
-            this.AssertSyntheticSourceIsSet("YottaaMonitor", "YottaaMonitor 123");
-            this.AssertSyntheticSourceIsSet("BrowserMob", "BrowserMob 123");
-            this.AssertSyntheticSourceIsSet("HttpMonitor", "HttpMonitor 123");
-            this.AssertSyntheticSourceIsSet("YandexBot", "YandexBot 123");
-            this.AssertSyntheticSourceIsSet("BingPreview", "BingPreview 123");
-            this.AssertSyntheticSourceIsSet("PagePeeker", "PagePeeker 123");
-            this.AssertSyntheticSourceIsSet("ThumbShotsBot", "ThumbShotsBot 123");
-            this.AssertSyntheticSourceIsSet("WebThumb", "WebThumb 123");
-            this.AssertSyntheticSourceIsSet("URL2PNG", "URL2PNG 123");
-            this.AssertSyntheticSourceIsSet("ZooShot", "ZooShot 123");
-            this.AssertSyntheticSourceIsSet("GomezA", "GomezA 123");
-            this.AssertSyntheticSourceIsSet("Catchpoint bot", "Catchpoint bot 123");
-            this.AssertSyntheticSourceIsSet("Willow Internet Crawler", "Willow Internet Crawler 123");
-            this.AssertSyntheticSourceIsSet("Google SketchUp", "Google SketchUp 123");
-            this.AssertSyntheticSourceIsSet("Read%20Later", "Read%20Later 123");
-            this.AssertSyntheticSourceIsSet("KTXN", "KTXN 123");
-            this.AssertSyntheticSourceIsSet("AlwaysOn", "AlwaysOn 123");
+            this.AssertSyntheticSourceIsSet("YottaaMonitor 123");
+            this.AssertSyntheticSourceIsSet("BrowserMob 123");
+            this.AssertSyntheticSourceIsSet("HttpMonitor 123");
+            this.AssertSyntheticSourceIsSet("YandexBot 123");
+            this.AssertSyntheticSourceIsSet("BingPreview 123");
+            this.AssertSyntheticSourceIsSet("PagePeeker 123");
+            this.AssertSyntheticSourceIsSet("ThumbShotsBot 123");
+            this.AssertSyntheticSourceIsSet("WebThumb 123");
+            this.AssertSyntheticSourceIsSet("URL2PNG 123");
+            this.AssertSyntheticSourceIsSet("ZooShot 123");
+            this.AssertSyntheticSourceIsSet("GomezA 123");
+            this.AssertSyntheticSourceIsSet("Catchpoint bot 123");
+            this.AssertSyntheticSourceIsSet("Willow Internet Crawler 123");
+            this.AssertSyntheticSourceIsSet("Google SketchUp 123");
+            this.AssertSyntheticSourceIsSet("Read Later 123");
+            this.AssertSyntheticSourceIsSet("KTXN 123");
+            this.AssertSyntheticSourceIsSet("AlwaysOn 123");
+        
+            this.AssertSyntheticSourceIsSet("Slurp 123");
+        
+            this.AssertSyntheticSourceIsSet("bingbot 123");
+            this.AssertSyntheticSourceIsSet("zao 123");
+            this.AssertSyntheticSourceIsSet("borg 123");
+            this.AssertSyntheticSourceIsSet("DBot 123");
+            this.AssertSyntheticSourceIsSet("oegp 123");
+            this.AssertSyntheticSourceIsSet("silk 123");
+            this.AssertSyntheticSourceIsSet("Xenu 123");
+            this.AssertSyntheticSourceIsSet("zeal 123");
+            this.AssertSyntheticSourceIsSet("NING 123");
+            this.AssertSyntheticSourceIsSet("CCBot 123");
+            this.AssertSyntheticSourceIsSet("crawl 123");
+            this.AssertSyntheticSourceIsSet("htdig 123");
+            this.AssertSyntheticSourceIsSet("lycos 123");
+            this.AssertSyntheticSourceIsSet("slurp 123");
+            this.AssertSyntheticSourceIsSet("teoma 123");
+            this.AssertSyntheticSourceIsSet("voila 123");
+            this.AssertSyntheticSourceIsSet("yahoo 123");
+            this.AssertSyntheticSourceIsSet("Sogou 123");
+            this.AssertSyntheticSourceIsSet("CiBra 123");
+            this.AssertSyntheticSourceIsSet("Java/ 123");
+            this.AssertSyntheticSourceIsSet("JNLP/ 123");
+            this.AssertSyntheticSourceIsSet("Daumoa 123");
+            this.AssertSyntheticSourceIsSet("Genieo 123");
+            this.AssertSyntheticSourceIsSet("ichiro 123");
+            this.AssertSyntheticSourceIsSet("larbin 123");
+            this.AssertSyntheticSourceIsSet("pompos 123");
+            this.AssertSyntheticSourceIsSet("Scrapy 123");
+            this.AssertSyntheticSourceIsSet("snappy 123");
+            this.AssertSyntheticSourceIsSet("speedy 123");
+            this.AssertSyntheticSourceIsSet("spider 123");
+            this.AssertSyntheticSourceIsSet("msnbot 123");
+            this.AssertSyntheticSourceIsSet("msrbot 123");
+            this.AssertSyntheticSourceIsSet("123 vortex 123");
+            this.AssertSyntheticSourceIsSet("vortex 123");
+            this.AssertSyntheticSourceIsSet("crawler 123");
+            this.AssertSyntheticSourceIsSet("favicon 123");
+            this.AssertSyntheticSourceIsSet("indexer 123");
+            this.AssertSyntheticSourceIsSet("Riddler 123");
+            this.AssertSyntheticSourceIsSet("scooter 123");
+            this.AssertSyntheticSourceIsSet("scraper 123");
+            this.AssertSyntheticSourceIsSet("scrubby 123");
+            this.AssertSyntheticSourceIsSet("WhatWeb 123");
+            this.AssertSyntheticSourceIsSet("WinHTTP 123");
+            this.AssertSyntheticSourceIsSet("bingbot 123");
+            this.AssertSyntheticSourceIsSet("openbot 123");
+            this.AssertSyntheticSourceIsSet("gigabot 123");
+            this.AssertSyntheticSourceIsSet("furlbot 123");
+            this.AssertSyntheticSourceIsSet("polybot 123");
+            this.AssertSyntheticSourceIsSet("voyager 123");
+            this.AssertSyntheticSourceIsSet("archiver 123");
+            this.AssertSyntheticSourceIsSet("Icarus6j 123");
+            this.AssertSyntheticSourceIsSet("Netvibes 123");
+            this.AssertSyntheticSourceIsSet("mogimogi 123");
+            this.AssertSyntheticSourceIsSet("blitzbot 123");
+            this.AssertSyntheticSourceIsSet("altavista 123");
+            this.AssertSyntheticSourceIsSet("charlotte 123");
+            this.AssertSyntheticSourceIsSet("findlinks 123");
+            this.AssertSyntheticSourceIsSet("Retreiver 123");
+            this.AssertSyntheticSourceIsSet("TLSProber 123");
+            this.AssertSyntheticSourceIsSet("WordPress 123");
+            this.AssertSyntheticSourceIsSet("SeznamBot 123");
+            this.AssertSyntheticSourceIsSet("ProoXiBot 123");
+            this.AssertSyntheticSourceIsSet("wsr-agent 123");
+            this.AssertSyntheticSourceIsSet("Squrl Java 123");
+            this.AssertSyntheticSourceIsSet("EtaoSpider 123");
+            this.AssertSyntheticSourceIsSet("PaperLiBot 123");
+            this.AssertSyntheticSourceIsSet("SputnikBot 123");
+            this.AssertSyntheticSourceIsSet("A6-Indexer 123");
+            this.AssertSyntheticSourceIsSet("netresearch 123");
+            this.AssertSyntheticSourceIsSet("searchsight 123");
+            this.AssertSyntheticSourceIsSet("baiduspider 123");
+            this.AssertSyntheticSourceIsSet("YisouSpider 123");
+            this.AssertSyntheticSourceIsSet("ICC-Crawler 123");
+            this.AssertSyntheticSourceIsSet("http client 123");
+            this.AssertSyntheticSourceIsSet("Python-urllib 123");
+            this.AssertSyntheticSourceIsSet("dataparksearch 123");
+            this.AssertSyntheticSourceIsSet("converacrawler 123");
+            this.AssertSyntheticSourceIsSet("AppEngine-Google 123");
+            this.AssertSyntheticSourceIsSet("YahooCacheSystem 123");
+            this.AssertSyntheticSourceIsSet("fast-webcrawler 123");
+            this.AssertSyntheticSourceIsSet("Sogou Pic Spider 123");
+            this.AssertSyntheticSourceIsSet("semanticdiscovery 123");
+            this.AssertSyntheticSourceIsSet("Innovazion Crawler 123");
+            this.AssertSyntheticSourceIsSet("facebookexternalhit 123");
+            this.AssertSyntheticSourceIsSet("web/snippet 123");
+            this.AssertSyntheticSourceIsSet("Google-HTTP-Java-Client 123");
         }
 
-        [TestMethod]
-        public void SyntheticSourceIsSetForYahooBot()
-        {
-            this.AssertSyntheticSourceIsSet("Yahoo Bot", "Slurp 123");
-        }
-
-        [TestMethod]
-        public void SyntheticSourceIsSetForAllSpiders()
-        {
-            this.AssertSyntheticSourceIsSet("Spider", "bingbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "zao 123");
-            this.AssertSyntheticSourceIsSet("Spider", "borg 123");
-            this.AssertSyntheticSourceIsSet("Spider", "DBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "oegp 123");
-            this.AssertSyntheticSourceIsSet("Spider", "silk 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Xenu 123");
-            this.AssertSyntheticSourceIsSet("Spider", "zeal 123");
-            this.AssertSyntheticSourceIsSet("Spider", "NING 123");
-            this.AssertSyntheticSourceIsSet("Spider", "CCBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "crawl 123");
-            this.AssertSyntheticSourceIsSet("Spider", "htdig 123");
-            this.AssertSyntheticSourceIsSet("Spider", "lycos 123");
-            this.AssertSyntheticSourceIsSet("Spider", "slurp 123");
-            this.AssertSyntheticSourceIsSet("Spider", "teoma 123");
-            this.AssertSyntheticSourceIsSet("Spider", "voila 123");
-            this.AssertSyntheticSourceIsSet("Spider", "yahoo 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Sogou 123");
-            this.AssertSyntheticSourceIsSet("Spider", "CiBra 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Java/ 123");
-            this.AssertSyntheticSourceIsSet("Spider", "JNLP/ 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Daumoa 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Genieo 123");
-            this.AssertSyntheticSourceIsSet("Spider", "ichiro 123");
-            this.AssertSyntheticSourceIsSet("Spider", "larbin 123");
-            this.AssertSyntheticSourceIsSet("Spider", "pompos 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Scrapy 123");
-            this.AssertSyntheticSourceIsSet("Spider", "snappy 123");
-            this.AssertSyntheticSourceIsSet("Spider", "speedy 123");
-            this.AssertSyntheticSourceIsSet("Spider", "spider 123");
-            this.AssertSyntheticSourceIsSet("Spider", "msnbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "msrbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "123 vortex 123");
-            this.AssertSyntheticSourceIsSet("Spider", "vortex 123");
-            this.AssertSyntheticSourceIsSet("Spider", "crawler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "favicon 123");
-            this.AssertSyntheticSourceIsSet("Spider", "indexer 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Riddler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "scooter 123");
-            this.AssertSyntheticSourceIsSet("Spider", "scraper 123");
-            this.AssertSyntheticSourceIsSet("Spider", "scrubby 123");
-            this.AssertSyntheticSourceIsSet("Spider", "WhatWeb 123");
-            this.AssertSyntheticSourceIsSet("Spider", "WinHTTP 123");
-            this.AssertSyntheticSourceIsSet("Spider", "bingbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "openbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "gigabot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "furlbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "polybot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "voyager 123");
-            this.AssertSyntheticSourceIsSet("Spider", "archiver 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Icarus6j 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Netvibes 123");
-            this.AssertSyntheticSourceIsSet("Spider", "mogimogi 123");
-            this.AssertSyntheticSourceIsSet("Spider", "blitzbot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "altavista 123");
-            this.AssertSyntheticSourceIsSet("Spider", "charlotte 123");
-            this.AssertSyntheticSourceIsSet("Spider", "findlinks 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Retreiver 123");
-            this.AssertSyntheticSourceIsSet("Spider", "TLSProber 123");
-            this.AssertSyntheticSourceIsSet("Spider", "WordPress 123");
-            this.AssertSyntheticSourceIsSet("Spider", "SeznamBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "ProoXiBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "wsr-agent 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Squrl Java 123");
-            this.AssertSyntheticSourceIsSet("Spider", "EtaoSpider 123");
-            this.AssertSyntheticSourceIsSet("Spider", "PaperLiBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "SputnikBot 123");
-            this.AssertSyntheticSourceIsSet("Spider", "A6-Indexer 123");
-            this.AssertSyntheticSourceIsSet("Spider", "netresearch 123");
-            this.AssertSyntheticSourceIsSet("Spider", "searchsight 123");
-            this.AssertSyntheticSourceIsSet("Spider", "baiduspider 123");
-            this.AssertSyntheticSourceIsSet("Spider", "YisouSpider 123");
-            this.AssertSyntheticSourceIsSet("Spider", "ICC-Crawler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "http%20client 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Python-urllib 123");
-            this.AssertSyntheticSourceIsSet("Spider", "dataparksearch 123");
-            this.AssertSyntheticSourceIsSet("Spider", "converacrawler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Screaming Frog 123");
-            this.AssertSyntheticSourceIsSet("Spider", "AppEngine-Google 123");
-            this.AssertSyntheticSourceIsSet("Spider", "YahooCacheSystem 123");
-            this.AssertSyntheticSourceIsSet("Spider", "fast-webcrawler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Sogou Pic Spider 123");
-            this.AssertSyntheticSourceIsSet("Spider", "semanticdiscovery 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Innovazion Crawler 123");
-            this.AssertSyntheticSourceIsSet("Spider", "facebookexternalhit 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Google3434/+/web/snippet 123");
-            this.AssertSyntheticSourceIsSet("Spider", "Google-HTTP-Java-Client 123");
-        }
-
-        private void AssertSyntheticSourceIsSet(string expectedSource, string userAgent)
+        private void AssertSyntheticSourceIsSet(string userAgent)
         {
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
@@ -236,13 +177,11 @@
                     { "User-Agent", userAgent }
                 });
 
-            source.Filters.Add(this.botRegex);
-            source.Filters.Add(this.yahooBotRegex);
-            source.Filters.Add(this.spiderRegex);
+            source.Filters = botRegex;
 
             source.Initialize(metricTelemetry);
 
-            Assert.AreEqual(expectedSource, metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.AreEqual("Bot", metricTelemetry.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
         }
 
         private class TestableSyntheticUserAgentTelemetryInitializer : SyntheticUserAgentTelemetryInitializer
