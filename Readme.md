@@ -5,7 +5,7 @@ This repository has a code for [Application Insights monitoring](http://azure.mi
 
 Recent updates
 --------------
-**Microsoft.ApplicationInsights.AspNet** is renamed to **Microsoft.ApplicationInsights.AspNetCore**. We have updated ASP.NET Core SDK to use .NET Core CLI runtime environment that picks the latest set of RC2 dependencies. Please note that this version will not support rc1 bits of DNX environment. Metrics stream is by default enabled in .NET Framework of ASP.NET Core.
+**Microsoft.ApplicationInsights.AspNet** is renamed to **Microsoft.ApplicationInsights.AspNetCore**. We have updated the SDK to use .NET Core CLI runtime environment that picks the latest set of RC2 dependencies. Please note that this version is not compatible rc1 bits of DNX environment. Metrics stream is by default enabled in .NET Framework of ASP.NET Core.
 
 Getting Started
 ---------------
