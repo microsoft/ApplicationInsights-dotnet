@@ -10,7 +10,7 @@
     [TestClass]
     public class SyntheticUserAgentTelemetryInitializerTest
     {
-        private string botRegex = "search|spider|crawl|Bot|Monitor|BrowserMob|BingPreview|PagePeeker|WebThumb|URL2PNG|ZooShot|GomezA|Google SketchUp|Read Later|KTXN|KHTE|Keynote|Pingdom|AlwaysOn|zao|borg|oegp|silk|Xenu|zeal|NING|htdig|lycos|slurp|teoma|voila|yahoo|Sogou|CiBra|Nutch|Java|JNLP|Daumoa|Genieo|ichiro|larbin|pompos|Scrapy|snappy|speedy|vortex|favicon|indexer|Riddler|scooter|scraper|scrubby|WhatWeb|WinHTTP|voyager|archiver|Icarus6j|mogimogi|Netvibes|altavista|charlotte|findlinks|Retreiver|TLSProber|WordPress|wsr-agent|http client|Python-urllib|AppEngine-Google|semanticdiscovery|facebookexternalhit|web/snippet|Google-HTTP-Java-Client";          
+        private string botSubstrings = "search|spider|crawl|Bot|Monitor|BrowserMob|BingPreview|PagePeeker|WebThumb|URL2PNG|ZooShot|GomezA|Google SketchUp|Read Later|KTXN|KHTE|Keynote|Pingdom|AlwaysOn|zao|borg|oegp|silk|Xenu|zeal|NING|htdig|lycos|slurp|teoma|voila|yahoo|Sogou|CiBra|Nutch|Java|JNLP|Daumoa|Genieo|ichiro|larbin|pompos|Scrapy|snappy|speedy|vortex|favicon|indexer|Riddler|scooter|scraper|scrubby|WhatWeb|WinHTTP|voyager|archiver|Icarus6j|mogimogi|Netvibes|altavista|charlotte|findlinks|Retreiver|TLSProber|WordPress|wsr-agent|http client|Python-urllib|AppEngine-Google|semanticdiscovery|facebookexternalhit|web/snippet|Google-HTTP-Java-Client";          
 
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
@@ -22,7 +22,7 @@
                     { "User-Agent", "YandexBot" }
                 });
 
-            source.Filters = this.botRegex;
+            source.Filters = this.botSubstrings;
 
             source.Initialize(metricTelemetry);
 
@@ -38,7 +38,7 @@
                     { "User-Agent", "Yan23232dexBooot" }
                 });
 
-            source.Filters = this.botRegex;
+            source.Filters = this.botSubstrings;
 
             source.Initialize(metricTelemetry);
 
@@ -51,12 +51,12 @@
             var metricTelemetry = new MetricTelemetry("name", 0);
             var source = new SyntheticUserAgentTelemetryInitializer();
 
-            source.Filters = this.botRegex;
+            source.Filters = this.botSubstrings;
 
             source.Initialize(metricTelemetry);
 
             Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
-        }                                                            
+        }
 
         [TestMethod]
         public void SyntheticSourceIsSetForAllBots()
@@ -177,7 +177,7 @@
                     { "User-Agent", userAgent }
                 });
 
-            source.Filters = this.botRegex;
+            source.Filters = this.botSubstrings;
 
             source.Initialize(metricTelemetry);
 

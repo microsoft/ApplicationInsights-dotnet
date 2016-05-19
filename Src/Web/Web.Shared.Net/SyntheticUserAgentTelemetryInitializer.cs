@@ -54,7 +54,7 @@
                     if (request != null && !string.IsNullOrEmpty(request.UserAgent))
                     {
                         // We expect customers to configure telemetry initializer before they add it to active configuration
-                        // So we will not protect fiterPaterns array with locks (to improve perf)
+                        // So we will not protect fiterPatterns array with locks (to improve perf)
                         foreach (string pattern in this.filterPatterns)
                         {
                             if (!string.IsNullOrWhiteSpace(pattern) &&
