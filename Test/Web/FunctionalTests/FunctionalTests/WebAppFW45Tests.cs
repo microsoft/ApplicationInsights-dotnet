@@ -133,7 +133,7 @@
             var testFinish = DateTimeOffset.UtcNow;
 
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
-            Assert.AreEqual("Spider", request.OperationContext.SyntheticSource);
+            Assert.AreEqual("Bot", request.OperationContext.SyntheticSource);
         }
 
         [TestMethod]
