@@ -1,6 +1,4 @@
-﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
-namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
@@ -13,6 +11,8 @@ namespace Microsoft.ApplicationInsights.Channel
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
 #if CORE_PCL || NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
 #endif

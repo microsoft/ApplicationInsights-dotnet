@@ -3,9 +3,9 @@
     using System;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
 
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
@@ -63,7 +63,7 @@
                 this.ConsecutiveErrors = 0;
                 return null;
             }
-            
+
             string newTransmissions = null;
             if (backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {

@@ -30,17 +30,22 @@
             GC.SuppressFinalize(this);
         }
 
+        protected virtual TimeSpan GetBackOffTime(NameValueCollection headers)
+        {
+            return TransmissionPolicyHelpers.GetBackOffTime(this.ConsecutiveErrors, headers);
+        }
+
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
-        {                                       
+        {
             var webException = e.Exception as WebException;
             if (webException != null)
-            {                                   
+            {
                 this.ConsecutiveErrors++;
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)httpWebResponse.StatusCode);
-                    AdditionalVerboseTracing(e);
+                    this.AdditionalVerboseTracing(e);
 
                     switch (httpWebResponse.StatusCode)
                     {
@@ -72,7 +77,7 @@
                 else
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError);
-                    AdditionalVerboseTracing(e);
+                    this.AdditionalVerboseTracing(e);
                 }
             }
             else
@@ -80,16 +85,11 @@
                 if (e.Exception != null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
-                    AdditionalVerboseTracing(e);
+                    this.AdditionalVerboseTracing(e);
                 }
 
                 this.ConsecutiveErrors = 0;
             }
-        }
-
-        protected virtual TimeSpan GetBackOffTime(NameValueCollection headers)
-        {
-            return TransmissionPolicyHelpers.GetBackOffTime(this.ConsecutiveErrors, headers);
         }
 
         private void AdditionalVerboseTracing(TransmissionProcessedEventArgs args)

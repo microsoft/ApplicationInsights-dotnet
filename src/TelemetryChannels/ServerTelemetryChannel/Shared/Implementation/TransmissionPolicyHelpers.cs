@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Web.Script.Serialization;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-
-namespace Microsoft.ApplicationInsights.Channel.Implementation
+﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.Web.Script.Serialization;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+
     internal static class TransmissionPolicyHelpers
     {
         public const int SlotDelayInSeconds = 10;
