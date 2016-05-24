@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
-    using System.Web.Script.Serialization;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -14,9 +14,9 @@
 
     internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
+        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(TransmissionPolicyHelpers.SlotDelayInSeconds) };
 
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        public int ConsecutiveErrors { get; set; }
 
         public override void Initialize(Transmitter transmitter)
         {
@@ -56,28 +56,16 @@
 
         private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args)
         {
-            BackendResponse backendResponse;
-            string responseContent = args.Response.Content;
-            try
-            {
-                backendResponse = this.serializer.Deserialize<BackendResponse>(responseContent);
-            }
-            catch (ArgumentException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                this.ConsecutiveErrors = 0;
-                return null;
-            }
-            catch (InvalidOperationException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                this.ConsecutiveErrors = 0;
-                return null;
-            }
+            BackendResponse backendResponse = TransmissionPolicyHelpers.GetBackendResponse(args);
 
+            if (backendResponse == null)
+            { 
+                this.ConsecutiveErrors = 0;
+                return null;
+            }
+            
             string newTransmissions = null;
-
-            if (backendResponse != null && backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
+            if (backendResponse.ItemsAccepted != backendResponse.ItemsReceived)
             {
                 string[] items = JsonSerializer
                     .Deserialize(initialTransmission.Content)
@@ -126,7 +114,7 @@
             this.Apply();
 
             // Back-off for the Delay duration and enable sending capacity
-            this.pauseTimer.Delay = this.GetBackOffTime(response.RetryAfterHeader);
+            this.pauseTimer.Delay = TransmissionPolicyHelpers.GetBackOffTime(this.ConsecutiveErrors, response.RetryAfterHeader);
             this.pauseTimer.Start(() =>
             {
                 this.MaxBufferCapacity = null;

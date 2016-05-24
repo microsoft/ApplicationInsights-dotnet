@@ -6,6 +6,7 @@
 #endif
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
     using System.Threading;
@@ -182,6 +183,71 @@
                 CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
             }
 
+            [TestMethod]
+            public void LogsAdditionalTracesIfResponseIsProvided()
+            {
+                using (var listener = new TestEventListener())
+                {
+                    // Arrange:
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    Transmission enqueuedTransmission = null;
+                    var transmitter = new StubTransmitter
+                    {
+                        OnEnqueue = transmission => { enqueuedTransmission = transmission; }
+                    };
+
+                    var policy = new TestableErrorHandlingTransmissionPolicy
+                    {
+                        BackOffTime = TimeSpan.FromMilliseconds(10)
+                    };
+
+                    policy.Initialize(transmitter);
+
+                    var failedTransmission = new StubTransmission();
+                    var response = new HttpWebResponseWrapper {Content = this.GetBackendResponse(2, 1, new[] { "123" })};
+
+                    // Act:
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408), response));
+
+                    // Assert:
+                    var traces = listener.Messages.ToList();
+                    Assert.True(traces.Count > 2);
+                    Assert.Equal(23, traces[0].EventId); // failed to send
+                    Assert.Equal(7, traces[1].EventId); // additional trace
+                    Assert.Equal("Explanation", traces[1].Payload[0]);
+                }
+            }
+
+            private string GetBackendResponse(int itemsReceived, int itemsAccepted, string[] errorCodes, int indexStartWith = 0)
+            {
+                string singleItem = "{{" +
+                                    "\"index\": {0}," +
+                                    "\"statusCode\": {1}," +
+                                    "\"message\": \"Explanation\"" +
+                                    "}}";
+
+                string errorList = string.Empty;
+                for (int i = 0; i < errorCodes.Length; ++i)
+                {
+                    string errorCode = errorCodes[i];
+                    if (!string.IsNullOrEmpty(errorList))
+                    {
+                        errorList += ",";
+                    }
+
+                    errorList += string.Format(CultureInfo.InvariantCulture, singleItem, indexStartWith + i, errorCode);
+                }
+
+                return
+                   "{" +
+                    "\"itemsReceived\": " + itemsReceived + "," +
+                    "\"itemsAccepted\": " + itemsAccepted + "," +
+                    "\"errors\": [" + errorList + "]" +
+                   "}";
+            }
+
             private static Task ThrowAsync(Exception e)
             {
                 var tcs = new TaskCompletionSource<object>(null);
@@ -219,7 +285,7 @@
         {
             public TimeSpan BackOffTime { get; set; }
 
-            public override TimeSpan GetBackOffTime(NameValueCollection headers = null)
+            protected override TimeSpan GetBackOffTime(NameValueCollection headers = null)
             {
                 return this.BackOffTime;
             }

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
@@ -234,7 +236,8 @@
                 {
                     // Return content only for 206 for performance reasons
                     // Currently we do not need it in other cases
-                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
+                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent ||
+                        CoreEventSource.Log.IsVerboseEnabled)
                     {
                         wrapper = new HttpWebResponseWrapper
                         {
