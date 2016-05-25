@@ -14,21 +14,28 @@
 
         public static BackendResponse GetBackendResponse(TransmissionProcessedEventArgs args)
         {
-            BackendResponse backendResponse;
-            string responseContent = args.Response.Content;
-            try
+            BackendResponse backendResponse = null;
+
+            if (args != null && args.Response != null)
             {
-                backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
-            }
-            catch (ArgumentException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                backendResponse = null;
-            }
-            catch (InvalidOperationException exp)
-            {
-                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                backendResponse = null;
+                string responseContent = args.Response.Content;
+                try
+                {
+                    if (!string.IsNullOrEmpty(responseContent))
+                    {
+                        backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
+                    }
+                }
+                catch (ArgumentException exp)
+                {
+                    TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                    backendResponse = null;
+                }
+                catch (InvalidOperationException exp)
+                {
+                    TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                    backendResponse = null;
+                }
             }
 
             return backendResponse;
