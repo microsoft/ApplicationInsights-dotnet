@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +39,7 @@
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 2, 
                 itemsAccepted: 1, 
                 errorCodes: new[] { "429" });
@@ -69,7 +70,7 @@
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 3,
                 itemsAccepted: 0,
                 errorCodes: new[] { "408", "503", "500" });
@@ -95,7 +96,7 @@
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 2,
                 itemsAccepted: 2,
                 errorCodes: new[] { "408", "408" });
@@ -131,7 +132,7 @@
                 };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 3,
                 itemsAccepted: 1,
                 errorCodes: new[] { "439", "439" });
@@ -167,7 +168,7 @@
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 100,
                 itemsAccepted: 95,
                 errorCodes: new[] { "500", "500", "503", "503", "429" });
@@ -228,7 +229,7 @@
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
             // Index is 0-based
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 2,
                 itemsAccepted: 1,
                 errorCodes: new[] { "408" },
@@ -261,7 +262,7 @@
             var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
             Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
 
-            string response = this.GetBackendResponse(
+            string response = BackendResponseHelper.CreateBackendResponse(
                 itemsReceived: 50,
                 itemsAccepted: 45,
                 errorCodes: new[] { "400", "402", "502", "409", "417" });
@@ -276,34 +277,6 @@
 
             Assert.Equal(0, policy.ConsecutiveErrors);
             Assert.Equal(0, enqueuedTransmissions.Count);
-        }
-
-        private string GetBackendResponse(int itemsReceived, int itemsAccepted, string[] errorCodes, int indexStartWith = 0)
-        {
-            string singleItem = "{{" +
-                                "\"index\": {0}," +
-                                "\"statusCode\": {1}," +
-                                "\"message\": \"Explanation\"" +
-                                "}}";
-
-            string errorList = string.Empty;
-            for (int i=0; i<errorCodes.Length; ++i)
-            {
-                string errorCode = errorCodes[i];
-                if (!string.IsNullOrEmpty(errorList))
-                {
-                    errorList += ",";
-                }
-
-                errorList += string.Format(CultureInfo.InvariantCulture, singleItem, indexStartWith + i, errorCode);
-            }
-
-            return 
-               "{" +
-                "\"itemsReceived\": " + itemsReceived + "," +
-                "\"itemsAccepted\": " + itemsAccepted + "," +
-                "\"errors\": [" + errorList+ "]" +
-               "}";
         }
     }
 }

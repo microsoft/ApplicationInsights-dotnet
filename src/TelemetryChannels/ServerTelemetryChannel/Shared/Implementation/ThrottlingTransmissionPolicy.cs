@@ -4,6 +4,7 @@
     using System.Net;
     using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
@@ -12,7 +13,9 @@
 
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(TransmissionPolicyHelpers.SlotDelayInSeconds) };
+
+        public int ConsecutiveErrors { get; set; }
 
         public void Dispose()
         {
@@ -39,7 +42,7 @@
                     if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequests ||
                         httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                     {
-                        this.pauseTimer.Delay = this.GetBackOffTime(httpWebResponse.Headers);
+                        this.pauseTimer.Delay = TransmissionPolicyHelpers.GetBackOffTime(this.ConsecutiveErrors, httpWebResponse.Headers);
                         TelemetryChannelEventSource.Log.ThrottlingRetryAfterParsedInSec(this.pauseTimer.Delay.TotalSeconds);
 
                         this.MaxSenderCapacity = 0;

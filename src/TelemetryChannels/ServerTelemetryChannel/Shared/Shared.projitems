@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExceptionHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionPolicyHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IApplicationFolderProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IApplicationLifecycle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\INetwork.cs" />

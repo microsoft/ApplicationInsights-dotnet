@@ -14,6 +14,15 @@
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
+        public bool IsVerboseEnabled
+        {
+            [NonEvent]
+            get
+            {
+                return Log.IsEnabled(EventLevel.Verbose, (EventKeywords)(-1));
+            }
+        }
+
         /// <summary>
         /// Logs the information when there operation to track is null.
         /// </summary>
