@@ -144,14 +144,15 @@
             this.WriteEvent(22, transmissionId ?? string.Empty, capacity, this.ApplicationName);
         }
 
-        [Event(23, Message = "TransmissionSendingFailed. TransmissionId: {0}. Message: {1}. StatusCode: {2}.", Level = EventLevel.Warning)]
-        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, int statusCode, string appDomainName = "Incorrect")
+        [Event(23, Message = "TransmissionSendingFailed. TransmissionId: {0}. Message: {1}. StatusCode: {2}. Description: {3}.", Level = EventLevel.Warning)]
+        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, int statusCode, string description, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 23,
                 transmissionId ?? string.Empty,
                 exceptionMessage ?? string.Empty,
                 statusCode,
+                description ?? string.Empty,
                 this.ApplicationName);
         }
 

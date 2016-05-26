@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AdaptiveSamplingTelemetryProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\BackendResponseHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\DirectoryAccessDenier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\FileAccessDenier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetryProcessor.cs" />

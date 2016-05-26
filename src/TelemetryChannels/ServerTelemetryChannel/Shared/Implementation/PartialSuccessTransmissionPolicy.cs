@@ -56,7 +56,12 @@
 
         private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args)
         {
-            BackendResponse backendResponse = TransmissionPolicyHelpers.GetBackendResponse(args);
+            BackendResponse backendResponse = null;
+
+            if (args != null && args.Response != null)
+            {
+                backendResponse = TransmissionPolicyHelpers.GetBackendResponse(args.Response.Content);
+            }
 
             if (backendResponse == null)
             { 

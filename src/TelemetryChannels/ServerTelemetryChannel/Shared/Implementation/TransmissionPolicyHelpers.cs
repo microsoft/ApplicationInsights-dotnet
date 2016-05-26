@@ -12,30 +12,26 @@
         private static readonly Random Random = new Random();
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
-        public static BackendResponse GetBackendResponse(TransmissionProcessedEventArgs args)
+        public static BackendResponse GetBackendResponse(string responseContent)
         {
             BackendResponse backendResponse = null;
 
-            if (args != null && args.Response != null)
+            try
             {
-                string responseContent = args.Response.Content;
-                try
+                if (!string.IsNullOrEmpty(responseContent))
                 {
-                    if (!string.IsNullOrEmpty(responseContent))
-                    {
-                        backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
-                    }
+                    backendResponse = Serializer.Deserialize<BackendResponse>(responseContent);
                 }
-                catch (ArgumentException exp)
-                {
-                    TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                    backendResponse = null;
-                }
-                catch (InvalidOperationException exp)
-                {
-                    TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
-                    backendResponse = null;
-                }
+            }
+            catch (ArgumentException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
+            }
+            catch (InvalidOperationException exp)
+            {
+                TelemetryChannelEventSource.Log.BreezeResponseWasNotParsedWarning(exp.Message, responseContent);
+                backendResponse = null;
             }
 
             return backendResponse;

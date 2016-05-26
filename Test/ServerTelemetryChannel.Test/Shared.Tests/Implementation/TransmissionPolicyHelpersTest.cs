@@ -1,18 +1,54 @@
-﻿ namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Net;
-    using System.Text;
     using Microsoft.ApplicationInsights.Channel.Implementation;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
     [TestClass]
     public class TransmissionPolicyHelpersTest
     {
+        [TestClass]
+        public class GetBackendResponse
+        {
+            public void ReturnNullIfArgumentIsNull()
+            {
+                Assert.Null(TransmissionPolicyHelpers.GetBackendResponse(null));
+            }
+
+            public void ReturnNullIfArgumentEmpty()
+            {
+                Assert.Null(TransmissionPolicyHelpers.GetBackendResponse(string.Empty));
+            }
+
+            public void IfContentCannotBeParsedNullIsReturned()
+            {
+                Assert.Null(TransmissionPolicyHelpers.GetBackendResponse("ab}{"));
+            }
+
+            public void IfContentIsUnexpectedJsonNullIsReturned()
+            {
+                Assert.Null(TransmissionPolicyHelpers.GetBackendResponse("[1,2]"));
+            }
+
+            public void BackendResponseIsReturnedForCorrectContent()
+            {
+                string content = BackendResponseHelper.CreateBackendResponse(100, 1, new[] {"206"}, 84);
+
+                var backendResponse = TransmissionPolicyHelpers.GetBackendResponse(content);
+
+                Assert.Equal(1, backendResponse.ItemsAccepted);
+                Assert.Equal(100, backendResponse.ItemsReceived);
+                Assert.Equal(1, backendResponse.Errors.Length);
+                Assert.Equal(84, backendResponse.Errors[0].Index);
+                Assert.Equal(206, backendResponse.Errors[0].StatusCode);
+                Assert.Equal("Explanation", backendResponse.Errors[0].Message);
+            }
+        }
+
         [TestClass]
         public class GetBackOffTime
         {

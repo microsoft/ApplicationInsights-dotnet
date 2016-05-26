@@ -2,12 +2,13 @@
 {
     using System;
     using System.Collections.Specialized;
+    using System.IO;
     using System.Net;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
+    
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -44,8 +45,12 @@
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)httpWebResponse.StatusCode);
-                    this.AdditionalVerboseTracing(e);
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(
+                        e.Transmission.Id, 
+                        webException.Message, 
+                        (int)httpWebResponse.StatusCode,
+                        httpWebResponse.StatusDescription);
+                    this.AdditionalVerboseTracing(httpWebResponse);
 
                     switch (httpWebResponse.StatusCode)
                     {
@@ -76,8 +81,7 @@
                 }
                 else
                 {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError);
-                    this.AdditionalVerboseTracing(e);
+                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(e.Transmission.Id, webException.Message, (int)HttpStatusCode.InternalServerError, null);
                 }
             }
             else
@@ -85,29 +89,47 @@
                 if (e.Exception != null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(e.Transmission.Id, e.Exception.Message);
-                    this.AdditionalVerboseTracing(e);
                 }
 
                 this.ConsecutiveErrors = 0;
             }
         }
 
-        private void AdditionalVerboseTracing(TransmissionProcessedEventArgs args)
+        private void AdditionalVerboseTracing(HttpWebResponse httpResponse)
         {
             // For perf reason deserialize only when verbose tracing is enabled 
-            if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+            if (TelemetryChannelEventSource.Log.IsVerboseEnabled && httpResponse != null)
             {
-                BackendResponse backendResponse = TransmissionPolicyHelpers.GetBackendResponse(args);
-
-                if (backendResponse != null && backendResponse.Errors != null)
+                try
                 {
-                    foreach (var error in backendResponse.Errors)
+                    var stream = httpResponse.GetResponseStream();
+                    if (stream != null)
                     {
-                        if (error != null)
+                        using (StreamReader content = new StreamReader(stream))
                         {
-                            TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
+                            string response = content.ReadToEnd();
+
+                            if (!string.IsNullOrEmpty(response))
+                            {
+                                BackendResponse backendResponse = TransmissionPolicyHelpers.GetBackendResponse(response);
+
+                                if (backendResponse != null && backendResponse.Errors != null)
+                                {
+                                    foreach (var error in backendResponse.Errors)
+                                    {
+                                        if (error != null)
+                                        {
+                                            TelemetryChannelEventSource.Log.ItemRejectedByEndpointWarning(error.Message);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                }
+                catch (Exception)
+                {
+                    // This code is for tracing purposes only; it cannot not throw
                 }
             }
         }

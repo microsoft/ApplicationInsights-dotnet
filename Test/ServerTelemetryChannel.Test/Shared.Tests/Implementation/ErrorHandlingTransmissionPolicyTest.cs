@@ -12,8 +12,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
@@ -21,6 +21,8 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using System.Text;
+    using System.IO;
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -206,7 +208,7 @@
                     policy.Initialize(transmitter);
 
                     var failedTransmission = new StubTransmission();
-                    var response = new HttpWebResponseWrapper {Content = this.GetBackendResponse(2, 1, new[] { "123" })};
+                    var response = new HttpWebResponseWrapper {Content = BackendResponseHelper.CreateBackendResponse(2, 1, new[] { "123" })};
 
                     // Act:
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408), response));
@@ -218,34 +220,6 @@
                     Assert.Equal(7, traces[1].EventId); // additional trace
                     Assert.Equal("Explanation", traces[1].Payload[0]);
                 }
-            }
-
-            private string GetBackendResponse(int itemsReceived, int itemsAccepted, string[] errorCodes, int indexStartWith = 0)
-            {
-                string singleItem = "{{" +
-                                    "\"index\": {0}," +
-                                    "\"statusCode\": {1}," +
-                                    "\"message\": \"Explanation\"" +
-                                    "}}";
-
-                string errorList = string.Empty;
-                for (int i = 0; i < errorCodes.Length; ++i)
-                {
-                    string errorCode = errorCodes[i];
-                    if (!string.IsNullOrEmpty(errorList))
-                    {
-                        errorList += ",";
-                    }
-
-                    errorList += string.Format(CultureInfo.InvariantCulture, singleItem, indexStartWith + i, errorCode);
-                }
-
-                return
-                   "{" +
-                    "\"itemsReceived\": " + itemsReceived + "," +
-                    "\"itemsAccepted\": " + itemsAccepted + "," +
-                    "\"errors\": [" + errorList + "]" +
-                   "}";
             }
 
             private static Task ThrowAsync(Exception e)
@@ -273,7 +247,14 @@
             
             private static WebException CreateException(int statusCode)
             {
+                string content = BackendResponseHelper.CreateBackendResponse(3,1, new [] {"500"});
+                var bytes = Encoding.UTF8.GetBytes(content);
+                var responseStream = new MemoryStream();
+                responseStream.Write(bytes, 0, bytes.Length);
+                responseStream.Seek(0, SeekOrigin.Begin);
+
                 var mockWebResponse = new Moq.Mock<HttpWebResponse>();
+                mockWebResponse.Setup(c => c.GetResponseStream()).Returns(responseStream);
 
                 mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)statusCode);
 

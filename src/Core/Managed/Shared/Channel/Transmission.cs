@@ -236,8 +236,7 @@
                 {
                     // Return content only for 206 for performance reasons
                     // Currently we do not need it in other cases
-                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent ||
-                        CoreEventSource.Log.IsVerboseEnabled)
+                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
                     {
                         wrapper = new HttpWebResponseWrapper
                         {
