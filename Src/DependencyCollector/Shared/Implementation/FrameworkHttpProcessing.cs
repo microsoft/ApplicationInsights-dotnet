@@ -28,11 +28,12 @@
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.TelemetryTable = telemetryTupleHolder;
             this.telemetryClient = new TelemetryClient(configuration);
-            
+
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
-            
+
             // For directly using TrackDependency(), version will be simply what is set by core
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = string.Format(CultureInfo.InvariantCulture, "rdd{0}: {1}", RddSource.Framework, SdkVersionUtils.GetAssemblyVersion());
+            string prefix = "rdd" + RddSource.Framework + ":";
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(prefix);
         }
       
         /// <summary>

@@ -4,11 +4,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
@@ -52,8 +55,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework returns correct operation for OnBeginHttpCallback.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestHttpProcessingFrameworkOnBeginHttpCallback()
         {
             var id = 100;
@@ -66,8 +67,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback for success.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSucess()
         {
             var id = 100;            
@@ -77,7 +76,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, true, false, 200);  
             
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -85,8 +84,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback for failure.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackFailure()
         {
             var id = 100;
@@ -96,7 +93,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, false, false, 500);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, "500");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "500");
         }
 
         [TestMethod]
@@ -145,8 +142,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework does not sent telemetry on calling OnEndHttpCallback with an id which do not exist.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackInvalidId()
         {
             var id1 = 100;
@@ -216,8 +211,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingFramework calculates startTime from the start of very first BeginGetRequestStream if any")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestHttpProcessingFrameworkStartTimeFromGetRequestStreamAsync()
         {
             var id1 = 100;            
@@ -229,7 +222,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id1, true, false, 200);                        
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, true, 1, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }        
 
         #endregion AsyncScenarios
@@ -245,7 +238,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         #region Helpers
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool? success, bool async, int count, double valueMin, string statusCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool? success, double valueMin, string statusCode)
         {
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
@@ -261,6 +254,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.IsTrue(
                 remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be signigficantly bigger then the time duration between start and end", remoteDependencyTelemetryActual.Duration));
+
+            string versonStr = Assembly.GetAssembly(typeof(DependencyTrackingTelemetryModuleTest)).GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
+            Version version = new Version(versonStr);
+            string expectedVersion = "rddf:" + version.ToString(3) + "-" + version.Revision;
+            Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
         #endregion Helpers
     }

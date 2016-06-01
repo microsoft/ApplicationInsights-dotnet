@@ -79,7 +79,7 @@
             CopyConfiguration(sourceConfiguration, newConfiguration);
 
             var telemetryClient = new TelemetryClient(newConfiguration);
-            telemetryClient.Context.GetInternalContext().SdkVersion = "unhnd: " + SdkVersionUtils.GetAssemblyVersion();
+            telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("unhnd:");
 
             return telemetryClient;
         }

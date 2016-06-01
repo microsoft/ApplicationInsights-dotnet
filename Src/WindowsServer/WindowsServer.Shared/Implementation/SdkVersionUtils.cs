@@ -1,16 +1,20 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
+    using System;
     using System.Linq;
     using System.Reflection;
 
     internal class SdkVersionUtils
     {
-        internal static string GetAssemblyVersion()
+        internal static string GetSdkVersion(string versionPrefix)
         {
-            return typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false)
+            string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
+
+            Version version = new Version(versionStr);
+            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision;
         }
     }
 }

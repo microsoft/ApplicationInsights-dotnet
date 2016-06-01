@@ -52,7 +52,7 @@
                         this.isInitialized = true;
 
                         this.telemetryClient = new TelemetryClient(configuration);
-                        this.telemetryClient.Context.GetInternalContext().SdkVersion = "unobs: " + SdkVersionUtils.GetAssemblyVersion();
+                        this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("unobs:");
 
                         this.registerAction(this.TaskSchedulerOnUnobservedTaskException);
                     }
