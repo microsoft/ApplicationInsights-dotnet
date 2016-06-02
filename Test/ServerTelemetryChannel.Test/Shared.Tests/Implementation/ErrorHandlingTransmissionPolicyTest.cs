@@ -214,8 +214,8 @@
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408), response));
 
                     // Assert:
-                    var traces = listener.Messages.ToList();
-                    Assert.True(traces.Count > 2);
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    Assert.Equal(2, traces.Count);
                     Assert.Equal(23, traces[0].EventId); // failed to send
                     Assert.Equal(7, traces[1].EventId); // additional trace
                     Assert.Equal("Explanation", traces[1].Payload[0]);

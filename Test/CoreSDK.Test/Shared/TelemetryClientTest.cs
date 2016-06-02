@@ -733,6 +733,13 @@
         [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {
+            // split version by 4 numbers manually so we do not do the same as in the product code and actually test it
+            string versonStr = Assembly.GetAssembly(typeof(TelemetryConfiguration)).GetCustomAttributes(false)
+                    .OfType<AssemblyFileVersionAttribute>()
+                    .First()
+                    .Version;
+            string[] versionParts = new Version(versonStr).ToString().Split('.');
+
             var configuration = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString() };
             var client = new TelemetryClient(configuration);
 
@@ -740,7 +747,7 @@
             EventTelemetry eventTelemetry = new EventTelemetry("test");
             client.Track(eventTelemetry);
 
-            Assert.StartsWith("dotnet: ", eventTelemetry.Context.Internal.SdkVersion);
+            Assert.Equal("dotnet:"+ string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3], eventTelemetry.Context.Internal.SdkVersion);
         }
 
         [TestMethod]

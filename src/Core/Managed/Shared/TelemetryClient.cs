@@ -18,7 +18,7 @@
     /// </summary>
     public sealed class TelemetryClient
     {
-        private const string VersionPrefix = "dotnet: ";
+        private const string VersionPrefix = "dotnet:";
 
         private readonly TelemetryConfiguration configuration;
         private TelemetryContext context;
@@ -369,7 +369,7 @@
             // Currenly backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
-                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetAssemblyVersion);
+                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetSdkVersion);
                 telemetry.Context.Internal.SdkVersion = version;
             }
         }
@@ -432,18 +432,22 @@
             this.configuration.TelemetryChannel.Flush();
         }
 
-        private string GetAssemblyVersion()
+        private string GetSdkVersion()
         {
 #if !CORE_PCL
-            return VersionPrefix + typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
+            string versionStr = typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
+            
 #else
-            return VersionPrefix + typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
+            string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
 #endif
+
+            Version version = new Version(versionStr);
+            return VersionPrefix + version.ToString(3) + "-" + version.Revision;
         }
     }
 }
