@@ -6,6 +6,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     internal sealed class FrameworkSqlProcessing : IDisposable
     {

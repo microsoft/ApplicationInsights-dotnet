@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs

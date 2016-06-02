@@ -67,6 +67,11 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs">
+      <Link>SdkVersionUtils.cs</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="..\WindowsServer.Shared\WindowsServer.Shared.projitems" Label="Shared" Condition="Exists('..\WindowsServer.Shared\WindowsServer.Shared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

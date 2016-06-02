@@ -73,6 +73,11 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs">
+      <Link>SdkVersionUtils.cs</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="..\Shared\DependencyCollector.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

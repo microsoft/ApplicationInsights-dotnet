@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -332,13 +333,8 @@
         [TestMethod]
         public void SdkVersionHasCorrectFormat()
         {
-            string versonStr = Assembly.GetAssembly(typeof(RequestTrackingTelemetryModule)).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            Version version = new Version(versonStr);
-            string expectedSdkVersion = "web:" + version.ToString(3) + "-" + version.Revision;
-
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(RequestTrackingTelemetryModule), prefix: "web:");
+            
             var context = HttpModuleHelper.GetFakeHttpContext();
 
             using (var module = new TestableRequestTrackingTelemetryModule(context))
@@ -347,7 +343,7 @@
                 module.OnBeginRequest(null);
                 module.OnEndRequest(null);
 
-                Assert.AreEqual(expectedSdkVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
+                Assert.AreEqual(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
             }
         }
 

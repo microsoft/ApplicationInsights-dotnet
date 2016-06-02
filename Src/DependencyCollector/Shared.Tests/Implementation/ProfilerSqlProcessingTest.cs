@@ -17,6 +17,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
@@ -728,12 +729,7 @@
                 remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
 
-            string versonStr = Assembly.GetAssembly(typeof(DependencyTrackingTelemetryModuleTest)).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            Version version = new Version(versonStr);
-            string expectedVersion = "rddp:" + version.ToString(3) + "-" + version.Revision;
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
 

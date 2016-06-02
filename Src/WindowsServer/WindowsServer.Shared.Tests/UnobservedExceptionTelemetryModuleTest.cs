@@ -68,12 +68,7 @@
         [TestMethod]
         public void TrackedExceptionsHavePrefixUsedForTelemetry()
         {
-            string versonStr = Assembly.GetAssembly(typeof(UnobservedExceptionTelemetryModule)).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            Version version = new Version(versonStr);
-            string expectedVersion = "unobs:" + version.ToString(3) + "-" + version.Revision;
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(UnobservedExceptionTelemetryModule), prefix: "unobs:");
 
             EventHandler<UnobservedTaskExceptionEventArgs> handler = null;
             using (var module = new UnobservedExceptionTelemetryModule(

@@ -101,13 +101,8 @@
         [TestMethod]
         public void TrackedExceptionsHavePrefixUsedForTelemetry()
         {
-            string versonStr = Assembly.GetAssembly(typeof(UnhandledExceptionTelemetryModule)).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            Version version = new Version(versonStr);
-            string expectedVersion = "unhnd:" + version.ToString(3) + "-" + version.Revision;
-
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(UnhandledExceptionTelemetryModule), prefix: "unhnd:");
+            
             UnhandledExceptionEventHandler handler = null;
             using (new UnhandledExceptionTelemetryModule(
                 h => handler = h,
