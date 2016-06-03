@@ -4,11 +4,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
@@ -47,8 +52,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQuerySucess()
         {
             this.sqlProcessingFramework.OnBeginExecuteCallback(
@@ -66,8 +69,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.resourceName,
                 RemoteDependencyKind.SQL,
                 true,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "0");
         }
@@ -77,8 +78,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQueryAsync()
         {
             this.sqlProcessingFramework.OnBeginExecuteCallback(
@@ -96,8 +95,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.resourceName,
                 RemoteDependencyKind.SQL,
                 true,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "0");
         }
@@ -107,8 +104,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates sqlProcessingFramework sends correct telemetry for non stored procedure in failed call.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQueryFailed()
         {
             this.sqlProcessingFramework.OnBeginExecuteCallback(
@@ -126,8 +121,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.resourceName,
                 RemoteDependencyKind.SQL,
                 false,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "1");
         }
@@ -137,8 +130,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates SQLProcessingFramework sends correct telemetry for stored procedure.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetryStoredProc()
         {
             string resourceNameSproc = "ourdatabase.database.windows.net | mydatabase | apm.MyFavouriteStoredProcedure";
@@ -162,130 +153,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 resourceNameSproc,
                 RemoteDependencyKind.SQL,
                 true,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
         }
         #endregion
-
-        /*
-        #region LoggingTests
-        /// <summary>
-        /// Validates sqlProcessingFramework logs error into EventLog when passed invalid thisObject with null connection.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingFramework logs error into EventLog when passed invalid thisObject with null connection")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingFrameworkLogsResourceNameNull()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    SqlCommand command = new SqlCommand();
-                    this.sqlProcessingFramework.OnBeginForBeginExecuteXmlReaderInternal(command, null, null, null, null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingFramework should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "sqlProcessingFramework is dropping item as resource name");                                 
-            }
-        }
-
-        /// <summary>
-        /// Validates sqlProcessingFramework logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingFramework logs error into EventLog when passed invalid thisObject to any OnEnd.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingFrameworkLogsWhenNullObjectPassedToEndMethods()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {                    
-                    var objectReturned = this.sqlProcessingFramework.OnEndForSqlAsync(new object(), null, null, null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingFramework should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "OnEndSql failed");                                 
-            }
-        }
-
-        /// <summary>
-        /// Validates sqlProcessingFramework logs error into EventLog when passed an object to End without corresponding begin in async pattern.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingFramework logs error into EventLog when passed an object to End without corresponding begin in async pattern")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingFrameworkLogsWhenObjectPassedToEndWithoutCorrespondingBeginAsync()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    var objectReturned = this.sqlProcessingFramework.OnEndForSqlAsync(new object(), null, new SqlCommand(), null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingFramework should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "sqlProcessingFramework will be dropping item in Async path as corresponding begin not found");                 
-            }
-        }
-
-        /// <summary>
-        /// Validates sqlProcessingFramework does not create RDD packet when passed an object to End without corresponding begin in sync pattern
-        /// In sync pattern, the context is not stored in the processor, instead it is expected to be maintained in customer code. This checks that
-        /// if an invalid context is passed for some reason, we don't crash and no event is generated.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingFramework does not create RDD packet when passed an object to End without corresponding begin in sync pattern")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingFrameworkLogsWhenObjectPassedToEndWithoutCorrespondingBeginSync()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    var command = GetSqlCommandTestForStoredProc();
-                    var returnObjectPassed = new object();
-                    var context = this.sqlProcessingFramework.OnBeginForExecuteReader(command, null, null);
-                    var contextWithNotMatchingBegin = new DependencyTelemetry();
-                    var objectReturned = this.sqlProcessingFramework.OnEndForExecuteReader(contextWithNotMatchingBegin, returnObjectPassed, command, null, null);
-
-                    Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForExecuteReader processor is not the same as expected return object");
-                    Assert.AreEqual(0, this.sendItems.Count, "No RDD packets should be created for invalid context.");   
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingFramework should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "End operation failed with exception");                                 
-            }
-        }
-        #endregion //LoggingTests
-        */
 
         #region Disposable
         public void Dispose()
@@ -299,7 +170,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         #region Helpers
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, bool async, int count, double valueMin, string errorCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string errorCode)
         {
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
@@ -315,6 +186,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.IsTrue(
                 remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddf:");
+            Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
 
         #endregion Helpers

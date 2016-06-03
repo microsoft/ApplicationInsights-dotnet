@@ -12,6 +12,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
@@ -290,7 +291,7 @@
             // create the default production implementation of the service client with the best service endpoint we could get
             string instanceName = GetInstanceName(configuration);
             string streamId = GetStreamId();
-            var assemblyVersion = SdkVersionUtils.GetAssemblyVersion();
+            var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
             this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, streamId, assemblyVersion, this.timeProvider);
 
             QuickPulseEventSource.Log.TroubleshootingMessageEvent(

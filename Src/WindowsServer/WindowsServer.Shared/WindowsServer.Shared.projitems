@@ -22,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleEnvironment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RoleInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RuntimeBindingObject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntime.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TypeHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />

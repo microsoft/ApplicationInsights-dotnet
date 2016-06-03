@@ -68,6 +68,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Web.Net45\Implementation\SdkVersionUtils.cs">
+      <Link>Implementation\SdkVersionUtils.cs</Link>
+    </Compile>
     <Compile Include="Implementation\HttpRequestExtensions.cs" />
   </ItemGroup>
   <Import Project="..\Web.Shared.Net\Web.Shared.Net.projitems" Label="Shared" />

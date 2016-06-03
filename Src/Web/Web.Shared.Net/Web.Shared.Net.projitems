@@ -20,7 +20,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticUserAgentFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsPublisher.cs" />

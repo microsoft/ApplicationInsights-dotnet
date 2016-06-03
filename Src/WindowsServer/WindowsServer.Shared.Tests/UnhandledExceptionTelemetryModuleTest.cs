@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -99,8 +101,10 @@
         [TestMethod]
         public void TrackedExceptionsHavePrefixUsedForTelemetry()
         {
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(UnhandledExceptionTelemetryModule), prefix: "unhnd:");
+            
             UnhandledExceptionEventHandler handler = null;
-            using (var module = new UnhandledExceptionTelemetryModule(
+            using (new UnhandledExceptionTelemetryModule(
                 h => handler = h,
                 _ => { },
                 this.moduleChannel))
@@ -108,7 +112,7 @@
                 handler.Invoke(null, new UnhandledExceptionEventArgs(null, true));
             }
 
-            Assert.True(this.items[0].Context.GetInternalContext().SdkVersion.StartsWith("unhnd: ", StringComparison.OrdinalIgnoreCase));
+            Assert.Equal(expectedVersion, this.items[0].Context.GetInternalContext().SdkVersion);
         }
 
         [TestMethod]
