@@ -45,7 +45,7 @@
                 {
                     TelemetryListenerPort = 4007,
                     AttachDebugger = Debugger.IsAttached,
-                    IKey = "F8474271-D231-45B6-8DD4-D344C309AE69",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
         }
 

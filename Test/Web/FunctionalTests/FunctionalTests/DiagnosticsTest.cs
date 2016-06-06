@@ -17,7 +17,7 @@
         private const int TestRequestTimeoutInMs = 15000;
         private const int TestListenerTimeoutInMs = 10000;
 
-        private const string DiagnosticsInstrumentationKey = "E2EBDB26-0553-44A4-A4B6-BB35583EA322";
+        private const string DiagnosticsInstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
 
         [TestInitialize]
         public void TestInitialize()
