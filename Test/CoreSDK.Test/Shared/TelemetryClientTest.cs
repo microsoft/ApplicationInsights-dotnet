@@ -3,14 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
 #if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Reflection;
+    using System.Text;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
@@ -786,7 +791,70 @@
 
             Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
         }
-        
+
+        #endregion
+
+        #region ValidateEndpoint
+
+        [TestMethod]
+        public void SendEventToValidateEndpoint()
+        {
+            EventTelemetry telemetry1 = new EventTelemetry();
+            MetricTelemetry telemetry2 = new MetricTelemetry();
+            DependencyTelemetry telemetry3 = new DependencyTelemetry();
+            ExceptionTelemetry telemetry4 = new ExceptionTelemetry();
+            MetricTelemetry telemetry5 = new MetricTelemetry();
+            PageViewTelemetry telemetry6 = new PageViewTelemetry();
+            PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry();
+            RequestTelemetry telemetry8 = new RequestTelemetry();
+            SessionStateTelemetry telemetry9 = new SessionStateTelemetry();
+            TraceTelemetry telemetry10 = new TraceTelemetry();
+
+            var telemetryItems = new List<ITelemetry>
+            {
+                telemetry1,
+                telemetry2,
+                telemetry3,
+                telemetry4,
+                telemetry5,
+                telemetry6,
+                telemetry7,
+                telemetry8,
+                telemetry9,
+                telemetry10
+            };
+
+            // ChuckNorrisTeamUnitTests resource in Prototypes5
+            var config = new TelemetryConfiguration { InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" };
+            var telemetryClient = new TelemetryClient(config);
+
+            telemetryClient.Initialize(telemetry1);
+            telemetryClient.Initialize(telemetry2);
+            telemetryClient.Initialize(telemetry3);
+            telemetryClient.Initialize(telemetry4);
+            telemetryClient.Initialize(telemetry5);
+            telemetryClient.Initialize(telemetry6);
+            telemetryClient.Initialize(telemetry7);
+            telemetryClient.Initialize(telemetry8);
+            telemetryClient.Initialize(telemetry9);
+            telemetryClient.Initialize(telemetry10);
+
+            string json = JsonSerializer.SerializeAsString(telemetryItems);
+
+            HttpClient client = new HttpClient();
+            var result = client.PostAsync(
+                "https://dc.services.visualstudio.com/v2/validate",
+                new ByteArrayContent(Encoding.UTF8.GetBytes(json))).GetAwaiter().GetResult();
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                Trace.WriteLine(response);
+            }
+
+            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+        }
+
         #endregion
 
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
