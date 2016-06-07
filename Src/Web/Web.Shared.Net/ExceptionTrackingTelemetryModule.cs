@@ -48,6 +48,13 @@
             }
 
             var platformContext = this.ResolvePlatformContext();
+
+            if (platformContext == null)
+            {
+                WebEventSource.Log.NoHttpContextWarning();
+                return;
+            }
+
             var errors = platformContext.AllErrors;
 
             if (errors != null && errors.Length > 0)

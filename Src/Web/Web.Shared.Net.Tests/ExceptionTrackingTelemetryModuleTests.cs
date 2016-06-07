@@ -18,6 +18,8 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Assert = Xunit.Assert;
+
     [TestClass]
     public class ExceptionTrackingTelemetryModuleTests
     {
@@ -50,8 +52,8 @@
                 module.OnError(null);
             }
 
-            Assert.AreEqual(2, this.sendItems.Count);
-            Assert.AreEqual(exception1, ((ExceptionTelemetry)this.sendItems[0]).Exception);
+            Assert.Equal(2, this.sendItems.Count);
+            Assert.Equal(exception1, ((ExceptionTelemetry)this.sendItems[0]).Exception);
         }
 
         [TestMethod]
@@ -67,7 +69,7 @@
                 module.OnError(null);
             }
 
-            Assert.AreEqual(SeverityLevel.Critical, ((ExceptionTelemetry)this.sendItems[0]).SeverityLevel);
+            Assert.Equal(SeverityLevel.Critical, ((ExceptionTelemetry)this.sendItems[0]).SeverityLevel);
         }
 
         [TestMethod]
@@ -82,7 +84,17 @@
                 module.OnError(null);
             }
 
-            Assert.AreEqual(ExceptionHandledAt.Platform, ((ExceptionTelemetry)this.sendItems[0]).HandledAt);
+            Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)this.sendItems[0]).HandledAt);
+        }
+
+        [TestMethod]
+        public void OnErrorDoesNotThrowOnNullContext()
+        {
+            using (var module = new TestableExceptionTrackingTelemetryModule(null))
+            {
+                module.Initialize(this.configuration);
+                Assert.DoesNotThrow(() => module.OnError(null));
+            }
         }
 
         [TestMethod]
@@ -97,7 +109,7 @@
                 WebEventsPublisher.Log.OnError();
             }
 
-            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.Equal(1, this.sendItems.Count);
         }
 
         internal class TestableExceptionTrackingTelemetryModule : ExceptionTrackingTelemetryModule
