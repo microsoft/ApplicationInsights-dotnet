@@ -354,7 +354,7 @@
                 module.OnBeginRequest(null);
                 module.OnEndRequest(null);
 
-                Assert.AreEqual(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
+                Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
             }
         }
 
