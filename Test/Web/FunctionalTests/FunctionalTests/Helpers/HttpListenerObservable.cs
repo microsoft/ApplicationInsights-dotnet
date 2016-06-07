@@ -146,24 +146,22 @@
             }
         }
 
-        private async Task ValidateItems(string items)
+        private void ValidateItems(string items)
         {
-            // Best effort on checking the result, we do not wait for the task
-            // We expect that in most tests there is enough time after events are received to also get this result back
             HttpClient client = new HttpClient();
-            var result = await client.PostAsync(
+            var result = client.PostAsync(
                 "https://dc.services.visualstudio.com/v2/validate",
-                new ByteArrayContent(Encoding.UTF8.GetBytes(items)));
+                new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
 
             if (result.StatusCode != HttpStatusCode.OK)
             {
-                var response = await result.Content.ReadAsStringAsync();
+                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 Trace.WriteLine("ERROR! Backend Response: " + response);
                 this.FailureDetected = true;
             }
             else
             {
-                Trace.WriteLine("Check against 'Validate' endpoint is done.");
+                Trace.WriteLine("Check agains 'Validate' endpoint is done.");
             }
         }
     }
