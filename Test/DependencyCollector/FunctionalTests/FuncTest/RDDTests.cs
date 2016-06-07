@@ -72,7 +72,7 @@ namespace FuncTest
         /// <summary>
         /// Sleep time to give SDK some time to send events.
         /// </summary>
-        private const int SleepTimeForSdkToSendEvents = 3 * 1000;
+        private const int SleepTimeForSdkToSendEvents = 5 * 1000;
 
         /// <summary>
         /// The fake endpoint to which SDK tries to sent Events for the test app ASPX 4.5.1. This should match the one used in
@@ -392,6 +392,7 @@ namespace FuncTest
         [TestCleanup]
         public void MyTestCleanup()
         {
+            Assert.IsFalse(sdkEventListener.FailureDetected, "Failure is detected. Please read test output logs.");
             sdkEventListener.Stop();
         }
 
