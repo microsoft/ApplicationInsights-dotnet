@@ -42,7 +42,7 @@ namespace FunctionalTests
                 {
                     TelemetryListenerPort = 4554,
                     // AttachDebugger = Debugger.IsAttached,
-                    IKey = "00000000-D231-45B6-8DD4-D344C309AE69",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
 
             this.LaunchAndVerifyApplication();

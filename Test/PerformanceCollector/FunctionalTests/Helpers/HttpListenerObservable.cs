@@ -6,6 +6,7 @@
     using System.IO;
     using System.IO.Compression;
     using System.Net;
+    using System.Net.Http;
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Text;
@@ -25,8 +26,12 @@
             this.listener.Prefixes.Add(url);
         }
 
+        public bool FailureDetected { get; set; }
+
         public void Start()
         {
+            this.FailureDetected = false;
+
             if (this.stream != null)
             {
                 this.Stop();   
@@ -102,6 +107,8 @@
                 Trace.WriteLine("Item received: " + content);
                 Trace.WriteLine("<=");
 
+                this.ValidateItems(content);
+
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }
             finally
@@ -137,6 +144,25 @@
                     compressedzipStream.Close();
                     return Encoding.UTF8.GetString(outputStream.ToArray());
                 }
+            }
+        }
+
+        private void ValidateItems(string items)
+        {
+            HttpClient client = new HttpClient();
+            var result = client.PostAsync(
+                "https://dc.services.visualstudio.com/v2/validate",
+                new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                Trace.WriteLine("ERROR! Backend Response: " + response);
+                this.FailureDetected = true;
+            }
+            else
+            {
+                Trace.WriteLine("Check against 'Validate' endpoint is done.");
             }
         }
     }
