@@ -136,6 +136,12 @@
         /// <returns>True if request needs to be processed, otherwise - False.</returns>
         internal bool NeedProcessRequest(HttpContext httpContext)
         {
+            if (httpContext == null)
+            {
+                WebEventSource.Log.NoHttpContextWarning();
+                return false;
+            }
+
             if (httpContext.Response.StatusCode < 400)
             {
                 if (this.IsHandlerToFilter(httpContext.Handler))
