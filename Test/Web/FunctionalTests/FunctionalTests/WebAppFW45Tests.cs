@@ -17,8 +17,8 @@
     [TestClass]
     public class WebAppFw45Tests : RequestTelemetryTestBase
     {
-        private const int TimeoutInMs = 10000;
-        private const int TestListenerWaitTimeInMs = 30000;
+        private const int TimeoutInMs = 15000;
+        private const int TestListenerWaitTimeInMs = 40000;
 
         private const string TestWebApplicaionSourcePath = @"..\TestApps\WebAppFW45\App";
         private const string TestWebApplicaionDestPath = @"TestsUserSessionFW45Wcf45";
