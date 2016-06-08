@@ -112,8 +112,13 @@
                 // Validating each package takes too much time, check only first one that have dependency data
                 if (this.validatedPackages == 0 && (content.Contains("Request") || content.Contains("Exception")))
                 {
-                    this.ValidateItems(content);
-                    ++this.validatedPackages;
+                    try
+                    {
+                        this.ValidateItems(content);
+                        ++this.validatedPackages;
+                    }
+                    catch (TaskCanceledException)
+                    { }
                 }
 
                 return TelemetryItemFactory.GetTelemetryItems(content);
