@@ -19,6 +19,7 @@
     {
         private readonly HttpListener listener;
         private IObservable<TelemetryItem> stream;
+        private int validatedPackages;
 
         public HttpListenerObservable(string url)
         {
@@ -31,6 +32,7 @@
         public void Start()
         {
             this.FailureDetected = false;
+            this.validatedPackages = 0;
 
             if (this.stream != null)
             {
@@ -107,7 +109,12 @@
                 Trace.WriteLine("Item received: " + content);
                 Trace.WriteLine("<=");
 
-                this.ValidateItems(content);
+                // Validating each package takes too much time, check only first one that have dependency data
+                if (this.validatedPackages == 0 && (content.Contains("PerformanceCounter") || content.Contains("Metric")))
+                {
+                    this.ValidateItems(content);
+                    ++this.validatedPackages;
+                }
 
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }

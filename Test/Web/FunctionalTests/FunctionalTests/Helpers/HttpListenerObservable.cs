@@ -19,18 +19,21 @@
     {
         private readonly HttpListener listener;
         private IObservable<TelemetryItem> stream;
+        private int validatedPackages;
 
         public HttpListenerObservable(string url)
         {
             this.listener = new HttpListener();
             this.listener.Prefixes.Add(url);
-            this.FailureDetected = false;
         }
 
         public bool FailureDetected { get; set; }
 
         public void Start()
         {
+            this.FailureDetected = false;
+            this.validatedPackages = 0;
+
             if (this.stream != null)
             {
                 this.Stop();   
@@ -106,7 +109,12 @@
                 Trace.WriteLine("Item received: " + content);
                 Trace.WriteLine("<=");
 
-                this.ValidateItems(content);
+                // Validating each package takes too much time, check only first one that have dependency data
+                if (this.validatedPackages == 0 && (content.Contains("Request") || content.Contains("Exception")))
+                {
+                    this.ValidateItems(content);
+                    ++this.validatedPackages;
+                }
 
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }
