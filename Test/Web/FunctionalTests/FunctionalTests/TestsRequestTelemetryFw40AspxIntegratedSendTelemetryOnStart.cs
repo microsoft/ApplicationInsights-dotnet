@@ -52,7 +52,7 @@ namespace Functional
                         Port = 31337,
                     })
                 {
-                    TelemetryListenerPort = 4007,
+                    TelemetryListenerPort = 4017,
                     AttachDebugger = Debugger.IsAttached
                 });
         }

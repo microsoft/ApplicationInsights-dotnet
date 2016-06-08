@@ -17,8 +17,8 @@
     [TestClass]
     public class WebAppFw45Tests : RequestTelemetryTestBase
     {
-        private const int TimeoutInMs = 10000;
-        private const int TestListenerWaitTimeInMs = 30000;
+        private const int TimeoutInMs = 15000;
+        private const int TestListenerWaitTimeInMs = 40000;
 
         private const string TestWebApplicaionSourcePath = @"..\TestApps\WebAppFW45\App";
         private const string TestWebApplicaionDestPath = @"TestsUserSessionFW45Wcf45";
@@ -43,9 +43,9 @@
                         Port = 4321,
                     })
                 {
-                    TelemetryListenerPort = 4007,
+                    TelemetryListenerPort = 4017,
                     AttachDebugger = Debugger.IsAttached,
-                    IKey = "F8474271-D231-45B6-8DD4-D344C309AE69",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
         }
 

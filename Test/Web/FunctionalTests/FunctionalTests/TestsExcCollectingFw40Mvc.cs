@@ -33,7 +33,7 @@
                     })
                 {
                     TelemetryListenerPort = 4004,
-                    IKey = "5552B788-A47E-4E6D-866B-5C8BD7AC72C1",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                     AttachDebugger = System.Diagnostics.Debugger.IsAttached
                 });
         }

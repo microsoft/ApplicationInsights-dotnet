@@ -1,6 +1,4 @@
-﻿using PerfCounterCollector.FunctionalTests;
-
-namespace FunctionalTests
+﻿namespace FunctionalTests
 {
     using System;
     using System.Diagnostics;
@@ -10,11 +8,12 @@ namespace FunctionalTests
     using Functional.Helpers;
     using Functional.IisExpress;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using PerfCounterCollector.FunctionalTests;
 
     [TestClass]
     public class Test40 : SingleWebHostTestBase
     {
-        private const int TimeoutInMs = 10000;
+        private const int TimeoutInMs = 15000;
 
         private const string TestWebApplicaionSourcePath = @"TestApps\TestApp40\App";
         private const string TestWebApplicaionDestPath = @"TestsPerformanceCollector40";
@@ -39,7 +38,7 @@ namespace FunctionalTests
                 {
                     TelemetryListenerPort = 7654,
                     //AttachDebugger = Debugger.IsAttached,
-                    IKey = "11223344-1122-3344-1122-334411222233",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
 
             this.LaunchAndVerifyApplication();
