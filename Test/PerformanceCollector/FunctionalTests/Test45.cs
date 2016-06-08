@@ -1,23 +1,19 @@
-﻿using PerfCounterCollector.FunctionalTests;
-
-namespace FunctionalTests
+﻿namespace FunctionalTests
 {
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Net.Http;
-    using System.Runtime.Versioning;
 
     using Functional.Helpers;
     using Functional.IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using PerfCounterCollector.FunctionalTests;
 
     [TestClass]
     public class Test45 : SingleWebHostTestBase
     {
-        private const int TimeoutInMs = 10000;
+        private const int TimeoutInMs = 15000;
         
         private const string TestWebApplicaionSourcePath = @"TestApps\TestApp45\App";
         private const string TestWebApplicaionDestPath = @"TestsPerformanceCollector45";

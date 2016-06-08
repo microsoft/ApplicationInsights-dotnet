@@ -13,7 +13,7 @@
     [TestClass]
     public class Test40 : SingleWebHostTestBase
     {
-        private const int TimeoutInMs = 10000;
+        private const int TimeoutInMs = 15000;
 
         private const string TestWebApplicaionSourcePath = @"TestApps\TestApp40\App";
         private const string TestWebApplicaionDestPath = @"TestsPerformanceCollector40";

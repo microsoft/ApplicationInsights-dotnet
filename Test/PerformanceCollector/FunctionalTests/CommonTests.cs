@@ -7,7 +7,7 @@
 
     public class CommonTests
     {
-        private const int TestListenerWaitTimeInMs = 30000;
+        private const int TestListenerWaitTimeInMs = 35000;
 
         public static void DefaultCounterCollection(HttpListenerObservable listener)
         {

@@ -156,7 +156,7 @@
 
         private void ValidateItems(string items)
         {
-            HttpClient client = new HttpClient();
+            HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
             var result = client.PostAsync(
                 "https://dc.services.visualstudio.com/v2/validate",
                 new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
