@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Net;
+    using System.Reflection;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -158,13 +159,9 @@
             {
                 AsyncTest.Run(async () =>
                 {
-                    var request = new StubWebRequest();
-                    request.OnBeginGetRequestStream = (callback, state) => TaskEx.Delay(TimeSpan.FromMilliseconds(10)).AsAsyncResult(callback, request);
-        
                     var transmission = new TestableTransmission();
-                    transmission.OnCreateRequest = uri => request;
-        
-                    Task dontWait = transmission.SendAsync();
+                    FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
+                    isSendingField.SetValue(transmission, 1, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, null);
                     await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
                 });
             }
