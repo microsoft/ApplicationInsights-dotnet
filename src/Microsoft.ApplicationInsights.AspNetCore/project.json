@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "Application Insights for ASP.NET Core Web Applications",
   "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
   "authors": [ "Microsoft" ],
@@ -19,15 +19,16 @@
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
   },
-  "dependencies": {
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-final",
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-final",
-    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc2-final",
-    "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-final",
-    "Microsoft.Extensions.Configuration": "1.0.0-rc2-final",
-    "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-final",
-    "Microsoft.ApplicationInsights": "2.1.0-beta4"
-  },
+    "dependencies": {
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-final",
+        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-final",
+        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc2-final",
+        "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-final",
+        "Microsoft.Extensions.Configuration": "1.0.0-rc2-final",
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-final",
+        "Microsoft.ApplicationInsights": "2.1.0-beta4",
+        "MicroBuild.Core": "0.2.0"
+    },
 
   "frameworks": {
     "net451": {
