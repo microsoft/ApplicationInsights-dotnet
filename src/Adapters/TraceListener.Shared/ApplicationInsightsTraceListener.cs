@@ -14,8 +14,8 @@ namespace Microsoft.ApplicationInsights.TraceListener
     using System.Linq;
 
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Implementation;
 
     /// <summary>
     /// Listener that routes all tracing and debugging output to ApplicationInsights logging framework.

@@ -16,8 +16,8 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Implementation;
 
     /// <summary>
     /// Log4Net Appender that routes all logging output to the Application Insights logging framework.
