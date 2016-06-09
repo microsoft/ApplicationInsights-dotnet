@@ -5,21 +5,18 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Microsoft.ApplicationInsights.Implementation;
-
 namespace Microsoft.ApplicationInsights.Log4NetAppender
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Reflection;
-
+    
     using log4net.Appender;
     using log4net.Core;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>

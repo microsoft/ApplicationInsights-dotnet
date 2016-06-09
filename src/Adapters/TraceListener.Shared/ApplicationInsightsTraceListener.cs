@@ -5,8 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Microsoft.ApplicationInsights.Implementation;
-
 namespace Microsoft.ApplicationInsights.TraceListener
 {
     using System;
@@ -14,9 +12,9 @@ namespace Microsoft.ApplicationInsights.TraceListener
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
 
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
