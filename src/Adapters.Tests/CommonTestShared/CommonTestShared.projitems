@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SdkVersionHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetrySender.cs" />
   </ItemGroup>
 </Project>

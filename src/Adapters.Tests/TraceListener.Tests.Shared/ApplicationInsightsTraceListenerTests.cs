@@ -95,13 +95,28 @@
 
             using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
             {
-                var expectedMessage = "A Message to write line";
-                listener.WriteLine(expectedMessage);
+                listener.WriteLine("A Message to write line");
 
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
 
                 string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTraceListener), prefix: "sd:");
                 Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("TraceListener")]
+        public void TelemetryIsAcceptedByValidateEndpoint()
+        {
+            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+
+            using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
+            {
+                listener.WriteLine("A Message to write line");
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+                Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
             }
         }
 
