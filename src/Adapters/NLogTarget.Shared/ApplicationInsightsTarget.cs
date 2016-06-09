@@ -88,14 +88,6 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             }
         }
 
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsTarget).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-        }
-
         private void SendException(LogEventInfo logEvent)
         {
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)

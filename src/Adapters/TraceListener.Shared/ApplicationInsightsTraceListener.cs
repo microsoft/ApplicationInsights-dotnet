@@ -179,14 +179,6 @@ namespace Microsoft.ApplicationInsights.TraceListener
             this.Write(message + Environment.NewLine);
         }
 
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsTraceListener).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-        }
-
         private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)
         {
             trace.SeverityLevel = this.GetSeverityLevel(eventType);

@@ -84,14 +84,6 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             }
         }
 
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsAppender).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-        }
-
         private static void AddLoggingEventProperty(string key, string value, IDictionary<string, string> metaData)
         {
             if (value != null)
