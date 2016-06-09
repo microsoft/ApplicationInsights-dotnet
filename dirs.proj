@@ -1,9 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
-		<Solution Include="ApplicationInsights.AspNet.sln" />
-	</ItemGroup>
-	<Target Name="Build">
-		<MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" ToolsVersion="14.0"/>
-	</Target>
+    <Import Project="Signing.props"/>
+
+    <PropertyGroup>
+        <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip</CliZipFile>
+        <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest</CliToolsPath>
+        <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\project.json</ProjectToBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />
+    </ItemGroup>
+
+    <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Address ParameterType="System.String" Required="true"/>
+            <FileName ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    new System.Net.WebClient().DownloadFile(Address, FileName);
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+    <UsingTask TaskName="ExtractZipArchive" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <InputFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <OutputPath ParameterType="System.String" Required="true" />
+            <ArchiveFileNameAsRootFolder ParameterType="System.Boolean" Required="false" />
+            <Overwrite ParameterType="System.Boolean" Required="false" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System" />
+            <Reference Include="System.IO.Compression" />
+            <Reference Include="System.IO.Compression.FileSystem" />
+
+            <Using Namespace="System.Diagnostics" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.IO.Compression" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    foreach (var inputFilePath in InputFiles.Select(f => f.ItemSpec))
+                    {
+                        using (ZipArchive archive = ZipFile.OpenRead(inputFilePath))
+                        {
+                            string inputFileName = Path.GetFileName(inputFilePath);
+                            if (true == ArchiveFileNameAsRootFolder && true == Overwrite)
+                            {
+                                DirectoryInfo archiveDirectory = new DirectoryInfo(Path.Combine(OutputPath, inputFileName));
+                                if (true == archiveDirectory.Exists)
+                                {
+                                    Log.LogMessage ("Archive root folder already exists, deleting path:{0}", archiveDirectory.FullName);
+                                    archiveDirectory.Delete(recursive: true);
+                                }
+                            }
+
+                            foreach (ZipArchiveEntry entry in archive.Entries)
+                            {
+                                string path = ArchiveFileNameAsRootFolder 
+                                    ? Path.Combine(OutputPath, inputFileName, entry.FullName)
+                                    : Path.Combine(OutputPath, entry.FullName);
+
+                                FileInfo fileInfo = new FileInfo(path);
+                                DirectoryInfo directoryInfo = new DirectoryInfo(fileInfo.DirectoryName);
+                                if (false == directoryInfo.Exists)
+                                {
+                                    Log.LogMessage ("Creating directory for archive entry, path:{0}", directoryInfo.FullName);
+                                    directoryInfo.Create();
+                                }
+
+                                Log.LogMessage("Extracting entry to path:{0}", path);
+                                entry.ExtractToFile(path, Overwrite);
+                            }
+                        }
+                    }
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="CheckBuildParameters">
+        <Message Importance="high" Text="ComputerName: $(ComputerName)"></Message>
+        <Message Importance="high" Text="User: $(USERDOMAIN)\$(USERNAME)"></Message>
+        <Message Importance="high" Text="RunningInMicroBuild: $(RunningInMicroBuild)"></Message>
+        <Message Importance="high" Text="CLI Zip: $(CliZipFile)"></Message>
+        <Message Importance="high" Text="CLI Tools Path: $(CliToolsPath)"></Message>
+    </Target>
+
+    <Target Name="DownloadCLI">
+        <DownloadFile Address="https://dotnetcli.blob.core.windows.net/dotnet/preview/Binaries/Latest/dotnet-dev-win-x64.latest.zip" FileName="$(CliZipFile)" />
+        <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true"/>
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+        <Exec Command='"$(CliToolsPath)\dotnet.exe" restore $(ProjectToBuild)' ContinueOnError="ErrorAndStop" />
+        <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
+    </Target>
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+        <RemoveDir Directories="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest" />
+        <Delete Files="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip" />
+    </Target>
+
+    <Target Name="AfterBuild" AfterTargets="Build" DependsOnTargets="Build">
+        <ItemGroup>
+            <FilesToSign Include="**\Microsoft.ApplicationInsights.AspNetCore.dll">
+                <Authenticode Condition="'%(FilesToSign.Authenticode)' == ''">Microsoft</Authenticode>
+                <StrongName Condition="'%(FilesToSign.StrongName)' == ''">MsSharedLib72</StrongName>
+            </FilesToSign>
+        </ItemGroup>
+        <Message Importance="high" Text="Files to sign:"></Message>
+        <Message Importance="high" Text="--> File:%(FilesToSign.FileName)%(FilesToSign.Extension)
+        --> BinariesDirectory:$([System.IO.Path]::GetDirectoryName(%(FilesToSign.FullPath))) --> Authenticode:%(FilesToSign.Authenticode)"></Message>
+    </Target>
+
+    <Target Name="PackageNuGet" AfterTargets="SignFiles" DependsOnTargets="AfterBuild;SignFiles">
+        <Exec Command='"$(CliToolsPath)\dotnet.exe" pack $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
+    </Target>
 </Project>
