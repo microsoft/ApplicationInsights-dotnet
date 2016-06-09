@@ -71,6 +71,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems" Label="Shared" Condition="Exists('..\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems')" />
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" Condition="Exists('..\CommonShared\CommonShared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

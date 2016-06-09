@@ -87,6 +87,7 @@
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="..\NLogTarget.Net40.Tests.SharedProject\NLogTarget.Net40.Tests.SharedProject.projitems" Label="Shared" Condition="Exists('..\NLogTarget.Net40.Tests.SharedProject\NLogTarget.Net40.Tests.SharedProject.projitems')" />
   <Import Project="..\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems" Label="Shared" Condition="Exists('..\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems')" />
+  <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

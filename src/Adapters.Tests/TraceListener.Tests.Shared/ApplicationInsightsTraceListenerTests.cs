@@ -1,20 +1,15 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="ApplicationInsightsTraceListenerTests.cs" company="Microsoft">
-// Copyright (c) Microsoft Corporation. 
-// All rights reserved.  2013
-// </copyright>
-// -----------------------------------------------------------------------
-
-using System;
-using System.Diagnostics;
-using System.Linq;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Tracing.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Microsoft.ApplicationInsights.TraceListener.Tests
+﻿namespace Microsoft.ApplicationInsights.TraceListener.Tests
 {
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using Microsoft.ApplicationInsights.CommonTestShared;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Tracing.Tests;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public sealed class ApplicationInsightsTraceListenerTests : IDisposable
     {
@@ -89,6 +84,24 @@ namespace Microsoft.ApplicationInsights.TraceListener.Tests
                 Assert.AreEqual(expectedMessage, telemetry.Message);
                 Assert.IsFalse(telemetry.Properties.ContainsKey("EventId"));
                 Assert.AreEqual(SeverityLevel.Verbose, telemetry.SeverityLevel);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("TraceListener")]
+        public void SdkVersionIsCorrect()
+        {
+            TelemetryConfiguration.Active.TelemetryChannel = this.adapterHelper.Channel;
+
+            using (var listener = new ApplicationInsightsTraceListener(Guid.NewGuid().ToString()))
+            {
+                var expectedMessage = "A Message to write line";
+                listener.WriteLine(expectedMessage);
+
+                TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+                string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTraceListener), prefix: "sd:");
+                Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
             }
         }
 
