@@ -94,7 +94,7 @@
         }
 
         /// <summary>
-        /// Gets and sets ExceptionTelemetry message.
+        /// Gets or sets ExceptionTelemetry message.
         /// </summary>
         public string Message
         {
