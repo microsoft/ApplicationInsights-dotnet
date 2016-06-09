@@ -1,4 +1,11 @@
-﻿namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
+﻿// -----------------------------------------------------------------------
+// <copyright file="ApplicationInsightsAppenderTests.cs" company="Microsoft">
+// Copyright (c) Microsoft Corporation. 
+// All rights reserved.  2013
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 {
     using System;
     using System.Collections.Generic;
