@@ -111,6 +111,56 @@
         }
 
         [TestMethod]
+        public void SerializeUsesExceptionMessageIfTelemetryMessageNotProvided()
+        {
+            ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, DataPlatformModel.ExceptionData>(original);
+
+            Assert.Equal("Test", item.Data.BaseData.Exceptions[0].Message);
+        }
+
+        [TestMethod]
+        public void SerializeTelemetryMessageAsOuterExceptionMessage()
+        {
+            ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
+            original.Message = "Custom";
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, DataPlatformModel.ExceptionData>(original);
+
+            Assert.Equal("Custom", item.Data.BaseData.Exceptions[0].Message);
+        }
+
+        [TestMethod]
+        public void SerializeUsesExceptionMessageForInnerExceptions()
+        {
+            Exception outerException = new ArgumentException("Outer", new Exception("Inner"));
+            ExceptionTelemetry original = CreateExceptionTelemetry(outerException);
+
+            original.Message = "Custom";
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, DataPlatformModel.ExceptionData>(original);
+
+            Assert.Equal("Custom", item.Data.BaseData.Exceptions[0].Message);
+            Assert.Equal("Inner", item.Data.BaseData.Exceptions[1].Message);
+        }
+
+        [TestMethod]
+        public void SerializeUsesExceptionMessageForInnerAggregateExceptions()
+        {
+            Exception innerException1 = new ArgumentException("Inner1");
+            Exception innerException2 = new ArgumentException("Inner2");
+
+            AggregateException aggregateException = new AggregateException("AggregateException", new [] {innerException1, innerException2});
+
+            ExceptionTelemetry original = CreateExceptionTelemetry(aggregateException);
+
+            original.Message = "Custom";
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, DataPlatformModel.ExceptionData>(original);
+
+            Assert.Equal("Custom", item.Data.BaseData.Exceptions[0].Message);
+            Assert.Equal("Inner1", item.Data.BaseData.Exceptions[1].Message);
+            Assert.Equal("Inner2", item.Data.BaseData.Exceptions[2].Message);
+        }
+
+        [TestMethod]
         public void SerializeWritesItemHandledAtAsExpectedByEndpoint()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();

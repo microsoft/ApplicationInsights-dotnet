@@ -2,6 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+
+## Version 2.2.0-beta1
+
+- Add ExceptionTelemetry.Message property. If it is provided it is used instead of Exception.Message property for the ounter-most exception. 
+
 ## Version 2.1.0-beta4
 - [Bug fix](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/76)
 

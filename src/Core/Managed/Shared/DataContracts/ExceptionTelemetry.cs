@@ -20,6 +20,7 @@
 
         private readonly TelemetryContext context;
         private Exception exception;
+        private string message;
 
         private double samplingPercentage = Constants.DefaultSamplingPercentage;
 
@@ -93,6 +94,31 @@
         }
 
         /// <summary>
+        /// Gets and sets ExceptionTelemetry message.
+        /// </summary>
+        public string Message
+        {
+            get
+            {
+                return this.message;
+            }
+
+            set
+            {
+                this.message = value;
+
+                if (this.Data.exceptions != null && this.Data.exceptions.Count > 0)
+                {
+                    this.Data.exceptions[0].message = value;
+                }
+                else
+                {
+                    this.UpdateExceptions(this.Exception);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a dictionary of application-defined exception metrics.
         /// </summary>
         public IDictionary<string, double> Metrics
@@ -141,7 +167,7 @@
             this.Metrics.SanitizeMeasurements();
         }
 
-        private static void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
+        private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
         {
             if (exception == null)
             {
@@ -149,6 +175,13 @@
             }
 
             ExceptionDetails exceptionDetails = PlatformSingleton.Current.GetExceptionDetails(exception, parentExceptionDetails);
+
+            // For upper level exception see if Message was provided and do not use exceptiom.message in that case
+            if (parentExceptionDetails == null && !string.IsNullOrWhiteSpace(this.Message))
+            {
+                exceptionDetails.message = this.Message;
+            }
+
             exceptions.Add(exceptionDetails);
 
             AggregateException aggregate = exception as AggregateException;
@@ -156,12 +189,12 @@
             {
                 foreach (Exception inner in aggregate.InnerExceptions)
                 {
-                    ExceptionTelemetry.ConvertExceptionTree(inner, exceptionDetails, exceptions);
+                    this.ConvertExceptionTree(inner, exceptionDetails, exceptions);
                 }
             }
             else if (exception.InnerException != null)
             {
-                ExceptionTelemetry.ConvertExceptionTree(exception.InnerException, exceptionDetails, exceptions);
+                this.ConvertExceptionTree(exception.InnerException, exceptionDetails, exceptions);
             }
         }
 
@@ -169,7 +202,7 @@
         {
             // collect the set of exceptions detail info from the passed in exception
             List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
-            ExceptionTelemetry.ConvertExceptionTree(exception, null, exceptions);
+            this.ConvertExceptionTree(exception, null, exceptions);
 
             // trim if we have too many, also add a custom exception to let the user know we're trimed
             if (exceptions.Count > Constants.MaxExceptionCountToSave)
