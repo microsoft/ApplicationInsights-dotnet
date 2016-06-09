@@ -1,7 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.NLogTarget.Tests
 {
+    using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.NLogTarget;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -108,6 +110,20 @@
             string loggerName;
             telemetry.Properties.TryGetValue("LoggerName", out loggerName);
             Assert.AreEqual("AITarget", loggerName);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void SdkVersionIsCorrect()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTarget), prefix: "nlog:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
 
         [TestMethod]

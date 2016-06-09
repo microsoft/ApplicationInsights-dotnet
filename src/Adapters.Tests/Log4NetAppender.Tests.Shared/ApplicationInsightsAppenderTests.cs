@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="ApplicationInsightsAppenderTests.cs" company="Microsoft">
-// Copyright (c) Microsoft Corporation. 
-// All rights reserved.  2013
-// </copyright>
-// -----------------------------------------------------------------------
-
-namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
+﻿namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -18,8 +11,10 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
     using log4net.Util;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Log4NetAppender;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -64,6 +59,22 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             this.VerifyInitializationSuccess(
                     () => ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey)),
                     instrumentationKey);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void SdkVersionIsCorrect()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+            Assert.AreNotEqual(default(DateTimeOffset), telemetry.Context);
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsAppender), prefix: "log4net:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
         
         [TestMethod]

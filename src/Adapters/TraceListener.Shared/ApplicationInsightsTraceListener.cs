@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Microsoft.ApplicationInsights.Implementation;
+
 namespace Microsoft.ApplicationInsights.TraceListener
 {
     using System;
@@ -46,7 +48,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
-            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD:" + GetAssemblyVersion();
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("sd:");
         }
 
         internal TelemetryClient TelemetryClient { get; set; }

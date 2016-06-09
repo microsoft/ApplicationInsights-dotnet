@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Microsoft.ApplicationInsights.Implementation;
+
 namespace Microsoft.ApplicationInsights.Log4NetAppender
 {
     using System;
@@ -63,7 +65,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = "Log4Net:" + GetAssemblyVersion();
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("log4net:");
         }
 
         /// <summary>

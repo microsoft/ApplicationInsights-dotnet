@@ -16,7 +16,8 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    
+    using Microsoft.ApplicationInsights.Implementation;
+
     using NLog;
     using NLog.Targets;
       
@@ -63,7 +64,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = "NLog:" + GetAssemblyVersion();
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
         }
 
         /// <summary>
