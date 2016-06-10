@@ -24,11 +24,7 @@ namespace MVCFramework45.FunctionalTests
             // Set up configuration sources.
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile(source =>
-                {
-                    source.Path = "appsettings.json";
-                    source.ReloadOnChange = true;
-                })
+                .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
             if (env.IsDevelopment())

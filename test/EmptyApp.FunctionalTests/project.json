@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-rc1",
   "webroot": "wwwroot",
   "buildOptions": {
@@ -7,11 +7,11 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
-    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc2-final",
     "FunctionalTestUtils": { "target": "project" },
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "dotnet-test-xunit": "1.0.0-rc2-187791-49",
-    "xunit": "2.1.0"
+    "xunit": "2.1.0",
+    "dotnet-test-xunit": "1.0.0-rc3-*",
+    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc3-21329",
+    "Microsoft.NETCore.Platforms": "1.0.1-rc3-24206-00"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -19,19 +19,21 @@
       "imports": [
         "dnxcore50",
         "dotnet5.4",
-        "portable-net451+win8"
+        "portable-net451+win8",
+        "portable-dnxcore50+net45+win8+wp8+wpa81"
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0-*"
+          "version": "1.0.0-rc3-004408"
         }
       }
     },
     "net451": {
-      "dependencies": {
-        "Moq": "4.2.1312.1622"
-      }
+        "dependencies": {
+            "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc3-21329",
+            "Moq": "4.2.1312.1622"
+        }
     }
   }
 }

@@ -2,7 +2,7 @@
   "title": "Application Insights for ASP.NET Core Web Applications",
   "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
   "authors": [ "Microsoft" ],
-  "version": "1.0.0-rc2-final",
+  "version": "1.0.0-rc3-final",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
   "packOptions": {
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
@@ -20,14 +20,13 @@
     "delaySign": true
   },
     "dependencies": {
-        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-final",
-        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-final",
-        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc2-final",
-        "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc2-final",
-        "Microsoft.Extensions.Configuration": "1.0.0-rc2-final",
-        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc2-final",
         "Microsoft.ApplicationInsights": "2.1.0-beta4",
-        "MicroBuild.Core": "0.2.0"
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc3-21329",
+        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc3-21329",
+        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc3-21329",
+        "Microsoft.Extensions.Configuration": "1.0.0-rc3-21329",
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc3-21329",
+        "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc3-21329"
     },
 
   "frameworks": {
@@ -38,13 +37,15 @@
         "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.1.0-beta4"
       }
     },
-    "netstandard1.5": {
+    "netstandard1.6": {
       "imports": [
         "dotnet5.4",
-        "portable-net451+win8"
+        "dnxcore50",
+        "portable-net451+win8",
+        "portable-dnxcore50+net45+win8+wp8+wpa81"
       ],
       "dependencies": {
-        "System.Net.NameResolution": "4.0.0-rc2-24027"
+        "System.Net.NameResolution": "4.0.0-rc3-24206-00"
       }
     }
   }
