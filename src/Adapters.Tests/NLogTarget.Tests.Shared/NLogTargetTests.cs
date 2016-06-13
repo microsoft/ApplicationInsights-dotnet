@@ -232,8 +232,27 @@
                 aiLogger.Debug(exception, "testing exception scenario");
             }
 
-            var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
             Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            
+            try
+            {
+                throw new Exception("Test logging exception");
+            }
+            catch (Exception exception)
+            {
+                aiLogger.Debug(exception, "custom message");
+            }
+
+            ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
         }
 
         [TestMethod]

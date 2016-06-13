@@ -93,6 +93,9 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 SeverityLevel = this.GetSeverityLevel(logEvent.Level)
             };
 
+            string logMessage = this.Layout.Render(logEvent);
+            exceptionTelemetry.Properties.Add("Message", logMessage);
+
             this.BuildPropertyBag(logEvent, exceptionTelemetry);
             this.telemetryClient.Track(exceptionTelemetry);
         }

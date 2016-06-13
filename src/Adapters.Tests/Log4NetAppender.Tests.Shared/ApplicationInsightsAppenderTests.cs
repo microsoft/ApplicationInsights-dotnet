@@ -297,6 +297,25 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
         }
 
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
+        {
+            ILog logger = this.appendableLogger.Logger;
+
+            try
+            {
+                throw new Exception("Test logging exception");
+            }
+            catch (Exception exception)
+            {
+                logger.Error("custom message", exception);
+            }
+
+            ExceptionTelemetry telemetry = (ExceptionTelemetry)this.appendableLogger.SentItems.First();
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
+        }
+
         internal static void InitializeLog4NetAIAdapter(string adapterComponentIdSnippet)
         {
             string xmlRawText =
