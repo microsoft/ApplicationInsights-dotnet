@@ -10,6 +10,9 @@
     using System.Net;
     using System.Reflection;
     using System.Threading;
+#if !NET40
+    using System.Web;
+#endif
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -22,7 +25,6 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
@@ -119,7 +121,7 @@
         /// </summary>
         [TestMethod]
         [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for WebException.")]
-        [Owner("cithomas")]
+        [Owner("mafletch")]
         [TestCategory("CVT")]
         public void RddTestHttpProcessingProfilerOnWebExceptionForGetResponse()
         {
@@ -127,7 +129,7 @@
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.NotFound);
-            Exception exc = new WebException("myex", null, WebExceptionStatus.ProtocolError, returnObjectPassed);
+            Exception exc = new WebException("exception message", null, WebExceptionStatus.ProtocolError, returnObjectPassed);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
 
@@ -135,6 +137,27 @@
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
         }
 
+#if !NET40
+        /// <summary>
+        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.")]
+        [Owner("mafletch")]
+        [TestCategory("CVT")]
+        public void RddTestHttpProcessingProfilerOnHttpExceptionForGetResponse()
+        {
+            var request = WebRequest.Create(this.testUrl);
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            Exception exc = new HttpException(404, "exception message");
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+        }
+#endif
         /// <summary>
         /// Validates HttpProcessingProfiler OnBegin logs error into EventLog when passed invalid thisObject.
         /// </summary>
