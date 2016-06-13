@@ -80,7 +80,7 @@
         /// <param name="exception">The exception object.</param>
         /// <param name="thisObj">This object.</param>        
         public void OnExceptionForGetResponse(object context, object exception, object thisObj)
-        {            
+        {
             this.OnEnd(exception, thisObj, null);
         }
         
@@ -301,8 +301,15 @@
                 {
                     this.TelemetryTable.Remove(thisObj);
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
-                    
+
                     var responseObj = returnValue as HttpWebResponse;
+
+                    var webException = exception as WebException;
+
+                    if (webException != null)
+                    {
+                        responseObj = webException.Response as HttpWebResponse;
+                    }
 
                     int statusCode = -1;
                     if (responseObj != null)

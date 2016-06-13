@@ -115,6 +115,27 @@
         }
 
         /// <summary>
+        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for WebException.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for WebException.")]
+        [Owner("cithomas")]
+        [TestCategory("CVT")]
+        public void RddTestHttpProcessingProfilerOnWebExceptionForGetResponse()
+        {
+            var request = WebRequest.Create(this.testUrl);
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.NotFound);
+            Exception exc = new WebException("myex", null, WebExceptionStatus.ProtocolError, returnObjectPassed);
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+        }
+
+        /// <summary>
         /// Validates HttpProcessingProfiler OnBegin logs error into EventLog when passed invalid thisObject.
         /// </summary>
         [TestMethod]
