@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 #if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
@@ -12,12 +13,12 @@
 
     internal class TestEventListener : EventListener
     {
-        private readonly Queue<EventWrittenEventArgs> events;
+        private readonly ConcurrentQueue<EventWrittenEventArgs> events;
         private readonly AutoResetEvent eventWritten;
 
         public TestEventListener()
         {
-            this.events = new Queue<EventWrittenEventArgs>();
+            this.events = new ConcurrentQueue<EventWrittenEventArgs>();
             this.eventWritten = new AutoResetEvent(false);
             this.OnOnEventWritten = e =>
             {
@@ -40,8 +41,16 @@
                 }
 
                 while (this.events.Count != 0)
-                { 
-                    yield return this.events.Dequeue();
+                {
+                    EventWrittenEventArgs nextEvent;
+                    if (this.events.TryDequeue(out nextEvent))
+                    {
+                        yield return nextEvent;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
             }
         }

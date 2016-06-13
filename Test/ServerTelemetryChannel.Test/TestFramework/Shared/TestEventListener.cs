@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
 #if NET45
@@ -13,14 +14,15 @@
 
     internal class TestEventListener : EventListener
     {
-        private readonly IList<EventWrittenEventArgs> events;
+        private readonly ConcurrentQueue<EventWrittenEventArgs> events;
         
         public TestEventListener()
         {
-            this.events = new List<EventWrittenEventArgs>();
+            this.events = new ConcurrentQueue<EventWrittenEventArgs>();
+
             this.OnOnEventWritten = e =>
             {
-                this.events.Add(e);
+                this.events.Enqueue(e);
             };
         }
 
@@ -28,12 +30,9 @@
 
         public Action<EventWrittenEventArgs> OnOnEventWritten { get; set; }
 
-        public IList<EventWrittenEventArgs> Messages
+        public IEnumerable<EventWrittenEventArgs> Messages
         {
-            get
-            {
-                return this.events;               
-            }
+            get { return this.events; }
         }
         
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
