@@ -83,7 +83,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
 
         private static void AddLoggingEventProperty(string key, string value, IDictionary<string, string> metaData)
         {
-            if (value != null)
+            if (value != null && !metaData.ContainsKey(key))
             {
                 metaData.Add(key, value);
             }
@@ -97,6 +97,17 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 {
                     SeverityLevel = this.GetSeverityLevel(loggingEvent.Level)
                 };
+
+                string message = null;
+                if (loggingEvent.RenderedMessage != null)
+                {
+                    message = this.RenderLoggingEvent(loggingEvent);
+                }
+
+                if (!string.IsNullOrEmpty(message))
+                {
+                    exceptionTelemetry.Properties.Add("Message", message);
+                }
 
                 this.BuildCustomProperties(loggingEvent, exceptionTelemetry);
                 this.telemetryClient.Track(exceptionTelemetry);
