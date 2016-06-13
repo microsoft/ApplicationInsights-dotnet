@@ -128,6 +128,19 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+        public void TelemetryIsAcceptedByValidateEndpoint()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+            Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
         public void TraceHasTimestamp()
         {
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();

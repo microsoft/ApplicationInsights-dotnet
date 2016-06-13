@@ -153,6 +153,17 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
         [TestMethod]
         [TestCategory("Log4NetAppender")]
+        public void TelemetryIsAcceptedByValidateEndpoint()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            ITelemetry telemetry = this.appendableLogger.SentItems.First();
+
+            Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
         public void Log4NetSetsUser()
         {
             this.appendableLogger.Logger.Debug("Trace Debug");
