@@ -3,6 +3,9 @@
     using System;
     using System.Globalization;
     using System.Net;
+#if !NET40
+    using System.Web;
+#endif
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -68,7 +71,7 @@
         /// <param name="thisObj">This object.</param>
         /// <returns>The resulting return value.</returns>
         public object OnEndForGetResponse(object context, object returnValue, object thisObj)
-        {            
+        {
             this.OnEnd(null, thisObj, returnValue);
             return returnValue;
         }
@@ -80,7 +83,7 @@
         /// <param name="exception">The exception object.</param>
         /// <param name="thisObj">This object.</param>        
         public void OnExceptionForGetResponse(object context, object exception, object thisObj)
-        {            
+        {
             this.OnEnd(exception, thisObj, null);
         }
         
@@ -172,7 +175,7 @@
             this.OnEnd(exception, thisObj, null);
         }
 
-        #endregion // Http callbacks
+#endregion // Http callbacks
 
         /// <summary>
         /// Gets HTTP request url.
@@ -301,10 +304,32 @@
                 {
                     this.TelemetryTable.Remove(thisObj);
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
-                    
-                    var responseObj = returnValue as HttpWebResponse;
 
                     int statusCode = -1;
+
+                    var responseObj = returnValue as HttpWebResponse;
+
+                    if (responseObj == null && exception != null)
+                    {
+                        var webException = exception as WebException;
+
+                        if (webException != null)
+                        {
+                            responseObj = webException.Response as HttpWebResponse;
+                        }
+#if !NET40
+                        if (responseObj == null)
+                        {
+                            var httpException = exception as HttpException;
+
+                            if (httpException != null)
+                            {
+                                statusCode = httpException.GetHttpCode();
+                            }
+                        }
+#endif
+                    }
+
                     if (responseObj != null)
                     {
                         try
