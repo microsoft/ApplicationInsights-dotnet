@@ -309,7 +309,7 @@
 
                     var responseObj = returnValue as HttpWebResponse;
 
-                    if (responseObj == null)
+                    if (responseObj == null && exception != null)
                     {
                         var webException = exception as WebException;
 
