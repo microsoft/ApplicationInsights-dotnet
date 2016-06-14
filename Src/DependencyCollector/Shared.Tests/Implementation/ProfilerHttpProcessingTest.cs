@@ -29,7 +29,7 @@
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
         #region Fields
-        private const int TimeAccuracyMilliseconds = 50; // this may be big number when under debugger
+        private const int TimeAccuracyMilliseconds = 110; // this may be big number when under debugger
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private List<ITelemetry> sendItems;
