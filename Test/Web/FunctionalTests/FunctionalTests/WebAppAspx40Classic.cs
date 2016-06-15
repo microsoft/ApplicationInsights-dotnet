@@ -78,6 +78,7 @@ namespace Functional
 
             var requestStartTime = DateTimeOffset.UtcNow;
 
+            this.HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MyAgent/1.0");
             var responseTask = this.HttpClient.GetAsync(RequestPath);
 
             Assert.IsTrue(
