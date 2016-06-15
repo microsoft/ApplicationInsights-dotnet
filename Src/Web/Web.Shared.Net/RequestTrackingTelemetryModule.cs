@@ -107,6 +107,12 @@
                 requestTelemetry.HttpMethod = platformContext.Request.HttpMethod;
             }
 
+            // Temporarily put UserAgent string back. We will remove it in 2.2-beta2 again
+            if (string.IsNullOrEmpty(requestTelemetry.Context.User.UserAgent))
+            {
+                requestTelemetry.Context.User.UserAgent = platformContext.Request.UserAgent;
+            }
+
             this.telemetryClient.TrackRequest(requestTelemetry);
         }
 
