@@ -4,6 +4,7 @@
 
 - ResultCode for successful Sql calls will be collected as 0 (before it was not sent).
 - Fixed ResultCode sometimes not being collected for failed dependencies
+- RequestTelemetry.UserAgent is collected automatically. 
 
 ## Version 2.1.0-beta4
 
