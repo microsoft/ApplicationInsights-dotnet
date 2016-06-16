@@ -32,7 +32,7 @@
     "net451": {
         "dependencies": {
             "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc3-21329",
-            "Moq": "4.2.1312.1622"
+            "Moq": "4.5.9"
         }
     }
   }

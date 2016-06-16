@@ -20,7 +20,7 @@
     "delaySign": true
   },
     "dependencies": {
-        "Microsoft.ApplicationInsights": "2.1.0-beta4",
+        "Microsoft.ApplicationInsights": "2.1.0",
         "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc3-21329",
         "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc3-21329",
         "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc3-21329",
@@ -32,17 +32,15 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "Microsoft.ApplicationInsights.PerfCounterCollector": "2.1.0-beta4",
-        "Microsoft.ApplicationInsights.DependencyCollector": "2.1.0-beta4",
-        "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.1.0-beta4"
+        "Microsoft.ApplicationInsights.DependencyCollector": "2.1.0",
+        "Microsoft.ApplicationInsights.PerfCounterCollector": "2.1.0",
+        "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.1.0"
       }
     },
     "netstandard1.6": {
       "imports": [
-        "dotnet5.4",
-        "dnxcore50",
-        "portable-net451+win8",
-        "portable-dnxcore50+net45+win8+wp8+wpa81"
+        "dotnet5.6",
+        "portable-dnxcore50+net451+net45+win8+wp8+wpa81"
       ],
       "dependencies": {
         "System.Net.NameResolution": "4.0.0-rc3-24206-00"

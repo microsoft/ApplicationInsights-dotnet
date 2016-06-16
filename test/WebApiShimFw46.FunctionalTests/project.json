@@ -38,7 +38,8 @@
     },
     "net451": {
       "dependencies": {
-        "Moq":"4.2.1312.1622"
+        "Microsoft.AspNet.WebApi.Client": "5.2.3",
+        "Moq": "4.5.9"
       }
     }
   }
