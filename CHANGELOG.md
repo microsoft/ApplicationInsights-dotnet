@@ -5,7 +5,8 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.2.0-beta1
 
-- Add ExceptionTelemetry.Message property. If it is provided it is used instead of Exception.Message property for the ounter-most exception. 
+- Add ExceptionTelemetry.Message property. If it is provided it is used instead of Exception.Message property for the ounter-most exception.
+- Telemetry types can be exluded from sampling by specifing ExcludedTypes property. 
 
 ## Version 2.1.0-beta4
 - [Bug fix](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/76)
