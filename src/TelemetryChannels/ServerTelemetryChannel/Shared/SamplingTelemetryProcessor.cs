@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading;
     using Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -13,6 +15,19 @@
     /// </summary>
     public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
     {
+        private const string DependencyTelemetryName = "Dependency";
+        private const string EventTelemetryName = "Event";
+        private const string ExceptionTelemetryName = "Exception";
+        private const string PageViewTelemetryName = "PageView";
+        private const string RequestTelemetryName = "Request";
+        private const string TraceTelemetryName = "Trace";
+
+        private readonly char[] listSeparators = { ';' };
+
+        private HashSet<Type> excludedTypesHashSet;
+
+        private string excludedTypesString;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingTelemetryProcessor"/> class.
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
@@ -26,8 +41,71 @@
 
             this.SamplingPercentage = 100.0;
             this.Next = next;
+            this.excludedTypesHashSet = new HashSet<Type>();
         }
-        
+
+        /// <summary>
+        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled.
+        /// </summary>
+        public string ExcludedTypes
+        {
+            get
+            {
+                return this.excludedTypesString;
+            }
+
+            set
+            {
+                this.excludedTypesString = value;
+
+                HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string item in splitList)
+                    {
+                        if (string.Compare(item, DependencyTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(DependencyTelemetry));
+                            continue;
+                        }
+
+                        if (string.Compare(item, EventTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(EventTelemetry));
+                            continue;
+                        }
+
+                        if (string.Compare(item, ExceptionTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(ExceptionTelemetry));
+                            continue;
+                        }
+
+                        if (string.Compare(item, PageViewTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(PageViewTelemetry));
+                            continue;
+                        }
+
+                        if (string.Compare(item, RequestTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(RequestTelemetry));
+                            continue;
+                        }
+
+                        if (string.Compare(item, TraceTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            newExcludedTypesHashSet.Add(typeof(TraceTelemetry));
+                            continue;
+                        }
+                    }
+                }
+
+                Interlocked.Exchange(ref this.excludedTypesHashSet, newExcludedTypesHashSet);
+            }
+        }
+
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100) for all <see cref="ITelemetry"/>
         /// objects logged in this <see cref="TelemetryClient"/>.
@@ -51,23 +129,34 @@
         {
             if (this.SamplingPercentage < 100.0 - 1.0E-12)
             {
-                // set sampling percentage on telemetry item, current codebase assumes it is the only one updating SamplingPercentage.
                 var samplingSupportingTelemetry = item as ISupportSampling;
 
                 if (samplingSupportingTelemetry != null)
                 {
-                    samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
-                }
-
-                if (!this.IsSampledIn(item))
-                {
-                    if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                    var excludedTypesHashSetRef = this.excludedTypesHashSet;
+                    if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(item.GetType()))
                     {
-                        TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                        {
+                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
+                        }
                     }
+                    else
+                    {
+                        // set sampling percentage on telemetry item, current codebase assumes it is the only one updating SamplingPercentage.
+                        samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
 
-                    TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
-                    return;
+                        if (!this.IsSampledIn(item))
+                        {
+                            if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                            {
+                                TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                            }
+
+                            TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
+                            return;
+                        }
+                    }
                 }
             }
 

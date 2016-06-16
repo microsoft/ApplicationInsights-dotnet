@@ -30,6 +30,12 @@
             }
         }
 
+        [Event(3, Message = "Sampling skipped: {0}.", Level = EventLevel.Verbose)]
+        public void SamplingSkippedByType(string telemetryType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(3, telemetryType ?? string.Empty, this.ApplicationName);
+        }
+
         [Event(4, Message = "Backoff interval in seconds {0}.", Level = EventLevel.Verbose)]
         public void BackoffInterval(double intervalInSec, string appDomainName = "Incorrect")
         {

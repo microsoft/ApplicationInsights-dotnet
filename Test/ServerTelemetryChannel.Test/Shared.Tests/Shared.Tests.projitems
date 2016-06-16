@@ -35,6 +35,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGeneratorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBufferTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryChannelEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryProcessorChainBuilderExtensionsTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetrySerializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ThrottlingTransmissionPolicyTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionBufferTest.cs" />
