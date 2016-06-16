@@ -39,6 +39,11 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseSampling(this TelemetryProcessorChainBuilder builder, double samplingPercentage, string excludedTypes)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
             return builder.Use(next => new SamplingTelemetryProcessor(next)
             {
                 SamplingPercentage = samplingPercentage,
@@ -53,6 +58,11 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next));
         }
 
@@ -64,6 +74,11 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder, string excludedTypes)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next) { ExcludedTypes = excludedTypes });
         }
 
@@ -75,6 +90,11 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder, double maxTelemetryItemsPerSecond)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next) { MaxTelemetryItemsPerSecond = maxTelemetryItemsPerSecond });
         }
 
@@ -87,6 +107,11 @@
         /// <return>Instance of <see cref="TelemetryProcessorChainBuilder"/>.</return>
         public static TelemetryProcessorChainBuilder UseAdaptiveSampling(this TelemetryProcessorChainBuilder builder, double maxTelemetryItemsPerSecond, string excludedTypes)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(next)
             {
                 MaxTelemetryItemsPerSecond = maxTelemetryItemsPerSecond,
@@ -106,6 +131,16 @@
             SamplingPercentageEstimatorSettings settings,
             AdaptiveSamplingPercentageEvaluatedCallback callback)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(settings, callback, next) { InitialSamplingPercentage = 100.0 / settings.EffectiveInitialSamplingRate });
         }
 
@@ -123,6 +158,16 @@
             AdaptiveSamplingPercentageEvaluatedCallback callback, 
             string excludedTypes)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException("builder");
+            }
+
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
             return builder.Use(next => new AdaptiveSamplingTelemetryProcessor(settings, callback, next)
             {
                 InitialSamplingPercentage = 100.0 / settings.EffectiveInitialSamplingRate,
