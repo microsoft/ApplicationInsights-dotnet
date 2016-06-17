@@ -30,6 +30,12 @@
         }
 
         [TestMethod]
+        public void UseSamplingWithExcluedTypesParameterThrowsArgumentNullExceptionBuilderIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseSampling(null, 5, "request"));
+        }
+
+        [TestMethod]
         public void UseSamplingSetsAddsSamplingProcessorToTheChainWithCorrectExcludedTypes()
         {
             var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
@@ -56,6 +62,12 @@
             channelBuilder.Build();
 
             Assert.IsType<AdaptiveSamplingTelemetryProcessor>(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
+        }
+
+        [TestMethod]
+        public void UseAdaptiveSamplingWithExcludedTypesThrowsArgumentNullExceptionBuilderIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, "request"));
         }
 
         [TestMethod]
