@@ -7,6 +7,9 @@
     /// </summary>
     public class JavaScriptSnippet
     {
+        /// <summary>JavaScript snippet.</summary>
+        private static readonly string Snippet = Resources.JavaScriptSnippet;
+
         /// <summary>Configuration instance.</summary>
         private TelemetryConfiguration telemetryConfiguration;
 
@@ -29,7 +32,7 @@
             {
                 if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                 {
-                    return string.Format(Resources.JavaScriptSnippet, this.telemetryConfiguration.InstrumentationKey);
+                    return string.Format(Snippet, this.telemetryConfiguration.InstrumentationKey);
                 }
                 else
                 {

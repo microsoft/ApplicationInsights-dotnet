@@ -43,7 +43,7 @@
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static void AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
             var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
 
@@ -85,6 +85,8 @@
                 var rt = new RequestTelemetry();
                 return rt;
             });
+            
+            return services;
         }
 
         public static IConfigurationBuilder AddApplicationInsightsSettings(
