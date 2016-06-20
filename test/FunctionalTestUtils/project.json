@@ -10,9 +10,9 @@
         "target": "project"
     },
     "dotnet-test-xunit": "1.0.0-rc3-*",
-    "Microsoft.AspNetCore.Hosting": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0-rc3-21329"
+    "Microsoft.AspNetCore.Hosting": "1.0.0",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0"
   },
   "testRunner": "xunit",
   "frameworks": {

@@ -12,14 +12,14 @@
     "xunit": "2.1.0",
     "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "dotnet-test-xunit": "1.0.0-rc3-*",
-    "Microsoft.AspNetCore.Hosting": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Http": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Http.Extensions": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Http.Features": "1.0.0-rc3-21329",
-    "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc3-21329",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc3-21329",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc3-21329",
-    "Microsoft.Extensions.Logging": "1.0.0-rc3-21329"
+    "Microsoft.AspNetCore.Hosting": "1.0.0",
+    "Microsoft.AspNetCore.Http": "1.0.0",
+    "Microsoft.AspNetCore.Http.Extensions": "1.0.0",
+    "Microsoft.AspNetCore.Http.Features": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.Core": "1.0.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.0.0"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -27,8 +27,7 @@
       "imports": [
         "dnxcore50",
         "dotnet5.4",
-        "portable-net451+win8",
-        "portable-dnxcore50+net45+win8+wp8+wpa81"
+        "portable-net451+win8"
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {

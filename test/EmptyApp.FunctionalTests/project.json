@@ -1,5 +1,5 @@
 ﻿{
-  "version": "1.0.0-rc1",
+  "version": "1.0.0",
   "webroot": "wwwroot",
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
@@ -10,7 +10,7 @@
     "FunctionalTestUtils": { "target": "project" },
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc3-*",
-    "Microsoft.AspNetCore.Diagnostics": "1.0.0-rc3-21329",
+    "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.NETCore.Platforms": "1.0.1"
   },
   "testRunner": "xunit",
@@ -19,8 +19,7 @@
       "imports": [
         "dnxcore50",
         "dotnet5.4",
-        "portable-net451+win8",
-        "portable-dnxcore50+net45+win8+wp8+wpa81"
+        "portable-net451+win8"
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
@@ -31,7 +30,7 @@
     },
     "net451": {
         "dependencies": {
-            "Microsoft.AspNetCore.Mvc.Core": "1.0.0-rc3-21329",
+            "Microsoft.AspNetCore.Mvc.Core": "1.0.0",
             "Moq": "4.5.9"
         }
     }

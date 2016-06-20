@@ -2,7 +2,7 @@
   "title": "Application Insights for ASP.NET Core Web Applications",
   "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
   "authors": [ "Microsoft" ],
-  "version": "1.0.0-rc3-final",
+  "version": "1.0.0",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
   "packOptions": {
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
@@ -21,12 +21,12 @@
   },
     "dependencies": {
         "Microsoft.ApplicationInsights": "2.1.0",
-        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc3-21329",
-        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc3-21329",
-        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0-rc3-21329",
-        "Microsoft.Extensions.Configuration": "1.0.0-rc3-21329",
-        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0-rc3-21329",
-        "Microsoft.Extensions.Logging.Abstractions": "1.0.0-rc3-21329"
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
+        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0",
+        "Microsoft.Extensions.Configuration": "1.0.0",
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
+        "Microsoft.Extensions.Logging.Abstractions": "1.0.0"
     },
 
   "frameworks": {
@@ -43,7 +43,7 @@
         "portable-dnxcore50+net451+net45+win8+wp8+wpa81"
       ],
       "dependencies": {
-        "System.Net.NameResolution": "4.0.0-rc3-24206-00"
+        "System.Net.NameResolution": "4.0.0"
       }
     }
   }
