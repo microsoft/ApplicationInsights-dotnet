@@ -1,15 +1,26 @@
 ﻿{
     "webroot": "wwwroot",
-    "version": "1.0.0-*",
+    "version": "1.0.0",
     "dependencies": {
-        "Microsoft.AspNet.Server.IIS": "1.0.0-*",
-        "Microsoft.AspNet.Mvc": "6.0.0-*",
-        "Microsoft.ApplicationInsights.AspNetCore": "1.0.0-*",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-*"
+        "Microsoft.AspNetCore.Mvc": "1.0.0",
+        "Microsoft.ApplicationInsights.AspNetCore": "1.0.0",
+        "Microsoft.Extensions.Configuration.Json": "1.0.0"
     },
     "frameworks": {
-        "net451": { },
-        "aspnetcore1.5": { }
+        "net461": { },
+        "netcoreapp1.0": {
+            "imports": [
+                "dnxcore50",
+                "dotnet5.6",
+                "portable-net451+win8"
+            ],
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.0"
+                }
+            }
+        }
     },
     "bundleExclude": [
         "node_modules",

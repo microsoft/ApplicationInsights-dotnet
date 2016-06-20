@@ -19,15 +19,15 @@
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true
   },
-    "dependencies": {
-        "Microsoft.ApplicationInsights": "2.1.0",
-        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
-        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0",
-        "Microsoft.Extensions.Configuration": "1.0.0",
-        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
-        "Microsoft.Extensions.Logging.Abstractions": "1.0.0"
-    },
+  "dependencies": {
+    "Microsoft.ApplicationInsights": "2.1.0",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0",
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0"
+  },
 
   "frameworks": {
     "net451": {
