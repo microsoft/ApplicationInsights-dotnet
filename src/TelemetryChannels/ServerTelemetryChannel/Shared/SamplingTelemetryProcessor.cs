@@ -23,6 +23,7 @@
         private const string TraceTelemetryName = "Trace";
 
         private readonly char[] listSeparators = { ';' };
+        private readonly IDictionary<string, Type> allowedTypes;
 
         private HashSet<Type> excludedTypesHashSet;
 
@@ -42,6 +43,15 @@
             this.SamplingPercentage = 100.0;
             this.Next = next;
             this.excludedTypesHashSet = new HashSet<Type>();
+            this.allowedTypes = new Dictionary<string, Type> (6, StringComparer.OrdinalIgnoreCase)
+            {
+                { DependencyTelemetryName, typeof (DependencyTelemetry) },
+                { EventTelemetryName, typeof (EventTelemetry) },
+                { ExceptionTelemetryName, typeof (ExceptionTelemetry) },
+                { PageViewTelemetryName, typeof (PageViewTelemetry) },
+                { RequestTelemetryName, typeof (RequestTelemetry) },
+                { TraceTelemetryName, typeof (TraceTelemetry) },
+            };
         }
 
         /// <summary>
@@ -64,40 +74,9 @@
                     string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string item in splitList)
                     {
-                        if (string.Compare(item, DependencyTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
+                        if (this.allowedTypes.ContainsKey(item))
                         {
-                            newExcludedTypesHashSet.Add(typeof(DependencyTelemetry));
-                            continue;
-                        }
-
-                        if (string.Compare(item, EventTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            newExcludedTypesHashSet.Add(typeof(EventTelemetry));
-                            continue;
-                        }
-
-                        if (string.Compare(item, ExceptionTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            newExcludedTypesHashSet.Add(typeof(ExceptionTelemetry));
-                            continue;
-                        }
-
-                        if (string.Compare(item, PageViewTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            newExcludedTypesHashSet.Add(typeof(PageViewTelemetry));
-                            continue;
-                        }
-
-                        if (string.Compare(item, RequestTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            newExcludedTypesHashSet.Add(typeof(RequestTelemetry));
-                            continue;
-                        }
-
-                        if (string.Compare(item, TraceTelemetryName, StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            newExcludedTypesHashSet.Add(typeof(TraceTelemetry));
-                            continue;
+                            newExcludedTypesHashSet.Add(this.allowedTypes[item]);
                         }
                     }
                 }
