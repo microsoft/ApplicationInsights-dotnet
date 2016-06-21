@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNet.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
     using System.Collections.Generic;
@@ -7,8 +7,8 @@
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Features;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Features;
 
     /// <summary>
     /// This will allow to mark synthetic traffic from availability tests
@@ -41,7 +41,7 @@
                     telemetry.Context.User.Id = locationHeader + "_" + runIdHeader;
                     telemetry.Context.Session.Id = runIdHeader;
                 }
-            } 
+            }
         }
     }
 }

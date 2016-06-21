@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNet.Tests.TelemetryInitializers
 {
     using System;
-    using Microsoft.ApplicationInsights.AspNet.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.AspNet.Tests.Helpers;
+    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNet.Hosting;
+    using Microsoft.AspNetCore.Http;
     using Xunit;
-    using Microsoft.AspNet.Http.Internal;
 
     public class SyntheticTelemetryInitializerTests
     {
