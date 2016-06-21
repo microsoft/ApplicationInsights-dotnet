@@ -1,8 +1,8 @@
-﻿using Microsoft.ApplicationInsights.AspNet;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.ConfigurationModel;
-using Microsoft.Framework.DependencyInjection;
+﻿using Microsoft.ApplicationInsights.Channel;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Aspnet5_EmptyApp_46
 {
@@ -11,8 +11,9 @@ namespace Aspnet5_EmptyApp_46
         public Startup2(IHostingEnvironment env)
         {
             // Setup configuration sources.
-            Configuration = new Configuration()
-                .AddJsonFile("config.json");
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("config.json")
+                .Build();
         }
 
         public IConfiguration Configuration { get; set; }
@@ -29,7 +30,6 @@ namespace Aspnet5_EmptyApp_46
         public void Configure(IApplicationBuilder app)
         {
             app.UseApplicationInsightsRequestTelemetry();
-
             app.UseApplicationInsightsExceptionTelemetry();
 
             // app.SetApplicationInsightsTelemetryDeveloperMode();

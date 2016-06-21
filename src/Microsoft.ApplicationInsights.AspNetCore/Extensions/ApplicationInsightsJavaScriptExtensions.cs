@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.AspNetCore.Mvc.Rendering
 {
     using AspNetCore.Mvc.Rendering;
+    using Html;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.Extensibility;
 
