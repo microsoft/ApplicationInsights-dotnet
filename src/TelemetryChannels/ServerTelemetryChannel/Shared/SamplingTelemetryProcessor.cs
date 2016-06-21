@@ -43,14 +43,14 @@
             this.SamplingPercentage = 100.0;
             this.Next = next;
             this.excludedTypesHashSet = new HashSet<Type>();
-            this.allowedTypes = new Dictionary<string, Type> (6, StringComparer.OrdinalIgnoreCase)
+            this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
             {
-                { DependencyTelemetryName, typeof (DependencyTelemetry) },
-                { EventTelemetryName, typeof (EventTelemetry) },
-                { ExceptionTelemetryName, typeof (ExceptionTelemetry) },
-                { PageViewTelemetryName, typeof (PageViewTelemetry) },
-                { RequestTelemetryName, typeof (RequestTelemetry) },
-                { TraceTelemetryName, typeof (TraceTelemetry) },
+                { DependencyTelemetryName, typeof(DependencyTelemetry) },
+                { EventTelemetryName, typeof(EventTelemetry) },
+                { ExceptionTelemetryName, typeof(ExceptionTelemetry) },
+                { PageViewTelemetryName, typeof(PageViewTelemetry) },
+                { RequestTelemetryName, typeof(RequestTelemetry) },
+                { TraceTelemetryName, typeof(TraceTelemetry) },
             };
         }
 
