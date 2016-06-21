@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -192,6 +194,20 @@
 
             Assert.True(sentTelemetry.Count > targetItemCount - tolerance);
             Assert.True(sentTelemetry.Count < targetItemCount + tolerance);
+        }
+
+        [TestMethod]
+        public void AdaptiveSamplingSetsExcludedTypesOnInternalSamplingProcessor()
+        {
+            var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
+            var channelBuilder = new TelemetryProcessorChainBuilder(tc);
+            channelBuilder.UseAdaptiveSampling(5, "request;");
+            channelBuilder.Build();
+
+            var fieldInfo = typeof(AdaptiveSamplingTelemetryProcessor).GetField("samplingProcessor", BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic);
+            SamplingTelemetryProcessor internalProcessor = (SamplingTelemetryProcessor) fieldInfo.GetValue(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
+
+            Assert.Equal("request;", internalProcessor.ExcludedTypes);
         }
 
         private void TraceSamplingPercentageEvaluation(
