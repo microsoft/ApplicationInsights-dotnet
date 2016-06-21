@@ -19,7 +19,7 @@
   "dependencies": {
     "Microsoft.AspNetCore.Razor.Tools": {
       "type": "build",
-      "version": "1.0.0-*"
+      "version": "1.0.0-preview2-final"
     },
     "FunctionalTestUtils": { "target": "project" },
     "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
@@ -42,7 +42,7 @@
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.Logging.Debug": "1.0.0",
-    "Microsoft.VisualStudio.Web.CodeGeneration.Utils": "1.0.0-preview3-21425"
+    "Microsoft.VisualStudio.Web.CodeGeneration.Utils": "1.0.0-preview2-final"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -61,6 +61,7 @@
     },
     "net451": {
       "dependencies": {
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
         "Moq": "4.5.9"
       }
     }
@@ -68,9 +69,9 @@
 
   "tools": {
     "Microsoft.AspNetCore.Razor.Tools": {
-      "version": "1.0.0-*",
+      "version": "1.0.0-preview2-final",
       "imports": [
-        "portable-net45+wp80+win8+wpa81+dnxcore50"
+        "portable-net45+win8+dnxcore50"
       ]
     }
   }
