@@ -33,7 +33,7 @@ $global:WorkingDirectory = (pwd).Path;
 $dotnetPath = "C:\Program Files\dotnet\dotnet.exe";
 
 $TestProjects |% {
-	[String]$arguments = "test -f netcoreapp1.0";
+	[String]$arguments = "test";
 	[String]$currentWorkingDirectory = Join-Path $global:WorkingDirectory -ChildPath $_;
 	Write-Host "=========================================================";
 	Write-Host "== Executing tests";
