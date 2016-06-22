@@ -1,4 +1,6 @@
-﻿function Download-AgentMsi
+﻿param ([string] $msiPath)
+
+function Download-AgentMsi
 {
 	param (
 		[string] $msiPath
@@ -14,8 +16,5 @@
 	
 	Write-Host "End - Agent MSI download process."
 }
-
-$agentMsi = "ApplicationInsightsAgent.msi"
-$msiPath = Join-Path "C:\" $agentMsi
 
 Download-AgentMsi $msiPath
