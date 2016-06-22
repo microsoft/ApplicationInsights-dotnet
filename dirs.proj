@@ -97,6 +97,7 @@
     </Target>
 
     <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+        <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" restore $(ProjectToBuild)' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
     </Target>
