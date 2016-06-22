@@ -24,7 +24,7 @@
     "FunctionalTestUtils": { "target": "project" },
     "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-rc3-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0",

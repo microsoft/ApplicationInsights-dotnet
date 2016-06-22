@@ -11,7 +11,7 @@
   "dependencies": {
     "xunit": "2.1.0",
     "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
-    "dotnet-test-xunit": "1.0.0-rc3-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.AspNetCore.Hosting": "1.0.0",
     "Microsoft.AspNetCore.Http": "1.0.0",
     "Microsoft.AspNetCore.Http.Extensions": "1.0.0",

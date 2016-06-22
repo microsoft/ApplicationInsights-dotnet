@@ -5,11 +5,18 @@
     <PropertyGroup>
         <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip</CliZipFile>
         <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest</CliToolsPath>
+        <!-- Library -->
         <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\project.json</ProjectToBuild>
     </PropertyGroup>
 
     <ItemGroup>
-        <Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />
+        <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
+        <!-- Tests -->
+        <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\project.json" />
+        <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\FunctionalTestUtils\project.json" />
+        <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\WebApiShimFw46.FunctionalTests\project.json" />
+        <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\EmptyApp.FunctionalTests\project.json" />
+        <!--<TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\MVCFramework45.FunctionalTests\project.json" />-->
     </ItemGroup>
 
     <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -87,8 +94,13 @@
         <Message Importance="high" Text="ComputerName: $(ComputerName)"></Message>
         <Message Importance="high" Text="User: $(USERDOMAIN)\$(USERNAME)"></Message>
         <Message Importance="high" Text="RunningInMicroBuild: $(RunningInMicroBuild)"></Message>
+        <Message Importance="high" Text="Intermediate Output Path: $(BaseIntermediateOutputPath)"></Message>
+        <Message Importance="high" Text="Bin Root: $(BinRoot)"></Message>
+        <Message Importance="high" Text="Configuration: $(Configuration)"></Message>
         <Message Importance="high" Text="CLI Zip: $(CliZipFile)"></Message>
         <Message Importance="high" Text="CLI Tools Path: $(CliToolsPath)"></Message>
+        <Message Importance="high" Text="Run Tests: $(RunTests)"></Message>
+        <Message Importance="high" Text="Sign Assembly: $(SignAssembly)"></Message>
     </Target>
 
     <Target Name="DownloadCLI">
@@ -97,9 +109,14 @@
     </Target>
 
     <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+        <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />
         <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" restore $(ProjectToBuild)' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
+        <Message Condition="$(RunTests) != '' And $(RunTests)" Importance="high" Text="Running tests..."></Message>
+        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" restore %(TestProject.Identity)' ContinueOnError="ErrorAndStop" />
+        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" build %(TestProject.Identity) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
+        <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" test %(TestProject.Identity)' ContinueOnError="ErrorAndStop" />
     </Target>
 
     <Target Name="Clean">
