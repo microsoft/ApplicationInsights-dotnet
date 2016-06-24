@@ -9,7 +9,7 @@
     "Microsoft.ApplicationInsights.AspNetCore": {
         "target": "project"
     },
-    "dotnet-test-xunit": "1.0.0-rc3-*",
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.AspNetCore.Hosting": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0"

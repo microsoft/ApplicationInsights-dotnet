@@ -4,10 +4,7 @@
         <!-- TODO: Figure out how to get signing to work in MicroBuildV2 for .xproj without using this "unsupported" manual approach. -->
         <PathToSigningDll>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\MicroBuild\Plugins\MicroBuild.Plugins.Signing.1.0.200\build\MicroBuild.Signing.dll</PathToSigningDll>
         <RunningInMicroBuild Condition="Exists('$(AGENT_BUILDDIRECTORY)')">true</RunningInMicroBuild>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <SignAssembly>true</SignAssembly>
+        <SignAssembly Condition="Exists('$(PathToSigningDll)')">true</SignAssembly>
         <AssemblyOriginatorKeyFile>$(CommonBuildPropsLocation)\Keys\InternalKey.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
@@ -29,7 +26,7 @@
     <UsingTask TaskName="SignFiles" AssemblyFile="$(PathToSigningDll)" Condition="'$(RunningInMicroBuild)' == 'true'" />
 
     <Target Name="SignFiles" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild">
-        <SignFiles Condition="'$(RunningInMicroBuild)' == 'true'"
+        <SignFiles Condition="'$(RunningInMicroBuild)' == 'true' AND '$(SignAssembly)' == 'true'"
             Files="@(FilesToSign)"
             BinariesDirectory="$([System.IO.Path]::GetDirectoryName(%(FilesToSign.FullPath)))"
             IntermediatesDirectory="$([System.IO.Path]::GetDirectoryName(%(FilesToSign.FullPath)))"
