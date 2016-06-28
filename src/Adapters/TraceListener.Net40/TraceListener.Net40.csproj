@@ -20,9 +20,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.0.0\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.1.0\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -75,10 +74,10 @@
     <Error Condition="!Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props'))" />
     <Error Condition="!Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets'))" />
     <Error Condition="!Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.51.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.51.0\build\StyleCop.MSBuild.Targets'))" />
+    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets'))" />
   </Target>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
   <Import Project="..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.51.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.51.0\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" />
 </Project>
