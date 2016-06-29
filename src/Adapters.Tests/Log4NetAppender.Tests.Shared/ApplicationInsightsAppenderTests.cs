@@ -18,8 +18,10 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
     using log4net.Util;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Log4NetAppender;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -64,6 +66,22 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             this.VerifyInitializationSuccess(
                     () => ApplicationInsightsAppenderTests.InitializeLog4NetAIAdapter(string.Format(@"<InstrumentationKey value=""{0}"" />", instrumentationKey)),
                     instrumentationKey);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void SdkVersionIsCorrect()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            var sentItems = this.appendableLogger.SentItems;
+            Assert.AreEqual(1, sentItems.Length);
+
+            var telemetry = (TraceTelemetry)sentItems[0];
+            Assert.AreNotEqual(default(DateTimeOffset), telemetry.Context);
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsAppender), prefix: "log4net:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
         
         [TestMethod]
@@ -131,6 +149,17 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
 
             var telemetry = (TraceTelemetry)sentItems[0];
             Assert.AreNotEqual(default(DateTimeOffset), telemetry.Timestamp);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void TelemetryIsAcceptedByValidateEndpoint()
+        {
+            this.appendableLogger.Logger.Debug("Trace Debug");
+
+            ITelemetry telemetry = this.appendableLogger.SentItems.First();
+
+            Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
         }
 
         [TestMethod]
@@ -266,6 +295,25 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender.Tests
             var telemetry = (ExceptionTelemetry)sentItems[0];
             Assert.AreEqual(SeverityLevel.Error, telemetry.SeverityLevel);
             Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("Log4NetAppender")]
+        public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
+        {
+            ILog logger = this.appendableLogger.Logger;
+
+            try
+            {
+                throw new Exception("Test logging exception");
+            }
+            catch (Exception exception)
+            {
+                logger.Error("custom message", exception);
+            }
+
+            ExceptionTelemetry telemetry = (ExceptionTelemetry)this.appendableLogger.SentItems.First();
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
         }
 
         internal static void InitializeLog4NetAIAdapter(string adapterComponentIdSnippet)

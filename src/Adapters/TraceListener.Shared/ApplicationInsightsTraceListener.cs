@@ -12,10 +12,10 @@ namespace Microsoft.ApplicationInsights.TraceListener
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Implementation;
 
     /// <summary>
     /// Listener that routes all tracing and debugging output to ApplicationInsights logging framework.
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
                 this.TelemetryClient.Context.InstrumentationKey = instrumentationKey;
             }
 
-            this.TelemetryClient.Context.GetInternalContext().SdkVersion = "SD:" + GetAssemblyVersion();
+            this.TelemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("sd:");
         }
 
         internal TelemetryClient TelemetryClient { get; set; }
@@ -175,14 +175,6 @@ namespace Microsoft.ApplicationInsights.TraceListener
         public override void WriteLine(string message)
         {
             this.Write(message + Environment.NewLine);
-        }
-
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsTraceListener).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
         }
 
         private void CreateTraceData(TraceEventCache eventCache, TraceEventType eventType, int? id, TraceTelemetry trace)

@@ -10,15 +10,14 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Reflection;
-
+    
     using log4net.Appender;
     using log4net.Core;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Implementation;
 
     /// <summary>
     /// Log4Net Appender that routes all logging output to the Application Insights logging framework.
@@ -63,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = "Log4Net:" + GetAssemblyVersion();
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("log4net:");
         }
 
         /// <summary>
@@ -82,17 +81,9 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
             }
         }
 
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsAppender).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-        }
-
         private static void AddLoggingEventProperty(string key, string value, IDictionary<string, string> metaData)
         {
-            if (value != null)
+            if (value != null && !metaData.ContainsKey(key))
             {
                 metaData.Add(key, value);
             }
@@ -106,6 +97,17 @@ namespace Microsoft.ApplicationInsights.Log4NetAppender
                 {
                     SeverityLevel = this.GetSeverityLevel(loggingEvent.Level)
                 };
+
+                string message = null;
+                if (loggingEvent.RenderedMessage != null)
+                {
+                    message = this.RenderLoggingEvent(loggingEvent);
+                }
+
+                if (!string.IsNullOrEmpty(message))
+                {
+                    exceptionTelemetry.Properties.Add("Message", message);
+                }
 
                 this.BuildCustomProperties(loggingEvent, exceptionTelemetry);
                 this.telemetryClient.Track(exceptionTelemetry);

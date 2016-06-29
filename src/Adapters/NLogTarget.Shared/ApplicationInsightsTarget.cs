@@ -10,13 +10,12 @@ namespace Microsoft.ApplicationInsights.NLogTarget
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
-
+    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    
+    using Microsoft.ApplicationInsights.Implementation;
+
     using NLog;
     using NLog.Targets;
       
@@ -63,7 +62,7 @@ namespace Microsoft.ApplicationInsights.NLogTarget
                 this.telemetryClient.Context.InstrumentationKey = this.InstrumentationKey;
             }
 
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = "NLog:" + GetAssemblyVersion();
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("nlog:");
         }
 
         /// <summary>
@@ -87,20 +86,15 @@ namespace Microsoft.ApplicationInsights.NLogTarget
             }
         }
 
-        private static string GetAssemblyVersion()
-        {
-            return typeof(ApplicationInsightsTarget).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-        }
-
         private void SendException(LogEventInfo logEvent)
         {
             var exceptionTelemetry = new ExceptionTelemetry(logEvent.Exception)
             {
                 SeverityLevel = this.GetSeverityLevel(logEvent.Level)
             };
+
+            string logMessage = this.Layout.Render(logEvent);
+            exceptionTelemetry.Properties.Add("Message", logMessage);
 
             this.BuildPropertyBag(logEvent, exceptionTelemetry);
             this.telemetryClient.Track(exceptionTelemetry);
