@@ -3,7 +3,8 @@
 ### Version 2.1.0
 
 - For NLog and Log4Net when exception is traced with a custom message, custom message is added to the properties collection and reported to ApplicationInsights.
-- Update Application Insights API reference to 2.1.0 (TODO: add reference to release page)
+- Update Application Insights API reference to [2.1.0](https://github.com/Microsoft/ApplicationInsights-dotnet/releases/tag/v2.1.0)
+- Update NLog reference to [4.3.5](https://github.com/NLog/NLog/releases/tag/4.3.5)
 
 ### Version 2.0.0
 
