@@ -5,15 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Diagnostics;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Tracing;
-using Microsoft.ApplicationInsights.Tracing.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace Microsoft.ApplicationInsights.TraceListener.Tests
 {
+    using System;
+    using System.Diagnostics;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Tracing.Tests;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing the object on the TestCleanup method")]
     public class ApplicationInsightsTraceFilterTests

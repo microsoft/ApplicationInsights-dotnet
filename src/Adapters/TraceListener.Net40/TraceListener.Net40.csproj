@@ -66,6 +66,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\TraceListener.Shared\TraceListener.Shared.projitems" Label="Shared" Condition="Exists('..\TraceListener.Shared\TraceListener.Shared.projitems')" />
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" Condition="Exists('..\CommonShared\CommonShared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

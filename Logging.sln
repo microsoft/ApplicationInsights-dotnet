@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "src\Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net40", "src\Adapters\NLogTarget.Net40\NLogTarget.Net40.csproj", "{065795EA-516F-4EAB-8C1B-13989E343645}"
 EndProject
@@ -17,11 +17,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLogTarget.Net40.Tests", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.Net40.Tests", "src\Adapters.Tests\Log4NetAppender.Net40.Tests\Log4NetAppender.Net40.Tests.csproj", "{C6ABC49C-5CF0-40FF-9114-423232339382}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters.Tests", "src\Adapters.Tests", "{2FCC45B3-D820-405D-87FA-467C96465BB1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters.Tests", "Adapters.Tests", "{2FCC45B3-D820-405D-87FA-467C96465BB1}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Adapters.Shared.Tests", "src\Adapters.Tests\Shared\Adapters.Shared.Tests.shproj", "{FA775630-7917-4A99-A78C-FBA46EDF685C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "src\NuGet", "{4765948E-1A4D-4F8E-974C-6078C746ABEC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{4765948E-1A4D-4F8E-974C-6078C746ABEC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4NetAppender.NuGet", "src\NuGet\Log4NetAppender\Log4NetAppender.NuGet.csproj", "{3658BD66-68CD-4B37-8085-7D200CB020C7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.NuGet", "src\
 		{E3766DD1-F376-43F8-B242-6CF06E186179} = {E3766DD1-F376-43F8-B242-6CF06E186179}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet.Tests", "src\NuGet.Tests", "{F8C8CF80-83DB-4E2F-9C27-51D43D7B1E25}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet.Tests", "NuGet.Tests", "{F8C8CF80-83DB-4E2F-9C27-51D43D7B1E25}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xdt.Tests", "src\NuGet.Tests\Xdt.Tests\Xdt.Tests.csproj", "{C6B569BC-6F19-42C9-A951-DA611BB0F4BE}"
 EndProject
@@ -76,32 +76,50 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NLogTarget.Tests.Shared", "
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TraceListener.Tests.Shared", "src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Tests.Shared.shproj", "{17EE52DA-5460-4BD2-A70F-529D2A94C938}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\Adapters\CommonShared\CommonShared.shproj", "{587B624B-8C64-498E-93D7-A2D2ABC17EAB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "src\Adapters.Tests\CommonTestShared\CommonTestShared.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{69b1c4d1-c8e9-44ca-be2a-02b5d1929dc2}*SharedItemsImports = 13
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{be1d6405-1930-4a19-a24c-027b008c5011}*SharedItemsImports = 4
 		src\Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{be1d6405-1930-4a19-a24c-027b008c5011}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{be1d6405-1930-4a19-a24c-027b008c5011}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
 		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{cb555b89-94d7-4b38-92d9-9f497a796966}*SharedItemsImports = 4
 		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{cb555b89-94d7-4b38-92d9-9f497a796966}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{e6f03762-6bd6-4b38-8798-42c189aab18c}*SharedItemsImports = 4
-		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
 		src\Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
+		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c6abc49c-5cf0-40ff-9114-423232339382}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{6513ef9f-5a84-47cd-be3e-34f7706a1868}*SharedItemsImports = 4
 		src\Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6513ef9f-5a84-47cd-be3e-34f7706a1868}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{6513ef9f-5a84-47cd-be3e-34f7706a1868}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{17ee52da-5460-4bd2-a70f-529d2a94c938}*SharedItemsImports = 13
-		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
 		src\Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
+		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{c537553e-c7d0-42e4-884f-10a9c6063d4a}*SharedItemsImports = 4
 		src\Adapters.Tests\Log4NetAppender.Tests.Shared\Log4NetAppender.Net40.Tests.Shared.projitems*{cdf1d886-ed10-4f99-be94-3bb40a56052e}*SharedItemsImports = 13
 		src\Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{b6dcd83b-f8fb-4171-8996-7a402dca9fe3}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{b6dcd83b-f8fb-4171-8996-7a402dca9fe3}*SharedItemsImports = 4
 		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{ea4d9fbf-02f2-4791-9f78-deb591545fee}*SharedItemsImports = 13
 		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{3b9ab7fa-562d-4e4e-86e3-3348426bc0d9}*SharedItemsImports = 13
 		src\Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6dd6f1c7-636d-41b5-8ac4-517c68f74d18}*SharedItemsImports = 13
+		src\Adapters\CommonShared\CommonShared.projitems*{587b624b-8c64-498e-93d7-a2d2abc17eab}*SharedItemsImports = 13
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{fa775630-7917-4a99-a78c-fba46edf685c}*SharedItemsImports = 13
 		src\Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{e3766dd1-f376-43f8-b242-6cf06e186179}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{e3766dd1-f376-43f8-b242-6cf06e186179}*SharedItemsImports = 4
 		src\Adapters\TraceListener.Shared\TraceListener.Shared.projitems*{ff6230f0-a69c-4ed3-b552-26cbe31324db}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,5 +219,7 @@ Global
 		{CDF1D886-ED10-4F99-BE94-3BB40A56052E} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{6DD6F1C7-636D-41B5-8AC4-517C68F74D18} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{17EE52DA-5460-4BD2-A70F-529D2A94C938} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{587B624B-8C64-498E-93D7-A2D2ABC17EAB} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 	EndGlobalSection
 EndGlobal

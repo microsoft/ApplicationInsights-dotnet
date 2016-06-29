@@ -44,6 +44,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\NLogTarget.Shared\NLogTarget.Shared.projitems" Label="Shared" Condition="Exists('..\NLogTarget.Shared\NLogTarget.Shared.projitems')" />
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" Condition="Exists('..\CommonShared\CommonShared.projitems')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

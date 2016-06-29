@@ -1,7 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.NLogTarget.Tests
 {
+    using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.NLogTarget;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -112,6 +114,33 @@
 
         [TestMethod]
         [TestCategory("NLogTarget")]
+        public void SdkVersionIsCorrect()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(ApplicationInsightsTarget), prefix: "nlog:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void TelemetryIsAcceptedByValidateEndpoint()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+
+            aiLogger.Debug("Message");
+
+            var telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems.First();
+
+            Assert.IsNull(TelemetrySender.ValidateEndpointSend(telemetry));
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
         public void TraceHasTimestamp()
         {
             Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
@@ -203,8 +232,27 @@
                 aiLogger.Debug(exception, "testing exception scenario");
             }
 
-            var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.FirstOrDefault();
+            var telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
             Assert.AreEqual(expectedException.Message, telemetry.Exception.Message);
+        }
+
+        [TestMethod]
+        [TestCategory("NLogTarget")]
+        public void CustomMessageIsAddedToExceptionTelemetryCustomProperties()
+        {
+            Logger aiLogger = this.CreateTargetWithGivenInstrumentationKey();
+            
+            try
+            {
+                throw new Exception("Test logging exception");
+            }
+            catch (Exception exception)
+            {
+                aiLogger.Debug(exception, "custom message");
+            }
+
+            ExceptionTelemetry telemetry = (ExceptionTelemetry)this.adapterHelper.Channel.SentItems.First();
+            Assert.IsTrue(telemetry.Properties["Message"].StartsWith("custom message"));
         }
 
         [TestMethod]
