@@ -5,14 +5,14 @@ This repository has a code for [Application Insights monitoring](http://azure.mi
 
 Recent updates
 --------------
-**Microsoft.ApplicationInsights.AspNet** is renamed to **Microsoft.ApplicationInsights.AspNetCore**. We have updated the SDK to use .NET Core CLI runtime environment that picks the latest set of RC2 dependencies. Please note that this version is not compatible with RC1 bits of DNX environment. Furthermore, metrics stream is enabled by default in .NET Framework of ASP.NET Core.
+**Microsoft.ApplicationInsights.AspNet** was renamed to **Microsoft.ApplicationInsights.AspNetCore**. We have updated the SDK to use the stable 1.0.0 release of the .NET Core CLI runtime environment. Please note that this version is not compatible with RC1 bits of DNX environment. Furthermore, metrics stream is enabled by default in .NET Framework of ASP.NET Core.
 
 Getting Started
 ---------------
 
-[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. [Getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET Core web application to use Application Insights SDK.
+[Application Insights monitoring](http://azure.microsoft.com/en-us/services/application-insights/) is a service that allows you to collect monitoring and diagnostics information about your application. The [getting started](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Getting-Started) guide shows how you can onboard your ASP.NET Core web application to use the Application Insights SDK.
 
-Application Insights collects lots of out-of-the-box information like requests, exceptions and usage. It also allows to configure additional data collection.  [Configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
+Application Insights collects a lot of information out-of-the-box such as requests, exceptions, and usage. It also allows you to configure additional data collection.  The [configure](https://github.com/Microsoft/ApplicationInsights-aspnet5/wiki/Configure) guide demonstrates the most common tasks you may want to do.
 
 
 Repository structure
@@ -36,11 +36,11 @@ root\
 Developing
 ----------
 
-**Note: The current version (Microsoft.ApplicationInsights.AspNetCore: 1.0.0-rc2-final) is no longer compatible with DNX runtime and ASP.NET 5 RC1 bits. Please visit [Migration to ASP.NET Core](https://docs.asp.net/en/latest/migration/index.html) to upgrade the application to ASP.NET Core with RC2 bits.**
+**Note: The current version (Microsoft.ApplicationInsights.AspNetCore: 1.0.0) is no longer compatible with DNX runtime and ASP.NET 5 RC1 bits. Please visit [Migration to ASP.NET Core](https://docs.asp.net/en/latest/migration/index.html) to upgrade the application to ASP.NET Core 1.0.0.**
 
 ## Pre-requisites
-- [Visual Studio 2015 Update 2](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
-- [Visual Studio 2015 CLI Tools](https://go.microsoft.com/fwlink/?LinkId=798481).
+- [Visual Studio 2015 Update 3](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx).
+- [Visual Studio 2015 CLI Tools](https://go.microsoft.com/fwlink/?LinkId=817245).
 - [.NET Core CLI](https://www.microsoft.com/net/download).
 - [Node.js](https://nodejs.org/download).
 - [Git](http://git-scm.com/download).
@@ -87,14 +87,14 @@ There are two sets of tests unit tests and functional tests. Please use unit tes
 
 
 *Functional tests*
-Functional tests are regular web applications with unit tests integrated into them. Application can be compiled as a regular web application as well as set of tests. Typical functional test will do the following:
+Functional tests are regular web applications with unit tests integrated into them. Application can be compiled as a regular web application as well as set of tests. Typical functional tests will do the following:
 
 1. Host the current project in In-Proc server.
 2. Initialize application insights telemetry channel.
 3. Initiate request to self hosted web application using HttpClient.
 4. Check data received in telemetry channel.
 
-Those are modifications made for regular web application to make it work this way:
+The following are modifications made to a regular web application to make it work this way:
 
 Add dependencies to project.json:
 
@@ -120,12 +120,12 @@ services.AddFunctionalTestTelemetryChannel();
 *Running Tests*
 You can run unit tests using Visual Studio.
 
-You can run unit tests using .NET CLI from command line. Prerequisite to this is that you should make sure you have the latest version of .NET CLI. You can check the available runtime using the following command:
+You can run unit tests using .NET CLI from command line. The prerequisite to this is that you should make sure you have the latest version of .NET CLI. You can check the available runtime using the following command:
 ```
 dotnet --version
 ```
 
-If you are seeing that ```dotnet``` is not available (or defined), install .NET CLI: [.NET Core + CLI tools](https://github.com/dotnet/cli).
+If you are seeing that ```dotnet``` is not available (or defined), install .NET CLI: [.NET Core + CLI tools (SDK)](https://github.com/dotnet/cli).
 
 After that you can open a developer command prompt, navigate to each test folder and run:
 ```
