@@ -32,7 +32,7 @@
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
         [Event(1,
-            Message = "It is a diagnostics message. Backoff logic was disabled. Transmission will be resolved.",
+            Message = "Diagnostic message: backoff logic disabled, transmission will be resolved.",
             Level = EventLevel.Error,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
         public void BackoffDisabled(string appDomainName = "Incorrect")
@@ -42,7 +42,7 @@
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
         [Event(2, 
-            Message = "It is a diagnostics message. Backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.", 
+            Message = "Diagnostic message: backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.", 
             Level = EventLevel.Error,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
         public void BackoffEnabled(double intervalInMin, int statusCode, string appDomainName = "Incorrect")

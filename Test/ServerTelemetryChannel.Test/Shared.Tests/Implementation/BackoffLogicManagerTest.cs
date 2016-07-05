@@ -17,11 +17,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Channel.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
     using Assert = Xunit.Assert;
@@ -31,33 +28,38 @@
         [TestClass]
         public class GetBackendResponse
         {
+            [TestMethod]
             public void ReturnNullIfArgumentIsNull()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 Assert.Null(manager.GetBackendResponse(null));
             }
 
+            [TestMethod]
             public void ReturnNullIfArgumentEmpty()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 Assert.Null(manager.GetBackendResponse(string.Empty));
             }
 
+            [TestMethod]
             public void IfContentCannotBeParsedNullIsReturned()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 Assert.Null(manager.GetBackendResponse("ab}{"));
             }
 
+            [TestMethod]
             public void IfContentIsUnexpectedJsonNullIsReturned()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 Assert.Null(manager.GetBackendResponse("[1,2]"));
             }
 
+            [TestMethod]
             public void BackendResponseIsReturnedForCorrectContent()
             {
-                string content = BackendResponseHelper.CreateBackendResponse(100, 1, new[] {"206"}, 84);
+                string content = BackendResponseHelper.CreateBackendResponse(itemsReceived: 100, itemsAccepted: 1, errorCodes: new[] {"206"}, indexStartWith: 84);
 
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 var backendResponse = manager.GetBackendResponse(content);
