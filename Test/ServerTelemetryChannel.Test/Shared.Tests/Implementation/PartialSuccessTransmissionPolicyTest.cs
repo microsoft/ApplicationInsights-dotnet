@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
@@ -109,7 +109,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, policy.ConsecutiveErrors);
+            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(1, policy.ConsecutiveErrors);
+            Assert.Equal(1, transmitter.BackoffLogicManager.ConsecutiveErrors);
         }
 
         [TestMethod]
@@ -209,7 +209,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, policy.ConsecutiveErrors);
+            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             Assert.Equal(0, enqueuedTransmissions.Count);
         }
 
@@ -243,7 +243,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, policy.ConsecutiveErrors);
+            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             Assert.Equal(0, enqueuedTransmissions.Count);
         }
 
@@ -275,7 +275,7 @@
 
             transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-            Assert.Equal(0, policy.ConsecutiveErrors);
+            Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             Assert.Equal(0, enqueuedTransmissions.Count);
         }
     }

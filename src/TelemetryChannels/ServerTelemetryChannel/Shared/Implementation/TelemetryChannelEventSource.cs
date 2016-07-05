@@ -30,6 +30,26 @@
             }
         }
 
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(1,
+            Message = "It is a diagnostics message. Backoff logic was disabled. Transmission will be resolved.",
+            Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
+        public void BackoffDisabled(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(1, this.ApplicationName);
+        }
+
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(2, 
+            Message = "It is a diagnostics message. Backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.", 
+            Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
+        public void BackoffEnabled(double intervalInMin, int statusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, intervalInMin, statusCode, this.ApplicationName);
+        }
+
         [Event(3, Message = "Sampling skipped: {0}.", Level = EventLevel.Verbose)]
         public void SamplingSkippedByType(string telemetryType, string appDomainName = "Incorrect")
         {
@@ -297,6 +317,15 @@
             this.WriteEvent(45, exception ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(46, Message = "Retry-After http header: '{0}'. Transmission will be stopped.", Level = EventLevel.Warning)]
+        public void RetryAfterHeaderIsPresent(string retryAfterHeader, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                46,
+                retryAfterHeader ?? string.Empty,
+                this.ApplicationName);
+        }
+
         [Event(48, Message = "TransmissionFailedToStoreWarning. TransmissionId: {0}. Exception: {1}.", Level = EventLevel.Warning)]
         public void TransmissionFailedToStoreWarning(string transmissionId, string exception, string appDomainName = "Incorrect")
         {
@@ -398,6 +427,8 @@
         public sealed class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;
+
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
         }
     }
 }
