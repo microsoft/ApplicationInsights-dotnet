@@ -38,8 +38,6 @@
                     if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequests ||
                         httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                     {
-                        this.backoffLogicManager.ConsecutiveErrors++;
-
                         this.MaxSenderCapacity = 0;
                         if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                         {
@@ -55,6 +53,8 @@
 
                         this.LogCapacityChanged();
                         this.Apply();
+
+                        this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponse.StatusCode);
                         this.Transmitter.Enqueue(e.Transmission);
 
                         this.backoffLogicManager.ScheduleRestore(

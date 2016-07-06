@@ -43,34 +43,11 @@
         }
 
         /// <summary>
-        /// Gets or sets the number of consecutive errors SDK transmitter got so far while sending telemetry to backend.
+        /// Gets the number of consecutive errors SDK transmitter got so far while sending telemetry to backend.
         /// </summary>
         public int ConsecutiveErrors
         {
-            get
-            {
-                return this.consecutiveErrors;
-            }
-
-            set
-            {
-                lock (this.lockConsecutiveErrors)
-                {
-                    if (value == 0)
-                    {
-                        this.consecutiveErrors = 0;
-                        return;
-                    }
-
-                    // Do not increase number of errors more often than minimum interval (SlotDelayInSeconds) 
-                    // since we have 3 senders and all of them most likely would fail if we have intermittent error  
-                    if (DateTimeOffset.UtcNow > this.nextMinTimeToUpdateConsecutiveErrors)
-                    {
-                        this.consecutiveErrors = value;
-                        this.nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.UtcNow + this.minIntervalToUpdateConsecutiveErrors;
-                    }
-                }
-            }
+            get { return this.consecutiveErrors; }
         }
 
         /// <summary>
@@ -127,14 +104,36 @@
             return backendResponse;
         }
 
+        /// <summary>
+        /// Sets ConsecutiveErrors to 0.
+        /// </summary>
+        public void ResetConsecutiveErrors()
+        {
+            lock (this.lockConsecutiveErrors)
+            {
+                this.consecutiveErrors = 0;
+            }
+        }
+
         public void ReportBackoffEnabled(int statusCode)
         {
             this.LastStatusCode = statusCode;
-
+            
             if (!this.exponentialBackoffReported && this.pauseTimer.Delay > this.defaultBackoffEnabledReportingInterval)
             {
                 TelemetryChannelEventSource.Log.BackoffEnabled(this.pauseTimer.Delay.TotalMinutes, statusCode);
                 this.exponentialBackoffReported = true;
+            }
+
+            lock (this.lockConsecutiveErrors)
+            {
+                // Do not increase number of errors more often than minimum interval (SlotDelayInSeconds) 
+                // since we have 3 senders and all of them most likely would fail if we have intermittent error  
+                if (DateTimeOffset.UtcNow > this.nextMinTimeToUpdateConsecutiveErrors)
+                {
+                    this.consecutiveErrors++;
+                    this.nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.UtcNow + this.minIntervalToUpdateConsecutiveErrors;
+                }
             }
         }
 

@@ -33,7 +33,6 @@
             var webException = e.Exception as WebException;
             if (webException != null)
             {
-                this.backoffLogicManager.ConsecutiveErrors++;
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {

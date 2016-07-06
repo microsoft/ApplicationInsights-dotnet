@@ -94,7 +94,7 @@
             public void FirstErrorDelayIsSameAsSlotDelay()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ConsecutiveErrors++;
+                manager.ReportBackoffEnabled(500);
                 manager.ScheduleRestore(string.Empty, () => null);
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
@@ -102,8 +102,13 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero) { ConsecutiveErrors = int.MaxValue };
+                var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
+
+                PrivateObject wrapper = new PrivateObject(manager);
+                wrapper.SetField("consecutiveErrors", int.MaxValue);
+
                 manager.ScheduleRestore(string.Empty, () => null);
+
                 Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
             }
 
@@ -264,7 +269,7 @@
                 Task[] tasks = new Task[10];
                 for (int i = 0; i < 10; ++i)
                 {
-                    tasks[i] = TaskEx.Run(() => manager.ConsecutiveErrors++);
+                    tasks[i] = TaskEx.Run(() => manager.ReportBackoffEnabled(500));
                 }
 
                 Task.WaitAll(tasks);
@@ -277,9 +282,9 @@
             {
                 BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromMilliseconds(1));
 
-                manager.ConsecutiveErrors++;
+                manager.ReportBackoffEnabled(500);
                 Thread.Sleep(1);
-                manager.ConsecutiveErrors++;
+                manager.ReportBackoffEnabled(500);
 
                 Assert.Equal(2, manager.ConsecutiveErrors);
             }
@@ -289,8 +294,8 @@
             {
                 BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromDays(1));
 
-                manager.ConsecutiveErrors++;
-                manager.ConsecutiveErrors = 0;
+                manager.ReportBackoffEnabled(500);
+                manager.ResetConsecutiveErrors();
 
                 Assert.Equal(0, manager.ConsecutiveErrors);
             }
