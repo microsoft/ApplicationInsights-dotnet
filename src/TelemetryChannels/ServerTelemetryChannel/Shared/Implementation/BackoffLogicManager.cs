@@ -51,9 +51,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the last status code SDK received from the backend.
+        /// Gets the last status code SDK received from the backend.
         /// </summary>
-        public int LastStatusCode { get; set; }
+        public int LastStatusCode { get; private set; }
 
         internal TimeSpan CurrentDelay
         {
