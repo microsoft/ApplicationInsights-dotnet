@@ -12,33 +12,39 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
+    internal class PartialSuccessTransmissionPolicy : TransmissionPolicy
     {
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(TransmissionPolicyHelpers.SlotDelayInSeconds) };
-
-        public int ConsecutiveErrors { get; set; }
+        private BackoffLogicManager backoffLogicManager;
 
         public override void Initialize(Transmitter transmitter)
         {
+            if (transmitter == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            this.backoffLogicManager = transmitter.BackoffLogicManager;
+
             base.Initialize(transmitter);
             transmitter.TransmissionSent += this.HandleTransmissionSentEvent;
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
         {
+            if (args.Exception == null && args.Response == null)
+            {
+                // We succesfully sent transmittion
+                this.backoffLogicManager.ConsecutiveErrors = 0;
+                return;
+            }
+
             if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
             {
                 string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args);
 
                 if (!string.IsNullOrEmpty(newTransmissions))
                 {
-                    this.ConsecutiveErrors++;
+                    this.backoffLogicManager.ConsecutiveErrors++;
                     this.DelayFutureProcessing(args.Response);
                     
                     byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
@@ -51,6 +57,11 @@
 
                     this.Transmitter.Enqueue(newTransmission);
                 }
+                else
+                {
+                    // We got 206 but there is no indication in response that something was not accepted.
+                    this.backoffLogicManager.ConsecutiveErrors = 0;
+                }
             }
         }
 
@@ -60,12 +71,11 @@
 
             if (args != null && args.Response != null)
             {
-                backendResponse = TransmissionPolicyHelpers.GetBackendResponse(args.Response.Content);
+                backendResponse = this.backoffLogicManager.GetBackendResponse(args.Response.Content);
             }
 
             if (backendResponse == null)
             { 
-                this.ConsecutiveErrors = 0;
                 return null;
             }
 
@@ -119,28 +129,19 @@
             this.Apply();
 
             // Back-off for the Delay duration and enable sending capacity
-            this.pauseTimer.Delay = TransmissionPolicyHelpers.GetBackOffTime(this.ConsecutiveErrors, response.RetryAfterHeader);
-            this.pauseTimer.Start(() =>
-            {
-                this.MaxBufferCapacity = null;
-                this.MaxSenderCapacity = null;
-                this.LogCapacityChanged();
-                this.Apply();
+            this.backoffLogicManager.ReportBackoffEnabled(206);
 
-                return TaskEx.FromResult<object>(null);
-            });
-        }
+            this.backoffLogicManager.ScheduleRestore(
+                response.RetryAfterHeader, 
+                () =>
+                    {
+                        this.MaxBufferCapacity = null;
+                        this.MaxSenderCapacity = null;
+                        this.LogCapacityChanged();
+                        this.Apply();
 
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.pauseTimer != null)
-                {
-                    this.pauseTimer.Dispose();
-                    this.pauseTimer = null;
-                }
-            }
+                        return TaskEx.FromResult<object>(null);
+                    });
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Collections.Specialized;
     
     internal abstract class TransmissionPolicy
     {
