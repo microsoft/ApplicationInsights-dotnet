@@ -21,19 +21,59 @@
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
         private readonly TimeSpan defaultBackoffEnabledReportingInterval;
+        private readonly object lockConsecutiveErrors = new object();
 
         private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
         private bool exponentialBackoffReported = false;
-        
+        private int consecutiveErrors;
+        private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
+        private TimeSpan minIntervalToUpdateConsecutiveErrors;
+
         public BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval)
         {
             this.defaultBackoffEnabledReportingInterval = defaultBackoffEnabledReportingInterval;
+            this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+        }
+
+        internal BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval, TimeSpan minIntervalToUpdateConsecutiveErrors) 
+            : this(defaultBackoffEnabledReportingInterval)
+        {
+            // This constructor is used from unit tests
+            this.minIntervalToUpdateConsecutiveErrors = minIntervalToUpdateConsecutiveErrors;
         }
 
         /// <summary>
         /// Gets or sets the number of consecutive errors SDK transmitter got so far while sending telemetry to backend.
         /// </summary>
-        public int ConsecutiveErrors { get; set; }
+        public int ConsecutiveErrors
+        {
+            get { return this.consecutiveErrors; }
+
+            set
+            {
+                lock (this.lockConsecutiveErrors)
+                {
+                    if (value == 0)
+                    {
+                        this.consecutiveErrors = 0;
+                        return;
+                    }
+
+                    // Do not increase number of errors more often than minimum interval (SlotDelayInSeconds) 
+                    // since we have 3 senders and all of them most likely would fail if we have intermittent error  
+                    if (DateTimeOffset.UtcNow > this.nextMinTimeToUpdateConsecutiveErrors)
+                    {
+                        this.consecutiveErrors = value;
+                        this.nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.UtcNow + this.minIntervalToUpdateConsecutiveErrors;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Last status code SDK received from the backend.
+        /// </summary>
+        public int LastStatusCode { get; set; }
 
         internal TimeSpan CurrentDelay
         {
@@ -86,6 +126,8 @@
 
         public void ReportBackoffEnabled(int statusCode)
         {
+            this.LastStatusCode = statusCode;
+
             if (!this.exponentialBackoffReported && this.pauseTimer.Delay > this.defaultBackoffEnabledReportingInterval)
             {
                 TelemetryChannelEventSource.Log.BackoffEnabled(this.pauseTimer.Delay.TotalMinutes, statusCode);
@@ -95,6 +137,8 @@
 
         public void ReportBackoffDisabled()
         {
+            this.LastStatusCode = 200;
+
             if (this.exponentialBackoffReported)
             {
                 TelemetryChannelEventSource.Log.BackoffDisabled();

@@ -8,6 +8,8 @@
     using System.Globalization;
     using System.Net;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
 
@@ -22,6 +24,10 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
     using Assert = Xunit.Assert;
+
+#if NET45
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     public class BackoffLogicManagerTest
     {
@@ -66,7 +72,7 @@
 
                 Assert.Equal(1, backendResponse.ItemsAccepted);
                 Assert.Equal(100, backendResponse.ItemsReceived);
-                Assert.Equal(1, backendResponse.Errors.Length);
+                Assert.Equal(1, backendResponse.Errors.Length); // Even though accepted number of items is 1 out of 99 we get only 1 error back. We do not expect same in production but SDK should handle it correctly.
                 Assert.Equal(84, backendResponse.Errors[0].Index);
                 Assert.Equal(206, backendResponse.Errors[0].StatusCode);
                 Assert.Equal("Explanation", backendResponse.Errors[0].Message);
@@ -244,6 +250,49 @@
                     var traces = listener.Messages.ToList();
                     Assert.Equal(0, traces.Count);
                 }
+            }
+        }
+
+        [TestClass]
+        public class ConsecutiveErrors
+        {
+            [TestMethod]
+            public void DoNotIncrementConsecutiveErrorsMoreOftenThanOnceInminIntervalToUpdateConsecutiveErrors()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromDays(1));
+
+                Task[] tasks = new Task[10];
+                for (int i = 0; i < 10; ++i)
+                {
+                    tasks[i] = TaskEx.Run(() => manager.ConsecutiveErrors++);
+                }
+
+                Task.WaitAll(tasks);
+
+                Assert.Equal(1, manager.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void IncrementConsecutiveErrorsAfterMinIntervalToUpdateConsecutiveErrorsPassed()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromMilliseconds(1));
+
+                manager.ConsecutiveErrors++;
+                Thread.Sleep(1);
+                manager.ConsecutiveErrors++;
+
+                Assert.Equal(2, manager.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void ConsecutiveErrorsCanAlwaysBeResetTo0()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromDays(1));
+
+                manager.ConsecutiveErrors++;
+                manager.ConsecutiveErrors = 0;
+
+                Assert.Equal(0, manager.ConsecutiveErrors);
             }
         }
     }
