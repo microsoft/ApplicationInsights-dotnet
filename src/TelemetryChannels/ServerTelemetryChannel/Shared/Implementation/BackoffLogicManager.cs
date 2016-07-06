@@ -22,12 +22,12 @@
 
         private readonly TimeSpan defaultBackoffEnabledReportingInterval;
         private readonly object lockConsecutiveErrors = new object();
+        private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
 
         private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
         private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
-        private TimeSpan minIntervalToUpdateConsecutiveErrors;
 
         public BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval)
         {
@@ -47,7 +47,10 @@
         /// </summary>
         public int ConsecutiveErrors
         {
-            get { return this.consecutiveErrors; }
+            get
+            {
+                return this.consecutiveErrors;
+            }
 
             set
             {
@@ -71,7 +74,7 @@
         }
 
         /// <summary>
-        /// Last status code SDK received from the backend.
+        /// Gets or sets the last status code SDK received from the backend.
         /// </summary>
         public int LastStatusCode { get; set; }
 
