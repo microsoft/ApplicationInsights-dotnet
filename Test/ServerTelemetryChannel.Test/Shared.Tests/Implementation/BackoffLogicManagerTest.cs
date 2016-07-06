@@ -8,6 +8,8 @@
     using System.Globalization;
     using System.Net;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
 
@@ -22,6 +24,10 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
     using Assert = Xunit.Assert;
+
+#if NET45
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     public class BackoffLogicManagerTest
     {
@@ -66,7 +72,7 @@
 
                 Assert.Equal(1, backendResponse.ItemsAccepted);
                 Assert.Equal(100, backendResponse.ItemsReceived);
-                Assert.Equal(1, backendResponse.Errors.Length);
+                Assert.Equal(1, backendResponse.Errors.Length); // Even though accepted number of items is 1 out of 99 we get only 1 error back. We do not expect same in production but SDK should handle it correctly.
                 Assert.Equal(84, backendResponse.Errors[0].Index);
                 Assert.Equal(206, backendResponse.Errors[0].StatusCode);
                 Assert.Equal("Explanation", backendResponse.Errors[0].Message);
@@ -88,7 +94,7 @@
             public void FirstErrorDelayIsSameAsSlotDelay()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ConsecutiveErrors++;
+                manager.ReportBackoffEnabled(500);
                 manager.ScheduleRestore(string.Empty, () => null);
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
@@ -96,8 +102,13 @@
             [TestMethod]
             public void UpperBoundOfDelayIsMaxDelay()
             {
-                var manager = new BackoffLogicManager(TimeSpan.Zero) { ConsecutiveErrors = int.MaxValue };
+                var manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.Zero);
+
+                PrivateObject wrapper = new PrivateObject(manager);
+                wrapper.SetField("consecutiveErrors", int.MaxValue);
+
                 manager.ScheduleRestore(string.Empty, () => null);
+
                 Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
             }
 
@@ -244,6 +255,49 @@
                     var traces = listener.Messages.ToList();
                     Assert.Equal(0, traces.Count);
                 }
+            }
+        }
+
+        [TestClass]
+        public class ConsecutiveErrors
+        {
+            [TestMethod]
+            public void DoNotIncrementConsecutiveErrorsMoreOftenThanOnceInminIntervalToUpdateConsecutiveErrors()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromDays(1));
+
+                Task[] tasks = new Task[10];
+                for (int i = 0; i < 10; ++i)
+                {
+                    tasks[i] = TaskEx.Run(() => manager.ReportBackoffEnabled(500));
+                }
+
+                Task.WaitAll(tasks);
+
+                Assert.Equal(1, manager.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void IncrementConsecutiveErrorsAfterMinIntervalToUpdateConsecutiveErrorsPassed()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromMilliseconds(1));
+
+                manager.ReportBackoffEnabled(500);
+                Thread.Sleep(1);
+                manager.ReportBackoffEnabled(500);
+
+                Assert.Equal(2, manager.ConsecutiveErrors);
+            }
+
+            [TestMethod]
+            public void ConsecutiveErrorsCanAlwaysBeResetTo0()
+            {
+                BackoffLogicManager manager = new BackoffLogicManager(TimeSpan.Zero, TimeSpan.FromDays(1));
+
+                manager.ReportBackoffEnabled(500);
+                manager.ResetConsecutiveErrors();
+
+                Assert.Equal(0, manager.ConsecutiveErrors);
             }
         }
     }

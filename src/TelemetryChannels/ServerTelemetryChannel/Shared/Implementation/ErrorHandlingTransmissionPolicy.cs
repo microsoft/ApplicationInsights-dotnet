@@ -33,8 +33,6 @@
             var webException = e.Exception as WebException;
             if (webException != null)
             {
-                // We do not send data very often so we do not care about locking the counter
-                this.backoffLogicManager.ConsecutiveErrors++;
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {

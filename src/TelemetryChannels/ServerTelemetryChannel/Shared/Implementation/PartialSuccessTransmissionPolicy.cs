@@ -34,7 +34,7 @@
             if (args.Exception == null && args.Response == null)
             {
                 // We succesfully sent transmittion
-                this.backoffLogicManager.ConsecutiveErrors = 0;
+                this.backoffLogicManager.ResetConsecutiveErrors();
                 return;
             }
 
@@ -44,7 +44,6 @@
 
                 if (!string.IsNullOrEmpty(newTransmissions))
                 {
-                    this.backoffLogicManager.ConsecutiveErrors++;
                     this.DelayFutureProcessing(args.Response);
                     
                     byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
@@ -60,7 +59,7 @@
                 else
                 {
                     // We got 206 but there is no indication in response that something was not accepted.
-                    this.backoffLogicManager.ConsecutiveErrors = 0;
+                    this.backoffLogicManager.ResetConsecutiveErrors();
                 }
             }
         }

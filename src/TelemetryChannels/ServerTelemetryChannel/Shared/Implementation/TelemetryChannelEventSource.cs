@@ -287,10 +287,10 @@
             this.WriteEvent(40, transmissionId ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
-        public void TransmitterBufferSkipped(string transmissionId, string appDomainName = "Incorrect")
+        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}. Last backend status code: {1}. Current delay in sec: {2}.", Level = EventLevel.Verbose)]
+        public void TransmitterBufferSkipped(string transmissionId, int statusCode, double currentDelayInSeconds, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(41, transmissionId, this.ApplicationName);
+            this.WriteEvent(41, transmissionId, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
         [Event(42, Message = "TransmitterStorageSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
