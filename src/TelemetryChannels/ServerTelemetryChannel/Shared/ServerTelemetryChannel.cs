@@ -1,11 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel
 {
     using System;
+    using System.ComponentModel;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -50,6 +51,23 @@
 
             this.TelemetryProcessor = this.TelemetryBuffer;
             this.isInitialized = false;
+        }
+
+        /// <summary>
+        /// Gets or sets default interval after which diagnostics event will be logged if telemetry sending was disabled.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TimeSpan DefaultBackoffEnabledReportingInterval
+        {
+            get
+            {
+                return this.Transmitter.BackoffLogicManager.DefaultBackoffEnabledReportingInterval;
+            }
+
+            set
+            {
+                this.Transmitter.BackoffLogicManager.DefaultBackoffEnabledReportingInterval = value;
+            }
         }
 
         /// <summary>

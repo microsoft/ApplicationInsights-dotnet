@@ -81,16 +81,25 @@
 
         private bool IsNetworkAvailable()
         {
+            bool result = true;
             try
             {
-                return this.network.IsAvailable();
+                result = this.network.IsAvailable();
+                if (!result)
+                {
+                    TelemetryChannelEventSource.Log.NetworkIsNotAvailableWarning();
+                }
             }
-            catch (Exception e) 
+            catch (SocketException se)
             {
-                // Catch all exceptions because SocketException and NetworkInformationException are not defined on all platforms
-                TelemetryChannelEventSource.Log.NetworkIsNotAvailableWarning(e.ToString());
-                return true; 
+                TelemetryChannelEventSource.Log.SubscribeToNetworkFailureWarning(se.ToString());
             }
+            catch (NetworkInformationException nie)
+            {
+                TelemetryChannelEventSource.Log.SubscribeToNetworkFailureWarning(nie.ToString());
+            }
+
+            return result;
         }
 
         private void Dispose(bool disposing)

@@ -16,11 +16,11 @@
     {
         private const int SlotDelayInSeconds = 10;
         private const int MaxDelayInSeconds = 3600;
+        private const int DefaultBackoffEnabledReportingIntervalInMin = 30;
 
         private static readonly Random Random = new Random();
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
-        private readonly TimeSpan defaultBackoffEnabledReportingInterval;
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
 
@@ -29,9 +29,15 @@
         private int consecutiveErrors;
         private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
 
+        public BackoffLogicManager()
+        {
+            this.DefaultBackoffEnabledReportingInterval = TimeSpan.FromMinutes(DefaultBackoffEnabledReportingIntervalInMin);
+            this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+        }
+
         public BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval)
         {
-            this.defaultBackoffEnabledReportingInterval = defaultBackoffEnabledReportingInterval;
+            this.DefaultBackoffEnabledReportingInterval = defaultBackoffEnabledReportingInterval;
             this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
         }
 
@@ -54,6 +60,8 @@
         /// Gets the last status code SDK received from the backend.
         /// </summary>
         public int LastStatusCode { get; private set; }
+
+        public TimeSpan DefaultBackoffEnabledReportingInterval { get; set; }
 
         internal TimeSpan CurrentDelay
         {
@@ -119,7 +127,7 @@
         {
             this.LastStatusCode = statusCode;
             
-            if (!this.exponentialBackoffReported && this.pauseTimer.Delay > this.defaultBackoffEnabledReportingInterval)
+            if (!this.exponentialBackoffReported && this.pauseTimer.Delay > this.DefaultBackoffEnabledReportingInterval)
             {
                 TelemetryChannelEventSource.Log.BackoffEnabled(this.pauseTimer.Delay.TotalMinutes, statusCode);
                 this.exponentialBackoffReported = true;

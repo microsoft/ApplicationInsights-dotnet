@@ -233,10 +233,10 @@
             this.WriteEvent(31, seconds, this.ApplicationName);
         }
 
-        [Event(32, Message = "NetworkIsNotAvailable: {0}", Level = EventLevel.Warning)]
-        public void NetworkIsNotAvailableWarning(string exception, string appDomainName = "Incorrect")
+        [Event(32, Message = "NetworkIsNotAvailable", Level = EventLevel.Warning)]
+        public void NetworkIsNotAvailableWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(32, exception ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(32, this.ApplicationName);
         }
 
         [Event(33, Message = "StorageCapacityReset: {0}", Level = EventLevel.Verbose)]
