@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore {
         /// <summary>
         ///    Looks up a localized string similar to      &lt;script type=&quot;text/javascript&quot;&gt;
         ///        var appInsights=window.appInsights||function(config){{
-        ///            function r(config){{t[config]=function(){{var i=arguments;t.queue.push(function(){{t[config].apply(t,i)}})}}}}var t={{config:config}},u=document,e=window,o=&quot;script&quot;,s=u.createElement(o),i,f;for(s.src=config.url||&quot;//az416426.vo.msecnd.net/scripts/a/ai.0.js&quot;,u.getElementsByTagName(o)[0].parentNode.appendChild(s),t.cookie=u.cookie,t.queue=[],i=[&quot;Event&quot;,&quot;Exception&quot;,&quot;Metric&quot;,&quot;PageView&quot;,&quot;Trace&quot;,&quot;Ajax&quot;] [rest of string was truncated]&quot;;.
+        ///            function r(config){{t[config]=function(){{var i=arguments;t.queue.push(function(){{t[config].apply(t,i)}})}}}}var t={{config:config}},u=document,e=window,o=&quot;script&quot;,s=u.createElement(o),i,f;s.src=config.url||&quot;//az416426.vo.msecnd.net/scripts/a/ai.0.js&quot;;u.getElementsByTagName(o)[0].parentNode.appendChild(s);try{{t.cookie=u.cookie}}catch(h){{}}for(t.queue=[],i=[&quot;Event&quot;,&quot;Exception&quot;,&quot;Metric&quot;,&quot;PageVie [rest of string was truncated]&quot;;.
         /// </summary>
         public static string JavaScriptSnippet {
             get {
