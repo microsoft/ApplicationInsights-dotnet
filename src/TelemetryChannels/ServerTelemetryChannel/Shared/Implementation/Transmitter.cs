@@ -34,7 +34,7 @@
             IEnumerable<TransmissionPolicy> policies = null,
             BackoffLogicManager backoffLogicManager = null)
         { 
-            this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager(TimeSpan.FromMinutes(30)); // TODO: 30 to params
+            this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
             this.Sender = sender ?? new TransmissionSender();
             this.Sender.TransmissionSent += this.HandleSenderTransmissionSentEvent;
             this.maxSenderCapacity = this.Sender.Capacity;

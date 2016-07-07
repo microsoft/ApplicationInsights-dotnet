@@ -32,6 +32,16 @@
     public class BackoffLogicManagerTest
     {
         [TestClass]
+        public class DefaultBackoffEnabledReportingInterval
+        {
+            [TestMethod]
+            public void DefaultReportingIntervalInMinIs30Min()
+            {
+                Assert.Equal(30, new BackoffLogicManager().DefaultBackoffEnabledReportingInterval.TotalMinutes);
+            }
+        }
+
+        [TestClass]
         public class GetBackendResponse
         {
             [TestMethod]
