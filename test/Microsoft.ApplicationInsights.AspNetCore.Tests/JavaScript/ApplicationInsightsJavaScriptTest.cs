@@ -29,7 +29,7 @@
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
             var snippet = new JavaScriptSnippet(telemetryConfiguration);
-            Assert.Contains("'" + unittestkey + "'", snippet.FullScript.ToString());
+            Assert.Contains("instrumentationKey: '" + unittestkey + "'", snippet.FullScript.ToString());
         }
     }
 }
