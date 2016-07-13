@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs
@@ -40,7 +41,8 @@
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
            
             // For directly using TrackDependency(), version will be simply what is set by core
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = string.Format(CultureInfo.InvariantCulture, "rdd{0}: {1}", RddSource.Profiler, SdkVersionUtils.GetAssemblyVersion());
+            string prefix = "rdd" + RddSource.Profiler + ":";
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(prefix);
             if (!string.IsNullOrEmpty(agentVersion))
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
@@ -345,10 +347,7 @@
                     this.TelemetryTable.Remove(thisObj);
                     telemetry.Success = exception == null;
                     var sqlEx = exception as SqlException;
-                    if (sqlEx != null)
-                    {
-                        telemetry.ResultCode = sqlEx.Number.ToString(CultureInfo.InvariantCulture);
-                    }
+                    telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }               

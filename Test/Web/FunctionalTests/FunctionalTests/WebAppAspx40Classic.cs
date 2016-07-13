@@ -50,7 +50,7 @@ namespace Functional
                     })
                 {
                     TelemetryListenerPort = 4001,
-                    IKey = "11111111-2222-3333-4444-333333555555",
+                    IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                     AttachDebugger = System.Diagnostics.Debugger.IsAttached,
                 });
         }
@@ -78,6 +78,7 @@ namespace Functional
 
             var requestStartTime = DateTimeOffset.UtcNow;
 
+            this.HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MyAgent/1.0");
             var responseTask = this.HttpClient.GetAsync(RequestPath);
 
             Assert.IsTrue(

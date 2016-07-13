@@ -6,16 +6,16 @@
       Update for every public release. 
     -->
     <SemanticVersionMajor>2</SemanticVersionMajor>
-    <SemanticVersionMinor>1</SemanticVersionMinor>
+    <SemanticVersionMinor>2</SemanticVersionMinor>
     <SemanticVersionPatch>0</SemanticVersionPatch>
-    <PreReleaseMilestone></PreReleaseMilestone>
+    <PreReleaseMilestone>beta1</PreReleaseMilestone>
 
     <!-- 
       Date when Semantic Version was changed. 
       Update for every public release.
       This resets file version counter. We will not change it before the stable version
     -->
-    <SemanticVersionDate>2016-03-08</SemanticVersionDate>
+    <SemanticVersionDate>2016-06-06</SemanticVersionDate>
     
     <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
     <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>

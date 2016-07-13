@@ -3,10 +3,14 @@
     using System;
     using System.Globalization;
     using System.Net;
+#if !NET40
+    using System.Web;
+#endif
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs
@@ -39,7 +43,8 @@
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
             // For directly using TrackDependency(), version will be simply what is set by core
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = string.Format(CultureInfo.InvariantCulture, "rdd{0}: {1}", RddSource.Profiler, SdkVersionUtils.GetAssemblyVersion());
+            string prefix = "rdd" + RddSource.Profiler + ":";
+            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(prefix);
             if (!string.IsNullOrEmpty(agentVersion))
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
@@ -66,7 +71,7 @@
         /// <param name="thisObj">This object.</param>
         /// <returns>The resulting return value.</returns>
         public object OnEndForGetResponse(object context, object returnValue, object thisObj)
-        {            
+        {
             this.OnEnd(null, thisObj, returnValue);
             return returnValue;
         }
@@ -78,7 +83,7 @@
         /// <param name="exception">The exception object.</param>
         /// <param name="thisObj">This object.</param>        
         public void OnExceptionForGetResponse(object context, object exception, object thisObj)
-        {            
+        {
             this.OnEnd(exception, thisObj, null);
         }
         
@@ -170,7 +175,7 @@
             this.OnEnd(exception, thisObj, null);
         }
 
-        #endregion // Http callbacks
+#endregion // Http callbacks
 
         /// <summary>
         /// Gets HTTP request url.
@@ -299,10 +304,32 @@
                 {
                     this.TelemetryTable.Remove(thisObj);
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
-                    
-                    var responseObj = returnValue as HttpWebResponse;
 
                     int statusCode = -1;
+
+                    var responseObj = returnValue as HttpWebResponse;
+
+                    if (responseObj == null && exception != null)
+                    {
+                        var webException = exception as WebException;
+
+                        if (webException != null)
+                        {
+                            responseObj = webException.Response as HttpWebResponse;
+                        }
+#if !NET40
+                        if (responseObj == null)
+                        {
+                            var httpException = exception as HttpException;
+
+                            if (httpException != null)
+                            {
+                                statusCode = httpException.GetHttpCode();
+                            }
+                        }
+#endif
+                    }
+
                     if (responseObj != null)
                     {
                         try

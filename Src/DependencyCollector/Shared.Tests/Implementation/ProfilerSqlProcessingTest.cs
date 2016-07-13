@@ -9,11 +9,15 @@
 #endif
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
     using System.Threading;
+
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
@@ -91,10 +95,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 true,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -123,8 +125,6 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 false,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "10");
         }
@@ -198,10 +198,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 true,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -225,10 +223,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 false,
-                false,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
         #endregion //SynCallBacks
 
@@ -271,10 +267,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 true,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -298,10 +292,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 false,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -371,10 +363,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 true,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -398,10 +388,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 false,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -469,10 +457,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 true,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -496,10 +482,8 @@
                 GetResourceNameForStoredProcedure(command),
                 RemoteDependencyKind.SQL,
                 false,
-                true,
-                1,
                 SleepTimeMsecBetweenBeginAndEnd, 
-                string.Empty);
+                "0");
         }
 
         /// <summary>
@@ -728,7 +712,7 @@
         }
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, bool async, int count, double valueMin, string resultCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string resultCode)
         {            
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
@@ -744,6 +728,9 @@
             Assert.IsTrue(
                 remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
+            Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
 
         private static SqlCommand GetSqlCommandTestForQuery()

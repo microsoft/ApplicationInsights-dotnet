@@ -6,6 +6,7 @@
     using System.IO;
     using System.IO.Compression;
     using System.Net;
+    using System.Net.Http;
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Text;
@@ -16,12 +17,15 @@
     {
         private readonly HttpListener listener;
         private IObservable<TelemetryItem> stream;
+        private int validatedPackages;
 
         public HttpListenerObservable(string url)
         {
             this.listener = new HttpListener();
             this.listener.Prefixes.Add(url);
         }
+
+        public bool FailureDetected { get; set; }
 
         /// <summary>
         /// Method used between calling ReceiveAllItemsDuringTimeOfType multiple times so the state can be reset.
@@ -34,6 +38,9 @@
 
         public void Start()
         {
+            this.FailureDetected = false;
+            this.validatedPackages = 0;
+
             if (this.stream != null)
             {
                 this.Stop();
@@ -127,6 +134,18 @@
                 Trace.TraceInformation("=>\n");
                 Trace.TraceInformation("Item received: " + content);
                 Trace.TraceInformation("<=\n");
+                
+                // Validating each package takes too much time, check only first one that have dependency data
+                if (this.validatedPackages == 0 && content.Contains("RemoteDependency"))
+                {
+                    try
+                    {
+                        this.ValidateItems(content);
+                        ++this.validatedPackages;
+                    }
+                    catch (TaskCanceledException)
+                    {}
+                }
 
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }
@@ -159,6 +178,26 @@
                     outputStream.Write(block, 0, bytesRead);
                 }
                 return Encoding.UTF8.GetString(outputStream.ToArray());
+            }
+        }
+
+        private void ValidateItems(string items)
+        {
+            HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+
+            var result = client.PostAsync(
+                "https://dc.services.visualstudio.com/v2/validate",
+                new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                Trace.WriteLine("ERROR! Backend Response: " + response);
+                this.FailureDetected = true;
+            }
+            else
+            {
+                Trace.WriteLine("Check against 'Validate' endpoint is done.");
             }
         }
     }

@@ -5,6 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Implementation;
 
     /// <summary>
@@ -52,7 +53,7 @@
                         this.isInitialized = true;
 
                         this.telemetryClient = new TelemetryClient(configuration);
-                        this.telemetryClient.Context.GetInternalContext().SdkVersion = "unobs: " + SdkVersionUtils.GetAssemblyVersion();
+                        this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("unobs:");
 
                         this.registerAction(this.TaskSchedulerOnUnobservedTaskException);
                     }

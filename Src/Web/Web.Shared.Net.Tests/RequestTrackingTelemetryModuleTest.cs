@@ -2,10 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using System.Web;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -334,6 +338,23 @@
                 WebEventsPublisher.Log.OnEnd();
 
                 Assert.NotNull(context.GetRequestTelemetry());
+            }
+        }
+
+        [TestMethod]
+        public void SdkVersionHasCorrectFormat()
+        {
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(RequestTrackingTelemetryModule), prefix: "web:");
+            
+            var context = HttpModuleHelper.GetFakeHttpContext();
+
+            using (var module = new TestableRequestTrackingTelemetryModule(context))
+            {
+                module.Initialize(TelemetryConfiguration.CreateDefault());
+                module.OnBeginRequest(null);
+                module.OnEndRequest(null);
+
+                Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
             }
         }
 

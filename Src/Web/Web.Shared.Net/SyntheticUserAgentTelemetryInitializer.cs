@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
-    using System.Collections.Generic;
+    using System;
     using System.Web;
     using Implementation;
     using Microsoft.ApplicationInsights.Channel;
@@ -11,23 +11,29 @@
     /// </summary>
     public class SyntheticUserAgentTelemetryInitializer : WebTelemetryInitializerBase
     {
-        private readonly IList<SyntheticUserAgentFilter> filterPatterns = new List<SyntheticUserAgentFilter>();
+        private string filters = string.Empty;
+        private string[] filterPatterns;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SyntheticUserAgentTelemetryInitializer" /> class.
+        /// Gets or sets the configured patterns for matching synthetic traffic filters through user agent string.
         /// </summary>
-        public SyntheticUserAgentTelemetryInitializer()
-        {
-        }
-
-        /// <summary>
-        /// Gets the configured patterns for matching synthetic traffic filters through user agent string.
-        /// </summary>
-        public IList<SyntheticUserAgentFilter> Filters
+        public string Filters
         {
             get
             {
-                return this.filterPatterns;
+                return this.filters;
+            }
+
+            set
+            {
+                if (value != null)
+                {
+                    this.filters = value;
+
+                    // We expect customers to configure telemetry initializer before they add it to active configuration
+                    // So we will not protect it with locks (to improve perf)
+                    this.filterPatterns = value.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                }
             }
         }
 
@@ -39,24 +45,23 @@
         /// <param name="telemetry">Telemetry item to initialize.</param>
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
-            if (platformContext != null)
+            if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
             {
-                var request = platformContext.GetRequest();
-
-                if (request != null)
+                if (platformContext != null)
                 {
-                    foreach (var pattern in this.filterPatterns)
+                    var request = platformContext.GetRequest();
+
+                    if (request != null && !string.IsNullOrEmpty(request.UserAgent))
                     {
-                        if (pattern.RegularExpression != null && request.UserAgent != null)
+                        // We expect customers to configure telemetry initializer before they add it to active configuration
+                        // So we will not protect fiterPatterns array with locks (to improve perf)
+                        foreach (string pattern in this.filterPatterns)
                         {
-                            var match = pattern.RegularExpression.Match(request.UserAgent);
-                            if (match.Success)
+                            if (!string.IsNullOrWhiteSpace(pattern) &&
+                                request.UserAgent.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1)
                             {
-                                if (string.IsNullOrEmpty(telemetry.Context.Operation.SyntheticSource))
-                                {
-                                    telemetry.Context.Operation.SyntheticSource = !string.IsNullOrWhiteSpace(pattern.SourceName) ? pattern.SourceName : match.Value;
-                                    return;
-                                }
+                                telemetry.Context.Operation.SyntheticSource = "Bot";
+                                return;
                             }
                         }
                     }

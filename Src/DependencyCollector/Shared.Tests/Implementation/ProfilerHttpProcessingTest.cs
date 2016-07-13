@@ -8,23 +8,28 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Threading;
+#if !NET40
+    using System.Web;
+#endif
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
         #region Fields
-        private const int TimeAccuracyMilliseconds = 50; // this may be big number when under debugger
+        private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private List<ITelemetry> sendItems;
@@ -87,7 +92,7 @@
             
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, false, 1, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -108,9 +113,51 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
             
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, false, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
+        /// <summary>
+        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for WebException.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for WebException.")]
+        [Owner("mafletch")]
+        [TestCategory("CVT")]
+        public void RddTestHttpProcessingProfilerOnWebExceptionForGetResponse()
+        {
+            var request = WebRequest.Create(this.testUrl);
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.NotFound);
+            Exception exc = new WebException("exception message", null, WebExceptionStatus.ProtocolError, returnObjectPassed);
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+        }
+
+#if !NET40
+        /// <summary>
+        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.")]
+        [Owner("mafletch")]
+        [TestCategory("CVT")]
+        public void RddTestHttpProcessingProfilerOnHttpExceptionForGetResponse()
+        {
+            var request = WebRequest.Create(this.testUrl);
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
+            Exception exc = new HttpException(404, "exception message");
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
+            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+        }
+#endif
         /// <summary>
         /// Validates HttpProcessingProfiler OnBegin logs error into EventLog when passed invalid thisObject.
         /// </summary>
@@ -196,7 +243,7 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, false, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //GetRequestStream
@@ -236,7 +283,7 @@
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForEndGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -257,7 +304,7 @@
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForEndGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         /// <summary>
@@ -278,7 +325,7 @@
             this.httpProcessingProfiler.OnExceptionForEndGetResponse(operationReturned, exc, request, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //BeginGetResponse-EndGetResponse
@@ -318,7 +365,7 @@
             this.httpProcessingProfiler.OnExceptionForEndGetRequestStream(operationReturned, exc, request, null, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, true, 1, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //BeginGetRequestStream-EndGetRequestStream
@@ -359,7 +406,7 @@
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, false, 1, 3 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, 3 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>        
@@ -380,7 +427,7 @@
             this.httpProcessingProfiler.OnExceptionForGetRequestStream(null, this.ex, request, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, false, 1, 0, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, 0, string.Empty);
         }
         #endregion //SyncScenarios
 
@@ -414,7 +461,7 @@
             this.httpProcessingProfiler.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
                         
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, true, 1, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }        
 
         #endregion AsyncScenarios
@@ -563,7 +610,7 @@
         #region Helpers
         
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, RemoteDependencyKind kind, bool success, bool async, int count, double expectedValue, string resultCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, RemoteDependencyKind kind, bool success, double expectedValue, string resultCode)
         {
             Assert.AreEqual("GET " + uri, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
@@ -579,6 +626,9 @@
             Assert.IsTrue(
                 remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
                 string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
+
+            string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
+            Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
         #endregion Helpers
     }

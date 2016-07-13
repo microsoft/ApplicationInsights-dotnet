@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SdkVersionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubTelemetryChannel.cs" />
