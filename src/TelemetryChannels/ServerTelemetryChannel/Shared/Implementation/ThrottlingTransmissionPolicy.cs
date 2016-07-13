@@ -4,24 +4,25 @@
     using System.Net;
     using System.Threading.Tasks;
 
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
+    internal class ThrottlingTransmissionPolicy : TransmissionPolicy
     {
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        private BackoffLogicManager backoffLogicManager;
 
         public override void Initialize(Transmitter transmitter)
         {
+            if (transmitter == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            this.backoffLogicManager = transmitter.BackoffLogicManager;
+
             base.Initialize(transmitter);
             transmitter.TransmissionSent += this.HandleTransmissionSentEvent;
         }
@@ -31,43 +32,40 @@
             var webException = e.Exception as WebException;
             if (webException != null)
             {
-                this.ConsecutiveErrors++;
-
                 HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
                 if (httpWebResponse != null)
                 {
                     if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequests ||
                         httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                     {
-                        this.pauseTimer.Delay = this.GetBackOffTime(httpWebResponse.Headers);
-                        TelemetryChannelEventSource.Log.ThrottlingRetryAfterParsedInSec(this.pauseTimer.Delay.TotalSeconds);
-
                         this.MaxSenderCapacity = 0;
-                        this.MaxBufferCapacity =
-                            httpWebResponse.StatusCode ==
-                            (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime ? (int?)0 : null;
-                        this.MaxStorageCapacity =
-                            httpWebResponse.StatusCode ==
-                            (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime ? (int?)0 : null;
+                        if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
+                        {
+                            // We start loosing data!
+                            this.MaxBufferCapacity = 0;
+                            this.MaxStorageCapacity = 0;
+                        }
+                        else
+                        {
+                            this.MaxBufferCapacity = null;
+                            this.MaxStorageCapacity = null;
+                        }
 
                         this.LogCapacityChanged();
-
                         this.Apply();
 
-                        // Back-off for the Delay duration and enable sending capacity
-                        this.pauseTimer.Start(() =>
-                        {
-                            this.ResetPolicy();
-                            return TaskEx.FromResult<object>(null);
-                        });
-
+                        this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponse.StatusCode);
                         this.Transmitter.Enqueue(e.Transmission);
+
+                        this.backoffLogicManager.ScheduleRestore(
+                            httpWebResponse.Headers, 
+                            () =>
+                                {
+                                    this.ResetPolicy();
+                                    return TaskEx.FromResult<object>(null);
+                                });
                     }
                 }
-            }
-            else
-            {
-                this.ConsecutiveErrors = 0;
             }
         }
 
@@ -78,18 +76,6 @@
             this.MaxStorageCapacity = null;
             this.LogCapacityChanged();
             this.Apply();     
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.pauseTimer != null)
-                {
-                    this.pauseTimer.Dispose();
-                    this.pauseTimer = null;
-                }
-            }
         }
     }
 }

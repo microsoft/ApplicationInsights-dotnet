@@ -15,22 +15,22 @@
         /// <summary>
         /// Fixed-rate sampling telemetry processor.
         /// </summary>
-        private SamplingTelemetryProcessor samplingProcessor;
+        private readonly SamplingTelemetryProcessor samplingProcessor;
+        
+        /// <summary>
+        /// Sampling percentage estimator settings.
+        /// </summary>
+        private readonly SamplingPercentageEstimatorSettings estimatorSettings;
+
+        /// <summary>
+        /// Callback invoked every time sampling percentage is evaluated.
+        /// </summary>
+        private readonly AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
 
         /// <summary>
         /// Sampling percentage estimator telemetry processor.
         /// </summary>
         private SamplingPercentageEstimatorTelemetryProcessor estimatorProcessor;
-
-        /// <summary>
-        /// Sampling percentage estimator settings.
-        /// </summary>
-        private SamplingPercentageEstimatorSettings estimatorSettings;
-
-        /// <summary>
-        /// Callback invoked every time sampling percentage is evaluated.
-        /// </summary>
-        private AdaptiveSamplingPercentageEvaluatedCallback evaluationCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdaptiveSamplingTelemetryProcessor"/> class.
@@ -58,6 +58,16 @@
             // make estimatortelemetry processor  work after sampling was done
             this.estimatorProcessor = new SamplingPercentageEstimatorTelemetryProcessor(settings, this.SamplingPercentageChanged, next);
             this.samplingProcessor = new SamplingTelemetryProcessor(this.estimatorProcessor);
+        }
+
+        /// <summary>
+        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled. 
+        /// </summary>
+        public string ExcludedTypes
+        {
+            get { return this.samplingProcessor.ExcludedTypes; }
+
+            set { this.samplingProcessor.ExcludedTypes = value; }
         }
 
         /// <summary>

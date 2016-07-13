@@ -22,6 +22,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExceptionHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ThrottlingTransmissionPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\BackoffLogicManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IApplicationFolderProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IApplicationLifecycle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\INetwork.cs" />
@@ -40,7 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryChannelEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetrySerializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ThrottlingTransmissionPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionPolicy.cs" />

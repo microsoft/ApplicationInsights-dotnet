@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
 
     /// <summary>
     /// Implements throttled and persisted transmission of telemetry to Application Insights. 
@@ -15,6 +16,7 @@
         internal readonly TransmissionBuffer Buffer;        
         internal readonly TransmissionStorage Storage;        
         private readonly IEnumerable<TransmissionPolicy> policies;
+        private readonly BackoffLogicManager backoffLogicManager;
 
         private bool arePoliciesApplied;
         private int maxSenderCapacity;
@@ -29,8 +31,10 @@
             TransmissionSender sender = null, 
             TransmissionBuffer transmissionBuffer = null, 
             TransmissionStorage storage = null, 
-            IEnumerable<TransmissionPolicy> policies = null)
+            IEnumerable<TransmissionPolicy> policies = null,
+            BackoffLogicManager backoffLogicManager = null)
         { 
+            this.backoffLogicManager = backoffLogicManager ?? new BackoffLogicManager();
             this.Sender = sender ?? new TransmissionSender();
             this.Sender.TransmissionSent += this.HandleSenderTransmissionSentEvent;
             this.maxSenderCapacity = this.Sender.Capacity;
@@ -95,6 +99,11 @@
             }
         }
 
+        public BackoffLogicManager BackoffLogicManager
+        {
+            get { return this.backoffLogicManager; }
+        }
+
         /// <summary>
         /// Releases resources used by this <see cref="Transmitter"/> instance.
         /// </summary>
@@ -137,7 +146,7 @@
                 return;
             }
 
-            TelemetryChannelEventSource.Log.TransmitterBufferSkipped(transmission.Id);
+            TelemetryChannelEventSource.Log.TransmitterBufferSkipped(transmission.Id, this.BackoffLogicManager.LastStatusCode, this.BackoffLogicManager.CurrentDelay.TotalSeconds);
 
             if (!this.Storage.Enqueue(transmissionGetter))
             {
@@ -287,7 +296,12 @@
                 {
                     policy.Dispose();
                 }
-            }
+
+                if (this.backoffLogicManager != null)
+                {
+                    this.backoffLogicManager.Dispose();
+                }
+            }            
         }
     }
 }

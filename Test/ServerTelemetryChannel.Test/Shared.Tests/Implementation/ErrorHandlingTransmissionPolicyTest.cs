@@ -4,15 +4,14 @@
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Channel.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
@@ -20,9 +19,8 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-#if NET45
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
+    using System.Text;
+    using System.IO;
 
     public class ErrorHandlingTransmissionPolicyTest
     {
@@ -33,16 +31,15 @@
             public void StopsTransmissionSendingWhenTransmissionTimesOut()
             {
                 var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter();
+                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromSeconds(10)));
                 transmitter.OnApplyPolicies = () =>
                 {
                     policyApplied.Set();
                 };
 
-                var policy = new TestableErrorHandlingTransmissionPolicy();
+                var policy = new ErrorHandlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
-                policy.BackOffTime = TimeSpan.FromSeconds(10);
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
                 
                 Assert.True(policyApplied.WaitOne(100));
@@ -53,16 +50,15 @@
             public void ResumesTransmissionSenderAfterPauseDuration()
             {
                 var policyApplied = new AutoResetEvent(false);
-                var transmitter = new StubTransmitter();
+                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMilliseconds(1)));
                 transmitter.OnApplyPolicies = () =>
                 {
                     policyApplied.Set();
                 };
 
-                var policy = new TestableErrorHandlingTransmissionPolicy();
+                var policy = new ErrorHandlingTransmissionPolicy();
                 policy.Initialize(transmitter);
                 
-                policy.BackOffTime = TimeSpan.FromMilliseconds(1);
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
                 
                 Assert.True(policyApplied.WaitOne(100));
@@ -73,14 +69,11 @@
             [TestMethod]
             public void KeepsTransmissionSenderPausedWhenAdditionalTransmissionsFail()
             {
-                var transmitter = new StubTransmitter();
-                var policy = new TestableErrorHandlingTransmissionPolicy();
+                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMinutes(1)));
+                var policy = new ErrorHandlingTransmissionPolicy();
                 policy.Initialize(transmitter);
                 
-                policy.BackOffTime = TimeSpan.FromMilliseconds(10);
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
-                
-                policy.BackOffTime = TimeSpan.FromMilliseconds(50);
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(30));
@@ -111,14 +104,14 @@
             public void RetriesFailedTransmissionInfinitely()
             {
                 Transmission enqueuedTransmission = null;
-                var transmitter = new StubTransmitter();
+
+                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMilliseconds(10)));
                 transmitter.OnEnqueue = transmission =>
                 {
                     enqueuedTransmission = transmission;
                 };
 
-                var policy = new TestableErrorHandlingTransmissionPolicy();
-                policy.BackOffTime = TimeSpan.FromMilliseconds(10);
+                var policy = new ErrorHandlingTransmissionPolicy();
                 policy.Initialize(transmitter);
 
                 var failedTransmission = new StubTransmission();
@@ -145,7 +138,7 @@
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(successfulTransmission));
 
                 Assert.Null(enqueuedTransmission);
-                Assert.Equal(0, policy.ConsecutiveErrors);
+                Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             }
 
             [TestMethod]
@@ -169,9 +162,9 @@
             [TestMethod, Timeout(1000)]
             public void CatchesAndLogsSynchronousExceptionsThrownByTransmitterWhenResumingTransmission()
             {
-                var policy = new TestableErrorHandlingTransmissionPolicy { BackOffTime = TimeSpan.FromMilliseconds(1) };
+                var policy = new ErrorHandlingTransmissionPolicy();
                 var exception = CreateException(statusCode: 408);
-                var transmitter = new StubTransmitter();
+                var transmitter = new StubTransmitter(new TestableBackoffLogicManager(TimeSpan.FromMilliseconds(1)));
                 transmitter.OnApplyPolicies = () =>
                 {
                     if (policy.MaxSenderCapacity == null)
@@ -180,6 +173,39 @@
                     }
                 };
                 CatchesAndLogsExceptionThrownByTransmitter(policy, transmitter, exception);
+            }
+
+            [TestMethod]
+            public void LogsAdditionalTracesIfResponseIsProvided()
+            {
+                using (var listener = new TestEventListener())
+                {
+                    // Arrange:
+                    const long AllKeywords = -1;
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.LogAlways, (EventKeywords)AllKeywords);
+
+                    Transmission enqueuedTransmission = null;
+                    var transmitter = new StubTransmitter (new BackoffLogicManager(TimeSpan.FromMilliseconds(10)))
+                    {
+                        OnEnqueue = transmission => { enqueuedTransmission = transmission; }
+                    };
+
+                    var policy = new ErrorHandlingTransmissionPolicy();
+                    policy.Initialize(transmitter);
+
+                    var failedTransmission = new StubTransmission();
+                    var response = new HttpWebResponseWrapper {Content = BackendResponseHelper.CreateBackendResponse(2, 1, new[] { "123" })};
+
+                    // Act:
+                    transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408), response));
+
+                    // Assert:
+                    var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
+                    Assert.Equal(2, traces.Count);
+                    Assert.Equal(23, traces[0].EventId); // failed to send
+                    Assert.Equal(7, traces[1].EventId); // additional trace
+                    Assert.Equal("Explanation", traces[1].Payload[0]);
+                }
             }
 
             private static Task ThrowAsync(Exception e)
@@ -207,21 +233,18 @@
             
             private static WebException CreateException(int statusCode)
             {
+                string content = BackendResponseHelper.CreateBackendResponse(3,1, new [] {"500"});
+                var bytes = Encoding.UTF8.GetBytes(content);
+                var responseStream = new MemoryStream();
+                responseStream.Write(bytes, 0, bytes.Length);
+                responseStream.Seek(0, SeekOrigin.Begin);
+
                 var mockWebResponse = new Moq.Mock<HttpWebResponse>();
+                mockWebResponse.Setup(c => c.GetResponseStream()).Returns(responseStream);
 
                 mockWebResponse.SetupGet<HttpStatusCode>((webRes) => webRes.StatusCode).Returns((HttpStatusCode)statusCode);
 
                 return new WebException("Transmitter Error", null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
-            }
-        }
-
-        private class TestableErrorHandlingTransmissionPolicy : ErrorHandlingTransmissionPolicy
-        {
-            public TimeSpan BackOffTime { get; set; }
-
-            public override TimeSpan GetBackOffTime(NameValueCollection headers = null)
-            {
-                return this.BackOffTime;
             }
         }
     }

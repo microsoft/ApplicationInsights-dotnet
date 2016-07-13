@@ -54,6 +54,21 @@
         }
 
         [TestClass]
+        public class DefaultBackoffEnabledReportingInterval
+        {
+            [TestMethod]
+            public void DefaultBackoffEnabledReportingIntervalUpdatesBackoffLogicManager()
+            {
+                ServerTelemetryChannel channel = new ServerTelemetryChannel
+                {
+                    DefaultBackoffEnabledReportingInterval = TimeSpan.FromHours(42)
+                };
+
+                Assert.Equal(channel.Transmitter.BackoffLogicManager.DefaultBackoffEnabledReportingInterval, TimeSpan.FromHours(42));
+            }
+        }
+
+        [TestClass]
         public class DeveloperMode : ServerTelemetryChannelTest
         {
             [TestMethod]

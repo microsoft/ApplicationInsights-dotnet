@@ -79,7 +79,7 @@
             [TestMethod]
             public void DoesNotSetMaxSenderAndBufferCapacitiesToZeroWhenNetworkAvailabilityCheckFailsHopingThatTransmissionsThemselvesMaySucceed()
             {
-                var network = new StubNetwork { OnIsAvailable = () => { throw new Exception("NetworkInformationException"); } };
+                var network = new StubNetwork { OnIsAvailable = () => { throw new SocketException(); } };
                 var policy = new NetworkAvailabilityTransmissionPolicy(network);
 
                 policy.Initialize(new StubTransmitter());
@@ -168,7 +168,7 @@
                     const long AllKeywords = -1;
                     listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeywords);
 
-                    var exception = new Exception("Socket Error");
+                    var exception = new SocketException();
                     var network = new StubNetwork { OnIsAvailable = () => { throw exception; } };
                     var policy = new NetworkAvailabilityTransmissionPolicy(network);
                     policy.Initialize(new StubTransmitter());

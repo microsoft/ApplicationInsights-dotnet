@@ -30,6 +30,32 @@
             }
         }
 
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(1,
+            Message = "Diagnostic message: backoff logic disabled, transmission will be resolved.",
+            Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
+        public void BackoffDisabled(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(1, this.ApplicationName);
+        }
+
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(2, 
+            Message = "Diagnostic message: backoff logic was enabled. Backoff internal exceeded {0} min. Last status code received from the backend was {1}.", 
+            Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
+        public void BackoffEnabled(double intervalInMin, int statusCode, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, intervalInMin, statusCode, this.ApplicationName);
+        }
+
+        [Event(3, Message = "Sampling skipped: {0}.", Level = EventLevel.Verbose)]
+        public void SamplingSkippedByType(string telemetryType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(3, telemetryType ?? string.Empty, this.ApplicationName);
+        }
+
         [Event(4, Message = "Backoff interval in seconds {0}.", Level = EventLevel.Verbose)]
         public void BackoffInterval(double intervalInSec, string appDomainName = "Incorrect")
         {
@@ -144,14 +170,15 @@
             this.WriteEvent(22, transmissionId ?? string.Empty, capacity, this.ApplicationName);
         }
 
-        [Event(23, Message = "TransmissionSendingFailed. TransmissionId: {0}. Message: {1}. StatusCode: {2}.", Level = EventLevel.Warning)]
-        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, int statusCode, string appDomainName = "Incorrect")
+        [Event(23, Message = "TransmissionSendingFailed. TransmissionId: {0}. Message: {1}. StatusCode: {2}. Description: {3}.", Level = EventLevel.Warning)]
+        public void TransmissionSendingFailedWebExceptionWarning(string transmissionId, string exceptionMessage, int statusCode, string description, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 23,
                 transmissionId ?? string.Empty,
                 exceptionMessage ?? string.Empty,
                 statusCode,
+                description ?? string.Empty,
                 this.ApplicationName);
         }
 
@@ -206,10 +233,10 @@
             this.WriteEvent(31, seconds, this.ApplicationName);
         }
 
-        [Event(32, Message = "NetworkIsNotAvailable: {0}", Level = EventLevel.Warning)]
-        public void NetworkIsNotAvailableWarning(string exception, string appDomainName = "Incorrect")
+        [Event(32, Message = "NetworkIsNotAvailable", Level = EventLevel.Warning)]
+        public void NetworkIsNotAvailableWarning(string appDomainName = "Incorrect")
         {
-            this.WriteEvent(32, exception ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(32, this.ApplicationName);
         }
 
         [Event(33, Message = "StorageCapacityReset: {0}", Level = EventLevel.Verbose)]
@@ -260,10 +287,10 @@
             this.WriteEvent(40, transmissionId ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
-        public void TransmitterBufferSkipped(string transmissionId, string appDomainName = "Incorrect")
+        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}. Last backend status code: {1}. Current delay in sec: {2}.", Level = EventLevel.Verbose)]
+        public void TransmitterBufferSkipped(string transmissionId, int statusCode, double currentDelayInSeconds, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(41, transmissionId, this.ApplicationName);
+            this.WriteEvent(41, transmissionId, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
         [Event(42, Message = "TransmitterStorageSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
@@ -288,6 +315,15 @@
         public void ApplyPoliciesError(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(45, exception ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(46, Message = "Retry-After http header: '{0}'. Transmission will be stopped.", Level = EventLevel.Warning)]
+        public void RetryAfterHeaderIsPresent(string retryAfterHeader, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                46,
+                retryAfterHeader ?? string.Empty,
+                this.ApplicationName);
         }
 
         [Event(48, Message = "TransmissionFailedToStoreWarning. TransmissionId: {0}. Exception: {1}.", Level = EventLevel.Warning)]
@@ -391,6 +427,8 @@
         public sealed class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;
+
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
         }
     }
 }
