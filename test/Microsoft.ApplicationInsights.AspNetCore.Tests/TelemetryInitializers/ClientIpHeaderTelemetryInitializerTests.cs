@@ -1,16 +1,14 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Http.Features;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
+    using System.Net;
+
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Hosting;
     using Xunit;
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Features;
 
     public class ClientIpHeaderTelemetryInitializerTests
     {

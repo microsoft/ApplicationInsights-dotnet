@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers
 {
+    using System;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Internal;
+
     public class HttpRequestStub : DefaultHttpRequest
     {
         public Func<IHeaderDictionary> OnGetHeaders = () => null;
