@@ -25,29 +25,37 @@
 
         public void Initialize(ITelemetry telemetry)
         {
-            var context = this.httpContextAccessor.HttpContext;
-
-            if (context == null)
+            try
             {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
-                return;
-            }
+                var context = this.httpContextAccessor.HttpContext;
 
-            if (context.RequestServices == null)
+                if (context == null)
+                {
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
+                    return;
+                }
+
+                if (context.RequestServices == null)
+                {
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
+                    return;
+                }
+
+                var request = context.RequestServices.GetService<RequestTelemetry>();
+
+                if (request == null)
+                {
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
+                    return;
+                }
+
+                this.OnInitializeTelemetry(context, request, telemetry);
+            }
+            catch (Exception exp)
             {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
-                return;
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
+                Debug.WriteLine(exp);
             }
-
-            var request = context.RequestServices.GetService<RequestTelemetry>();
-
-            if (request == null)
-            {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
-                return;
-            }
-
-            this.OnInitializeTelemetry(context, request, telemetry);
         }
 
         protected abstract void OnInitializeTelemetry(

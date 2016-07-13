@@ -14,19 +14,22 @@
 
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
+    /// Lot's of code reuse from Microsoft.ApplicationInsights.Extensibility.Web.TelemetryInitializers.ClientIpHeaderTelemetryInitializer
     /// </summary>
     public class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
-        private readonly char[] HeaderValuesSeparatorDefault = { ',' };
+        private readonly char[] HeaderValuesSeparatorDefault = new char[] { ',' };
         private const string HeaderNameDefault = "X-Forwarded-For";
 
         private char[] headerValueSeparators;
+
+        private readonly ICollection<string> headerNames;
 
 
         public ClientIpHeaderTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
-            this.HeaderNames = new List<string>();
+            this.headerNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);
             this.UseFirstIp = true;
             this.headerValueSeparators = HeaderValuesSeparatorDefault;
@@ -35,7 +38,13 @@
         /// <summary>
         /// Gets or sets comma separated list of request header names that is used to check client id.
         /// </summary>
-        public ICollection<string> HeaderNames { get; }
+        public ICollection<string> HeaderNames
+        {
+            get
+            {
+                return this.headerNames;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a header values separator.
@@ -110,21 +119,17 @@
             if (string.IsNullOrEmpty(requestTelemetry.Context.Location.Ip))
             {
                 string resultIp = null;
-
-                if (platformContext.Request?.Headers != null)
+                foreach (var name in this.HeaderNames)
                 {
-                    foreach (var name in this.HeaderNames)
+                    var headerValue = platformContext.Request.Headers[name];
+                    if (!string.IsNullOrEmpty(headerValue))
                     {
-                        string headerValue = platformContext.Request.Headers[name];
-                        if (!string.IsNullOrEmpty(headerValue))
+                        var ip = GetIpFromHeader(headerValue);
+                        ip = CutPort(ip);
+                        if (IsCorrectIpAddress(ip))
                         {
-                            var ip = GetIpFromHeader(headerValue);
-                            ip = CutPort(ip);
-                            if (IsCorrectIpAddress(ip))
-                            {
-                                resultIp = ip;
-                                break;
-                            }
+                            resultIp = ip;
+                            break;
                         }
                     }
                 }
@@ -133,7 +138,7 @@
                 {
                     var connectionFeature = platformContext.Features.Get<IHttpConnectionFeature>();
 
-                    if (connectionFeature?.RemoteIpAddress != null)
+                    if (connectionFeature != null)
                     {
                         resultIp = connectionFeature.RemoteIpAddress.ToString();
                     }
