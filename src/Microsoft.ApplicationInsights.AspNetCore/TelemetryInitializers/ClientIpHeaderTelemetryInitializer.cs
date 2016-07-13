@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
     using System.Collections.Generic;
