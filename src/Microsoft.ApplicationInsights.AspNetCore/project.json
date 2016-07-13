@@ -2,7 +2,7 @@
   "title": "Application Insights for ASP.NET Core Web Applications",
   "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information.",
   "authors": [ "Microsoft" ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
   "packOptions": {
     "projectUrl": "https://github.com/Microsoft/ApplicationInsights-aspnetcore",
