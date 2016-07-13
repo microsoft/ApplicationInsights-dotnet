@@ -25,15 +25,7 @@
                 throw new ArgumentNullException("telemetryListener");
             }
 
-            if (telemetryListener != null)
-            {
-                telemetryListener.SubscribeWithAdapter(this);
-            }
-        }
-
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
-            : this(httpContextAccessor, null)
-        {
+            telemetryListener.SubscribeWithAdapter(this);
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)

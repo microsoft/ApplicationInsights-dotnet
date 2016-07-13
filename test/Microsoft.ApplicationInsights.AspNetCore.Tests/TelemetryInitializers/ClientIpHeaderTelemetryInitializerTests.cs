@@ -1,4 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
+﻿using System.Net;
+using Microsoft.AspNetCore.Http.Features;
+
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
@@ -20,7 +23,7 @@
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
         {
-            var ac = new HttpContextAccessor() { HttpContext = null };
+            var ac = new HttpContextAccessor { HttpContext = null };
             
             var initializer = new ClientIpHeaderTelemetryInitializer(ac);
 
@@ -28,13 +31,68 @@
         }
 
         [Fact]
-        public void InitializeDoesNotThrowIfRequestTelemetryIsUnavailable()
+        public void InitializeDoesNotThrowIfRequestServicesAreUnavailable()
         {
-            var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
+            var ac = new HttpContextAccessor { HttpContext = new DefaultHttpContext() };
             
             var initializer = new ClientIpHeaderTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
+        }
+
+        [Fact]
+        public void InitializeDoesNotThrowIfRequestIsUnavailable()
+        {
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(new HttpContextStub(), new RequestTelemetry());
+            
+            var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(new EventTelemetry());
+        }
+
+        [Fact]
+        public void InitializeDoesNotThrowIfHeaderCollectionIsUnavailable()
+        {
+            var httpContext = new HttpContextStub();
+            httpContext.OnRequestGetter = () => new HttpRequestStub(httpContext);
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessorWithoutRequest(httpContext, new RequestTelemetry());
+
+            var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(new EventTelemetry());
+        }
+
+        [Fact]
+        public void InitializeDoesNotThrowIfRemoteIpAddressIsNull()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
+            contextAccessor.HttpContext.Features.Set<IHttpConnectionFeature>(new HttpConnectionFeature());
+           
+            var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+        }
+
+        [Fact]
+        public void InitializeSetsIpFromRemoteIpAddress()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
+            var httpConnectionFeature = new HttpConnectionFeature
+            {
+                RemoteIpAddress = new IPAddress(new byte[] {1, 2, 3, 4})
+            };
+            contextAccessor.HttpContext.Features.Set<IHttpConnectionFeature>(httpConnectionFeature);
+
+            var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
+
+            initializer.Initialize(requestTelemetry);
+
+            Assert.Equal("1.2.3.4", requestTelemetry.Context.Location.Ip);
         }
 
         [Fact]
@@ -42,6 +100,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry);
+
             contextAccessor.HttpContext.Request.Headers.Add("X-Forwarded-For", new string[] { "127.0.0.3" });
 
             var initializer = new ClientIpHeaderTelemetryInitializer(contextAccessor);
