@@ -105,7 +105,7 @@
                 const string Name = "name";
                 const double Value = 42.3;
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
-                Assert.Equal("\"" + Name + "\":" + Value, stringWriter.ToString());
+                Assert.Equal("\"" + Name + "\":" + Value.ToString(CultureInfo.InvariantCulture), stringWriter.ToString());
             }
         }
 
