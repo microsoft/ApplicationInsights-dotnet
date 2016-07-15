@@ -53,7 +53,7 @@ Notes:
 
 ![Img](./images/ThrottlingPolicy.PNG)
 
-### [ThrottlingTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/TelemetryChannels/ServerTelemetryChannel/Shared/Implementation/PartialSuccessTransmissionPolicy.cs)
+### [PartialSuccessTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/TelemetryChannels/ServerTelemetryChannel/Shared/Implementation/PartialSuccessTransmissionPolicy.cs)
 
 Notes:
 * This policy handles status code 206 and case when there is no failure and no response (success case)
