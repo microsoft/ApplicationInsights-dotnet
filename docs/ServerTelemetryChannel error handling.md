@@ -2,6 +2,16 @@ This document was last updated 7/14/2016 and is applicable to SDK version 2.2-be
 
 # Server Telemetry Channel Error Handling 
 
+* [Introduction](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#introduction)
+* [Supported Status codes](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#supported-status-codes)
+* [Partial success (206) response format](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#partial-success-206-response-format)
+* [ErrorHandlingTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#errorhandlingtransmissionpolicy)
+* [ThrottlingTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#throttlingtransmissionpolicy)
+* [PartialSuccessTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#partialsuccesstransmissionpolicy)
+* [NetworkAvailabilityTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#networkavailabilitytransmissionpolicy)
+* [ApplicationLifecycleTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/docs/ServerTelemetryChannel%20error%20handling.md#applicationlifecycletransmissionpolicy)
+
+
 ## Introduction
 
 When channel finishes sending transmission (a serialized and compressed batch of telemetry items) out an event is generated.
