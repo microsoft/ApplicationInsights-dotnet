@@ -88,8 +88,10 @@
             this.WriteEvent(8, misconfiguredCountersCount, overallConfiguredCountersCount, e, this.ApplicationName);
         }
 
-        [Event(15, Level = EventLevel.Verbose,
-            Message = @"Performance counters are unavailable when the application is running under IIS Express. Use EnableIISExpressPerformanceCounters element with a value of 'true' within the Performance Collector Module element to override this behavior.")]
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(15, Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable,
+            Message = @"Diagnostic message: Performance counters are unavailable when the application is running under IIS Express. Use EnableIISExpressPerformanceCounters element with a value of 'true' within the Performance Collector Module element to override this behavior.")]
         public void RunningUnderIisExpress(string applicationName = "dummy")
         {
             this.WriteEvent(15, this.ApplicationName);
@@ -179,6 +181,8 @@
         public class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;
+
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
         }
     }
 }
