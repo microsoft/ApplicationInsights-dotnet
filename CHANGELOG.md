@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.2.0-beta2
+
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.1. Agent.Intercept nuget was updated to EventSource.Redist version 1.1.28. 
+
 ## Version 2.2.0-beta1
 
 - ResultCode for successful Sql calls will be collected as 0 (before it was not sent).
