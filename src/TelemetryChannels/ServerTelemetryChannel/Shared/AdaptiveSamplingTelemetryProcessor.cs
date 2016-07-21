@@ -61,7 +61,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled. 
+        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled. Types listed are excluded even if they are set in IncludedTypes
         /// </summary>
         public string ExcludedTypes
         {
@@ -71,7 +71,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a semicolon separated list of telemetry types that should be sampled. All types are sampled when left empty.
+        /// Gets or sets a semicolon separated list of telemetry types that should be sampled. Types listed are not included if they are set in ExcludedTypes
         /// </summary>
         public string IncludedTypes
         {
