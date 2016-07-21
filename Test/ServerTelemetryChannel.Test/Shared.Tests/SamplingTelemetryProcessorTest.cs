@@ -63,7 +63,7 @@
         }
 
         [TestMethod]
-        public void TelemetryItemSamplingIsSkipped()
+        public void TelemetryItemSamplingIsSkippedWhenSetByUser()
         {
             var sentTelemetry = new List<ITelemetry>();
             var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry.Add(t) })
@@ -76,21 +76,6 @@
             processor.Process(requestTelemetry);
 
             Assert.Equal(1, sentTelemetry.Count);
-        }
-
-        [TestMethod]
-        public void TelemetryItemSamplingIsNotSkippedByDefault()
-        {
-            var sentTelemetry = new List<ITelemetry>();
-            var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry.Add(t) })
-            {
-                SamplingPercentage = 0
-            };
-
-            var requestTelemetry = new RequestTelemetry();
-            processor.Process(requestTelemetry);
-
-            Assert.Equal(0, sentTelemetry.Count);
         }
 
         [TestMethod]
