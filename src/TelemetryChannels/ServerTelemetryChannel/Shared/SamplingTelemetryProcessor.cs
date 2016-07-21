@@ -120,9 +120,8 @@
                             TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
                         }
                     }
-                    else
+                    else if (!samplingSupportingTelemetry.SamplingPercentage.HasValue)
                     {
-                        // set sampling percentage on telemetry item, current codebase assumes it is the only one updating SamplingPercentage.
                         samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
 
                         if (!this.IsSampledIn(item))

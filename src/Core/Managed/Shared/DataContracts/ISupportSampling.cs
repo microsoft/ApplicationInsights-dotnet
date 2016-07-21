@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
         /// </summary>
-        double SamplingPercentage { get; set; }
+        double? SamplingPercentage { get; set; }
     }
 }

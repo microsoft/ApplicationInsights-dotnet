@@ -24,7 +24,7 @@
         private readonly TelemetryContext context;
         private bool successFieldSet;
 
-        private double samplingPercentage = Constants.DefaultSamplingPercentage;
+        private double? samplingPercentage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -196,7 +196,7 @@
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
         /// </summary>
-        double ISupportSampling.SamplingPercentage
+        double? ISupportSampling.SamplingPercentage
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
