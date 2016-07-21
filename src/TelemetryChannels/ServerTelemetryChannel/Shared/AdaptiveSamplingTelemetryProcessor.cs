@@ -71,6 +71,16 @@
         }
 
         /// <summary>
+        /// Gets or sets a semicolon separated list of telemetry types that should be sampled. All types are sampled when left empty.
+        /// </summary>
+        public string IncludedTypes
+        {
+            get { return this.samplingProcessor.IncludedTypes; }
+
+            set { this.samplingProcessor.IncludedTypes = value; }
+        }
+
+        /// <summary>
         /// Gets or sets initial sampling percentage applied at the start
         /// of the process to dynamically vary the percentage.
         /// </summary>

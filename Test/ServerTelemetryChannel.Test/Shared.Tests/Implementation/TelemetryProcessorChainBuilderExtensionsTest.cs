@@ -119,7 +119,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingWithSettingsParameterThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, null, null));
+            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null));
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@
             var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
             var channelBuilder = new TelemetryProcessorChainBuilder(tc);
 
-            Assert.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(null, null));
+            Assert.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(default(SamplingPercentageEstimatorSettings), null));
         }
 
         [TestMethod]
@@ -179,6 +179,24 @@
 
             Assert.Equal(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
             Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
+        }
+
+        [TestMethod]
+        public void UseAdaptiveSamplingAddsAdaptiveSamplingProcessorToTheChainWithCorrectSettingsAndIncludedTypes()
+        {
+            SamplingPercentageEstimatorSettings settings = new SamplingPercentageEstimatorSettings
+            {
+                MaxSamplingPercentage = 13
+            };
+            AdaptiveSamplingPercentageEvaluatedCallback callback = (second, percentage, samplingPercentage, changed, estimatorSettings) => { };
+
+            var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
+            var channelBuilder = new TelemetryProcessorChainBuilder(tc);
+            channelBuilder.UseAdaptiveSampling(settings, callback, null, "request");
+            channelBuilder.Build();
+
+            Assert.Equal(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
+            Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).IncludedTypes);
         }
     }
 }

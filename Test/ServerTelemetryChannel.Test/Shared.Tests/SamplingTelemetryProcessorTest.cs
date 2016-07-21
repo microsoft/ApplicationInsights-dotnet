@@ -156,6 +156,17 @@
         }
 
         [TestMethod]
+        public void RequestCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new RequestTelemetry());
+            },
+            null,
+            "request");
+        }
+
+        [TestMethod]
         public void DependencyCanBeExcludedFromSampling()
         {
             TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
@@ -163,6 +174,17 @@
                 telemetryProcessors.Process(new DependencyTelemetry());
                 return 1;
             }, 
+            "dependency");
+        }
+
+        [TestMethod]
+        public void DependencyCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new DependencyTelemetry());
+            },
+            null,
             "dependency");
         }
 
@@ -178,6 +200,17 @@
         }
 
         [TestMethod]
+        public void EventCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new EventTelemetry());
+            },
+            null,
+            "event");
+        }
+
+        [TestMethod]
         public void ExceptionCanBeExcludedFromSampling()
         {
             TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
@@ -185,6 +218,17 @@
                 telemetryProcessors.Process(new ExceptionTelemetry());
                 return 1;
             }, 
+            "exception");
+        }
+
+        [TestMethod]
+        public void ExceptionCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new ExceptionTelemetry());
+            },
+            null,
             "exception");
         }
 
@@ -200,6 +244,17 @@
         }
 
         [TestMethod]
+        public void TraceCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new TraceTelemetry());
+            },
+            null,
+            "trace");
+        }
+
+        [TestMethod]
         public void PageViewCanBeExcludedFromSampling()
         {
             TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
@@ -207,6 +262,17 @@
                 telemetryProcessors.Process(new PageViewTelemetry());
                 return 1;
             }, 
+            "pageview");
+        }
+
+        [TestMethod]
+        public void PageViewCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new PageViewTelemetry());
+            },
+            null,
             "pageview");
         }
 
@@ -224,9 +290,28 @@
         }
 
         [TestMethod]
+        public void MultipleItemsCanBeIncludedInSampling()
+        {
+            TelemetryTypeSupportsSampling(
+                telemetryProcessors =>
+                {
+                    telemetryProcessors.Process(new PageViewTelemetry());
+                    telemetryProcessors.Process(new RequestTelemetry());
+                },
+                null,
+                "pageview;request");
+        }
+
+        [TestMethod]
         public void UnknownExcludedTypesAreIgnored()
         {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new TraceTelemetry("my trace")), "lala1;lala2,lala3");
+        }
+
+        [TestMethod]
+        public void UnknownIncludedTypesAreIgnored()
+        {
+            TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new TraceTelemetry("my trace")), null, "lala1;lala2,lala3");
         }
 
         [TestMethod]
@@ -242,11 +327,25 @@
                 ";;;;;lala1;;;;;pageview;lala2;request;;;;;");
         }
 
-        private static void TelemetryTypeDoesNotSupportSampling(Func<TelemetryProcessorChain, int> sendAction, string excludedTypes = null)
+        [TestMethod]
+        public void IncorrectFormatDoesNotAffectCorrectIncludedTypes()
+        {
+            TelemetryTypeDoesNotSupportSampling(
+                telemetryProcessors =>
+                {
+                    telemetryProcessors.Process(new PageViewTelemetry());
+                    telemetryProcessors.Process(new RequestTelemetry());
+                    return 2;
+                },
+                null,
+                ";;;;;lala1;;;;;trace;lala2;exception;;;;;");
+        }
+
+        private static void TelemetryTypeDoesNotSupportSampling(Func<TelemetryProcessorChain, int> sendAction, string excludedTypes = null, string includedTypes = null)
         {
             const int SamplingPercentage = 10;
             var sentTelemetry = new List<ITelemetry>();
-            var telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(sentTelemetry, SamplingPercentage, excludedTypes);
+            var telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(sentTelemetry, SamplingPercentage, excludedTypes, includedTypes);
 
             int generatedCount = 0;
             for (int i = 0; i < 100; i++)
@@ -257,12 +356,12 @@
             Assert.Equal(generatedCount, sentTelemetry.Count);
         }
 
-        private static void TelemetryTypeSupportsSampling(Action<TelemetryProcessorChain> sendAction, string excludedTypes = null)
+        private static void TelemetryTypeSupportsSampling(Action<TelemetryProcessorChain> sendAction, string excludedTypes = null, string includedTypes = null)
         {
             const int ItemsToGenerate = 100;
             const int SamplingPercentage = 10;
             var sentTelemetry = new List<ITelemetry>();
-            var telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(sentTelemetry, SamplingPercentage, excludedTypes);
+            var telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(sentTelemetry, SamplingPercentage, excludedTypes, includedTypes);
 
             for (int i = 0; i < ItemsToGenerate; i++)
             {
@@ -275,11 +374,11 @@
             Assert.Equal(SamplingPercentage, ((ISupportSampling)sentTelemetry[0]).SamplingPercentage);
         }
 
-        private static TelemetryProcessorChain CreateTelemetryProcessorChainWithSampling(IList<ITelemetry> sentTelemetry, double samplingPercentage, string excludedTypes = null)
+        private static TelemetryProcessorChain CreateTelemetryProcessorChainWithSampling(IList<ITelemetry> sentTelemetry, double samplingPercentage, string excludedTypes = null, string includedTypes = null)
         {
             var tc = new TelemetryConfiguration {TelemetryChannel = new StubTelemetryChannel()};
             var channelBuilder = new TelemetryProcessorChainBuilder(tc);            
-            channelBuilder.UseSampling(samplingPercentage, excludedTypes);
+            channelBuilder.UseSampling(samplingPercentage, excludedTypes, includedTypes);
             channelBuilder.Use(next => new StubTelemetryProcessor(next) { OnProcess = t => sentTelemetry.Add(t) });
             
             channelBuilder.Build();

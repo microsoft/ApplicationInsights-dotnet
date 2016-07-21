@@ -26,9 +26,11 @@
         private readonly IDictionary<string, Type> allowedTypes;
 
         private HashSet<Type> excludedTypesHashSet;
-
         private string excludedTypesString;
-        
+
+        private HashSet<Type> includedTypesHashSet;
+        private string includedTypesString;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingTelemetryProcessor"/> class.
         /// <param name="next">Next TelemetryProcessor in call chain.</param>
@@ -43,6 +45,7 @@
             this.SamplingPercentage = 100.0;
             this.Next = next;
             this.excludedTypesHashSet = new HashSet<Type>();
+            this.includedTypesHashSet = new HashSet<Type>();
             this.allowedTypes = new Dictionary<string, Type>(6, StringComparer.OrdinalIgnoreCase)
             {
                 { DependencyTelemetryName, typeof(DependencyTelemetry) },
@@ -86,6 +89,37 @@
         }
 
         /// <summary>
+        /// Gets or sets a semicolon separated list of telemetry types that should be sampled. All types are sampled when left empty.
+        /// </summary>
+        public string IncludedTypes
+        {
+            get
+            {
+                return this.includedTypesString;
+            }
+
+            set
+            {
+                this.includedTypesString = value;
+
+                HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string[] splitList = value.Split(this.listSeparators, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string item in splitList)
+                    {
+                        if (this.allowedTypes.ContainsKey(item))
+                        {
+                            newIncludedTypesHashSet.Add(this.allowedTypes[item]);
+                        }
+                    }
+                }
+
+                Interlocked.Exchange(ref this.includedTypesHashSet, newIncludedTypesHashSet);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100) for all <see cref="ITelemetry"/>
         /// objects logged in this <see cref="TelemetryClient"/>.
         /// </summary>
@@ -113,7 +147,16 @@
                 if (samplingSupportingTelemetry != null)
                 {
                     var excludedTypesHashSetRef = this.excludedTypesHashSet;
+                    var includedTypesHashSetRef = this.includedTypesHashSet;
+
                     if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(item.GetType()))
+                    {
+                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                        {
+                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
+                        }
+                    }
+                    else if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(item.GetType()))
                     {
                         if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
                         {
