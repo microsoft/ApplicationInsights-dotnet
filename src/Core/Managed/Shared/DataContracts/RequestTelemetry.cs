@@ -25,6 +25,7 @@
         private bool successFieldSet;
 
         private double samplingPercentage = Constants.DefaultSamplingPercentage;
+        private bool samplingSkipped;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestTelemetry"/> class.
@@ -200,6 +201,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets if sampling should be skipped.
+        /// </summary>
+        bool ISupportSampling.SamplingSkipped
+        {
+            get { return this.samplingSkipped; }
+            set { this.samplingSkipped = value; }
         }
 
         /// <summary>

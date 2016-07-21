@@ -19,6 +19,7 @@
         private readonly TelemetryContext context;
 
         private double samplingPercentage = Constants.DefaultSamplingPercentage;
+        private bool samplingSkipped;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceTelemetry"/> class.
@@ -96,6 +97,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets if sampling should be skipped.
+        /// </summary>
+        bool ISupportSampling.SamplingSkipped
+        {
+            get { return this.samplingSkipped; }
+            set { this.samplingSkipped = value; }
         }
 
         /// <summary>

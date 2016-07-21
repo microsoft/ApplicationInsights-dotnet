@@ -120,6 +120,13 @@
                             TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
                         }
                     }
+                    else if (samplingSupportingTelemetry.SamplingSkipped)
+                    {
+                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                        {
+                            TelemetryChannelEventSource.Log.SamplingSkippedManually();
+                        }
+                    }
                     else
                     {
                         // set sampling percentage on telemetry item, current codebase assumes it is the only one updating SamplingPercentage.

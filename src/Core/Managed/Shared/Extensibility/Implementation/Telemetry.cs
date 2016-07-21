@@ -14,6 +14,7 @@
             var samplingSupportingTelemetry = telemetry as ISupportSampling;
 
             if ((samplingSupportingTelemetry != null) 
+                && !samplingSupportingTelemetry.SamplingSkipped
                 && (samplingSupportingTelemetry.SamplingPercentage > 0.0 + 1.0E-12) 
                 && (samplingSupportingTelemetry.SamplingPercentage < 100.0 - 1.0E-12))
             {

@@ -409,6 +409,12 @@
                 this.ApplicationName);
         }
 
+        [Event(58, Message = "Sampling skipped manually: {0}.", Level = EventLevel.Verbose)]
+        public void SamplingSkippedManually(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(58, string.Empty, this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;

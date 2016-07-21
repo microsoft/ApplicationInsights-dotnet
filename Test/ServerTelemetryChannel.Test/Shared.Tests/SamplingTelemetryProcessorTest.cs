@@ -61,7 +61,24 @@
 
             Assert.Equal(20, ((ISupportSampling)sentTelemetry[0]).SamplingPercentage);
         }
-        
+
+        [TestMethod]
+        public void TelemetryItemIsSkippedBySampling()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null) { OnProcess = t => sentTelemetry.Add(t) });
+
+            do
+            {
+                var requestTelemetry = new RequestTelemetry();
+                ((ISupportSampling) requestTelemetry).SamplingSkipped = true;
+                processor.Process(requestTelemetry);
+            }
+            while (sentTelemetry.Count == 0);
+
+            Assert.Equal(true, ((ISupportSampling)sentTelemetry[0]).SamplingSkipped);
+        }
+
         [TestMethod]
         public void DependencyTelemetryIsSubjectToSampling()
         {
