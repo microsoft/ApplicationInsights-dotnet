@@ -62,12 +62,25 @@
 
         /// <summary>
         /// Gets or sets a semicolon separated list of telemetry types that should not be sampled. 
+        /// Types listed are excluded even if they are set in IncludedTypes
         /// </summary>
         public string ExcludedTypes
         {
             get { return this.samplingProcessor.ExcludedTypes; }
 
             set { this.samplingProcessor.ExcludedTypes = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a semicolon separated list of telemetry types that should be sampled. 
+        /// If left empty all types are included implicitly. 
+        /// Types are not included if they are set in ExcludedTypes
+        /// </summary>
+        public string IncludedTypes
+        {
+            get { return this.samplingProcessor.IncludedTypes; }
+
+            set { this.samplingProcessor.IncludedTypes = value; }
         }
 
         /// <summary>
