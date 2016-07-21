@@ -303,6 +303,20 @@
         }
 
         [TestMethod]
+        public void IncludedDoNotOverrideExcludedFromSampling()
+        {
+            TelemetryTypeDoesNotSupportSampling(
+                telemetryProcessors =>
+                {
+                    telemetryProcessors.Process(new PageViewTelemetry());
+                    telemetryProcessors.Process(new RequestTelemetry());
+                    return 2;
+                },
+                "pageview;request",
+                "exception;request");
+        }
+
+        [TestMethod]
         public void UnknownExcludedTypesAreIgnored()
         {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new TraceTelemetry("my trace")), "lala1;lala2,lala3");
