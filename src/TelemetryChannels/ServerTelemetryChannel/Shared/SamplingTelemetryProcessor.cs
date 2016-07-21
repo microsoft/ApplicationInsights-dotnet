@@ -127,13 +127,23 @@
 
                         if (!this.IsSampledIn(item))
                         {
-                            if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                            if (samplingSupportingTelemetry.SamplingSkipped)
                             {
-                                TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                                {
+                                    TelemetryChannelEventSource.Log.SamplingSkippedManually(item.ToString());
+                                }
                             }
+                            else
+                            {
+                                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                                {
+                                    TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                                }
 
-                            TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
-                            return;
+                                TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
+                                return;
+                            }
                         }
                     }
                 }
