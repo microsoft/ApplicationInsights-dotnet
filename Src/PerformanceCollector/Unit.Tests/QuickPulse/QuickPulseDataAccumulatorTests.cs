@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     [TestClass]
@@ -90,7 +91,11 @@
                 () =>
                 Enumerable.Range(0, iterationCount)
                     .ToList()
-                    .ForEach(i => accumulator.TelemetryItems.Push(new RequestTelemetry() { Name = i.ToString(CultureInfo.InvariantCulture) }));
+                    .ForEach(
+                        i => accumulator.TelemetryDocuments.Push(new RequestTelemetryDocument()
+                                                                     {
+                                                                         Name = i.ToString(CultureInfo.InvariantCulture)
+                                                                     }));
 
             var tasks = new List<Action>();
             for (int i = 0; i < concurrency; i++)
@@ -102,9 +107,9 @@
 
             // ASSERT
             var dict = new Dictionary<int, int>();
-            foreach (var item in accumulator.TelemetryItems)
+            foreach (var item in accumulator.TelemetryDocuments)
             {
-                int requestNumber = int.Parse((item as RequestTelemetry).Name);
+                int requestNumber = int.Parse(((RequestTelemetryDocument)item).Name, CultureInfo.InvariantCulture);
                 if (dict.ContainsKey(requestNumber))
                 {
                     dict[requestNumber]++;

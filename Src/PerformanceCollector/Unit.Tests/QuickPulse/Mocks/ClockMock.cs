@@ -6,7 +6,7 @@
 
     internal class ClockMock : Clock
     {
-        private object lockObj = new object();
+        private readonly object lockObj = new object();
 
         private DateTimeOffset now = DateTimeOffset.UtcNow;
 

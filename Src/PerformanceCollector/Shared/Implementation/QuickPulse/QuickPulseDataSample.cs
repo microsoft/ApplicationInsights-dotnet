@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
     /// DTO containing data that we send to QPS.
@@ -83,6 +84,8 @@
             }
 
             this.PerfCountersLookup = perfData.ToDictionary(p => p.Value.Item1.OriginalString, p => p.Value.Item2);
+
+            this.TelemetryDocuments = accumulator.TelemetryDocuments.ToArray();
         }
         
         public DateTimeOffset StartTimestamp { get; }
@@ -125,5 +128,7 @@
         public double PerfMemoryInBytes { get; private set; }
 
         #endregion
+
+        public ITelemetryDocument[] TelemetryDocuments { get; set; }
     }
 }

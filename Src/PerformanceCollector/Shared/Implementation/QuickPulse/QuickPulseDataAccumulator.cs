@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
     /// DTO containing data we collect from AI. Modified in real time.
@@ -69,6 +70,6 @@
         
         public long AIDependencyCallDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item2;
 
-        public ConcurrentStack<ITelemetry> TelemetryItems { get; } = new ConcurrentStack<ITelemetry>();
+        public ConcurrentStack<ITelemetryDocument> TelemetryDocuments { get; set; } = new ConcurrentStack<ITelemetryDocument>();
     }
 }

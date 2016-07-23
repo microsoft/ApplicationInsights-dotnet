@@ -178,7 +178,8 @@
                                         Instance = this.instanceName,
                                         StreamId = this.streamId,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
-                                        Metrics = metricPoints.ToArray()
+                                        Metrics = metricPoints.ToArray(),
+                                        Documents = sample.TelemetryDocuments.ToArray().Reverse().ToArray()
                                     };
 
                 monitoringPoints.Add(dataPoint);
