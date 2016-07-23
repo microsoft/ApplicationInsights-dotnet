@@ -1,7 +1,14 @@
 ﻿namespace Unit.Tests
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading.Tasks;
 
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
@@ -46,7 +53,7 @@
         {
             // ARRANGE
          
-            // ACTt
+            // ACT
             long encodedValue = QuickPulseDataAccumulator.EncodeCountAndDuration(MaxCount + 1, MaxDuration);
             Tuple<long, long> decodedValues = QuickPulseDataAccumulator.DecodeCountAndDuration(encodedValue);
 
@@ -60,13 +67,56 @@
         {
             // ARRANGE
 
-            // ACTt
+            // ACT
             long encodedValue = QuickPulseDataAccumulator.EncodeCountAndDuration(MaxCount, MaxDuration + 1);
             Tuple<long, long> decodedValues = QuickPulseDataAccumulator.DecodeCountAndDuration(encodedValue);
 
             // ASSERT
             Assert.AreEqual(0, decodedValues.Item1);
             Assert.AreEqual(0, decodedValues.Item2);
+        }
+
+        [TestMethod]
+        public void QuickPulseDataAccumulatorCollectsTelemetryItemsInThreadSafeManner()
+        {
+            // ARRANGE
+            var accumulator = new QuickPulseDataAccumulator();
+
+            // ACT
+            var iterationCount = 1000;
+            var concurrency = 12;
+
+            Action addItemTask =
+                () =>
+                Enumerable.Range(0, iterationCount)
+                    .ToList()
+                    .ForEach(i => accumulator.TelemetryItems.Push(new RequestTelemetry() { Name = i.ToString(CultureInfo.InvariantCulture) }));
+
+            var tasks = new List<Action>();
+            for (int i = 0; i < concurrency; i++)
+            {
+                tasks.Add(addItemTask);
+            }
+
+            Parallel.Invoke(new ParallelOptions() { MaxDegreeOfParallelism = concurrency }, tasks.ToArray());
+
+            // ASSERT
+            var dict = new Dictionary<int, int>();
+            foreach (var item in accumulator.TelemetryItems)
+            {
+                int requestNumber = int.Parse((item as RequestTelemetry).Name);
+                if (dict.ContainsKey(requestNumber))
+                {
+                    dict[requestNumber]++;
+                }
+                else
+                {
+                    dict[requestNumber] = 1;
+                }
+            }
+
+            Assert.AreEqual(iterationCount, dict.Count);
+            Assert.IsTrue(dict.All(pair => pair.Value == concurrency));
         }
     }
 }

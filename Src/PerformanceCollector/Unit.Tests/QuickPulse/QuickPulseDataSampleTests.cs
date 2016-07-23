@@ -307,5 +307,18 @@
             Assert.AreEqual(0.0, dataSample.PerfIisQueueSize);
         }
         #endregion
+
+        #region Telemetry items
+
+        #region Requests
+        #endregion
+
+        #region Dependencies
+        #endregion
+
+        #region Exceptions
+        #endregion
+       
+        #endregion
     }
 }

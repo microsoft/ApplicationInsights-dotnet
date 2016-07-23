@@ -384,5 +384,72 @@
             Assert.AreEqual("http://microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Name);
             Assert.AreEqual("https://bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Name);
         }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorCollectsFullTelemetryItems()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var request = new RequestTelemetry()
+                                        {
+                                            Success = false,
+                                            ResponseCode = "200",
+                                            Duration = TimeSpan.FromSeconds(1),
+                                            Context = { InstrumentationKey = instrumentationKey }
+                                        };
+
+            var dependency = new DependencyTelemetry()
+                                 {
+                                     Success = true,
+                                     Duration = TimeSpan.FromSeconds(1),
+                                     Context = { InstrumentationKey = instrumentationKey }
+                                 };
+
+            var exception = new ExceptionTelemetry() { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(request);
+            telemetryProcessor.Process(dependency);
+            telemetryProcessor.Process(exception);
+
+            // ASSERT
+            var collectedTelemetry = accumulatorManager.CurrentDataAccumulator.TelemetryItems.ToArray();
+
+            Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.TelemetryItems.Count);
+            Assert.AreEqual(request, collectedTelemetry[0]);
+            Assert.AreEqual(dependency, collectedTelemetry[1]);
+            Assert.AreEqual(exception, collectedTelemetry[2]);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorDoesNotCollectSucceededFullTelemetryItems()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorDoesNotCollectFullRequestTelemetryItemsOnceQuotaIsExhausted()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorDoesNotCollectFullDependencyTelemetryItemsOnceQuotaIsExhausted()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorDoesNotCollectFullExceptionTelemetryItemsOnceQuotaIsExhausted()
+        {
+            Assert.Fail();
+        }
     }
 }

@@ -6,19 +6,27 @@
 
     internal class ClockMock : Clock
     {
+        private object lockObj = new object();
+
         private DateTimeOffset now = DateTimeOffset.UtcNow;
 
         public override DateTimeOffset UtcNow
         {
             get
             {
-                return this.now;
+                lock (this.lockObj)
+                {
+                    return this.now;
+                }
             }
         }
 
         public void FastForward(TimeSpan span)
         {
-            this.now += span;
+            lock (this.lockObj)
+            {
+                this.now += span;
+            }
         }
     }
 }
