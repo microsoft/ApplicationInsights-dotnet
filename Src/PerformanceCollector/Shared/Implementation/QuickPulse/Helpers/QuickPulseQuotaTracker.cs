@@ -5,29 +5,27 @@
 
     internal class QuickPulseQuotaTracker
     {
-        private const long QuotaScaleFactor = 1000;
-
         private readonly float inputStreamRatePerSec;
 
-        private readonly long maxQuota;
+        private readonly float maxQuota;
 
         private readonly DateTimeOffset startedTrackingTime;
 
         private readonly Clock timeProvider;
 
-        private long currentQuota;
+        private float currentQuota;
 
         private long lastQuotaAccrualFullSeconds;
-        
+
         public QuickPulseQuotaTracker(Clock timeProvider, float maxQuota, float startQuota)
         {
             this.timeProvider = timeProvider;
-            this.maxQuota = (long)(QuotaScaleFactor * maxQuota);
-            this.inputStreamRatePerSec = maxQuota / 60f;
+            this.maxQuota = maxQuota;
+            this.inputStreamRatePerSec = this.maxQuota / 60;
 
             this.startedTrackingTime = timeProvider.UtcNow;
             this.lastQuotaAccrualFullSeconds = 0;
-            this.currentQuota = (long)(QuotaScaleFactor * startQuota);
+            this.currentQuota = startQuota;
         }
 
         public bool ApplyQuota()
@@ -41,23 +39,26 @@
 
         private bool UseQuota()
         {
-            long originalValue = Interlocked.Read(ref this.currentQuota);
+            var spin = new SpinWait();
 
-            if (originalValue < QuotaScaleFactor)
+            while (true)
             {
-                return false;
+                float originalValue = Thread.VolatileRead(ref this.currentQuota);
+                
+                if (originalValue < 1f)
+                {
+                    return false;
+                }
+
+                float newValue = originalValue - 1f;
+
+                if (Interlocked.CompareExchange(ref this.currentQuota, newValue, originalValue) == originalValue)
+                {
+                    return true;
+                }
+
+                spin.SpinOnce();
             }
-
-            long newValue = Interlocked.Add(ref this.currentQuota, -QuotaScaleFactor);
-
-            if (newValue < 0)
-            {
-                // other threads have exhausted the quota since we read it last
-                // correct the mistake, but note that we may get incorrect result for some calls to UseQuota
-                Interlocked.Add(ref this.currentQuota, QuotaScaleFactor);
-            }
-
-            return true;
         }
 
         private void AccrueQuota(long currentTimeFullSeconds)
@@ -70,6 +71,7 @@
 
                 long fullSecondsSinceLastQuotaAccrual = currentTimeFullSeconds - lastQuotaAccrualFullSecondsLocal;
 
+                // fullSecondsSinceLastQuotaAccrual <= 0 means we're in a second for which some thread has already updated this.lastQuotaAccrualFullSeconds
                 if (fullSecondsSinceLastQuotaAccrual > 0)
                 {
                     // we are in a new second (possibly along with a bunch of competing threads, some of which might actually be in different (also new) seconds)
@@ -103,7 +105,7 @@
                 }
                 else
                 {
-                    // we're within a second that has already been accounted for by another thread, do nothing
+                    // we're within a second that has already been accounted for, do nothing
                     break;
                 }
 
@@ -113,13 +115,20 @@
 
         private void IncreaseQuota(long seconds)
         {
-            long delta = (long)(QuotaScaleFactor * this.inputStreamRatePerSec * seconds);
+            var spin = new SpinWait();
 
-            long newValue = Interlocked.Add(ref this.currentQuota, delta);
-
-            if (newValue > this.maxQuota)
+            while (true)
             {
-                Interlocked.Exchange(ref this.currentQuota, this.maxQuota);
+                float originalValue = Thread.VolatileRead(ref this.currentQuota);
+                
+                float delta = Math.Min(this.inputStreamRatePerSec * seconds, this.maxQuota - originalValue);
+
+                if (Interlocked.CompareExchange(ref this.currentQuota, originalValue + delta, originalValue) == originalValue)
+                {
+                    break;
+                }
+
+                spin.SpinOnce();
             }
         }
     }

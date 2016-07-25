@@ -184,7 +184,7 @@
                                Id = telemetryAsRequest.Id,
                                Name = telemetryAsRequest.Name,
                                StartTime = telemetryAsRequest.StartTime,
-                               Success = telemetryAsRequest.Success,
+                               Success = IsRequestSuccessful(telemetryAsRequest),
                                Duration = telemetryAsRequest.Duration,
                                Sequence = telemetryAsRequest.Sequence,
                                ResponseCode = telemetryAsRequest.ResponseCode,
