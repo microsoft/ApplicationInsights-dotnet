@@ -21,11 +21,11 @@
         public string Exception { get; set; }
 
         [DataMember]
-        public TelemetryDocumentType DocumentType
+        public string DocumentType
         {
             get
             {
-                return TelemetryDocumentType.Exception;
+                return TelemetryDocumentType.Exception.ToString();
             }
 
             private set

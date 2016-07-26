@@ -428,13 +428,13 @@
 
             Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
 
-            Assert.AreEqual(TelemetryDocumentType.Request, collectedTelemetry[0].DocumentType);
+            Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), (collectedTelemetry[0].DocumentType)));
             Assert.AreEqual(request.Id, ((RequestTelemetryDocument)collectedTelemetry[0]).Id);
 
-            Assert.AreEqual(TelemetryDocumentType.RemoteDependency, collectedTelemetry[1].DocumentType);
+            Assert.AreEqual(TelemetryDocumentType.RemoteDependency, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[1].DocumentType));
             Assert.AreEqual(dependency.Id, ((DependencyTelemetryDocument)collectedTelemetry[1]).Id);
 
-            Assert.AreEqual(TelemetryDocumentType.Exception, collectedTelemetry[2].DocumentType);
+            Assert.AreEqual(TelemetryDocumentType.Exception, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[2].DocumentType));
             Assert.AreEqual(exception.Exception.ToString(), ((ExceptionTelemetryDocument)collectedTelemetry[2]).Exception);
         }
 

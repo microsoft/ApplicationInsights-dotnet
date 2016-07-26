@@ -4,6 +4,6 @@
     {
         string Version { get; set; }
 
-        TelemetryDocumentType DocumentType { get; }
+        string DocumentType { get; }
     }
 }

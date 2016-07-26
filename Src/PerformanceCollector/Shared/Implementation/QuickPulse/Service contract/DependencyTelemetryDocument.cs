@@ -43,11 +43,11 @@
         public string DependencyKind { get; set; }
 
         [DataMember]
-        public TelemetryDocumentType DocumentType
+        public string DocumentType
         {
             get
             {
-                return TelemetryDocumentType.RemoteDependency;
+                return TelemetryDocumentType.RemoteDependency.ToString();
             }
 
             private set

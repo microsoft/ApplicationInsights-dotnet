@@ -40,11 +40,11 @@
         public string HttpMethod { get; set; }
 
         [DataMember]
-        public TelemetryDocumentType DocumentType
+        public string DocumentType
         {
             get
             {
-                return TelemetryDocumentType.Request;
+                return TelemetryDocumentType.Request.ToString();
             }
 
             private set
