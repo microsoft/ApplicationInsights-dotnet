@@ -31,5 +31,30 @@
 
             Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryChannel(configAfterUninstall).ToList().Count);
         }
+
+        [TestMethod]
+        public void UninstallRemovesAllInstalledTelemetryProcessors()
+        {
+            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
+            XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);
+
+            XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(configAfterInstall.ToString());
+
+            Assert.AreEqual(0, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count);
+        }
+
+        [TestMethod]
+        public void UninstallDoesNotRemoveCustomTelemetryProcessors()
+        {
+            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
+            XDocument configAfterInstall = ConfigurationHelpers.InstallTransform(emptyConfig);
+
+            // Replace valid type on custom so during uninstall it should stay in the config
+            string customConfig = configAfterInstall.ToString().Replace("AdaptiveSamplingTelemetryProcessor", "blah");
+
+            XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(customConfig);
+
+            Assert.AreEqual(1, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count); 
+        }
     }
 }

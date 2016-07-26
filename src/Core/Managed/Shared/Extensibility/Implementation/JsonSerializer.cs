@@ -45,9 +45,11 @@
         {
             var memoryStream = new MemoryStream();
             using (Stream compressedStream = compress ? CreateCompressedStream(memoryStream) : memoryStream)
-            using (var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding))
             {
-                SeializeToStream(telemetryItems, streamWriter);
+                using (var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding))
+                {
+                    SeializeToStream(telemetryItems, streamWriter);
+                }
             }
 
             return memoryStream.ToArray();
