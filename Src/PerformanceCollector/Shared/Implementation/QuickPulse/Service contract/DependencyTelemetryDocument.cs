@@ -42,11 +42,16 @@
         [DataMember]
         public string DependencyKind { get; set; }
 
+        [DataMember]
         public TelemetryDocumentType DocumentType
         {
             get
             {
                 return TelemetryDocumentType.RemoteDependency;
+            }
+
+            private set
+            {
             }
         }
     }

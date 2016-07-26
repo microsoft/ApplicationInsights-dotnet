@@ -39,11 +39,16 @@
         [DataMember]
         public string HttpMethod { get; set; }
 
+        [DataMember]
         public TelemetryDocumentType DocumentType
         {
             get
             {
                 return TelemetryDocumentType.Request;
+            }
+
+            private set
+            {
             }
         }
     }
