@@ -43,7 +43,7 @@
 
             while (true)
             {
-                float originalValue = Thread.VolatileRead(ref this.currentQuota);
+                float originalValue = Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
                 
                 if (originalValue < 1f)
                 {
@@ -119,7 +119,7 @@
 
             while (true)
             {
-                float originalValue = Thread.VolatileRead(ref this.currentQuota);
+                float originalValue = Interlocked.CompareExchange(ref this.currentQuota, 0, 0);
                 
                 float delta = Math.Min(this.inputStreamRatePerSec * seconds, this.maxQuota - originalValue);
 

@@ -8,7 +8,7 @@
     {
         [DataMember]
         public string Version { get; set; }
-
+        
         [DataMember]
         public DateTimeOffset Timestamp { get; set; }
 
@@ -41,5 +41,13 @@
 
         [DataMember]
         public string DependencyKind { get; set; }
+
+        public TelemetryDocumentType DocumentType
+        {
+            get
+            {
+                return TelemetryDocumentType.RemoteDependency;
+            }
+        }
     }
 }

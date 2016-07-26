@@ -19,5 +19,13 @@
 
         [DataMember]
         public string Exception { get; set; }
+
+        public TelemetryDocumentType DocumentType
+        {
+            get
+            {
+                return TelemetryDocumentType.Exception;
+            }
+        }
     }
 }
