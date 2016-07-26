@@ -96,6 +96,12 @@
         public string QuickPulseServiceEndpoint { get; set; }
 
         /// <summary>
+        /// Gets the flag indicating whether full telemetry items collection is disabled.
+        /// </summary>
+        /// <remarks>Loaded from configuration.</remarks>
+        public bool DisableFullTelemetryItems { get; set; }
+
+        /// <summary>
         /// Disposes resources allocated by this type.
         /// </summary>
         public void Dispose()
@@ -117,7 +123,11 @@
                     if (!this.isInitialized)
                     {
                         QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(
-                            string.Format(CultureInfo.InvariantCulture, "QuickPulseServiceEndpoint: '{0}'", this.QuickPulseServiceEndpoint));
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}'",
+                                this.QuickPulseServiceEndpoint,
+                                this.DisableFullTelemetryItems));
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
                         this.ValidateConfiguration(configuration);
@@ -453,7 +463,11 @@
             {
                 foreach (var telemetryProcessor in this.telemetryProcessors)
                 {
-                    telemetryProcessor.StartCollection(this.dataAccumulatorManager, this.serviceClient.ServiceUri, this.config);
+                    telemetryProcessor.StartCollection(
+                        this.dataAccumulatorManager,
+                        this.serviceClient.ServiceUri,
+                        this.config,
+                        this.DisableFullTelemetryItems);
                 }
             }
 

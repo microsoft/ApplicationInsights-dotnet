@@ -30,6 +30,8 @@
 
         private bool isCollecting = false;
 
+        private bool disableFullTelemetryItems = false;
+
         private QuickPulseQuotaTracker requestQuotaTracker = null;
 
         private QuickPulseQuotaTracker dependencyQuotaTracker = null;
@@ -104,7 +106,8 @@
         void IQuickPulseTelemetryProcessor.StartCollection(
             IQuickPulseDataAccumulatorManager accumulatorManager,
             Uri serviceEndpoint,
-            TelemetryConfiguration configuration)
+            TelemetryConfiguration configuration,
+            bool disableFullTelemetryItems)
         {
             if (this.isCollecting)
             {
@@ -115,6 +118,7 @@
             this.serviceEndpoint = serviceEndpoint;
             this.config = configuration;
             this.isCollecting = true;
+            this.disableFullTelemetryItems = disableFullTelemetryItems;
         }
 
         void IQuickPulseTelemetryProcessor.StopCollection()
@@ -272,7 +276,10 @@
 
                 this.UpdateAggregates(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
 
-                this.CollectTelemetryDocuments(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
+                if (!this.disableFullTelemetryItems)
+                {
+                    this.CollectTelemetryDocuments(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
+                }
             }
         }
 

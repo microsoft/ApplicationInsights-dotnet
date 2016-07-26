@@ -655,5 +655,44 @@
                 Assert.AreEqual(95 + i, int.Parse(collectedTelemetry[i].Message, CultureInfo.InvariantCulture));
             }
         }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorDoesNotCollectFullTelemetryItemsWhenSwitchIsOff()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey },
+                disableFullTelemetryItems: true);
+
+            // ACT
+            var request = new RequestTelemetry()
+            {
+                Success = false,
+                ResponseCode = "500",
+                Duration = TimeSpan.FromSeconds(1),
+                Context = { InstrumentationKey = instrumentationKey }
+            };
+
+            var dependency = new DependencyTelemetry()
+            {
+                Success = false,
+                Duration = TimeSpan.FromSeconds(1),
+                Context = { InstrumentationKey = instrumentationKey }
+            };
+
+            var exception = new ExceptionTelemetry(new ArgumentException("bla")) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(request);
+            telemetryProcessor.Process(dependency);
+            telemetryProcessor.Process(exception);
+
+            // ASSERT
+            Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+        }
     }
 }
