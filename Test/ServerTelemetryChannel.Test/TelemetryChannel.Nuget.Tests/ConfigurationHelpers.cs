@@ -29,6 +29,11 @@
             return config.Descendants(XmlNamespace + "TelemetryChannel");
         }
 
+        public static IEnumerable<XElement> GetTelemetryProcessors(XDocument config)
+        {
+            return config.Descendants(XmlNamespace + "TelemetryProcessors");
+        }
+
         public static string GetPartialTypeName(Type typeToFind)
         {
             return typeToFind.FullName + ", " + typeToFind.Assembly.GetName().Name;
