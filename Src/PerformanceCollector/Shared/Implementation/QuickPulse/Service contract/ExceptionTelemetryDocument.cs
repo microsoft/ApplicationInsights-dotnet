@@ -5,22 +5,22 @@
     [DataContract]
     internal struct ExceptionTelemetryDocument : ITelemetryDocument
     {
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
         
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string Message { get; set; }
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string SeverityLevel { get; set; }
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string HandledAt { get; set; }
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string Exception { get; set; }
 
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public string DocumentType
         {
             get
