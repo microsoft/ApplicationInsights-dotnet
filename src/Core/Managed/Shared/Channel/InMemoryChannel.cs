@@ -124,7 +124,16 @@
         /// </summary>
         public void Flush()
         {
-            this.transmitter.Flush();
+            this.Flush(default(TimeSpan)); // use default timeout
+        }
+
+        /// <summary>
+        /// Will send all the telemetry items stored in the memory.
+        /// </summary>
+        /// <param name="timeout">Timeout interval to abort sending.</param>
+        public void Flush(TimeSpan timeout)
+        {
+            this.transmitter.Flush(timeout);
         }
 
         /// <summary>
