@@ -124,7 +124,7 @@
         /// </summary>
         public void Flush()
         {
-            this.Flush(default(TimeSpan)); // use default timeout
+            this.Flush(default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
         }
 
         /// <summary>
