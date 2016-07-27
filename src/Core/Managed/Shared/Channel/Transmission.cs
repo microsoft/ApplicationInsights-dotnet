@@ -116,7 +116,7 @@
         public TimeSpan Timeout
         {
             get;
-            private set;
+            internal set;
         }
 
         /// <summary>
@@ -148,8 +148,9 @@
                     return null;
                 }
 #else
-                WebRequest request = this.CreateRequest(this.EndpointAddress);
                 Task timeoutTask = TaskEx.Delay(this.Timeout);
+
+                WebRequest request = this.CreateRequest(this.EndpointAddress);
                 Task<HttpWebResponseWrapper> sendTask = this.SendRequestAsync(request);
                                 
                 Task completedTask = await TaskEx.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);

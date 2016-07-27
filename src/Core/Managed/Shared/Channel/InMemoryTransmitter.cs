@@ -78,9 +78,9 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Flushes the in-memory buffer and sends it.
         /// </summary>
-        internal void Flush()
+        internal void Flush(TimeSpan timeout)
         {
-            this.DequeueAndSend();
+            this.DequeueAndSend(timeout);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 while (this.enabled)
                 {
                     // Pulling all items from the buffer and sending as one transmissiton.
-                    this.DequeueAndSend();
+                    this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
                     // Waiting for the flush delay to elapse
                     this.startRunnerEvent.WaitOne(this.sendingInterval);
@@ -113,7 +113,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Flushes the in-memory buffer and send it.
         /// </summary>
-        private void DequeueAndSend()
+        private void DequeueAndSend(TimeSpan timeout)
         {
             lock (this.sendingLockObj)
             {
@@ -121,11 +121,11 @@ namespace Microsoft.ApplicationInsights.Channel
                 try
                 {
                     // send request
-                    this.Send(telemetryItems).ConfigureAwait(false).GetAwaiter().GetResult();
+                    this.Send(telemetryItems, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch (Exception e)
                 {
-                    CoreEventSource.Log.LogVerbose("DequeueAndSend: Failed Sending: Exception: " + e.ToString());
+                    CoreEventSource.Log.FailedToSend(e.Message);
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Serializes a list of telemetry items and sends them.
         /// </summary>
-        private async Task Send(IEnumerable<ITelemetry> telemetryItems)
+        private async Task Send(IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout)
         {
             if (telemetryItems == null || !telemetryItems.Any())
             {
@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             byte[] data = JsonSerializer.Serialize(telemetryItems);
-            var transmission = new Transmission(this.endpointAddress, data, "application/x-json-stream", JsonSerializer.CompressionType);
+            var transmission = new Transmission(this.endpointAddress, data, "application/x-json-stream", JsonSerializer.CompressionType, timeout);
 
             await transmission.SendAsync().ConfigureAwait(false);
         }

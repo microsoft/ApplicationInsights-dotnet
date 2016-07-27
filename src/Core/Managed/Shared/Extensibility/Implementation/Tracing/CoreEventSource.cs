@@ -300,6 +300,18 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            24,
+            Message = "Failed to send: {0}.",
+            Level = EventLevel.Warning)]
+        public void FailedToSend(string msg, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                24,
+                msg ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

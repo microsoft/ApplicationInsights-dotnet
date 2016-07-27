@@ -4,6 +4,17 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.TestFramework;
+
+#if !NET40
+    using System.Diagnostics.Tracing;
+#endif
+
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+
+#if NET40
+    using Microsoft.Diagnostics.Tracing;
+#endif
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Assert = Xunit.Assert;
@@ -23,6 +34,31 @@
 
             Assert.Equal(1, telemetries.Count());
             Assert.Same(sentTelemetry, telemetries.First());
+        }
+
+        [TestMethod]
+        public void FlushCanBeAborted()
+        {
+            var telemetryBuffer = new TelemetryBuffer();
+            var channel = new InMemoryChannel(telemetryBuffer, new InMemoryTransmitter(telemetryBuffer))
+            {
+                SendingInterval = TimeSpan.FromDays(1),
+                EndpointAddress = "http://localhost/bad"
+            };
+            channel.Send(new StubTelemetry()); // Send telemetry so that it sets next send intreval and does not interfere with Flush
+            channel.Flush();
+
+            var transmission = new StubTelemetry();
+            channel.Send(transmission);
+
+            using (TestEventListener listener = new TestEventListener())
+            {
+                listener.EnableEvents(CoreEventSource.Log, EventLevel.Warning);
+                channel.Flush(TimeSpan.FromTicks(1));
+
+                var expectedMessage = listener.Messages.First();
+                Assert.Equal(24, expectedMessage.EventId);
+            }
         }
     }
 }

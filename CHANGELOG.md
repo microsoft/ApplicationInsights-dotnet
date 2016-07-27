@@ -1,7 +1,10 @@
-# Changelog
+﻿# Changelog
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.2.0-beta2
+
+- InMemoryChannel has a new override for Flush method that accepts timeout.
 
 ## Version 2.2.0-beta1
 
