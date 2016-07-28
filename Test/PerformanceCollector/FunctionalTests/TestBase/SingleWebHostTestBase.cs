@@ -27,6 +27,8 @@ namespace Functional.Helpers
 
         protected HttpListenerObservable Listener { get; private set; }
 
+        internal QuickPulseHttpListenerObservable QuickPulseListener { get; private set; }
+
         protected SingleWebHostTestConfiguration Config { get; private set; }
 
         protected EtwEventSession EtwSession { get; private set; }
@@ -53,6 +55,9 @@ namespace Functional.Helpers
             this.Listener = new HttpListenerObservable(configuration.TelemetryListenerUri);
             this.Listener.Start();
 
+            this.QuickPulseListener = new QuickPulseHttpListenerObservable(configuration.QuickPulseListenerUri);
+            this.QuickPulseListener.Start();
+
             this.EtwSession = new EtwEventSession();
             this.EtwSession.Start();
         }
@@ -60,6 +65,7 @@ namespace Functional.Helpers
         protected void StopWebAppHost(bool treatTraceErrorsAsFailures = false)
         {
             this.Listener.Stop();
+            this.QuickPulseListener.Stop();
             this.Server.Stop();
             this.HttpClient.Dispose();
 

@@ -37,6 +37,7 @@
                     })
                 {
                     TelemetryListenerPort = 7654,
+                    QuickPulseListenerPort = 7655,
                     //AttachDebugger = Debugger.IsAttached,
                     IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
@@ -80,6 +81,14 @@
         public void NonParsableCounter()
         {
             CommonTests.NonParsableCounter(this.Listener);
+        }
+
+        [TestMethod]
+        [Owner("alkaplan")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void QuickPulseAggregates()
+        {
+            CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient);
         }
 
         private void LaunchAndVerifyApplication()
