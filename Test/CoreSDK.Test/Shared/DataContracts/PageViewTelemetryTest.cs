@@ -112,8 +112,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Contains("name", telemetry.Name, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("required", telemetry.Name, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("n/a", telemetry.Name);
         }
 
         [TestMethod]

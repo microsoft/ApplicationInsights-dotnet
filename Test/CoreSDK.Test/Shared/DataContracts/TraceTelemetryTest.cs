@@ -121,8 +121,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Contains("message", telemetry.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("required", telemetry.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("n/a", telemetry.Message);
         }
 
         [TestMethod]

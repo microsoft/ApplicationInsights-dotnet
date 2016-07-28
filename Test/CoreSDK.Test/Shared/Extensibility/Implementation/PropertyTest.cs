@@ -150,7 +150,7 @@
         {
             var dictionary = new Dictionary<string, string> { { string.Empty, string.Empty } };
             dictionary.SanitizeProperties();
-            Assert.Equal("(required property name is empty)", dictionary.Single().Key);
+            Assert.Equal("required", dictionary.Single().Key);
         }
 
         [TestMethod]
