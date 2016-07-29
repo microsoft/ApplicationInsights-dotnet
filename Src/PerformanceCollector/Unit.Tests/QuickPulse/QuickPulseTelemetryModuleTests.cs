@@ -223,7 +223,9 @@
 
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIRequestsPerSecond > 0));
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
-            Assert.IsTrue(serviceClient.SnappedSamples.Any(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
+            Assert.IsTrue(
+                serviceClient.SnappedSamples.Any(
+                    s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
         }
 
         [TestMethod]
@@ -310,7 +312,7 @@
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
             Assert.IsTrue(performanceCollector.Counters.Any());
-            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfIisQueueSize) > double.Epsilon));
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
         }
 
         [TestMethod]

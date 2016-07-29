@@ -205,18 +205,18 @@
 
         private void InitializePerformanceCollector()
         {
-            foreach (var counter in QuickPulsePerfCounterList.CountersToCollect)
+            foreach (var counter in QuickPulseDefaults.CountersToCollect)
             {
                 PerformanceCounter pc = null;
                 bool usesPlaceholder;
 
                 try
                 {
-                    pc = PerformanceCounterUtility.ParsePerformanceCounter(counter.Item2, null, null, out usesPlaceholder);
+                    pc = PerformanceCounterUtility.ParsePerformanceCounter(counter, null, null, out usesPlaceholder);
                 }
                 catch (Exception e)
                 {
-                    QuickPulseEventSource.Log.CounterParsingFailedEvent(e.Message, counter.Item2);
+                    QuickPulseEventSource.Log.CounterParsingFailedEvent(e.Message, counter);
                     continue;
                 }
 
@@ -229,19 +229,19 @@
                 try
                 {
                     this.performanceCollector.RegisterPerformanceCounter(
-                        counter.Item2,
-                        counter.Item1.ToString(),
+                        counter,
+                        counter,
                         pc.CategoryName,
                         pc.CounterName,
                         pc.InstanceName,
                         false,
                         true);
 
-                    QuickPulseEventSource.Log.CounterRegisteredEvent(counter.Item2);
+                    QuickPulseEventSource.Log.CounterRegisteredEvent(counter);
                 }
                 catch (Exception e)
                 {
-                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
+                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter);
                 }
             }
         }

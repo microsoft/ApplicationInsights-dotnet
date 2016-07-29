@@ -13,5 +13,14 @@
                 return QuickPulseServiceEndpoint;
             }
         }
+
+        public static string[] CountersToCollect
+            =>
+                new[]
+                    {
+                        @"\ASP.NET Applications(__Total__)\Requests In Application Queue",
+                        @"\Memory\Committed Bytes",
+                        @"\Processor(_Total)\% Processor Time"
+                    };
     }
 }

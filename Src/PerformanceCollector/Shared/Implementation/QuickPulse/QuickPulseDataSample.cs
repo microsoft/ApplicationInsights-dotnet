@@ -65,24 +65,6 @@
 
             this.AIExceptionsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIExceptionCount / sampleDuration.TotalSeconds : 0;
 
-            // avoiding reflection (Enum.GetNames()) to speed things up
-            Tuple<PerformanceCounterData, float> value;
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfIisQueueSize.ToString(), out value))
-            {
-                this.PerfIisQueueSize = value.Item2;
-            }
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfCpuUtilization.ToString(), out value))
-            {
-                this.PerfCpuUtilization = value.Item2;
-            }
-
-            if (perfData.TryGetValue(QuickPulsePerfCounters.PerfMemoryInBytes.ToString(), out value))
-            {
-                this.PerfMemoryInBytes = value.Item2;
-            }
-
             this.PerfCountersLookup = perfData.ToDictionary(p => p.Value.Item1.OriginalString, p => p.Value.Item2);
 
             this.TelemetryDocuments = accumulator.TelemetryDocuments.ToArray();
@@ -92,7 +74,7 @@
 
         public DateTimeOffset EndTimestamp { get; }
         
-        #region AI
+        #region Aggregates
         public int AIRequests { get; private set; }
 
         public double AIRequestsPerSecond { get; private set; }
@@ -117,18 +99,8 @@
 
         #endregion
 
-        #region Performance counters
-
         public IDictionary<string, float> PerfCountersLookup { get; private set; }
-
-        public double PerfIisQueueSize { get; private set; }
-
-        public double PerfCpuUtilization { get; private set; }
-
-        public double PerfMemoryInBytes { get; private set; }
-
-        #endregion
-
+        
         public ITelemetryDocument[] TelemetryDocuments { get; set; }
     }
 }
