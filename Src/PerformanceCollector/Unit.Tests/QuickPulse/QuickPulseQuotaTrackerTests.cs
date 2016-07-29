@@ -144,8 +144,7 @@
             var passedQuotaCount = quotaApplicationResults.Count(result => result);
             var correctResult = maxQuota / 60 * experimentLengthInSeconds;
 
-            // the algorithm is eventually consistent, allow for 5% overshoot
-            Assert.IsTrue(passedQuotaCount >= correctResult && passedQuotaCount < 1.05 * correctResult);
+            Assert.AreEqual(correctResult, passedQuotaCount);
             Assert.IsFalse(quotaTracker.ApplyQuota());
         }
     }
