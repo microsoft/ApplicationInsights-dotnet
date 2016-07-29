@@ -308,18 +308,5 @@
             Assert.IsFalse(dataSample.PerfCountersLookup.Any());
         }
         #endregion
-
-        #region Telemetry items
-
-        #region Requests
-        #endregion
-
-        #region Dependencies
-        #endregion
-
-        #region Exceptions
-        #endregion
-       
-        #endregion
     }
 }
