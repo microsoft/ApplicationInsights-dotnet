@@ -49,7 +49,7 @@
             if (string.IsNullOrEmpty(value))
             {
                 CoreEventSource.Log.PopulateRequiredStringWithValue(parameterName, telemetryType);
-                return parameterName + " is a required field for " + telemetryType;
+                return "n/a";
             }
 
             return value;

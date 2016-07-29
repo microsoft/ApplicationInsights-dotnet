@@ -32,8 +32,6 @@
     [TestClass]
     public class TelemetryClientTest
     {
-        private const string RequiredFieldText = "is a required field";
-
         [TestMethod]
         public void IsEnabledReturnsTrueIfTelemetryTrackingIsEnabledInConfiguration()
         {
@@ -228,7 +226,7 @@
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
             Assert.NotNull(exceptionTelemetry.Exception);
-            Assert.Contains(RequiredFieldText, exceptionTelemetry.Exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("n/a", exceptionTelemetry.Exception.Message);
         }
 
         [TestMethod]

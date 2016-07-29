@@ -175,7 +175,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
         private static string MakeKeyNonEmpty(string key)
         {
-            return string.IsNullOrEmpty(key) ? "(required property name is empty)" : key;
+            return string.IsNullOrEmpty(key) ? "required" : key;
         }
 
         private static string MakeKeyUnique<TValue>(string key, IDictionary<string, TValue> dictionary)
