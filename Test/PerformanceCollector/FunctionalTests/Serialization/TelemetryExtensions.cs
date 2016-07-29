@@ -71,11 +71,6 @@ namespace Functional.Helpers
             int timeOut)
         {
             var result = listener
-                 .Do(
-                    item =>
-                    {
-                        var i = item;
-                    })
                 .Where(item => (item is T))
                 .Cast<T>()
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
