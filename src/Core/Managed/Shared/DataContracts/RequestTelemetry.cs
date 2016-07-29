@@ -239,7 +239,7 @@
             }
         }
 
-        //TODO: This has been copied to Util to support Availability, take it out of here and use that instead
+        // TODO: This has been copied to Util to support Availability, take it out of here and use that instead
         private DateTimeOffset ValidateDateTimeOffset(string value)
         {
             DateTimeOffset timestamp;

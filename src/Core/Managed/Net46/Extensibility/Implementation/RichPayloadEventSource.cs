@@ -278,7 +278,7 @@
             /// <summary>
             /// Keyword for availability.
             /// </summary>
-            public const EventKeywords Availability = (EventKeywords)0x120;
+            public const EventKeywords Availability = (EventKeywords)0x200;
         }
     }
 }

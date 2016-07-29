@@ -2,16 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using System.Globalization;
 
     /// <summary>
     /// Telemetry type used for availability test results.
     /// Contains a time and message and optionally some additional metadata.
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties //TODO: Should this implement IOperation like RequestTelemetry?
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Availability";
 
@@ -46,12 +46,28 @@
         }        
 
         /// <summary>
-        /// Gets or sets the test run id guid
+        /// Gets or sets the test run id GUID.
         /// </summary>
         public Guid Id
         {
-            get { return Guid.Parse(this.Data.testRunId); }
-            set { this.Data.testRunId = value.ToString(); }
+            get
+            {
+                Guid guidId;
+
+                if (Guid.TryParse(this.Data.testRunId, out guidId))
+                {
+                    return guidId;
+                }
+                else
+                {
+                    return Guid.NewGuid();
+                }
+            }
+
+            set
+            {
+                this.Data.testRunId = value.ToString();
+            }
         }
 
         /// <summary>
@@ -79,9 +95,10 @@
         {
             get
             {
-                //TODO: Note: this ends up logging an error messsage for Request Telemetry if it fails, Both PageView and Request telemetry use this to validate so PV already has the bug.
+                // TODO: Note: this ends up logging an error messsage for Request Telemetry if it fails, Both PageView and Request telemetry use this to validate so PV already has the bug.
                 return Utils.ValidateDuration(this.Data.duration);
             }
+
             set
             {
                 this.Data.duration = value.ToString();
@@ -89,7 +106,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the result of the availability test.
+        /// Gets or sets a value indicating whether the availability test was successful or not.
         /// </summary>
         public bool Success
         {
@@ -148,15 +165,19 @@
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
-        {            
-            //TODO: It looks like the oob Web Tests on the portal are populating this property now so adding and ensuring its set to false as we don't support sending full test results.
+        {
+            // TODO: It looks like the oob Web Tests on the portal are populating this property now so adding and ensuring its set to false as we don't support sending full test results.
             if (this.Data.properties.ContainsKey("FullTestResultAvailable"))
+            {
                 this.Data.properties["FullTestResultAvailable"] = "false";
+            }
             else
+            {
                 this.Data.properties.Add("FullTestResultAvailable", "false");
+            }
 
-            //Makes message content similar to OOB web test results on the portal.
-            this.Message = (this.Data.result == TestResult.Pass && String.IsNullOrEmpty(this.Message)) ? "Passed" : ((this.Data.result == TestResult.Fail && String.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
+            // Makes message content similar to OOB web test results on the portal.
+            this.Message = (this.Data.result == TestResult.Pass && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((this.Data.result == TestResult.Fail && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
 
             this.TestName = this.TestName.SanitizeTestName();
             this.TestName = Utils.PopulateRequiredStringValue(this.TestName, "TestName", typeof(AvailabilityTelemetry).FullName);

@@ -66,15 +66,7 @@
         [TestMethod]
         public void SanitizeWillAddDefaultFieldsForAvailability()
         {
-            AvailabilityTelemetry telemetry = new AvailabilityTelemetry
-            {
-                Message = "Test Message",
-                RunLocation = "Test Location",
-                TestName = "Test Name",
-                TestTimeStamp = DateTimeOffset.Now,
-                Duration = TimeSpan.FromSeconds(30),
-                Success = true
-            };
+            AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
 
             ((ITelemetry)telemetry).Sanitize();
 
@@ -84,15 +76,7 @@
         [TestMethod]
         public void SanitizeWillLeaveCustomMessageForAvailability()
         {
-            AvailabilityTelemetry telemetry = new AvailabilityTelemetry
-            {
-                Message = "Test Message",
-                RunLocation = "Test Location",
-                TestName = "Test Name",
-                TestTimeStamp = DateTimeOffset.Now,
-                Duration = TimeSpan.FromSeconds(30),
-                Success = true
-            };
+            AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
 
             ((ITelemetry)telemetry).Sanitize();
 
@@ -102,14 +86,9 @@
         [TestMethod]
         public void SanitizeWillSetFailedMessageForAvailability()
         {
-            AvailabilityTelemetry telemetry = new AvailabilityTelemetry
-            {
-                RunLocation = "Test Location",
-                TestName = "Test Name",
-                TestTimeStamp = DateTimeOffset.Now,
-                Duration = TimeSpan.FromSeconds(30),
-                Success = false
-            };
+            AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
+            telemetry.Message = string.Empty;
+            telemetry.Success = false;
 
             ((ITelemetry)telemetry).Sanitize();
 
@@ -119,14 +98,8 @@
         [TestMethod]
         public void SanitizeWillSetPassedMessageForAvailability()
         {
-            AvailabilityTelemetry telemetry = new AvailabilityTelemetry
-            {
-                RunLocation = "Test Location",
-                TestName = "Test Name",
-                TestTimeStamp = DateTimeOffset.Now,
-                Duration = TimeSpan.FromSeconds(30),
-                Success = true
-            };
+            AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
+            telemetry.Message = string.Empty;
 
             ((ITelemetry)telemetry).Sanitize();
 

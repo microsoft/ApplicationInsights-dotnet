@@ -291,7 +291,6 @@
         /// Send information about availability of an application.
         /// </summary>
         /// <param name="testName">Availability test name.</param>
-        /// <param name="testRunId">Guid identifying the individual test run.</param>
         /// <param name="testTimeStamp">The time when the availability was captured.</param>
         /// <param name="duration">The time taken for the availability test to run.</param>
         /// <param name="runLocation">Name of the location the availability test was run from.</param>        
@@ -308,7 +307,7 @@
         /// </summary>
         public void TrackAvailability(AvailabilityTelemetry telemetry)
         {
-            if(telemetry == null)
+            if (telemetry == null)
             {
                 telemetry = new AvailabilityTelemetry();
             }

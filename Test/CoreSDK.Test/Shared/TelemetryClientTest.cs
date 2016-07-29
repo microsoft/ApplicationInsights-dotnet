@@ -372,7 +372,7 @@
         #region TrackAvailability
 
         [TestMethod]
-        public void TrackAvailabilitySendsAvailabilityTelemetryWithGivenNameRunlocationRunidDurationResultandMessageToTelemetryChannel()
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithGivenNameRunlocationRunIdDurationResultAndMessageToTelemetryChannel()
         {
             var sentTelemetry = new List<ITelemetry>();
             TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
