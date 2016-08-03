@@ -10,8 +10,8 @@
     using FuncTest.Serialization;
     using RemoteDependencyKind = Microsoft.Developer.Analytics.DataCollection.Model.v2.DependencyKind;
     
-
-    public partial class RddTests
+    [TestClass]
+    public class SqlTests
     {
         /// <summary>
         /// Label used by test app to identify the query being executed.
@@ -19,13 +19,59 @@
         private const string QueryToExecuteLabel = "Query Executed:";
 
         /// <summary>
-        /// Tests RDD events are generated for external dependency call - Sync SQL calls, made in a ASP.NET 4.5.1 Application
+        /// Resource Name for dev database.
         /// </summary>
+        private const string ResourceNameSQLToDevApm = @".\SQLEXPRESS | RDDTestDatabase";
+
+        /// <summary>
+        /// Invalid SQL query only needed here because the test web app we use to run queries will throw a 500 and we can't get back the invalid query from it.
+        /// </summary>        
+        private const string InvalidSqlQueryToApmDatabase = "SELECT TOP 2 * FROM apm.[Database1212121]";
+
+        /// <summary>
+        /// Clause to go on end of SQL query when running XML query - only used in the failure case.
+        /// </summary>        
+        private const string ForXMLClauseInFailureCase = " FOR XML AUTO";
+
+        /// <summary>
+        /// Query string to specify Outbound SQL Call. 
+        /// </summary>
+        private const string QueryStringOutboundSql = "?type=sql&count=";
+
+        /// <summary>
+        /// Maximum access time for calls after initial - This does not incur perf hit of the very first call.
+        /// </summary>        
+        private readonly TimeSpan AccessTimeMaxSqlCallToApmdbNormal = TimeSpan.FromSeconds(5);
+
+        public TestContext TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void MyClassInitialize(TestContext testContext)
+        {
+            DeploymentAndValidationTools.Initialize();
+        }
+
+        [ClassCleanup]
+        public static void MyClassCleanup()
+        {
+            DeploymentAndValidationTools.CleanUp();
+        }
+
+        [TestInitialize]
+        public void MyTestInitialize()
+        {
+            DeploymentAndValidationTools.SdkEventListener.Start();
+        }
+
+        [TestCleanup]
+        public void MyTestCleanup()
+        {
+            Assert.IsFalse(DeploymentAndValidationTools.SdkEventListener.FailureDetected, "Failure is detected. Please read test output logs.");
+            DeploymentAndValidationTools.SdkEventListener.Stop();
+        }
+
         [TestMethod]
-        [Description("Verify RDD is collected for Sync Sql Calls in ASPX 4.5.1 application")]
-        [Owner("cithomas")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
         {
             if (!RegistryCheck.IsNet451Installed)
@@ -33,49 +79,40 @@
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteSyncSqlTests(aspx451TestWebApplication, 1, AccessTimeMaxSqlCallToApmdbNormal);
+            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, AccessTimeMaxSqlCallToApmdbNormal);
         }
 
-        /// <summary>
-        /// Verifying colecting stored procedure name in async calls
-        /// </summary>
-        [Description("Verifying colecting stored procedure name in async calls")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestStoredProcedureNameIsCollected()
         {
             const string StoredProcedureName = "GetTopTenMessages";
             string queryString = "?type=ExecuteReaderStoredProcedureAsync&count=1&storedProcedureName=" + StoredProcedureName;
 
-            aspx451TestWebApplication.DoTest(
+            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                      application =>
                      {
                          application.ExecuteAnonymousRequest(queryString);
 
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
-                         var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
+                         var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                          var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
-                         this.ValidateRddTelemetryValues(sqlItems[0], ResourceNameSQLToDevApm + " | " + StoredProcedureName, StoredProcedureName, TimeSpan.FromSeconds(10), true);
+                         this.Validate(sqlItems[0], ResourceNameSQLToDevApm + " | " + StoredProcedureName, StoredProcedureName, TimeSpan.FromSeconds(10), true);
                      });           
         }
 
-        [Description("Verifying that executing two commands simultaniously is not unhandled exceptions.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwice()
         {
-            aspx451TestWebApplication.DoTest(
+            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                      application =>
                      {
                          application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwice&count=1");
 
-                         var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
+                         var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                          var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
 
                          Assert.AreEqual(0, sqlItems.Length, "We don't have to collect any rdd as it is impossible to execute on the same command two async methods at the same time");
@@ -83,250 +120,178 @@
         }
 
 
-        [Description("Verifying SqlCommand.BeginExecuteReader monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
         {
             this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", true);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteReader monitoring failed call.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequenceFailed()
         {
             this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", false);
         }
 
-        [Description("Verifying when two simulatinious asyncronous operations are executed we are not reporting any data as it could be wrong.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceWithTasks()
         {
-            aspx451TestWebApplication.DoTest(
+            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                      application =>
                      {
                          application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwiceWithTasks&count=1");
 
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
-                         var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
+                         var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                          var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
 
-        [Description("Verifying async SqlCommand.ExecuteReader monitoring")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsync()
         {
             this.TestSqlCommandExecute("ExecuteReaderAsync", true);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteReader monitoring in failed calls")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteReaderAsync", false);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteReader monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReader()
         {
             this.TestSqlCommandExecute("BeginExecuteReader", true);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteReader monitoring in failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed()
         {
             this.TestSqlCommandExecute("BeginExecuteReader", false);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteScalar monitoring")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
         {
             this.TestSqlCommandExecute("ExecuteScalarAsync", true);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteScalar monitoring in failed calls")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteScalarAsync", false);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteNonQuery monitoring")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsync()
         {
             this.TestSqlCommandExecute("ExecuteNonQueryAsync", true);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteNonQuery monitoring for failed calls")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteNonQueryAsync", false);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteNonQuery monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQuery()
         {
             this.TestSqlCommandExecute("BeginExecuteNonQuery", true);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteNonQuery monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
         {
             this.TestSqlCommandExecute("BeginExecuteNonQuery", false);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteXmlReader monitoring")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
         {
             this.TestSqlCommandExecute("ExecuteXmlReaderAsync", true);
         }
 
-        [Description("Verifying async SqlCommand.ExecuteXmlReader monitoring for failed calls")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteXmlReaderAsync", false, ForXMLClauseInFailureCase);
         }
 
-        [Description("Verifying SqlCommand.BeginExecuteXmlReader monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteXmlReaderFailed()
         {
             this.TestSqlCommandExecute("BeginExecuteXmlReader", false);
         }
 
-        [Description("Verifying SqlCommand.ExecuteScalar monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalar()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteScalar", true);
         }
 
-        [Description("Verifying SqlCommand.ExecuteScalar monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalarFailed()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteScalar", false);
         }
 
-        [Description("Verifying SqlCommand.ExecuteNonQuery monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQuery()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", true);
         }
 
-        [Description("Verifying SqlCommand.ExecuteNonQuery monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQueryFailed()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", false);
         }
 
-        [Description("Verifying SqlCommand.ExecuteReader monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReader()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteReader", true);
         }
 
-        [Description("Verifying SqlCommand.ExecuteReader monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteReader", false);
         }
 
-        [Description("Verifying SqlCommand.ExecuteXmlReader monitoring.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", true);
         }
 
-        [Description("Verifying SqlCommand.ExecuteXmlReader monitoring for failed calls.")]
-        [Owner("mihailsm")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReaderFailed()
         {
@@ -335,7 +300,7 @@
 
         private void TestSqlCommandExecute(string type, bool success, string extraClauseForFailureCase = null)
         {
-            aspx451TestWebApplication.DoTest(
+            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                  application =>
                  {
                      string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&count=1" + "&success=" + success);
@@ -343,7 +308,7 @@
                      //// The above request would have trigged RDD module to monitor and create RDD telemetry
                      //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
 
-                     var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
+                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                      var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();                     
                      Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
 
@@ -355,7 +320,7 @@
                          queryToValidate = responseForQueryValidation.Substring(placeToStart, restOfLine);
                      }
 
-                     this.ValidateRddTelemetryValues(sqlItems[0], ResourceNameSQLToDevApm, queryToValidate, TimeSpan.FromSeconds(20), success);
+                     this.Validate(sqlItems[0], ResourceNameSQLToDevApm, queryToValidate, TimeSpan.FromSeconds(20), success);
                  });
         }
 
@@ -387,7 +352,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
-                    var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
+                    var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                     var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
 
 
@@ -399,9 +364,36 @@
                     foreach (var sqlItem in sqlItems)
                     {
                         string spName = "GetTopTenMessages";
-                        this.ValidateRddTelemetryValues(sqlItem, ResourceNameSQLToDevApm + " | " + spName, spName, accessTimeMax, true);
+                        this.Validate(sqlItem, ResourceNameSQLToDevApm + " | " + spName, spName, accessTimeMax, true);
                     }
                 });
+        }
+
+        private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
+            string remoteDependencyNameExpected,
+            string commandNameExpected,
+            TimeSpan accessTimeMax,
+            bool successFlagExpected)
+        {
+            // For http name is validated in test itself
+            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected),
+                "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
+                ". Collected: " + itemToValidate.Data.BaseData.Name);
+
+            //If the command name is expected to be empty, the deserializer will make the CommandName null
+            if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
+            {
+                if (string.IsNullOrEmpty(commandNameExpected))
+                {
+                    Assert.IsNull(itemToValidate.Data.BaseData.CommandName);
+                }
+                else
+                {
+                    Assert.IsTrue(itemToValidate.Data.BaseData.CommandName.Equals(commandNameExpected), "The command name is incorrect");
+                }
+            }
+
+            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
         }
     } 
 }

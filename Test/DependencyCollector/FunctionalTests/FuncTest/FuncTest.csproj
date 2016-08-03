@@ -109,6 +109,7 @@
     <Compile Include="Helpers\ACLTools.cs" />
     <Compile Include="Helpers\AzureStorageHelper.cs" />
     <Compile Include="Helpers\DataItem.cs" />
+    <Compile Include="Helpers\DeploymentAndValidationTools.cs" />
     <Compile Include="Helpers\DotNetVersionCheck.cs" />
     <Compile Include="Helpers\ExecutionEnvironment.cs" />
     <Compile Include="Helpers\Extensions.cs" />
@@ -127,7 +128,6 @@
     <Compile Include="Serialization\TelemetryExtensions.cs" />
     <Compile Include="Serialization\TelemetryItemFactory.cs" />
     <Compile Include="SqlTests.cs" />
-    <Compile Include="ExceptionStatisticsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
