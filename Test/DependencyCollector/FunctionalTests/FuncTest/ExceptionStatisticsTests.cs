@@ -18,7 +18,7 @@
         // Fails because Web Nuget does not have exception statistics dependency yet
         public void TestExceptionStatisticsRecievedFrom451ApplicationX64AppPool()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -35,7 +35,7 @@
         // Fails because Web Nuget does not have exception statistics dependency yet
         public void TestExceptionStatisticsRecievedFrom451ApplicationX32AppPool()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }

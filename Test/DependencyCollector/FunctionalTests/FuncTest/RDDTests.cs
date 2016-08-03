@@ -332,24 +332,28 @@ namespace FuncTest
 
             LocalDb.CreateLocalDb("RDDTestDatabase", aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
 
-            if (DotNetVersionCheck.IsNet46Installed)
+            if (RegistryCheck.IsNet46Installed)
             {
-                // .NET 4.6 onwards, there is no need of installing agent 
-                sourceExpected = DependencySourceType.Aic;
+                // .NET 4.6 onwards, there is no need of installing agent
+                sourceExpected = !RegistryCheck.IsStatusMonitorInstalled ? DependencySourceType.Aic : DependencySourceType.Apmc;
             }
             else
             {
                 sourceExpected = DependencySourceType.Apmc;
-                Installer.SetInternalUI(InstallUIOptions.Silent);
-                string installerPath = ExecutionEnvironment.InstallerPath;
-                try
+
+                if (!RegistryCheck.IsStatusMonitorInstalled)
                 {
-                    Installer.InstallProduct(installerPath, "ACTION=INSTALL ALLUSERS=1 MSIINSTALLPERUSER=1");
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceError("Agent installer not found. Agent is required for running tests for framework version below 4.6" + ex);
-                    throw;
+                    Installer.SetInternalUI(InstallUIOptions.Silent);
+                    string installerPath = ExecutionEnvironment.InstallerPath;
+                    try
+                    {
+                        Installer.InstallProduct(installerPath, "ACTION=INSTALL ALLUSERS=1 MSIINSTALLPERUSER=1");
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.TraceError("Agent installer not found. Agent is required for running tests for framework version below 4.6" + ex);
+                        throw;
+                    }
                 }
             }
 
@@ -371,7 +375,7 @@ namespace FuncTest
 
             AzureStorageHelper.Cleanup();
             
-            if (DotNetVersionCheck.IsNet46Installed)
+            if (RegistryCheck.IsNet46Installed)
             {
                 // .NET 4.6 onwards, there is no need of installing agent 
             }
@@ -408,7 +412,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForSyncHttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -427,7 +431,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForSyncHttpPostCallAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -446,7 +450,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForSyncHttpFailedAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -465,7 +469,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAsync1HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }            
@@ -476,7 +480,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForHttpAspx451WithHttpClient()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -494,7 +498,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForFailedAsync1HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -512,7 +516,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAsync2HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -529,7 +533,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForFailedAsync2HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -548,7 +552,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAsync3HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -565,7 +569,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForFailedAsync3HttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -583,7 +587,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAsyncWithCallBackHttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -601,7 +605,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAsyncAwaitHttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -620,7 +624,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForFailedAsyncAwaitHttpAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -638,7 +642,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -657,7 +661,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAzureSdkBlobAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -676,7 +680,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAzureSdkQueueAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -695,7 +699,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForAzureSdkTableAspx451()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
@@ -713,7 +717,7 @@ namespace FuncTest
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolderWin32)]
         public void TestRddForWin32ApplicationPool()
         {
-            if (!DotNetVersionCheck.IsNet451Installed)
+            if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
