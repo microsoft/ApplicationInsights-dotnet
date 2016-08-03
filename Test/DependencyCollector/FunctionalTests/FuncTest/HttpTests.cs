@@ -50,11 +50,6 @@ namespace FuncTest
         private const string Aspx451AppFolderWin32 = ".\\Aspx451Win32";
 
         /// <summary>
-        /// Folder for ASPX 4.5.1 count based sampling test application deployment.
-        /// </summary>        
-        private const string Aspx451CountBasedSamplingAppFolder = ".\\Aspx451CountBasedSampling";
-        
-        /// <summary>
         /// Port number in local where test application ASPX 4.5.1 is deployed.
         /// </summary>
         private const int Aspx451Port = 789;
@@ -63,11 +58,6 @@ namespace FuncTest
         /// Port number in local where test application ASPX 4.5.1 is deployed in win32 mode.
         /// </summary>
         private const int Aspx451PortWin32 = 790;
-
-        /// <summary>
-        /// Port number in local where test application ASPX 4.5.1 with count based sampling is deployed.
-        /// </summary>
-        private const int Aspx451CountBasedSamplingPort = 792;
 
         /// <summary>
         /// Sleep time to give SDK some time to send events.
@@ -170,46 +160,6 @@ namespace FuncTest
         /// </summary>
         private const string QueryStringOutboundSql = "?type=sql&count=";
 
-        /* A sample JSON sent by SDK to DataPlatform
-             {
-              "name": "Microsoft.ApplicationInsights.Dev.35f47ad8508f4e9e8b1a858da0adc66e.RemoteDependency",
-              "time": "2015-09-16T22:16:17.5023413+00:00",
-              "iKey": "35f47ad8-508f-4e9e-8b1a-858da0adc66e",
-              "tags": {
-                "ai.device.roleInstance": "cithomas.redmond.corp.microsoft.com",
-                "ai.operation.name": "GET /Aspx451/externalcalls.aspx",
-                "ai.operation.id": "4588251058175254894",
-                "ai.user.userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240",
-                "ai.application.ver": "Unknown",
-                "ai.device.type": "PC",
-                "ai.device.id": "cithomas.redmond.corp.microsoft.com",
-                "ai.device.oemName": "Hewlett-Packard",
-                "ai.device.model": "HP Z420 Workstation",
-                "ai.device.network": "Ethernet",
-                "ai.device.language": "en-US",
-                "ai.internal.agentVersion": "0.13.0",
-                "ai.internal.sdkVersion": "2.0.0.1613"
-              },
-              "data": {
-                "baseType": "RemoteDependencyData",
-                "baseData": {
-                  "ver": 2,
-                  "name": "wpiyxj5fm5.database.windows.net | DevAppDiag | apm.GetDatabases",
-                  "commandName": "apm.GetDatabases",
-                  "kind": 1,
-                  "value": 248.9816,
-                  "dependencyKind": 0,
-                  "success": true,
-                  "async": false,
-                  "dependencySource": 0,
-                  "properties": {
-                    "DeveloperMode": "true"
-                  }
-                }
-              }
-            }
-         */
-
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
@@ -225,11 +175,6 @@ namespace FuncTest
         /// </summary>
         private const string ResourceNameSQLToDevApm = @".\SQLEXPRESS | RDDTestDatabase";
 
-        /// <summary>
-        /// Command Name for dev database.
-        /// </summary>
-        private const string CommandNameSQLToDevApm = "DevAppDiag";
-        
         /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
         /// </summary>        
@@ -248,12 +193,12 @@ namespace FuncTest
         /// <summary>
         /// ASPX 4.5.1 test application.
         /// </summary>
-        private static TestWebApplication aspx451TestWebApplication;
+        private static readonly TestWebApplication aspx451TestWebApplication;
 
         /// <summary>
         /// ASPX 4.5.1 test application in Win32.
         /// </summary>
-        private static TestWebApplication aspx451TestWebApplicationWin32;
+        private static readonly TestWebApplication aspx451TestWebApplicationWin32;
 
         /// <summary>
         /// RDD source expected.
@@ -261,14 +206,9 @@ namespace FuncTest
         private static DependencySourceType sourceExpected = DependencySourceType.Undefined;
 
         /// <summary>
-        /// Test Context Instance.
-        /// </summary>
-        private TestContext testContextInstance;
-
-        /// <summary>
         /// SDK event listener for receiving events sent from the SDK.
         /// </summary>
-        private static HttpListenerObservable sdkEventListener = null;
+        private static HttpListenerObservable sdkEventListener;
 
         /// <summary>
         /// Initializes static members of the <see cref="RddTests"/> class.
@@ -294,18 +234,7 @@ namespace FuncTest
         /// Gets or sets the test context which provides
         /// information about and functionality for the current test run.
         /// </summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return this.testContextInstance;
-            }
-
-            set
-            {
-                this.testContextInstance = value;
-            }
-        }
+        public TestContext TestContext { get; set; }
 
         /// <summary>
         /// Sets up application pool in IIS and installs all test applications to their corresponding pool
@@ -610,7 +539,7 @@ namespace FuncTest
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteAsyncAwaitTests(aspx451TestWebApplication, true, 1);
+            this.ExecuteAsyncAwaitTests(aspx451TestWebApplication, true);
         }
 
 
@@ -629,26 +558,8 @@ namespace FuncTest
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteAsyncAwaitTests(aspx451TestWebApplication, false, 1);
+            this.ExecuteAsyncAwaitTests(aspx451TestWebApplication, false);
         }        
-
-        /// <summary>
-        /// Tests RDD events are generated for external dependency call - Sync SQL calls, made in a ASP.NET 4.5.1 Application
-        /// </summary>
-        [TestMethod]
-        [Description("Verify RDD is collected for Sync Sql Calls in ASPX 4.5.1 application")]
-        [Owner("cithomas")]
-        [TestCategory("FUNC")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
-        public void TestRddForSyncSqlAspx451()
-        {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
-            
-            this.ExecuteSyncSqlTests(aspx451TestWebApplication, true, 1, AccessTimeMaxSqlCallToApmdbNormal);           
-        }
 
         /// <summary>
         /// Tests RDD events are generated for external dependency call - Azure Blob, made in a ASP.NET 4.5 Application
@@ -727,22 +638,25 @@ namespace FuncTest
         #endregion 451
                           
         #region helpers
+
         /// <summary>
         /// Helper to execute Async Http tests.
         /// </summary>
         /// <param name="testWebApplication">The test application for which tests are to be executed.</param>
         /// <param name="success">Indicates if the tests should test success or failure case.</param> 
         /// <param name="count">Number to RDD calls to be made by the test application. </param> 
-        /// <param name="accessTimeMax">Approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteAsyncTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax, string url)
+        /// <param name="accessTimeMax">Approximate maximum time taken by RDD Call.  </param>
+        /// <param name="url">url</param> 
+        private void ExecuteAsyncTests(TestWebApplication testWebApplication, bool success, int count,
+            TimeSpan accessTimeMax, string url)
         {
-            var resourceNameExpected = success == true ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
+            var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
             var commandNameExpected = string.Empty;
 
             testWebApplication.DoTest(
-                (application) =>
-                    {
-                    var queryString = url; 
+                application =>
+                {
+                    var queryString = url;
                     application.ExecuteAnonymousRequest(queryString + count);
                     application.ExecuteAnonymousRequest(queryString + count);
                     application.ExecuteAnonymousRequest(queryString + count);
@@ -750,69 +664,27 @@ namespace FuncTest
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
-                    var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
+                    var allItems =
+                        sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(
+                            SleepTimeForSdkToSendEvents);
+                    var httpItems =
+                        allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
-                        3 * count,
+                        3*count,
                         httpItems.Length,
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
+
                     foreach (var httpItem in httpItems)
                     {
-                            if (DependencySourceType.Apmc == sourceExpected)
-                            {
-                                Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
-                            }
+                        if (DependencySourceType.Apmc == sourceExpected)
+                        {
+                            Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name,
+                                "For StatusMonitor implementation we expect verb to be collected.");
+                        }
 
-                            this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, true);
-                    }
-                });
-        }
-
-        /// <summary>
-        /// Helper to execute Sync Http tests
-        /// </summary>
-        /// <param name="testWebApplication">The test application for which tests are to be executed</param>
-        /// <param name="success">indicates if the tests should test success or failure case</param> 
-        /// <param name="count">number to RDD calls to be made by the test application </param> 
-        /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteSyncSqlTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax)
-        {
-            this.ExecuteSyncSqlTests(testWebApplication, success, count, count, accessTimeMax);
-        }
-
-        /// <summary>
-        /// Helper to execute Sync Http tests
-        /// </summary>
-        /// <param name="testWebApplication">The test application for which tests are to be executed</param>
-        /// <param name="success">indicates if the tests should test success or failure case</param> 
-        /// <param name="expectedCount">number of expected RDD calls to be made by the test application </param> 
-        /// <param name="count">number to RDD calls to be made by the test application </param> 
-        /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteSyncSqlTests(TestWebApplication testWebApplication, bool success, int expectedCount, int count, TimeSpan accessTimeMax)
-        {
-            testWebApplication.DoTest(
-                (application) =>
-                {
-                    application.ExecuteAnonymousRequest(QueryStringOutboundSql + count);
-
-                    //// The above request would have trigged RDD module to monitor and create RDD telemetry
-                    //// Listen in the fake endpoint and see if the RDDTelemtry is captured
-
-                    var allItems = sdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(SleepTimeForSdkToSendEvents);
-                    var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
-
-
-                    Assert.AreEqual(
-                        expectedCount,
-                        sqlItems.Length,
-                        "Total Count of Remote Dependency items for SQL collected is wrong.");
-
-                    foreach (var sqlItem in sqlItems)
-                    {
-                        string spName = "GetTopTenMessages";
-                        this.ValidateRddTelemetryValues(sqlItem, ResourceNameSQLToDevApm + " | " + spName, spName, expectedCount, accessTimeMax, true, false);
+                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, accessTimeMax, success);
                     }
                 });
         }
@@ -827,10 +699,10 @@ namespace FuncTest
         private void ExecuteSyncHttpTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax)
         {
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
-                    var queryString = success == true ? QueryStringOutboundHttp : QueryStringOutboundHttpFailed;
-                    var resourceNameExpected = success == true ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
+                    var queryString = success ? QueryStringOutboundHttp : QueryStringOutboundHttpFailed;
+                    var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
                     string commandNameExpected = string.Empty;
                     application.ExecuteAnonymousRequest(queryString + count);
 
@@ -853,7 +725,7 @@ namespace FuncTest
                             Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                         }
 
-                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, count, accessTimeMax, success, false);
+                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, accessTimeMax, success);
                     }
                 });
         }
@@ -861,7 +733,7 @@ namespace FuncTest
         private void ExecuteSyncHttpClientTests(TestWebApplication testWebApplication, TimeSpan accessTimeMax)
         {
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
                     var queryString = "?type=httpClient&count=1";
                     var resourceNameExpected = "http://www.google.com/404";
@@ -887,7 +759,7 @@ namespace FuncTest
                             Assert.AreEqual("GET " + resourceNameExpected, httpItem.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
                         }
 
-                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, false, false);
+                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, accessTimeMax, false);
                     }
                 });
         }
@@ -902,10 +774,10 @@ namespace FuncTest
         private void ExecuteSyncHttpPostTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax)
         {
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
-                    var queryString = success == true ? QueryStringOutboundHttpPost : QueryStringOutboundHttpPostFailed;
-                    var resourceNameExpected = success == true ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
+                    var queryString = success ? QueryStringOutboundHttpPost : QueryStringOutboundHttpPostFailed;
+                    var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
                     string commandNameExpected = string.Empty;
                     application.ExecuteAnonymousRequest(queryString + count);
 
@@ -921,7 +793,7 @@ namespace FuncTest
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
                     foreach (var httpItem in httpItems)
                     {
-                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, 1, accessTimeMax, success, false);
+                        this.ValidateRddTelemetryValues(httpItem, resourceNameExpected, commandNameExpected, accessTimeMax, success);
 
                         if (DependencySourceType.Apmc == sourceExpected)
                         {
@@ -938,13 +810,13 @@ namespace FuncTest
         /// <param name="success">indicates if the tests should test success or failure case</param> 
         private void ExecuteAsyncWithCallbackTests(TestWebApplication testWebApplication, bool success)
         {
-            var resourceNameExpected = success == true ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
+            var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
             string commandNameExpected = string.Empty;
 
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
-                    application.ExecuteAnonymousRequest(success == true ? QueryStringOutboundHttpAsync4 : QueryStringOutboundHttpAsync4Failed);
+                    application.ExecuteAnonymousRequest(success ? QueryStringOutboundHttpAsync4 : QueryStringOutboundHttpAsync4Failed);
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
@@ -957,7 +829,7 @@ namespace FuncTest
                         1,
                         httpItems.Length,
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
-                    this.ValidateRddTelemetryValues(httpItems[0], resourceNameExpected, commandNameExpected, 1, AccessTimeMaxHttpInitial, success, true);
+                    this.ValidateRddTelemetryValues(httpItems[0], resourceNameExpected, commandNameExpected, AccessTimeMaxHttpInitial, success);
                 });
         }
 
@@ -966,16 +838,15 @@ namespace FuncTest
         /// </summary>
         /// <param name="testWebApplication">The test application for which tests are to be executed</param>
         /// <param name="success">indicates if the tests should test success or failure case</param> 
-        /// <param name="count">number to RDD calls to be made by the test application.  </param> 
-        private void ExecuteAsyncAwaitTests(TestWebApplication testWebApplication, bool success, int count)
+        private void ExecuteAsyncAwaitTests(TestWebApplication testWebApplication, bool success)
         {
-            var resourceNameExpected = success == true ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
+            var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
             string commandNameExpected = string.Empty;
 
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
-                    application.ExecuteAnonymousRequest(success == true ? QueryStringOutboundHttpAsyncAwait1 : QueryStringOutboundHttpAsyncAwait1Failed);
+                    application.ExecuteAnonymousRequest(success ? QueryStringOutboundHttpAsyncAwait1 : QueryStringOutboundHttpAsyncAwait1Failed);
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
@@ -988,7 +859,7 @@ namespace FuncTest
                         1,
                         httpItems.Length,
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
-                    this.ValidateRddTelemetryValues(httpItems[0], resourceNameExpected, commandNameExpected, 1, AccessTimeMaxHttpInitial, success, true); 
+                    this.ValidateRddTelemetryValues(httpItems[0], resourceNameExpected, commandNameExpected, AccessTimeMaxHttpInitial, success); 
                 });
         }
 
@@ -1002,7 +873,7 @@ namespace FuncTest
         private void ExecuteAzureSDKTests(TestWebApplication testWebApplication, int count, string type, string expectedUrl)
         {
             testWebApplication.DoTest(
-                (application) =>
+                application =>
                 {
                     application.ExecuteAnonymousRequest(string.Format(QueryStringOutboundAzureSdk, type, count));
 
@@ -1037,14 +908,15 @@ namespace FuncTest
         /// </summary>        
         /// <param name="itemToValidate">RDD Item to be validated.</param>
         /// <param name="remoteDependencyNameExpected">Expected name.</param>   
-        /// <param name="countExpected">Expected count.</param>   
         /// <param name="accessTimeMax">Expected maximum limit for access time.</param>   
         /// <param name="successFlagExpected">Expected value for success flag.</param>   
-        /// <param name="asyncFlagExpected">Expected value for async flag.</param>           
-        private void ValidateRddTelemetryValues(TelemetryItem<RemoteDependencyData> itemToValidate, string remoteDependencyNameExpected, string commandNameExpected, int countExpected, TimeSpan accessTimeMax, bool successFlagExpected, bool asyncFlagExpected)
+        private void ValidateRddTelemetryValues(
+            TelemetryItem<RemoteDependencyData> itemToValidate, 
+            string remoteDependencyNameExpected, 
+            string commandNameExpected, 
+            TimeSpan accessTimeMax, 
+            bool successFlagExpected)
         {
-            DependencySourceType source = sourceExpected;
-
             if (itemToValidate.Data.BaseData.DependencyKind == DependencyKind.SQL)
             {
                 // For http name is validated in test itself
@@ -1063,14 +935,10 @@ namespace FuncTest
             }
 
             string actualSdkVersion = itemToValidate.InternalContext.SdkVersion;
-            if (DependencySourceType.Apmc == sourceExpected)
-            {
-                Assert.IsTrue(actualSdkVersion.Contains("rddp"), "Actual version:" + actualSdkVersion);
-            }
-            else
-            {
-                Assert.IsTrue(actualSdkVersion.Contains("rddf"), "Actual version:" + actualSdkVersion);
-            }
+            Assert.IsTrue(
+                DependencySourceType.Apmc == sourceExpected
+                    ? actualSdkVersion.Contains("rddp")
+                    : actualSdkVersion.Contains("rddf"), "Actual version:" + actualSdkVersion);
 
             // Validate is within expected limits
             var ticks = (long)(itemToValidate.Data.BaseData.Value * 10000);
@@ -1080,7 +948,7 @@ namespace FuncTest
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 
             // not only those made to not-existing domain.
             var accessTimeMaxPlusDnsResolutionTime = accessTimeMax.Add(TimeSpan.FromSeconds(15));
-            if (successFlagExpected == true)
+            if (successFlagExpected)
             {
                 Assert.IsTrue(accessTime.Ticks > 0, "Access time should be above zero");
             }
