@@ -127,9 +127,9 @@
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            AzureStorageHelper.Initialize();
-
             DeploymentAndValidationTools.Initialize();
+
+            AzureStorageHelper.Initialize();
         }
 
         [ClassCleanup]

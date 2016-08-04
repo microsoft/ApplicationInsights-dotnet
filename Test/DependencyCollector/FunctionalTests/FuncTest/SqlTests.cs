@@ -48,9 +48,9 @@
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            LocalDb.CreateLocalDb("RDDTestDatabase", DeploymentAndValidationTools.Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
-
             DeploymentAndValidationTools.Initialize();
+
+            LocalDb.CreateLocalDb("RDDTestDatabase", DeploymentAndValidationTools.Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
         }
 
         [ClassCleanup]
