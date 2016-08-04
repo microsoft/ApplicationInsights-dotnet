@@ -86,10 +86,6 @@
                         Aspx451TestWebApplication.Deploy();
                         Aspx451TestWebApplicationWin32.Deploy(true);
 
-                        AzureStorageHelper.Initialize();
-
-                        LocalDb.CreateLocalDb("RDDTestDatabase", Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
-
                         if (RegistryCheck.IsNet46Installed)
                         {
                             // .NET 4.6 onwards, there is no need of installing agent
@@ -142,8 +138,6 @@
 
                         Aspx451TestWebApplication.Remove();
                         Aspx451TestWebApplicationWin32.Remove();
-
-                        AzureStorageHelper.Cleanup();
 
                         if (RegistryCheck.IsNet46Installed)
                         {

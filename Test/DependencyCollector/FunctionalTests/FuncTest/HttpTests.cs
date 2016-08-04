@@ -127,12 +127,16 @@
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
+            AzureStorageHelper.Initialize();
+
             DeploymentAndValidationTools.Initialize();
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
+            AzureStorageHelper.Cleanup();
+
             DeploymentAndValidationTools.CleanUp();
         }
 
