@@ -101,7 +101,14 @@
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                          var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
-                         this.Validate(sqlItems[0], ResourceNameSQLToDevApm + " | " + StoredProcedureName, StoredProcedureName, TimeSpan.FromSeconds(10), true);
+                         this.Validate(
+                             sqlItems[0], 
+                             ResourceNameSQLToDevApm + " | " + StoredProcedureName, 
+                             StoredProcedureName, 
+                             TimeSpan.FromSeconds(10), 
+                             successFlagExpected: true,
+                             sqlErrorCodeExpected: "0",
+                             sqlErrorMessageExpected: null);
                      });           
         }
 
@@ -126,14 +133,14 @@
         [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
         {
-            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", true);
+            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequenceFailed()
         {
-            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", false);
+            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
@@ -157,154 +164,155 @@
         [TestMethod]
         public void TestExecuteReaderAsync()
         {
-            this.TestSqlCommandExecute("ExecuteReaderAsync", true);
+            this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsyncFailed()
         {
-            this.TestSqlCommandExecute("ExecuteReaderAsync", false);
+            this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReader()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", true);
+            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", false);
+            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
         {
-            this.TestSqlCommandExecute("ExecuteScalarAsync", true);
+            this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsyncFailed()
         {
-            this.TestSqlCommandExecute("ExecuteScalarAsync", false);
+            this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsync()
         {
-            this.TestSqlCommandExecute("ExecuteNonQueryAsync", true);
+            this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsyncFailed()
         {
-            this.TestSqlCommandExecute("ExecuteNonQueryAsync", false);
+            this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQuery()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", true);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", false);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
         {
-            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", true);
+            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsyncFailed()
         {
-            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", false, ForXMLClauseInFailureCase);
+            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.", extraClauseForFailureCase: ForXMLClauseInFailureCase);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteXmlReaderFailed()
         {
-            this.TestSqlCommandExecute("BeginExecuteXmlReader", false);
+            this.TestSqlCommandExecute("BeginExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalar()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", true);
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalarFailed()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", false);
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQuery()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", true);
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQueryFailed()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", false);
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReader()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", true);
+            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", false);
+            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", true);
+            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReaderFailed()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", false);
+            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        private void TestSqlCommandExecute(string type, bool success, string extraClauseForFailureCase = null)
+        private void TestSqlCommandExecute(string type, string errorNumber, string errorMessage, string extraClauseForFailureCase = null)
         {
             DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                  application =>
                  {
+                     bool success = errorNumber == "0";
                      string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&count=1" + "&success=" + success);
 
                      //// The above request would have trigged RDD module to monitor and create RDD telemetry
@@ -313,7 +321,7 @@
                      var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                      var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();                     
                      Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
-
+                     
                      string queryToValidate = success ? string.Empty : InvalidSqlQueryToApmDatabase + extraClauseForFailureCase;
                      if (!string.IsNullOrEmpty(responseForQueryValidation))
                      {
@@ -322,7 +330,14 @@
                          queryToValidate = responseForQueryValidation.Substring(placeToStart, restOfLine);
                      }
 
-                     this.Validate(sqlItems[0], ResourceNameSQLToDevApm, queryToValidate, TimeSpan.FromSeconds(20), success);
+                     this.Validate(
+                         sqlItems[0], 
+                         ResourceNameSQLToDevApm, 
+                         queryToValidate, 
+                         TimeSpan.FromSeconds(20), 
+                         successFlagExpected: success,
+                         sqlErrorCodeExpected: errorNumber,
+                         sqlErrorMessageExpected: errorMessage);
                  });
         }
 
@@ -366,7 +381,13 @@
                     foreach (var sqlItem in sqlItems)
                     {
                         string spName = "GetTopTenMessages";
-                        this.Validate(sqlItem, ResourceNameSQLToDevApm + " | " + spName, spName, accessTimeMax, true);
+                        this.Validate(
+                            sqlItem, 
+                            ResourceNameSQLToDevApm + " | " + spName, 
+                            spName, 
+                            accessTimeMax, successFlagExpected: true,
+                            sqlErrorCodeExpected: "0",
+                            sqlErrorMessageExpected: null);
                     }
                 });
         }
@@ -375,16 +396,26 @@
             string remoteDependencyNameExpected,
             string commandNameExpected,
             TimeSpan accessTimeMax,
-            bool successFlagExpected)
+            bool successFlagExpected,
+            string sqlErrorCodeExpected,
+            string sqlErrorMessageExpected)
         {
             // For http name is validated in test itself
             Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected),
                 "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
                 ". Collected: " + itemToValidate.Data.BaseData.Name);
 
+            Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.Data.BaseData.ResultCode);
+
             //If the command name is expected to be empty, the deserializer will make the CommandName null
             if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
             {
+                // Additional checks for profiler collection
+                if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
+                {
+                    Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.Data.BaseData.Properties["SqlErrorMessage"]);
+                }
+
                 if (string.IsNullOrEmpty(commandNameExpected))
                 {
                     Assert.IsNull(itemToValidate.Data.BaseData.CommandName);

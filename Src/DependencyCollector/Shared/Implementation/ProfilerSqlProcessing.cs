@@ -18,7 +18,7 @@
     internal sealed class ProfilerSqlProcessing
     {
         internal ObjectInstanceBasedOperationHolder TelemetryTable;
-        private TelemetryClient telemetryClient;
+        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerSqlProcessing"/> class.
@@ -347,7 +347,15 @@
                     this.TelemetryTable.Remove(thisObj);
                     telemetry.Success = exception == null;
                     var sqlEx = exception as SqlException;
-                    telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
+                    if (sqlEx != null)
+                    {
+                        telemetry.ResultCode = sqlEx.Number.ToString(CultureInfo.InvariantCulture);
+                        telemetry.Properties.Add("SqlErrorMessage", sqlEx.Message);
+                    }
+                    else
+                    {
+                        telemetry.ResultCode = "0";
+                    }
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }               
