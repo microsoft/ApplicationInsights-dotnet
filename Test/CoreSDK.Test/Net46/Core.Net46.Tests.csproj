@@ -22,20 +22,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1, Version=1.0.69.4007, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2, Version=2.0.69.4007, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.69-build04007\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -49,8 +35,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -76,6 +63,10 @@
     <ProjectReference Include="..\..\..\src\Core\Managed\Net46\Core.Net46.csproj">
       <Project>{958cfe53-53b7-4e26-846d-da3f214013e6}</Project>
       <Name>Core.Net46</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
+      <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
+      <Name>ApplicationInsightsTypes</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestFramework\Net46\TestFramework.Net46.csproj">
       <Project>{d7d4e3f5-ec0d-47c9-90cc-56f612976122}</Project>

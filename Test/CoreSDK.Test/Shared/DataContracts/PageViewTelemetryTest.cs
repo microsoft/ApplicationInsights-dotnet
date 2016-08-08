@@ -12,7 +12,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    
 
     [TestClass]
     public class PageViewTelemetryTest
@@ -20,7 +20,7 @@
         [TestMethod]
         public void PageViewImplementsITelemetryContractConsistentlyWithOtherTelemetryTypes()
         {
-            new ITelemetryTest<PageViewTelemetry, DataPlatformModel.PageViewData>().Run();
+            new ITelemetryTest<PageViewTelemetry, AI.PageViewData>().Run();
         }
 
         [TestMethod]
@@ -60,18 +60,18 @@
             expected.Metrics.Add("Metric1", 30);
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, DataPlatformModel.PageViewData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.Name, Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.PageView);
+            Assert.Equal(item.name, AI.ItemType.PageView);
 
-            Assert.Equal(typeof(DataPlatformModel.PageViewData).Name, item.Data.BaseType);
-            Assert.Equal(2, item.Data.BaseData.Ver);
-            Assert.Equal(expected.Name, item.Data.BaseData.Name);
-            Assert.Equal(expected.Duration, item.Data.BaseData.Duration);
-            Assert.Equal(expected.Url.ToString(), item.Data.BaseData.Url);
+            Assert.Equal(typeof(AI.PageViewData).Name, item.data.baseType);
+            Assert.Equal(2, item.data.baseData.ver);
+            Assert.Equal(expected.Name, item.data.baseData.name);
+            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.Equal(expected.Url.ToString(), item.data.baseData.url);
 
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -129,9 +129,9 @@
             var telemetry = new PageViewTelemetry("my page view");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, DataPlatformModel.PageViewData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(telemetry);
 
-            Assert.Equal(10, item.SampleRate);
+            Assert.Equal(10, item.sampleRate);
         }
     }
 }

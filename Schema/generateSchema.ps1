@@ -18,7 +18,7 @@ function RegExReplace([string]$fileName, [string]$regex, [string]$replacement=""
 $generatorPath = "$generatorPath\..\bin\Debug\BondSchemaGenerator\BondSchemaGenerator"
 $schemasPath = "$schemasPath\v2\Bond\"
 
-& "$generatorPath\BondSchemaGenerator.exe" -v -i "$schemasPath\AppInsightsTypes.bond" -i "$schemasPath\ContextTagKeys.bond" -o "$currentDir\PublicSchema\" -e BondLanguage -t BondLayout -n test --flatten false
+& "$generatorPath\BondSchemaGenerator.exe" -v -i "$schemasPath\AppInsightsTypes.bond" -i "$schemasPath\PerformanceCounterData.bond" -i "$schemasPath\SessionStateData.bond" -i "$schemasPath\ContextTagKeys.bond" -o "$currentDir\PublicSchema\" -e BondLanguage -t BondLayout -n test --flatten false
 
 #mkdir -Force $currentDir\PublicSchema
 
