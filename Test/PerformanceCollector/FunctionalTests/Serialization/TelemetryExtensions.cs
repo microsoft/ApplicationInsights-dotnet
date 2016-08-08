@@ -12,8 +12,9 @@ namespace Functional.Helpers
     using System.Reactive.Linq;
     
     using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
-    public static class TelemetryExtensions
+    internal static class TelemetryExtensions
     {
         public static TelemetryItem[] ReceiveItems(
             this HttpListenerObservable listener,
@@ -27,6 +28,30 @@ namespace Functional.Helpers
 
             var result = listener
                 .Where(item => !(item is TelemetryItem<RemoteDependencyData>))
+                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
+                .Take(count)
+                .ToEnumerable()
+                .ToArray();
+
+            if (result.Length != count)
+            {
+                throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
+            }
+
+            return result;
+        }
+
+        internal static MonitoringDataPoint[] ReceiveItems(
+          this QuickPulseHttpListenerObservable listener,
+          int count,
+          int timeOut)
+        {
+            if (null == listener)
+            {
+                throw new ArgumentNullException("listener");
+            }
+
+            var result = listener
                 .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
                 .Take(count)
                 .ToEnumerable()

@@ -3,7 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.Serialization.Json;
+
+    using FunctionalTests.Helpers;
+
     using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
+
     using Newtonsoft.Json;
     using TelemetryItem = Microsoft.Developer.Analytics.DataCollection.Model.v2.TelemetryItem;
 
@@ -29,6 +35,13 @@
             }
 
             return items;
+        }
+
+        public static MonitoringDataPoint[] CreateQuickPulseSamples(Stream content)
+        {
+            var serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
+
+            return serializerDataPointArray.ReadObject(content) as MonitoringDataPoint[];
         }
 
         private static TelemetryItem CreateTelemetryItem(
@@ -91,3 +104,4 @@
         }
     }
 }
+
