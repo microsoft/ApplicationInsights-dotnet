@@ -18,6 +18,8 @@
     /// </summary>
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
+        private const string TelemetryDocumentContractVersion = "1.0";
+
         private const int MaxTelemetryQuota = 30;
 
         private const int InitialTelemetryQuota = 3;
@@ -172,68 +174,57 @@
             }
         }
 
-        private static ITelemetryDocument ConvertTelemetryToTelemetryDocument(
-            RequestTelemetry telemetryAsRequest,
-            DependencyTelemetry telemetryAsDependency,
-            ExceptionTelemetry telemetryAsException)
+        private static ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
-            const string TelemetryDocumentContractVersion = "1.0";
+            return new RequestTelemetryDocument()
+                       {
+                           Version = TelemetryDocumentContractVersion,
+                           Timestamp = requestTelemetry.Timestamp,
+                           Id = requestTelemetry.Id,
+                           Name = requestTelemetry.Name,
+                           StartTime = requestTelemetry.StartTime,
+                           Success = IsRequestSuccessful(requestTelemetry),
+                           Duration = requestTelemetry.Duration,
+                           ResponseCode = requestTelemetry.ResponseCode,
+                           Url = requestTelemetry.Url,
+                           HttpMethod = requestTelemetry.HttpMethod
+                       };
+        }
 
-            if (telemetryAsRequest != null)
-            {
-                return new RequestTelemetryDocument()
-                           {
-                               Version = TelemetryDocumentContractVersion,
-                               Timestamp = telemetryAsRequest.Timestamp,
-                               Id = telemetryAsRequest.Id,
-                               Name = telemetryAsRequest.Name,
-                               StartTime = telemetryAsRequest.StartTime,
-                               Success = IsRequestSuccessful(telemetryAsRequest),
-                               Duration = telemetryAsRequest.Duration,
-                               ResponseCode = telemetryAsRequest.ResponseCode,
-                               Url = telemetryAsRequest.Url,
-                               HttpMethod = telemetryAsRequest.HttpMethod
-                           };
-            }
-            else if (telemetryAsDependency != null)
-            {
-                return new DependencyTelemetryDocument()
-                           {
-                               Version = TelemetryDocumentContractVersion,
-                               Timestamp = telemetryAsDependency.Timestamp,
-                               Id = telemetryAsDependency.Id,
-                               Name = telemetryAsDependency.Name,
-                               StartTime = telemetryAsDependency.StartTime,
-                               Success = telemetryAsDependency.Success,
-                               Duration = telemetryAsDependency.Duration,
-                               Sequence = telemetryAsDependency.Sequence,
-                               ResultCode = telemetryAsDependency.ResultCode,
-                               CommandName = telemetryAsDependency.CommandName,
-                               DependencyTypeName = telemetryAsDependency.DependencyTypeName,
-                               DependencyKind = telemetryAsDependency.DependencyKind
-                           };
-            }
-            else if (telemetryAsException != null)
-            {
-                // //!!! cut length for Exception.ToString()
-                return new ExceptionTelemetryDocument()
-                           {
-                               Version = TelemetryDocumentContractVersion,
-                               Message = telemetryAsException.Message,
-                               SeverityLevel =
-                                   telemetryAsException.SeverityLevel != null
-                                       ? telemetryAsException.SeverityLevel.Value.ToString()
-                                       : null,
-                               HandledAt = telemetryAsException.HandledAt.ToString(),
-                               Exception =
-                                   telemetryAsException.Exception != null
-                                       ? telemetryAsException.Exception.ToString()
-                                       : null
-                           };
-            }
+        private static ITelemetryDocument ConvertDependencyToTelemetryDocument(DependencyTelemetry dependencyTelemetry)
+        {
+            return new DependencyTelemetryDocument()
+                       {
+                           Version = TelemetryDocumentContractVersion,
+                           Timestamp = dependencyTelemetry.Timestamp,
+                           Id = dependencyTelemetry.Id,
+                           Name = dependencyTelemetry.Name,
+                           StartTime = dependencyTelemetry.StartTime,
+                           Success = dependencyTelemetry.Success,
+                           Duration = dependencyTelemetry.Duration,
+                           Sequence = dependencyTelemetry.Sequence,
+                           ResultCode = dependencyTelemetry.ResultCode,
+                           CommandName = dependencyTelemetry.CommandName,
+                           DependencyTypeName = dependencyTelemetry.DependencyTypeName,
+                           DependencyKind = dependencyTelemetry.DependencyKind
+                       };
+        }
 
-            // this should never happen
-            return null;
+        private static ITelemetryDocument ConvertExceptionToTelemetryDocument(ExceptionTelemetry exceptionTelemetry)
+        {
+            // //!!! cut length for Exception.ToString()
+            return new ExceptionTelemetryDocument()
+                       {
+                           Version = TelemetryDocumentContractVersion,
+                           Message = exceptionTelemetry.Message,
+                           SeverityLevel =
+                               exceptionTelemetry.SeverityLevel != null
+                                   ? exceptionTelemetry.SeverityLevel.Value.ToString()
+                                   : null,
+                           HandledAt = exceptionTelemetry.HandledAt.ToString(),
+                           Exception =
+                               exceptionTelemetry.Exception != null ? exceptionTelemetry.Exception.ToString() : null
+                       };
         }
 
         private static bool IsRequestSuccessful(RequestTelemetry request)
@@ -273,99 +264,107 @@
                 var telemetryAsDependency = telemetry as DependencyTelemetry;
                 var telemetryAsException = telemetry as ExceptionTelemetry;
 
-                this.UpdateAggregates(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
+                // update aggregates
+                if (telemetryAsRequest != null)
+                {
+                    this.UpdateRequestAggregates(telemetryAsRequest);
+                }
+                else if (telemetryAsDependency != null)
+                {
+                    this.UpdateDependencyAggregates(telemetryAsDependency);
+                }
+                else if (telemetryAsException != null)
+                {
+                    this.UpdateExceptionAggregates();
+                }
 
+                // collect full telemetry items
                 if (!this.disableFullTelemetryItems)
                 {
-                    this.CollectTelemetryDocuments(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
-                }
-            }
-        }
-
-        private void CollectTelemetryDocuments(
-            RequestTelemetry telemetryAsRequest,
-            DependencyTelemetry telemetryAsDependency,
-            ExceptionTelemetry telemetryAsException)
-        {
-            if (telemetryAsRequest != null && !IsRequestSuccessful(telemetryAsRequest))
-            {
-                if (this.requestQuotaTracker.ApplyQuota())
-                {
-                    var telemetryDocument = ConvertTelemetryToTelemetryDocument(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
-                    if (telemetryDocument != null)
+                    if (telemetryAsRequest != null && !IsRequestSuccessful(telemetryAsRequest))
                     {
-                        this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
+                        this.CollectRequest(telemetryAsRequest);
                     }
-                }
-            }
-            else if (telemetryAsDependency != null && telemetryAsDependency.Success == false)
-            {
-                if (this.dependencyQuotaTracker.ApplyQuota())
-                {
-                    var telemetryDocument = ConvertTelemetryToTelemetryDocument(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
-                    if (telemetryDocument != null)
+                    else if (telemetryAsDependency != null && telemetryAsDependency.Success == false)
                     {
-                        this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
+                        this.CollectDependency(telemetryAsDependency);
                     }
-                }
-            }
-            else if (telemetryAsException != null)
-            {
-                if (this.exceptionQuotaTracker.ApplyQuota())
-                {
-                    var telemetryDocument = ConvertTelemetryToTelemetryDocument(telemetryAsRequest, telemetryAsDependency, telemetryAsException);
-                    if (telemetryDocument != null)
+                    else if (telemetryAsException != null)
                     {
-                        this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
+                        this.CollectException(telemetryAsException);
                     }
                 }
             }
         }
-
-        private void UpdateAggregates(
-            RequestTelemetry telemetryAsRequest,
-            DependencyTelemetry telemetryAsDependency,
-            ExceptionTelemetry telemetryAsException)
+        
+        private void CollectRequest(RequestTelemetry requestTelemetry)
         {
-            if (telemetryAsRequest != null)
+            if (this.requestQuotaTracker.ApplyQuota())
             {
-                bool success = IsRequestSuccessful(telemetryAsRequest);
+                ITelemetryDocument telemetryDocument = ConvertRequestToTelemetryDocument(requestTelemetry);
 
-                long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, telemetryAsRequest.Duration.Ticks);
-
-                Interlocked.Add(
-                    ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks,
-                    requestCountAndDurationInTicks);
-
-                if (success)
-                {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
-                }
-                else
-                {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
-                }
+                this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
             }
-            else if (telemetryAsDependency != null)
+        }
+        
+        private void CollectDependency(DependencyTelemetry dependencyTelemetry)
+        {
+            if (this.dependencyQuotaTracker.ApplyQuota())
             {
-                long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, telemetryAsDependency.Duration.Ticks);
+                ITelemetryDocument telemetryDocument = ConvertDependencyToTelemetryDocument(dependencyTelemetry);
 
-                Interlocked.Add(
-                    ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
-                    dependencyCallCountAndDurationInTicks);
-
-                if (telemetryAsDependency.Success == true)
-                {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
-                }
-                else if (telemetryAsDependency.Success == false)
-                {
-                    Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
-                }
+                this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
             }
-            else if (telemetryAsException != null)
+        }
+
+        private void CollectException(ExceptionTelemetry exceptionTelemetry)
+        {
+            if (this.exceptionQuotaTracker.ApplyQuota())
             {
-                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
+                ITelemetryDocument telemetryDocument = ConvertExceptionToTelemetryDocument(exceptionTelemetry);
+
+                this.dataAccumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Push(telemetryDocument);
+            }
+        }
+
+        private void UpdateExceptionAggregates()
+        {
+            Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIExceptionCount);
+        }
+
+        private void UpdateDependencyAggregates(DependencyTelemetry dependencyTelemetry)
+        {
+            long dependencyCallCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, dependencyTelemetry.Duration.Ticks);
+
+            Interlocked.Add(
+                ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallCountAndDurationInTicks,
+                dependencyCallCountAndDurationInTicks);
+
+            if (dependencyTelemetry.Success == true)
+            {
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallSuccessCount);
+            }
+            else if (dependencyTelemetry.Success == false)
+            {
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIDependencyCallFailureCount);
+            }
+        }
+
+        private void UpdateRequestAggregates(RequestTelemetry requestTelemetry)
+        {
+            bool success = IsRequestSuccessful(requestTelemetry);
+
+            long requestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(1, requestTelemetry.Duration.Ticks);
+
+            Interlocked.Add(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestCountAndDurationInTicks, requestCountAndDurationInTicks);
+
+            if (success)
+            {
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestSuccessCount);
+            }
+            else
+            {
+                Interlocked.Increment(ref this.dataAccumulatorManager.CurrentDataAccumulator.AIRequestFailureCount);
             }
         }
 
