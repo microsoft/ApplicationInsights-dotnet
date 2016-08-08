@@ -488,7 +488,7 @@
 
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteNonQuery(ar);
+                this.command.EndExecuteXmlReader(ar);
                 this.connection.Close();
                 this.mre.Set();
             }          
