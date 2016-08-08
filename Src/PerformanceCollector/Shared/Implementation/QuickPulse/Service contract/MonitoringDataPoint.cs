@@ -4,6 +4,9 @@
     using System.Runtime.Serialization;
 
     [DataContract]
+    [KnownType(typeof(RequestTelemetryDocument))]
+    [KnownType(typeof(DependencyTelemetryDocument))]
+    [KnownType(typeof(ExceptionTelemetryDocument))]
     internal struct MonitoringDataPoint
     {
         [DataMember]
@@ -23,5 +26,8 @@
 
         [DataMember]
         public MetricPoint[] Metrics { get; set; }
+
+        [DataMember]
+        public ITelemetryDocument[] Documents { get; set; }
     }
 }

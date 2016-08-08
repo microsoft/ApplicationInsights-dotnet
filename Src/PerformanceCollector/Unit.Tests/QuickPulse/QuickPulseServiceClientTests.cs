@@ -1,6 +1,7 @@
 ﻿namespace Unit.Tests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -228,6 +229,40 @@
 
             Assert.AreEqual(3, this.samples[0].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Request Duration").Weight);
             Assert.AreEqual(4, this.samples[1].Item2.Metrics.Single(m => m.Name == @"\ApplicationInsights\Dependency Call Duration").Weight);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientFillsInTelemetryDocumentsWhenSubmittingToService()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, new Clock());
+            var sample =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator
+                        {
+                            StartTimestamp = now,
+                            EndTimestamp = now.AddSeconds(1),
+                            TelemetryDocuments =
+                                new ConcurrentStack<ITelemetryDocument>(
+                                new ITelemetryDocument[]
+                                    {
+                                        new RequestTelemetryDocument() { Id = "Request1" },
+                                        new DependencyTelemetryDocument() { Id = "Dependency1" },
+                                        new ExceptionTelemetryDocument() { Exception = "Exception1" }
+                                    })
+                        },
+                    new Dictionary<string, Tuple<PerformanceCounterData, float>>());
+            
+            // ACT
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual("Request1", ((RequestTelemetryDocument)this.samples[0].Item2.Documents[0]).Id);
+            Assert.AreEqual("Dependency1", ((DependencyTelemetryDocument)this.samples[0].Item2.Documents[1]).Id);
+            Assert.AreEqual("Exception1", ((ExceptionTelemetryDocument)this.samples[0].Item2.Documents[2]).Exception);
         }
 
         [TestMethod]

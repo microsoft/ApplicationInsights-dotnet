@@ -5,7 +5,7 @@
 
     internal interface IQuickPulseTelemetryProcessor
     {
-        void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint, TelemetryConfiguration configuration);
+        void StartCollection(IQuickPulseDataAccumulatorManager accumulatorManager, Uri serviceEndpoint, TelemetryConfiguration configuration, bool disableFullTelemetryItems = false);
 
         void StopCollection();
     }

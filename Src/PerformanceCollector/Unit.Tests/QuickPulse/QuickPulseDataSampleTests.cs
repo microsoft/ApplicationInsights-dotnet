@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -304,7 +305,7 @@
             var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
 
             // ASSERT
-            Assert.AreEqual(0.0, dataSample.PerfIisQueueSize);
+            Assert.IsFalse(dataSample.PerfCountersLookup.Any());
         }
         #endregion
     }
