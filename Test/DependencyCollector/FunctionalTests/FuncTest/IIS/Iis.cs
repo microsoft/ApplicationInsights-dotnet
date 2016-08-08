@@ -45,9 +45,12 @@ namespace FuncTest.IIS
         /// </summary>
         public static void Start()
         {
-            Stop();
+            Process process = new Process { StartInfo = StartIis };
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.Start();
+            process.WaitForExit();
 
-            Process process = new Process { StartInfo = StartW3Svc };
+            process = new Process { StartInfo = StartW3Svc };
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.Start();
             process.WaitForExit();

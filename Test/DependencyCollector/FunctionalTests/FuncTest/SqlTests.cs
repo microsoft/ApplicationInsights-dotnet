@@ -413,7 +413,7 @@
                 // Additional checks for profiler collection
                 if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
                 {
-                    Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.Data.BaseData.Properties["SqlErrorMessage"]);
+                    Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.Data.BaseData.Properties["ErrorMessage"]);
                 }
 
                 if (string.IsNullOrEmpty(commandNameExpected))

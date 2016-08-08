@@ -310,10 +310,10 @@
         ///  Common helper for all End Callbacks.
         /// </summary>
         /// <param name="context">The context.</param>        
-        /// <param name="exception">The exception object if any.</param>
+        /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
         /// <param name="isAsync">Whether the End is for an async invocation.</param>        
-        private void OnEnd(object context, object exception, object thisObj, bool isAsync)
+        private void OnEnd(object context, object exceptionObj, object thisObj, bool isAsync)
         {
             try
             {
@@ -345,15 +345,19 @@
                 if (!isCustomGenerated)
                 {
                     this.TelemetryTable.Remove(thisObj);
-                    telemetry.Success = exception == null;
-                    var sqlEx = exception as SqlException;
-                    if (sqlEx != null)
+
+                    var exception = exceptionObj as Exception;
+                    if (exception != null)
                     {
-                        telemetry.ResultCode = sqlEx.Number.ToString(CultureInfo.InvariantCulture);
-                        telemetry.Properties.Add("SqlErrorMessage", sqlEx.Message);
+                        telemetry.Success = false;
+                        telemetry.Properties.Add("ErrorMessage", exception.Message);
+
+                        var sqlEx = exception as SqlException;
+                        telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
                     }
                     else
                     {
+                        telemetry.Success = true;
                         telemetry.ResultCode = "0";
                     }
 
