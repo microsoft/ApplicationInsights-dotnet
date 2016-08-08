@@ -190,7 +190,6 @@
                                StartTime = telemetryAsRequest.StartTime,
                                Success = IsRequestSuccessful(telemetryAsRequest),
                                Duration = telemetryAsRequest.Duration,
-                               Sequence = telemetryAsRequest.Sequence,
                                ResponseCode = telemetryAsRequest.ResponseCode,
                                Url = telemetryAsRequest.Url,
                                HttpMethod = telemetryAsRequest.HttpMethod

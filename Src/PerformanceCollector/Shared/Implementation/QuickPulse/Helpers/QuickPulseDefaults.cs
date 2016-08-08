@@ -6,6 +6,12 @@
     {
         private static readonly Uri QuickPulseServiceEndpoint = new Uri("https://rt.services.visualstudio.com/QuickPulseService.svc");
 
+        private static readonly string[] PerformanceCountersToCollect =
+            {
+                @"\ASP.NET Applications(__Total__)\Requests In Application Queue",
+                @"\Memory\Committed Bytes", @"\Processor(_Total)\% Processor Time"
+            };
+
         public static Uri ServiceEndpoint
         {
             get
@@ -15,12 +21,11 @@
         }
 
         public static string[] CountersToCollect
-            =>
-                new[]
-                    {
-                        @"\ASP.NET Applications(__Total__)\Requests In Application Queue",
-                        @"\Memory\Committed Bytes",
-                        @"\Processor(_Total)\% Processor Time"
-                    };
+        {
+            get
+            {
+                return PerformanceCountersToCollect;
+            }
+        }
     }
 }

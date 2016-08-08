@@ -2,7 +2,7 @@
 {
     internal interface ITelemetryDocument
     {
-        string Version { get; set; }
+        string Version { get; }
 
         string DocumentType { get; }
     }

@@ -3,6 +3,9 @@
     using System;
     using System.Threading;
 
+    /// <summary>
+    /// Quota tracker to support throttling telemetry item collection.
+    /// </summary>
     internal class QuickPulseQuotaTracker
     {
         private readonly float inputStreamRatePerSec;
@@ -28,6 +31,10 @@
             this.currentQuota = startQuota;
         }
 
+        /// <summary>
+        /// Checks if there's quota left.
+        /// </summary>
+        /// <returns><b>true</b> if there's still quota left, <b>false</b> otherwise.</returns>
         public bool ApplyQuota()
         {
             var currentTimeFullSeconds = (long)(this.timeProvider.UtcNow - this.startedTrackingTime).TotalSeconds;
