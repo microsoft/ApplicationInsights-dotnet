@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    
 
     [TestClass]
     public class SessionStateTelemetryTest
@@ -12,7 +12,7 @@
         [TestMethod]
         public void SessionStateTelemetryImplementsITelemetryContract()
         {
-            var test = new ITelemetryTest<SessionStateTelemetry, DataPlatformModel.SessionStateData>();
+            var test = new ITelemetryTest<SessionStateTelemetry, AI.SessionStateData>();
             test.Run();
         }
 
@@ -50,8 +50,8 @@
         {
             var telemetry = new SessionStateTelemetry { State = SessionState.End };
             TelemetryItem<SessionStateData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, SessionStateData>(telemetry);
-            Assert.Equal(DataPlatformModel.SessionState.End, envelope.Data.BaseData.State);
-            Assert.Equal(2, envelope.Data.BaseData.Ver);
+            Assert.Equal(AI.SessionState.End, envelope.data.baseData.state);
+            Assert.Equal(2, envelope.data.baseData.ver);
         }
     }
 }

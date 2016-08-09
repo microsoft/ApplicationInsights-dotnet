@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    
 
     [TestClass]
     public class MetricTelemetryTest
@@ -21,7 +21,7 @@
         [TestMethod]
         public void MetricTelemetryImplementsITelemetryContract()
         {
-            var test = new ITelemetryTest<MetricTelemetry, DataPlatformModel.MetricData>();
+            var test = new ITelemetryTest<MetricTelemetry, AI.MetricData>();
             test.Run();
         }
 
@@ -62,22 +62,22 @@
             expected.Value = 42;
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.Name, Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Metric);
+            Assert.Equal(item.name, AI.ItemType.Metric);
 
-            Assert.Equal(typeof(DataPlatformModel.MetricData).Name, item.Data.BaseType);
-            Assert.Equal(2, item.Data.BaseData.Ver);
-            Assert.Equal(1, item.Data.BaseData.Metrics.Count);
-            Assert.Equal(expected.Name, item.Data.BaseData.Metrics[0].Name);
-            Assert.Equal(DataPlatformModel.DataPointType.Measurement, item.Data.BaseData.Metrics[0].Kind);
-            Assert.Equal(expected.Value, item.Data.BaseData.Metrics[0].Value);
-            Assert.False(item.Data.BaseData.Metrics[0].Count.HasValue);
-            Assert.False(item.Data.BaseData.Metrics[0].Min.HasValue);
-            Assert.False(item.Data.BaseData.Metrics[0].Max.HasValue);
-            Assert.False(item.Data.BaseData.Metrics[0].StdDev.HasValue);
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(typeof(AI.MetricData).Name, item.data.baseType);
+            Assert.Equal(2, item.data.baseData.ver);
+            Assert.Equal(1, item.data.baseData.metrics.Count);
+            Assert.Equal(expected.Name, item.data.baseData.metrics[0].name);
+            Assert.Equal(AI.DataPointType.Measurement, item.data.baseData.metrics[0].kind);
+            Assert.Equal(expected.Value, item.data.baseData.metrics[0].value);
+            Assert.False(item.data.baseData.metrics[0].count.HasValue);
+            Assert.False(item.data.baseData.metrics[0].min.HasValue);
+            Assert.False(item.data.baseData.metrics[0].max.HasValue);
+            Assert.False(item.data.baseData.metrics[0].stdDev.HasValue);
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -92,21 +92,21 @@
             expected.StandardDeviation = 0.5;
             expected.Properties.Add("Property1", "Value1");
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
 
-            Assert.Equal(typeof(DataPlatformModel.MetricData).Name, item.Data.BaseType);
+            Assert.Equal(typeof(AI.MetricData).Name, item.data.baseType);
 
-            Assert.Equal(2, item.Data.BaseData.Ver);
-            Assert.Equal(1, item.Data.BaseData.Metrics.Count);
-            Assert.Equal(expected.Name, item.Data.BaseData.Metrics[0].Name);
-            Assert.Equal(DataPlatformModel.DataPointType.Aggregation, item.Data.BaseData.Metrics[0].Kind);
-            Assert.Equal(expected.Value, item.Data.BaseData.Metrics[0].Value);
-            Assert.Equal(expected.Count.Value, item.Data.BaseData.Metrics[0].Count.Value);
-            Assert.Equal(expected.Min.Value, item.Data.BaseData.Metrics[0].Min.Value);
-            Assert.Equal(expected.Max.Value, item.Data.BaseData.Metrics[0].Max.Value);
-            Assert.Equal(expected.StandardDeviation.Value, item.Data.BaseData.Metrics[0].StdDev.Value);
+            Assert.Equal(2, item.data.baseData.ver);
+            Assert.Equal(1, item.data.baseData.metrics.Count);
+            Assert.Equal(expected.Name, item.data.baseData.metrics[0].name);
+            Assert.Equal(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
+            Assert.Equal(expected.Value, item.data.baseData.metrics[0].value);
+            Assert.Equal(expected.Count.Value, item.data.baseData.metrics[0].count.Value);
+            Assert.Equal(expected.Min.Value, item.data.baseData.metrics[0].min.Value);
+            Assert.Equal(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
+            Assert.Equal(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
 
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -116,9 +116,9 @@
             metricTelemetry.Context.InstrumentationKey = "AIC-" + Guid.NewGuid().ToString();
             ((ITelemetry)metricTelemetry).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(metricTelemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(metricTelemetry);
 
-            Assert.Equal(metricTelemetry.Context.InstrumentationKey, item.IKey);
+            Assert.Equal(metricTelemetry.Context.InstrumentationKey, item.iKey);
         }
 
         [TestMethod]
@@ -160,9 +160,9 @@
             original.Count = null;
             original.StandardDeviation = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, DataPlatformModel.MetricData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(original);
 
-            Assert.Equal(2, item.Data.BaseData.Ver);
+            Assert.Equal(2, item.data.baseData.ver);
         }
 
         [TestMethod]

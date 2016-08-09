@@ -1,0 +1,9 @@
+namespace AI
+
+[Description("Identifies the type of dependency.")]
+enum DependencyKind
+{
+    SQL,
+    Http,
+    Other,
+}

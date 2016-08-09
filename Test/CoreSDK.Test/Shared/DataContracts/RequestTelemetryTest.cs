@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    
     
     [TestClass]
     public class RequestTelemetryTest
@@ -19,7 +19,7 @@
         [TestMethod]
         public void RequestTelemetryITelemetryContractConsistentlyWithOtherTelemetryTypes()
         {
-            new ITelemetryTest<RequestTelemetry, DataPlatformModel.RequestData>().Run();
+            new ITelemetryTest<RequestTelemetry, AI.RequestData>().Run();
         }
 
         [TestMethod]
@@ -73,9 +73,9 @@
             original.ResponseCode = null;
             original.Url = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(original);
 
-            Assert.Equal(2, item.Data.BaseData.Ver);
+            Assert.Equal(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -95,25 +95,25 @@
 
             ((ITelemetry)expected).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.Name, Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Request);
+            Assert.Equal(item.name, AI.ItemType.Request);
 
-            Assert.Equal(typeof(DataPlatformModel.RequestData).Name, item.Data.BaseType);
+            Assert.Equal(typeof(AI.RequestData).Name, item.data.baseType);
 
-            Assert.Equal(2, item.Data.BaseData.Ver);
-            Assert.Equal(expected.Id, item.Data.BaseData.Id);
-            Assert.Equal(expected.Name, item.Data.BaseData.Name);
-            Assert.Equal(expected.Timestamp, item.Data.BaseData.StartTime);
-            Assert.Equal(expected.Duration, item.Data.BaseData.Duration);
-            Assert.Equal(expected.Success, item.Data.BaseData.Success);
-            Assert.Equal(expected.ResponseCode, item.Data.BaseData.ResponseCode);
-            Assert.Equal(expected.Url.ToString(), item.Data.BaseData.Url.ToString(), StringComparer.OrdinalIgnoreCase);
-            Assert.Equal(expected.HttpMethod, item.Data.BaseData.HttpMethod);
+            Assert.Equal(2, item.data.baseData.ver);
+            Assert.Equal(expected.Id, item.data.baseData.id);
+            Assert.Equal(expected.Name, item.data.baseData.name);
+            Assert.Equal(expected.Timestamp, DateTimeOffset.Parse(item.data.baseData.startTime));
+            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.Equal(expected.Success, item.data.baseData.success);
+            Assert.Equal(expected.ResponseCode, item.data.baseData.responseCode);
+            Assert.Equal(expected.Url.ToString(), item.data.baseData.url.ToString(), StringComparer.OrdinalIgnoreCase);
+            Assert.Equal(expected.HttpMethod, item.data.baseData.httpMethod);
 
-            Assert.Equal(1, item.Data.BaseData.Measurements.Count);
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(1, item.data.baseData.measurements.Count);
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -124,14 +124,14 @@
                 var requestTelemetry = new RequestTelemetry();
                 requestTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 ((ITelemetry)requestTelemetry).Sanitize();
-                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(requestTelemetry);
+                var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(requestTelemetry);
 
-                Assert.Equal(2, item.Data.BaseData.Ver);
-                Assert.NotNull(item.Data.BaseData.Id);
-                Assert.NotNull(item.Data.BaseData.StartTime);
-                Assert.Equal("200", item.Data.BaseData.ResponseCode);
-                Assert.Equal(new TimeSpan(), item.Data.BaseData.Duration);
-                Assert.True(item.Data.BaseData.Success);
+                Assert.Equal(2, item.data.baseData.ver);
+                Assert.NotNull(item.data.baseData.id);
+                Assert.NotNull(item.data.baseData.startTime);
+                Assert.Equal("200", item.data.baseData.responseCode);
+                Assert.Equal(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+                Assert.True(item.data.baseData.success);
             }
         }
 
@@ -240,7 +240,7 @@
   
             ((ITelemetry)telemetry).Sanitize();  
   
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);  
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);  
   
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
             // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
@@ -262,9 +262,9 @@
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
             ((ITelemetry)telemetry).Sanitize();
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, DataPlatformModel.RequestData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);
 
-            Assert.Equal(10, item.SampleRate);
+            Assert.Equal(10, item.sampleRate);
         }
     }
 }
