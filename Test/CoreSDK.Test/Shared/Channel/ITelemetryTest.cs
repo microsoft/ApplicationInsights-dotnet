@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Reflection;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     internal class ITelemetryTest<TTelemetry, TEndpointData> 
@@ -157,8 +157,9 @@
             expected.Sanitize();
 
             TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
-            
-            Assert.AreEqual(expected.Timestamp, actual.Time);
+
+
+            Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(actual.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
         }
 
         private void SerializeWritesSequenceAsExpectedByEndpoint()
@@ -168,7 +169,7 @@
             
             TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
             
-            Assert.AreEqual(expected.Sequence, actual.Seq);
+            Assert.AreEqual(expected.Sequence, actual.seq);
         }
 
         private void SerializeWritesInstrumentationKeyAsExpectedByEndpoint()
@@ -179,7 +180,7 @@
 
             TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
             
-            Assert.AreEqual(expected.Context.InstrumentationKey, actual.IKey);
+            Assert.AreEqual(expected.Context.InstrumentationKey, actual.iKey);
         }
 
         private void SerializeWritesDataBaseTypeAsExpectedByEndpoint()
@@ -191,7 +192,7 @@
 
             // TODO: Why is TraceTelemetry serialized as MessageData base type instead of TraceData?
             string expectedBaseType = typeof(TTelemetry) == typeof(TraceTelemetry) ? "MessageData" : typeof(TTelemetry).Name.Replace("Telemetry", "Data");
-            Assert.AreEqual(expectedBaseType, envelope.Data.BaseType);
+            Assert.AreEqual(expectedBaseType, envelope.data.baseType);
         }
 
         private void SerializeWritesTagsAsExpectedByEndpoint()
@@ -202,7 +203,7 @@
 
             TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
             
-            Assert.AreEqual("Test Value", actual.Tags["Test Key"]);
+            Assert.AreEqual("Test Value", actual.tags["Test Key"]);
         }
 
         private void SerializeWritesTelemetryNameAsExpectedByEndpoint()
@@ -216,7 +217,7 @@
 
             Assert.AreEqual(
                 Constants.TelemetryNamePrefix + "312cbd799dbb4c48a7da3cc2a931cb71." + this.ExtractTelemetryNameFromType(typeof(TTelemetry)),
-                actual.Name);
+                actual.name);
         }
 
         private string ExtractTelemetryNameFromType(Type telemetryType)

@@ -12,7 +12,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    
 
     [TestClass]
     public class EventTelemetryTest
@@ -26,7 +26,7 @@
         [TestMethod]
         public void EventTelemetryImplementsITelemetryContract()
         {
-            var test = new ITelemetryTest<EventTelemetry, DataPlatformModel.EventData>();
+            var test = new ITelemetryTest<EventTelemetry, AI.EventData>();
             test.Run();
         }
 
@@ -60,15 +60,15 @@
             expected.Properties["Test Property"] = "Test Value";
             expected.Metrics["Test Property"] = 4.2;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, DataPlatformModel.EventData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Event, item.Name);
-            Assert.Equal(typeof(DataPlatformModel.EventData).Name, item.Data.BaseType);
-            Assert.Equal(2, item.Data.BaseData.Ver);
-            Assert.Equal(expected.Name, item.Data.BaseData.Name);
-            Assert.Equal(expected.Metrics.ToArray(), item.Data.BaseData.Measurements.ToArray());
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(AI.ItemType.Event, item.name);
+            Assert.Equal(typeof(AI.EventData).Name, item.data.baseType);
+            Assert.Equal(2, item.data.baseData.ver);
+            Assert.Equal(expected.Name, item.data.baseData.name);
+            Assert.Equal(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -77,9 +77,9 @@
             EventTelemetry original = new EventTelemetry();
             original.Name = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, DataPlatformModel.EventData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(original);
 
-            Assert.Equal(2, item.Data.BaseData.Ver);
+            Assert.Equal(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -134,9 +134,9 @@
             var telemetry = new EventTelemetry("my event");
             ((ISupportSampling)telemetry).SamplingPercentage = 10;
 
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, DataPlatformModel.EventData>(telemetry);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<EventTelemetry, AI.EventData>(telemetry);
 
-            Assert.Equal(10, item.SampleRate);
+            Assert.Equal(10, item.sampleRate);
         }
     }
 }
