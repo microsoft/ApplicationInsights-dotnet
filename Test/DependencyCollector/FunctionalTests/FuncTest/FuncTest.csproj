@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\packages\WiX.3.10.1\build\wix.props" Condition="Exists('..\..\..\..\..\packages\WiX.3.10.1\build\wix.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.Common.props'))\Test.Common.props" />
@@ -109,6 +109,7 @@
     <Compile Include="Helpers\ACLTools.cs" />
     <Compile Include="Helpers\AzureStorageHelper.cs" />
     <Compile Include="Helpers\DataItem.cs" />
+    <Compile Include="Helpers\DeploymentAndValidationTools.cs" />
     <Compile Include="Helpers\DotNetVersionCheck.cs" />
     <Compile Include="Helpers\ExecutionEnvironment.cs" />
     <Compile Include="Helpers\Extensions.cs" />
@@ -123,11 +124,10 @@
     <Compile Include="IIS\IisWebApplication.cs" />
     <Compile Include="IIS\IisWebSite.cs" />
     <Compile Include="Helpers\LocalDb.cs" />
-    <Compile Include="RDDTests.cs" />
+    <Compile Include="HttpTests.cs" />
     <Compile Include="Serialization\TelemetryExtensions.cs" />
     <Compile Include="Serialization\TelemetryItemFactory.cs" />
     <Compile Include="SqlTests.cs" />
-    <Compile Include="ExceptionStatisticsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

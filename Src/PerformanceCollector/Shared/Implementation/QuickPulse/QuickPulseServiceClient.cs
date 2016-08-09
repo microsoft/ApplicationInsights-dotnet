@@ -171,6 +171,9 @@
 
                 metricPoints.AddRange(sample.PerfCountersLookup.Select(counter => new MetricPoint { Name = counter.Key, Value = Round(counter.Value), Weight = 1 }));
 
+                ITelemetryDocument[] documents = sample.TelemetryDocuments.ToArray();
+                Array.Reverse(documents);
+
                 var dataPoint = new MonitoringDataPoint
                                     {
                                         Version = this.version,
@@ -178,7 +181,8 @@
                                         Instance = this.instanceName,
                                         StreamId = this.streamId,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
-                                        Metrics = metricPoints.ToArray()
+                                        Metrics = metricPoints.ToArray(),
+                                        Documents = documents
                                     };
 
                 monitoringPoints.Add(dataPoint);
