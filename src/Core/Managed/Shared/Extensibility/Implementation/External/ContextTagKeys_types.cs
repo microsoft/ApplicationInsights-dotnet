@@ -62,6 +62,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         
+        
         public string DeviceOEMName { get; set; }
 
         

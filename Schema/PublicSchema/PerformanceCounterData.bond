@@ -3,7 +3,7 @@ import "DataPointType.bond"
 
 namespace AI
 
-[Description("Instance of Performance Counter represents data for a specific Windows Performance Counter.")]
+[Description("An instance of Performance Counter represents data for a specific Windows Performance Counter.")]
 struct PerformanceCounterData
     : Domain
 {

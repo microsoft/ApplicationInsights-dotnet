@@ -1,10 +1,11 @@
 import "Domain.bond"
 import "DataPointType.bond"
 import "DependencyKind.bond"
+import "DependencySourceType.bond"
 
 namespace AI
 
-[Description("Instance of Remote Dependency represents an interaction of the monitored component with a remote component/service like SQL or http endpoint.")]
+[Description("An instance of Remote Dependency represents an interaction of the monitored component with a remote component/service like SQL or an HTTP endpoint.")]
 struct RemoteDependencyData
     : Domain
 {
@@ -12,7 +13,7 @@ struct RemoteDependencyData
     10: required int32 	 ver = 2;
     
     [MaxStringLength("1024")]
-    [Description("Name of the command initiated with this dependency call. Low cardinality value. Example are stored procedure name, url path template.")]
+    [Description("Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.")]
     20: required string 	 name;
     
     [MaxStringLength("128")]
@@ -20,7 +21,7 @@ struct RemoteDependencyData
     30: string 	 id;
     
     [MaxStringLength("1024")]
-    [Description("Result code of a dependency call. Examples are SQL error code, http status code.")]
+    [Description("Result code of a dependency call. Examples are SQL error code and HTTP status code.")]
     40: string 	 resultCode;
     
     50: AI.DataPointType 	 kind = Measurement;
@@ -39,15 +40,17 @@ struct RemoteDependencyData
     
     130: nullable<bool> 	 async;
     
+    140: AI.DependencySourceType 	 dependencySource = Undefined;
+    
     [MaxStringLength("8192")]
     150: string 	 commandName;
     
     [MaxStringLength("8192")]
-    [Description("Command initiated by this dependency call. Examples are SQL statement, http url with all query parameters.")]
+    [Description("Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.")]
     151: string 	 data;
     
     [MaxStringLength("1024")]
-    [Description("Dependency type name. Very low cardinality value for logical grouping of dependencies and interpretation of other fields like commandName and resultCode. Examples are SQL, Azure table, HTTP.")]
+    [Description("Dependency type name. Very low cardinality value for logical grouping of dependencies and interpretation of other fields like commandName and resultCode. Examples are SQL, Azure table, and HTTP.")]
     160: string 	 dependencyTypeName;
     
     [MaxStringLength("1024")]

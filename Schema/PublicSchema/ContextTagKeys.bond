@@ -19,16 +19,17 @@ struct ContextTagKeys
     [MaxStringLength("64")]
     115: string 	 DeviceLocale = "ai.device.locale";
     
-    [Description("Model of the device end user of the application using. Used for client scenarios. If empty, derived from user agent.")]
+    [Description("Model of the device the end user of the application is using. Used for client scenarios. If this field is empty then it is derived from the user agent.")]
     [MaxStringLength("256")]
     120: string 	 DeviceModel = "ai.device.model";
     
     125: string 	 DeviceNetwork = "ai.device.network";
     
+    [Description("Client device OEM name taken from the browser.")]
     [MaxStringLength("256")]
     130: string 	 DeviceOEMName = "ai.device.oemName";
     
-    [Description("Operation system name and version of the device end user of the application using. If empty derived from user agent. Example 'Windows 10 Pro 10.0.10586.0'")]
+    [Description("Operating system name and version of the device the end user of the application is using. If this field is empty then it is derived from the user agent. Example 'Windows 10 Pro 10.0.10586.0'")]
     [MaxStringLength("256")]
     140: string 	 DeviceOSVersion = "ai.device.osVersion";
     
@@ -42,7 +43,7 @@ struct ContextTagKeys
     
     155: string 	 DeviceScreenResolution = "ai.device.screenResolution";
     
-    [Description("Type of the device end user of the application is using. Used primarily to distinguish JavaScript telemetry from server side telemetry. Examples: 'PC', 'Phone', 'Browser'. 'PC' is a default value.")]
+    [Description("The type of the device the end user of the application is using. Used primarily to distinguish JavaScript telemetry from server side telemetry. Examples: 'PC', 'Phone', 'Browser'. 'PC' is the default value.")]
     [MaxStringLength("64")]
     160: string 	 DeviceType = "ai.device.type";
     
@@ -66,7 +67,7 @@ struct ContextTagKeys
     [MaxStringLength("1024")]
     320: string 	 OperationSyntheticSource = "ai.operation.syntheticSource";
     
-    [Description("The cV is a light weight vector clock which can be used to identify and order related events across clients and services.")]
+    [Description("The correlation vector is a light weight vector clock which can be used to identify and order related events across clients and services.")]
     [MaxStringLength("64")]
     330: string 	 OperationCorrelationVector = "ai.operation.correlationVector";
     
@@ -79,27 +80,27 @@ struct ContextTagKeys
     [Question("Should it be marked as JSType-bool for breeze?")]
     405: string 	 SessionIsFirst = "ai.session.isFirst";
     
-    [Description("In multi-tenant applications account ID or name that user is acting with. Examples may be subscription ID for Azure portal or blog name blogging platform.")]
+    [Description("In multi-tenant applications this is the account ID or name which the user is acting with. Examples may be subscription ID for Azure portal or blog name blogging platform.")]
     [MaxStringLength("1024")]
     505: string 	 UserAccountId = "ai.user.accountId";
     
-    [Description("The browser's user agent string as reported by the browser. This property will be used to extract informaiton regarding customer browser, but will not be stored. Use custom properties to store the original user agent.")]
+    [Description("The browser's user agent string as reported by the browser. This property will be used to extract informaiton regarding the customer's browser but will not be stored. Use custom properties to store the original user agent.")]
     [MaxStringLength("2048")]
     510: string 	 UserAgent = "ai.user.userAgent";
     
-    [Description("Anonymous user id. Represents the end user of the application. When telemetry is sent from a service, the user context is about the user than initiated the operation in the service.")]
+    [Description("Anonymous user id. Represents the end user of the application. When telemetry is sent from a service, the user context is about the user that initiated the operation in the service.")]
     [MaxStringLength("128")]
     515: string 	 UserId = "ai.user.id";
     
-    [Description("Authenticated user id. As opposite to ai.user.id represents the user with by the friendly name. Since it's PII information it is not collected by default by most SDKs.")]
+    [Description("Authenticated user id. The opposite of ai.user.id, this represents the user with a friendly name. Since it's PII information it is not collected by default by most SDKs.")]
     [MaxStringLength("1024")]
     525: string 	 UserAuthUserId = "ai.user.authUserId";
     
-    [Description("Name of the role application is part of. Maps directly to the role name in azure.")]
+    [Description("Name of the role the application is a part of. Maps directly to the role name in azure.")]
     [MaxStringLength("256")]
     705: string 	 CloudRole = "ai.cloud.role";
     
-    [Description("Name of the instance where application is running. Computer name for on-premisis, instance name for Azure.")]
+    [Description("Name of the instance where the application is running. Computer name for on-premisis, instance name for Azure.")]
     [MaxStringLength("256")]
     715: string 	 CloudRoleInstance = "ai.cloud.roleInstance";
     

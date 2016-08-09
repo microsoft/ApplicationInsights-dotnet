@@ -86,12 +86,15 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 }
 
 @(
+"AvailabilityData_types",
 "Base_types",
 "ContextTagKeys_types",
 "DataPointType_types",
 "DataPoint_types",
 "Data_types",
 "Domain_types",
+"DependencyKind_types",
+"DependencySourceType_types",
 "Envelope_types",
 "EventData_types",
 "ExceptionData_types",
@@ -99,10 +102,14 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 "MessageData_types",
 "MetricData_types",
 "PageViewData_types",
+"PerformanceCounterData_types",
 "RemoteDependencyData_types",
 "RequestData_types",
 "SeverityLevel_types",
-"StackFrame_types"
+"SessionState_types"
+"SessionStateData_types",
+"StackFrame_types",
+"TestResult_types"
 ) | ForEach-Object { 
     $fileName = $_
     copy "$currentDir\obj\gbc\$fileName.cs" "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\"

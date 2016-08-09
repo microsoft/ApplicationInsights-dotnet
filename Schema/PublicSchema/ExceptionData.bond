@@ -4,7 +4,7 @@ import "SeverityLevel.bond"
 
 namespace AI
 
-[Description("Instance of Exception represents handled or unhandled exception that occurred during execution of the monitored application.")]
+[Description("An instance of Exception represents a handled or unhandled exception that occurred during execution of the monitored application.")]
 struct ExceptionData
     : Domain
 {
