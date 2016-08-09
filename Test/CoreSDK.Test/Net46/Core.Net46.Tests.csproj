@@ -74,9 +74,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Net40\app.config">
-      <Link>app.config</Link>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
