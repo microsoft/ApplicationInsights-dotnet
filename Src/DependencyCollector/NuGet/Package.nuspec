@@ -11,6 +11,7 @@
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Application Insights Dependency Collector for .NET applications. See http://go.microsoft.com/fwlink/?LinkID=510754 for more information. This is a dependent package for Application Insights platform specifc packages and provides automatic collection of dependency telemetry. Please install the platform specific packages directly for the best experience.</description>
+    <summary>Application Insights Dependency Collector for .NET applications provides platform specifc automatic collection of dependency telemetry.</summary>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
