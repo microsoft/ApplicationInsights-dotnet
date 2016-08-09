@@ -82,11 +82,26 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\DependencyTelemetryDocument.cs">
+      <Link>Serialization\QuickPulse\DependencyTelemetryDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\ExceptionTelemetryDocument.cs">
+      <Link>Serialization\QuickPulse\ExceptionTelemetryDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\ITelemetryDocument.cs">
+      <Link>Serialization\QuickPulse\ITelemetryDocument.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\MetricPoint.cs">
       <Link>Serialization\QuickPulse\MetricPoint.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs">
       <Link>Serialization\QuickPulse\MonitoringDataPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\RequestTelemetryDocument.cs">
+      <Link>Serialization\QuickPulse\RequestTelemetryDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\TelemetryDocumentType.cs">
+      <Link>Serialization\QuickPulse\TelemetryDocumentType.cs</Link>
     </Compile>
     <Compile Include="CommonTests.cs" />
     <Compile Include="Helpers\Debugger\ProcessBasicInformation.cs" />
