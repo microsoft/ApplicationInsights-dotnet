@@ -85,6 +85,9 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
     RegExReplace $_.FullName "= nothing;" "= null;"
 }
 
+del "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\*_types"
+
+
 @(
 "AvailabilityData_types",
 "Base_types",

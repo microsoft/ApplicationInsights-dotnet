@@ -466,10 +466,9 @@
                     writer.WriteProperty("ver", dependencyTelemetry.Data.ver);
                     writer.WriteProperty("name", dependencyTelemetry.Data.name);
                     writer.WriteProperty("id", dependencyTelemetry.Data.id);
-                    writer.WriteProperty("commandName", dependencyTelemetry.Data.commandName);
-                    writer.WriteProperty("value", dependencyTelemetry.Data.value);
+                    writer.WriteProperty("data", dependencyTelemetry.Data.data);
+                    writer.WriteProperty("duration", dependencyTelemetry.Data.duration);
                     writer.WriteProperty("resultCode", dependencyTelemetry.Data.resultCode);
-                    writer.WriteProperty("dependencyKind", (int)dependencyTelemetry.Data.dependencyKind);
                     writer.WriteProperty("success", dependencyTelemetry.Data.success);
                     writer.WriteProperty("dependencyTypeName", dependencyTelemetry.Data.dependencyTypeName);
 

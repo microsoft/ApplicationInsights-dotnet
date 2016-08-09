@@ -7,8 +7,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
-    using BondDependencyKind = Extensibility.Implementation.External.DependencyKind;
-
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
@@ -28,9 +26,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public DependencyTelemetry()
         {
-            this.Data = new RemoteDependencyData() { kind = DataPointType.Aggregation };
+            this.Data = new RemoteDependencyData();
             this.context = new TelemetryContext(this.Data.properties);
-            this.Data.dependencyKind = BondDependencyKind.Other;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
@@ -98,8 +95,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string CommandName
         {
-            get { return this.Data.commandName; }
-            set { this.Data.commandName = value; }
+            get { return this.Data.data; }
+            set { this.Data.data = value; }
         }
 
         /// <summary>
@@ -121,12 +118,12 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets dependency call duration.
+        /// Gets or sets the amount of time it took the application to handle the request.
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return TimeSpan.FromMilliseconds(this.Data.value); }
-            set { this.Data.value = value.TotalMilliseconds; }
+            get { return Utils.ValidateDuration(this.Data.duration); }
+            set { this.Data.duration = value.ToString(); }
         }
 
         /// <summary>
@@ -150,17 +147,17 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// Gets or sets the dependency kind, like SQL, HTTP, Azure, etc.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use DependencyTypeName")]
         public string DependencyKind
         {
             get
             {
-                return this.Data.dependencyKind.ToString();
+                return this.DependencyTypeName;
             }
 
             set
             {
-                BondDependencyKind result;
-                this.Data.dependencyKind = Enum.TryParse(value, true, out result) ? result : BondDependencyKind.Other;
+                this.DependencyTypeName = value;
             }
         }
 
