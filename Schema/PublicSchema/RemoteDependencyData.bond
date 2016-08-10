@@ -1,7 +1,4 @@
 import "Domain.bond"
-import "DataPointType.bond"
-import "DependencyKind.bond"
-import "DependencySourceType.bond"
 
 namespace AI
 
@@ -24,26 +21,13 @@ struct RemoteDependencyData
     [Description("Result code of a dependency call. Examples are SQL error code and HTTP status code.")]
     40: string 	 resultCode;
     
-    50: AI.DataPointType 	 kind = Measurement;
-    
-    60: double 	 value;
-    
     [CSType("TimeSpan")]
     [Description("Request duration in TimeSpan 'G' (general long) format: d:hh:mm:ss.fffffff.")]
     [ActAsRequired("Renaming value to duration.")]
     61: required string 	 duration;
     
-    110: required AI.DependencyKind 	 dependencyKind = Other;
-    
     [Description("Indication of successfull or unsuccessfull call.")]
     120: nullable<bool> 	 success = true;
-    
-    130: nullable<bool> 	 async;
-    
-    140: AI.DependencySourceType 	 dependencySource = Undefined;
-    
-    [MaxStringLength("8192")]
-    150: string 	 commandName;
     
     [MaxStringLength("8192")]
     [Description("Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.")]
