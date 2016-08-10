@@ -70,7 +70,7 @@
         /// </summary>
         public DeviceContext Device
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Tags, this.Properties)); }
         }
 
         /// <summary>

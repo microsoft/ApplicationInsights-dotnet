@@ -21,8 +21,8 @@
         /// </summary>
         public string RoleName
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleName); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleName, value); }
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.CloudRole); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.CloudRole, value); }
         }
 
         /// <summary>
@@ -30,8 +30,8 @@
         /// </summary>
         public string RoleInstance
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceRoleInstance); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceRoleInstance, value); }
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.CloudRoleInstance); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.CloudRoleInstance, value); }
         }
     }
 }
