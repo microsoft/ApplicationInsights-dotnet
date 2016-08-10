@@ -463,16 +463,17 @@
                 {
                     writer.WriteStartObject();
 
-                    writer.WriteProperty("ver", dependencyTelemetry.Data.ver);
-                    writer.WriteProperty("name", dependencyTelemetry.Data.name);
-                    writer.WriteProperty("id", dependencyTelemetry.Data.id);
-                    writer.WriteProperty("data", dependencyTelemetry.Data.data);
-                    writer.WriteProperty("duration", dependencyTelemetry.Data.duration);
-                    writer.WriteProperty("resultCode", dependencyTelemetry.Data.resultCode);
-                    writer.WriteProperty("success", dependencyTelemetry.Data.success);
-                    writer.WriteProperty("dependencyTypeName", dependencyTelemetry.Data.dependencyTypeName);
+                    writer.WriteProperty("ver", dependencyTelemetry.InternalData.ver);
+                    writer.WriteProperty("name", dependencyTelemetry.InternalData.name);
+                    writer.WriteProperty("id", dependencyTelemetry.InternalData.id);
+                    writer.WriteProperty("data", dependencyTelemetry.InternalData.data);
+                    writer.WriteProperty("duration", dependencyTelemetry.InternalData.duration);
+                    writer.WriteProperty("resultCode", dependencyTelemetry.InternalData.resultCode);
+                    writer.WriteProperty("success", dependencyTelemetry.InternalData.success);
+                    writer.WriteProperty("dependencyTypeName", dependencyTelemetry.InternalData.dependencyTypeName);
+                    writer.WriteProperty("target", dependencyTelemetry.InternalData.target);
 
-                    writer.WriteProperty("properties", dependencyTelemetry.Data.properties);
+                    writer.WriteProperty("properties", dependencyTelemetry.InternalData.properties);
                     writer.WriteEndObject();
                 }
 

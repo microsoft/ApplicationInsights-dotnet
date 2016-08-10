@@ -346,7 +346,7 @@
             var dependency = (DependencyTelemetry)sentTelemetry.Single();
 
             Assert.Equal("name", dependency.Name);
-            Assert.Equal("command name", dependency.CommandName);
+            Assert.Equal("command name", dependency.Data);
             Assert.Equal(timestamp, dependency.Timestamp);
             Assert.Equal(TimeSpan.FromSeconds(42), dependency.Duration);
             Assert.Equal(false, dependency.Success);

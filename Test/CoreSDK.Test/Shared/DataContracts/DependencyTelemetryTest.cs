@@ -37,7 +37,7 @@
         {
             DependencyTelemetry original = new DependencyTelemetry();
             original.Name = null;
-            original.CommandName = null;
+            original.Data = null;
             original.DependencyTypeName = null;
             original.Success = null;
             original.DependencyTypeName = null;
@@ -63,7 +63,7 @@
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry("Select * from Customers where CustomerID=@1");
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
-            Assert.Equal(expected.CommandName, dp.data);
+            Assert.Equal(expected.Data, dp.data);
         }
 
         [TestMethod]
@@ -87,9 +87,9 @@
         [TestMethod]
         public void DependencyTypeNameDefaultsToEmptyInConstructor()
         {
+#pragma warning disable 618
             var dependency = new DependencyTelemetry("name", "command name", DateTimeOffset.Now, TimeSpan.FromSeconds(42), false);
 
-#pragma warning disable 618
             Assert.Empty(dependency.DependencyKind);
 #pragma warning restore 618
 
@@ -114,7 +114,7 @@
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
-            telemetry.CommandName = new string('Y', Property.MaxCommandNameLength + 1);
+            telemetry.Data = new string('Y', Property.MaxCommandNameLength + 1);
             telemetry.DependencyTypeName = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
@@ -122,7 +122,7 @@
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
-            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.CommandName);
+            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.Data);
             Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.DependencyTypeName);
 
             Assert.Equal(2, telemetry.Properties.Count);
@@ -175,7 +175,7 @@
         private DependencyTelemetry CreateRemoteDependencyTelemetry(string commandName)
         {
             DependencyTelemetry item = this.CreateRemoteDependencyTelemetry();
-            item.CommandName = commandName;
+            item.Data = commandName;
             return item;
         }
     }

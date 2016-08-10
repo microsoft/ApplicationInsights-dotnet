@@ -2,12 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
-- Context properties `NetworkType`, `ScreenResolution` and `Language` marked as obsolete. Please use custom properties to report network type, screen resolution and language. Values stored in these properties will be send as custom properties. 
-
-
 ## Version 2.2.0-beta2
 
 - InMemoryChannel has a new override for Flush method that accepts timeout.
+- Context properties `NetworkType`, `ScreenResolution` and `Language` marked as obsolete. Please use custom properties to report network type, screen resolution and language. Values stored in these properties will be send as custom properties. 
+- Dependency type was updated to reflect the latest developments in Applicaiton Insights Applicaiton Map feature. You can set a new field - `Target`. `CommandName` was renamed to `Data` for consistancy with the Application Analytics schema. `DependencyKind` will never be send any more and will not be set to "Other" by default. Also there are two more constructors for `DependencyTelemetry` item.
 
 ## Version 2.2.0-beta1
 
