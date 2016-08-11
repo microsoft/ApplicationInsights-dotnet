@@ -72,12 +72,6 @@
     <BondCodegen Include="..\..\..\Schema\PublicSchema\DataPointType.bond">
       <Link>DataPointType.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\DependencyKind.bond">
-      <Link>DependencyKind.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\DependencySourceType.bond">
-      <Link>DependencySourceType.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\Domain.bond">
       <Link>Domain.bond</Link>
     </BondCodegen>
@@ -113,12 +107,6 @@
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\RequestData.bond">
       <Link>RequestData.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\SessionState.bond">
-      <Link>SessionState.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\SessionStateData.bond">
-      <Link>SessionStateData.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\SeverityLevel.bond">
       <Link>SeverityLevel.bond</Link>

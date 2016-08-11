@@ -256,11 +256,13 @@
                 RequestTelemetry requestTelemetry = telemetryItem as RequestTelemetry;
                 SerializeRequestTelemetry(requestTelemetry, jsonWriter);
             }
+#pragma warning disable 618
             else if (telemetryItem is SessionStateTelemetry)
             {
-                SessionStateTelemetry sessionStateTelemetry = telemetryItem as SessionStateTelemetry;
-                SerializeSessionStateTelemetry(sessionStateTelemetry, jsonWriter);
+                EventTelemetry telemetry = (telemetryItem as SessionStateTelemetry).Data;
+                SerializeEventTelemetry(telemetry, jsonWriter);
             }
+#pragma warning restore 618
             else if (telemetryItem is TraceTelemetry)
             {
                 TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
@@ -519,33 +521,6 @@
             jsonWriter.WriteEndObject();
         }
 
-        private static void SerializeSessionStateTelemetry(SessionStateTelemetry sessionStateTelemetry, JsonWriter jsonWriter)
-        {
-            jsonWriter.WriteStartObject();
-
-            sessionStateTelemetry.WriteEnvelopeProperties(jsonWriter);
-            sessionStateTelemetry.WriteTelemetryName(jsonWriter, SessionStateTelemetry.TelemetryName);
-            jsonWriter.WritePropertyName("data");
-            {
-                jsonWriter.WriteStartObject();
-
-                jsonWriter.WriteProperty("baseType", typeof(SessionStateData).Name);
-                jsonWriter.WritePropertyName("baseData");
-                {
-                    jsonWriter.WriteStartObject();
-
-                    jsonWriter.WriteProperty("ver", 2);
-                    jsonWriter.WriteProperty("state", sessionStateTelemetry.State.ToString());
-
-                    jsonWriter.WriteEndObject();
-                }
-
-                jsonWriter.WriteEndObject();
-            }
-
-            jsonWriter.WriteEndObject();
-        }
-        
         private static void SerializeTraceTelemetry(TraceTelemetry traceTelemetry, JsonWriter writer)
         {
             writer.WriteStartObject();

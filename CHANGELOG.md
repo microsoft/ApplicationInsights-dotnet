@@ -7,6 +7,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - InMemoryChannel has a new override for Flush method that accepts timeout.
 - Context properties `NetworkType`, `ScreenResolution` and `Language` marked as obsolete. Please use custom properties to report network type, screen resolution and language. Values stored in these properties will be send as custom properties. 
 - Dependency type was updated to reflect the latest developments in Applicaiton Insights Applicaiton Map feature. You can set a new field - `Target`. `CommandName` was renamed to `Data` for consistancy with the Application Analytics schema. `DependencyKind` will never be send any more and will not be set to "Other" by default. Also there are two more constructors for `DependencyTelemetry` item.
+- Type `SessionStateTelemetry` was marked obsolete. Use `IsFirst` flag in `SessionContext` to indicate that the session is just started.
 
 ## Version 2.2.0-beta1
 
