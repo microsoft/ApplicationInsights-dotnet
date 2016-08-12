@@ -18,6 +18,8 @@
     <DefineConstants>$(DefineConstants);NET46;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\..\..\..\ApplicationInsightsSDKRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
@@ -54,6 +56,10 @@
     <Compile Include="Extensibility\Implementation\External\SessionStateData.cs" />
     <Compile Include="Extensibility\Implementation\External\StackFrame.cs" />
     <Compile Include="Extensibility\Implementation\RichPayloadEventSource.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
+    <Analyzer Include="..\..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="..\Operation.AL.Shared\Operation.AL.Shared.projitems" Label="Shared" />
