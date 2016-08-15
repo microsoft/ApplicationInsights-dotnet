@@ -44,7 +44,7 @@
             : this()
         {
             this.Name = name; // Name is optional but without it UX does not make much sense
-            this.StartTime = startTime;
+            this.Timestamp = startTime;
             this.Duration = duration;
             this.ResponseCode = responseCode;
             this.Success = success;
@@ -53,20 +53,7 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public override DateTimeOffset Timestamp
-        {
-            get { return this.ValidateDateTimeOffset(this.Data.startTime); }
-            set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
-        }
-
-        /// <summary>
-        /// Gets or sets the date and time when request was processed by the application.
-        /// </summary>
-        public override DateTimeOffset StartTime
-        {
-            get { return this.ValidateDateTimeOffset(this.Data.startTime); }
-            set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
-        }
+        public override DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
@@ -187,10 +174,11 @@
         /// <summary>
         /// Gets or sets the HTTP method of the request.
         /// </summary>
+        [Obsolete("Include http verb into request telemetry name and use custom properties to report http method as a dimension.")]
         public string HttpMethod
         {
-            get { return this.Data.httpMethod; }
-            set { this.Data.httpMethod = value; }
+            get { return this.Properties["httpMethod"]; }
+            set { this.Properties["httpMethod"] = value; }
         }
 
         /// <summary>

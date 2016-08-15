@@ -505,13 +505,11 @@
                     jsonWriter.WriteProperty("ver", requestTelemetry.Data.ver);
                     jsonWriter.WriteProperty("id", requestTelemetry.Data.id);
                     jsonWriter.WriteProperty("name", requestTelemetry.Data.name);
-                    jsonWriter.WriteProperty("startTime", requestTelemetry.Timestamp);
                     jsonWriter.WriteProperty("duration", requestTelemetry.Duration);
                     jsonWriter.WriteProperty("success", requestTelemetry.Data.success);
                     jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
                     jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
                     jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
-                    jsonWriter.WriteProperty("httpMethod", requestTelemetry.Data.httpMethod);
                     jsonWriter.WriteProperty("properties", requestTelemetry.Data.properties);
 
                     jsonWriter.WriteEndObject();
