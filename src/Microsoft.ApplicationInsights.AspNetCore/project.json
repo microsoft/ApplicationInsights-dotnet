@@ -20,13 +20,28 @@
     "delaySign": true
   },
   "dependencies": {
+    "Desktop.Analyzers": "1.2.0-beta2",
+    "Microsoft.ApiDesignGuidelines.Analyzers": "1.2.0-beta2",
     "Microsoft.ApplicationInsights": "2.1.0",
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.0",
+    "Microsoft.CodeAnalysis.Analyzers": "1.2.0-beta2",
+    "Microsoft.Composition.Analyzers": "1.2.0-beta2",
     "Microsoft.Extensions.Configuration": "1.0.0",
     "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
-    "Microsoft.Extensions.Logging.Abstractions": "1.0.0"
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
+    "Microsoft.Maintainability.Analyzers": "1.2.0-beta2",
+    "Microsoft.QualityGuidelines.Analyzers": "1.2.0-beta2",
+    "Roslyn.Diagnostics.Analyzers": "1.2.0-beta2",
+    "System.Collections.Immutable.Analyzers": "1.2.0-beta2",
+    //"System.Resources.Analyzers": "1.2.0-beta2",
+    "System.Runtime.Analyzers": "1.2.0-beta2",
+    "System.Runtime.InteropServices.Analyzers": "1.2.0-beta2",
+    //"System.Security.Cryptography.Hashing.Algorithms.Analyzers": "1.2.0-beta2",
+    "System.Threading.Tasks.Analyzers": "1.2.0-beta2"
+    //"Text.Analyzers": "1.2.0-beta2",
+    //"XmlDocumentationComments.Analyzers": "1.2.0-beta2"
   },
 
   "frameworks": {
