@@ -99,9 +99,6 @@
     <BondCodegen Include="..\..\..\Schema\PublicSchema\PageViewPerfData.bond">
       <Link>PageViewPerfData.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\PerformanceCounterData.bond">
-      <Link>PerformanceCounterData.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\RemoteDependencyData.bond">
       <Link>RemoteDependencyData.bond</Link>
     </BondCodegen>

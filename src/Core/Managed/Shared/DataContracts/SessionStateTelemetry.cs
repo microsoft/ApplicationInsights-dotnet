@@ -109,6 +109,7 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
+            ((ITelemetry)this.Data).Sanitize();
         }
     }
 }

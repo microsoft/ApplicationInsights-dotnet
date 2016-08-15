@@ -805,9 +805,13 @@
             ExceptionTelemetry telemetry4 = new ExceptionTelemetry();
             MetricTelemetry telemetry5 = new MetricTelemetry();
             PageViewTelemetry telemetry6 = new PageViewTelemetry();
+#pragma warning disable 618
             PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry();
+#pragma warning restore 618
             RequestTelemetry telemetry8 = new RequestTelemetry();
+#pragma warning disable 618
             SessionStateTelemetry telemetry9 = new SessionStateTelemetry();
+#pragma warning restore 618
             TraceTelemetry telemetry10 = new TraceTelemetry();
 
             var telemetryItems = new List<ITelemetry>

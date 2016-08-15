@@ -52,7 +52,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MessageData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\MetricData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PageViewData_types.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\PerformanceCounterData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RemoteDependencyData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\RequestData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SeverityLevel_types.cs" />

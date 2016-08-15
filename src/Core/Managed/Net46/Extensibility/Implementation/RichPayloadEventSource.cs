@@ -126,21 +126,23 @@
                     telemetryItem.Data,
                     Keywords.Exceptions);
             }
+#pragma warning disable 618
             else if (item is PerformanceCounterTelemetry)
             {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PerformanceCounters))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
                 {
                     return;
                 }
 
-                var telemetryItem = item as PerformanceCounterTelemetry;
+                var telemetryItem = (item as PerformanceCounterTelemetry).Data;
                 this.WriteEvent(
-                    PerformanceCounterTelemetry.TelemetryName,
+                    MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.Tags,
                     telemetryItem.Data,
-                    Keywords.PerformanceCounters);
+                    Keywords.Metrics);
             }
+#pragma warning restore 618
             else if (item is PageViewTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.PageViews))
@@ -251,11 +253,6 @@
             /// Keyword for page views.
             /// </summary>
             public const EventKeywords PageViews = (EventKeywords)0x40;
-
-            /// <summary>
-            /// Keyword for performance counters.
-            /// </summary>
-            public const EventKeywords PerformanceCounters = (EventKeywords)0x80;
         }
     }
 }

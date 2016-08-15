@@ -233,6 +233,11 @@
                 // handle TraceTelemetry separately
                 result = "Event";
             }
+            else if (telemetryType == typeof(PerformanceCounterTelemetry))
+            {
+                // handle TraceTelemetry separately
+                result = "Metric";
+            }
 #pragma warning restore 618
             else
             {

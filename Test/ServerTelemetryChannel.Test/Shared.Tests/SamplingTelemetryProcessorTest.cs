@@ -111,7 +111,8 @@
         {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new PageViewTelemetry("page")));
         }
-        
+
+#pragma warning disable 618
         [TestMethod]
         public void PerformanceCounterTelemetryIsNotSubjectToSampling()
         {
@@ -122,7 +123,8 @@
                     return 1;
                 });
         }
-        
+#pragma warning restore 618
+                
         [TestMethod]
         public void RequestTelemetryIsSubjectToSampling()
         {

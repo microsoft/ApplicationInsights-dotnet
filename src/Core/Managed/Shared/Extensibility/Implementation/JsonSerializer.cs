@@ -268,13 +268,15 @@
                 TraceTelemetry traceTelemetry = telemetryItem as TraceTelemetry;
                 SerializeTraceTelemetry(traceTelemetry, jsonWriter);
             }
+#pragma warning disable 618
             else if (telemetryItem is PerformanceCounterTelemetry)
             {
-                PerformanceCounterTelemetry performanceCounterTelemetry = telemetryItem as PerformanceCounterTelemetry;
-                SerializePerformanceCounter(performanceCounterTelemetry, jsonWriter);
+                MetricTelemetry telemetry = (telemetryItem as PerformanceCounterTelemetry).Data;
+                SerializeMetricTelemetry(telemetry, jsonWriter);
             }
+#pragma warning restore 618
             else
-            {   
+            {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemtry type: {0}", telemetryItem.GetType());                
                 CoreEventSource.Log.LogVerbose(msg);
             }
@@ -546,40 +548,6 @@
                     }
 
                     writer.WriteProperty("properties", traceTelemetry.Properties); // TODO: handle case where the property dictionary doesn't need to be instantiated.
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-        }
-
-        /// <summary>
-        /// Serializes this object in JSON format.
-        /// </summary>
-        private static void SerializePerformanceCounter(PerformanceCounterTelemetry performanceCounter, JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            performanceCounter.WriteTelemetryName(writer, PerformanceCounterTelemetry.TelemetryName);
-            performanceCounter.WriteEnvelopeProperties(writer);
-            writer.WritePropertyName("data");
-            {
-                writer.WriteStartObject();
-
-                writer.WriteProperty("baseType", performanceCounter.BaseType);
-                writer.WritePropertyName("baseData");
-                {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", performanceCounter.Data.ver);
-                    writer.WriteProperty("categoryName", performanceCounter.Data.categoryName);
-                    writer.WriteProperty("counterName", performanceCounter.Data.counterName);
-                    writer.WriteProperty("instanceName", performanceCounter.Data.instanceName);
-                    writer.WriteProperty("value", performanceCounter.Data.value);
-                    writer.WriteProperty("properties", performanceCounter.Data.properties);
 
                     writer.WriteEndObject();
                 }
