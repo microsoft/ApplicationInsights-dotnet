@@ -576,7 +576,9 @@
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel, InstrumentationKey = "Test Key" };
             var client = new TelemetryClient(configuration);
 
+#pragma warning disable 618
             Assert.DoesNotThrow(() => client.Track(new SessionStateTelemetry()));
+#pragma warning disable 618
         }
 
         [TestMethod]

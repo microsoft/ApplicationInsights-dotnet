@@ -134,7 +134,9 @@
         {
             TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
             {
+#pragma warning disable 618
                 telemetryProcessors.Process(new SessionStateTelemetry());
+#pragma warning restore 618
                 return 1;
             });
         }

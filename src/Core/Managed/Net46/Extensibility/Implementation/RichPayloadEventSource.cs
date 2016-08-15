@@ -156,21 +156,23 @@
                     telemetryItem.Data,
                     Keywords.PageViews);
             }
+#pragma warning disable 618
             else if (item is SessionStateTelemetry)
             {
-                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.SessionState))
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Events))
                 {
                     return;
                 }
 
-                var telemetryItem = item as SessionStateTelemetry;
+                var telemetryItem = (item as SessionStateTelemetry).Data;
                 this.WriteEvent(
-                    SessionStateTelemetry.TelemetryName,
+                    EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
                     telemetryItem.Context.Tags,
                     telemetryItem.Data,
-                    Keywords.SessionState);
+                    Keywords.Events);
             }
+#pragma warning restore 618
             else
             {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", item.GetType());
@@ -254,11 +256,6 @@
             /// Keyword for performance counters.
             /// </summary>
             public const EventKeywords PerformanceCounters = (EventKeywords)0x80;
-
-            /// <summary>
-            /// Keyword for session state.
-            /// </summary>
-            public const EventKeywords SessionState = (EventKeywords)0x100;
         }
     }
 }

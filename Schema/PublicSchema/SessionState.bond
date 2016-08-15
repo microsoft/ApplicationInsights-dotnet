@@ -1,8 +1,0 @@
-namespace AI
-
-[Description("Session telemetry instances indicate key events in user interaction with an application, such as the start start and end.")]
-enum SessionState
-{
-    Start,
-    End,
-}
