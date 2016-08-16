@@ -46,18 +46,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string source { get; set; }
-
-        
-        
-        
         public string name { get; set; }
-
-        
-        
-        
-        
-        public string startTime { get; set; }
 
         
         
@@ -72,9 +61,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public bool success { get; set; }
-
-        
-        public string httpMethod { get; set; }
 
         
         
@@ -100,12 +86,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             id = "";
-            source = "";
             this.name = "";
-            startTime = "";
             duration = "";
             responseCode = "";
-            httpMethod = "";
             url = "";
             properties = new Dictionary<string, string>();
             measurements = new Dictionary<string, double>();

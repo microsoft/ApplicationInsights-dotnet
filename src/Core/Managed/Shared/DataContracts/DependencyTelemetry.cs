@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Data = data;
             this.Duration = duration;
             this.Success = success;
-            this.StartTime = startTime;
+            this.Timestamp = startTime;
         }
 
         /// <summary>
@@ -158,16 +158,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get { return this.InternalData.dependencyTypeName;  }
             set { this.InternalData.dependencyTypeName = value; }
         }
-
-        /// <summary>
-        /// Gets or sets the date and time when dependency was called by the application.
-        /// </summary>
-        public override DateTimeOffset StartTime 
-        {
-            get { return this.Timestamp; }
-            set { this.Timestamp = value; } 
-        }
-
+        
         /// <summary>
         /// Gets or sets the amount of time it took the application to handle the request.
         /// </summary>
