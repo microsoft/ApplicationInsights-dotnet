@@ -57,7 +57,7 @@
         /// <summary>
         /// Gets or sets date and time when the availability test was executed.
         /// </summary>
-        public DateTimeOffset TestTimeStamp
+        public DateTimeOffset TimeStamp
         {
             get { return Utils.ValidateDateTimeOffset(this.Data.testTimeStamp); }
             set { this.Data.testTimeStamp = value.ToString("o", CultureInfo.InvariantCulture); }
