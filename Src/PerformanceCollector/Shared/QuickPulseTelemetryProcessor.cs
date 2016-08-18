@@ -19,10 +19,12 @@
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         private const string TelemetryDocumentContractVersion = "1.0";
-
+        
         private const int MaxTelemetryQuota = 30;
 
         private const int InitialTelemetryQuota = 3;
+
+        private const int MaxFieldLength = 32768;
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
@@ -212,18 +214,28 @@
 
         private static ITelemetryDocument ConvertExceptionToTelemetryDocument(ExceptionTelemetry exceptionTelemetry)
         {
-            // //!!! cut length for Exception.ToString()
+            string exception = exceptionTelemetry.Exception != null ? exceptionTelemetry.Exception.ToString() : null;
+            if (exception != null && exception.Length > MaxFieldLength)
+            {
+                exception = exception.Substring(0, MaxFieldLength);
+            }
+
+            string message = exceptionTelemetry.Message;
+            if (message != null && message.Length > MaxFieldLength)
+            {
+                message = message.Substring(0, MaxFieldLength);
+            }
+
             return new ExceptionTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
-                           Message = exceptionTelemetry.Message,
+                           Message = message,
                            SeverityLevel =
                                exceptionTelemetry.SeverityLevel != null
                                    ? exceptionTelemetry.SeverityLevel.Value.ToString()
                                    : null,
                            HandledAt = exceptionTelemetry.HandledAt.ToString(),
-                           Exception =
-                               exceptionTelemetry.Exception != null ? exceptionTelemetry.Exception.ToString() : null
+                           Exception = exception
                        };
         }
 
