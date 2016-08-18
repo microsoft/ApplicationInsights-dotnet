@@ -382,7 +382,7 @@
 
             var availability = (AvailabilityTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("test name", availability.TestName);
+            Assert.Equal("test name", availability.Name);
             Assert.Equal("test location", availability.RunLocation);
             Assert.Equal(timestamp, availability.TestTimeStamp);
             Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);

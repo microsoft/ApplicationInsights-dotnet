@@ -290,15 +290,15 @@
         /// <summary>
         /// Send information about availability of an application.
         /// </summary>
-        /// <param name="testName">Availability test name.</param>
-        /// <param name="testTimeStamp">The time when the availability was captured.</param>
+        /// <param name="name">Availability test name.</param>
+        /// <param name="timeStamp">The time when the availability was captured.</param>
         /// <param name="duration">The time taken for the availability test to run.</param>
         /// <param name="runLocation">Name of the location the availability test was run from.</param>        
         /// <param name="success">True if the availability test ran successfully.</param>
         /// <param name="message">Error message on availability test run failure.</param>
-        public void TrackAvailability(string testName, DateTimeOffset testTimeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
         {
-            this.TrackAvailability(new AvailabilityTelemetry(testName, testTimeStamp, duration, runLocation, success, message));
+            this.TrackAvailability(new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message));
         }
 
         /// <summary>

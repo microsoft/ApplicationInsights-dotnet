@@ -55,7 +55,7 @@
         /// </summary>
         public override DateTimeOffset Timestamp
         {
-            get { return this.ValidateDateTimeOffset(this.Data.startTime); }
+            get { return Utils.ValidateDateTimeOffset(this.Data.startTime); }
             set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
         }
 
@@ -64,7 +64,7 @@
         /// </summary>
         public override DateTimeOffset StartTime
         {
-            get { return this.ValidateDateTimeOffset(this.Data.startTime); }
+            get { return Utils.ValidateDateTimeOffset(this.Data.startTime); }
             set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
         }
 
@@ -237,18 +237,6 @@
                     this.Success = true;
                 }
             }
-        }
-
-        // TODO: This has been copied to Util to support Availability, take it out of here and use that instead
-        private DateTimeOffset ValidateDateTimeOffset(string value)
-        {
-            DateTimeOffset timestamp;
-            if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp))
-            {
-                return DateTimeOffset.MinValue;
-            }
-
-            return timestamp;
         }
     }
 }
