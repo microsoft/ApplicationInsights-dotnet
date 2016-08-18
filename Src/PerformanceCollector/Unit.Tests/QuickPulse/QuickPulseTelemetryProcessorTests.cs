@@ -18,6 +18,8 @@
     [TestClass]
     public class QuickPulseTelemetryProcessorTests
     {
+        const int MaxFieldLength = 32768;
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -693,6 +695,158 @@
 
             // ASSERT
             Assert.AreEqual(0, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorTruncatesLongFullRequestTelemetryItemName()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var requestShort = new RequestTelemetry(new string('r', MaxFieldLength), DateTimeOffset.Now, TimeSpan.FromSeconds(1), "500", false)
+                { Context = { InstrumentationKey = instrumentationKey } };
+            var requestLong = new RequestTelemetry(new string('r', MaxFieldLength + 1), DateTimeOffset.Now, TimeSpan.FromSeconds(1), "500", false)
+                { Context = { InstrumentationKey = instrumentationKey } };
+
+
+            // process in the opposite order to allow for an easier validation order
+            telemetryProcessor.Process(requestLong);
+            telemetryProcessor.Process(requestShort);
+
+            // ASSERT
+            Assert.AreEqual(
+                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Name,
+                requestShort.Name);
+            Assert.AreEqual(
+                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Name,
+                requestShort.Name);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorTruncatesLongFullDependencyTelemetryItemCommandName()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var dependencyShort = new DependencyTelemetry(
+                new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
+                DateTimeOffset.Now,
+                TimeSpan.FromSeconds(1),
+                false) { Context = { InstrumentationKey = instrumentationKey } };
+
+            var dependencyLong = new DependencyTelemetry(
+                new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
+                DateTimeOffset.Now,
+                TimeSpan.FromSeconds(1),
+                false) { Context = { InstrumentationKey = instrumentationKey } };
+
+            // process in the opposite order to allow for an easier validation order
+            telemetryProcessor.Process(dependencyLong);
+            telemetryProcessor.Process(dependencyShort);
+
+            // ASSERT
+            Assert.AreEqual(
+                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).CommandName,
+                dependencyShort.CommandName);
+            Assert.AreEqual(
+                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).CommandName,
+                dependencyLong.CommandName.Substring(0, MaxFieldLength));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorTruncatesLongFullDependencyTelemetryItemName()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var dependencyShort = new DependencyTelemetry(
+                new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
+                DateTimeOffset.Now,
+                TimeSpan.FromSeconds(1),
+                false)
+            { Context = { InstrumentationKey = instrumentationKey } };
+
+            var dependencyLong = new DependencyTelemetry(
+                new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
+                DateTimeOffset.Now,
+                TimeSpan.FromSeconds(1),
+                false)
+            { Context = { InstrumentationKey = instrumentationKey } };
+
+            // process in the opposite order to allow for an easier validation order
+            telemetryProcessor.Process(dependencyLong);
+            telemetryProcessor.Process(dependencyShort);
+
+            // ASSERT
+            Assert.AreEqual(
+                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Name,
+                dependencyShort.Name);
+            Assert.AreEqual(
+                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Name,
+                dependencyLong.Name.Substring(0, MaxFieldLength));
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorTruncatesLongFullExceptionTelemetryItemMessage()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var exceptionShort = new ExceptionTelemetry(new ArgumentException())
+            {
+                Message = new string('m', MaxFieldLength),
+                Context = { InstrumentationKey = instrumentationKey }
+            };
+
+            var exceptionLong = new ExceptionTelemetry(new ArgumentException())
+            {
+                Message = new string('m', MaxFieldLength + 1),
+                Context = { InstrumentationKey = instrumentationKey }
+            };
+
+            // process in the opposite order to allow for an easier validation order
+            telemetryProcessor.Process(exceptionLong);
+            telemetryProcessor.Process(exceptionShort);
+            
+            // ASSERT
+            Assert.AreEqual(
+                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Message,
+                exceptionShort.Message);
+            Assert.AreEqual(
+                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Message,
+                exceptionLong.Message.Substring(0, MaxFieldLength));
         }
     }
 }

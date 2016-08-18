@@ -178,12 +178,18 @@
 
         private static ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
+            var name = requestTelemetry.Name;
+            if (name != null && name.Length > MaxFieldLength)
+            {
+                name = name.Substring(0, MaxFieldLength);
+            }
+
             return new RequestTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = requestTelemetry.Timestamp,
                            Id = requestTelemetry.Id,
-                           Name = requestTelemetry.Name,
+                           Name = name,
                            StartTime = requestTelemetry.StartTime,
                            Success = IsRequestSuccessful(requestTelemetry),
                            Duration = requestTelemetry.Duration,
@@ -195,18 +201,30 @@
 
         private static ITelemetryDocument ConvertDependencyToTelemetryDocument(DependencyTelemetry dependencyTelemetry)
         {
+            var name = dependencyTelemetry.Name;
+            if (name != null && name.Length > MaxFieldLength)
+            {
+               name = name.Substring(0, MaxFieldLength);
+            }
+
+            var commandName = dependencyTelemetry.CommandName;
+            if (commandName != null && commandName.Length > MaxFieldLength)
+            {
+                commandName = commandName.Substring(0, MaxFieldLength);
+            }
+
             return new DependencyTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = dependencyTelemetry.Timestamp,
                            Id = dependencyTelemetry.Id,
-                           Name = dependencyTelemetry.Name,
+                           Name = name,
                            StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
                            Duration = dependencyTelemetry.Duration,
                            Sequence = dependencyTelemetry.Sequence,
                            ResultCode = dependencyTelemetry.ResultCode,
-                           CommandName = dependencyTelemetry.CommandName,
+                           CommandName = commandName,
                            DependencyTypeName = dependencyTelemetry.DependencyTypeName,
                            DependencyKind = dependencyTelemetry.DependencyKind
                        };
