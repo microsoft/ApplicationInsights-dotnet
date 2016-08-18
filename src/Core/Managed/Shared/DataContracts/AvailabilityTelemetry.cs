@@ -26,48 +26,32 @@
         {
             this.Data = new AvailabilityData();
             this.context = new TelemetryContext(this.Data.properties);
-            this.Data.testRunId = Guid.NewGuid().ToString();
+            this.Data.testRunId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
         /// </summary>
-        public AvailabilityTelemetry(string testName, DateTimeOffset testTimeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
         {
             this.Data = new AvailabilityData();
-            this.context = new TelemetryContext(this.Data.properties);            
-            this.Data.testTimeStamp = testTimeStamp.ToString("o", CultureInfo.InvariantCulture);
-            this.Data.testName = testName;
+            this.context = new TelemetryContext(this.Data.properties);
+            this.Data.testTimeStamp = timeStamp.ToString("o", CultureInfo.InvariantCulture);
+            this.Data.testName = name;
             this.Data.testRunId = Guid.NewGuid().ToString();
             this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
             this.Data.result = success ? TestResult.Pass : TestResult.Fail;
             this.Data.runLocation = runLocation;
-            this.Data.message = message;           
-        }        
+            this.Data.message = message;            
+        }
 
         /// <summary>
-        /// Gets or sets the test run id GUID.
+        /// Gets or sets the test run id.
         /// </summary>
-        public Guid Id
-        {
-            get
-            {
-                Guid guidId;
-
-                if (Guid.TryParse(this.Data.testRunId, out guidId))
-                {
-                    return guidId;
-                }
-                else
-                {
-                    return Guid.NewGuid();
-                }
-            }
-
-            set
-            {
-                this.Data.testRunId = value.ToString();
-            }
+        public string Id  
+        {  
+            get { return this.Data.testRunId; }
+            set { this.Data.testRunId = value; }
         }
 
         /// <summary>
@@ -82,7 +66,7 @@
         /// <summary>
         /// Gets or sets the test name.
         /// </summary>
-        public string TestName
+        public string Name
         {
             get { return this.Data.testName; }
             set { this.Data.testName = value; }
@@ -94,8 +78,7 @@
         public TimeSpan Duration
         {
             get
-            {
-                // TODO: Note: this ends up logging an error messsage for Request Telemetry if it fails, Both PageView and Request telemetry use this to validate so PV already has the bug.
+            {                
                 return Utils.ValidateDuration(this.Data.duration);
             }
 
@@ -179,8 +162,8 @@
             // Makes message content similar to OOB web test results on the portal.
             this.Message = (this.Data.result == TestResult.Pass && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((this.Data.result == TestResult.Fail && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
 
-            this.TestName = this.TestName.SanitizeTestName();
-            this.TestName = Utils.PopulateRequiredStringValue(this.TestName, "TestName", typeof(AvailabilityTelemetry).FullName);
+            this.Name = this.Name.SanitizeTestName();
+            this.Name = Utils.PopulateRequiredStringValue(this.Name, "TestName", typeof(AvailabilityTelemetry).FullName);
 
             this.RunLocation = this.RunLocation.SanitizeRunLocation();
             this.Message = this.Message.SanitizeAvailabilityMessage();

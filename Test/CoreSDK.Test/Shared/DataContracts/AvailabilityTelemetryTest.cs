@@ -31,7 +31,7 @@
             Assert.Equal(expected.Message, item.Data.BaseData.Message);
             Assert.Equal(expected.Success, (item.Data.BaseData.Result == DataPlatformModel.TestResult.Pass) ? true : false);
             Assert.Equal(expected.RunLocation, item.Data.BaseData.RunLocation);
-            Assert.Equal(expected.TestName, item.Data.BaseData.TestName);
+            Assert.Equal(expected.Name, item.Data.BaseData.TestName);
             Assert.Equal(expected.Id.ToString(), item.Data.BaseData.TestRunId);
             Assert.Equal(expected.TestTimeStamp, item.Data.BaseData.TestTimeStamp);
 
@@ -44,7 +44,7 @@
             AvailabilityTelemetry telemetry = new AvailabilityTelemetry();
             telemetry.Message = new string('Z', Property.MaxAvailabilityMessageLength + 1);
             telemetry.RunLocation = new string('Y', Property.MaxRunLocationLength + 1);
-            telemetry.TestName = new string('D', Property.MaxTestNameLength + 1);
+            telemetry.Name = new string('D', Property.MaxTestNameLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
 
@@ -52,7 +52,7 @@
 
             Assert.Equal(new string('Z', Property.MaxAvailabilityMessageLength), telemetry.Message);
             Assert.Equal(new string('Y', Property.MaxRunLocationLength), telemetry.RunLocation);
-            Assert.Equal(new string('D', Property.MaxTestNameLength), telemetry.TestName);
+            Assert.Equal(new string('D', Property.MaxTestNameLength), telemetry.Name);
 
             Assert.Equal(3, telemetry.Properties.Count); //AvailabilityTelemetry sanitize already sets one property which is why this is 3 instead of 2
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
@@ -129,7 +129,7 @@
             {
                 Message = "Test Message",
                 RunLocation = "Test Location",
-                TestName = "Test Name",
+                Name = "Test Name",
                 TestTimeStamp = DateTimeOffset.Now,
                 Duration = TimeSpan.FromSeconds(30),
                 Success = true
@@ -143,7 +143,7 @@
         private AvailabilityTelemetry CreateAvailabilityTelemetry(string testName)
         {
             AvailabilityTelemetry item = this.CreateAvailabilityTelemetry();
-            item.TestName = testName;
+            item.Name = testName;
             return item;
         }
     }

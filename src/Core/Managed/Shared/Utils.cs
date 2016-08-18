@@ -80,7 +80,7 @@
         public static DateTimeOffset ValidateDateTimeOffset(string value)
         {
             DateTimeOffset timestamp;
-            if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp))
+            if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out timestamp))
             {
                 return DateTimeOffset.MinValue;
             }
