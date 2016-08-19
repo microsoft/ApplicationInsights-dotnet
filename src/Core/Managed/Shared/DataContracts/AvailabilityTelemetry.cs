@@ -38,7 +38,7 @@
             this.context = new TelemetryContext(this.Data.properties);
             this.Data.testTimeStamp = timeStamp.ToString("o", CultureInfo.InvariantCulture);
             this.Data.testName = name;
-            this.Data.testRunId = Guid.NewGuid().ToString();
+            this.Data.testRunId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
             this.Data.result = success ? TestResult.Pass : TestResult.Fail;
             this.Data.runLocation = runLocation;
