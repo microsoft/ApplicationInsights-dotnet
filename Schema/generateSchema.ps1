@@ -90,8 +90,10 @@ del "$currentDir\obj\gbc\*_proxies.cs"
 dir "$currentDir\obj\gbc" | ForEach-Object { 
     # Rename namespace from AI to Microsoft.ApplicationInsights.Extensibility.Implementation.External
     RegExReplace $_.FullName "(namespace AI)" "namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External"
+    RegExReplace $_.FullName "new Dictionary" "new ConcurrentDictionary"
     # Remove "using Bond" statements
     RegExReplace $_.FullName "using Bond.*"
+    RegExReplace $_.FullName "using System.Collections.Generic;" "using System.Collections.Concurrent;`r`n    using System.Collections.Generic;"
     # Remove all Bond attributes
     RegExReplace $_.FullName "\[global::Bond\..*\]"
     # Remove derivations from Microsoft.Telemetry.Domain
