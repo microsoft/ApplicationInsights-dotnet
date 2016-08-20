@@ -10,7 +10,6 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using DataPlatformModel = Developer.Analytics.DataCollection.Model.v2;
 
     [TestClass]
     public class AvailabilityTelemetryTest
@@ -19,23 +18,22 @@
         public void AvailabilityTelemetrySerializesToJson()
         {
             AvailabilityTelemetry expected = this.CreateAvailabilityTelemetry();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AvailabilityTelemetry, DataPlatformModel.AvailabilityData>(expected);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AvailabilityTelemetry, AI.AvailabilityData>(expected);
 
-            Assert.Equal(expected.Timestamp, item.Time);
-            Assert.Equal(expected.Sequence, item.Seq);
-            Assert.Equal(expected.Context.InstrumentationKey, item.IKey);
-            Assert.Equal(expected.Context.Tags.ToArray(), item.Tags.ToArray());
-            Assert.Equal(typeof(DataPlatformModel.AvailabilityData).Name, item.Data.BaseType);
+            Assert.Equal<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
+            Assert.Equal(expected.Sequence, item.seq);
+            Assert.Equal(expected.Context.InstrumentationKey, item.iKey);
+            Assert.Equal(expected.Context.Tags.ToArray(), item.tags.ToArray());
+            Assert.Equal(typeof(AI.AvailabilityData).Name, item.data.baseType);
 
-            Assert.Equal(expected.Duration, item.Data.BaseData.Duration);
-            Assert.Equal(expected.Message, item.Data.BaseData.Message);
-            Assert.Equal(expected.Success, (item.Data.BaseData.Result == DataPlatformModel.TestResult.Pass) ? true : false);
-            Assert.Equal(expected.RunLocation, item.Data.BaseData.RunLocation);
-            Assert.Equal(expected.Name, item.Data.BaseData.TestName);
-            Assert.Equal(expected.Id.ToString(), item.Data.BaseData.TestRunId);
-            Assert.Equal(expected.TestTimeStamp, item.Data.BaseData.TestTimeStamp);
+            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.Equal(expected.Message, item.data.baseData.message);
+            Assert.Equal(expected.Success, (item.data.baseData.result == AI.TestResult.Pass) ? true : false);
+            Assert.Equal(expected.RunLocation, item.data.baseData.runLocation);
+            Assert.Equal(expected.Name, item.data.baseData.testName);
+            Assert.Equal(expected.Id.ToString(), item.data.baseData.testRunId);
 
-            Assert.Equal(expected.Properties.ToArray(), item.Data.BaseData.Properties.ToArray());
+            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -136,6 +134,7 @@
             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
+            item.Sequence = "12";
 
             return item;
         }
