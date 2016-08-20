@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -36,6 +37,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
     }
 } // AI
+
+
 
 
 
