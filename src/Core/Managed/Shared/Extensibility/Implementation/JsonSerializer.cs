@@ -271,6 +271,11 @@
                 PerformanceCounterTelemetry performanceCounterTelemetry = telemetryItem as PerformanceCounterTelemetry;
                 SerializePerformanceCounter(performanceCounterTelemetry, jsonWriter);
             }
+            else if (telemetryItem is AvailabilityTelemetry)
+            {
+                AvailabilityTelemetry availabilityTelemetry = telemetryItem as AvailabilityTelemetry;
+                SerializeAvailability(availabilityTelemetry, jsonWriter);
+            }
             else
             {   
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemtry type: {0}", telemetryItem.GetType());                
@@ -605,6 +610,43 @@
                     writer.WriteProperty("instanceName", performanceCounter.Data.instanceName);
                     writer.WriteProperty("value", performanceCounter.Data.value);
                     writer.WriteProperty("properties", performanceCounter.Data.properties);
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+        }
+
+        /// <summary>
+        /// Serializes this object in JSON format.
+        /// </summary>
+        private static void SerializeAvailability(AvailabilityTelemetry availabilityTelemetry, JsonWriter writer)
+        {
+            writer.WriteStartObject();
+
+            availabilityTelemetry.WriteTelemetryName(writer, AvailabilityTelemetry.TelemetryName);
+            availabilityTelemetry.WriteEnvelopeProperties(writer);
+            writer.WritePropertyName("data");
+            {
+                writer.WriteStartObject();
+
+                writer.WriteProperty("baseType", availabilityTelemetry.BaseType);
+                writer.WritePropertyName("baseData");
+                {
+                    writer.WriteStartObject();
+
+                    writer.WriteProperty("ver", availabilityTelemetry.Data.ver);
+                    writer.WriteProperty("testRunId", availabilityTelemetry.Data.testRunId);
+                    writer.WriteProperty("testName", availabilityTelemetry.Data.testName);
+                    writer.WriteProperty("testTimeStamp", availabilityTelemetry.TestTimeStamp);
+                    writer.WriteProperty("duration", availabilityTelemetry.Duration);
+                    writer.WriteProperty("result", availabilityTelemetry.Data.result.ToString());
+                    writer.WriteProperty("runLocation", availabilityTelemetry.Data.runLocation);
+                    writer.WriteProperty("message", availabilityTelemetry.Data.message);
+                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
 
                     writer.WriteEndObject();
                 }

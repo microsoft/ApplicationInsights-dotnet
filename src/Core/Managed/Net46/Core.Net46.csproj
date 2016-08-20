@@ -43,6 +43,7 @@
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
     <Compile Include="Extensibility\Implementation\External\AjaxCallData.cs" />
+    <Compile Include="Extensibility\Implementation\External\AvailabilityData.cs" />
     <Compile Include="Extensibility\Implementation\External\DataPoint.cs" />
     <Compile Include="Extensibility\Implementation\External\EventData.cs" />
     <Compile Include="Extensibility\Implementation\External\ExceptionData.cs" />

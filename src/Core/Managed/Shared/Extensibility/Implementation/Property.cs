@@ -23,6 +23,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxMessageLength = 32768;
         public const int MaxUrlLength = 2048;
         public const int MaxCommandNameLength = 2 * 1024;
+        public const int MaxTestNameLength = 1024;
+        public const int MaxRunLocationLength = 2024;
+        public const int MaxAvailabilityMessageLength = 8192;
 
         private const RegexOptions SanitizeOptions = 
 #if CORE_PCL
@@ -110,6 +113,21 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             return uri;
+        }
+
+        public static string SanitizeTestName(this string value)
+        {
+            return TrimAndTruncate(value, Property.MaxTestNameLength);
+        }
+
+        public static string SanitizeRunLocation(this string value)
+        {
+            return TrimAndTruncate(value, Property.MaxRunLocationLength);
+        }
+
+        public static string SanitizeAvailabilityMessage(this string value)
+        {
+            return TrimAndTruncate(value, Property.MaxAvailabilityMessageLength);
         }
 
         public static void SanitizeProperties(this IDictionary<string, string> dictionary)

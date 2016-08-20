@@ -288,6 +288,34 @@
         }
 
         /// <summary>
+        /// Send information about availability of an application.
+        /// </summary>
+        /// <param name="name">Availability test name.</param>
+        /// <param name="timeStamp">The time when the availability was captured.</param>
+        /// <param name="duration">The time taken for the availability test to run.</param>
+        /// <param name="runLocation">Name of the location the availability test was run from.</param>        
+        /// <param name="success">True if the availability test ran successfully.</param>
+        /// <param name="message">Error message on availability test run failure.</param>
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        {
+            this.TrackAvailability(new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message));
+        }
+
+        /// <summary>
+        /// Send information about availability of an application.
+        /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>
+        /// </summary>
+        public void TrackAvailability(AvailabilityTelemetry telemetry)
+        {
+            if (telemetry == null)
+            {
+                telemetry = new AvailabilityTelemetry();
+            }
+
+            this.Track(telemetry);
+        }
+
+        /// <summary>
         /// This method is an internal part of Application Insights infrastructure. Do not call.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
