@@ -53,11 +53,7 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public override DateTimeOffset Timestamp
-        {
-            get { return Utils.ValidateDateTimeOffset(this.Data.startTime); }
-            set { this.Data.startTime = value.ToString("o", CultureInfo.InvariantCulture); }
-        }
+        public override DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
