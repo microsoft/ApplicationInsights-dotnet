@@ -7,8 +7,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
-    using BondDependencyKind = Extensibility.Implementation.External.DependencyKind;
-
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
@@ -18,7 +16,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         internal readonly string BaseType = typeof(RemoteDependencyData).Name;
 
-        internal readonly RemoteDependencyData Data;
+        internal readonly RemoteDependencyData InternalData;
         private readonly TelemetryContext context;
 
         private double? samplingPercentage;
@@ -28,24 +26,55 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public DependencyTelemetry()
         {
-            this.Data = new RemoteDependencyData() { kind = DataPointType.Aggregation };
-            this.context = new TelemetryContext(this.Data.properties);
-            this.Data.dependencyKind = BondDependencyKind.Other;
+            this.InternalData = new RemoteDependencyData();
+            this.context = new TelemetryContext(this.InternalData.properties);
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="commandName"/>, 
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>, 
         /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
         /// </summary>
-        public DependencyTelemetry(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
+        [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
+        public DependencyTelemetry(string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
             : this()
         {
             this.Name = dependencyName;
-            this.CommandName = commandName;
+            this.Data = data;
             this.Duration = duration;
             this.Success = success;
-            this.StartTime = startTime;
+            this.Timestamp = startTime;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>, 
+        /// <paramref name="dependencyName"/>, <paramref name="data"/> property values.
+        /// </summary>
+        public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data)
+            : this()
+        {
+            this.DependencyTypeName = dependencyName;
+            this.Target = target;
+            this.Name = dependencyName;
+            this.Data = data;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>, 
+        /// <paramref name="dependencyName"/>, <paramref name="data"/>, <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="resultCode"/> 
+        /// and <paramref name="success"/> and  property values.
+        /// </summary>
+        public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
+            : this()
+        {
+            this.DependencyTypeName = dependencyName;
+            this.Target = target;
+            this.Name = dependencyName;
+            this.Data = data;
+            this.Timestamp = startTime;
+            this.Duration = duration;
+            this.ResultCode = resultCode;
+            this.Success = success;
         }
 
         /// <summary>
@@ -71,8 +100,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>  
         public override string Id
         {
-            get { return this.Data.id; }
-            set { this.Data.id = value; }
+            get { return this.InternalData.id; }
+            set { this.InternalData.id = value; }
         }
 
         /// <summary>
@@ -80,8 +109,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string ResultCode
         {
-            get { return this.Data.resultCode; }
-            set { this.Data.resultCode = value; }
+            get { return this.InternalData.resultCode; }
+            set { this.InternalData.resultCode = value; }
         }
 
         /// <summary>
@@ -89,17 +118,36 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override string Name
         {
-            get { return this.Data.name; }
-            set { this.Data.name = value; }
+            get { return this.InternalData.name; }
+            set { this.InternalData.name = value; }
         }
 
         /// <summary>
         /// Gets or sets text of SQL command or empty it not applicable.
         /// </summary>
+        [Obsolete("Renamed to Data")]
         public string CommandName
         {
-            get { return this.Data.commandName; }
-            set { this.Data.commandName = value; }
+            get { return this.InternalData.data; }
+            set { this.InternalData.data = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets data associated with the current dependency instance. Command name/statement statement for SQL dependency, URL for http dependency.
+        /// </summary>
+        public string Data
+        {
+            get { return this.InternalData.data; }
+            set { this.InternalData.data = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets target of dependency call. SQL server name, url host, etc.
+        /// </summary>
+        public string Target
+        {
+            get { return this.InternalData.target; }
+            set { this.InternalData.target = value; }
         }
 
         /// <summary>
@@ -107,26 +155,17 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public string DependencyTypeName
         {
-            get { return this.Data.dependencyTypeName;  }
-            set { this.Data.dependencyTypeName = value; }
+            get { return this.InternalData.dependencyTypeName;  }
+            set { this.InternalData.dependencyTypeName = value; }
         }
-
+        
         /// <summary>
-        /// Gets or sets the date and time when dependency was called by the application.
-        /// </summary>
-        public override DateTimeOffset StartTime 
-        {
-            get { return this.Timestamp; }
-            set { this.Timestamp = value; } 
-        }
-
-        /// <summary>
-        /// Gets or sets dependency call duration.
+        /// Gets or sets the amount of time it took the application to handle the request.
         /// </summary>
         public override TimeSpan Duration
         {
-            get { return TimeSpan.FromMilliseconds(this.Data.value); }
-            set { this.Data.value = value.TotalMilliseconds; }
+            get { return Utils.ValidateDuration(this.InternalData.duration); }
+            set { this.InternalData.duration = value.ToString(); }
         }
 
         /// <summary>
@@ -134,8 +173,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override bool? Success
         {
-            get { return this.Data.success; }
-            set { this.Data.success = value; }
+            get { return this.InternalData.success; }
+            set { this.InternalData.success = value; }
         }
 
         /// <summary>
@@ -143,24 +182,24 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// </summary>
         public override IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get { return this.InternalData.properties; }
         }
 
         /// <summary>
         /// Gets or sets the dependency kind, like SQL, HTTP, Azure, etc.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use DependencyTypeName")]
         public string DependencyKind
         {
             get
             {
-                return this.Data.dependencyKind.ToString();
+                return this.DependencyTypeName;
             }
 
             set
             {
-                BondDependencyKind result;
-                this.Data.dependencyKind = Enum.TryParse(value, true, out result) ? result : BondDependencyKind.Other;
+                this.DependencyTypeName = value;
             }
         }
 
@@ -183,7 +222,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Id.SanitizeName();
             this.ResultCode = this.ResultCode.SanitizeValue();
             this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
-            this.CommandName = this.CommandName.SanitizeCommandName();
+            this.Data = this.Data.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }
     }

@@ -13,8 +13,6 @@ struct ContextTagKeys
     [MaxStringLength("1024")]
     100: string 	 DeviceId = "ai.device.id";
     
-    110: string 	 DeviceLanguage = "ai.device.language";
-    
     [Description("Device locale using <language>-<REGION> pattern, following RFC 5646. Example 'en-US'.")]
     [MaxStringLength("64")]
     115: string 	 DeviceLocale = "ai.device.locale";
@@ -23,8 +21,6 @@ struct ContextTagKeys
     [MaxStringLength("256")]
     120: string 	 DeviceModel = "ai.device.model";
     
-    125: string 	 DeviceNetwork = "ai.device.network";
-    
     [Description("Client device OEM name taken from the browser.")]
     [MaxStringLength("256")]
     130: string 	 DeviceOEMName = "ai.device.oemName";
@@ -32,16 +28,6 @@ struct ContextTagKeys
     [Description("Operating system name and version of the device the end user of the application is using. If this field is empty then it is derived from the user agent. Example 'Windows 10 Pro 10.0.10586.0'")]
     [MaxStringLength("256")]
     140: string 	 DeviceOSVersion = "ai.device.osVersion";
-    
-    [Description("Name of the instance where application is running. Computer name for on-premisis, instance name for Azure.")]
-    [MaxStringLength("256")]
-    145: string 	 DeviceRoleInstance = "ai.device.roleInstance";
-    
-    [Description("Name of the role application is part of. Maps directly to the role name in azure.")]
-    [MaxStringLength("256")]
-    150: string 	 DeviceRoleName = "ai.device.roleName";
-    
-    155: string 	 DeviceScreenResolution = "ai.device.screenResolution";
     
     [Description("The type of the device the end user of the application is using. Used primarily to distinguish JavaScript telemetry from server side telemetry. Examples: 'PC', 'Phone', 'Browser'. 'PC' is the default value.")]
     [MaxStringLength("64")]

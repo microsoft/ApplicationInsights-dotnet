@@ -82,7 +82,7 @@
         {
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Dependencies,
-                new DependencyTelemetry("TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, true),
+                new DependencyTelemetry("Custom", "Target", "TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, "200", true),
                 (client, item) => { client.TrackDependency((DependencyTelemetry)item); });
         }
 

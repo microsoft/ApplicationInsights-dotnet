@@ -2,29 +2,26 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
 
     using Channel;
-    using Extensibility.Implementation.External;
 
     /// <summary>
     /// The class that represents information about performance counters.
     /// </summary>
+    [Obsolete("Use MetricTelemetry instead.")]
     public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
-        internal const string TelemetryName = "PerformanceCounter";
-        internal readonly string BaseType = typeof(PerformanceCounterData).Name;
-        internal readonly PerformanceCounterData Data;
+        internal readonly MetricTelemetry Data;
 
-        private TelemetryContext context;
+        private string categoryName = string.Empty;
+        private string counterName = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerformanceCounterTelemetry"/> class.
         /// </summary>
         public PerformanceCounterTelemetry()
         {
-            this.Data = new PerformanceCounterData();
-            this.context = new TelemetryContext(this.Data.properties);
+            this.Data = new MetricTelemetry();
         }
 
         /// <summary>
@@ -46,12 +43,34 @@
         /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp
+        {
+            get
+            {
+                return this.Data.Timestamp;
+            }
+
+            set
+            {
+                this.Data.Timestamp = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
-        public string Sequence { get; set; }
+        public string Sequence
+        {
+            get
+            {
+                return this.Data.Sequence;
+            }
+
+            set
+            {
+                this.Data.Sequence = value;
+            }
+        }
 
         /// <summary>
         /// Gets the context associated with the current telemetry item.
@@ -60,7 +79,7 @@
         {
             get
             {
-                return this.context;
+                return this.Data.Context;
             }
         }
 
@@ -71,12 +90,12 @@
         {
             get
             {
-                return this.Data.value;
+                return this.Data.Value;
             }
 
             set
             {
-                this.Data.value = value;
+                this.Data.Value = value;
             }
         }
 
@@ -87,12 +106,13 @@
         {
             get
             {
-                return this.Data.categoryName;
+                return this.categoryName;
             }
 
             set
             {
-                this.Data.categoryName = value;
+                this.categoryName = value;
+                this.UpdateName();
             }
         }
 
@@ -103,12 +123,13 @@
         {
             get
             {
-                return this.Data.counterName;
+                return this.counterName;
             }
 
             set
             {
-                this.Data.counterName = value;
+                this.counterName = value;
+                this.UpdateName();
             }
         }
 
@@ -119,12 +140,18 @@
         {
             get
             {
-                return this.Data.instanceName;
+                if (this.Properties.ContainsKey("CounterInstanceName"))
+                {
+                    return this.Properties["CounterInstanceName"];
+                }
+
+                return string.Empty;
             }
 
             set
             {
-                this.Data.instanceName = value;
+                this.Properties["CounterInstanceName"] = value;
+                this.UpdateName();
             }
         }
 
@@ -133,7 +160,7 @@
         /// </summary>
         public IDictionary<string, string> Properties
         {
-            get { return this.Data.properties; }
+            get { return this.Data.Properties; }
         }
 
         /// <summary>
@@ -141,8 +168,33 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
-            this.CategoryName = Utils.PopulateRequiredStringValue(this.CategoryName, "CategoryName", typeof(PerformanceCounterTelemetry).FullName);
-            this.CounterName = Utils.PopulateRequiredStringValue(this.CounterName, "CounterName", typeof(PerformanceCounterTelemetry).FullName);
+            ((ITelemetry)this.Data).Sanitize();
+        }
+
+        private void UpdateName()
+        {
+            if (this.categoryName == "Processor")
+            {
+                this.Data.Name = "\\" + this.categoryName + "(_Total)\\" + this.counterName;
+            }
+            else if (this.categoryName == "Process")
+            {
+                this.Data.Name = "\\" + this.categoryName + "(??APP_WIN32_PROC??)\\" + this.counterName;
+            }
+            else if (this.categoryName == "ASP.NET Applications")
+            {
+                this.Data.Name = "\\" + this.categoryName + "(??APP_W3SVC_PROC??)\\" + this.counterName;
+            }
+            else if (this.categoryName == ".NET CLR Exceptions")
+            {
+                this.Data.Name = "\\" + this.categoryName + "(??APP_CLR_PROC??)\\" + this.counterName;
+            }
+            else
+            {
+                this.Data.Name = string.IsNullOrEmpty(this.InstanceName) ?
+                    this.Data.Name = "\\" + this.categoryName + "\\" + this.counterName :
+                    this.Data.Name = "\\" + this.categoryName + "(" + this.InstanceName + ")\\" + this.counterName;
+            }
         }
     }
 }
