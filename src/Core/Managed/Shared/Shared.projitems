@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Channel\TelemetryBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\Transmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\AvailabilityTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionHandledAt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetry.cs" />

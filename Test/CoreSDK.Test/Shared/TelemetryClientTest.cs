@@ -367,6 +367,41 @@
 
         #endregion
 
+        #region TrackAvailability
+
+        [TestMethod]
+        public void TrackAvailabilitySendsAvailabilityTelemetryWithGivenNameRunlocationRunIdDurationResultAndMessageToTelemetryChannel()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+
+            var timestamp = DateTimeOffset.Now;
+            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true);
+
+            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
+
+            Assert.Equal("test name", availability.Name);
+            Assert.Equal("test location", availability.RunLocation);
+            Assert.Equal(timestamp, availability.TestTimeStamp);
+            Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);
+            Assert.Equal(true, availability.Success);
+        }
+
+        [TestMethod]
+        public void TrackAvailabilitySendsGivenAvailabilityTelemetryToTelemetryChannel()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+
+            var clientAvailability = new AvailabilityTelemetry();
+            client.TrackAvailability(clientAvailability);
+
+            var channelAvailability = (AvailabilityTelemetry)sentTelemetry.Single();
+            Assert.Same(clientAvailability, channelAvailability);
+        }
+
+        #endregion
+
         #region Track
 
         [TestMethod]
@@ -813,6 +848,7 @@
             SessionStateTelemetry telemetry9 = new SessionStateTelemetry();
 #pragma warning restore 618
             TraceTelemetry telemetry10 = new TraceTelemetry();
+            AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry();
 
             var telemetryItems = new List<ITelemetry>
             {
@@ -825,7 +861,8 @@
                 telemetry7,
                 telemetry8,
                 telemetry9,
-                telemetry10
+                telemetry10,
+                telemetry11
             };
 
             // ChuckNorrisTeamUnitTests resource in Prototypes5
@@ -842,6 +879,7 @@
             telemetryClient.Initialize(telemetry8);
             telemetryClient.Initialize(telemetry9);
             telemetryClient.Initialize(telemetry10);
+            telemetryClient.Initialize(telemetry11);
 
             string json = JsonSerializer.SerializeAsString(telemetryItems);
 

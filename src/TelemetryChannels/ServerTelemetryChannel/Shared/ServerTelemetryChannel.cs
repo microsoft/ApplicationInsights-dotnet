@@ -226,7 +226,7 @@
         }
 
         /// <summary>
-        /// Synchronously flushes the telemetry buffer. 
+        /// Asynchronously flushes the telemetry buffer. 
         /// </summary>
         public void Flush()
         {

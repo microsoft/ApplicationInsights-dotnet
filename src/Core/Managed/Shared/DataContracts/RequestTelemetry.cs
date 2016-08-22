@@ -226,16 +226,5 @@
                 }
             }
         }
-
-        private DateTimeOffset ValidateDateTimeOffset(string value)
-        {
-            DateTimeOffset timestamp;
-            if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out timestamp))
-            {
-                return DateTimeOffset.MinValue;
-            }
-
-            return timestamp;
-        }
     }
 }

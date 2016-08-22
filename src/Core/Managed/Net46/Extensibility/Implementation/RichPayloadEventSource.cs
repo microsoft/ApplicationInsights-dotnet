@@ -174,7 +174,21 @@
                     telemetryItem.Data,
                     Keywords.Events);
             }
-#pragma warning restore 618
+            else if (item is AvailabilityTelemetry)
+            {
+                if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Availability))
+                {
+                    return;
+                }
+
+                var telemetryItem = item as AvailabilityTelemetry;
+                this.WriteEvent(
+                    AvailabilityTelemetry.TelemetryName,
+                    telemetryItem.Context.InstrumentationKey,
+                    telemetryItem.Context.Tags,
+                    telemetryItem.Data,
+                    Keywords.Availability);
+            }
             else
             {
                 string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", item.GetType());
@@ -253,6 +267,11 @@
             /// Keyword for page views.
             /// </summary>
             public const EventKeywords PageViews = (EventKeywords)0x40;
+
+            /// <summary>
+            /// Keyword for availability.
+            /// </summary>
+            public const EventKeywords Availability = (EventKeywords)0x200;
         }
     }
 }
