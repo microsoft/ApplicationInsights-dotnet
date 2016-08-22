@@ -11,10 +11,6 @@ struct ExceptionData
     [Description("Schema version")]
     10: required int32 	 ver = 2;
     
-    [Description("Indication of where exception was caught to assess it's severity. Possible values are 'user code' (UserCode), 'framework' (Platform) or 'unhandled' (Unhandled)")]
-    [MaxStringLength("1024")]
-    20: required string 	 handledAt;
-    
     [Description("Exception chain - list of inner exceptions.")]
     50: required vector<ExceptionDetails> 	 exceptions;
     

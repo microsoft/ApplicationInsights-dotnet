@@ -227,7 +227,7 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception) { HandledAt = ExceptionHandledAt.UserCode };
+            var telemetry = new ExceptionTelemetry(exception);
 
             if (properties != null && properties.Count > 0)
             {
@@ -251,10 +251,7 @@
             if (telemetry == null)
             {
                 var exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
-                telemetry = new ExceptionTelemetry(exception)
-                {
-                    HandledAt = ExceptionHandledAt.UserCode,
-                };
+                telemetry = new ExceptionTelemetry(exception);
             }
 
             this.Track(telemetry);

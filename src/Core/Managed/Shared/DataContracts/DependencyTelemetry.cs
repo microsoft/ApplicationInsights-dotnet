@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data)
             : this()
         {
-            this.DependencyTypeName = dependencyName;
+            this.Type = dependencyTypeName;
             this.Target = target;
             this.Name = dependencyName;
             this.Data = data;
@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
             : this()
         {
-            this.DependencyTypeName = dependencyName;
+            this.Type = dependencyTypeName;
             this.Target = target;
             this.Name = dependencyName;
             this.Data = data;
@@ -153,12 +153,22 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets or sets the dependency type name.
         /// </summary>
+        [Obsolete("Renamed to Type")]
         public string DependencyTypeName
         {
-            get { return this.InternalData.dependencyTypeName;  }
-            set { this.InternalData.dependencyTypeName = value; }
+            get { return this.Type;  }
+            set { this.Type = value; }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the dependency type name.
+        /// </summary>
+        public string Type
+        {
+            get { return this.InternalData.type; }
+            set { this.InternalData.type = value; }
+        }
+
         /// <summary>
         /// Gets or sets the amount of time it took the application to handle the request.
         /// </summary>
@@ -183,6 +193,14 @@ namespace Microsoft.ApplicationInsights.DataContracts
         public override IDictionary<string, string> Properties
         {
             get { return this.InternalData.properties; }
+        }
+
+        /// <summary>
+        /// Gets a dictionary of application-defined event metrics.
+        /// </summary>
+        public IDictionary<string, double> Metrics
+        {
+            get { return this.InternalData.measurements; }
         }
 
         /// <summary>
@@ -221,7 +239,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
             this.Id.SanitizeName();
             this.ResultCode = this.ResultCode.SanitizeValue();
-            this.DependencyTypeName = this.DependencyTypeName.SanitizeDependencyType();
+            this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeCommandName();
             this.Properties.SanitizeProperties();
         }

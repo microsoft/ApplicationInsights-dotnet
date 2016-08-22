@@ -26,7 +26,7 @@
             Assert.Equal(expected.ResultCode, item.data.baseData.resultCode);
             Assert.Equal(expected.Name, item.data.baseData.name);
             Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
-            Assert.Equal(expected.DependencyTypeName, item.data.baseData.dependencyTypeName);
+            Assert.Equal(expected.Type, item.data.baseData.type);
 
             Assert.Equal(expected.Success, item.data.baseData.success);
             Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
@@ -38,9 +38,9 @@
             DependencyTelemetry original = new DependencyTelemetry();
             original.Name = null;
             original.Data = null;
-            original.DependencyTypeName = null;
+            original.Type = null;
             original.Success = null;
-            original.DependencyTypeName = null;
+            original.Type = null;
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(original);
 
@@ -93,7 +93,7 @@
             Assert.Empty(dependency.DependencyKind);
 #pragma warning restore 618
 
-            Assert.Empty(dependency.DependencyTypeName);
+            Assert.Empty(dependency.Type);
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
             telemetry.Data = new string('Y', Property.MaxCommandNameLength + 1);
-            telemetry.DependencyTypeName = new string('D', Property.MaxDependencyTypeLength + 1);
+            telemetry.Type = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
             
@@ -123,7 +123,7 @@
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
             Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.Data);
-            Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.DependencyTypeName);
+            Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.Type);
 
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
@@ -164,7 +164,7 @@
                                                 Success = true,
                                                 Id = "DepID",
                                                 ResultCode = "200",
-                                                DependencyTypeName = "external call"
+                                                Type = "external call"
                                             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");

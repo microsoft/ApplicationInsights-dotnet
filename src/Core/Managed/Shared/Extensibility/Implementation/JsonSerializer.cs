@@ -353,9 +353,6 @@
                     writer.WriteStartObject();
 
                     writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
-                    writer.WriteProperty(
-                        "handledAt",
-                        Utils.PopulateRequiredStringValue(exceptionTelemetry.Data.handledAt, "handledAt", typeof(ExceptionTelemetry).FullName));
                     writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
                     writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
                     writer.WritePropertyName("exceptions");
@@ -478,10 +475,11 @@
                     writer.WriteProperty("duration", dependencyTelemetry.InternalData.duration);
                     writer.WriteProperty("resultCode", dependencyTelemetry.InternalData.resultCode);
                     writer.WriteProperty("success", dependencyTelemetry.InternalData.success);
-                    writer.WriteProperty("dependencyTypeName", dependencyTelemetry.InternalData.dependencyTypeName);
+                    writer.WriteProperty("type", dependencyTelemetry.InternalData.type);
                     writer.WriteProperty("target", dependencyTelemetry.InternalData.target);
 
                     writer.WriteProperty("properties", dependencyTelemetry.InternalData.properties);
+                    writer.WriteProperty("measurements", dependencyTelemetry.InternalData.measurements);
                     writer.WriteEndObject();
                 }
 
@@ -579,14 +577,15 @@
                     writer.WriteStartObject();
 
                     writer.WriteProperty("ver", availabilityTelemetry.Data.ver);
-                    writer.WriteProperty("testRunId", availabilityTelemetry.Data.testRunId);
-                    writer.WriteProperty("testName", availabilityTelemetry.Data.testName);
-                    writer.WriteProperty("testTimeStamp", availabilityTelemetry.TestTimeStamp);
+                    writer.WriteProperty("id", availabilityTelemetry.Data.id);
+                    writer.WriteProperty("name", availabilityTelemetry.Data.name);
                     writer.WriteProperty("duration", availabilityTelemetry.Duration);
-                    writer.WriteProperty("result", availabilityTelemetry.Data.result.ToString());
+                    writer.WriteProperty("success", availabilityTelemetry.Data.success);
                     writer.WriteProperty("runLocation", availabilityTelemetry.Data.runLocation);
                     writer.WriteProperty("message", availabilityTelemetry.Data.message);
                     writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
+                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
+                    writer.WriteProperty("measurements", availabilityTelemetry.Data.measurements);
 
                     writer.WriteEndObject();
                 }

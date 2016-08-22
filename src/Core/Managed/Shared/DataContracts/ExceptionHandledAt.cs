@@ -1,8 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
+
     /// <summary>
     /// This enumeration is used by ExceptionTelemetry to identify if and where exception was handled.
     /// </summary>
+    [Obsolete("Use custom properties to report exception handling layer")]
     public enum ExceptionHandledAt
     {
         /// <summary>

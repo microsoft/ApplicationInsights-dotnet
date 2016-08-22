@@ -72,12 +72,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string dependencyTypeName { get; set; }
+        public string target { get; set; }
 
         
         
         
-        public string target { get; set; }
+        public string type { get; set; }
 
         
         
@@ -103,8 +103,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             duration = "";
             success = true;
             
-            dependencyTypeName = "";
             target = "";
+            type = "";
             properties = new ConcurrentDictionary<string, string>();
             measurements = new ConcurrentDictionary<string, double>();
         }

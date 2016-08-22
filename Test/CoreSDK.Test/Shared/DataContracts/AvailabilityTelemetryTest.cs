@@ -28,10 +28,10 @@
 
             Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.Equal(expected.Message, item.data.baseData.message);
-            Assert.Equal(expected.Success, (item.data.baseData.result == AI.TestResult.Pass) ? true : false);
+            Assert.Equal(expected.Success, item.data.baseData.success);
             Assert.Equal(expected.RunLocation, item.data.baseData.runLocation);
-            Assert.Equal(expected.Name, item.data.baseData.testName);
-            Assert.Equal(expected.Id.ToString(), item.data.baseData.testRunId);
+            Assert.Equal(expected.Name, item.data.baseData.name);
+            Assert.Equal(expected.Id.ToString(), item.data.baseData.id);
 
             Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
@@ -109,7 +109,7 @@
         {
             AvailabilityTelemetry telemetry = new AvailabilityTelemetry();
 
-            Assert.Equal(telemetry.Data.result, TestResult.Pass);
+            Assert.Equal(telemetry.Data.success, true);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@
             AvailabilityTelemetry telemetry = new AvailabilityTelemetry();
             telemetry.Success = false;
 
-            Assert.Equal(telemetry.Data.result, TestResult.Fail);
+            Assert.Equal(telemetry.Data.success, false);
         }
 
         private AvailabilityTelemetry CreateAvailabilityTelemetry()
@@ -128,7 +128,6 @@
                 Message = "Test Message",
                 RunLocation = "Test Location",
                 Name = "Test Name",
-                TestTimeStamp = DateTimeOffset.Now,
                 Duration = TimeSpan.FromSeconds(30),
                 Success = true
             };
