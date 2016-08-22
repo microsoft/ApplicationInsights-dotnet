@@ -40,7 +40,6 @@
             original.Data = null;
             original.Type = null;
             original.Success = null;
-            original.Type = null;
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(original);
 
