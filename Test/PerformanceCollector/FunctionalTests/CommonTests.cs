@@ -44,17 +44,12 @@
 
         internal static void QuickPulseAggregates(QuickPulseHttpListenerObservable listener, HttpClient client)
         {
-            var result = client.GetAsync(string.Empty).Result;
-
             var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).ToList();
 
             Assert.IsTrue(
                 samples.TrueForAll(
-                    item =>
-                        {
-                            return item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
-                                   && !string.IsNullOrWhiteSpace(item.Instance) && item.Metrics.Any();
-                        }));
+                    item => item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
+                            && !string.IsNullOrWhiteSpace(item.Instance) && item.Metrics.Any()));
 
             AssertSingleSampleWithNonZeroMetric(samples, @"\ApplicationInsights\Requests/Sec");
             AssertSingleSampleWithNonZeroMetric(samples, @"\ApplicationInsights\Request Duration");
@@ -69,6 +64,57 @@
             AssertNoSamplesWithNonZeroMetric(samples, @"\ASP.NET Applications(__Total__)\Requests In Application Queue");
             AssertAllSamplesWithNonZeroMetric(samples, @"\Memory\Committed Bytes");
             AssertSomeSamplesWithNonZeroMetric(samples, @"\Processor(_Total)\% Processor Time");
+        }
+
+        internal static void QuickPulseDocuments(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
+        {
+            test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+
+            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.Documents.Any()).ToList();
+
+            Assert.IsTrue(
+                samples.TrueForAll(
+                    item =>
+                    item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
+                    && !string.IsNullOrWhiteSpace(item.Instance)));
+
+            // captured failed
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d => d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("Failed"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.RemoteDependency.ToString()
+                        && ((DependencyTelemetryDocument)d).Name.Contains("Failed"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Exception.ToString()
+                        && ((ExceptionTelemetryDocument)d).Exception.Contains("ArgumentNullException"))));
+
+            // did not capture succeeded
+            Assert.IsFalse(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d => d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("Success"))));
+
+            Assert.IsFalse(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.RemoteDependency.ToString()
+                        && ((DependencyTelemetryDocument)d).Name.Contains("Success"))));
         }
 
         private static void AssertSingleSampleWithNonZeroMetric(List<MonitoringDataPoint> samples, string metricName)
