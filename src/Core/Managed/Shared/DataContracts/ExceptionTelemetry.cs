@@ -79,6 +79,7 @@
                 {
                     Enum.TryParse<ExceptionHandledAt>(this.Properties["handledAt"], out result);
                 }
+
                 return result;
             }
 
