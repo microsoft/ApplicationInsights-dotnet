@@ -42,6 +42,8 @@
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
+    <Compile Include="Extensibility\Implementation\RichPayloadEventSource.TelemetryHandler.cs" />
+    <Compile Include="Extensibility\Implementation\RichPayloadEventSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
