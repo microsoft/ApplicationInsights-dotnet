@@ -30,6 +30,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     using System.Collections.Generic;
 
     
+    
     [System.CodeDom.Compiler.GeneratedCode("gbc", "0.4.1.0")]
     internal partial class AvailabilityData
         : Domain
@@ -41,17 +42,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string testRunId { get; set; }
+        
+        public string id { get; set; }
 
         
         
         
-        public string testTimeStamp { get; set; }
-
         
-        
-        
-        public string testName { get; set; }
+        public string name { get; set; }
 
         
         
@@ -59,7 +57,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string duration { get; set; }
 
         
-        public TestResult result { get; set; }
+        
+        
+        public bool success { get; set; }
 
         
         
@@ -70,9 +70,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public string message { get; set; }
-
-        
-        public double dataSize { get; set; }
 
         
         
@@ -92,9 +89,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         protected AvailabilityData(string fullName, string name)
         {
             ver = 2;
-            testRunId = "";
-            testTimeStamp = "";
-            testName = "";
+            id = "";
+            this.name = "";
             duration = "";
             runLocation = "";
             message = "";

@@ -111,9 +111,6 @@
     <BondCodegen Include="..\..\..\Schema\PublicSchema\StackFrame.bond">
       <Link>StackFrame.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\TestResult.bond">
-      <Link>TestResult.bond</Link>
-    </BondCodegen>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>

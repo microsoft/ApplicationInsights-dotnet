@@ -41,11 +41,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 
         
         
-        
-        public string handledAt { get; set; }
-
-        
-        
         public IList<ExceptionDetails> exceptions { get; set; }
 
         
@@ -75,7 +70,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         protected ExceptionData(string fullName, string name)
         {
             ver = 2;
-            handledAt = "";
             exceptions = new List<ExceptionDetails>();
             problemId = "";
             properties = new ConcurrentDictionary<string, string>();

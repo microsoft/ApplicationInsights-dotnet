@@ -35,7 +35,7 @@ struct RemoteDependencyData
     
     [MaxStringLength("1024")]
     [Description("Dependency type name. Very low cardinality value for logical grouping of dependencies and interpretation of other fields like commandName and resultCode. Examples are SQL, Azure table, and HTTP.")]
-    160: string 	 dependencyTypeName;
+    162: string 	 type;
     
     [MaxStringLength("1024")]
     [Description("Target site of a dependency call. Examples are server name, host address.")]
