@@ -40,11 +40,12 @@
 
             if (args.Response != null && args.Response.StatusCode == ResponseStatusCodes.PartialSuccess)
             {
-                string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args);
+                int statusCode;
+                string newTransmissions = this.ParsePartialSuccessResponse(args.Transmission, args, out statusCode);
 
                 if (!string.IsNullOrEmpty(newTransmissions))
                 {
-                    this.DelayFutureProcessing(args.Response);
+                    this.DelayFutureProcessing(args.Response, statusCode);
                     
                     byte[] data = JsonSerializer.ConvertToByteArray(newTransmissions);
                     Transmission newTransmission = new Transmission(
@@ -64,9 +65,10 @@
             }
         }
 
-        private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args)
+        private string ParsePartialSuccessResponse(Transmission initialTransmission, TransmissionProcessedEventArgs args, out int lastStatusCode)
         {
             BackendResponse backendResponse = null;
+            lastStatusCode = 206;
 
             if (args != null && args.Response != null)
             {
@@ -111,6 +113,9 @@
                             {
                                 newTransmissions += Environment.NewLine + items[error.Index];
                             }
+
+                            // Last status code is used for tracing purposes. We will get only one out of many. Most likely they all will be the same.
+                            lastStatusCode = error.StatusCode;
                         }
                     }
                 }
@@ -119,7 +124,7 @@
             return newTransmissions;
         }
 
-        private void DelayFutureProcessing(HttpWebResponseWrapper response)
+        private void DelayFutureProcessing(HttpWebResponseWrapper response, int statusCode)
         {
             // Disable sending and buffer capacity (=EnqueueAsync will enqueue to the Storage)
             this.MaxSenderCapacity = 0;
@@ -128,7 +133,7 @@
             this.Apply();
 
             // Back-off for the Delay duration and enable sending capacity
-            this.backoffLogicManager.ReportBackoffEnabled(206);
+            this.backoffLogicManager.ReportBackoffEnabled(statusCode);
 
             this.backoffLogicManager.ScheduleRestore(
                 response.RetryAfterHeader, 
