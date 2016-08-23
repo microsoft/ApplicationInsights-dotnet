@@ -69,15 +69,3 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-
-
-

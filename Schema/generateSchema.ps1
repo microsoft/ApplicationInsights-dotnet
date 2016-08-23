@@ -1,7 +1,7 @@
 $generatorPath = "C:\src\mseng\AppInsights-Common"
 $schemasPath = "C:\src\mseng\DataCollectionSchemas"
 $publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/sergkanz/schemas/EndpointSpecs/Schemas/Bond"
-$localPublicSchema = $true
+$localPublicSchema = $false
 
 
 $currentDir = $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
@@ -13,10 +13,9 @@ $schemasPath = "$schemasPath\v2\Bond\"
 
 function RegExReplace([string]$fileName, [string]$regex, [string]$replacement="")
 {
-    $tempFileName = $fileName + ".temp"
-    [IO.File]::ReadAllText($fileName) -creplace $regex,$replacement | Set-Content $tempFileName
-    copy $tempFileName $fileName
-    del $tempFileName
+    $content = Get-Content $fileName 
+    $content = $content -creplace $regex,$replacement 
+    $content | Set-Content $fileName
 }
 
 
@@ -34,6 +33,7 @@ if ($localPublicSchema) {
 } else {
     # Download public schema from the github
     @(
+    "AvailabilityData.bond",
     "Base.bond",
     "ContextTagKeys.bond",
     "Data.bond", 
@@ -55,6 +55,7 @@ if ($localPublicSchema) {
     )  | ForEach-Object { 
         $fileName = $_
         & Invoke-WebRequest -o "$currentDir\PublicSchema\$fileName" "$publicSchemaLocation/$fileName"
+        RegExReplace "$currentDir\PublicSchema\$fileName" "`n" "`r`n"
     }
 }
 

@@ -40,15 +40,3 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         Critical,
     }
 } // AI
-
-
-
-
-
-
-
-
-
-
-
-
