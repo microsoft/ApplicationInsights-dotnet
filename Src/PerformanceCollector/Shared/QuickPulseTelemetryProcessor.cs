@@ -222,7 +222,6 @@
                            StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
                            Duration = dependencyTelemetry.Duration,
-                           Sequence = dependencyTelemetry.Sequence,
                            ResultCode = dependencyTelemetry.ResultCode,
                            CommandName = commandName,
                            DependencyTypeName = dependencyTelemetry.DependencyTypeName,
