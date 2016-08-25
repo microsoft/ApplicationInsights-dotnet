@@ -52,23 +52,13 @@
             Assert.Equal(new string('Y', Property.MaxRunLocationLength), telemetry.RunLocation);
             Assert.Equal(new string('D', Property.MaxTestNameLength), telemetry.Name);
 
-            Assert.Equal(3, telemetry.Properties.Count); //AvailabilityTelemetry sanitize already sets one property which is why this is 3 instead of 2
+            Assert.Equal(2, telemetry.Properties.Count); 
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
             Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Properties.Keys.ToArray()[1]);
             Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
 
             Assert.Same(telemetry.Properties, telemetry.Properties);
-        }
-
-        [TestMethod]
-        public void SanitizeWillAddDefaultFieldsForAvailability()
-        {
-            AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.Equal(telemetry.Properties["FullTestResultAvailable"], "false");
         }
 
         [TestMethod]

@@ -146,16 +146,6 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
-            // TODO: It looks like the oob Web Tests on the portal are populating this property now so adding and ensuring its set to false as we don't support sending full test results.
-            if (this.Data.properties.ContainsKey("FullTestResultAvailable"))
-            {
-                this.Data.properties["FullTestResultAvailable"] = "false";
-            }
-            else
-            {
-                this.Data.properties.Add("FullTestResultAvailable", "false");
-            }
-
             // Makes message content similar to OOB web test results on the portal.
             this.Message = (this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((!this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
 
@@ -166,6 +156,7 @@
             this.Message = this.Message.SanitizeAvailabilityMessage();
 
             this.Data.properties.SanitizeProperties();
+            this.Data.measurements.SanitizeMeasurements();
         }
     }
 }
