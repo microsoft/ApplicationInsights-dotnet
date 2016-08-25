@@ -30,7 +30,7 @@
         private const string EventProviderName = "Microsoft-ApplicationInsights-Data";
 
         /// <summary>A dictionary mapping each telemetry item type to its handler.</summary>
-        private readonly Dictionary<Type, Action<ITelemetry>> telemetryHandlers = new Dictionary<Type, Action<ITelemetry>>();
+        private readonly Dictionary<Type, Action<ITelemetry>> telemetryHandlers;
 
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
@@ -47,7 +47,8 @@
                     var etwSelfDescribingEventFormat = Enum.ToObject(eventSourceSettingsType, 8);
                     this.EventSourceInternal = (EventSource)Activator.CreateInstance(eventSourceType, EventProviderName, etwSelfDescribingEventFormat);
 
-                    this.InitTelemetryHandlers(eventSourceType);
+                    // CreateTelemetryHandlers is defined in RichPayloadEventSource.TelemetryHandler.cs
+                    this.telemetryHandlers = this.CreateTelemetryHandlers(this.EventSourceInternal);
                 }
             }
         }

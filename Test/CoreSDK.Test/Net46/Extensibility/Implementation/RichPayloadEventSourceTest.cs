@@ -207,25 +207,25 @@
             var actualProperties = actualEventPayload.Keys.Select(k => new { Key = k, Value = actualEventPayload[k] });
 
             Assert.IsTrue(expectedProperties.Count() == actualProperties.Count());
-            var e1 = expectedProperties.GetEnumerator();
-            var e2 = actualProperties.GetEnumerator();
-            while (e1.MoveNext() && e2.MoveNext())
+            var expectedPropertiesEnumerator = expectedProperties.GetEnumerator();
+            var actualPropertiesEnumerator = actualProperties.GetEnumerator();
+            while (expectedPropertiesEnumerator.MoveNext() && actualPropertiesEnumerator.MoveNext())
             {
-                var expctedProperty = e1.Current;
-                var actualProperty = e2.Current;
-                Assert.AreEqual(e1.Current.Name, e2.Current.Key);
+                var expectedProperty = expectedPropertiesEnumerator.Current;
+                var actualProperty = actualPropertiesEnumerator.Current;
+                Assert.AreEqual(expectedPropertiesEnumerator.Current.Name, actualPropertiesEnumerator.Current.Key);
 
-                if (!expctedProperty.PropertyType.IsValueType
-                    && !expctedProperty.PropertyType.IsPrimitive
-                    && expctedProperty.PropertyType != typeof(string))
+                if (!expectedProperty.PropertyType.IsValueType
+                    && !expectedProperty.PropertyType.IsPrimitive
+                    && expectedProperty.PropertyType != typeof(string))
                 {
-                    if (expctedProperty.PropertyType.IsClass)
+                    if (expectedProperty.PropertyType.IsClass)
                     {
-                        VerifyEventPayload(expctedProperty.PropertyType.GetProperties().AsEnumerable(), (IDictionary<string, object>)actualProperty.Value);
+                        VerifyEventPayload(expectedProperty.PropertyType.GetProperties().AsEnumerable(), (IDictionary<string, object>)actualProperty.Value);
                     }
                     else
                     {
-                        var enumerableType = GetEnumerableType(expctedProperty.PropertyType);
+                        var enumerableType = GetEnumerableType(expectedProperty.PropertyType);
                         Assert.IsNotNull(enumerableType);
                         Assert.IsTrue(actualProperty.Value.GetType().IsArray);
 

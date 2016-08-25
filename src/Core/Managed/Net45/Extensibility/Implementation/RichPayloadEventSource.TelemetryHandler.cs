@@ -13,15 +13,22 @@
 
     /// <summary>
     /// Define the telemetry handlers.
-    /// Create anonymous type for each telemetry data type.
+    /// Create anonymous type for each AI telemetry data type.
     /// </summary>
     internal sealed partial class RichPayloadEventSource
     {
         private readonly string dummyPartAiKeyValue = string.Empty;
         private readonly IDictionary<string, string> dummyPartATagsValue = new Dictionary<string, string>();
 
-        private void InitTelemetryHandlers(Type eventSourceType)
+        /// <summary>
+        /// Create handlers for all AI telemetry types.
+        /// </summary>
+        private Dictionary<Type, Action<ITelemetry>> CreateTelemetryHandlers(EventSource eventSource)
         {
+            var telemetryHandlers = new Dictionary<Type, Action<ITelemetry>>();
+
+            var eventSourceType = eventSource.GetType();
+
             // EventSource.Write<T> (String, EventSourceOptions, T)
             var writeGenericMethod = eventSourceType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
                 .Where(m => m.Name == "Write" && m.IsGenericMethod == true)
@@ -39,39 +46,44 @@
                 var eventSourceOptionsKeywordsProperty = eventSourceOptionsType.GetProperty("Keywords", BindingFlags.Public | BindingFlags.Instance);
 
                 // Request
-                this.telemetryHandlers.Add(typeof(RequestTelemetry), this.CreateHandlerForRequestTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(RequestTelemetry), this.CreateHandlerForRequestTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Trace
-                this.telemetryHandlers.Add(typeof(TraceTelemetry), this.CreateHandlerForTraceTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(TraceTelemetry), this.CreateHandlerForTraceTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Event
-                this.telemetryHandlers.Add(typeof(EventTelemetry), this.CreateHandlerForEventTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(EventTelemetry), this.CreateHandlerForEventTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Dependency
-                this.telemetryHandlers.Add(typeof(DependencyTelemetry), this.CreateHandlerForDependencyTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(DependencyTelemetry), this.CreateHandlerForDependencyTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Metric
-                this.telemetryHandlers.Add(typeof(MetricTelemetry), this.CreateHandlerForMetricTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(MetricTelemetry), this.CreateHandlerForMetricTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Exception
-                this.telemetryHandlers.Add(typeof(ExceptionTelemetry), this.CreateHandlerForExceptionTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(ExceptionTelemetry), this.CreateHandlerForExceptionTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // PerformanceCounter
-                this.telemetryHandlers.Add(typeof(PerformanceCounterTelemetry), this.CreateHandlerForPerformanceCounterTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(PerformanceCounterTelemetry), this.CreateHandlerForPerformanceCounterTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // PageView
-                this.telemetryHandlers.Add(typeof(PageViewTelemetry), this.CreateHandlerForPageViewTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(PageViewTelemetry), this.CreateHandlerForPageViewTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // SessionState
-                this.telemetryHandlers.Add(typeof(SessionStateTelemetry), this.CreateHandlerForSessionStateTelemetry(writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+                telemetryHandlers.Add(typeof(SessionStateTelemetry), this.CreateHandlerForSessionStateTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
             }
             else
             {
                 CoreEventSource.Log.LogVerbose("Unable to get method: EventSource.Write<T>(String, EventSourceOptions, T)");
             }
+
+            return telemetryHandlers;
         }
 
-        private Action<ITelemetry> CreateHandlerForRequestTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for request telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForRequestTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Requests;
@@ -127,12 +139,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { RequestTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { RequestTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForTraceTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for trace telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForTraceTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Traces;
@@ -172,12 +187,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { TraceTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { TraceTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForEventTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for event telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForEventTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Events;
@@ -217,12 +235,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForDependencyTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for dependency telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForDependencyTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Dependencies;
@@ -288,12 +309,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { DependencyTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { DependencyTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForMetricTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for metric telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForMetricTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Metrics;
@@ -354,12 +378,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForExceptionTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for exception telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForExceptionTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.Exceptions;
@@ -447,12 +474,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { ExceptionTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { ExceptionTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForPerformanceCounterTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for performance counter telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForPerformanceCounterTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.PerformanceCounters;
@@ -506,12 +536,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { PerformanceCounterTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { PerformanceCounterTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForPageViewTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for page view telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForPageViewTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.PageViews;
@@ -555,12 +588,15 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
 
-        private Action<ITelemetry> CreateHandlerForSessionStateTelemetry(MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        /// <summary>
+        /// Create handler for session state telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForSessionStateTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
         {
             var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
             var keywords = Keywords.SessionState;
@@ -596,7 +632,7 @@
                         }
                     };
 
-                    writeMethod.Invoke(this.EventSourceInternal, new object[] { SessionStateTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                    writeMethod.Invoke(eventSource, new object[] { SessionStateTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
