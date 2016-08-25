@@ -36,12 +36,12 @@
             get
             {
                 return new QuickPulseTimings(
-                    TimeSpan.FromSeconds(5),
-                    TimeSpan.FromMinutes(1),
-                    TimeSpan.FromMinutes(1),
-                    TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(20),
-                    TimeSpan.FromSeconds(5));
+                    servicePollingInterval: TimeSpan.FromSeconds(5),
+                    servicePollingBackedOffInterval: TimeSpan.FromMinutes(1),
+                    timeToServicePollingBackOff: TimeSpan.FromMinutes(1),
+                    collectionInterval: TimeSpan.FromSeconds(1),
+                    timeToCollectionBackOff: TimeSpan.FromSeconds(20),
+                    catastrophicFailuretimeout: TimeSpan.FromSeconds(5));
             }
         }
 

@@ -48,17 +48,17 @@
 
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
-            var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
+            var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", Uri.EscapeUriString(instrumentationKey));
             HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, stream => this.WritePingData(timestamp, stream));
 
             if (response == null)
             {
                 return null;
             }
-            
+
             return ProcessResponse(response);
         }
-        
+
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", Uri.EscapeUriString(instrumentationKey));

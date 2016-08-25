@@ -26,6 +26,10 @@
 
         private const int MaxFieldLength = 32768;
 
+        private const int MaxPropertyCount = 3;
+
+        private const string SpecialDependencyPropertyName = "ErrorMessage";
+
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         private Uri serviceEndpoint = QuickPulseDefaults.ServiceEndpoint;
@@ -178,82 +182,87 @@
 
         private static ITelemetryDocument ConvertRequestToTelemetryDocument(RequestTelemetry requestTelemetry)
         {
-            var name = requestTelemetry.Name;
-            if (name != null && name.Length > MaxFieldLength)
-            {
-                name = name.Substring(0, MaxFieldLength);
-            }
-
             return new RequestTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = requestTelemetry.Timestamp,
                            Id = requestTelemetry.Id,
-                           Name = name,
+                           Name = TruncateValue(requestTelemetry.Name),
                            StartTime = requestTelemetry.StartTime,
                            Success = IsRequestSuccessful(requestTelemetry),
                            Duration = requestTelemetry.Duration,
                            ResponseCode = requestTelemetry.ResponseCode,
                            Url = requestTelemetry.Url,
-                           HttpMethod = requestTelemetry.HttpMethod
+                           HttpMethod = requestTelemetry.HttpMethod,
+                           Properties = GetProperties(requestTelemetry)
                        };
         }
 
         private static ITelemetryDocument ConvertDependencyToTelemetryDocument(DependencyTelemetry dependencyTelemetry)
         {
-            var name = dependencyTelemetry.Name;
-            if (name != null && name.Length > MaxFieldLength)
-            {
-               name = name.Substring(0, MaxFieldLength);
-            }
-
-            var commandName = dependencyTelemetry.CommandName;
-            if (commandName != null && commandName.Length > MaxFieldLength)
-            {
-                commandName = commandName.Substring(0, MaxFieldLength);
-            }
-
             return new DependencyTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = dependencyTelemetry.Timestamp,
                            Id = dependencyTelemetry.Id,
-                           Name = name,
+                           Name = TruncateValue(dependencyTelemetry.Name),
                            StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
                            Duration = dependencyTelemetry.Duration,
                            ResultCode = dependencyTelemetry.ResultCode,
-                           CommandName = commandName,
+                           CommandName = TruncateValue(dependencyTelemetry.CommandName),
                            DependencyTypeName = dependencyTelemetry.DependencyTypeName,
-                           DependencyKind = dependencyTelemetry.DependencyKind
+                           DependencyKind = dependencyTelemetry.DependencyKind,
+                           Properties = GetProperties(dependencyTelemetry, SpecialDependencyPropertyName)
                        };
         }
 
         private static ITelemetryDocument ConvertExceptionToTelemetryDocument(ExceptionTelemetry exceptionTelemetry)
         {
-            string exception = exceptionTelemetry.Exception != null ? exceptionTelemetry.Exception.ToString() : null;
-            if (exception != null && exception.Length > MaxFieldLength)
-            {
-                exception = exception.Substring(0, MaxFieldLength);
-            }
-
-            string message = exceptionTelemetry.Message;
-            if (message != null && message.Length > MaxFieldLength)
-            {
-                message = message.Substring(0, MaxFieldLength);
-            }
-
             return new ExceptionTelemetryDocument()
                        {
                            Version = TelemetryDocumentContractVersion,
-                           Message = message,
+                           Message = TruncateValue(exceptionTelemetry.Message),
                            SeverityLevel =
                                exceptionTelemetry.SeverityLevel != null
                                    ? exceptionTelemetry.SeverityLevel.Value.ToString()
                                    : null,
                            HandledAt = exceptionTelemetry.HandledAt.ToString(),
-                           Exception = exception
+                           Exception =
+                               exceptionTelemetry.Exception != null
+                                   ? TruncateValue(exceptionTelemetry.Exception.ToString())
+                                   : null,
+                           Properties = GetProperties(exceptionTelemetry)
                        };
+        }
+
+        private static Dictionary<string, string> GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
+        {
+            Dictionary<string, string> properties = null;
+
+            if (telemetry.Properties != null && telemetry.Properties.Count > 0)
+            {
+                properties = new Dictionary<string, string>(MaxPropertyCount + 1);
+
+                foreach (var prop in
+                    telemetry.Properties
+                    .Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal))
+                    .Take(MaxPropertyCount))
+                {
+                    properties.Add(TruncateValue(prop.Key), TruncateValue(prop.Value));
+                }
+
+                if (specialPropertyName != null)
+                {
+                    string specialPropertyValue;
+                    if (telemetry.Properties.TryGetValue(specialPropertyName, out specialPropertyValue))
+                    {
+                        properties.Add(TruncateValue(specialPropertyName), TruncateValue(specialPropertyValue));
+                    }
+                }
+            }
+
+            return properties;
         }
 
         private static bool IsRequestSuccessful(RequestTelemetry request)
@@ -281,6 +290,16 @@
             }
 
             return success.Value;
+        }
+
+        private static string TruncateValue(string value)
+        {
+            if (value != null && value.Length > MaxFieldLength)
+            {
+                value = value.Substring(0, MaxFieldLength);
+            }
+
+            return value;
         }
 
         private void ProcessTelemetry(ITelemetry telemetry)

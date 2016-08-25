@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     [DataContract]
@@ -9,7 +10,7 @@
         [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
         
-        [DataMember]
+        [DataMember(EmitDefaultValue = false)]
         public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
@@ -38,6 +39,9 @@
 
         [DataMember(EmitDefaultValue = false)]
         public string DependencyKind { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public Dictionary<string, string> Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType
