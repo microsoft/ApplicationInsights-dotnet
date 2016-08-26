@@ -7,10 +7,11 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
-    <projectUrl>http://go.microsoft.com/fwlink/?LinkID=510710</projectUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Application Insights Windows Server nuget package. This is a dependent package for Application Insights platform specific packages. Please install the platform specific packages directly for the best experience. See http://go.microsoft.com/fwlink/?LinkID=510754 for more information.</description>
+    <summary>Application Insights Windows Server nuget package provides additional automatic collection of application insights telemetry for .NET applications.</summary>
+    <description>Application Insights Windows Server nuget package provides automatic collection of application insights telemetry for .NET applications. This package can be used as a dependent package for Application Insights platform specific packages or as a standalone package for .NET applications that are not covered by platform specific packages (like for .NET worker roles). Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
