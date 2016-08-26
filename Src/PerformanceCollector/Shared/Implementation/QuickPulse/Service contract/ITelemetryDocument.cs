@@ -6,7 +6,7 @@
     {
         string Version { get; }
 
-        Dictionary<string, string> Properties { get; set; }
+        KeyValuePair<string, string>[] Properties { get; set; }
         
         string DocumentType { get; }
     }

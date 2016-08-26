@@ -41,7 +41,7 @@
         public string DependencyKind { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public Dictionary<string, string> Properties { get; set; }
+        public KeyValuePair<string, string>[] Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType

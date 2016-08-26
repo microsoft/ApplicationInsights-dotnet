@@ -19,7 +19,7 @@
     public class QuickPulseTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IQuickPulseTelemetryProcessor
     {
         private const string TelemetryDocumentContractVersion = "1.0";
-        
+
         private const int MaxTelemetryQuota = 30;
 
         private const int InitialTelemetryQuota = 3;
@@ -236,7 +236,7 @@
                        };
         }
 
-        private static Dictionary<string, string> GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
+        private static KeyValuePair<string, string>[] GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
         {
             Dictionary<string, string> properties = null;
 
@@ -262,7 +262,7 @@
                 }
             }
 
-            return properties;
+            return properties != null ? properties.ToArray() : null;
         }
 
         private static bool IsRequestSuccessful(RequestTelemetry request)
