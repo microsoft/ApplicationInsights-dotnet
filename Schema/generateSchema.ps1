@@ -1,6 +1,6 @@
 $generatorPath = "C:\src\mseng\AppInsights-Common"
 $schemasPath = "C:\src\mseng\DataCollectionSchemas"
-$publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/sergkanz/schemas/EndpointSpecs/Schemas/Bond"
+$publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/master/EndpointSpecs/Schemas/Bond"
 $localPublicSchema = $false
 
 
