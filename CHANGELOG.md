@@ -5,6 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.2.0-beta2
 
 - InMemoryChannel has a new override for Flush method that accepts timeout.
+- Local storage folder name was changed. That means that if there were some unsent events when application stopped, if application was updated to the new SDK telemetry from that folder will not be sent.
 
 ## Version 2.2.0-beta1
 
