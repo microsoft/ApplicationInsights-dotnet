@@ -56,6 +56,9 @@
     <Compile Include="..\Net40\Extensibility\Implementation\Platform\PlatformReferencesTests.cs">
       <Link>Extensibility\Implementation\Platform\PlatformReferencesTests.cs</Link>
     </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSourceTest.cs">
+      <Link>Extensibility\Implementation\RichPayloadEventSourceTest.cs</Link>
+    </Compile>
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
   <ItemGroup>

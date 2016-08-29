@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core.Shared", "src\Core\Managed\Shared\Core.Shared.shproj", "{C1AAA703-5E32-45C0-A69D-F46D1C659AE4}"
 EndProject
@@ -79,29 +79,29 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationInsightsTypes", 
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
-		src\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
 		Test\CoreSDK.Test\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems*{4dc2927f-bb78-4363-8428-0f02955064bc}*SharedItemsImports = 13
-		src\Core\Managed\Shared\Shared.projitems*{862b97af-f620-43fd-9b65-7e5423f3b7e3}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{394a78e5-2f8f-4d2d-ae08-027380c9f6b2}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems*{394a78e5-2f8f-4d2d-ae08-027380c9f6b2}*SharedItemsImports = 4
-		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
-		src\Core\Managed\Shared\Shared.projitems*{958cfe53-53b7-4e26-846d-da3f214013e6}*SharedItemsImports = 4
-		src\Core\Managed\Operation.AL.Shared\Operation.AL.Shared.projitems*{958cfe53-53b7-4e26-846d-da3f214013e6}*SharedItemsImports = 4
-		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
-		src\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
-		src\Core\Managed\Shared\Shared.projitems*{c1aaa703-5e32-45c0-a69d-f46d1c659ae4}*SharedItemsImports = 13
-		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{d7d4e3f5-ec0d-47c9-90cc-56f612976122}*SharedItemsImports = 4
-		Test\CoreSDK.Test\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems*{4e54ed64-28b4-484f-ad5e-089fd2ec9b8b}*SharedItemsImports = 13
-		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{c4a0db5b-0988-4e04-b9b8-bcf3b0842000}*SharedItemsImports = 13
+		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{0927e682-4a56-45b6-8125-94fa066b2f57}*SharedItemsImports = 4
+		Test\CoreSDK.Test\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
+		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{0927e682-4a56-46b6-8125-94fa066b2f57}*SharedItemsImports = 4
 		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{1ad07f5f-80e4-4020-b944-ee20756e3b24}*SharedItemsImports = 4
-		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{804af8fd-87f5-48ae-90c8-70433018b76e}*SharedItemsImports = 4
 		src\Core\Managed\Operation.AL.Shared\Operation.AL.Shared.projitems*{21350114-0bf7-4f90-9732-5395840e8cbb}*SharedItemsImports = 13
 		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{21350114-0bf7-4f90-9732-5395840e8ce0}*SharedItemsImports = 13
+		Test\CoreSDK.Test\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems*{394a78e5-2f8f-4d2d-ae08-027380c9f6b2}*SharedItemsImports = 4
+		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{394a78e5-2f8f-4d2d-ae08-027380c9f6b2}*SharedItemsImports = 4
+		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{412659ca-49b0-4834-bfbf-8183055083c8}*SharedItemsImports = 4
+		Test\CoreSDK.Test\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems*{4dc2927f-bb78-4363-8428-0f02955064bc}*SharedItemsImports = 13
+		Test\CoreSDK.Test\Operation.AL.Shared.Tests\Operation.AL.Tests.Shared.projitems*{4e54ed64-28b4-484f-ad5e-089fd2ec9b8b}*SharedItemsImports = 13
+		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{804af8fd-87f5-48ae-90c8-70433018b76e}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{862b97af-f620-43fd-9b65-7e5423f3b7e3}*SharedItemsImports = 4
+		src\Core\Managed\Operation.AL.Shared\Operation.AL.Shared.projitems*{958cfe53-53b7-4e26-846d-da3f214013e6}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{958cfe53-53b7-4e26-846d-da3f214013e6}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{c1aaa703-5e32-45c0-a69d-f46d1c659ae4}*SharedItemsImports = 13
+		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{c4a0db5b-0988-4e04-b9b8-bcf3b0842000}*SharedItemsImports = 13
+		src\Core\Managed\Operation.CC.Shared\Operation.CC.Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
+		src\Core\Managed\Shared\Shared.projitems*{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}*SharedItemsImports = 4
+		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{d7d4e3f5-ec0d-47c9-90cc-56f612976122}*SharedItemsImports = 4
+		Test\CoreSDK.Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
