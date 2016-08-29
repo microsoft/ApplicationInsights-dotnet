@@ -232,6 +232,14 @@
                                exceptionTelemetry.Exception != null
                                    ? TruncateValue(exceptionTelemetry.Exception.ToString())
                                    : null,
+                           ExceptionType =
+                               exceptionTelemetry.Exception != null
+                                   ? TruncateValue(exceptionTelemetry.Exception.GetType().FullName)
+                                   : null,
+                           ExceptionMessage =
+                               exceptionTelemetry.Exception != null
+                                   ? TruncateValue(exceptionTelemetry.Exception.Message)
+                                   : null,
                            Properties = GetProperties(exceptionTelemetry)
                        };
         }

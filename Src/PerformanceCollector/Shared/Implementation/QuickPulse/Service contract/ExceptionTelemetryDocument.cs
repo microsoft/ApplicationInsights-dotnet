@@ -22,6 +22,12 @@
         public string Exception { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        public string ExceptionType { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string ExceptionMessage { get; set; }
+        
+        [DataMember(EmitDefaultValue = false)]
         public KeyValuePair<string, string>[] Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
