@@ -439,35 +439,19 @@
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
             Assert.AreEqual(request.Id, ((RequestTelemetryDocument)collectedTelemetry[0]).Id);
             Assert.AreEqual(3, collectedTelemetry[0].Properties.Length);
-            Assert.AreEqual("Prop4", collectedTelemetry[0].Properties[0].Key);
-            Assert.AreEqual("Val4", collectedTelemetry[0].Properties[0].Value);
-            Assert.AreEqual("Prop1", collectedTelemetry[0].Properties[1].Key);
-            Assert.AreEqual("Val1", collectedTelemetry[0].Properties[1].Value);
-            Assert.AreEqual("Prop3", collectedTelemetry[0].Properties[2].Key);
-            Assert.AreEqual("Val3", collectedTelemetry[0].Properties[2].Value);
+
+            Assert.IsTrue(collectedTelemetry[0].Properties.ToList().TrueForAll(pair => pair.Key.Contains("Prop") && pair.Value.Contains("Val")));
             
             Assert.AreEqual(TelemetryDocumentType.RemoteDependency, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[1].DocumentType));
             Assert.AreEqual(dependency.Id, ((DependencyTelemetryDocument)collectedTelemetry[1]).Id);
             Assert.AreEqual(3 + 1, collectedTelemetry[1].Properties.Length);
 
-            Assert.AreEqual("Prop4", collectedTelemetry[1].Properties[0].Key);
-            Assert.AreEqual("Val4", collectedTelemetry[1].Properties[0].Value);
-            Assert.AreEqual("Prop1", collectedTelemetry[1].Properties[1].Key);
-            Assert.AreEqual("Val1", collectedTelemetry[1].Properties[1].Value);
-            Assert.AreEqual("Prop3", collectedTelemetry[1].Properties[2].Key);
-            Assert.AreEqual("Val3", collectedTelemetry[1].Properties[2].Value);
-            Assert.AreEqual("ErrorMessage", collectedTelemetry[1].Properties[3].Key);
-            Assert.AreEqual("EMValue", collectedTelemetry[1].Properties[3].Value);
-            
+            Assert.IsTrue(collectedTelemetry[1].Properties.ToList().TrueForAll(pair => (pair.Key.Contains("Prop") && pair.Value.Contains("Val")) || (pair.Key == "ErrorMessage" && pair.Value == "EMValue")));
+
             Assert.AreEqual(TelemetryDocumentType.Exception, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[2].DocumentType));
             Assert.AreEqual(exception.Exception.ToString(), ((ExceptionTelemetryDocument)collectedTelemetry[2]).Exception);
             Assert.AreEqual(3, collectedTelemetry[2].Properties.Length);
-            Assert.AreEqual("Prop4", collectedTelemetry[2].Properties[0].Key);
-            Assert.AreEqual("Val4", collectedTelemetry[2].Properties[0].Value);
-            Assert.AreEqual("Prop1", collectedTelemetry[2].Properties[1].Key);
-            Assert.AreEqual("Val1", collectedTelemetry[2].Properties[1].Value);
-            Assert.AreEqual("Prop3", collectedTelemetry[2].Properties[2].Key);
-            Assert.AreEqual("Val3", collectedTelemetry[2].Properties[2].Value);
+            Assert.IsTrue(collectedTelemetry[2].Properties.ToList().TrueForAll(pair => (pair.Key.Contains("Prop") && pair.Value.Contains("Val"))));
         }
 
         [TestMethod]
