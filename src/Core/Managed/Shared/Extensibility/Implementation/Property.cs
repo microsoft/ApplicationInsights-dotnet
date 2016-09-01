@@ -8,8 +8,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Text.RegularExpressions;
-
+    
     /// <summary>
     /// A helper class for implementing properties of telemetry and context classes.
     /// </summary>
@@ -26,15 +25,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxTestNameLength = 1024;
         public const int MaxRunLocationLength = 2024;
         public const int MaxAvailabilityMessageLength = 8192;
-
-        private const RegexOptions SanitizeOptions = 
-#if CORE_PCL
-                                                RegexOptions.None;
-#else
-                                                RegexOptions.Compiled;
-#endif
-
-        private static readonly Regex InvalidNameCharacters = new Regex(@"[^0-9a-zA-Z-._()\/ ]", Property.SanitizeOptions);
 
         public static void Set<T>(ref T property, T value) where T : class
         {
@@ -134,16 +124,24 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             if (dictionary != null)
             {
-                foreach (KeyValuePair<string, string> entry in dictionary.ToArray())
-                {
-                    // remove the key from the dictionary first
-                    dictionary.Remove(entry.Key);
+                var sanitizedEntries = new Dictionary<string, KeyValuePair<string, string>>(dictionary.Count);
 
-                    string sanitizedKey = SanitizeKey(entry.Key, dictionary);
+                foreach (KeyValuePair<string, string> entry in dictionary)
+                {
+                    string sanitizedKey = SanitizeKey(entry.Key);
                     string sanitizedValue = SanitizeValue(entry.Value);
 
-                    // add it back (sanitized at this point).
-                    dictionary.Add(sanitizedKey, sanitizedValue);
+                    if ((string.CompareOrdinal(sanitizedKey, entry.Key) != 0) || (string.CompareOrdinal(sanitizedValue, entry.Value) != 0))
+                    {
+                        sanitizedEntries.Add(entry.Key, new KeyValuePair<string, string>(sanitizedKey, sanitizedValue));
+                    }
+                }
+
+                foreach (KeyValuePair<string, KeyValuePair<string, string>> entry in sanitizedEntries)
+                {
+                    dictionary.Remove(entry.Key);
+                    string uniqueKey = MakeKeyUnique(entry.Value.Key, dictionary);
+                    dictionary.Add(uniqueKey, entry.Value.Value);
                 }
             }
         }
@@ -152,16 +150,26 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             if (dictionary != null)
             {
-                foreach (KeyValuePair<string, double> entry in dictionary.ToArray())
-                {
-                    // remove the key from the dictionary first
-                    dictionary.Remove(entry.Key);
+                var sanitizedEntries = new Dictionary<string, KeyValuePair<string, double>>(dictionary.Count);
 
-                    string sanitizedKey = SanitizeKey(entry.Key, dictionary);
-                    double sanitizeValue = Utils.SanitizeNanAndInfinity(entry.Value);
-                    
-                    // add it back (sanitized at this point).
-                    dictionary.Add(sanitizedKey, sanitizeValue);
+                foreach (KeyValuePair<string, double> entry in dictionary)
+                {
+                    string sanitizedKey = SanitizeKey(entry.Key);
+
+                    bool valueChanged;
+                    double sanitizedValue = Utils.SanitizeNanAndInfinity(entry.Value, out valueChanged);
+
+                    if ((string.CompareOrdinal(sanitizedKey, entry.Key) != 0) || valueChanged)
+                    {
+                        sanitizedEntries.Add(entry.Key, new KeyValuePair<string, double>(sanitizedKey, sanitizedValue));
+                    }
+                }
+
+                foreach (KeyValuePair<string, KeyValuePair<string, double>> entry in sanitizedEntries)
+                {
+                    dictionary.Remove(entry.Key);
+                    string uniqueKey = MakeKeyUnique(entry.Value.Key, dictionary);
+                    dictionary.Add(uniqueKey, entry.Value.Value);
                 }
             }
         }
@@ -182,13 +190,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return value.Length > maxLength ? value.Substring(0, maxLength) : value;
         }
 
-        private static string SanitizeKey<TValue>(string key, IDictionary<string, TValue> dictionary)
+        private static string SanitizeKey(string key)
         {
             string sanitizedKey = TrimAndTruncate(key, Property.MaxDictionaryNameLength);
-            sanitizedKey = InvalidNameCharacters.Replace(sanitizedKey, "_");
-            sanitizedKey = MakeKeyNonEmpty(sanitizedKey);
-            sanitizedKey = MakeKeyUnique(sanitizedKey, dictionary);
-            return sanitizedKey;
+            return MakeKeyNonEmpty(sanitizedKey);
         }
 
         private static string MakeKeyNonEmpty(string key)
@@ -205,8 +210,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 int candidate = 1;
                 do
                 {
-                    key = truncatedKey + candidate.ToString(CultureInfo.InvariantCulture).PadLeft(UniqueNumberLength, '0');
-                    candidate++;
+                    key = truncatedKey + candidate;
+                    ++candidate;
                 }
                 while (dictionary.ContainsKey(key));
             }

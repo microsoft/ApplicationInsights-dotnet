@@ -156,13 +156,13 @@
             string[] values = telemetry.Properties.Values.OrderBy(s => s).ToArray();
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), keys[1]);
             Assert.Equal(new string('X', Property.MaxValueLength), values[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
             Assert.Equal(new string('X', Property.MaxValueLength), values[0]);
 
             Assert.Equal(2, telemetry.Metrics.Count);
             keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
             Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
 
             Assert.Equal(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
 

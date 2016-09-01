@@ -90,10 +90,19 @@
 
         public static double SanitizeNanAndInfinity(double value)
         {
+            bool valueChanged;
+            return SanitizeNanAndInfinity(value, out valueChanged);
+        }
+
+        public static double SanitizeNanAndInfinity(double value, out bool valueChanged)
+        {
+            valueChanged = false;
+
             // Disallow Nan and Infinity since Breeze does not accept it
             if (double.IsInfinity(value) || double.IsNaN(value))
             {
                 value = 0;
+                valueChanged = true;
             }
 
             return value;

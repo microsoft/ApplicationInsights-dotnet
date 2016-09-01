@@ -154,37 +154,6 @@
         }
 
         [TestMethod]
-        public void SanitizePropertiesReplacesSpecialCharactersWithUnderscores()
-        {
-            foreach (char invalidCharacter in GetInvalidNameCharacters())
-            {
-                string originalKey = "test" + invalidCharacter + "key";
-                const string OriginalValue = "Test Value";
-                var original = new Dictionary<string, string> { { originalKey, OriginalValue } };
-
-                original.SanitizeProperties();
-
-                string sanitizedKey = originalKey.Replace(invalidCharacter, '_');
-                Assert.Equal(new[] { new KeyValuePair<string, string>(sanitizedKey, OriginalValue) }, original);
-            }
-        }
-
-        [TestMethod]
-        public void SanitizePropertiesMakesKeyUniqueAfterReplacingSpecialCharactersWithUnderscores()
-        {
-            string originalKey = "test#key";
-            var dictionary = new Dictionary<string, string> 
-            {
-                { originalKey, string.Empty },
-                { originalKey.Replace("#", "_"), string.Empty },
-            };
-
-            dictionary.SanitizeProperties();
-
-            Assert.Contains("test_key001", dictionary.Keys);
-        }
-
-        [TestMethod]
         public void SanitizePropertiesTruncatesKeysLongerThan150Characters()
         {
             string originalKey = new string('A', Property.MaxNameLength + 1);
@@ -251,22 +220,6 @@
 
             string sanitizedKey = OriginalKey.Trim();
             Assert.Equal(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
-        }
-
-        [TestMethod]
-        public void SanitizeMeasurementsReplacesSpecialCharactersWithUnderscores()
-        {
-            foreach (char invalidCharacter in GetInvalidNameCharacters())
-            {
-                string originalKey = "test" + invalidCharacter + "key";
-                const double OriginalValue = 42.0;
-                var original = new Dictionary<string, double> { { originalKey, OriginalValue } };
-
-                original.SanitizeMeasurements();
-
-                string sanitizedKey = originalKey.Replace(invalidCharacter, '_');
-                Assert.Equal(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
-            }
         }
 
         [TestMethod]
