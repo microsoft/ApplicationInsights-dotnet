@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
 {
+    using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
@@ -32,7 +33,7 @@
             {
                 if (!string.IsNullOrEmpty(this.telemetryConfiguration.InstrumentationKey))
                 {
-                    return string.Format(Snippet, this.telemetryConfiguration.InstrumentationKey);
+                    return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey);
                 }
                 else
                 {

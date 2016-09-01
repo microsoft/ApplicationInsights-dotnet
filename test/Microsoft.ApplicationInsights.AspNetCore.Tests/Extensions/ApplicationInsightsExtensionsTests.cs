@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(TelemetryConfiguration), null, ServiceLifetime.Singleton)]
-            [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Scoped)]
+            [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Singleton)]
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
