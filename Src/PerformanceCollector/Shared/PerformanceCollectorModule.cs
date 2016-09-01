@@ -12,7 +12,6 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
 
     using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
@@ -22,14 +21,6 @@
     /// </summary>
     public sealed class PerformanceCollectorModule : ITelemetryModule, IDisposable
     {
-        private static readonly Regex DisallowedCharsInReportAsRegex = new Regex(
-            @"[^a-zA-Z()/\\_. \t-]+",
-            RegexOptions.Compiled);
-
-        private static readonly Regex MultipleSpacesRegex = new Regex(
-            @"[  ]+",
-            RegexOptions.Compiled);
-
         private readonly object lockObject = new object();
 
         private readonly List<string> defaultCounters = new List<string>()
@@ -72,6 +63,7 @@
         /// </remarks>
         private TelemetryClient client = null;
 
+        // Used in unit tests only
         private TelemetryConfiguration telemetryConfiguration;
 
         /// <summary>
@@ -479,9 +471,8 @@
             int i = 0;
             foreach (PerformanceCounterCollectionRequest req in this.Counters)
             {
-                // TODO remove workaround
                 req.ReportAs = string.IsNullOrWhiteSpace(req.ReportAs)
-                    ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
+                    ? req.PerformanceCounter
                     : req.ReportAs;
 
                 req.ReportAs = this.SanitizeReportAs(req.ReportAs, req.PerformanceCounter, ref i);
@@ -490,10 +481,7 @@
 
         private string SanitizeReportAs(string reportAs, string performanceCounter, ref int counterIndex)
         {
-            // strip off disallowed characters
-            var newReportAs = DisallowedCharsInReportAsRegex.Replace(reportAs, string.Empty);
-            newReportAs = MultipleSpacesRegex.Replace(newReportAs, " ");
-            newReportAs = newReportAs.Trim();
+            string newReportAs = reportAs.Trim();
 
             // check if anything is left
             if (string.IsNullOrWhiteSpace(newReportAs))
