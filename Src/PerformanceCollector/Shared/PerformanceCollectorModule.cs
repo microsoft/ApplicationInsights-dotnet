@@ -471,46 +471,11 @@
             int i = 0;
             foreach (PerformanceCounterCollectionRequest req in this.Counters)
             {
+                // Keep replacing '\' for backcompat
                 req.ReportAs = string.IsNullOrWhiteSpace(req.ReportAs)
-                    ? req.PerformanceCounter
+                    ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
                     : req.ReportAs;
-
-                req.ReportAs = this.SanitizeReportAs(req.ReportAs, req.PerformanceCounter, ref i);
             }
-        }
-
-        private string SanitizeReportAs(string reportAs, string performanceCounter, ref int counterIndex)
-        {
-            string newReportAs = reportAs.Trim();
-
-            // check if anything is left
-            if (string.IsNullOrWhiteSpace(newReportAs))
-            {
-                // nothing is left, generate a "random" name
-                var c = Convert.ToChar('A' + counterIndex);
-
-                if (!char.IsLetter(c))
-                {
-                    // we have run out of letters, this should only happen when all counters are unicode
-                    // not much we can do, the customer won't be able to differentiate between counters anyway
-                    counterIndex = 0;
-                    c = Convert.ToChar('A' + counterIndex);
-                }
-
-                newReportAs = string.Format(CultureInfo.InvariantCulture, Resources.UnicodePerformanceCounterName, c);
-
-                counterIndex++;
-            }
-
-            if (!string.Equals(reportAs, newReportAs, StringComparison.Ordinal))
-            {
-                PerformanceCollectorEventSource.Log.CounterReportAsStrippedEvent(
-                    performanceCounter,
-                    newReportAs,
-                    reportAs);
-            }
-
-            return newReportAs;
         }
     }
 }

@@ -226,7 +226,7 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public void CustomCountersSanitizingTest()
+        public void UnicodeSupportTest()
         {
             var collector = CreatePerformanceCollector();
 
@@ -280,16 +280,16 @@
                     Assert.AreEqual("CounterOne", collector.Counters[2].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryNameTwo\CounterNameTwo", collector.Counters[3].Item1.OriginalString);
-                    Assert.AreEqual(@"\CategoryNameTwo\CounterNameTwo", collector.Counters[3].Item1.ReportAs);
+                    Assert.AreEqual(@"CategoryNameTwo - CounterNameTwo", collector.Counters[3].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName3\CounterName3", collector.Counters[4].Item1.OriginalString);
-                    Assert.AreEqual(@"\CategoryName3\CounterName3", collector.Counters[4].Item1.ReportAs);
+                    Assert.AreEqual(@"CategoryName3 - CounterName3", collector.Counters[4].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName4\CounterName4", collector.Counters[5].Item1.OriginalString);
-                    Assert.AreEqual(@"Counter 4", collector.Counters[5].Item1.ReportAs);
+                    Assert.AreEqual(@" Counter 4", collector.Counters[5].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName5\CounterName5", collector.Counters[6].Item1.OriginalString);
-                    Assert.AreEqual(@"Counter5", collector.Counters[6].Item1.ReportAs);
+                    Assert.AreEqual(@" Counter5", collector.Counters[6].Item1.ReportAs);
 
                     // unicode-only reportAs values are converted to "random" strings
                     Assert.AreEqual(@"\Категория6\Счетчик6", collector.Counters[7].Item1.OriginalString);
@@ -301,7 +301,7 @@
                     Assert.AreEqual(
                         @"\CategoryNameAnother8%\CounterNameAnother8%",
                         collector.Counters[9].Item1.OriginalString);
-                    Assert.AreEqual(@"\CategoryNameAnother8%\CounterNameAnother8%", collector.Counters[9].Item1.ReportAs);
+                    Assert.AreEqual(@"CategoryNameAnother8% - CounterNameAnother8%", collector.Counters[9].Item1.ReportAs);
                 }
             }
         }
