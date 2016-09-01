@@ -29,10 +29,6 @@
       }
     },
     "net451": {
-        "dependencies": {
-            "Microsoft.AspNetCore.Mvc.Core": "1.0.0",
-            "Moq": "4.5.9"
-        }
     }
   }
 }
