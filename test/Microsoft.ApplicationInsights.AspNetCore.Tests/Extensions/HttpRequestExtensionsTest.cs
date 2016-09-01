@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using System;
+    using System.Globalization;
     using Xunit;
 
     public class HttpRequestExtensionsTest
@@ -66,7 +67,7 @@
             var uri = HttpRequestExtensions.GetUri(request);
 
             Assert.Equal(
-                new Uri(string.Format("{0}://{1}", ExpectedSchema, ExpectedHostName)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}", ExpectedSchema, ExpectedHostName)), 
                 uri);
         }
 
@@ -82,7 +83,7 @@
             var uri = HttpRequestExtensions.GetUri(request);
 
             Assert.Equal(
-                new Uri(string.Format("{0}://{1}{2}", ExpectedSchema, ExpectedHostName, ExpectedPath)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}", ExpectedSchema, ExpectedHostName, ExpectedPath)), 
                 uri);
         }
 
@@ -99,7 +100,7 @@
             var uri = HttpRequestExtensions.GetUri(request);
 
             Assert.Equal(
-                new Uri(string.Format("{0}://{1}{2}{3}", ExpectedSchema, ExpectedHostName, ExpectedPath, ExpectedQueryString)),
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", ExpectedSchema, ExpectedHostName, ExpectedPath, ExpectedQueryString)),
                 uri);
         }
     }
