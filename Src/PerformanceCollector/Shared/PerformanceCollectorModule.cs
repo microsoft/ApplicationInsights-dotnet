@@ -468,7 +468,6 @@
             this.Counters = this.Counters.GroupBy(req => req.PerformanceCounter).Select(g => g.First()).ToList();
 
             // assign and sanitize reportsAs
-            int i = 0;
             foreach (PerformanceCounterCollectionRequest req in this.Counters)
             {
                 // Keep replacing '\' for backcompat
