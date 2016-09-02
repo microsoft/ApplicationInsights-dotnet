@@ -225,7 +225,8 @@
         }
 
         [TestMethod]
-        public void CustomCountersSanitizingTest()
+        [Timeout(5000)]
+        public void UnicodeSupportTest()
         {
             var collector = CreatePerformanceCollector();
 
@@ -265,10 +266,11 @@
                 module.Initialize(configuration);
 
                 // wait 1s to let the module finish initializing
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-
-                // now wait to let the module's timer run
-                Thread.Sleep(TimeSpan.FromSeconds(3));
+                // and wait to let the module's timer run
+                while (collector.Counters.Count < 8)
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                }
 
                 lock (collector.Sync)
                 {
@@ -281,25 +283,25 @@
                     Assert.AreEqual(@"CategoryNameTwo - CounterNameTwo", collector.Counters[3].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName3\CounterName3", collector.Counters[4].Item1.OriginalString);
-                    Assert.AreEqual(@"CategoryName - CounterName", collector.Counters[4].Item1.ReportAs);
+                    Assert.AreEqual(@"CategoryName3 - CounterName3", collector.Counters[4].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName4\CounterName4", collector.Counters[5].Item1.OriginalString);
-                    Assert.AreEqual(@"Counter", collector.Counters[5].Item1.ReportAs);
+                    Assert.AreEqual(@" Counter 4", collector.Counters[5].Item1.ReportAs);
 
                     Assert.AreEqual(@"\CategoryName5\CounterName5", collector.Counters[6].Item1.OriginalString);
-                    Assert.AreEqual(@"Counter", collector.Counters[6].Item1.ReportAs);
+                    Assert.AreEqual(@" Counter5", collector.Counters[6].Item1.ReportAs);
 
                     // unicode-only reportAs values are converted to "random" strings
                     Assert.AreEqual(@"\Категория6\Счетчик6", collector.Counters[7].Item1.OriginalString);
-                    Assert.AreEqual(@"Performance counter A", collector.Counters[7].Item1.ReportAs);
+                    Assert.AreEqual(@"Только юникод первый", collector.Counters[7].Item1.ReportAs);
 
                     Assert.AreEqual(@"\Категория7\Счетчик7", collector.Counters[8].Item1.OriginalString);
-                    Assert.AreEqual(@"Performance counter B", collector.Counters[8].Item1.ReportAs);
+                    Assert.AreEqual(@"Только юникод второй", collector.Counters[8].Item1.ReportAs);
 
                     Assert.AreEqual(
                         @"\CategoryNameAnother8%\CounterNameAnother8%",
                         collector.Counters[9].Item1.OriginalString);
-                    Assert.AreEqual(@"CategoryNameAnother - CounterNameAnother", collector.Counters[9].Item1.ReportAs);
+                    Assert.AreEqual(@"CategoryNameAnother8% - CounterNameAnother8%", collector.Counters[9].Item1.ReportAs);
                 }
             }
         }

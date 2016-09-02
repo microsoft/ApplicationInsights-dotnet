@@ -70,12 +70,6 @@
             this.WriteEvent(6, e, counter, this.ApplicationName);
         }
 
-        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Invalid value or no value has been specified for ReportAs when configuring custom performance counter collection. The value will be stripped of invalid characters. ReportAs may not contain any digits or special characters except the following ones: /, _, - or a dot. Until the configuration is fixed, counter {0} will be reported as {1}. The invalid value specified is {2}.")]
-        public void CounterReportAsStrippedEvent(string counter, string stripped, string originalReportAs, string applicationName = "dummy")
-        {
-            this.WriteEvent(7, counter, stripped, originalReportAs, this.ApplicationName);
-        }
-
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
             Message = @"Error collecting {0} out of {1} configured performance counters. Please check the configuration.
 {2}")]
