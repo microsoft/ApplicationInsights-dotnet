@@ -6,6 +6,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 - InMemoryChannel has a new override for Flush method that accepts timeout.
 - Local storage folder name was changed. That means that when the application stopped, and the application was updated to the new SDK, then the telemetry from the old local folder will not be send.
+- Allow all characters in property names and measurements names.
 
 ## Version 2.2.0-beta1
 
