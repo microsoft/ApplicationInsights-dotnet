@@ -60,10 +60,6 @@
       }
     },
     "net451": {
-      "dependencies": {
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
-        "Moq": "4.5.9"
-      }
     }
   },
 
