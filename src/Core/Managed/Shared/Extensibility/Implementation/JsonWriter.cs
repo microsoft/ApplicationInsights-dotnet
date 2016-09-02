@@ -209,8 +209,9 @@
                         else
                         {
                             this.textWriter.Write(@"\u");
-                            this.textWriter.Write(((ushort)c).ToString("x4"));
+                            this.textWriter.Write(((ushort)c).ToString("x4", CultureInfo.InvariantCulture));
                         }
+
                         break;
                 }
             }
