@@ -68,6 +68,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSourceTest.cs">
+      <Link>Extensibility\Implementation\RichPayloadEventSourceTest.cs</Link>
+    </Compile>
     <Compile Include="FailOnAssertSetup.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
   </ItemGroup>

@@ -1,5 +1,15 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+#if NET40
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.Diagnostics.Tracing;
+#else
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
@@ -8,7 +18,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
+#endif
     internal sealed class RichPayloadEventSource : IDisposable
     {
         /// <summary>RichPayloadEventSource instance.</summary>

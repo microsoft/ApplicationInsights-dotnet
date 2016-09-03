@@ -2,7 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+
+#if NET40
+    using Microsoft.Diagnostics.Tracing;
+#else
     using System.Diagnostics.Tracing;
+#endif
     using System.Linq;
     using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -144,7 +149,7 @@
         /// <param name="track">The tracking callback to execute.</param>
         private void DoTracking(EventKeywords keywords, ITelemetry item, Type dataType, Action<TelemetryClient, ITelemetry> track)
         {
-            if (IsRunningOnVersion46AndAbove())
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
             {
                 var client = new TelemetryClient();
                 client.InstrumentationKey = Guid.NewGuid().ToString();
@@ -251,8 +256,13 @@
             return null;
         }
 
-        private static bool IsRunningOnVersion46AndAbove()
+        private static bool IsRunningOnEnvironmentSupportingRichPayloadEventSource()
         {
+#if NET40
+            // NET40 version uses EventSource in Microsoft.Diagnostics which supports RichPayloadEvent on .NET Framework 4.0/4.5/4.6+
+            return true;
+#else
+            // Other versions depend on EventSource in .Net Framework 4.6+
             string productVersionString = System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(object).Assembly.Location).ProductVersion;
 
             Version ver;
@@ -263,6 +273,7 @@
 
             var ver46 = new Version(4, 6, 0, 0);
             return ver >= ver46;
+#endif
         }
     }
 }
