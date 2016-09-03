@@ -18,7 +18,8 @@
   },
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
-    "delaySign": true
+    "delaySign": true,
+    "xmlDoc": true
   },
   "dependencies": {
     "Desktop.Analyzers": "1.2.0-beta2",
