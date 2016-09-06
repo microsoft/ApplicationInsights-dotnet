@@ -93,7 +93,6 @@
     <UsingTask TaskName="InjectXmlLanguage" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
             <InputFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
-            <!--<InputFile ParameterType="System.String" Required="true" />-->
         </ParameterGroup>
         <Task>
             <Reference Include="System" />
@@ -146,9 +145,9 @@
                         }
                     }
                 ]]>
-                </Code>
-            </Task>
-        </UsingTask>
+            </Code>
+        </Task>
+    </UsingTask>
 
     <Target Name="CheckBuildParameters">
         <Message Importance="high" Text="ComputerName: $(ComputerName)"></Message>
