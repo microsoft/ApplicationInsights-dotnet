@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25417.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2E6DDE9E-8C75-4F9C-8906-08EBDD6E73EF}"
 EndProject
@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 		RunTestsCore.ps1 = RunTestsCore.ps1
 		SetEnv.targets = SetEnv.targets
+		Signing.props = Signing.props
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.ApplicationInsights.AspNetCore", "src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj", "{95EC3635-22E4-4C3A-A066-F5823A0648DA}"
