@@ -180,7 +180,7 @@
             {
                 switch (c)
                 {
-                    case '\\': 
+                    case '\\':
                         this.textWriter.Write("\\\\");
                         break;
                     case '"':
@@ -202,7 +202,16 @@
                         this.textWriter.Write("\\t");
                         break;
                     default:
-                this.textWriter.Write(c);
+                        if (!char.IsControl(c))
+                        {
+                            this.textWriter.Write(c);
+                        }
+                        else
+                        {
+                            this.textWriter.Write(@"\u");
+                            this.textWriter.Write(((ushort)c).ToString("x4", CultureInfo.InvariantCulture));
+                        }
+
                         break;
                 }
             }
