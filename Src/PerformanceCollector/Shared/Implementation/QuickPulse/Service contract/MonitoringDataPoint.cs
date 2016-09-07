@@ -9,13 +9,13 @@
     [KnownType(typeof(ExceptionTelemetryDocument))]
     internal struct MonitoringDataPoint
     {
-        public const string CurrentInvariantVersion = "2";
+        public const int CurrentInvariantVersion = 2;
 
         [DataMember]
         public string Version { get; set; }
 
         [DataMember]
-        public string InvariantVersion { get; set; }
+        public int InvariantVersion { get; set; }
 
         [DataMember]
         public string InstrumentationKey { get; set; }
