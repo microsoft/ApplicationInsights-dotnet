@@ -96,6 +96,7 @@
             var dataPoint = new MonitoringDataPoint
             {
                 Version = this.version,
+                InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                 //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
                 StreamId = this.streamId,
@@ -177,6 +178,7 @@
                 var dataPoint = new MonitoringDataPoint
                                     {
                                         Version = this.version,
+                                        InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
                                         StreamId = this.streamId,

@@ -248,8 +248,8 @@
                                 new ConcurrentStack<ITelemetryDocument>(
                                 new ITelemetryDocument[]
                                     {
-                                        new RequestTelemetryDocument() { Id = "Request1", Properties = properties.ToArray() },
-                                        new DependencyTelemetryDocument() { Id = "Dependency1", Properties = properties.ToArray() },
+                                        new RequestTelemetryDocument() { Name = "Request1", Properties = properties.ToArray() },
+                                        new DependencyTelemetryDocument() { Name = "Dependency1", Properties = properties.ToArray() },
                                         new ExceptionTelemetryDocument() { Exception = "Exception1", Properties = properties.ToArray() }
                                     })
                         },
@@ -261,11 +261,11 @@
             // ASSERT
             this.listener.Stop();
 
-            Assert.AreEqual("Request1", ((RequestTelemetryDocument)this.samples[0].Item2.Documents[0]).Id);
+            Assert.AreEqual("Request1", ((RequestTelemetryDocument)this.samples[0].Item2.Documents[0]).Name);
             Assert.AreEqual("Prop1", ((RequestTelemetryDocument)this.samples[0].Item2.Documents[0]).Properties.First().Key);
             Assert.AreEqual("Val1", ((RequestTelemetryDocument)this.samples[0].Item2.Documents[0]).Properties.First().Value);
 
-            Assert.AreEqual("Dependency1", ((DependencyTelemetryDocument)this.samples[0].Item2.Documents[1]).Id);
+            Assert.AreEqual("Dependency1", ((DependencyTelemetryDocument)this.samples[0].Item2.Documents[1]).Name);
             Assert.AreEqual("Prop1", ((DependencyTelemetryDocument)this.samples[0].Item2.Documents[1]).Properties.First().Key);
             Assert.AreEqual("Val1", ((DependencyTelemetryDocument)this.samples[0].Item2.Documents[1]).Properties.First().Value);
 
@@ -561,6 +561,7 @@
 
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(version, this.samples[0].Item2.Version);
+            Assert.AreEqual(MonitoringDataPoint.CurrentInvariantVersion, this.samples[0].Item2.InvariantVersion);
         }
 
         [TestMethod]

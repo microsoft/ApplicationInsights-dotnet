@@ -404,7 +404,7 @@
             // ACT
             var request = new RequestTelemetry()
                               {
-                                  Id = Guid.NewGuid().ToString(),
+                                  Name = Guid.NewGuid().ToString(),
                                   Success = false,
                                   ResponseCode = "500",
                                   Duration = TimeSpan.FromSeconds(1),
@@ -414,7 +414,7 @@
 
             var dependency = new DependencyTelemetry()
                                  {
-                                     Id = Guid.NewGuid().ToString(),
+                                     Name = Guid.NewGuid().ToString(),
                                      Success = false,
                                      Duration = TimeSpan.FromSeconds(1),
                                      Properties = { { "Prop1", "Val1" }, { "Prop2", "Val2" }, { "Prop3", "Val3" }, { "Prop4", "Val4" }, { "ErrorMessage", "EMValue" } },
@@ -437,13 +437,13 @@
             Assert.AreEqual(3, accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Count);
 
             Assert.AreEqual(TelemetryDocumentType.Request, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[0].DocumentType));
-            Assert.AreEqual(request.Id, ((RequestTelemetryDocument)collectedTelemetry[0]).Id);
+            Assert.AreEqual(request.Name, ((RequestTelemetryDocument)collectedTelemetry[0]).Name);
             Assert.AreEqual(3, collectedTelemetry[0].Properties.Length);
 
             Assert.IsTrue(collectedTelemetry[0].Properties.ToList().TrueForAll(pair => pair.Key.Contains("Prop") && pair.Value.Contains("Val")));
             
             Assert.AreEqual(TelemetryDocumentType.RemoteDependency, Enum.Parse(typeof(TelemetryDocumentType), collectedTelemetry[1].DocumentType));
-            Assert.AreEqual(dependency.Id, ((DependencyTelemetryDocument)collectedTelemetry[1]).Id);
+            Assert.AreEqual(dependency.Name, ((DependencyTelemetryDocument)collectedTelemetry[1]).Name);
             Assert.AreEqual(3 + 1, collectedTelemetry[1].Properties.Length);
 
             Assert.IsTrue(collectedTelemetry[1].Properties.ToList().TrueForAll(pair => (pair.Key.Contains("Prop") && pair.Value.Contains("Val")) || (pair.Key == "ErrorMessage" && pair.Value == "EMValue")));

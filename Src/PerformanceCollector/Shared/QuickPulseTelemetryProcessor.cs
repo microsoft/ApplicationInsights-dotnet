@@ -184,9 +184,9 @@
         {
             return new RequestTelemetryDocument()
                        {
+                           Id = Guid.NewGuid(),
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = requestTelemetry.Timestamp,
-                           Id = requestTelemetry.Id,
                            Name = TruncateValue(requestTelemetry.Name),
                            StartTime = requestTelemetry.StartTime,
                            Success = IsRequestSuccessful(requestTelemetry),
@@ -202,9 +202,9 @@
         {
             return new DependencyTelemetryDocument()
                        {
+                           Id = Guid.NewGuid(),
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = dependencyTelemetry.Timestamp,
-                           Id = dependencyTelemetry.Id,
                            Name = TruncateValue(dependencyTelemetry.Name),
                            StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
@@ -221,6 +221,7 @@
         {
             return new ExceptionTelemetryDocument()
                        {
+                           Id = Guid.NewGuid(),
                            Version = TelemetryDocumentContractVersion,
                            Message = TruncateValue(exceptionTelemetry.Message),
                            SeverityLevel =

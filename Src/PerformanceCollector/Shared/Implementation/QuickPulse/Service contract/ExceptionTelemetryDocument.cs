@@ -1,11 +1,15 @@
 ﻿namespace Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService
 {
+    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     [DataContract]
     internal struct ExceptionTelemetryDocument : ITelemetryDocument
     {
+        [DataMember(EmitDefaultValue = false)]
+        public Guid Id { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
         

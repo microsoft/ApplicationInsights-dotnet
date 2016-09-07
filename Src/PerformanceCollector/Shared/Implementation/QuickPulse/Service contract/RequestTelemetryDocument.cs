@@ -8,13 +8,13 @@
     internal struct RequestTelemetryDocument : ITelemetryDocument
     {
         [DataMember(EmitDefaultValue = false)]
+        public Guid Id { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public DateTimeOffset Timestamp { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string Id { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string Name { get; set; }
