@@ -192,7 +192,7 @@ END OF Modernizr NOTICES, INFORMATION, AND LICENSE
 
 %% Newtonsoft.Json NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
-Copyright © 2016 Newtonsoft
+Copyright (c) 2016 Newtonsoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
