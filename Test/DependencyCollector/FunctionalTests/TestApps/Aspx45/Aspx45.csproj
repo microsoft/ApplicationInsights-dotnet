@@ -253,6 +253,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.Common.Sdk.Net45.targets'))\Test.Common.Sdk.Net45.targets" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <PropertyGroup Condition="$(BuildingInsideVisualStudio)!=''">
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <PostBuildEvent>

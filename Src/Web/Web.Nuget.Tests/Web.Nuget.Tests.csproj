@@ -91,4 +91,5 @@
     <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.50.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.50.0\build\StyleCop.MSBuild.Targets'))" />
   </Target>
   <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.50.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.50.0\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>
