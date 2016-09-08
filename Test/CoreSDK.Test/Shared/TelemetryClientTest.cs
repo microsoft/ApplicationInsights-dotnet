@@ -865,7 +865,7 @@
             };
 
             // ChuckNorrisTeamUnitTests resource in Prototypes5
-            var config = new TelemetryConfiguration { InstrumentationKey = "cdec18df-21e6-42a0-b7d2-3e84d5793d97" };
+            var config = new TelemetryConfiguration { InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" };
             var telemetryClient = new TelemetryClient(config);
 
             telemetryClient.Initialize(telemetry1);
@@ -884,7 +884,7 @@
 
             HttpClient client = new HttpClient();
             var result = client.PostAsync(
-                "https://eus-breeze-in.cloudapp.net/v2/validate",
+                "https://dc.services.visualstudio.com/v2/validate",
                 new ByteArrayContent(Encoding.UTF8.GetBytes(json))).GetAwaiter().GetResult();
 
             if (result.StatusCode != HttpStatusCode.OK)
