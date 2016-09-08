@@ -174,7 +174,7 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            ExceptionDetails exceptionDetails = PlatformSingleton.Current.GetExceptionDetails(exception, parentExceptionDetails);
+            ExceptionDetails exceptionDetails = ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
 
             // For upper level exception see if Message was provided and do not use exceptiom.message in that case
             if (parentExceptionDetails == null && !string.IsNullOrWhiteSpace(this.Message))
@@ -220,7 +220,7 @@
                 exceptions.RemoveRange(Constants.MaxExceptionCountToSave, exceptions.Count - Constants.MaxExceptionCountToSave);
                 
                 // we'll add our new exception and parent it to the root exception (first one in the list)
-                exceptions.Add(PlatformSingleton.Current.GetExceptionDetails(countExceededException, exceptions[0]));
+                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
             }
             
             this.Data.exceptions = exceptions;

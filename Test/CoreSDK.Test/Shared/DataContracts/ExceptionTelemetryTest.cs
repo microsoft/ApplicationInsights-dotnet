@@ -201,36 +201,6 @@
         }
 
         [TestMethod]
-        public void GetExceptionDetailsInvokesPlatformToGetExceptionDetails()
-        {
-            Exception exception = null;
-
-            Extensibility.Implementation.Platform.PlatformSingleton.Current = new StubPlatform
-            {
-                OnGetExceptionDetails = (e, p) =>
-                {
-                    exception = e;
-
-                    return new Extensibility.Implementation.External.ExceptionDetails();
-                }
-            };
-            try
-            {
-                var expectedException = new Exception();
-                var expectedParentDetails = new Extensibility.Implementation.External.ExceptionDetails();
-
-                ExceptionTelemetry original = CreateExceptionTelemetry(expectedException);
-
-                Assert.Same(expectedException, exception);
-                Assert.Same(expectedException, original.Exception);
-            }
-            finally
-            {
-                Microsoft.ApplicationInsights.Extensibility.Implementation.Platform.PlatformSingleton.Current = null;
-            }
-        }
-
-        [TestMethod]
         public void SerializeWritesDataBaseTypeAsExpectedByEndpoint()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();

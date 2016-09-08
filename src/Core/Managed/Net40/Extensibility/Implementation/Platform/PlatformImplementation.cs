@@ -1,25 +1,18 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
+    using System.Security;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// The .NET 4.0 and 4.5 implementation of the <see cref="IPlatform"/> interface.
     /// </summary>
-    internal class PlatformImplementation : 
-        IPlatform
+    internal class PlatformImplementation : IPlatform
     {
         private IDebugOutput debugOutput = null;
-
-        public IDictionary<string, object> GetApplicationSettings()
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Returns contents of the ApplicationInsights.config file in the application directory.
@@ -29,19 +22,39 @@
             // Config file should be in the base directory of the app domain
             string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
 
-            // Ensure config file actually exists
-            if (File.Exists(configFilePath))
+            try
             {
-                return File.ReadAllText(configFilePath);
+                // Ensure config file actually exists
+                if (File.Exists(configFilePath))
+                {
+                    return File.ReadAllText(configFilePath);
+                }
             }
-            
-            CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            return string.Empty;
-        }
+            catch (FileNotFoundException)
+            {
+                // For cases when file was deleted/modified while reading
+                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // For cases when file was deleted/modified while reading
+                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
+            }
+            catch (IOException)
+            {
+                // For cases when file was deleted/modified while reading
+                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
+            }
+            catch (SecurityException)
+            {
+                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
+            }
 
-        public ExceptionDetails GetExceptionDetails(Exception exception, ExceptionDetails parentExceptionDetails)
-        {
-            return ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
+            return string.Empty;
         }
 
         /// <summary>
@@ -49,12 +62,7 @@
         /// </summary>
         public IDebugOutput GetDebugOutput()
         {
-            if (this.debugOutput == null)
-            {
-                this.debugOutput = new TelemetryDebugWriter(); 
-            }
-
-            return this.debugOutput;
+            return this.debugOutput ?? (this.debugOutput = new TelemetryDebugWriter());
         }
     }
 }
