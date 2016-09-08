@@ -26,8 +26,6 @@
                             int starIndex = filePath.IndexOf('*');
                             if (starIndex >= 0)
                             {
-                                //string[] directories = Directory.GetDirectories("");
-                                //string[] files = Directory.GetFiles(Path.GetDirectoryName(filePath));
                                 string dir = filePath.Substring(0, starIndex);
                                 if (string.IsNullOrEmpty(dir))
                                 {
