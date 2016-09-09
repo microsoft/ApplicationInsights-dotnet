@@ -1,4 +1,4 @@
-THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+﻿THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
 Do Not Translate or Localize
 
 The Visual Studio Application Insights SDK for .NET Web Applications source code repository includes third party material from the projects listed below. The original copyright notice and the license under which Microsoft received such third party material are set forth below. Microsoft reserves all other rights not expressly granted, whether by implication, estoppel or otherwise.  
@@ -30,9 +30,8 @@ The Visual Studio Application Insights SDK for .NET Web Applications source code
 24	StyleCop.MSBuild (https://github.com/adamralph/stylecop-msbuild)
 25	System.Spatial (http://odata.github.io/)
 26	WebGrease (http://webgrease.codeplex.com/)
-27	WindowsAzure.Storage (https://azure.microsoft.com/en-us/documentation/services/storage/)
-28	WiX (http://wixtoolset.org/)
-29	xunit (https://github.com/xunit/xunit)
+27	WiX (http://wixtoolset.org/)
+28	xunit (https://github.com/xunit/xunit)
 
 
 %% Antlr NOTICES, INFORMATION, AND LICENSE BEGIN HERE
@@ -227,7 +226,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 END OF OpenCover NOTICES, INFORMATION, AND LICENSE
 
 
-%% Owin and WindowsAzure.Storage NOTICES, INFORMATION, AND LICENSE BEGIN HERE
+%% Owin NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
 
                                  Apache License
@@ -432,7 +431,7 @@ END OF OpenCover NOTICES, INFORMATION, AND LICENSE
    See the License for the specific language governing permissions and
    limitations under the License.
 =========================================
-END OF Owin and WindowsAzure.Storage NOTICES, INFORMATION, AND LICENSE
+END OF Owin NOTICES, INFORMATION, AND LICENSE
 
 %% Respond NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
