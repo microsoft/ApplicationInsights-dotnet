@@ -63,8 +63,18 @@
                 // Exception
                 telemetryHandlers.Add(typeof(ExceptionTelemetry), this.CreateHandlerForExceptionTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
+#pragma warning disable 618
+                // PerformanceCounter
+                telemetryHandlers.Add(typeof(PerformanceCounterTelemetry), this.CreateHandlerForPerformanceCounterTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+#pragma warning restore 618
+
                 // PageView
                 telemetryHandlers.Add(typeof(PageViewTelemetry), this.CreateHandlerForPageViewTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+
+#pragma warning disable 618
+                // SessionState
+                telemetryHandlers.Add(typeof(SessionStateTelemetry), this.CreateHandlerForSessionStateTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
+#pragma warning restore 618
             }
             else
             {
@@ -281,7 +291,7 @@
                             data.target,
                             data.type,
                             data.properties,
-                            data.measurements,
+                            data.measurements
                         }
                     };
 
@@ -454,6 +464,77 @@
         }
 
         /// <summary>
+        /// Create handler for performance counter telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForPerformanceCounterTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        {
+            var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
+            var keywords = Keywords.Metrics;
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
+            var dummyMetricData = new MetricData();
+            var dummyDataPoint = new DataPoint();
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                PartA_iKey = this.dummyPartAiKeyValue,
+                PartA_Tags = this.dummyPartATagsValue,
+                PartB_MetricData = new
+                {
+                    // The properties and layout should be the same as MetricData_types.cs
+                    dummyMetricData.ver,
+                    metrics = new[]
+                    {
+                        new
+                        {
+                            // The properties and layout should be the same as DataPoint_types.cs
+                            dummyDataPoint.name,
+                            dummyDataPoint.kind,
+                            dummyDataPoint.value,
+                            dummyDataPoint.count,
+                            dummyDataPoint.min,
+                            dummyDataPoint.max,
+                            dummyDataPoint.stdDev
+                        }
+                    }.AsEnumerable(),
+                    dummyMetricData.properties
+                }
+            }.GetType());
+
+            return (item) =>
+            {
+                if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
+                {
+#pragma warning disable 618
+                    var telemetryItem = (item as PerformanceCounterTelemetry).Data;
+#pragma warning restore 618
+                    var data = telemetryItem.Data;
+                    var extendedData = new
+                    {
+                        // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
+                        PartA_iKey = telemetryItem.Context.InstrumentationKey,
+                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartB_MetricData = new
+                        {
+                            data.ver,
+                            metrics = data.metrics.Select(i => new
+                            {
+                                i.name,
+                                i.kind,
+                                i.value,
+                                i.count,
+                                i.min,
+                                i.max,
+                                i.stdDev
+                            }),
+                            data.properties
+                        }
+                    };
+
+                    writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                }
+            };
+        }
+
+        /// <summary>
         /// Create handler for page view telemetry.
         /// </summary>
         private Action<ITelemetry> CreateHandlerForPageViewTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
@@ -501,6 +582,56 @@
                     };
 
                     writeMethod.Invoke(eventSource, new object[] { PageViewTelemetry.TelemetryName, eventSourceOptions, extendedData });
+                }
+            };
+        }
+
+        /// <summary>
+        /// Create handler for session state telemetry.
+        /// </summary>
+        private Action<ITelemetry> CreateHandlerForSessionStateTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)
+        {
+            var eventSourceOptions = Activator.CreateInstance(eventSourceOptionsType);
+            var keywords = Keywords.Events;
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptions, keywords);
+            var dummyEventData = new EventData();
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                PartA_iKey = this.dummyPartAiKeyValue,
+                PartA_Tags = this.dummyPartATagsValue,
+                PartB_EventData = new
+                {
+                    // The properties and layout should be the same as EventData_types.cs
+                    dummyEventData.ver,
+                    dummyEventData.name,
+                    dummyEventData.properties,
+                    dummyEventData.measurements
+                }
+            }.GetType());
+
+            return (item) =>
+            {
+                if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
+                {
+#pragma warning disable 618
+                    var telemetryItem = (item as SessionStateTelemetry).Data;
+#pragma warning restore 618
+                    var data = telemetryItem.Data;
+                    var extendedData = new
+                    {
+                        // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
+                        PartA_iKey = telemetryItem.Context.InstrumentationKey,
+                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartB_EventData = new
+                        {
+                            data.ver,
+                            data.name,
+                            data.properties,
+                            data.measurements
+                        }
+                    };
+
+                    writeMethod.Invoke(eventSource, new object[] { EventTelemetry.TelemetryName, eventSourceOptions, extendedData });
                 }
             };
         }
