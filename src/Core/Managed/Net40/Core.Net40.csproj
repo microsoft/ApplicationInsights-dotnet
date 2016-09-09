@@ -70,6 +70,51 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\AjaxCallData.cs">
+      <Link>Extensibility\Implementation\External\AjaxCallData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\AvailabilityData.cs">
+      <Link>Extensibility\Implementation\External\AvailabilityData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\DataPoint.cs">
+      <Link>Extensibility\Implementation\External\DataPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\EventData.cs">
+      <Link>Extensibility\Implementation\External\EventData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\ExceptionData.cs">
+      <Link>Extensibility\Implementation\External\ExceptionData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\MessageData.cs">
+      <Link>Extensibility\Implementation\External\MessageData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\MetricData.cs">
+      <Link>Extensibility\Implementation\External\MetricData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PageViewData.cs">
+      <Link>Extensibility\Implementation\External\PageViewData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PageViewPerfData.cs">
+      <Link>Extensibility\Implementation\External\PageViewPerfData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PerformanceCounterData.cs">
+      <Link>Extensibility\Implementation\External\PerformanceCounterData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\RemoteDependencyData.cs">
+      <Link>Extensibility\Implementation\External\RemoteDependencyData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\RequestData.cs">
+      <Link>Extensibility\Implementation\External\RequestData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\SessionStateData.cs">
+      <Link>Extensibility\Implementation\External\SessionStateData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\StackFrame.cs">
+      <Link>Extensibility\Implementation\External\StackFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSource.cs">
+      <Link>Extensibility\Implementation\RichPayloadEventSource.cs</Link>
+    </Compile>
     <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
     <Compile Include="Extensibility\Implementation\TelemetryConfigurationFactory.cs" />
     <Compile Include="TimeSpanEx.cs" />

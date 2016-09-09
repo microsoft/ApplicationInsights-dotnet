@@ -430,7 +430,7 @@
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
             Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "001", telemetry.Properties.Keys.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", telemetry.Properties.Keys.ToArray()[1]);
             Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
         }
 
@@ -446,7 +446,7 @@
             Assert.Equal(2, telemetry.Metrics.Count);
             string[] keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
             Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "001", keys[0]);
+            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
         }
 
         [TestMethod]

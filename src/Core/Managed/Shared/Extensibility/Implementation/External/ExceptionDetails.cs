@@ -7,6 +7,8 @@
     /// </summary>
 #if NET46
     [System.Diagnostics.Tracing.EventData]
+#elif NET40
+    [Microsoft.Diagnostics.Tracing.EventData]
 #endif
     internal partial class ExceptionDetails
     {

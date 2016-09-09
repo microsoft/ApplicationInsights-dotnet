@@ -146,7 +146,7 @@
 
         private static DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
         {
-            string subdirectoryName = GetSHA1Hash(GetApplicationIdentity());
+            string subdirectoryName = GetSHA256Hash(GetApplicationIdentity());
             string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
             return root.CreateSubdirectory(subdirectoryPath);
         }
@@ -157,10 +157,10 @@
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
         }
 
-        private static string GetSHA1Hash(string input)
+        private static string GetSHA256Hash(string input)
         {
             byte[] inputBits = Encoding.Unicode.GetBytes(input);
-            byte[] hashBits = new SHA1CryptoServiceProvider().ComputeHash(inputBits);
+            byte[] hashBits = new SHA256CryptoServiceProvider().ComputeHash(inputBits);
             var hashString = new StringBuilder();
             foreach (byte b in hashBits)
             {

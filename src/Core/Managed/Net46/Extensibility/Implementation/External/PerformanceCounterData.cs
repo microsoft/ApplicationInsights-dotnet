@@ -4,11 +4,11 @@
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.
     /// </summary>
 #if NET40
-    [Microsoft.Diagnostics.Tracing.EventData(Name = "PartB_PageViewData")]
+    [Microsoft.Diagnostics.Tracing.EventData(Name = "PartB_PerformanceCounterData")]
 #else
-    [System.Diagnostics.Tracing.EventData(Name = "PartB_PageViewData")]
+    [System.Diagnostics.Tracing.EventData(Name = "PartB_PerformanceCounterData")]
 #endif
-    internal partial class PageViewData
+    internal partial class PerformanceCounterData
     {
     }
 }

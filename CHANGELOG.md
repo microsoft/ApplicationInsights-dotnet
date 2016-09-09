@@ -11,6 +11,8 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Type `PerformanceCounterTelemetry` was marked obsolete. Use `MetricTelemetry` instead.
 - Marked `RequestTelemetry.HttpMethod` as obsolete. Put http verb as part of the name for the better grouping by name and use custom properties to report http verb as a dimension.
 - Marked `RequestTelemetry.StartTime` as obsolete. Use `TimeStamp` instead.
+- Local storage folder name was changed. That means that when the application stopped, and the application was updated to the new SDK, then the telemetry from the old local folder will not be send.
+- Allow all characters in property names and measurements names.
 
 ## Version 2.2.0-beta1
 

@@ -833,21 +833,23 @@
         [TestMethod]
         public void SendEventToValidateEndpoint()
         {
-            EventTelemetry telemetry1 = new EventTelemetry();
-            MetricTelemetry telemetry2 = new MetricTelemetry();
-            DependencyTelemetry telemetry3 = new DependencyTelemetry();
-            ExceptionTelemetry telemetry4 = new ExceptionTelemetry();
-            MetricTelemetry telemetry5 = new MetricTelemetry();
-            PageViewTelemetry telemetry6 = new PageViewTelemetry();
+            string unicodeString = "русский\\#/\x0000\x0001\x0002\x0003\x0004\x0005\x0006\x0007\x0008\x009Farabicشلاؤيثبلاهتنمةىخحضقسفعشلاؤيصثبل c\n\r\t";
+
+            EventTelemetry telemetry1 = new EventTelemetry(unicodeString);
+            MetricTelemetry telemetry2 = new MetricTelemetry("name", 100);
+            DependencyTelemetry telemetry3 = new DependencyTelemetry("name", "commandName", DateTimeOffset.UtcNow, TimeSpan.FromHours(3), true);
+            ExceptionTelemetry telemetry4 = new ExceptionTelemetry(new ArgumentException("Test"));
+            MetricTelemetry telemetry5 = new MetricTelemetry("name", 100);
+            PageViewTelemetry telemetry6 = new PageViewTelemetry("name");
 #pragma warning disable 618
-            PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry();
+            PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry("category", "name", "instance", 100);
 #pragma warning restore 618
-            RequestTelemetry telemetry8 = new RequestTelemetry();
+            RequestTelemetry telemetry8 = new RequestTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(2), "200", true);
 #pragma warning disable 618
-            SessionStateTelemetry telemetry9 = new SessionStateTelemetry();
+            SessionStateTelemetry telemetry9 = new SessionStateTelemetry(SessionState.Start);
 #pragma warning restore 618
-            TraceTelemetry telemetry10 = new TraceTelemetry();
-            AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry();
+            TraceTelemetry telemetry10 = new TraceTelemetry("text");
+            AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(10), "location", true, "message");
 
             var telemetryItems = new List<ITelemetry>
             {
@@ -867,7 +869,8 @@
             // ChuckNorrisTeamUnitTests resource in Prototypes5
             var config = new TelemetryConfiguration { InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" };
             var telemetryClient = new TelemetryClient(config);
-
+            telemetryClient.Context.Properties.Add(unicodeString, unicodeString);
+            
             telemetryClient.Initialize(telemetry1);
             telemetryClient.Initialize(telemetry2);
             telemetryClient.Initialize(telemetry3);

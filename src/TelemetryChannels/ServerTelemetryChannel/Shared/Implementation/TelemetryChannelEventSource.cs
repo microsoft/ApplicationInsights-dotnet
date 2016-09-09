@@ -287,10 +287,10 @@
             this.WriteEvent(40, transmissionId ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}. Last backend status code: {1}. Current delay in sec: {2}.", Level = EventLevel.Verbose)]
-        public void TransmitterBufferSkipped(string transmissionId, int statusCode, double currentDelayInSeconds, string appDomainName = "Incorrect")
+        [Event(41, Message = "TransmitterBufferSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
+        public void TransmitterBufferSkipped(string transmissionId, string appDomainName = "Incorrect")
         {
-            this.WriteEvent(41, transmissionId, statusCode, currentDelayInSeconds, this.ApplicationName);
+            this.WriteEvent(41, transmissionId, this.ApplicationName);
         }
 
         [Event(42, Message = "TransmitterStorageSkipped. TransmissionId: {0}.", Level = EventLevel.Verbose)]
@@ -407,6 +407,12 @@
             this.WriteEvent(
                 57,
                 this.ApplicationName);
+        }
+
+        [Event(58, Message = "Telemetry item is going to storage. Last backend status code: {0}. Current delay in sec: {1}.", Level = EventLevel.Verbose)]
+        public void LastBackendResponseWhenPutToStorage(int statusCode, double currentDelayInSeconds, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(58, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
         private string GetApplicationName()

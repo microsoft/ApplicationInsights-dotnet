@@ -6,11 +6,12 @@
     <title>Application Insights Telemetry Channel for Windows Server Applications</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=391182</licenseUrl>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
     <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package.</description>
+    <summary>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios.</summary>
+    <description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry</tags>
