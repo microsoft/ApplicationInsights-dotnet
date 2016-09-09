@@ -258,7 +258,12 @@
                     .Where(p => !string.Equals(p.Key, specialPropertyName, StringComparison.Ordinal))
                     .Take(MaxPropertyCount))
                 {
-                    properties.Add(TruncateValue(prop.Key), TruncateValue(prop.Value));
+                    string truncatedKey = TruncateValue(prop.Key);
+
+                    if (!properties.ContainsKey(truncatedKey))
+                    {
+                        properties.Add(truncatedKey, TruncateValue(prop.Value));
+                    }
                 }
 
                 if (specialPropertyName != null)

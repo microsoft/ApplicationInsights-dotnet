@@ -1005,5 +1005,38 @@
                 ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Value,
                 exceptionShort.Properties.First().Value);
         }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorHandlesDuplicatePropertyNamesDueToTruncation()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            // ACT
+            var exception = new ExceptionTelemetry(new ArgumentException())
+            {
+                Properties =
+                {
+                    { new string('p', MaxFieldLength + 1), "Val1" },
+                    { new string('p', MaxFieldLength + 2), "Val2" }
+                },
+                Message = "Message",
+                Context = { InstrumentationKey = instrumentationKey }
+            };
+
+            telemetryProcessor.Process(exception);
+            
+            // ASSERT
+            Assert.AreEqual(1, ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.Length);
+            Assert.AreEqual(
+                new string('p', MaxFieldLength),
+                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Key);
+        }
     }
 }
