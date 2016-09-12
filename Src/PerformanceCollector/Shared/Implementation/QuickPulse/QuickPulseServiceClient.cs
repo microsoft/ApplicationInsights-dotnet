@@ -24,6 +24,8 @@
 
         private readonly string streamId;
 
+        private readonly string machineName;
+
         private readonly string version;
 
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
@@ -34,11 +36,12 @@
 
         private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
 
-        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string version, Clock timeProvider, TimeSpan? timeout = null)
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string machineName, string version, Clock timeProvider, TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
             this.streamId = streamId;
+            this.machineName = machineName;
             this.version = version;
             this.timeProvider = timeProvider;
             this.timeout = timeout ?? this.timeout;
@@ -100,6 +103,7 @@
                 //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
                 StreamId = this.streamId,
+                MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime
             };
 
@@ -182,6 +186,7 @@
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
                                         StreamId = this.streamId,
+                                        MachineName = this.machineName,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
                                         Metrics = metricPoints.ToArray(),
                                         Documents = documents

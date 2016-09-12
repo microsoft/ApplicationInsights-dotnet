@@ -27,6 +27,9 @@
         public string StreamId { get; set; }
 
         [DataMember]
+        public string MachineName { get; set; }
+
+        [DataMember]
         public DateTime Timestamp { get; set; }
 
         [DataMember]
