@@ -734,12 +734,10 @@
             telemetryProcessor.Process(requestShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Name,
-                requestShort.Name);
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Name,
-                requestShort.Name);
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<RequestTelemetryDocument>().ToList();
+
+            Assert.AreEqual(telemetryDocuments[0].Name, requestShort.Name);
+            Assert.AreEqual(telemetryDocuments[1].Name, requestShort.Name);
         }
 
         [TestMethod]
@@ -772,18 +770,16 @@
             telemetryProcessor.Process(requestShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Key,
-                requestShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Value,
-                requestShort.Properties.First().Value);
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Key,
-                requestShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((RequestTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Value,
-                requestShort.Properties.First().Value);
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<RequestTelemetryDocument>().ToList();
+
+            var actual = telemetryDocuments[0].Properties.First();
+            var expected = requestShort.Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
+
+            actual = telemetryDocuments[1].Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod]
@@ -818,12 +814,10 @@
             telemetryProcessor.Process(dependencyShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).CommandName,
-                dependencyShort.CommandName);
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).CommandName,
-                dependencyLong.CommandName.Substring(0, MaxFieldLength));
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<DependencyTelemetryDocument>().ToList();
+
+            Assert.AreEqual(telemetryDocuments[0].CommandName, dependencyShort.CommandName);
+            Assert.AreEqual(telemetryDocuments[1].CommandName, dependencyLong.CommandName.Substring(0, MaxFieldLength));
         }
 
         [TestMethod]
@@ -860,12 +854,10 @@
             telemetryProcessor.Process(dependencyShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Name,
-                dependencyShort.Name);
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Name,
-                dependencyLong.Name.Substring(0, MaxFieldLength));
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<DependencyTelemetryDocument>().ToList();
+
+            Assert.AreEqual(telemetryDocuments[0].Name, dependencyShort.Name);
+            Assert.AreEqual(telemetryDocuments[1].Name, dependencyLong.Name.Substring(0, MaxFieldLength));
         }
 
         [TestMethod]
@@ -908,18 +900,16 @@
             telemetryProcessor.Process(dependencyShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Key,
-                dependencyShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Value,
-                dependencyShort.Properties.First().Value);
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Key,
-                dependencyShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((DependencyTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Value,
-                dependencyShort.Properties.First().Value);
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<DependencyTelemetryDocument>().ToList();
+
+            var expected = dependencyShort.Properties.First();
+            var actual = telemetryDocuments[0].Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
+
+            actual = telemetryDocuments[1].Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod]
@@ -952,12 +942,10 @@
             telemetryProcessor.Process(exceptionShort);
             
             // ASSERT
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Message,
-                exceptionShort.Message);
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Message,
-                exceptionLong.Message.Substring(0, MaxFieldLength));
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual(telemetryDocuments[0].Message, exceptionShort.Message);
+            Assert.AreEqual(telemetryDocuments[1].Message, exceptionLong.Message.Substring(0, MaxFieldLength));
         }
 
         [TestMethod]
@@ -992,18 +980,16 @@
             telemetryProcessor.Process(exceptionShort);
 
             // ASSERT
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Key,
-                exceptionShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Value,
-                exceptionShort.Properties.First().Value);
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Key,
-                exceptionShort.Properties.First().Key);
-            Assert.AreEqual(
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[1]).Properties.First().Value,
-                exceptionShort.Properties.First().Value);
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            var expected = exceptionShort.Properties.First();
+            var actual = telemetryDocuments[0].Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
+
+            actual = telemetryDocuments[1].Properties.First();
+            Assert.AreEqual(expected.Key, actual.Key);
+            Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod]
@@ -1033,10 +1019,10 @@
             telemetryProcessor.Process(exception);
             
             // ASSERT
-            Assert.AreEqual(1, ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.Length);
-            Assert.AreEqual(
-                new string('p', MaxFieldLength),
-                ((ExceptionTelemetryDocument)accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.ToList()[0]).Properties.First().Key);
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual(1, telemetryDocuments[0].Properties.Length);
+            Assert.AreEqual(new string('p', MaxFieldLength), telemetryDocuments[0].Properties.First().Key);
         }
     }
 }
