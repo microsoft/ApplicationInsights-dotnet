@@ -58,7 +58,8 @@
         }
 
         /// <summary>
-        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled. 
+        /// Gets or sets a semicolon separated list of telemetry types that should not be sampled.
+        /// Allowed type names: Dependency, Event, Exception, PageView, Request, Trace. 
         /// Types listed are excluded even if they are set in IncludedTypes.
         /// </summary>
         public string ExcludedTypes
