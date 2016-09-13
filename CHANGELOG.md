@@ -7,6 +7,9 @@ This changelog will be used to generate documentation on [release notes page](ht
 - InMemoryChannel has a new override for Flush method that accepts timeout.
 - Local storage folder name was changed. That means that when the application stopped, and the application was updated to the new SDK, then the telemetry from the old local folder will not be send.
 - Allow all characters in property names and measurements names.
+- AdaptiveTelemetryProcessor has a new property IncludedTypes. It gets or sets a semicolon separated list of telemetry types that should be sampled. If left empty all types are included implicitly. Types are not included if they are set in ExcludedTypes.
+- Richpayload event source event is generated for all framework versions of SDK (before it was supported in 4.6 only)
+- TelemetryClient has a new method TrackAvailability. Data posted using this method would be available in AppAnalitics only, Azure portal UI is not available at this moment.
 
 ## Version 2.2.0-beta1
 
