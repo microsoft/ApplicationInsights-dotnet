@@ -388,13 +388,14 @@
 
         [Event(
             56,
-            Message = "Access to the local storage was denied. {0}.",
+            Message = "Access to the local storage was denied. Error: {0}. User: {1}.",
             Level = EventLevel.Warning)]
-        public void TransmissionStorageAccessDeniedWarning(string error, string appDomainName = "Incorrect")
+        public void TransmissionStorageAccessDeniedWarning(string error, string user, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 56,
                 error ?? string.Empty,
+                user ?? string.Empty,
                 this.ApplicationName);
         }
 
