@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.IO;
     using System.Security;
+    using System.Security.AccessControl;
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
@@ -15,6 +16,7 @@
     {
         private readonly IDictionary environment;
         private readonly string customFolderName;
+        private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
@@ -36,29 +38,75 @@
         {
             var errors = new List<string>(this.environment.Count + 1);
 
-            var result = CreateAndValidateApplicationFolder(this.customFolderName, false, errors);
-
+            var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
+            
             if (result == null)
             {
-                foreach (string rootPath in new[] { this.environment["LOCALAPPDATA"], this.environment["TEMP"] })
+                object localAppData = this.environment["LOCALAPPDATA"];
+                if (localAppData != null)
                 {
-                    result = CreateAndValidateApplicationFolder(rootPath, true, errors);
-                    if (result != null)
-                    {
-                        break;
-                    }
+                    result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: false, errors: errors);
                 }
             }
 
             if (result == null)
             {
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors));
+                object temp = this.environment["TEMP"];
+                if (temp != null)
+                {
+                    result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
+                }
+            }
+
+            if (result == null)
+            {
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.currentIdentity.Name);
             }
 
             return result;
         }
 
-        private static IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)
+        private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
+        {
+            return "Path: " + path + "; Error: " + exp.Message + Environment.NewLine;
+        }
+
+        /// <summary>
+        /// Throws <see cref="UnauthorizedAccessException" /> if the process lacks the required permissions to access the <paramref name="telemetryDirectory"/>.
+        /// </summary>
+        private static void CheckAccessPermissions(DirectoryInfo telemetryDirectory)
+        {
+            string testFileName = Path.GetRandomFileName();
+            string testFilePath = Path.Combine(telemetryDirectory.FullName, testFileName);
+
+            // FileSystemRights.CreateFiles
+            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite))
+            {
+                // FileSystemRights.Write
+                testFile.Write(new[] { default(byte) }, 0, 1);
+            }
+
+            // FileSystemRights.ListDirectory and FileSystemRights.Read 
+            telemetryDirectory.GetFiles(testFileName);
+
+            // FileSystemRights.DeleteSubdirectoriesAndFiles
+            File.Delete(testFilePath);
+        }
+
+        private static string GetSHA256Hash(string input)
+        {
+            byte[] inputBits = Encoding.Unicode.GetBytes(input);
+            byte[] hashBits = new SHA256CryptoServiceProvider().ComputeHash(inputBits);
+            var hashString = new StringBuilder();
+            foreach (byte b in hashBits)
+            {
+                hashString.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+            }
+
+            return hashString.ToString();
+        }
+
+        private IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)
         {
             string errorMessage = null;
             IPlatformFolder result = null;
@@ -70,7 +118,7 @@
                     var telemetryDirectory = new DirectoryInfo(rootPath);
                     if (createSubFolder)
                     {
-                        telemetryDirectory = CreateTelemetrySubdirectory(telemetryDirectory);
+                        telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
                     }
 
                     CheckAccessPermissions(telemetryDirectory);
@@ -117,57 +165,35 @@
             return result;
         }
 
-        private static string GetPathAccessFailureErrorMessage(Exception exp, string path)
+        private DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
         {
-            return "Path: " + path + "; Error: " + exp.Message + Environment.NewLine;
-        }
-
-        /// <summary>
-        /// Throws <see cref="UnauthorizedAccessException" /> if the process lacks the required permissions to access the <paramref name="telemetryDirectory"/>.
-        /// </summary>
-        private static void CheckAccessPermissions(DirectoryInfo telemetryDirectory)
-        {
-            string testFileName = Path.GetRandomFileName();
-            string testFilePath = Path.Combine(telemetryDirectory.FullName, testFileName);
-
-            // FileSystemRights.CreateFiles
-            using (var testFile = new FileStream(testFilePath, FileMode.CreateNew, FileAccess.ReadWrite))
-            {
-                // FileSystemRights.Write
-                testFile.Write(new[] { default(byte) }, 0, 1);
-            }
-
-            // FileSystemRights.ListDirectory and FileSystemRights.Read 
-            telemetryDirectory.GetFiles(testFileName);
-
-            // FileSystemRights.DeleteSubdirectoriesAndFiles
-            File.Delete(testFilePath);
-        }
-
-        private static DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
-        {
-            string subdirectoryName = GetSHA256Hash(GetApplicationIdentity());
+            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
+            string subdirectoryName = GetSHA256Hash(appIdentity);
             string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
-            return root.CreateSubdirectory(subdirectoryPath);
-        }
+            DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
 
-        private static string GetApplicationIdentity()
-        {
-            return WindowsIdentity.GetCurrent().Name + "@" +
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
-        }
+            var directorySecurity = subdirectory.GetAccessControl();
 
-        private static string GetSHA256Hash(string input)
-        {
-            byte[] inputBits = Encoding.Unicode.GetBytes(input);
-            byte[] hashBits = new SHA256CryptoServiceProvider().ComputeHash(inputBits);
-            var hashString = new StringBuilder();
-            foreach (byte b in hashBits)
-            {
-                hashString.Append(b.ToString("x2", CultureInfo.InvariantCulture));
-            }
+            var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+            directorySecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                        adminitrators,
+                        FileSystemRights.FullControl,
+                        InheritanceFlags.None,
+                        PropagationFlags.NoPropagateInherit,
+                        AccessControlType.Allow));
 
-            return hashString.ToString();
+            directorySecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                        this.currentIdentity.Name,
+                        FileSystemRights.FullControl,
+                        InheritanceFlags.None,
+                        PropagationFlags.NoPropagateInherit,
+                        AccessControlType.Allow));
+
+            subdirectory.SetAccessControl(directorySecurity);
+
+            return subdirectory;
         }
     }
 }
