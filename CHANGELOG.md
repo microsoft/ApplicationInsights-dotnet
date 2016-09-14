@@ -1,5 +1,9 @@
 # Changelog 
 
+### Version 2.1.1
+
+- Update NLog reference to [4.3.8](https://github.com/NLog/NLog/releases/tag/4.3.8)
+
 ### Version 2.1.0
 
 - For NLog and Log4Net when exception is traced with a custom message, custom message is added to the properties collection and reported to ApplicationInsights.
