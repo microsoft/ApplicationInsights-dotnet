@@ -93,7 +93,7 @@
             using (var module = new TestableExceptionTrackingTelemetryModule(null))
             {
                 module.Initialize(this.configuration);
-                Assert.DoesNotThrow(() => module.OnError(null));
+                module.OnError(null); // Expected to not throw.
             }
         }
 

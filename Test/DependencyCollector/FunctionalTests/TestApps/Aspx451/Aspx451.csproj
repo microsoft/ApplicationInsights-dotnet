@@ -264,6 +264,7 @@
   </ProjectExtensions>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.Common.Sdk.Net45.targets'))\Test.Common.Sdk.Net45.targets" />
   <Import Project="$(MSBuildExtensionsPath)\StyleCop\v4.7\StyleCop.Targets" Condition="Exists('$(MSBuildExtensionsPath)\StyleCop\v4.7\StyleCop.Targets') and '$(StyleCopEnabled)' == 'True'" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <PropertyGroup Condition="$(BuildingInsideVisualStudio)!=''">
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <PostBuildEvent>
