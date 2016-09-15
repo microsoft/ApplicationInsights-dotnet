@@ -3,7 +3,7 @@
   <Import Project=".\GlobalStaticVersion.props" />
   <Import Project=".\Global.props" />
   <PropertyGroup>
-    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
+    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
      <Solution Include="Microsoft.ApplicationInsights.sln" />    
