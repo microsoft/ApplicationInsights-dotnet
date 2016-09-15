@@ -174,6 +174,7 @@
 
             var directorySecurity = subdirectory.GetAccessControl();
 
+            // Grant access only to admins and current user
             var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
             directorySecurity.AddAccessRule(
                 new FileSystemAccessRule(
@@ -191,10 +192,10 @@
                         PropagationFlags.NoPropagateInherit,
                         AccessControlType.Allow));
 
+            // Do not inherit from parent folder
             directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
 
             subdirectory.SetAccessControl(directorySecurity);
-            
 
             return subdirectory;
         }
