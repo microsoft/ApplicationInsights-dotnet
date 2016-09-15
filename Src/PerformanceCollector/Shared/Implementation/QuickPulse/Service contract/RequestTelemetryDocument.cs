@@ -17,6 +17,9 @@
         public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        public string OperationId { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public string Name { get; set; }
 
         [DataMember(EmitDefaultValue = false)]

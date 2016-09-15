@@ -43,7 +43,10 @@
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryProcessor.cs">
+      <!--C# 6-->
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)PerformanceCounterCollectionRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\TimerInterface.cs" />

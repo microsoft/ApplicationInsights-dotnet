@@ -632,10 +632,9 @@
             int counter = 0;
             for (int i = 0; i < 100; i++)
             {
-                var exception = new ExceptionTelemetry()
+                var exception = new ExceptionTelemetry(new Exception((counter++).ToString(CultureInfo.InvariantCulture)))
                                     {
-                                        Context = { InstrumentationKey = instrumentationKey },
-                                        Message = (counter++).ToString(CultureInfo.InvariantCulture)
+                                        Context = { InstrumentationKey = instrumentationKey }
                                     };
 
                 telemetryProcessor.Process(exception);
@@ -645,10 +644,9 @@
 
             for (int i = 0; i < 100; i++)
             {
-                var exception = new ExceptionTelemetry()
+                var exception = new ExceptionTelemetry(new Exception((counter++).ToString(CultureInfo.InvariantCulture)))
                                     {
-                                        Context = { InstrumentationKey = instrumentationKey },
-                                        Message = (counter++).ToString(CultureInfo.InvariantCulture)
+                                        Context = { InstrumentationKey = instrumentationKey }
                                     };
 
                 telemetryProcessor.Process(exception);
@@ -662,13 +660,13 @@
             // out of the first 100 items we expect to see items 0 through 4 (the initial quota)
             for (int i = 0; i < 5; i++)
             {
-                Assert.AreEqual(i, int.Parse(collectedTelemetry[i].Message, CultureInfo.InvariantCulture));
+                Assert.AreEqual(i, int.Parse(collectedTelemetry[i].ExceptionMessage, CultureInfo.InvariantCulture));
             }
 
             // out of the second 100 items we expect to see items 100 through 129 (the new quota for 30 seconds)
             for (int i = 5; i < 35; i++)
             {
-                Assert.AreEqual(95 + i, int.Parse(collectedTelemetry[i].Message, CultureInfo.InvariantCulture));
+                Assert.AreEqual(95 + i, int.Parse(collectedTelemetry[i].ExceptionMessage, CultureInfo.InvariantCulture));
             }
         }
 
@@ -925,15 +923,13 @@
                 new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
 
             // ACT
-            var exceptionShort = new ExceptionTelemetry(new ArgumentException())
+            var exceptionShort = new ExceptionTelemetry(new ArgumentException(new string('m', MaxFieldLength)))
             {
-                Message = new string('m', MaxFieldLength),
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
-            var exceptionLong = new ExceptionTelemetry(new ArgumentException())
+            var exceptionLong = new ExceptionTelemetry(new ArgumentException(new string('m', MaxFieldLength + 1)))
             {
-                Message = new string('m', MaxFieldLength + 1),
                 Context = { InstrumentationKey = instrumentationKey }
             };
 
@@ -944,8 +940,8 @@
             // ASSERT
             var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
 
-            Assert.AreEqual(telemetryDocuments[0].Message, exceptionShort.Message);
-            Assert.AreEqual(telemetryDocuments[1].Message, exceptionLong.Message.Substring(0, MaxFieldLength));
+            Assert.AreEqual(telemetryDocuments[0].ExceptionMessage, exceptionShort.Exception.Message);
+            Assert.AreEqual(telemetryDocuments[1].ExceptionMessage, exceptionLong.Exception.Message.Substring(0, MaxFieldLength));
         }
 
         [TestMethod]
@@ -1023,6 +1019,163 @@
 
             Assert.AreEqual(1, telemetryDocuments[0].Properties.Length);
             Assert.AreEqual(new string('p', MaxFieldLength), telemetryDocuments[0].Properties.First().Key);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsAggregateExceptionMessage()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception1 = new Exception("Exception 1");
+            var exception2 = new Exception("Exception 2");
+            var exception3 = new AggregateException("Exception 3", new Exception("Exception 4"), new Exception("Exception 5"));
+
+            var aggregateException = new AggregateException("Top level message", exception1, exception2, exception3);
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(aggregateException) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual("Exception 1 <--- Exception 2 <--- Exception 4 <--- Exception 5", telemetryDocuments[0].ExceptionMessage);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsAggregateExceptionMessageWhenEmpty()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception = new AggregateException(string.Empty);
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(exception) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual(string.Empty, telemetryDocuments[0].ExceptionMessage);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsExceptionMessageWhenSingleInnerException()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception = new Exception("Exception 1", new Exception("Exception 2"));
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(exception) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual("Exception 1 <--- Exception 2", telemetryDocuments[0].ExceptionMessage);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsExceptionMessageWhenNoInnerExceptions()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception = new Exception("Exception 1");
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(exception) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual("Exception 1", telemetryDocuments[0].ExceptionMessage);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsExceptionMessageWhenMultipleInnerExceptions()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception = new Exception("Exception 1", new Exception("Exception 2", new Exception("Exception 3")));
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(exception) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual("Exception 1 <--- Exception 2 <--- Exception 3", telemetryDocuments[0].ExceptionMessage);
+        }
+
+        [TestMethod]
+        public void QuickPulseTelemetryProcessorExpandsExceptionMessagesAndDedupesThem()
+        {
+            // ARRANGE
+            var accumulatorManager = new QuickPulseDataAccumulatorManager();
+            var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
+            var instrumentationKey = "some ikey";
+            ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
+                accumulatorManager,
+                new Uri("http://microsoft.com"),
+                new TelemetryConfiguration() { InstrumentationKey = instrumentationKey });
+
+            var exception = new AggregateException(
+                "Exception 1",
+                new Exception("Exception 1", new Exception("Exception 1")),
+                new Exception("Exception 1"));
+
+            // ACT
+            var exceptionTelemetry = new ExceptionTelemetry(exception) { Context = { InstrumentationKey = instrumentationKey } };
+
+            telemetryProcessor.Process(exceptionTelemetry);
+
+            // ASSERT
+            var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<ExceptionTelemetryDocument>().ToList();
+
+            Assert.AreEqual("Exception 1", telemetryDocuments[0].ExceptionMessage);
         }
     }
 }

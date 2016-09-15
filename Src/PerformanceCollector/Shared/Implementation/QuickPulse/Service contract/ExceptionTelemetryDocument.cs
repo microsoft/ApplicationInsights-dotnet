@@ -14,9 +14,6 @@
         public string Version { get; set; }
         
         [DataMember(EmitDefaultValue = false)]
-        public string Message { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
         public string SeverityLevel { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
@@ -30,7 +27,10 @@
 
         [DataMember(EmitDefaultValue = false)]
         public string ExceptionMessage { get; set; }
-        
+
+        [DataMember(EmitDefaultValue = false)]
+        public string OperationId { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public KeyValuePair<string, string>[] Properties { get; set; }
 

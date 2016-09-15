@@ -29,6 +29,9 @@
         public TimeSpan Duration { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        public string OperationId { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public string ResultCode { get; set; }
 
         [DataMember(EmitDefaultValue = false)]

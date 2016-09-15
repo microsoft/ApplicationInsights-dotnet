@@ -30,6 +30,8 @@
 
         private const string SpecialDependencyPropertyName = "ErrorMessage";
 
+        private const string ExceptionMessageSeparator = " <--- ";
+
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
 
         private Uri serviceEndpoint = QuickPulseDefaults.ServiceEndpoint;
@@ -187,6 +189,7 @@
                            Id = Guid.NewGuid(),
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = requestTelemetry.Timestamp,
+                           OperationId = TruncateValue(requestTelemetry.Context?.Operation?.Id),
                            Name = TruncateValue(requestTelemetry.Name),
                            StartTime = requestTelemetry.StartTime,
                            Success = IsRequestSuccessful(requestTelemetry),
@@ -209,6 +212,7 @@
                            StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
                            Duration = dependencyTelemetry.Duration,
+                           OperationId = TruncateValue(dependencyTelemetry.Context?.Operation?.Id),
                            ResultCode = dependencyTelemetry.ResultCode,
                            CommandName = TruncateValue(dependencyTelemetry.CommandName),
                            DependencyTypeName = dependencyTelemetry.DependencyTypeName,
@@ -223,7 +227,6 @@
                        {
                            Id = Guid.NewGuid(),
                            Version = TelemetryDocumentContractVersion,
-                           Message = TruncateValue(exceptionTelemetry.Message),
                            SeverityLevel =
                                exceptionTelemetry.SeverityLevel != null
                                    ? exceptionTelemetry.SeverityLevel.Value.ToString()
@@ -237,12 +240,58 @@
                                exceptionTelemetry.Exception != null
                                    ? TruncateValue(exceptionTelemetry.Exception.GetType().FullName)
                                    : null,
-                           ExceptionMessage =
-                               exceptionTelemetry.Exception != null
-                                   ? TruncateValue(exceptionTelemetry.Exception.Message)
-                                   : null,
+                           ExceptionMessage = TruncateValue(ExpandExceptionMessage(exceptionTelemetry)),
+                           OperationId = TruncateValue(exceptionTelemetry.Context?.Operation?.Id),
                            Properties = GetProperties(exceptionTelemetry)
                        };
+        }
+
+        private static string ExpandExceptionMessage(ExceptionTelemetry exceptionTelemetry)
+        {
+            Exception exception = exceptionTelemetry.Exception;
+
+            if (exception == null)
+            {
+                return string.Empty;
+            }
+
+            if (exception.InnerException == null)
+            {
+                // perf optimization for a special case
+                return exception.Message;
+            }
+
+            // use a fake AggregateException to take advantage of Flatten()
+            var nonAggregateExceptions = new AggregateException(exception).Flatten().InnerExceptions;
+
+            var messageHashes = new HashSet<string>();
+            var nonDuplicateMessages = new LinkedList<string>();
+
+            foreach (var ex in nonAggregateExceptions)
+            {
+                foreach (var msg in FlattenMessages(ex))
+                {
+                    if (!messageHashes.Contains(msg))
+                    {
+                        nonDuplicateMessages.AddLast(msg);
+
+                        messageHashes.Add(msg);
+                    }
+                }
+            }
+
+            return string.Join(ExceptionMessageSeparator, nonDuplicateMessages);
+        }
+        
+        private static IEnumerable<string> FlattenMessages(Exception exception)
+        {
+            var currentEx = exception;
+            while (currentEx != null)
+            {
+                yield return currentEx.Message;
+
+                currentEx = currentEx.InnerException;
+            }
         }
 
         private static KeyValuePair<string, string>[] GetProperties(ISupportProperties telemetry, string specialPropertyName = null)
