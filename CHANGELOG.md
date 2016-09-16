@@ -2,6 +2,12 @@
 
 ## Version 1.0.1
 
+- Added code analysis packages.
+- Updated JavaScript snippet.
+- Updated project link and added privacy statement link.
+- Added culture to string operations.
+- Switched TelemetryClient service registration to Singleton.
+- Added after build target to patch XML doc files with language attribute.
 - Updated .NET Core references to 1.0.1.
 
 ## Version 1.0.0
