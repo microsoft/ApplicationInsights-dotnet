@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
@@ -9,17 +9,17 @@
     }
   },
   "dependencies": {
-    "xunit": "2.1.0",
-    "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "dotnet-test-xunit": "1.0.0-*",
+    "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "Microsoft.AspNetCore.Hosting": "1.0.0",
     "Microsoft.AspNetCore.Http": "1.0.0",
     "Microsoft.AspNetCore.Http.Extensions": "1.0.0",
     "Microsoft.AspNetCore.Http.Features": "1.0.0",
-    "Microsoft.AspNetCore.Mvc.Core": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.Core": "1.0.1",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
-    "Microsoft.Extensions.Logging": "1.0.0"
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "xunit": "2.1.0"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -27,12 +27,12 @@
       "imports": [
         "dnxcore50",
         "dotnet5.4",
-        "portable-net451+win8"
+        "portable-net451+win8+win10"
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0"
+          "version": "1.0.1"
         }
       }
     },
