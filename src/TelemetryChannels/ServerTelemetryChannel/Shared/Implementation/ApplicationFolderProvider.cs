@@ -45,7 +45,7 @@
                 object localAppData = this.environment["LOCALAPPDATA"];
                 if (localAppData != null)
                 {
-                    result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: false, errors: errors);
+                    result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: true, errors: errors);
                 }
             }
 
