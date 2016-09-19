@@ -205,6 +205,58 @@
             this.GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButNotAccessible(FileSystemRights.Read);
         }
 
+        [TestMethod]
+        public void AclsAreAppliedToLocalAppData()
+        {
+            DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local");
+            var environmentVariables = new Hashtable { { "LOCALAPPDATA", localAppData.FullName } };
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            PlatformFolder applicationFolder = provider.GetApplicationFolder() as PlatformFolder;
+
+            var accessControl = applicationFolder.Folder.GetAccessControl();
+            var rulesCollection = accessControl.GetAccessRules(true, true, typeof(SecurityIdentifier));
+
+            Assert.AreEqual(2, rulesCollection.Count);
+
+            Assert.IsFalse(rulesCollection[0].IsInherited);
+            Assert.AreEqual(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Value, rulesCollection[0].IdentityReference.Value);
+
+            Assert.IsFalse(rulesCollection[1].IsInherited);
+            Assert.AreEqual(WindowsIdentity.GetCurrent().Owner.Value, rulesCollection[1].IdentityReference.Value);
+
+            localAppData.Delete(true);
+        }
+
+        [TestMethod]
+        public void AclsAreAppliedToTemp()
+        {
+            DirectoryInfo localAppData = this.CreateTestDirectory(@"AppData\Local", FileSystemRights.CreateDirectories, AccessControlType.Deny);
+            DirectoryInfo temp = this.CreateTestDirectory("Temp");
+            var environmentVariables = new Hashtable
+            {
+                { "LOCALAPPDATA", localAppData.FullName },
+                { "TEMP", temp.FullName },
+            };
+
+            var provider = new ApplicationFolderProvider(environmentVariables);
+
+            PlatformFolder applicationFolder = provider.GetApplicationFolder() as PlatformFolder;
+
+            var accessControl = applicationFolder.Folder.GetAccessControl();
+            var rulesCollection = accessControl.GetAccessRules(true, true, typeof(SecurityIdentifier));
+
+            Assert.AreEqual(2, rulesCollection.Count);
+
+            Assert.IsFalse(rulesCollection[0].IsInherited);
+            Assert.AreEqual(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Value, rulesCollection[0].IdentityReference.Value);
+
+            Assert.IsFalse(rulesCollection[1].IsInherited);
+            Assert.AreEqual(WindowsIdentity.GetCurrent().Owner.Value, rulesCollection[1].IdentityReference.Value);
+
+            localAppData.Delete(true);
+        }
+
         // TODO: Find way to detect denied FileSystemRights.DeleteSubdirectoriesAndFiles
         public void GetApplicationFolderReturnsNullWhenFolderAlreadyExistsButDeniesRightToDeleteSubdirectoriesAndFiles()
         {

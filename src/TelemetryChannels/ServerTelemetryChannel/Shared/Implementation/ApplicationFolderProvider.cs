@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.IO;
     using System.Security;
+    using System.Security.AccessControl;
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
@@ -15,6 +16,7 @@
     {
         private readonly IDictionary environment;
         private readonly string customFolderName;
+        private readonly WindowsIdentity currentIdentity = WindowsIdentity.GetCurrent();
 
         public ApplicationFolderProvider(string folderName = null)
             : this(Environment.GetEnvironmentVariables(), folderName)
@@ -36,82 +38,29 @@
         {
             var errors = new List<string>(this.environment.Count + 1);
 
-            var result = CreateAndValidateApplicationFolder(this.customFolderName, false, errors);
-
+            var result = this.CreateAndValidateApplicationFolder(this.customFolderName, createSubFolder: false, errors: errors);
+            
             if (result == null)
             {
-                foreach (string rootPath in new[] { this.environment["LOCALAPPDATA"], this.environment["TEMP"] })
+                object localAppData = this.environment["LOCALAPPDATA"];
+                if (localAppData != null)
                 {
-                    result = CreateAndValidateApplicationFolder(rootPath, true, errors);
-                    if (result != null)
-                    {
-                        break;
-                    }
+                    result = this.CreateAndValidateApplicationFolder(localAppData.ToString(), createSubFolder: true, errors: errors);
                 }
             }
 
             if (result == null)
             {
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors));
-            }
-
-            return result;
-        }
-
-        private static IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)
-        {
-            string errorMessage = null;
-            IPlatformFolder result = null;
-
-            try
-            {
-                if (!string.IsNullOrEmpty(rootPath))
+                object temp = this.environment["TEMP"];
+                if (temp != null)
                 {
-                    var telemetryDirectory = new DirectoryInfo(rootPath);
-                    if (createSubFolder)
-                    {
-                        telemetryDirectory = CreateTelemetrySubdirectory(telemetryDirectory);
-                    }
-
-                    CheckAccessPermissions(telemetryDirectory);
-                    TelemetryChannelEventSource.Log.StorageFolder(telemetryDirectory.FullName);
-
-                    result = new PlatformFolder(telemetryDirectory);
+                    result = this.CreateAndValidateApplicationFolder(temp.ToString(), createSubFolder: true, errors: errors);
                 }
             }
-            catch (UnauthorizedAccessException exp)
-            {
-                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage);
-            }
-            catch (ArgumentException exp)
-            {
-                // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
-                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage);
-            }
-            catch (DirectoryNotFoundException exp)
-            {
-                // The specified path is invalid, such as being on an unmapped drive.
-                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage);
-            }
-            catch (IOException exp)
-            {
-                // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
-                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage);
-            }
-            catch (SecurityException exp)
-            {
-                // The caller does not have code access permission to create the directory.
-                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
-                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage);
-            }
 
-            if (!string.IsNullOrEmpty(errorMessage))
+            if (result == null)
             {
-                errors.Add(errorMessage);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedError(string.Join(Environment.NewLine, errors), this.currentIdentity.Name);
             }
 
             return result;
@@ -144,19 +93,6 @@
             File.Delete(testFilePath);
         }
 
-        private static DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
-        {
-            string subdirectoryName = GetSHA256Hash(GetApplicationIdentity());
-            string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
-            return root.CreateSubdirectory(subdirectoryPath);
-        }
-
-        private static string GetApplicationIdentity()
-        {
-            return WindowsIdentity.GetCurrent().Name + "@" +
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
-        }
-
         private static string GetSHA256Hash(string input)
         {
             byte[] inputBits = Encoding.Unicode.GetBytes(input);
@@ -168,6 +104,100 @@
             }
 
             return hashString.ToString();
+        }
+
+        private IPlatformFolder CreateAndValidateApplicationFolder(string rootPath, bool createSubFolder, IList<string> errors)
+        {
+            string errorMessage = null;
+            IPlatformFolder result = null;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(rootPath))
+                {
+                    var telemetryDirectory = new DirectoryInfo(rootPath);
+                    if (createSubFolder)
+                    {
+                        telemetryDirectory = this.CreateTelemetrySubdirectory(telemetryDirectory);
+                    }
+
+                    CheckAccessPermissions(telemetryDirectory);
+                    TelemetryChannelEventSource.Log.StorageFolder(telemetryDirectory.FullName);
+
+                    result = new PlatformFolder(telemetryDirectory);
+                }
+            }
+            catch (UnauthorizedAccessException exp)
+            {
+                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+            }
+            catch (ArgumentException exp)
+            {
+                // Path does not specify a valid file path or contains invalid DirectoryInfo characters.
+                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+            }
+            catch (DirectoryNotFoundException exp)
+            {
+                // The specified path is invalid, such as being on an unmapped drive.
+                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+            }
+            catch (IOException exp)
+            {
+                // The subdirectory cannot be created. -or- A file or directory already has the name specified by path. -or-  The specified path, file name, or both exceed the system-defined maximum length. .
+                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+            }
+            catch (SecurityException exp)
+            {
+                // The caller does not have code access permission to create the directory.
+                errorMessage = GetPathAccessFailureErrorMessage(exp, rootPath);
+                TelemetryChannelEventSource.Log.TransmissionStorageAccessDeniedWarning(errorMessage, this.currentIdentity.Name);
+            }
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                errors.Add(errorMessage);
+            }
+
+            return result;
+        }
+
+        private DirectoryInfo CreateTelemetrySubdirectory(DirectoryInfo root)
+        {
+            string appIdentity = this.currentIdentity.Name + "@" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().ProcessName);
+            string subdirectoryName = GetSHA256Hash(appIdentity);
+            string subdirectoryPath = Path.Combine(@"Microsoft\ApplicationInsights", subdirectoryName);
+            DirectoryInfo subdirectory = root.CreateSubdirectory(subdirectoryPath);
+
+            var directorySecurity = subdirectory.GetAccessControl();
+
+            // Grant access only to admins and current user
+            var adminitrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+            directorySecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                        adminitrators,
+                        FileSystemRights.FullControl,
+                        InheritanceFlags.None,
+                        PropagationFlags.NoPropagateInherit,
+                        AccessControlType.Allow));
+
+            directorySecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                        this.currentIdentity.Name,
+                        FileSystemRights.FullControl,
+                        InheritanceFlags.None,
+                        PropagationFlags.NoPropagateInherit,
+                        AccessControlType.Allow));
+
+            // Do not inherit from parent folder
+            directorySecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+
+            subdirectory.SetAccessControl(directorySecurity);
+
+            return subdirectory;
         }
     }
 }
