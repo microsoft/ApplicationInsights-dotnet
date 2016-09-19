@@ -398,10 +398,13 @@
 
             // ASSERT
             // verify that every telemetry processor has contributed to the accumulator
+            int samplesWithSomeRequests = serviceClient.SnappedSamples.Count(s => s.AIRequestsPerSecond > 0);
+            int samplesWithSomeDependencies = serviceClient.SnappedSamples.Count(s => s.AIDependencyCallsPerSecond > 0);
+
             Assert.AreEqual(TelemetryProcessorCount, QuickPulseTestHelper.GetTelemetryProcessors(module).Count);
-            Assert.AreEqual(1, serviceClient.SnappedSamples.Count(s => s.AIRequestsPerSecond > 0));
+            Assert.IsTrue(samplesWithSomeRequests > 0 && samplesWithSomeRequests <= 2);
             Assert.AreEqual(1, serviceClient.SnappedSamples.Count(s => s.AIRequestsFailedPerSecond > 0));
-            Assert.AreEqual(1, serviceClient.SnappedSamples.Count(s => s.AIDependencyCallsPerSecond > 0));
+            Assert.IsTrue(samplesWithSomeDependencies > 0 && samplesWithSomeDependencies < 2);
             Assert.AreEqual(1, serviceClient.SnappedSamples.Count(s => s.AIDependencyCallsFailedPerSecond > 0));
         }
 

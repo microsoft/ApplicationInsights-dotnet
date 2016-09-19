@@ -1,11 +1,15 @@
 ﻿namespace Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     [DataContract]
     internal struct RequestTelemetryDocument : ITelemetryDocument
     {
+        [DataMember(EmitDefaultValue = false)]
+        public Guid Id { get; set; }
+
         [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
 
@@ -13,7 +17,7 @@
         public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Id { get; set; }
+        public string OperationId { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string Name { get; set; }
@@ -35,6 +39,9 @@
 
         [DataMember(EmitDefaultValue = false)]
         public string HttpMethod { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public KeyValuePair<string, string>[] Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType

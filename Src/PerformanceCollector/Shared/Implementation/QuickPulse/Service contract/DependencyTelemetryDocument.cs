@@ -1,19 +1,20 @@
 ﻿namespace Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     [DataContract]
     internal struct DependencyTelemetryDocument : ITelemetryDocument
     {
         [DataMember(EmitDefaultValue = false)]
-        public string Version { get; set; }
-        
-        [DataMember]
-        public DateTimeOffset Timestamp { get; set; }
+        public Guid Id { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Id { get; set; }
+        public string Version { get; set; }
+        
+        [DataMember(EmitDefaultValue = false)]
+        public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string Name { get; set; }
@@ -28,7 +29,7 @@
         public TimeSpan Duration { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Sequence { get; set; }
+        public string OperationId { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string ResultCode { get; set; }
@@ -41,6 +42,9 @@
 
         [DataMember(EmitDefaultValue = false)]
         public string DependencyKind { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public KeyValuePair<string, string>[] Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType
