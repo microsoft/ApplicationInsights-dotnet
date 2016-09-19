@@ -108,9 +108,6 @@
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->
   <PropertyGroup>
-    <PreReleaseVersion Condition="Exists($(PreReleaseVersionFilePath))">$([System.IO.File]::ReadAllText($(PreReleaseVersionFilePath)))</PreReleaseVersion>
-    <PreReleaseVersion Condition="!Exists($(PreReleaseVersionFilePath))">0</PreReleaseVersion>
-    <PreReleaseVersion>$(PreReleaseVersion.Replace('%0D', '').Replace('%0A', ''))</PreReleaseVersion>
     <!-- Turn on dynamic assembly attribute generation -->
     <AssemblyAttributesPath>$(IntermediateOutputPath)\AssemblyInfo.g.cs</AssemblyAttributesPath>
     <GenerateAdditionalSources>true</GenerateAdditionalSources>
