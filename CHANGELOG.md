@@ -5,6 +5,7 @@
 - DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.1. Agent.Intercept nuget was updated to EventSource.Redist version 1.1.28. 
 - SQL dependencies will have SQL error message being added to custom properties collection if application uses profiler instrumentation (either instrumented with StatusMonitor or just have StatusMonitor on the box with the app)
 - Allow all characters in custom counters ReportAs property.
+- QuickPulse (Live Metrics Stream) was updated to include Live Failures
 
 ## Version 2.2.0-beta1
 
