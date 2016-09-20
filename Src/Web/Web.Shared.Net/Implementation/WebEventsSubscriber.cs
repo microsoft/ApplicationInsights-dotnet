@@ -26,7 +26,7 @@
             }
 
             this.handlers = handlers;
-            this.EnableEvents(WebEventsPublisher.Log, EventLevel.LogAlways, (EventKeywords)AllKeyword);
+            this.EnableEvents(WebEventsPublisher.Log, EventLevel.Informational, (EventKeywords)AllKeyword);
         }
 
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
