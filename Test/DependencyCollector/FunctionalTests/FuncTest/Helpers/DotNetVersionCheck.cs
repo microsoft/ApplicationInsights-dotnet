@@ -1,20 +1,11 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DotNetVersionCheck.cs" company="Microsoft">
-//   Copyright (c) Microsoft Corporation.  All rights reserved
-// </copyright>
-// <summary>
-//   Helper to determine .net version
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace FuncTest.Helpers
+﻿namespace FuncTest.Helpers
 {
     using Microsoft.Win32;
 
     /// <summary>
     /// The dot net version check.
     /// </summary>
-    public static class DotNetVersionCheck
+    public static class RegistryCheck
     {
         /// <summary>
         /// The net v 4 full registry key.
@@ -69,6 +60,11 @@ namespace FuncTest.Helpers
             }
         }
 
+        public static bool IsStatusMonitorInstalled
+        {
+            get { return GetRegistryValue(@"SYSTEM\CurrentControlSet\Services\W3SVC", "Environment") != null; }
+        }
+
         /// <summary>
         /// Validates the .NET Framework presence on the test box (4.5 and above)
         /// </summary>
@@ -80,26 +76,27 @@ namespace FuncTest.Helpers
         /// </returns>
         private static bool CheckDotNetVersionPresenceOnTheBox(int requiredReleaseKey)
         {
-            using (RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(NetV4FullRegistryKey))
+            object releaseKeyObject = GetRegistryValue(NetV4FullRegistryKey, "Release");
+
+            if (releaseKeyObject == null)
             {
-                if (ndpKey == null)
-                {
-                    return false;
-                }
+                return false;
+            }
 
-                object releaseKeyObject = ndpKey.GetValue("Release");
-                if (releaseKeyObject == null)
-                {
-                    return false;
-                }
-
-                if ((int)releaseKeyObject < requiredReleaseKey)
-                {
-                    return false;
-                }
+            if ((int) releaseKeyObject < requiredReleaseKey)
+            {
+                return false;
             }
 
             return true;
+        }
+
+        private static object GetRegistryValue(string regKey, string regValue)
+        {
+            using (RegistryKey key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(regKey))
+            {
+                return key != null ? key.GetValue(regValue) : null;
+            }
         }
     }
 }

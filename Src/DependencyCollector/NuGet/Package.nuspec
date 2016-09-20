@@ -7,21 +7,22 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
-    <projectUrl>http://go.microsoft.com/fwlink/?LinkID=510710</projectUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
     <iconUrl>$image$</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Application Insights Dependency Collector for .NET applications. See http://go.microsoft.com/fwlink/?LinkID=510754 for more information. This is a dependent package for Application Insights platform specifc packages and provides automatic collection of dependency telemetry. Please install the platform specific packages directly for the best experience.</description>
+    <description>Application Insights Dependency Collector for .NET applications. This is a dependent package for Application Insights platform specifc packages and provides automatic collection of dependency telemetry. Please install the platform specific packages directly for the best experience. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
+    <summary>Application Insights Dependency Collector for .NET applications provides platform specific automatic collection of dependency telemetry.</summary>
     <copyright>$copyright$</copyright>
     <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="1.2.1" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.1" />
       </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="1.2.1" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.1" />
       </group>
     </dependencies>
   </metadata>

@@ -70,12 +70,6 @@
             this.WriteEvent(6, e, counter, this.ApplicationName);
         }
 
-        [Event(7, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Invalid value or no value has been specified for ReportAs when configuring custom performance counter collection. The value will be stripped of invalid characters. ReportAs may not contain any digits or special characters except the following ones: /, _, - or a dot. Until the configuration is fixed, counter {0} will be reported as {1}. The invalid value specified is {2}.")]
-        public void CounterReportAsStrippedEvent(string counter, string stripped, string originalReportAs, string applicationName = "dummy")
-        {
-            this.WriteEvent(7, counter, stripped, originalReportAs, this.ApplicationName);
-        }
-
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
             Message = @"Error collecting {0} out of {1} configured performance counters. Please check the configuration.
 {2}")]
@@ -88,8 +82,10 @@
             this.WriteEvent(8, misconfiguredCountersCount, overallConfiguredCountersCount, e, this.ApplicationName);
         }
 
-        [Event(15, Level = EventLevel.Verbose,
-            Message = @"Performance counters are unavailable when the application is running under IIS Express. Use EnableIISExpressPerformanceCounters element with a value of 'true' within the Performance Collector Module element to override this behavior.")]
+        // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        [Event(15, Level = EventLevel.Error,
+            Keywords = Keywords.Diagnostics | Keywords.UserActionable,
+            Message = @"Diagnostic message: Performance counters are unavailable when the application is running under IIS Express. Use EnableIISExpressPerformanceCounters element with a value of 'true' within the Performance Collector Module element to override this behavior.")]
         public void RunningUnderIisExpress(string applicationName = "dummy")
         {
             this.WriteEvent(15, this.ApplicationName);
@@ -179,6 +175,8 @@
         public class Keywords
         {
             public const EventKeywords UserActionable = (EventKeywords)0x1;
+
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
         }
     }
 }

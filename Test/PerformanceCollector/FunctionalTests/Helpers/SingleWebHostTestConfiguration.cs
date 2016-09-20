@@ -45,9 +45,16 @@ namespace Functional.Helpers
 
         public int TelemetryListenerPort { get; set; }
 
+        public int QuickPulseListenerPort { get; set; }
+
         public string TelemetryListenerUri
         {
             get { return string.Format(LocalhostUriTemplate, TelemetryListenerPort) + "/v2/track/"; }
+        }
+
+        public string QuickPulseListenerUri
+        {
+            get { return string.Format(LocalhostUriTemplate, QuickPulseListenerPort) + "/QuickPulseService.svc/"; }
         }
 
         public string IKey { get; set; }

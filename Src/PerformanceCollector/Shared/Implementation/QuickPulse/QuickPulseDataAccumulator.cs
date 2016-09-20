@@ -1,6 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
 {
     using System;
+    using System.Collections.Concurrent;
+
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
     /// DTO containing data we collect from AI. Modified in real time.
@@ -63,7 +67,9 @@
         public long AIRequestDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIRequestCountAndDurationInTicks).Item2;
 
         public long AIDependencyCallCount => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item1;
-
+        
         public long AIDependencyCallDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item2;
+
+        public ConcurrentStack<ITelemetryDocument> TelemetryDocuments { get; set; } = new ConcurrentStack<ITelemetryDocument>();
     }
 }

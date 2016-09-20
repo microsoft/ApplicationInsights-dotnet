@@ -13,8 +13,6 @@
     [TestClass]
     public class Test40 : SingleWebHostTestBase
     {
-        private const int TimeoutInMs = 15000;
-
         private const string TestWebApplicaionSourcePath = @"TestApps\TestApp40\App";
         private const string TestWebApplicaionDestPath = @"TestsPerformanceCollector40";
 
@@ -37,11 +35,12 @@
                     })
                 {
                     TelemetryListenerPort = 7654,
+                    QuickPulseListenerPort = 7655,
                     //AttachDebugger = Debugger.IsAttached,
                     IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
 
-            this.LaunchAndVerifyApplication();
+            base.LaunchAndVerifyApplication();
         }
 
         [TestCleanup]
@@ -82,23 +81,20 @@
             CommonTests.NonParsableCounter(this.Listener);
         }
 
-        private void LaunchAndVerifyApplication()
+        [TestMethod]
+        [Owner("alkaplan")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void QuickPulseAggregates()
         {
-            const string RequestPath = "aspx/TestWebForm.aspx";
-            string expectedRequestUrl = this.Config.ApplicationUri + "/" + RequestPath;
-
-            // spin up the application
-            var client = new HttpClient();
-            var requestMessage = new HttpRequestMessage { RequestUri = new Uri(expectedRequestUrl), Method = HttpMethod.Get, };
-
-            var responseTask = client.SendAsync(requestMessage);
-            responseTask.Wait(TimeoutInMs);
-            var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
-            responseTextTask.Wait(TimeoutInMs);
-
-            // make sure it's the correct application
-            Assert.AreEqual("PerformanceCollector application", responseTextTask.Result);
+            CommonTests.QuickPulseAggregates(this.QuickPulseListener, this.HttpClient);
         }
 
+        [TestMethod]
+        [Owner("alkaplan")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void QuickPulseDocuments()
+        {
+            CommonTests.QuickPulseDocuments(this.QuickPulseListener, this);
+        }
     }
 }

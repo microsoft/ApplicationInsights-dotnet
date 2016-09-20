@@ -37,7 +37,7 @@
         /// <summary>
         /// Method generates event about begin of the request.
         /// </summary>
-        [Event(1, Level = EventLevel.LogAlways)]
+        [Event(1, Message = "OnBegin", Level = EventLevel.LogAlways)]
         public void OnBegin()
         {
             this.WriteEvent(1);
@@ -46,7 +46,7 @@
         /// <summary>
         /// Method generates event about end of the request.
         /// </summary>
-        [Event(2, Level = EventLevel.LogAlways)]
+        [Event(2, Message = "OnEnd", Level = EventLevel.LogAlways)]
         public void OnEnd()
         {
             this.WriteEvent(2);
@@ -55,7 +55,7 @@
         /// <summary>
         /// Method generates event in case if request failed.
         /// </summary>
-        [Event(3, Level = EventLevel.LogAlways)]
+        [Event(3, Message = "OnError", Level = EventLevel.LogAlways)]
         public void OnError()
         {
             this.WriteEvent(3);

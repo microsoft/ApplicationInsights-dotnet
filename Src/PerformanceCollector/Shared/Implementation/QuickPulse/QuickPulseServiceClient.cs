@@ -24,6 +24,8 @@
 
         private readonly string streamId;
 
+        private readonly string machineName;
+
         private readonly string version;
 
         private readonly TimeSpan timeout = TimeSpan.FromSeconds(3);
@@ -34,11 +36,12 @@
 
         private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
 
-        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string version, Clock timeProvider, TimeSpan? timeout = null)
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string machineName, string version, Clock timeProvider, TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
             this.streamId = streamId;
+            this.machineName = machineName;
             this.version = version;
             this.timeProvider = timeProvider;
             this.timeout = timeout ?? this.timeout;
@@ -48,17 +51,17 @@
 
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
-            var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", instrumentationKey);
+            var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", Uri.EscapeUriString(instrumentationKey));
             HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, stream => this.WritePingData(timestamp, stream));
 
             if (response == null)
             {
                 return null;
             }
-            
+
             return ProcessResponse(response);
         }
-        
+
         public bool? SubmitSamples(IEnumerable<QuickPulseDataSample> samples, string instrumentationKey)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "post?ikey={0}", Uri.EscapeUriString(instrumentationKey));
@@ -96,9 +99,11 @@
             var dataPoint = new MonitoringDataPoint
             {
                 Version = this.version,
+                InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                 //InstrumentationKey = instrumentationKey, // ikey is currently set in query string parameter
                 Instance = this.instanceName,
                 StreamId = this.streamId,
+                MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime
             };
 
@@ -171,14 +176,20 @@
 
                 metricPoints.AddRange(sample.PerfCountersLookup.Select(counter => new MetricPoint { Name = counter.Key, Value = Round(counter.Value), Weight = 1 }));
 
+                ITelemetryDocument[] documents = sample.TelemetryDocuments.ToArray();
+                Array.Reverse(documents);
+
                 var dataPoint = new MonitoringDataPoint
                                     {
                                         Version = this.version,
+                                        InvariantVersion = MonitoringDataPoint.CurrentInvariantVersion,
                                         InstrumentationKey = instrumentationKey,
                                         Instance = this.instanceName,
                                         StreamId = this.streamId,
+                                        MachineName = this.machineName,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
-                                        Metrics = metricPoints.ToArray()
+                                        Metrics = metricPoints.ToArray(),
+                                        Documents = documents
                                     };
 
                 monitoringPoints.Add(dataPoint);

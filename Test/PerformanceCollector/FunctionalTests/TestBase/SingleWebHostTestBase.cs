@@ -9,9 +9,8 @@ namespace Functional.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
     using System.Net.Http;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using IisExpress;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,9 +26,38 @@ namespace Functional.Helpers
 
         protected HttpListenerObservable Listener { get; private set; }
 
+        internal QuickPulseHttpListenerObservable QuickPulseListener { get; private set; }
+
         protected SingleWebHostTestConfiguration Config { get; private set; }
 
         protected EtwEventSession EtwSession { get; private set; }
+
+        public Task<string> SendRequest(string requestPath, bool wait = true)
+        {
+            const int TimeoutInMs = 15000;
+
+            string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
+
+            // spin up the application
+            var client = new HttpClient();
+            var requestMessage = new HttpRequestMessage { RequestUri = new Uri(expectedRequestUrl), Method = HttpMethod.Get, };
+
+            var responseTask = client.SendAsync(requestMessage);
+
+            if (wait)
+            {
+                responseTask.Wait(TimeoutInMs);
+
+                var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
+                responseTextTask.Wait(TimeoutInMs);
+
+                return responseTextTask;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         protected void StartWebAppHost(
             SingleWebHostTestConfiguration configuration)
@@ -53,6 +81,9 @@ namespace Functional.Helpers
             this.Listener = new HttpListenerObservable(configuration.TelemetryListenerUri);
             this.Listener.Start();
 
+            this.QuickPulseListener = new QuickPulseHttpListenerObservable(configuration.QuickPulseListenerUri);
+            this.QuickPulseListener.Start();
+
             this.EtwSession = new EtwEventSession();
             this.EtwSession.Start();
         }
@@ -60,6 +91,7 @@ namespace Functional.Helpers
         protected void StopWebAppHost(bool treatTraceErrorsAsFailures = false)
         {
             this.Listener.Stop();
+            this.QuickPulseListener.Stop();
             this.Server.Stop();
             this.HttpClient.Dispose();
 
@@ -98,6 +130,15 @@ namespace Functional.Helpers
             }
 
             configDom.Save(destAppConfiguration);
+        }
+
+        protected void LaunchAndVerifyApplication()
+        {
+            const string RequestPath = "aspx/TestWebForm.aspx";
+            var responseTextTask = this.SendRequest(RequestPath);
+
+            // make sure it's the correct application
+            Assert.AreEqual("PerformanceCollector application", responseTextTask.Result);
         }
     }
 }
