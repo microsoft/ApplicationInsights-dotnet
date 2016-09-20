@@ -3,15 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Newtonsoft.Json;
-    using TelemetryItem = Microsoft.Developer.Analytics.DataCollection.Model.v2.TelemetryItem;
+    using Newtonsoft.Json.Linq;
 
     internal static class TelemetryItemFactory
     {
-        public static IList<TelemetryItem> GetTelemetryItems(string content)
+        public static IList<Envelope> GetTelemetryItems(string content)
         {
-            var items = new List<TelemetryItem>();
+            var items = new List<Envelope>();
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -23,7 +23,11 @@
             string[] lines = content.Split(newLines, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines)
             {
-                var envelope = JsonConvert.DeserializeObject<Envelope>(line);
+                JsonReader reader = new JsonTextReader(new StringReader(line));
+                reader.DateParseHandling = DateParseHandling.None;
+                JObject obj = JObject.Load(reader);
+                var envelope = obj.ToObject<Envelope>();
+
                 var item = CreateTelemetryItem(envelope, line);
                 items.Add(item);
             }
@@ -31,48 +35,67 @@
             return items;
         }
 
-        private static TelemetryItem CreateTelemetryItem(
+        private static Envelope CreateTelemetryItem(
             Envelope envelope, 
             string content)
         {
-            TelemetryItem result;
+            Envelope result;
 
-            switch (envelope.Name)
+            TelemetryItemType type;
+            if (Enum.TryParse<TelemetryItemType>(envelope.data.baseType.Replace("Data", ""), out type))
             {
-                case Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Exception:
+                switch (type)
                 {
-                    result = JsonConvert.DeserializeObject<TelemetryItem<ExceptionData>>(content);
-                    break;
-                }
+                    case TelemetryItemType.Exception:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<ExceptionData>>(content);
+                            break;
+                        }
 
-                case Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Request:
-                {
-                    result = JsonConvert.DeserializeObject<TelemetryItem<RequestData>>(content);
-                    break;
-                }
+                    case TelemetryItemType.Request:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<RequestData>>(content);
+                            break;
+                        }
 
-                case Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Metric:
-                {
-                    result = JsonConvert.DeserializeObject<TelemetryItem<MetricData>>(content);
-                    break;
-                }
+                    case TelemetryItemType.Metric:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<MetricData>>(content);
+                            break;
+                        }
 
-                case Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.RemoteDependency:
-                {
-                    result = JsonConvert.DeserializeObject<TelemetryItem<RemoteDependencyData>>(content);
-                    break;
-                }
+                    case TelemetryItemType.RemoteDependency:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<RemoteDependencyData>>(content);
+                            break;
+                        }
 
-                case Microsoft.Developer.Analytics.DataCollection.Model.v1.ItemType.Message:
-                {
-                    result = JsonConvert.DeserializeObject<TelemetryItem<MessageData>>(content);
-                    break;
-                }
+                    case TelemetryItemType.Message:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<MessageData>>(content);
+                            break;
+                        }
+                    case TelemetryItemType.SessionState:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<SessionStateData>>(content);
+                            break;
+                        }
 
-                default:
-                {
-                    throw new InvalidDataException("Unsupported telemetry type");
+                    case TelemetryItemType.PerformanceCounter:
+                        {
+                            result = JsonConvert.DeserializeObject<TelemetryItem<PerformanceCounterData>>(content);
+                            break;
+                        }
+
+                    default:
+                        {
+                            throw new InvalidDataException("Unsupported telemetry type");
+                        }
                 }
+            }
+            else
+            {
+                throw new InvalidDataException("Unsupported telemetry type");
             }
 
             return result;

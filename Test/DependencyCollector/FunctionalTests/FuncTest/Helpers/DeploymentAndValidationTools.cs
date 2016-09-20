@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using FuncTest.IIS;
     using Microsoft.Deployment.WindowsInstaller;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -169,14 +169,14 @@
             TimeSpan accessTimeMax,
             bool successFlagExpected)
         {
-            string actualSdkVersion = itemToValidate.InternalContext.SdkVersion;
+            string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(
                 DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource
                     ? actualSdkVersion.Contains("rddp")
                     : actualSdkVersion.Contains("rddf"), "Actual version:" + actualSdkVersion);
 
             // Validate is within expected limits
-            var ticks = (long)(itemToValidate.Data.BaseData.Value * 10000);
+            var ticks = (long)(itemToValidate.data.baseData.value * 10000);
 
             var accessTime = TimeSpan.FromTicks(ticks);
 
@@ -196,7 +196,7 @@
             Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format("Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
 
             // Validate success flag
-            var successFlagActual = itemToValidate.Data.BaseData.Success;
+            var successFlagActual = itemToValidate.data.baseData.success;
             Assert.AreEqual(successFlagExpected, successFlagActual, "Success flag collected is wrong");
         }
     }

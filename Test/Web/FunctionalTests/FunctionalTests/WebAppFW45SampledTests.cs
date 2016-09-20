@@ -7,7 +7,7 @@
     using Functional.Asmx;
     using Functional.Helpers;
     using Functional.IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Diagnostics;
@@ -90,13 +90,13 @@
                 Trace.WriteLine("Request " + i.ToString(CultureInfo.InvariantCulture) + " completed");
             }
 
-            TelemetryItem[] items = null;
+            Envelope[] items = null;
 
             items = Listener.ReceiveAllItemsDuringTime(TestListenerWaitTimeInMs);
 
             // split items into requests and exceptions
-            TelemetryItem[] requests = items.Where(item => (item is TelemetryItem<RequestData>)).ToArray();
-            TelemetryItem[] exceptions = items.Where(item => (item is TelemetryItem<ExceptionData>)).ToArray();
+            Envelope[] requests = items.Where(item => (item is TelemetryItem<RequestData>)).ToArray();
+            Envelope[] exceptions = items.Where(item => (item is TelemetryItem<ExceptionData>)).ToArray();
 
             // must capture the same number of requests and exceptions
             // which is lower than # of requests produced due to sampling
@@ -108,13 +108,13 @@
             // check each request has corresponding exception
             foreach (var request in requests)
             {
-                Assert.IsTrue(exceptions.Any(ex => ex.OperationContext.Id == request.OperationContext.Id));
+                Assert.IsTrue(exceptions.Any(ex => ex.tags[new ContextTagKeys().OperationId] == request.tags[new ContextTagKeys().OperationId]));
             }
 
             // check each exception has corresponding request
             foreach (var exception in exceptions)
             {
-                Assert.IsTrue(requests.Any(r => r.OperationContext.Id == exception.OperationContext.Id));
+                Assert.IsTrue(requests.Any(r => r.tags[new ContextTagKeys().OperationId] == exception.tags[new ContextTagKeys().OperationId]));
             }
 
             var testFinish = DateTimeOffset.UtcNow;

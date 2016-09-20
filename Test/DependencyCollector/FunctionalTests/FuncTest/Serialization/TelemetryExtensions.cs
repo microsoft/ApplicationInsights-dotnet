@@ -11,12 +11,12 @@ namespace FuncTest.Serialization
     using System.Linq;
     using System.Reactive.Linq;
     
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using FuncTest.Helpers;
 
     public static class TelemetryExtensions
     {
-        public static TelemetryItem[] ReceiveItems(
+        public static Envelope[] ReceiveItems(
             this HttpListenerObservable listener,
             int count,
             int timeOut)
@@ -62,7 +62,7 @@ namespace FuncTest.Serialization
             return result;
         }
 
-        public static TelemetryItem[] ReceiveItemsOfTypes<T1, T2>(
+        public static Envelope[] ReceiveItemsOfTypes<T1, T2>(
             this HttpListenerObservable listener,
             int count,
             int timeOut)
@@ -82,7 +82,7 @@ namespace FuncTest.Serialization
             return result;
         }
 
-        public static TelemetryItem[] ReceiveAllItemsDuringTime(
+        public static Envelope[] ReceiveAllItemsDuringTime(
             this HttpListenerObservable listener,
             int timeOut)
         {

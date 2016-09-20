@@ -1,0 +1,8 @@
+namespace AI
+
+[Description("Instances of AvailabilityData represent the result of executing an availability test")]
+enum TestResult
+{
+    Pass,
+    Fail,
+}

@@ -16,7 +16,7 @@ namespace Functional
     using System.Net.Http;
     using Functional.Helpers;
     using IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -180,13 +180,13 @@ namespace Functional
             int requestItemIndex = (items[0] is TelemetryItem<RequestData>) ? 0 : 1;
             int exceptionItemIndex = (requestItemIndex == 0) ? 1 : 0;
 
-            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].IKey, "IKey is not the same as in config file");
-            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].IKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
 
             // Check that request id is set in exception operation Id
             Assert.AreEqual(
-                ((TelemetryItem<RequestData>)items[requestItemIndex]).OperationContext.Id,
-                items[exceptionItemIndex].OperationContext.Id,
+                ((TelemetryItem<RequestData>)items[requestItemIndex]).tags[new ContextTagKeys().OperationId],
+                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId],
                 "Operation Id is not same as Request id");  
         }
 

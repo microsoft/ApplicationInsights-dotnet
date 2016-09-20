@@ -1,0 +1,33 @@
+import "Domain.bond"
+import "DataPointType.bond"
+
+namespace AI
+
+[Description("Instance of Performance Counter represents data for a specific Windows Performance Counter.")]
+struct PerformanceCounterData
+    : Domain
+{
+    [Name("version")]
+    10: required int32 	 ver = 2;
+    
+    20: required string 	 categoryName;
+    
+    40: required string 	 counterName;
+    
+    50: string 	 instanceName;
+    
+    60: AI.DataPointType 	 kind = Aggregation;
+    
+    70: nullable<int32> 	 count;
+    
+    80: nullable<double> 	 min;
+    
+    90: nullable<double> 	 max;
+    
+    100: nullable<double> 	 stdDev;
+    
+    110: required double 	 value;
+    
+    120: map<string, string> 	 properties;
+    
+}

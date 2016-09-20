@@ -26,18 +26,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1, Version=1.0.68.708, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.68-build00708\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v1.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2, Version=2.0.68.708, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.68-build00708\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v2.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3, Version=3.0.68.708, Culture=neutral, PublicKeyToken=f23a46de0be5d6f3, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\packages\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.3.0.68-build00708\lib\net35\Microsoft.ApplicationInsights.TelemetryTypes.DataPlatform.v3.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Data.Edm, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\packages\Microsoft.Data.Edm.5.6.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
       <Private>True</Private>
@@ -140,6 +128,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
+      <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
+      <Name>ApplicationInsightsTypes</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
