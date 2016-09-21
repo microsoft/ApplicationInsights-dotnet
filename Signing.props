@@ -26,7 +26,7 @@
     <UsingTask TaskName="SignFiles" AssemblyFile="$(PathToSigningDll)" Condition="'$(RunningInMicroBuild)' == 'true'" />
 
     <Target Name="SignFiles" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild">
-        <Warning Condition="'$(SignAssembly)' != 'true'" Text="Signing assembly not found!"></Warning>
+        <Error Condition="'$(RunningInMicroBuild)' == 'true' AND '$(SignAssembly)' != 'true'" Text="Signing assembly not found!"></Error>
         <SignFiles Condition="'$(RunningInMicroBuild)' == 'true' AND '$(SignAssembly)' == 'true'"
             Files="@(FilesToSign)"
             BinariesDirectory="$([System.IO.Path]::GetDirectoryName(%(FilesToSign.FullPath)))"
