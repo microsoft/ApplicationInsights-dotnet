@@ -11,7 +11,7 @@ namespace Functional
 {
     using Helpers;
     using IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
     using System.IO;
@@ -114,7 +114,7 @@ namespace Functional
 
             Trace.WriteLine("Validate details 0");
             this.ValidateExceptionDetails(
-                exceptionItem.Data.BaseData.Exceptions[0],
+                exceptionItem.data.baseData.exceptions[0],
                 "System.Web.HttpUnhandledException",
                 "Exception of type 'System.Web.HttpUnhandledException' was thrown.",
                 "System.Web.UI.Page.HandleError",
@@ -123,7 +123,7 @@ namespace Functional
 
             Trace.WriteLine("Validate details 1");
             this.ValidateExceptionDetails(
-                exceptionItem.Data.BaseData.Exceptions[1],
+                exceptionItem.data.baseData.exceptions[1],
                 "System.NotImplementedException",
                 "SyncExceptionWebForm: NotImplemented",
                 "Wa40Aspx.SyncExceptionWebForm.Page_Load",

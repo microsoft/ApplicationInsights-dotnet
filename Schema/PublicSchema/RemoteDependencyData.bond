@@ -1,0 +1,66 @@
+import "Domain.bond"
+import "DataPointType.bond"
+import "DependencyKind.bond"
+
+namespace AI
+
+[Description("Instance of Remote Dependency represents an interaction of the monitored component with a remote component/service like SQL or http endpoint.")]
+struct RemoteDependencyData
+    : Domain
+{
+    [Description("Schema version")]
+    10: required int32 	 ver = 2;
+    
+    [MaxStringLength("1024")]
+    [Description("Name of the command initiated with this dependency call. Low cardinality value. Example are stored procedure name, url path template.")]
+    20: required string 	 name;
+    
+    [MaxStringLength("128")]
+    [Description("Identifier of a dependency call instance. Used for correlation with the request telemetry item corresponding to this dependency call.")]
+    30: string 	 id;
+    
+    [MaxStringLength("1024")]
+    [Description("Result code of a dependency call. Examples are SQL error code, http status code.")]
+    40: string 	 resultCode;
+    
+    50: AI.DataPointType 	 kind = Measurement;
+    
+    60: double 	 value;
+    
+    [CSType("TimeSpan")]
+    [Description("Request duration in TimeSpan 'G' (general long) format: d:hh:mm:ss.fffffff.")]
+    [ActAsRequired("Renaming value to duration.")]
+    61: required string 	 duration;
+    
+    110: required AI.DependencyKind 	 dependencyKind = Other;
+    
+    [Description("Indication of successfull or unsuccessfull call.")]
+    120: nullable<bool> 	 success = true;
+    
+    130: nullable<bool> 	 async;
+    
+    [MaxStringLength("8192")]
+    150: string 	 commandName;
+    
+    [MaxStringLength("8192")]
+    [Description("Command initiated by this dependency call. Examples are SQL statement, http url with all query parameters.")]
+    151: string 	 data;
+    
+    [MaxStringLength("1024")]
+    [Description("Dependency type name. Very low cardinality value for logical grouping of dependencies and interpretation of other fields like commandName and resultCode. Examples are SQL, Azure table, HTTP.")]
+    160: string 	 dependencyTypeName;
+    
+    [MaxStringLength("1024")]
+    [Description("Target site of a dependency call. Examples are server name, host address.")]
+    161: string 	 target;
+    
+    [Description("Collection of custom properties.")]
+    [MaxKeyLength("150")]
+    [MaxValueLength("8192")]
+    200: map<string, string> 	 properties;
+    
+    [Description("Collection of custom measurements.")]
+    [MaxKeyLength("150")]
+    300: map<string, double> 	 measurements;
+    
+}

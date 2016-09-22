@@ -1,0 +1,13 @@
+import "Domain.bond"
+import "SessionState.bond"
+
+namespace AI
+
+struct SessionStateData
+    : Domain
+{
+    10: required int32 	 ver = 2;
+    
+    20: required AI.SessionState 	 state = Start;
+    
+}

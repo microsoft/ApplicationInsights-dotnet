@@ -5,7 +5,7 @@
     using System.Net.Http;
 
     using Functional.Helpers;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -137,15 +137,15 @@
             Assert.IsTrue(samples.Any(item => item.Metrics.Any(m => m.Name == metricName && m.Value > 0)));
         }
 
-        private static void AssertDefaultCounterReported(TelemetryItem[] counterItems, string categoryName, string counterName, bool reported = true)
+        private static void AssertDefaultCounterReported(Envelope[] counterItems, string categoryName, string counterName, bool reported = true)
         {
             bool counterReported = counterItems.Any(
                 item =>
                 {
                     var perfData = item as TelemetryItem<PerformanceCounterData>;
 
-                    return perfData != null && perfData.Data.BaseData.CategoryName == categoryName
-                           && perfData.Data.BaseData.CounterName == counterName;
+                    return perfData != null && perfData.data.baseData.categoryName == categoryName
+                           && perfData.data.baseData.counterName == counterName;
                 });
 
             if (reported)
@@ -158,14 +158,14 @@
             }
         }
 
-        private static void AssertCustomCounterReported(TelemetryItem[] counterItems, string metricName, bool reported = true)
+        private static void AssertCustomCounterReported(Envelope[] counterItems, string metricName, bool reported = true)
         {
             bool counterReported = counterItems.Any(
                 item =>
                 {
                     var metricData = item as TelemetryItem<MetricData>;
 
-                    return metricData != null && metricData.Data.BaseData.Metrics[0].Name == metricName;
+                    return metricData != null && metricData.data.baseData.metrics[0].name == metricName;
                 });
 
             if (reported)

@@ -16,7 +16,7 @@ namespace FuncTest.Helpers
     using System.Net;
     using System.Text;
     using System.Threading;    
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
 
     /// <summary>
     /// FakeDataPlatform class to listen to the fake data platform endpoint.
@@ -42,7 +42,7 @@ namespace FuncTest.Helpers
         /// <summary>
         /// List storing the received data items.
         /// </summary>
-        private List<TelemetryItem> receivedDataItems = new List<TelemetryItem>();
+        private List<Envelope> receivedDataItems = new List<Envelope>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FakeDataPlatform"/> class
@@ -78,9 +78,9 @@ namespace FuncTest.Helpers
         /// Returns the list of received data items
         /// <returns>The list of received data items</returns>
         /// </summary>        
-        public List<TelemetryItem> GetAllReceivedDataItems()
+        public List<Envelope> GetAllReceivedDataItems()
         {
-            return this.receivedDataItems;            
+            return this.receivedDataItems;
         }
 
         /// <summary>

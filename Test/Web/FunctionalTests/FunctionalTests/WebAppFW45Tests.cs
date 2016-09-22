@@ -4,7 +4,7 @@
     using Functional.Asmx;
     using Functional.Helpers;
     using Functional.IisExpress;  
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Diagnostics;
@@ -98,7 +98,7 @@
             var testFinish = DateTimeOffset.UtcNow;
           
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl , "200", true, request, testStart, testFinish);
-            Assert.AreEqual("1.2.3.4", request.LocationContext.Ip);
+            Assert.AreEqual("1.2.3.4", request.tags[new ContextTagKeys().LocationIp]);
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@
             var testFinish = DateTimeOffset.UtcNow;
 
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl, "200", true, request, testStart, testFinish);
-            Assert.AreEqual("Bot", request.OperationContext.SyntheticSource);
+            Assert.AreEqual("Bot", request.tags[new ContextTagKeys().OperationSyntheticSource]);
         }
 
         [TestMethod]
@@ -378,13 +378,13 @@
             int requestItemIndex = (items[0] is TelemetryItem<RequestData>) ? 0 : 1;
             int exceptionItemIndex = (requestItemIndex == 0) ? 1 : 0;
 
-            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].IKey, "IKey is not the same as in config file");
-            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].IKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
+            Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
 
             // Check that request id is set in exception operation Id
             Assert.AreEqual(
-                ((TelemetryItem<RequestData>)items[requestItemIndex]).Data.BaseData.Id, 
-                items[exceptionItemIndex].OperationContext.Id, 
+                ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id, 
+                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId], 
                 "Operation Id is not same as Request id");    
         }
 
@@ -423,8 +423,8 @@
             {
                 // Build version locally starts with AutoGen but on rolling build it starts with branch name and has version 
                 Assert.IsTrue(
-                    item.ComponentContext.Version.Length > 0,
-                    "Application version was not populated from the buildInfo file. Current: " + item.ComponentContext.Version);
+                    item.tags[new ContextTagKeys().ApplicationVersion].Length > 0,
+                    "Application version was not populated from the buildInfo file. Current: " + item.tags[new ContextTagKeys().ApplicationVersion]);
             }
         }
 

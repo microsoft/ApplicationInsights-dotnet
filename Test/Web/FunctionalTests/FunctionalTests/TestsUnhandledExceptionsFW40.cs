@@ -5,7 +5,7 @@
     using System.IO;
     using System.Threading;
     using Functional.Helpers;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -76,7 +76,7 @@
             {
                 var exceptions = Listener.ReceiveItemsOfType<TelemetryItem<ExceptionData>>(1, TestListenerTimeoutInMs)[0];
                 
-                Assert.AreEqual("System.AggregateException", exceptions.Data.BaseData.Exceptions[0].TypeName);
+                Assert.AreEqual("System.AggregateException", exceptions.data.baseData.exceptions[0].typeName);
             }
             finally
             {
@@ -98,7 +98,7 @@
             {
                 var exception = Listener.ReceiveItemsOfType<TelemetryItem<ExceptionData>>(1, TestListenerTimeoutInMs)[0];
 
-                Assert.AreEqual("System.Exception", exception.Data.BaseData.Exceptions[0].TypeName);
+                Assert.AreEqual("System.Exception", exception.data.baseData.exceptions[0].typeName);
             }
             finally
             {
