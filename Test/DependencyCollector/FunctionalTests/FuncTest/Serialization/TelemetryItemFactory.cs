@@ -75,18 +75,6 @@
                             result = JsonConvert.DeserializeObject<TelemetryItem<MessageData>>(content);
                             break;
                         }
-                    case TelemetryItemType.SessionState:
-                        {
-                            result = JsonConvert.DeserializeObject<TelemetryItem<SessionStateData>>(content);
-                            break;
-                        }
-
-                    case TelemetryItemType.PerformanceCounter:
-                        {
-                            result = JsonConvert.DeserializeObject<TelemetryItem<PerformanceCounterData>>(content);
-                            break;
-                        }
-
                     default:
                         {
                             throw new InvalidDataException("Unsupported telemetry type");

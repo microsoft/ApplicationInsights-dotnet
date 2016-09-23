@@ -29,7 +29,7 @@ del "$currentDir\PublicSchema\*.bond"
 
 if ($localPublicSchema) {
     # Generate public schema using bond generator
-    & "$generatorPath\BondSchemaGenerator.exe" -v -i "$schemasPath\AppInsightsTypes.bond" -i "$schemasPath\PerformanceCounterData.bond" -i "$schemasPath\SessionStateData.bond" -i "$schemasPath\ContextTagKeys.bond" -o "$currentDir\PublicSchema\" -e BondLanguage -t BondLayout -n test --flatten false
+    & "$generatorPath\BondSchemaGenerator.exe" -v -i "$schemasPath\AppInsightsTypes.bond" -i "$schemasPath\ContextTagKeys.bond" -o "$currentDir\PublicSchema\" -e BondLanguage -t BondLayout -n test --flatten false
 } else {
     # Download public schema from the github
     @(

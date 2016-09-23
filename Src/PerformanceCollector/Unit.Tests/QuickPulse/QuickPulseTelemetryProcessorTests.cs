@@ -218,8 +218,6 @@
             telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new MetricTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new PageViewTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new PerformanceCounterTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new SessionStateTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new TraceTelemetry() { Context = { InstrumentationKey = "some ikey" } });
 
             // ASSERT

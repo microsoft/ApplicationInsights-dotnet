@@ -95,7 +95,7 @@
             var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
             var requestTelemetry = module.PlatformContext.CreateRequestTelemetryPrivate();
             
-            module.Initialize(new SessionStateTelemetry());
+            module.Initialize(new TraceTelemetry("trace"));
 
             Assert.AreEqual("1.2.3.4", requestTelemetry.Context.Location.Ip);
         }
@@ -221,7 +221,7 @@
             var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
             module.HeaderNames.Add("CustomHeader1");
             module.HeaderNames.Add("CustomHeader2");
-            var telemetry = new SessionStateTelemetry();
+            var telemetry = new TraceTelemetry("trace");
 
             module.Initialize(telemetry);
 
