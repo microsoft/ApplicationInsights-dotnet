@@ -256,7 +256,7 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
+                telemetry.Type = RemoteDependencyKind.Http.ToString();
 
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
             }

@@ -75,7 +75,6 @@
 
             var exp = new ExceptionTelemetry(unobservedTaskExceptionEventArgs.Exception)
             {
-                HandledAt = ExceptionHandledAt.Unhandled,
                 SeverityLevel = SeverityLevel.Critical,
             };
 

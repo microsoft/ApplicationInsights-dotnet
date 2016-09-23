@@ -61,10 +61,7 @@
             {
                 foreach (Exception exp in errors)
                 {
-                    var exceptionTelemetry = new ExceptionTelemetry(exp)
-                    {
-                        HandledAt = ExceptionHandledAt.Platform
-                    };
+                    var exceptionTelemetry = new ExceptionTelemetry(exp);
 
                     if (platformContext.Response.StatusCode >= 500)
                     {

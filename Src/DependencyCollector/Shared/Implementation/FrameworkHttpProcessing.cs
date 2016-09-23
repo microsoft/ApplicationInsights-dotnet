@@ -108,7 +108,7 @@
             {
                 this.TelemetryTable.Remove(id);
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
-                telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
+                telemetry.Type = RemoteDependencyKind.Http.ToString();
 
                 if (statusCode.HasValue)
                 {

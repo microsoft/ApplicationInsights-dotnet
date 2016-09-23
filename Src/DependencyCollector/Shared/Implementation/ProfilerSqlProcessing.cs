@@ -291,8 +291,8 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.DependencyKind = RemoteDependencyKind.SQL.ToString();
-                telemetry.CommandName = commandText;
+                telemetry.Type = RemoteDependencyKind.SQL.ToString();
+                telemetry.Data = commandText;
 
                 // We use weaktables to store the thisObj for correlating begin with end call.
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));

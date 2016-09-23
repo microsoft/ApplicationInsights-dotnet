@@ -48,7 +48,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(
@@ -84,7 +84,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(
@@ -123,7 +123,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(

@@ -27,7 +27,7 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext();
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
-            requestTelemetry.StartTime = startTime;
+            requestTelemetry.Timestamp = startTime;
 
             using (var module = new TestableRequestTrackingTelemetryModule(context))
             {
@@ -43,7 +43,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
-            requestTelemetry.StartTime = default(DateTimeOffset);
+            requestTelemetry.Timestamp = default(DateTimeOffset);
 
             using (var module = new TestableRequestTrackingTelemetryModule(context))
             {
@@ -147,25 +147,7 @@
                 Assert.Equal("http://test/", requestTelemetry.Url.OriginalString);
             }
         }
-
-        [TestMethod]
-        public void OnEndDoesNotOverrideHttpMethod()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext();
-
-            using (var module = new TestableRequestTrackingTelemetryModule(context))
-            {
-                module.Initialize(TelemetryConfiguration.CreateDefault());
-                module.OnBeginRequest(null);
-                var requestTelemetry = context.GetRequestTelemetry();
-                requestTelemetry.HttpMethod = "Test";
-
-                module.OnEndRequest(null);
-
-                Assert.Equal("Test", requestTelemetry.HttpMethod);
-            }
-        }
-
+        
         [TestMethod]
         public void OnEndSetsResponseCode()
         {
@@ -195,19 +177,6 @@
 
                 Assert.Equal(context.Request.Url, context.GetRequestTelemetry().Url);
             }
-        }
-
-        [TestMethod]
-        public void OnEndSetsHttpMethod()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext();
-            
-            var module = new TestableRequestTrackingTelemetryModule(context);
-            module.Initialize(TelemetryConfiguration.CreateDefault());
-            module.OnBeginRequest(null);
-            module.OnEndRequest(null);
-
-            Assert.Equal(context.Request.HttpMethod, context.GetRequestTelemetry().HttpMethod);
         }
 
         public void OnEndTracksRequest()

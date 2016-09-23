@@ -389,7 +389,7 @@
                             DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
 
                     var httpItems =
-                        allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();
+                        allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         3*count,
@@ -422,7 +422,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         count,
@@ -448,7 +448,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         1,
@@ -481,7 +481,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
   
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -514,7 +514,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -543,7 +543,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -571,13 +571,13 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.Http).ToArray();                  
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
                     int countItem = 0;
 
                     foreach (var httpItem in httpItems)
                     {
-                        var accessTime = httpItem.data.baseData.value;
-                        Assert.IsTrue(accessTime >= 0, "Access time should be above zero for azure calls");
+                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
+                        Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
                         var url = httpItem.data.baseData.name;
                         if (url.Contains(expectedUrl))
@@ -602,7 +602,7 @@
             bool successFlagExpected,
             string verb)
         {
-            if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
             {
                 Assert.AreEqual(verb + " " + remoteDependencyNameExpected, itemToValidate.data.baseData.name, "For StatusMonitor implementation we expect verb to be collected.");
             }

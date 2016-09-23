@@ -48,7 +48,6 @@
         public void BeginWebTrackingReturnsOperationItemWithTelemetryItem()
         {
             var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
-            Assert.AreEqual(telemetry.StartTime, telemetry.StartTime);
             Assert.AreEqual(telemetry.Timestamp, telemetry.Timestamp);
         }
 
@@ -220,7 +219,6 @@
         
         private void ValidateSentTelemetry(DependencyTelemetry telemetry)
         {
-            Assert.AreEqual(telemetry.StartTime, telemetry.StartTime);
             Assert.AreEqual(telemetry.Timestamp, telemetry.Timestamp);
             Assert.IsTrue(telemetry.Duration.Milliseconds >= 0);
         }

@@ -12,11 +12,9 @@
             Assert.AreEqual(this.Config.IKey, exceptionTelemetry.iKey, "iKey is not the same as in config file for exception");
             Assert.AreEqual(request.tags[new ContextTagKeys().OperationId], exceptionTelemetry.tags[new ContextTagKeys().OperationId], "Operation id is incorrect");
 
-            Assert.AreEqual("Platform", exceptionTelemetry.data.baseData.handledAt, "handledAt is incorrect");
-
             Assert.AreEqual(expectedExceptionsCount, exceptionTelemetry.data.baseData.exceptions.Count, "Exceptions count is incorrect");
 
-            Assert.IsTrue(exceptionTelemetry.tags.Where((x)=> { return x.Key.StartsWith("ai.device"); }).Count() > 0, "Device was not collected");
+            Assert.IsTrue(exceptionTelemetry.tags.Where((x)=> { return x.Key.StartsWith("ai.cloud"); }).Count() > 0, "Cloud was not collected");
         }
 
         protected void ValidateExceptionDetails(

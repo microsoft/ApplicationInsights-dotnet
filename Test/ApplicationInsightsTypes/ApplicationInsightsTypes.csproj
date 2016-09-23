@@ -72,12 +72,6 @@
     <BondCodegen Include="..\..\Schema\PublicSchema\DataPointType.bond">
       <Link>DataPointType.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\DependencyKind.bond">
-      <Link>DependencyKind.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\DependencySourceType.bond">
-      <Link>DependencySourceType.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\Schema\PublicSchema\Domain.bond">
       <Link>Domain.bond</Link>
     </BondCodegen>
@@ -116,9 +110,6 @@
     </BondCodegen>
     <BondCodegen Include="..\..\Schema\PublicSchema\StackFrame.bond">
       <Link>StackFrame.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\TestResult.bond">
-      <Link>TestResult.bond</Link>
     </BondCodegen>
     <None Include="app.config" />
     <None Include="packages.config" />

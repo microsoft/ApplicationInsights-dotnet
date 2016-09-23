@@ -1,9 +1,0 @@
-namespace AI
-
-[Description("Identifies the source of the dependency.")]
-enum DependencySourceType
-{
-    Undefined,
-    Aic,
-    Apmc,
-}

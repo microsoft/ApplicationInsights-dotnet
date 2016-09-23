@@ -66,7 +66,7 @@
 
             // NB! Whatever is saved in RequestTelemetry on Begin is not guaranteed to be sent because Begin may not be called; Keep it in context
             // In WCF there will be 2 Begins and 1 End. We need time from the first one
-            if (requestTelemetry.StartTime == DateTimeOffset.MinValue)
+            if (requestTelemetry.Timestamp == DateTimeOffset.MinValue)
             {
                 requestTelemetry.Start();
             }
@@ -100,17 +100,6 @@
             if (requestTelemetry.Url == null)
             {
                 requestTelemetry.Url = platformContext.Request.UnvalidatedGetUrl();
-            }
-
-            if (string.IsNullOrEmpty(requestTelemetry.HttpMethod))
-            {
-                requestTelemetry.HttpMethod = platformContext.Request.HttpMethod;
-            }
-
-            // Temporarily put UserAgent string back. We will remove it in 2.2-beta2 again
-            if (string.IsNullOrEmpty(requestTelemetry.Context.User.UserAgent))
-            {
-                requestTelemetry.Context.User.UserAgent = platformContext.Request.UserAgent;
             }
 
             this.telemetryClient.TrackRequest(requestTelemetry);
