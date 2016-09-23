@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
@@ -60,7 +61,7 @@
             Assert.NotNull(telemetry.Url);
 
             Assert.Equal(
-                new Uri(string.Format("{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
                 telemetry.Url);
         }
 

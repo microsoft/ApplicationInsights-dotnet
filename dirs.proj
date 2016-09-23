@@ -21,7 +21,7 @@
 
     <UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
-            <Address ParameterType="System.String" Required="true"/>
+            <Address ParameterType="System.String" Required="true" />
             <FileName ParameterType="System.String" Required="true" />
         </ParameterGroup>
         <Task>
@@ -90,6 +90,63 @@
         </Task>
     </UsingTask>
 
+    <UsingTask TaskName="InjectXmlLanguage" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <InputFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System" />
+            <Using Namespace="System.Diagnostics" />
+            <Using Namespace="System.IO" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    Log.LogMessage("Called InjectXmlLanguage");
+                    foreach (var inputFilePath in InputFiles.Select(f => f.ItemSpec))
+                    {
+                        Log.LogMessage("Fixing {0}", inputFilePath);
+                        string filePath = inputFilePath;
+                        if (filePath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                        {
+                            filePath = filePath.Substring(0, filePath.Length - 3) + "xml";
+                        }
+
+                        if (filePath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string[] files = null;
+                            int starIndex = filePath.IndexOf('*');
+                            if (starIndex >= 0)
+                            {
+                                string dir = filePath.Substring(0, starIndex);
+                                if (string.IsNullOrEmpty(dir))
+                                {
+                                    dir = ".";
+                                }
+
+                                string file = Path.GetFileName(filePath.Substring(starIndex));
+                                files = Directory.GetFiles(dir, file, SearchOption.AllDirectories);
+                            }
+                            else
+                            {
+                                files = new[] { filePath };
+                            }
+
+                            foreach (string fileName in files)
+                            {
+                                if (File.Exists(fileName))
+                                {
+                                    Log.LogMessage("Processing XML: {0}", fileName);
+                                    string text = File.ReadAllText(fileName);
+                                    text = text.Replace("<doc>", "<doc xml:lang=\"en\">");
+                                    File.WriteAllText(fileName, text);
+                                }
+                            }
+                        }
+                    }
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
     <Target Name="CheckBuildParameters">
         <Message Importance="high" Text="ComputerName: $(ComputerName)"></Message>
         <Message Importance="high" Text="User: $(USERDOMAIN)\$(USERNAME)"></Message>
@@ -105,7 +162,7 @@
 
     <Target Name="DownloadCLI">
         <DownloadFile Address="https://dotnetcli.blob.core.windows.net/dotnet/preview/Binaries/Latest/dotnet-dev-win-x64.latest.zip" FileName="$(CliZipFile)" />
-        <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true"/>
+        <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true" />
     </Target>
 
     <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
@@ -135,9 +192,16 @@
         <Message Importance="high" Text="Files to sign:"></Message>
         <Message Importance="high" Text="--> File:%(FilesToSign.FileName)%(FilesToSign.Extension)
         --> BinariesDirectory:$([System.IO.Path]::GetDirectoryName(%(FilesToSign.FullPath))) --> Authenticode:%(FilesToSign.Authenticode)"></Message>
+        <ItemGroup>
+            <DocumentationFiles Include="**\Microsoft.ApplicationInsights.AspNetCore.xml"></DocumentationFiles>
+        </ItemGroup>
     </Target>
 
-    <Target Name="PackageNuGet" AfterTargets="SignFiles" DependsOnTargets="AfterBuild;SignFiles">
+    <Target Name="FixXmlDocumentation" AfterTargets="AfterBuild" DependsOnTargets="AfterBuild">
+        <InjectXmlLanguage InputFiles="@(DocumentationFiles)" />
+    </Target>
+
+    <Target Name="PackageNuGet" AfterTargets="SignFiles" DependsOnTargets="AfterBuild;FixXmlDocumentation;SignFiles">
         <Exec Command='"$(CliToolsPath)\dotnet.exe" pack $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
     </Target>
 </Project>

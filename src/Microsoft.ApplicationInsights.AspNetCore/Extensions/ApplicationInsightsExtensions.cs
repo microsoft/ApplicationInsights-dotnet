@@ -79,7 +79,7 @@
                 return telemetryConfiguration;
             });
 
-            services.AddScoped<TelemetryClient>();
+            services.AddSingleton<TelemetryClient>();
 
             services.AddScoped<RequestTelemetry>((svcs) => {
                 // Default constructor need to be used
