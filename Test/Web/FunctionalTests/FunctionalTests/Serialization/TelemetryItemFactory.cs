@@ -82,12 +82,6 @@
                             break;
                         }
 
-                    case TelemetryItemType.SessionState:
-                        {
-                            result = JsonConvert.DeserializeObject<TelemetryItem<SessionStateData>>(content);
-                            break;
-                        }
-
                     default:
                         {
                             throw new InvalidDataException("Unsupported telemetry type");
