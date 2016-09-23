@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.2.0-beta3
+- New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
+- Default performance counters will be reported as metrics
+
 ## Version 2.2.0-beta2
 
 - DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.1. Agent.Intercept nuget was updated to EventSource.Redist version 1.1.28. 
