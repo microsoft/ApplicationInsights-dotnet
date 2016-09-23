@@ -15,9 +15,9 @@
 
         public static void DefaultCounterCollection(HttpListenerObservable listener)
         {
-            var counterItems = listener.ReceiveItemsOfType<TelemetryItem<PerformanceCounterData>>(10, TestListenerWaitTimeInMs);
+            var counterItems = listener.ReceiveItemsOfType<TelemetryItem<MetricData>>(10, TestListenerWaitTimeInMs);
 
-            AssertDefaultCounterReported(counterItems, "Memory", "Available Bytes");  
+            AssertCustomCounterReported(counterItems, "\\Memory\\Available Bytes");  
         }
 
         public static void CustomCounterCollection(HttpListenerObservable listener)
@@ -135,27 +135,6 @@
         private static void AssertSomeSamplesWithNonZeroMetric(List<MonitoringDataPoint> samples, string metricName)
         {
             Assert.IsTrue(samples.Any(item => item.Metrics.Any(m => m.Name == metricName && m.Value > 0)));
-        }
-
-        private static void AssertDefaultCounterReported(Envelope[] counterItems, string categoryName, string counterName, bool reported = true)
-        {
-            bool counterReported = counterItems.Any(
-                item =>
-                {
-                    var perfData = item as TelemetryItem<PerformanceCounterData>;
-
-                    return perfData != null && perfData.data.baseData.categoryName == categoryName
-                           && perfData.data.baseData.counterName == counterName;
-                });
-
-            if (reported)
-            {
-                Assert.IsTrue(counterReported);
-            }
-            else
-            {
-                Assert.IsFalse(counterReported);
-            }
         }
 
         private static void AssertCustomCounterReported(Envelope[] counterItems, string metricName, bool reported = true)

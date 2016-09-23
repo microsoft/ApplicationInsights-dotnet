@@ -105,20 +105,11 @@
     <BondCodegen Include="..\..\Schema\PublicSchema\PageViewPerfData.bond">
       <Link>PageViewPerfData.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\PerformanceCounterData.bond">
-      <Link>PerformanceCounterData.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\Schema\PublicSchema\RemoteDependencyData.bond">
       <Link>RemoteDependencyData.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\Schema\PublicSchema\RequestData.bond">
       <Link>RequestData.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\SessionState.bond">
-      <Link>SessionState.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\Schema\PublicSchema\SessionStateData.bond">
-      <Link>SessionStateData.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\Schema\PublicSchema\SeverityLevel.bond">
       <Link>SeverityLevel.bond</Link>
