@@ -1,7 +1,0 @@
-namespace AI
-
-enum SessionState
-{
-    Start,
-    End,
-}
