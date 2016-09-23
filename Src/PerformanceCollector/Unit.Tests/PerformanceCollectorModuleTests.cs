@@ -38,9 +38,7 @@
 
                         var perfTelemetry = telemetry as MetricTelemetry;
                         
-                        Assert.AreEqual(
-                            (float)(perfTelemetry.Name.GetHashCode()),
-                            perfTelemetry.Value);
+                        Assert.AreEqual((float)perfTelemetry.Name.GetHashCode(), perfTelemetry.Value);
                     }
                     catch (AssertFailedException e)
                     {
@@ -118,8 +116,7 @@
                 lock (collector.Sync)
                 {
                     // check that the default counter list has been registered
-                    Assert.AreEqual(module.DefaultCounters.Count(),
-                        collector.Counters.Count);
+                    Assert.AreEqual(module.DefaultCounters.Count(), collector.Counters.Count);
                 }
             }
         }

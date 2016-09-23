@@ -7,15 +7,14 @@
     using System.Linq;
     using System.Threading;
 
+    using Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
-
-    using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
-    using Extensibility.Implementation;
     using Web.Implementation;
+    using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
 
     /// <summary>
     /// Telemetry module for collecting performance counters.
@@ -24,24 +23,9 @@
     {
         private readonly object lockObject = new object();
 
-        /// <summary>
-        /// The idea behind this flag is the following:
-        /// - If customer will never set any counters to the list of default counters - default counters will be used
-        /// - If custoemr added a counter to the list - default counters will not be populated
-        /// - If customer accessed the collection of set empty collection in config - default counters will not be populated
-        /// 
-        /// All this complicated logic is for the backward compatibility reasons only.
-        /// </summary>
-        private bool defaultCountersInitialized = false;
-
         private readonly List<PerformanceCounterCollectionRequest> defaultCounters = new List<PerformanceCounterCollectionRequest>();
 
         private readonly IPerformanceCollector collector = new PerformanceCollector();
-
-        /// <summary>
-        /// Determines how often collection takes place.
-        /// </summary>
-        private TimeSpan collectionPeriod = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// Determines how often we re-register performance counters.
@@ -49,6 +33,20 @@
         /// <remarks>Re-registration is needed because IIS starts reporting on different counter instances depending
         /// on worker processes starting and termination.</remarks>
         private readonly TimeSpan registrationPeriod = TimeSpan.FromMinutes(5);
+
+        /// <summary>
+        /// The idea behind this flag is the following:
+        /// - If customer will never set any counters to the list of default counters - default counters will be used
+        /// - If customer added a counter to the list - default counters will not be populated
+        /// - If customer accessed the collection of set empty collection in config - default counters will not be populated
+        /// All this complicated logic is for the backward compatibility reasons only.
+        /// </summary>
+        private bool defaultCountersInitialized = false;
+
+        /// <summary>
+        /// Determines how often collection takes place.
+        /// </summary>
+        private TimeSpan collectionPeriod = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// The timestamp of last performance counter registration.
@@ -72,18 +70,6 @@
         private Timer timer = null;
 
         private bool isInitialized = false;
-
-        internal TimeSpan CollectionPeriod
-        {
-            get
-            {
-                return this.collectionPeriod;
-            }
-            set
-            {
-                this.collectionPeriod = value;
-            }
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerformanceCollectorModule"/> class.
@@ -126,6 +112,19 @@
         /// </summary>
         /// <remarks>Loaded from configuration.</remarks>
         public bool EnableIISExpressPerformanceCounters { get; set; }
+
+        internal TimeSpan CollectionPeriod
+        {
+            get
+            {
+                return this.collectionPeriod;
+            }
+
+            set
+            {
+                this.collectionPeriod = value;
+            }
+        }
 
         /// <summary>
         /// Initialize method is called after all configuration properties have been loaded from the configuration.
