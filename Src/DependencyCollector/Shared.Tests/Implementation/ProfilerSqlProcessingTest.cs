@@ -9,7 +9,6 @@
 #endif
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -580,21 +579,6 @@
         {
             var actualCommandName = this.sqlProcessingProfiler.GetCommandName(null);
             Assert.AreEqual(string.Empty, actualCommandName, "SqlProcessingProfiler should return empty string for null command object");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler correctly returns empty string for a null command object.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler handles a null connection object.")]
-        [Owner("arthurbe")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerCommandNameTestForNullConnection()
-        {
-            var command = GetMoreComplexSqlCommandTestForQuery();
-            command.Connection = null;
-            var actualCommandName = this.sqlProcessingProfiler.GetCommandName(command);
-            Assert.AreEqual(string.Empty, actualCommandName, "SqlProcessingProfiler should return empty string for null connection object");
         }
 
         /// <summary>

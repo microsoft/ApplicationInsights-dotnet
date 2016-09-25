@@ -533,7 +533,7 @@
             var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
             Assert.AreEqual(expectedName, actualResourceName, "HttpProcessingProfiler returned incorrect resource name");
 
-            Assert.AreEqual(string.Empty, this.httpProcessingProfiler.GetUrl(null), "HttpProcessingProfiler should return String.Empty for null object");
+            Assert.AreEqual(null, this.httpProcessingProfiler.GetUrl(null));
         }
 
         /// <summary>
@@ -550,7 +550,7 @@
             var request = WebRequest.Create(ub.Uri);
             var expectedName = ub.Uri.ToString();
             var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
-            Assert.AreEqual(expectedName, actualResourceName, "HttpProcessingProfiler returned incorrect resource name");
+            Assert.AreEqual(expectedName, actualResourceName.ToString(), "HttpProcessingProfiler returned incorrect resource name");
         }
 
         /// <summary>
@@ -567,7 +567,7 @@
             var request = WebRequest.Create(ub.Uri);
             var expectedName = ub.Uri.ToString();
             var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
-            Assert.AreEqual(expectedName, actualResourceName, "HttpProcessingProfiler returned incorrect resource name");
+            Assert.AreEqual(expectedName, actualResourceName.ToString(), "HttpProcessingProfiler returned incorrect resource name");
         }
 
         #endregion //Misc       
@@ -612,7 +612,9 @@
         private static void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, RemoteDependencyKind kind, bool success, double expectedValue, string resultCode)
         {
-            Assert.AreEqual("GET " + uri, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual("GET " + uri.AbsolutePath, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual(uri.Host, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
+            Assert.AreEqual(uri.OriginalString, remoteDependencyTelemetryActual.Data, true, "Resource data in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");

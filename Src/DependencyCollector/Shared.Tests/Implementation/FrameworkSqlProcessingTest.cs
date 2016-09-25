@@ -28,7 +28,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
         private FrameworkSqlProcessing sqlProcessingFramework;
-        private string resourceName = "ourdatabase.database.windows.net | mydatabase";
 
         [TestInitialize]
         public void TestInitialize()
@@ -66,7 +65,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                this.resourceName,
+                "ourdatabase.database.windows.net | mydatabase",
+                "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyKind.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd,
@@ -92,7 +92,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                this.resourceName,
+                "ourdatabase.database.windows.net | mydatabase",
+                "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyKind.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd,
@@ -118,7 +119,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                this.resourceName,
+                "ourdatabase.database.windows.net | mydatabase",
+                "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyKind.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd,
@@ -150,7 +152,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                resourceNameSproc,
+                "ourdatabase.database.windows.net | mydatabase",
+                "apm.MyFavouriteStoredProcedure",
                 RemoteDependencyKind.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
@@ -170,9 +173,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         #region Helpers
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string errorCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string target, string name, RemoteDependencyKind kind, bool success, double valueMin, string errorCode)
         {
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual(target, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
             Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(errorCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
