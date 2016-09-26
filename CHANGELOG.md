@@ -4,7 +4,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.2.0-beta3
 
-- Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline or though configuration (not available in PCL version of SDK).
+- Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline or through configuration (not available in PCL version of SDK).
 
 ## Version 2.2.0-beta2
 
