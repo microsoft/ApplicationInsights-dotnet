@@ -11,6 +11,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     
     /// <summary>
@@ -19,6 +20,7 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
+        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
 
         private readonly TelemetryConfiguration configuration;
         private TelemetryContext context;
@@ -356,6 +358,11 @@
             if (string.IsNullOrEmpty(instrumentationKey))
             {
                 instrumentationKey = this.configuration.InstrumentationKey;
+
+                if (string.IsNullOrEmpty(instrumentationKey))
+                {
+                    instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                }
             }
 
             var telemetryWithProperties = telemetry as ISupportProperties;

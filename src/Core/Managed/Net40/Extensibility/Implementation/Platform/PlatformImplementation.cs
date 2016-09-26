@@ -64,5 +64,10 @@
         {
             return this.debugOutput ?? (this.debugOutput = new TelemetryDebugWriter());
         }
+
+        public string GetEnvironmentVariable(string name)
+        {
+            return Environment.GetEnvironmentVariable(name);
+        }
     }
 }
