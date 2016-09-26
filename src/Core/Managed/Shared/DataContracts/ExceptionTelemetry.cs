@@ -233,7 +233,7 @@
                 exceptions.RemoveRange(Constants.MaxExceptionCountToSave, exceptions.Count - Constants.MaxExceptionCountToSave);
                 
                 // we'll add our new exception and parent it to the root exception (first one in the list)
-                exceptions.Add(PlatformSingleton.Current.GetExceptionDetails(countExceededException, exceptions[0]));
+                exceptions.Add(PlatformSingleton.Current.GetExceptionDetails(countExceededException, exceptions[0])); 
             }
             
             this.Data.exceptions = exceptions;
