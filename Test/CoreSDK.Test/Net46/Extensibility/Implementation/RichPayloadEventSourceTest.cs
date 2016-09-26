@@ -97,7 +97,7 @@
         {
             this.DoTracking(
                 RichPayloadEventSource.Keywords.Dependencies,
-                new DependencyTelemetry("TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, true),
+                new DependencyTelemetry("Custom", "Target", "TestDependency", "TestCommand", DateTimeOffset.Now, TimeSpan.Zero, "200", true),
                 typeof(External.RemoteDependencyData),
                 (client, item) => { client.TrackDependency((DependencyTelemetry)item); });
         }
@@ -121,24 +121,28 @@
         [TestMethod]
         public void RichPayloadEventSourceSessionStateSentTest()
         {
+#pragma warning disable 618
             this.DoTracking(
-                RichPayloadEventSource.Keywords.SessionState,
+                RichPayloadEventSource.Keywords.Events,
                 new SessionStateTelemetry(new SessionState()),
-                typeof(External.SessionStateData),
+                typeof(External.EventData),
                 (client, item) => { client.Track((SessionStateTelemetry)item); });
+#pragma warning restore 618
         }
 
-        /// <summary>
-        /// Tests tracking session state telemetry.
-        /// </summary>
+            /// <summary>
+            /// Tests tracking session state telemetry.
+            /// </summary>
         [TestMethod]
         public void RichPayloadEventSourceSessionPerformanceCounterTest()
         {
+#pragma warning disable 618
             this.DoTracking(
-                RichPayloadEventSource.Keywords.PerformanceCounters,
+                RichPayloadEventSource.Keywords.Metrics,
                 new PerformanceCounterTelemetry("TestCategory", "TestCounter", "TestInstance", 1.0),
-                typeof(External.PerformanceCounterData),
+                typeof(External.MetricData),
                 (client, item) => { client.Track((PerformanceCounterTelemetry)item); });
+#pragma warning restore 618
         }
 
         /// <summary>

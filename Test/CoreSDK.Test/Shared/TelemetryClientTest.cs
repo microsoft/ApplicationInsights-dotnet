@@ -346,7 +346,7 @@
             var dependency = (DependencyTelemetry)sentTelemetry.Single();
 
             Assert.Equal("name", dependency.Name);
-            Assert.Equal("command name", dependency.CommandName);
+            Assert.Equal("command name", dependency.Data);
             Assert.Equal(timestamp, dependency.Timestamp);
             Assert.Equal(TimeSpan.FromSeconds(42), dependency.Duration);
             Assert.Equal(false, dependency.Success);
@@ -382,7 +382,6 @@
 
             Assert.Equal("test name", availability.Name);
             Assert.Equal("test location", availability.RunLocation);
-            Assert.Equal(timestamp, availability.TestTimeStamp);
             Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);
             Assert.Equal(true, availability.Success);
         }
@@ -611,7 +610,9 @@
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel, InstrumentationKey = "Test Key" };
             var client = new TelemetryClient(configuration);
 
+#pragma warning disable 618
             Assert.DoesNotThrow(() => client.Track(new SessionStateTelemetry()));
+#pragma warning disable 618
         }
 
         [TestMethod]
@@ -840,9 +841,13 @@
             ExceptionTelemetry telemetry4 = new ExceptionTelemetry(new ArgumentException("Test"));
             MetricTelemetry telemetry5 = new MetricTelemetry("name", 100);
             PageViewTelemetry telemetry6 = new PageViewTelemetry("name");
+#pragma warning disable 618
             PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry("category", "name", "instance", 100);
+#pragma warning restore 618
             RequestTelemetry telemetry8 = new RequestTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(2), "200", true);
+#pragma warning disable 618
             SessionStateTelemetry telemetry9 = new SessionStateTelemetry(SessionState.Start);
+#pragma warning restore 618
             TraceTelemetry telemetry10 = new TraceTelemetry("text");
             AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(10), "location", true, "message");
 

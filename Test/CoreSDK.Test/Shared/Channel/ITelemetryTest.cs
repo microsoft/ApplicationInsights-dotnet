@@ -190,8 +190,7 @@
 
             TelemetryItem<TEndpointData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(telemetry);
 
-            // TODO: Why is TraceTelemetry serialized as MessageData base type instead of TraceData?
-            string expectedBaseType = typeof(TTelemetry) == typeof(TraceTelemetry) ? "MessageData" : typeof(TTelemetry).Name.Replace("Telemetry", "Data");
+            string expectedBaseType = ExtractTelemetryNameFromType(typeof(TTelemetry)) + "Data";
             Assert.AreEqual(expectedBaseType, envelope.data.baseType);
         }
 
@@ -228,6 +227,18 @@
                 // handle TraceTelemetry separately
                 result = "Message";
             }
+#pragma warning disable 618
+            else if (telemetryType == typeof(SessionStateTelemetry))
+            {
+                // handle TraceTelemetry separately
+                result = "Event";
+            }
+            else if (telemetryType == typeof(PerformanceCounterTelemetry))
+            {
+                // handle TraceTelemetry separately
+                result = "Metric";
+            }
+#pragma warning restore 618
             else
             {
                 // common logic is to strip out "Telemetry" suffix from the telemetry type

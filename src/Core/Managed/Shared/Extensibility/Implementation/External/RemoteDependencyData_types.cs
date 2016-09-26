@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -54,33 +55,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string resultCode { get; set; }
 
         
-        public DataPointType kind { get; set; }
-
-        
-        public double value { get; set; }
-
-        
         
         
         
         public string duration { get; set; }
 
         
-        public DependencyKind dependencyKind { get; set; }
-
-        
         
         public bool? success { get; set; }
-
-        
-        public bool? async { get; set; }
-
-        
-        public DependencySourceType dependencySource { get; set; }
-
-        
-        
-        public string commandName { get; set; }
 
         
         
@@ -90,12 +72,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        public string dependencyTypeName { get; set; }
+        public string target { get; set; }
 
         
         
         
-        public string target { get; set; }
+        public string type { get; set; }
 
         
         
@@ -118,27 +100,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             this.name = "";
             id = "";
             resultCode = "";
-            kind = DataPointType.Measurement;
             duration = "";
-            dependencyKind = DependencyKind.Other;
             success = true;
-            dependencySource = DependencySourceType.Undefined;
-            commandName = "";
             
-            dependencyTypeName = "";
             target = "";
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            type = "";
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-
