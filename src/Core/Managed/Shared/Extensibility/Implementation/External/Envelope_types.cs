@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -94,18 +95,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             sampleRate = 100.0;
             seq = "";
             iKey = "";
-            tags = new Dictionary<string, string>();
+            tags = new ConcurrentDictionary<string, string>();
             
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-

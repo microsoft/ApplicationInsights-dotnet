@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -37,11 +38,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public int ver { get; set; }
-
-        
-        
-        
-        public string handledAt { get; set; }
 
         
         
@@ -74,21 +70,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         protected ExceptionData(string fullName, string name)
         {
             ver = 2;
-            handledAt = "";
             exceptions = new List<ExceptionDetails>();
             problemId = "";
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-

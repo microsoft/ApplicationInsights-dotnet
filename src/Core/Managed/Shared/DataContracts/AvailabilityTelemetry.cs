@@ -26,21 +26,19 @@
         {
             this.Data = new AvailabilityData();
             this.context = new TelemetryContext(this.Data.properties);
-            this.Data.testRunId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Data.id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Success = true;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class with empty properties.
         /// </summary>
         public AvailabilityTelemetry(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+            : this()
         {
-            this.Data = new AvailabilityData();
-            this.context = new TelemetryContext(this.Data.properties);
-            this.Data.testTimeStamp = timeStamp.ToString("o", CultureInfo.InvariantCulture);
-            this.Data.testName = name;
-            this.Data.testRunId = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Data.name = name;
             this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
-            this.Data.result = success ? TestResult.Pass : TestResult.Fail;
+            this.Data.success = success;
             this.Data.runLocation = runLocation;
             this.Data.message = message;            
         }
@@ -50,17 +48,8 @@
         /// </summary>
         public string Id  
         {  
-            get { return this.Data.testRunId; }
-            set { this.Data.testRunId = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets date and time when the availability test was executed.
-        /// </summary>
-        public DateTimeOffset TestTimeStamp
-        {
-            get { return Utils.ValidateDateTimeOffset(this.Data.testTimeStamp); }
-            set { this.Data.testTimeStamp = value.ToString("o", CultureInfo.InvariantCulture); }
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
         }
 
         /// <summary>
@@ -68,8 +57,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.Data.testName; }
-            set { this.Data.testName = value; }
+            get { return this.Data.name; }
+            set { this.Data.name = value; }
         }
 
         /// <summary>
@@ -93,8 +82,8 @@
         /// </summary>
         public bool Success
         {
-            get { return (this.Data.result == TestResult.Pass) ? true : false; }            
-            set { this.Data.result = value ? TestResult.Pass : TestResult.Fail; }
+            get { return this.Data.success; }
+            set { this.Data.success = value; }
         }
 
         /// <summary>
@@ -137,6 +126,14 @@
         }
 
         /// <summary>
+        /// Gets a dictionary of application-defined event metrics.
+        /// </summary>
+        public IDictionary<string, double> Metrics
+        {
+            get { return this.Data.measurements; }
+        }
+
+        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public DateTimeOffset Timestamp
@@ -149,18 +146,8 @@
         /// </summary>
         void ITelemetry.Sanitize()
         {
-            // TODO: It looks like the oob Web Tests on the portal are populating this property now so adding and ensuring its set to false as we don't support sending full test results.
-            if (this.Data.properties.ContainsKey("FullTestResultAvailable"))
-            {
-                this.Data.properties["FullTestResultAvailable"] = "false";
-            }
-            else
-            {
-                this.Data.properties.Add("FullTestResultAvailable", "false");
-            }
-
             // Makes message content similar to OOB web test results on the portal.
-            this.Message = (this.Data.result == TestResult.Pass && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((this.Data.result == TestResult.Fail && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
+            this.Message = (this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Passed" : ((!this.Data.success && string.IsNullOrEmpty(this.Message)) ? "Failed" : this.Message);
 
             this.Name = this.Name.SanitizeTestName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "TestName", typeof(AvailabilityTelemetry).FullName);
@@ -169,6 +156,7 @@
             this.Message = this.Message.SanitizeAvailabilityMessage();
 
             this.Data.properties.SanitizeProperties();
+            this.Data.measurements.SanitizeMeasurements();
         }
     }
 }

@@ -25,7 +25,6 @@
             // Validtes 2 random properties
             Assert.NotNull(exceptionAsJson);
             Assert.Equal("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
-            Assert.Equal("Unhandled", obj["data"]["baseData"]["handledAt"].ToString());
         }
 
         [TestMethod]

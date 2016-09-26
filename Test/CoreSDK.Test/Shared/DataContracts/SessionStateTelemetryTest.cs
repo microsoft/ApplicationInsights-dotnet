@@ -9,10 +9,11 @@
     [TestClass]
     public class SessionStateTelemetryTest
     {
+#pragma warning disable 618
         [TestMethod]
         public void SessionStateTelemetryImplementsITelemetryContract()
         {
-            var test = new ITelemetryTest<SessionStateTelemetry, AI.SessionStateData>();
+            var test = new ITelemetryTest<SessionStateTelemetry, AI.EventData>();
             test.Run();
         }
 
@@ -49,9 +50,10 @@
         public void SerializeWritesStateAsExpectedByEndpoint()
         {
             var telemetry = new SessionStateTelemetry { State = SessionState.End };
-            TelemetryItem<SessionStateData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, SessionStateData>(telemetry);
-            Assert.Equal(AI.SessionState.End, envelope.data.baseData.state);
+            TelemetryItem<EventData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, EventData>(telemetry);
+            Assert.Equal("Session ended", envelope.data.baseData.name);
             Assert.Equal(2, envelope.data.baseData.ver);
         }
+#pragma warning restore 618
     }
 }

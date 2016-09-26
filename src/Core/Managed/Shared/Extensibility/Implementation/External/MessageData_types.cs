@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -61,17 +62,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             message = "";
-            properties = new Dictionary<string, string>();
+            properties = new ConcurrentDictionary<string, string>();
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-
