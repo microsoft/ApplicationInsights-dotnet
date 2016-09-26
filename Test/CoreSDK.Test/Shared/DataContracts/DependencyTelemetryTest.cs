@@ -1,18 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using BondDependencyKind = Extensibility.Implementation.External.DependencyKind;
-    
-    
+
     [TestClass]
     public class DependencyTelemetryTest
     {
@@ -31,9 +25,8 @@
             Assert.Equal(expected.Id, item.data.baseData.id);
             Assert.Equal(expected.ResultCode, item.data.baseData.resultCode);
             Assert.Equal(expected.Name, item.data.baseData.name);
-            Assert.Equal(expected.Duration.TotalMilliseconds, item.data.baseData.value);
-            Assert.Equal(expected.DependencyKind.ToString(), item.data.baseData.dependencyKind.ToString());
-            Assert.Equal(expected.DependencyTypeName, item.data.baseData.dependencyTypeName);
+            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.Equal(expected.Type, item.data.baseData.type);
 
             Assert.Equal(expected.Success, item.data.baseData.success);
             Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
@@ -44,10 +37,9 @@
         {
             DependencyTelemetry original = new DependencyTelemetry();
             original.Name = null;
-            original.CommandName = null;
-            original.DependencyTypeName = null;
+            original.Data = null;
+            original.Type = null;
             original.Success = null;
-            original.DependencyKind = null;
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(original);
 
@@ -70,7 +62,7 @@
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry("Select * from Customers where CustomerID=@1");
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
-            Assert.Equal(expected.CommandName, dp.commandName);
+            Assert.Equal(expected.Data, dp.data);
         }
 
         [TestMethod]
@@ -79,7 +71,7 @@
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry(null);
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
-            Assert.True(string.IsNullOrEmpty(dp.commandName));
+            Assert.True(string.IsNullOrEmpty(dp.data));
         }
         
         [TestMethod]
@@ -88,42 +80,32 @@
             DependencyTelemetry expected = this.CreateRemoteDependencyTelemetry(string.Empty);
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(expected);
             AI.RemoteDependencyData dp = item.data.baseData;
-            Assert.True(string.IsNullOrEmpty(dp.commandName));
+            Assert.True(string.IsNullOrEmpty(dp.data));
         }
 
         [TestMethod]
-        public void DependencyKindDefaultsToOtherInConstructor()
+        public void DependencyTypeNameDefaultsToEmptyInConstructor()
         {
+#pragma warning disable 618
             var dependency = new DependencyTelemetry("name", "command name", DateTimeOffset.Now, TimeSpan.FromSeconds(42), false);
 
-            Assert.Equal("Other", dependency.DependencyKind);
+            Assert.Empty(dependency.DependencyKind);
+#pragma warning restore 618
+
+            Assert.Empty(dependency.Type);
         }
 
         [TestMethod]
-        public void DependencyKindDefaultsToOtherIfNullIsPassed()
+        public void SerttingDependencyKindSetsDependencyTypeName()
         {
             DependencyTelemetry expected = new DependencyTelemetry();
-            expected.DependencyKind = null;
+#pragma warning disable 618
+            expected.DependencyKind = "Http";
 
-            Assert.Equal(BondDependencyKind.Other.ToString(), expected.DependencyKind);
-        }
+            Assert.Equal("Http", expected.DependencyKind);
+            Assert.Equal("Http", expected.DependencyTypeName);
+#pragma warning restore 618
 
-        [TestMethod]
-        public void DependencyKindDefaultsToOtherIfUnexpectedValuePassed()
-        {
-            DependencyTelemetry expected = new DependencyTelemetry();
-            expected.DependencyKind = "badValue";
-
-            Assert.Equal(BondDependencyKind.Other.ToString(), expected.DependencyKind);
-        }
-
-        [TestMethod]
-        public void DependencyKindIsSetIfValueCanBeParsedFromEnum()
-        {
-            DependencyTelemetry expected = new DependencyTelemetry();
-            expected.DependencyKind = BondDependencyKind.Http.ToString();
-
-            Assert.Equal(BondDependencyKind.Http.ToString(), expected.DependencyKind);
         }
 
         [TestMethod]
@@ -131,16 +113,16 @@
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
-            telemetry.CommandName = new string('Y', Property.MaxCommandNameLength + 1);
-            telemetry.DependencyTypeName = new string('D', Property.MaxDependencyTypeLength + 1);
+            telemetry.Data = new string('Y', Property.MaxCommandNameLength + 1);
+            telemetry.Type = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
             
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
-            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.CommandName);
-            Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.DependencyTypeName);
+            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.Data);
+            Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.Type);
 
             Assert.Equal(2, telemetry.Properties.Count);
             Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
@@ -177,12 +159,11 @@
                                                 Timestamp = DateTimeOffset.Now,
                                                 Sequence = "4:2",
                                                 Name = "MyWebServer.cloudapp.net",
-                                                DependencyKind = BondDependencyKind.SQL.ToString(),
                                                 Duration = TimeSpan.FromMilliseconds(42),
                                                 Success = true,
                                                 Id = "DepID",
                                                 ResultCode = "200",
-                                                DependencyTypeName = "external call"
+                                                Type = "external call"
                                             };
             item.Context.InstrumentationKey = Guid.NewGuid().ToString();
             item.Properties.Add("TestProperty", "TestValue");
@@ -193,7 +174,7 @@
         private DependencyTelemetry CreateRemoteDependencyTelemetry(string commandName)
         {
             DependencyTelemetry item = this.CreateRemoteDependencyTelemetry();
-            item.CommandName = commandName;
+            item.Data = commandName;
             return item;
         }
     }

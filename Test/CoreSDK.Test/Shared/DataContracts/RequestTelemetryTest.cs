@@ -44,9 +44,11 @@
         [TestMethod]
         public void HttpMethodCanBeSetByRequestTracking()
         {
+#pragma warning disable 618
             var request = new RequestTelemetry();
             request.HttpMethod = "POST";
             Assert.Equal("POST", request.HttpMethod);
+#pragma warning restore 618
         }
 
         [TestMethod]
@@ -67,7 +69,9 @@
         public void SerializeWritesNullValuesAsExpectedByEndpoint()
         {
             RequestTelemetry original = new RequestTelemetry();
+#pragma warning disable 618
             original.HttpMethod = null;
+#pragma warning restore 618
             original.Id = null;
             original.Name = null;
             original.ResponseCode = null;
@@ -89,7 +93,6 @@
             expected.ResponseCode = "200";
             expected.Success = true;
             expected.Url = new Uri("http://localhost/myapp/MyPage.aspx");
-            expected.HttpMethod = "GET";
             expected.Metrics.Add("Metric1", 30);
             expected.Properties.Add("userHostAddress", "::1");
 
@@ -105,12 +108,11 @@
             Assert.Equal(2, item.data.baseData.ver);
             Assert.Equal(expected.Id, item.data.baseData.id);
             Assert.Equal(expected.Name, item.data.baseData.name);
-            Assert.Equal(expected.Timestamp, DateTimeOffset.Parse(item.data.baseData.startTime));
+            Assert.Equal(expected.Timestamp, DateTimeOffset.Parse(item.time));
             Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.Equal(expected.Success, item.data.baseData.success);
             Assert.Equal(expected.ResponseCode, item.data.baseData.responseCode);
             Assert.Equal(expected.Url.ToString(), item.data.baseData.url.ToString(), StringComparer.OrdinalIgnoreCase);
-            Assert.Equal(expected.HttpMethod, item.data.baseData.httpMethod);
 
             Assert.Equal(1, item.data.baseData.measurements.Count);
             Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
@@ -128,7 +130,7 @@
 
                 Assert.Equal(2, item.data.baseData.ver);
                 Assert.NotNull(item.data.baseData.id);
-                Assert.NotNull(item.data.baseData.startTime);
+                Assert.NotNull(item.time);
                 Assert.Equal("200", item.data.baseData.responseCode);
                 Assert.Equal(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
                 Assert.True(item.data.baseData.success);

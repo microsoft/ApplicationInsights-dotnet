@@ -15,9 +15,19 @@
     internal interface IPlatform
     {
         /// <summary>
+        /// Returns a dictionary that can be used to access per-user/per-application settings shared by all application instances.
+        /// </summary>
+        IDictionary<string, object> GetApplicationSettings();
+
+        /// <summary>
         /// Returns contents of the ApplicationInsights.config file in the application directory.
         /// </summary>
         string ReadConfigurationXml();
+
+        /// <summary>
+        /// Returns the platform specific <see cref="ExceptionDetails"/> object for the given Exception.
+        /// </summary>
+        ExceptionDetails GetExceptionDetails(Exception exception, ExceptionDetails parentExceptionDetails);
 
         /// <summary>
         /// Returns the platform specific Debugger writer to the VS output console.

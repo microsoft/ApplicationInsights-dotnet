@@ -19,10 +19,9 @@
         public void OperationTelemetryStartInitializesTimeStampAndStartTimeToTelemetry()
         {
             var telemetry = new DependencyTelemetry();
-            Assert.Equal(telemetry.StartTime, DateTimeOffset.MinValue);
-            Assert.Equal(telemetry.Timestamp, DateTimeOffset.MinValue);
+            Assert.Equal(DateTimeOffset.MinValue, telemetry.Timestamp);
             telemetry.Start();
-            Assert.Equal(telemetry.StartTime, telemetry.Timestamp);
+            Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
         }
 
         /// <summary>
@@ -35,8 +34,7 @@
             telemetry.Start();
             DateTimeOffset actualTime = telemetry.Timestamp;
             telemetry.Stop();
-            Assert.Equal(actualTime, telemetry.Timestamp);
-            Assert.Equal(actualTime, telemetry.StartTime);
+            Assert.Equal(telemetry.Timestamp, actualTime);
         }
 
         /// <summary>
@@ -61,8 +59,7 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Stop();
-            Assert.NotEqual(DateTimeOffset.MinValue, telemetry.StartTime);
-            Assert.Equal(telemetry.StartTime, telemetry.Timestamp);
+            Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
             Assert.Equal(telemetry.Duration, TimeSpan.Zero);
         }
     }

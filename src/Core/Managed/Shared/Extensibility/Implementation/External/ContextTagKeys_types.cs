@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -45,9 +46,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string DeviceId { get; set; }
 
         
-        public string DeviceLanguage { get; set; }
-
-        
         
         
         public string DeviceLocale { get; set; }
@@ -58,9 +56,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         public string DeviceModel { get; set; }
 
         
-        public string DeviceNetwork { get; set; }
-
-        
         
         
         public string DeviceOEMName { get; set; }
@@ -69,19 +64,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public string DeviceOSVersion { get; set; }
-
-        
-        
-        
-        public string DeviceRoleInstance { get; set; }
-
-        
-        
-        
-        public string DeviceRoleName { get; set; }
-
-        
-        public string DeviceScreenResolution { get; set; }
 
         
         
@@ -177,15 +159,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ApplicationVersion = "ai.application.ver";
             DeviceId = "ai.device.id";
-            DeviceLanguage = "ai.device.language";
             DeviceLocale = "ai.device.locale";
             DeviceModel = "ai.device.model";
-            DeviceNetwork = "ai.device.network";
             DeviceOEMName = "ai.device.oemName";
             DeviceOSVersion = "ai.device.osVersion";
-            DeviceRoleInstance = "ai.device.roleInstance";
-            DeviceRoleName = "ai.device.roleName";
-            DeviceScreenResolution = "ai.device.screenResolution";
             DeviceType = "ai.device.type";
             LocationIp = "ai.location.ip";
             OperationId = "ai.operation.id";
@@ -206,13 +183,3 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-

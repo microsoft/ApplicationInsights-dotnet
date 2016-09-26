@@ -227,7 +227,7 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            var telemetry = new ExceptionTelemetry(exception) { HandledAt = ExceptionHandledAt.UserCode };
+            var telemetry = new ExceptionTelemetry(exception);
 
             if (properties != null && properties.Count > 0)
             {
@@ -251,10 +251,7 @@
             if (telemetry == null)
             {
                 var exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
-                telemetry = new ExceptionTelemetry(exception)
-                {
-                    HandledAt = ExceptionHandledAt.UserCode,
-                };
+                telemetry = new ExceptionTelemetry(exception);
             }
 
             this.Track(telemetry);
@@ -270,7 +267,25 @@
         /// <param name="success">True if the dependency call was handled successfully.</param>
         public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
+#pragma warning disable 618
             this.TrackDependency(new DependencyTelemetry(dependencyName, commandName, startTime, duration, success));
+#pragma warning restore 618
+        }
+
+        /// <summary>
+        /// Send information about external dependency call in the application.
+        /// </summary>
+        /// <param name="dependencyTypeName">External dependency type.</param>
+        /// <param name="target">External dependency target.</param>
+        /// <param name="dependencyName">External dependency name.</param>
+        /// <param name="data">Dependency call command name.</param>
+        /// <param name="startTime">The time when the dependency was called.</param>
+        /// <param name="duration">The time taken by the external dependency to handle the call.</param>
+        /// <param name="resultCode">Result code of dependency call execution.</param>
+        /// <param name="success">True if the dependency call was handled successfully.</param>
+        public void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
+        {
+            this.TrackDependency(new DependencyTelemetry(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode, success));
         }
 
         /// <summary>

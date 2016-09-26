@@ -68,12 +68,14 @@
             Assert.Equal(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
         }
 
+#pragma warning disable 618
         [TestMethod]
         public void HandledAtReturnsUnhandledByDefault()
         {
             var telemetry = new ExceptionTelemetry();
             Assert.Equal(ExceptionHandledAt.Unhandled, telemetry.HandledAt);
         }
+#pragma warning restore 618
 
         [TestMethod]
         public void ConstructorDoesNotSetSeverityLevel()
@@ -161,16 +163,6 @@
         }
 
         [TestMethod]
-        public void SerializeWritesItemHandledAtAsExpectedByEndpoint()
-        {
-            ExceptionTelemetry original = CreateExceptionTelemetry();
-            original.HandledAt = ExceptionHandledAt.Platform;
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
-            
-            Assert.Equal(ExceptionHandledAt.Platform.ToString(), item.data.baseData.handledAt);
-        }
-
-        [TestMethod]
         public void SerializeWritesItemSeverityLevelAsExpectedByEndpoint()
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
@@ -198,6 +190,36 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
             Assert.Equal(exception.Message, item.data.baseData.exceptions[0].message);
+        }
+
+        [TestMethod]
+        public void GetExceptionDetailsInvokesPlatformToGetExceptionDetails()
+        {
+            Exception exception = null;
+
+            Extensibility.Implementation.Platform.PlatformSingleton.Current = new StubPlatform
+            {
+                OnGetExceptionDetails = (e, p) =>
+                {
+                    exception = e;
+
+                    return new Extensibility.Implementation.External.ExceptionDetails();
+                }
+            };
+            try
+            {
+                var expectedException = new Exception();
+                var expectedParentDetails = new Extensibility.Implementation.External.ExceptionDetails();
+
+                ExceptionTelemetry original = CreateExceptionTelemetry(expectedException);
+
+                Assert.Same(expectedException, exception);
+                Assert.Same(expectedException, original.Exception);
+            }
+            finally
+            {
+                Microsoft.ApplicationInsights.Extensibility.Implementation.Platform.PlatformSingleton.Current = null;
+            }
         }
 
         [TestMethod]
@@ -324,7 +346,6 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(exceptionTelemetry);
 
             Assert.Equal(2, item.data.baseData.ver);
-            Assert.NotNull(item.data.baseData.handledAt);
             Assert.NotNull(item.data.baseData.exceptions);
             Assert.Equal(0, item.data.baseData.exceptions.Count); // constructor without parameters does not initialize exception object
         }

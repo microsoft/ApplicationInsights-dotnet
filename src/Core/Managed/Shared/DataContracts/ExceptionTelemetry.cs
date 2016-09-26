@@ -31,7 +31,6 @@
         {
             this.Data = new ExceptionData();
             this.context = new TelemetryContext(this.Data.properties);
-            this.HandledAt = default(ExceptionHandledAt);
         }
 
         /// <summary>
@@ -70,10 +69,24 @@
         /// <summary>
         /// Gets or sets the value indicated where the exception was handled.
         /// </summary>
+        [Obsolete("Use custom properties to report exception handling layer")]
         public ExceptionHandledAt HandledAt
         {
-            get { return this.ValidateExceptionHandledAt(this.Data.handledAt); }
-            set { this.Data.handledAt = value.ToString(); }
+            get
+            {
+                ExceptionHandledAt result = default(ExceptionHandledAt);
+                if (this.Properties.ContainsKey("handledAt"))
+                {
+                    Enum.TryParse<ExceptionHandledAt>(this.Properties["handledAt"], out result);
+                }
+
+                return result;
+            }
+
+            set
+            {
+                this.Properties["handledAt"] = value.ToString();
+            }
         }
         
         /// <summary>
@@ -174,7 +187,7 @@
                 exception = new Exception(Utils.PopulateRequiredStringValue(null, "message", typeof(ExceptionTelemetry).FullName));
             }
 
-            ExceptionDetails exceptionDetails = ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
+            ExceptionDetails exceptionDetails = PlatformSingleton.Current.GetExceptionDetails(exception, parentExceptionDetails);
 
             // For upper level exception see if Message was provided and do not use exceptiom.message in that case
             if (parentExceptionDetails == null && !string.IsNullOrWhiteSpace(this.Message))
@@ -220,21 +233,10 @@
                 exceptions.RemoveRange(Constants.MaxExceptionCountToSave, exceptions.Count - Constants.MaxExceptionCountToSave);
                 
                 // we'll add our new exception and parent it to the root exception (first one in the list)
-                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
+                exceptions.Add(PlatformSingleton.Current.GetExceptionDetails(countExceededException, exceptions[0]));
             }
             
             this.Data.exceptions = exceptions;
-        }
-
-        private ExceptionHandledAt ValidateExceptionHandledAt(string value)
-        {
-            ExceptionHandledAt exceptionHandledAt = ExceptionHandledAt.Unhandled;
-            if (Enum.IsDefined(typeof(ExceptionHandledAt), value) == true)
-            {
-                exceptionHandledAt = (ExceptionHandledAt)Enum.Parse(typeof(ExceptionHandledAt), value);
-            }
-
-            return exceptionHandledAt;
         }
     }
 }

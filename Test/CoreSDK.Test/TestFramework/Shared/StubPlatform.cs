@@ -14,9 +14,19 @@
         public Func<string> OnReadConfigurationXml = () => null;
         public Func<Exception, ExceptionDetails, ExceptionDetails> OnGetExceptionDetails = (e, p) => new ExceptionDetails();
 
+        public IDictionary<string, object> GetApplicationSettings()
+        {
+            return this.OnGetApplicationSettings();
+        }
+
         public string ReadConfigurationXml()
         {
             return this.OnReadConfigurationXml();
+        }
+
+        public ExceptionDetails GetExceptionDetails(Exception exception, ExceptionDetails parentExceptionDetails)
+        {
+            return this.OnGetExceptionDetails(exception, parentExceptionDetails);
         }
 
         public IDebugOutput GetDebugOutput()
