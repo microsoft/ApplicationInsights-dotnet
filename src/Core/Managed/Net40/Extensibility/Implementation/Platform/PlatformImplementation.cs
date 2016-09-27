@@ -1,8 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
+    using System.Collections;
     using System.IO;
     using System.Security;
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -12,6 +14,8 @@
     /// </summary>
     internal class PlatformImplementation : IPlatform
     {
+        private readonly IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+
         private IDebugOutput debugOutput = null;
 
         /// <summary>
@@ -67,7 +71,20 @@
 
         public string GetEnvironmentVariable(string name)
         {
-            return Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException();
+            }
+
+            object resultObj = this.environmentVariables[name];
+            if (resultObj != null)
+            {
+                return resultObj.ToString();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
