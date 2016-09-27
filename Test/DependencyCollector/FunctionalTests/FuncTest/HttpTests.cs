@@ -579,7 +579,7 @@
                         TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
                         Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
-                        var url = httpItem.data.baseData.name;
+                        var url = httpItem.data.baseData.data;
                         if (url.Contains(expectedUrl))
                         {
                             countItem++;

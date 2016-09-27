@@ -101,8 +101,8 @@
                          var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
                          this.Validate(
-                             sqlItems[0], 
-                             ResourceNameSQLToDevApm + " | " + StoredProcedureName, 
+                             sqlItems[0],
+                             ResourceNameSQLToDevApm,
                              StoredProcedureName, 
                              TimeSpan.FromSeconds(10), 
                              successFlagExpected: true,
@@ -382,7 +382,7 @@
                         string spName = "GetTopTenMessages";
                         this.Validate(
                             sqlItem, 
-                            ResourceNameSQLToDevApm + " | " + spName, 
+                            ResourceNameSQLToDevApm, 
                             spName, 
                             accessTimeMax, successFlagExpected: true,
                             sqlErrorCodeExpected: "0",
@@ -392,7 +392,7 @@
         }
 
         private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
+            string targetExpected,
             string commandNameExpected,
             TimeSpan accessTimeMax,
             bool successFlagExpected,
@@ -400,9 +400,9 @@
             string sqlErrorMessageExpected)
         {
             // For http name is validated in test itself
-            Assert.IsTrue(itemToValidate.data.baseData.name.Contains(remoteDependencyNameExpected),
-                "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
-                ". Collected: " + itemToValidate.data.baseData.name);
+            Assert.IsTrue(itemToValidate.data.baseData.target.Contains(targetExpected),
+                "The remote dependancy target is incorrect. Expected: " + targetExpected +
+                ". Collected: " + itemToValidate.data.baseData.target);
 
             Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.data.baseData.resultCode);
 
@@ -425,7 +425,7 @@
                 }
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, targetExpected, accessTimeMax, successFlagExpected);
         }
     } 
 }
