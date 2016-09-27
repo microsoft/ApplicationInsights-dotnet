@@ -3,7 +3,7 @@ import "DataPoint.bond"
 
 namespace AI
 
-[Description("Instance of the Metric item is a list of measurements (single data points) and/or aggregations")]
+[Description("An instance of the Metric item is a list of measurements (single data points) and/or aggregations.")]
 struct MetricData
     : Domain
 {

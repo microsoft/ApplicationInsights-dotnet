@@ -9,7 +9,6 @@
 #endif
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -583,21 +582,6 @@
         }
 
         /// <summary>
-        /// Validates SQLProcessingProfiler correctly returns empty string for a null command object.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler handles a null connection object.")]
-        [Owner("arthurbe")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerCommandNameTestForNullConnection()
-        {
-            var command = GetMoreComplexSqlCommandTestForQuery();
-            command.Connection = null;
-            var actualCommandName = this.sqlProcessingProfiler.GetCommandName(command);
-            Assert.AreEqual(string.Empty, actualCommandName, "SqlProcessingProfiler should return empty string for null connection object");
-        }
-
-        /// <summary>
         /// Validates SQLProcessingProfiler returns stored procedure name in the case of a stored procedure.
         /// </summary>
         [TestMethod]
@@ -715,7 +699,7 @@
             DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string resultCode)
         {            
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 

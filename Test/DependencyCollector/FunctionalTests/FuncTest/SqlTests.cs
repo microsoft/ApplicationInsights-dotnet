@@ -98,11 +98,11 @@
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.SQL).ToArray();
+                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
                          this.Validate(
-                             sqlItems[0], 
-                             ResourceNameSQLToDevApm + " | " + StoredProcedureName, 
+                             sqlItems[0],
+                             ResourceNameSQLToDevApm,
                              StoredProcedureName, 
                              TimeSpan.FromSeconds(10), 
                              successFlagExpected: true,
@@ -121,7 +121,7 @@
                          application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwice&count=1");
 
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.SQL).ToArray();
+                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
 
                          Assert.AreEqual(0, sqlItems.Length, "We don't have to collect any rdd as it is impossible to execute on the same command two async methods at the same time");
                      });
@@ -154,7 +154,7 @@
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.SQL).ToArray();
+                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
@@ -318,7 +318,7 @@
                      //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
 
                      var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                     var sqlItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.SQL).ToArray();                     
+                     var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();                     
                      Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
                      
                      string queryToValidate = success ? string.Empty : InvalidSqlQueryToApmDatabase + extraClauseForFailureCase;
@@ -369,7 +369,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var sqlItems = allItems.Where(i => i.data.baseData.dependencyKind == DependencyKind.SQL).ToArray();
+                    var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
 
 
                     Assert.AreEqual(
@@ -382,7 +382,7 @@
                         string spName = "GetTopTenMessages";
                         this.Validate(
                             sqlItem, 
-                            ResourceNameSQLToDevApm + " | " + spName, 
+                            ResourceNameSQLToDevApm, 
                             spName, 
                             accessTimeMax, successFlagExpected: true,
                             sqlErrorCodeExpected: "0",
@@ -392,7 +392,7 @@
         }
 
         private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
+            string targetExpected,
             string commandNameExpected,
             TimeSpan accessTimeMax,
             bool successFlagExpected,
@@ -400,14 +400,14 @@
             string sqlErrorMessageExpected)
         {
             // For http name is validated in test itself
-            Assert.IsTrue(itemToValidate.data.baseData.name.Contains(remoteDependencyNameExpected),
-                "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
-                ". Collected: " + itemToValidate.data.baseData.name);
+            Assert.IsTrue(itemToValidate.data.baseData.target.Contains(targetExpected),
+                "The remote dependancy target is incorrect. Expected: " + targetExpected +
+                ". Collected: " + itemToValidate.data.baseData.target);
 
             Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.data.baseData.resultCode);
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
-            if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
             {
                 // Additional checks for profiler collection
                 if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
@@ -417,15 +417,15 @@
 
                 if (string.IsNullOrEmpty(commandNameExpected))
                 {
-                    Assert.IsNull(itemToValidate.data.baseData.commandName);
+                    Assert.IsNull(itemToValidate.data.baseData.data);
                 }
                 else
                 {
-                    Assert.IsTrue(itemToValidate.data.baseData.commandName.Equals(commandNameExpected), "The command name is incorrect");
+                    Assert.IsTrue(itemToValidate.data.baseData.data.Equals(commandNameExpected), "The command name is incorrect");
                 }
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, targetExpected, accessTimeMax, successFlagExpected);
         }
     } 
 }

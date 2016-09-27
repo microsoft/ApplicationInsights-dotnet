@@ -231,6 +231,20 @@
             return resource;
         }
 
+        internal string GetResourceTarget(object thisObj)
+        {
+            SqlCommand command = thisObj as SqlCommand;
+            string result = string.Empty;
+            if (command != null)
+            {
+                if (command.Connection != null)
+                {
+                    result = string.Join(" | ", command.Connection.DataSource, command.Connection.Database);
+                }
+            }
+
+            return result;
+        }
         /// <summary>
         /// Return CommandTest for SQL resource.
         /// </summary>
@@ -240,7 +254,7 @@
         {
             SqlCommand command = thisObj as SqlCommand;
 
-            if (command != null && command.Connection != null)
+            if (command != null)
             {
                 return command.CommandText ?? string.Empty;
             }
@@ -291,8 +305,9 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.DependencyKind = RemoteDependencyKind.SQL.ToString();
-                telemetry.CommandName = commandText;
+                telemetry.Type = RemoteDependencyKind.SQL.ToString();
+                telemetry.Target = GetResourceTarget(thisObj);
+                telemetry.Data = commandText;
 
                 // We use weaktables to store the thisObj for correlating begin with end call.
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));

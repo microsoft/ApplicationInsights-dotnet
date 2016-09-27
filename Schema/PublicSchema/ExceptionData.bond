@@ -4,16 +4,12 @@ import "SeverityLevel.bond"
 
 namespace AI
 
-[Description("Instance of Exception represents handled or unhandled exception that occurred during execution of the monitored application.")]
+[Description("An instance of Exception represents a handled or unhandled exception that occurred during execution of the monitored application.")]
 struct ExceptionData
     : Domain
 {
     [Description("Schema version")]
     10: required int32 	 ver = 2;
-    
-    [Description("Indication of where exception was caught to assess it's severity. Possible values are 'user code' (UserCode), 'framework' (Platform) or 'unhandled' (Unhandled)")]
-    [MaxStringLength("1024")]
-    20: required string 	 handledAt;
     
     [Description("Exception chain - list of inner exceptions.")]
     50: required vector<ExceptionDetails> 	 exceptions;

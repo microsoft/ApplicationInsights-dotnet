@@ -67,7 +67,9 @@
                     bool isCustomCreated = false;
                     var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
                     telemetry.Name = resourceName;
-                    telemetry.DependencyKind = RemoteDependencyKind.SQL.ToString();
+                    telemetry.Target = string.Join(" | ", dataSource, database);
+                    telemetry.Type = RemoteDependencyKind.SQL.ToString();
+                    telemetry.Data = commandText;
                     this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
                 }
             }
@@ -125,7 +127,7 @@
         {
             string resource = string.IsNullOrEmpty(commandText)
                 ? string.Join(" | ", dataSource, database)
-                : string.Join(" | ", dataSource, database, commandText);
+                : commandText;
             return resource;
         }
     }

@@ -15,7 +15,7 @@ struct StackFrame
     [MaxStringLength("1024")]
     30: string 	 assembly;
     
-    [Description("File name or Url of the method implementation.")]
+    [Description("File name or URL of the method implementation.")]
     [MaxStringLength("1024")]
     50: string 	 fileName;
     

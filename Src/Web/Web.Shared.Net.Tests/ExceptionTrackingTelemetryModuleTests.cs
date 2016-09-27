@@ -73,21 +73,6 @@
         }
 
         [TestMethod]
-        public void OnErrorSetsHandledAtToPlatform()
-        {
-            var platformContext = HttpModuleHelper.GetFakeHttpContext();
-            platformContext.AddError(new Exception());
-
-            using (var module = new TestableExceptionTrackingTelemetryModule(platformContext))
-            {
-                module.Initialize(this.configuration);
-                module.OnError(null);
-            }
-
-            Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)this.sendItems[0]).HandledAt);
-        }
-
-        [TestMethod]
         public void OnErrorDoesNotThrowOnNullContext()
         {
             using (var module = new TestableExceptionTrackingTelemetryModule(null))

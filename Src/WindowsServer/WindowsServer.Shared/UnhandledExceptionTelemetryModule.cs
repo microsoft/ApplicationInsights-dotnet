@@ -93,7 +93,6 @@
 
             var exp = new ExceptionTelemetry(unhandledExceptionEventArgs.ExceptionObject as Exception)
             {
-                HandledAt = ExceptionHandledAt.Unhandled,
                 SeverityLevel = SeverityLevel.Critical,
             };
 

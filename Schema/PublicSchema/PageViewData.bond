@@ -2,13 +2,13 @@ import "EventData.bond"
 
 namespace AI
 
-[Description("Instance of PageView represents a generic action on a page like a button click. It is also the base type for PageView.")]
+[Description("An instance of PageView represents a generic action on a page like a button click. It is also the base type for PageView.")]
 [Alias("PageviewData;PageEventData")]
 struct PageViewData
     : EventData
 {
     [MaxStringLength("2048")]
-    [Description("Request url with all query string parameters")]
+    [Description("Request URL with all query string parameters")]
     10: string 	 url;
     
     [CSType("TimeSpan")]

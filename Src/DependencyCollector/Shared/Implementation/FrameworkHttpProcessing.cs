@@ -54,6 +54,14 @@
                     return;
                 }
 
+                var url = new Uri(resourceName);
+
+                if (url == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(id, "OnBeginHttp", "resourceName is not a URL");
+                    return;
+                }
+
                 if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(resourceName))
                 {
                     return;
@@ -75,9 +83,13 @@
 
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
-                telemetry.Name = resourceName;
+                telemetry.Type = RemoteDependencyKind.Http.ToString();
+                telemetry.Name = url.AbsolutePath;
+                telemetry.Target = url.Host;
+                telemetry.Data = url.OriginalString;
 
-               this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
+
+                this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
             }
             catch (Exception exception)
             {
@@ -108,7 +120,6 @@
             {
                 this.TelemetryTable.Remove(id);
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
-                telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
 
                 if (statusCode.HasValue)
                 {

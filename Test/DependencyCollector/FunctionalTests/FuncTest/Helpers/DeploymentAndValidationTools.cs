@@ -41,7 +41,7 @@
 
         private static bool isInitialized;
 
-        public static DependencySourceType ExpectedSource { get; private set; }
+        public static string ExpectedSDKPrefix { get; private set; }
 
         public static HttpListenerObservable SdkEventListener { get; private set; }
 
@@ -89,13 +89,13 @@
                         if (RegistryCheck.IsNet46Installed)
                         {
                             // .NET 4.6 onwards, there is no need of installing agent
-                            ExpectedSource = !RegistryCheck.IsStatusMonitorInstalled
-                                ? DependencySourceType.Aic
-                                : DependencySourceType.Apmc;
+                            ExpectedSDKPrefix = !RegistryCheck.IsStatusMonitorInstalled
+                                ? "rddf"
+                                : "rddp";
                         }
                         else
                         {
-                            ExpectedSource = DependencySourceType.Apmc;
+                            ExpectedSDKPrefix = "rddp";
 
                             if (!RegistryCheck.IsStatusMonitorInstalled)
                             {
@@ -170,15 +170,10 @@
             bool successFlagExpected)
         {
             string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
-            Assert.IsTrue(
-                DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource
-                    ? actualSdkVersion.Contains("rddp")
-                    : actualSdkVersion.Contains("rddf"), "Actual version:" + actualSdkVersion);
+            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
 
             // Validate is within expected limits
-            var ticks = (long)(itemToValidate.data.baseData.value * 10000);
-
-            var accessTime = TimeSpan.FromTicks(ticks);
+            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration);
 
             // DNS resolution may take up to 15 seconds https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.timeout(v=vs.110).aspx.
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 

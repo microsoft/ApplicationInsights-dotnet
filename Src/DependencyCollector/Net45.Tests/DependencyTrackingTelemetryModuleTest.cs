@@ -36,8 +36,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                const string Url = "http://www.bing.com";
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url, HttpMethod.Post);
+                Uri Url = new Uri("http://www.bing.com");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Post);
 
                 while (sentTelemetry == null)
                 {
@@ -46,9 +46,11 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
+                Assert.AreEqual(Url, item.Data);
+                Assert.AreEqual(Url.Host, item.Target);
+                Assert.AreEqual(Url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(
@@ -72,8 +74,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                const string Url = "http://www.bing.com/search?q=1";
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url, HttpMethod.Get);
+                Uri Url = new Uri("http://www.bing.com/search?q=1");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Get);
 
                 while (sentTelemetry == null)
                 {
@@ -82,9 +84,11 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
+                Assert.AreEqual(Url, item.Data);
+                Assert.AreEqual(Url.Host, item.Target);
+                Assert.AreEqual(Url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(
@@ -111,8 +115,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                const string Url = "http://www.bing.com/maps";
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url, HttpMethod.Get);
+                Uri Url = new Uri("http://www.bing.com/maps");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Get);
 
                 while (sentTelemetry == null)
                 {
@@ -121,9 +125,11 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Name, "Reported Url must be " + Url);
+                Assert.AreEqual(Url, item.Data);
+                Assert.AreEqual(Url.Host, item.Target);
+                Assert.AreEqual(Url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual("Http", item.DependencyKind, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds < TimeSpan.FromMinutes(1).TotalMilliseconds, "timestamp < now");
                 Assert.IsTrue(
