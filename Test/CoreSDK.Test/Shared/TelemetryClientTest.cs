@@ -483,9 +483,13 @@
         }
 
         [TestMethod]
-        public void TrackDoesNotInitializeInstrumentationKeyWhenItWasSetExplicitly()
+        public void TrackDoesNotInitializeInstrumentationKeyFromConfigWhenItWasSetExplicitly()
         {
-            var configuration = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString() };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = new StubTelemetryChannel(),
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
             var client = new TelemetryClient(configuration);
 
             var expectedKey = Guid.NewGuid().ToString();
@@ -493,26 +497,6 @@
             client.TrackTrace("Test Message");
 
             Assert.Equal(expectedKey, client.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void TrackDoesNotUsesInstrumentationKeyFromEnvironmentVariableWhenTheInstrumenationKeyIsPresentInConfiguration()
-        {
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel};
-            var client = new TelemetryClient(configuration);
-            var observe = client.Context.InstrumentationKey;
-
-            string expectedKey = Guid.NewGuid().ToString();
-            configuration.InstrumentationKey = expectedKey;
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", Guid.NewGuid().ToString());
-            
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
         }
 
         [TestMethod]
