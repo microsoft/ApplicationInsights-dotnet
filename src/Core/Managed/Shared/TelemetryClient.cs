@@ -372,11 +372,11 @@
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                instrumentationKey = this.configuration.InstrumentationKey;
-
+                instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                
                 if (string.IsNullOrEmpty(instrumentationKey))
                 {
-                    instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                    instrumentationKey = this.configuration.InstrumentationKey;
                 }
             }
 

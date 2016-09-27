@@ -77,14 +77,7 @@
             }
 
             object resultObj = this.environmentVariables[name];
-            if (resultObj != null)
-            {
-                return resultObj.ToString();
-            }
-            else
-            {
-                return null;
-            }
+            return resultObj != null ? resultObj.ToString() : null;
         }
     }
 }

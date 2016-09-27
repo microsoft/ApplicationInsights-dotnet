@@ -417,7 +417,7 @@
         }
 
         [TestMethod]
-        public void TrackMethodDontThrowsWhenInstrumentationKeyIsEmptyAndNotSendingTheTelemetryItem()
+        public void TrackMethodDoesNotThrowWhenInstrumentationKeyIsEmptyAndNotSendingTheTelemetryItem()
         {
             var channel = new StubTelemetryChannel { ThrowError = true };
             TelemetryConfiguration.Active = new TelemetryConfiguration
@@ -430,38 +430,56 @@
         }
 
         [TestMethod]
-        public void TrackUsesInstrumentationKeyFromConfigurationWhenTheInstrumenationKeyIsEmpty()
+        public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
         {
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
             var client = new TelemetryClient(configuration);
-            var observe = client.Context.InstrumentationKey;
-            
-            string expectedKey = Guid.NewGuid().ToString();
-            configuration.InstrumentationKey = expectedKey;
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
-
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-        }
-
-        [TestMethod]
-        public void TrackUsesInstrumentationKeyFromEnvironmentVariableWhenTheInstrumenationKeyIsEmptyInConfiguration()
-        {
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
-            var client = new TelemetryClient(configuration);
-            var observe = client.Context.InstrumentationKey;
 
             string expectedKey = Guid.NewGuid().ToString();
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey);
-
+            client.Context.InstrumentationKey = expectedKey; // Set in code
+            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
             Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyFromEnvironmentIfEmptyInCode()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            string expectedKey = Guid.NewGuid().ToString();
+            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
+            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+
+            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyFromConfigIfEnvironmentVariableIsEmpty()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            string expectedKey = Guid.NewGuid().ToString();
+            configuration.InstrumentationKey = expectedKey; // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null); // Not set via env. variable
+            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+
+            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
         }
 
         [TestMethod]
