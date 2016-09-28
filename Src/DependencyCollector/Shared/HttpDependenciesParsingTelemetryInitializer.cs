@@ -10,21 +10,6 @@
     /// </summary>
     public class HttpDependenciesParsingTelemetryInitializer : ITelemetryInitializer
     {
-        private static string GetVerb(string name, out string nameWithoutVerb)
-        {
-            var result = string.Empty;
-            nameWithoutVerb = name;
-
-            var idx = name.IndexOf(' ') + 1;
-            if (idx != 0)
-            {
-                result = name.Substring(0, idx);
-                nameWithoutVerb = name.Substring(idx);
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// If telemetry item is http dependency - converts it to the well-known type of the dependency.
         /// </summary>
@@ -53,18 +38,33 @@
                         string account = host.Substring(0, host.IndexOf('.'));
 
                         httpDependency.Name = verb + account + '/' + container;
+                    }
 
-                    }
-                    else if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                    {
-                        httpDependency.Type = "Azure table";
-                    }
-                    else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                    {
-                        httpDependency.Type = "Azure queue";
-                    }
+                    ////else if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                    ////{
+                    ////    httpDependency.Type = "Azure table";
+                    ////}
+                    ////else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                    ////{
+                    ////    httpDependency.Type = "Azure queue";
+                    ////}
                 }
             }
+        }
+
+        private static string GetVerb(string name, out string nameWithoutVerb)
+        {
+            var result = string.Empty;
+            nameWithoutVerb = name;
+
+            var idx = name.IndexOf(' ') + 1;
+            if (idx != 0)
+            {
+                result = name.Substring(0, idx);
+                nameWithoutVerb = name.Substring(idx);
+            }
+
+            return result;
         }
     }
 }
