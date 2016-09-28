@@ -134,8 +134,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates SQLProcessingFramework sends correct telemetry for stored procedure.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetryStoredProc()
         {
-            string resourceNameSproc = "ourdatabase.database.windows.net | mydatabase | apm.MyFavouriteStoredProcedure";
-
             this.sqlProcessingFramework.OnBeginExecuteCallback(
                 id: 1111, 
                 dataSource: "ourdatabase.database.windows.net", 

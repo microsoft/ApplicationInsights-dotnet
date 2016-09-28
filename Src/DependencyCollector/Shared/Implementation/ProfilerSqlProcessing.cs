@@ -245,6 +245,7 @@
 
             return result;
         }
+
         /// <summary>
         /// Return CommandTest for SQL resource.
         /// </summary>
@@ -306,7 +307,7 @@
 
                 telemetry.Name = resourceName;
                 telemetry.Type = RemoteDependencyKind.SQL.ToString();
-                telemetry.Target = GetResourceTarget(thisObj);
+                telemetry.Target = this.GetResourceTarget(thisObj);
                 telemetry.Data = commandText;
 
                 // We use weaktables to store the thisObj for correlating begin with end call.

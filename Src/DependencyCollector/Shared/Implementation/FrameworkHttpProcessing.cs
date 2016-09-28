@@ -88,7 +88,6 @@
                 telemetry.Target = url.Host;
                 telemetry.Data = url.OriginalString;
 
-
                 this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
             }
             catch (Exception exception)
