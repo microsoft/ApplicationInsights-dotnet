@@ -82,7 +82,7 @@
                 return false;
             }
 
-            bool result = true;
+            bool result = false;
 
             if (data.PayloadNames.Length > 0)
             {
