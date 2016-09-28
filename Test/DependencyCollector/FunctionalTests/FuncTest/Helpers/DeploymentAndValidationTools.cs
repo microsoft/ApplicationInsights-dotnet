@@ -99,7 +99,7 @@ namespace FuncTest.Helpers
                             ExpectedSDKPrefix = !RegistryCheck.IsStatusMonitorInstalled
                                 ? "rddf"
                                 : "rddp";
-                            Trace.TraceInformation("Tests against 4.6 framework instrumentation.");
+                            Trace.TraceInformation("Tests against 4.6 framework (Excpected prefix: "+ ExpectedSDKPrefix + ").");
                         }
                         else
                         {
