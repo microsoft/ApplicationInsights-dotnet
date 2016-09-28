@@ -4,4 +4,7 @@
   <Import Project="Signing.targets" />
   <Import Project="AddXmlLanguage.targets" />
 
+    <Target Name="PreReleaseVersion" AfterTargets="BeforeBuild" DependsOnTargets="BeforeBuild">
+        <WriteLinesToFile File="$(PreReleaseVersionFileName)"  Lines="$(PreReleaseVersion)" Overwrite="true" />
+    </Target>
 </Project>

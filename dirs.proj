@@ -2,9 +2,6 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project=".\GlobalStaticVersion.props" />
   <Import Project=".\Global.props" />
-  <PropertyGroup>
-    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
-  </PropertyGroup>
   <ItemGroup>
      <Solution Include="Microsoft.ApplicationInsights.sln" />    
      <Solution Include="Microsoft.ApplicationInsights.Channels.sln" />        
