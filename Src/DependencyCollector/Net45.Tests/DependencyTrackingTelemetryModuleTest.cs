@@ -36,8 +36,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                Uri Url = new Uri("http://www.bing.com");
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Post);
+                Uri url = new Uri("http://www.bing.com");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Post);
 
                 while (sentTelemetry == null)
                 {
@@ -46,9 +46,9 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Data);
-                Assert.AreEqual(Url.Host, item.Target);
-                Assert.AreEqual(Url.AbsolutePath, item.Name);
+                Assert.AreEqual(url, item.Data);
+                Assert.AreEqual(url.Host, item.Target);
+                Assert.AreEqual(url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
@@ -74,8 +74,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                Uri Url = new Uri("http://www.bing.com/search?q=1");
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Get);
+                Uri url = new Uri("http://www.bing.com/search?q=1");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Get);
 
                 while (sentTelemetry == null)
                 {
@@ -84,9 +84,9 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Data);
-                Assert.AreEqual(Url.Host, item.Target);
-                Assert.AreEqual(Url.AbsolutePath, item.Name);
+                Assert.AreEqual(url, item.Data);
+                Assert.AreEqual(url.Host, item.Target);
+                Assert.AreEqual(url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
@@ -115,8 +115,8 @@
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.Initialize(config);
-                Uri Url = new Uri("http://www.bing.com/maps");
-                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(Url.ToString(), HttpMethod.Get);
+                Uri url = new Uri("http://www.bing.com/maps");
+                new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Get);
 
                 while (sentTelemetry == null)
                 {
@@ -125,9 +125,9 @@
 
                 Assert.IsNotNull(sentTelemetry, "Get requests are not monitored with RDD Event Source.");
                 var item = (DependencyTelemetry)sentTelemetry;
-                Assert.AreEqual(Url, item.Data);
-                Assert.AreEqual(Url.Host, item.Target);
-                Assert.AreEqual(Url.AbsolutePath, item.Name);
+                Assert.AreEqual(url, item.Data);
+                Assert.AreEqual(url.Host, item.Target);
+                Assert.AreEqual(url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual("Http", item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(

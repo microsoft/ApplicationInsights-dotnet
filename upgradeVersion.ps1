@@ -3,7 +3,7 @@
 
 $newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
-$newVersion ="2.2.0-beta2-build31642"
+$newVersion ="2.2.0-beta3-build34090"
 
 Write-Host $newVersion
 
