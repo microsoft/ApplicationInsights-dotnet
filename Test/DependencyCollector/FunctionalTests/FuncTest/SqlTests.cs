@@ -54,12 +54,6 @@ namespace FuncTest
             DeploymentAndValidationTools.Initialize();
 
             LocalDb.CreateLocalDb("RDDTestDatabase", DeploymentAndValidationTools.Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
-
-            var systemDataAssembly = Assembly.GetAssembly(typeof (SqlCommand));
-            if (systemDataAssembly != null)
-            {
-                Trace.WriteLine("System.Data file version: " + FileVersionInfo.GetVersionInfo(systemDataAssembly.Location).FileVersion);
-            }
         }
 
         [ClassCleanup]

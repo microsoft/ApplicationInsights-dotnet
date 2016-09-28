@@ -1,4 +1,6 @@
-﻿namespace FuncTest.Helpers
+﻿using Functional.Helpers;
+
+namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
@@ -49,6 +51,8 @@
 
         public static TestWebApplication Aspx451TestWebApplicationWin32 { get; private set; }
 
+        public static EtwEventSessionRdd EtwSession { get; private set; }
+
         /// <summary>
         /// Deploy all test applications and prepera infra.
         /// </summary>
@@ -83,6 +87,9 @@
 
                         SdkEventListener = new HttpListenerObservable(Aspx451FakeDataPlatformEndpoint);
 
+                        EtwSession = new EtwEventSessionRdd();
+                        EtwSession.Start();
+
                         Aspx451TestWebApplication.Deploy();
                         Aspx451TestWebApplicationWin32.Deploy(true);
 
@@ -92,9 +99,11 @@
                             ExpectedSDKPrefix = !RegistryCheck.IsStatusMonitorInstalled
                                 ? "rddf"
                                 : "rddp";
+                            Trace.TraceInformation("Tests against 4.6 framework instrumentation.");
                         }
                         else
                         {
+                            Trace.TraceInformation("Tests against StatusMonitor instrumentation.");
                             ExpectedSDKPrefix = "rddp";
 
                             if (!RegistryCheck.IsStatusMonitorInstalled)
@@ -135,6 +144,8 @@
                     if (isInitialized)
                     {
                         SdkEventListener.Dispose();
+
+                        EtwSession.Stop();
 
                         Aspx451TestWebApplication.Remove();
                         Aspx451TestWebApplicationWin32.Remove();
