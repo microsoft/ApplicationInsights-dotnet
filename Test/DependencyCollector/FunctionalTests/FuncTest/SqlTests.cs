@@ -1,4 +1,8 @@
-﻿namespace FuncTest
+﻿using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Reflection;
+
+namespace FuncTest
 {
     using System;
     using System.Linq;
@@ -50,6 +54,12 @@
             DeploymentAndValidationTools.Initialize();
 
             LocalDb.CreateLocalDb("RDDTestDatabase", DeploymentAndValidationTools.Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
+
+            var systemDataAssembly = Assembly.GetAssembly(typeof (SqlCommand));
+            if (systemDataAssembly != null)
+            {
+                Trace.WriteLine("System.Data file version: " + FileVersionInfo.GetVersionInfo(systemDataAssembly.Location).FileVersion);
+            }
         }
 
         [ClassCleanup]
