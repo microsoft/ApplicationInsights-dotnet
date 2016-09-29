@@ -1,4 +1,8 @@
-﻿namespace FuncTest
+﻿using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Reflection;
+
+namespace FuncTest
 {
     using System;
     using System.Linq;

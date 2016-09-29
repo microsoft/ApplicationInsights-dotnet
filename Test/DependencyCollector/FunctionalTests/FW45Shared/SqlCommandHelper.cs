@@ -274,9 +274,15 @@
             }
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteReader(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -326,9 +332,15 @@
 
             private void Callback2(IAsyncResult ar2)
             {
-                this.command.EndExecuteReader(ar2);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar2);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -378,9 +390,15 @@
 
             private void Callback2(IAsyncResult ar2)
             {
-                this.command.EndExecuteReader(ar2);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar2);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -441,9 +459,15 @@
             }
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteNonQuery(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteNonQuery(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -488,9 +512,15 @@
 
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteXmlReader(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteXmlReader(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }          
         }
     }
