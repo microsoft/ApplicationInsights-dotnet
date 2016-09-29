@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolderTests.cs" />
