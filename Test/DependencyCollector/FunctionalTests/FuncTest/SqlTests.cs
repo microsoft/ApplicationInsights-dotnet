@@ -425,7 +425,7 @@
                 }
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, targetExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
         }
     } 
 }
