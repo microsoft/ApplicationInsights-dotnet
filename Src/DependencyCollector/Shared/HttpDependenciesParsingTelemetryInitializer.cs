@@ -4,6 +4,7 @@
     using Channel;
     using DataContracts;
     using Extensibility;
+    using Implementation;
 
     /// <summary>
     /// Telemetry Initializer that parses http dependencies into well-known types like Azure Storage.
@@ -18,7 +19,7 @@
         {
             var httpDependency = telemetry as DependencyTelemetry;
 
-            if (httpDependency != null && httpDependency.Type != null && httpDependency.Type.ToUpperInvariant() == "HTTP")
+            if (httpDependency != null && httpDependency.Type != null && httpDependency.Type.Equals(RemoteDependencyConstants.HTTP, StringComparison.OrdinalIgnoreCase))
             {
                 string host = httpDependency.Target;
 
@@ -26,7 +27,8 @@
                 {
                     if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
                     {
-                        httpDependency.Type = "Azure blob";
+                        // Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
+                        httpDependency.Type = RemoteDependencyConstants.AzureTable;
 
                         string nameWithoutVerb = httpDependency.Name;
                         var verb = GetVerb(httpDependency.Name, out nameWithoutVerb);
@@ -42,11 +44,11 @@
 
                     ////else if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
                     ////{
-                    ////    httpDependency.Type = "Azure table";
+                    ////    httpDependency.Type = RemoteDependencyConstants.AzureTable;;
                     ////}
                     ////else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
                     ////{
-                    ////    httpDependency.Type = "Azure queue";
+                    ////    httpDependency.Type = RemoteDependencyConstants.AzureQueue;
                     ////}
                 }
             }

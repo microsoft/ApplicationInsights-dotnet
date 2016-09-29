@@ -68,7 +68,7 @@
                     var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
                     telemetry.Name = resourceName;
                     telemetry.Target = string.Join(" | ", dataSource, database);
-                    telemetry.Type = RemoteDependencyKind.SQL.ToString();
+                    telemetry.Type = RemoteDependencyConstants.SQL;
                     telemetry.Data = commandText;
                     this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
                 }

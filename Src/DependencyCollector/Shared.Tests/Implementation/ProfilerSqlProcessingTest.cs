@@ -69,7 +69,7 @@
             DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
 
             var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyKind.SQL, "OnBeginForExecuteReader");            
+            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyConstants.SQL, "OnBeginForExecuteReader");            
         }
 
         /// <summary>
@@ -92,7 +92,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -122,7 +122,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "10");
@@ -172,7 +172,7 @@
             this.sqlProcessingProfiler.OnBeginForSync(command);
             DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
             var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyKind.SQL, "OnBeginForSync");
+            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyConstants.SQL, "OnBeginForSync");
         }
 
         /// <summary>
@@ -195,7 +195,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -220,7 +220,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -264,7 +264,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -289,7 +289,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -360,7 +360,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -385,7 +385,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -454,7 +454,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -479,7 +479,7 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -689,17 +689,17 @@
         #endregion Disposable
 
         #region Helpers
-        private static void ValidateDependencyCallOperation(DependencyTelemetry operation, string name, RemoteDependencyKind type, string methodName)
+        private static void ValidateDependencyCallOperation(DependencyTelemetry operation, string name, string type, string methodName)
         {
             Assert.IsNotNull(operation, "Operation returned should not be null for method:" + methodName);
             Assert.AreEqual(name, operation.Name, true, "Resource name in the returned operation is wrong for method:" + methodName);            
         }
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string resultCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string name, string type, bool success, double valueMin, string resultCode)
         {            
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(type.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 

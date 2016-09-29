@@ -83,7 +83,7 @@
 
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
-                telemetry.Type = RemoteDependencyKind.Http.ToString();
+                telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Name = url.AbsolutePath;
                 telemetry.Target = url.Host;
                 telemetry.Data = url.OriginalString;

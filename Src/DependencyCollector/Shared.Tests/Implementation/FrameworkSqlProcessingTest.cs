@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.sendItems[0] as DependencyTelemetry,
                 "ourdatabase.database.windows.net | mydatabase",
                 "ourdatabase.database.windows.net | mydatabase",
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "0");
@@ -94,7 +94,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.sendItems[0] as DependencyTelemetry,
                 "ourdatabase.database.windows.net | mydatabase",
                 "ourdatabase.database.windows.net | mydatabase",
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "0");
@@ -121,7 +121,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.sendItems[0] as DependencyTelemetry,
                 "ourdatabase.database.windows.net | mydatabase",
                 "ourdatabase.database.windows.net | mydatabase",
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 false,
                 SleepTimeMsecBetweenBeginAndEnd,
                 "1");
@@ -152,7 +152,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.sendItems[0] as DependencyTelemetry,
                 "ourdatabase.database.windows.net | mydatabase",
                 "apm.MyFavouriteStoredProcedure",
-                RemoteDependencyKind.SQL,
+                RemoteDependencyConstants.SQL,
                 true,
                 SleepTimeMsecBetweenBeginAndEnd, 
                 "0");
@@ -171,11 +171,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         #region Helpers
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string target, string name, RemoteDependencyKind kind, bool success, double valueMin, string errorCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, string target, string name, string type, bool success, double valueMin, string errorCode)
         {
             Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(target, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(type.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(errorCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
