@@ -6,178 +6,178 @@
     {
         internal static void DecorateProfilerForHttp(ref ProfilerHttpProcessing httpCallbacks)
         {
-            // Decorates Http GetResponse
-            Decorator.Decorate(
+            // Decorates Http GetResponse, 0 params
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.GetResponse",
-                0,
                 httpCallbacks.OnBeginForGetResponse,
                 httpCallbacks.OnEndForGetResponse,
-                httpCallbacks.OnExceptionForGetResponse);
+                httpCallbacks.OnExceptionForGetResponse,
+                isStatic: false);
 
-            // Decorates Http GetRequestStream
-            Decorator.Decorate(
+            // Decorates Http GetRequestStream, 1 param
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.GetRequestStream",
-                1,
                 httpCallbacks.OnBeginForGetRequestStream,
                 null,
-                httpCallbacks.OnExceptionForGetRequestStream);
+                httpCallbacks.OnExceptionForGetRequestStream,
+                isStatic: false);
 
-            // Decorates Http BeginGetResponse
-            Decorator.Decorate(
+            // Decorates Http BeginGetResponse, 2 params
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.BeginGetResponse",
-                2,
                 httpCallbacks.OnBeginForBeginGetResponse,
                 null,
-                null);
+                null,
+                isStatic: false);
 
-            // Decorates Http EndGetResponse
-            Decorator.Decorate(
+            // Decorates Http EndGetResponse, 1 param
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.EndGetResponse",
-                1,
                 null,
                 httpCallbacks.OnEndForEndGetResponse,
-                httpCallbacks.OnExceptionForEndGetResponse);
+                httpCallbacks.OnExceptionForEndGetResponse,
+                isStatic: false);
 
             // Decorates Http BeginGetRequestStream
-            Decorator.Decorate(
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.BeginGetRequestStream",
-                2,
                 httpCallbacks.OnBeginForBeginGetRequestStream,
                 null,
-                null);
+                null,
+                isStatic: false);
 
-            // Decorates Http EndGetRequestStream
-            Decorator.Decorate(
+            // Decorates Http EndGetRequestStream, 2 params
+            Functions.Decorate(
                 "System",
                 "System.dll",
                 "System.Net.HttpWebRequest.EndGetRequestStream",
-                2,
                 null,
                 null,
-                httpCallbacks.OnExceptionForEndGetRequestStream);
+                httpCallbacks.OnExceptionForEndGetRequestStream,
+                isStatic: false);
         }
 
         internal static void DecorateProfilerForSql(ref ProfilerSqlProcessing sqlCallbacks)
         {
-            // Decorate Sql ExecuteNonQuery
-            Decorator.Decorate(
+            // Decorate Sql ExecuteNonQuery, 0 param
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteNonQuery",
-                0,
                 sqlCallbacks.OnBeginForSync,
                 sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync);
-           
-            // Decorate Sql ExecuteReader
-            Decorator.Decorate(
+                sqlCallbacks.OnExceptionForSync,
+                isStatic: false);
+
+            // Decorate Sql ExecuteReader, 2 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteReader",
-                2,
                 sqlCallbacks.OnBeginForExecuteReader,
                 sqlCallbacks.OnEndForExecuteReader,
-                sqlCallbacks.OnExceptionForExecuteReader);
+                sqlCallbacks.OnExceptionForExecuteReader,
+                isStatic: false);
 
-            // Decorate Sql ExecuteReader (we instrument 2 overloads of ExecuteReader because there are cases when methods get inlined or tail call optimized)
-            Decorator.Decorate(
+            // Decorate Sql ExecuteReader, 0 params (we instrument 2 overloads of ExecuteReader because there are cases when methods get inlined or tail call optimized)
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteReader",
-                0,
                 sqlCallbacks.OnBeginForSync,
                 sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync);
+                sqlCallbacks.OnExceptionForSync,
+                isStatic: false);
 
-            // Decorate Sql ExecuteScalar
-            Decorator.Decorate(
+            // Decorate Sql ExecuteScalar, 0 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteScalar",
-                0,
                 sqlCallbacks.OnBeginForSync,
                 sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync);
+                sqlCallbacks.OnExceptionForSync,
+                isStatic: false);
 
-            // Decorate Sql ExecuteXmlReader
-            Decorator.Decorate(
+            // Decorate Sql ExecuteXmlReader, 0 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteXmlReader",
-                0,
                 sqlCallbacks.OnBeginForSync,
                 sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync); 
+                sqlCallbacks.OnExceptionForSync,
+                isStatic: false);
 
-            // Decorates Sql BeginExecuteNonQueryInternal
-            Decorator.Decorate(
+            // Decorates Sql BeginExecuteNonQueryInternal, 4 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteNonQueryInternal",
-                4,
                 sqlCallbacks.OnBeginForBeginExecuteNonQueryInternal,
                 null,
-                null);
+                null,
+                isStatic: false);
 
-            // Decorates Sql EndExecuteNonQueryInternal
-            Decorator.Decorate(
+            // Decorates Sql EndExecuteNonQueryInternal, 1 param
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal",
-                1,
                 null,
                 sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync);
-            
-            // Decorates Sql BeginExecuteReaderInternal
-            Decorator.Decorate(
+                sqlCallbacks.OnExceptionForSqlAsync,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteReaderInternal, 5 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteReaderInternal",
-                5,
                 sqlCallbacks.OnBeginForBeginExecuteReaderInternal,
                 null,
-                null);
+                null,
+                isStatic: false);
 
-            // Decorates Sql EndExecuteReaderInternal
-            Decorator.Decorate(
+            // Decorates Sql EndExecuteReaderInternal, 1 param
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteReaderInternal",
-                1,
                 null,
                 sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync);           
+                sqlCallbacks.OnExceptionForSqlAsync,
+                isStatic: false);
 
-            // Decorates Sql BeginExecuteXmlReaderInternal
-            Decorator.Decorate(
+            // Decorates Sql BeginExecuteXmlReaderInternal, 4 params
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReaderInternal",
-                4,
                 sqlCallbacks.OnBeginForBeginExecuteXmlReaderInternal,
                 null,
-                null);
+                null,
+                isStatic: false);
 
-            // Decorates Sql EndExecuteXmlReaderInternal
-            Decorator.Decorate(
+            // Decorates Sql EndExecuteXmlReaderInternal, 1 param
+            Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteXmlReaderInternal",
-                1,
                 null,
                 sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync);
+                sqlCallbacks.OnExceptionForSqlAsync,
+                isStatic: false);
         }
     }
 }
