@@ -119,12 +119,22 @@
                 sqlCallbacks.OnEndForSync,
                 sqlCallbacks.OnExceptionForSync); 
 
-            // Decorates Sql BeginExecuteNonQueryInternal
+            // Decorates Sql BeginExecuteNonQuery()
             Decorator.Decorate(
                 "System.Data",
                 "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQueryInternal",
-                4,
+                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
+                0,
+                sqlCallbacks.OnBeginForSync,
+                null,
+                null);
+
+            // Decorates Sql BeginExecuteNonQuery(AsyncCallback, Object)
+            Decorator.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
+                2,
                 sqlCallbacks.OnBeginForBeginExecuteNonQueryInternal,
                 null,
                 null);
@@ -145,6 +155,16 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteReaderInternal",
                 5,
+                sqlCallbacks.OnBeginForBeginExecuteReaderInternal,
+                null,
+                null);
+
+            // Decorates Sql BeginExecuteReaderInternal starting from Win10 Anniversary update
+            Decorator.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReaderInternal",
+                7,
                 sqlCallbacks.OnBeginForBeginExecuteReaderInternal,
                 null,
                 null);

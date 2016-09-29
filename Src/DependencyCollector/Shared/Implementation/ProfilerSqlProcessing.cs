@@ -131,10 +131,8 @@
         /// <param name="thisObj">This object.</param>
         /// <param name="callback">The callback parameter.</param>
         /// <param name="stateObject">The stateObject parameter.</param>
-        /// <param name="timeout">The timeout parameter.</param>
-        /// <param name="asyncWrite">The asyncWrite parameter.</param>
         /// <returns>The context for end callback.</returns>
-        public object OnBeginForBeginExecuteNonQueryInternal(object thisObj, object callback, object stateObject, object timeout, object asyncWrite)
+        public object OnBeginForBeginExecuteNonQueryInternal(object thisObj, object callback, object stateObject)
         {
             return this.OnBegin(thisObj, true);
         }
@@ -149,7 +147,23 @@
         /// <param name="timeout">The timeout parameter.</param>
         /// <param name="asyncWrite">The asyncWrite parameter.</param>
         /// <returns>The context for end callback.</returns>
-        public object OnBeginForBeginExecuteReaderInternal(object thisObj, object behavior, object callback, object stateObject, object timeout, object asyncWrite)
+        public object OnBeginForBeginExecuteReaderInternal5(object thisObj, object behavior, object callback, object stateObject, object timeout, object asyncWrite)
+        {
+            return this.OnBegin(thisObj, true);
+        }
+
+        /// <summary>
+        /// On begin for BeginExecuteReaderInternal callback.
+        /// </summary>
+        /// <param name="thisObj">This object.</param>
+        /// <param name="behavior">The behavior parameter.</param>
+        /// <param name="callback">The callback parameter.</param>
+        /// <param name="stateObject">The stateObject parameter.</param>
+        /// <param name="timeout">The timeout parameter.</param>
+        /// <param name="inRetry"></param>
+        /// <param name="asyncWrite">The asyncWrite parameter.</param>
+        /// <returns>The context for end callback.</returns>
+        public object OnBeginForBeginExecuteReaderInternal6(object thisObj, object behavior, object callback, object stateObject, object timeout, object inRetry, object asyncWrite)
         {
             return this.OnBegin(thisObj, true);
         }
