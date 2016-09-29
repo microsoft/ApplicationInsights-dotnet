@@ -3,7 +3,7 @@
   "summary": "Application Insights for ASP.NET Core web applications.",
   "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156",
   "authors": [ "Microsoft" ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "copyright": "Copyright © Microsoft. All Rights Reserved.",
   "packOptions": {
     "projectUrl": "http://go.microsoft.com/fwlink/?LinkId=392727",
@@ -22,28 +22,73 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Desktop.Analyzers": "1.2.0-beta2",
-    "Microsoft.ApiDesignGuidelines.Analyzers": "1.2.0-beta2",
+    "Desktop.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "Microsoft.ApiDesignGuidelines.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
     "Microsoft.ApplicationInsights": "2.1.0",
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.0.1",
-    "Microsoft.CodeAnalysis.Analyzers": "1.2.0-beta2",
-    "Microsoft.Composition.Analyzers": "1.2.0-beta2",
+    "Microsoft.CodeAnalysis.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "Microsoft.Composition.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
     "Microsoft.Extensions.Configuration": "1.0.0",
     "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-    "Microsoft.Maintainability.Analyzers": "1.2.0-beta2",
-    "Microsoft.QualityGuidelines.Analyzers": "1.2.0-beta2",
-    "Roslyn.Diagnostics.Analyzers": "1.2.0-beta2",
-    "System.Collections.Immutable.Analyzers": "1.2.0-beta2",
-    //"System.Resources.Analyzers": "1.2.0-beta2",
-    "System.Runtime.Analyzers": "1.2.0-beta2",
-    "System.Runtime.InteropServices.Analyzers": "1.2.0-beta2",
-    //"System.Security.Cryptography.Hashing.Algorithms.Analyzers": "1.2.0-beta2",
-    "System.Threading.Tasks.Analyzers": "1.2.0-beta2"
-    //"Text.Analyzers": "1.2.0-beta2",
-    //"XmlDocumentationComments.Analyzers": "1.2.0-beta2"
+    "Microsoft.Maintainability.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "Microsoft.QualityGuidelines.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "Roslyn.Diagnostics.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "System.Collections.Immutable.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    //"System.Resources.Analyzers": {
+    //    "version": "1.2.0-beta2",
+    //    "type": "build"
+    //},
+    "System.Runtime.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    "System.Runtime.InteropServices.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    },
+    //"System.Security.Cryptography.Hashing.Algorithms.Analyzers": {
+    //    "version": "1.2.0-beta2",
+    //    "type": "build"
+    //},
+    "System.Threading.Tasks.Analyzers": {
+        "version": "1.2.0-beta2",
+        "type": "build"
+    }
+    //"Text.Analyzers": {
+    //    "version": "1.2.0-beta2",
+    //    "type": "build"
+    //},
+    //"XmlDocumentationComments.Analyzers": {
+    //    "version": "1.2.0-beta2",
+    //    "type": "build"
+    //},
   },
 
   "frameworks": {

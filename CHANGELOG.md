@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.0.2
+
+- Marked code analysis packages as only for build and not NuGet package dependencies.
+
 ## Version 1.0.1
 
 - Added code analysis packages.
