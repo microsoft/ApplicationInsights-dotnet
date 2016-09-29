@@ -171,12 +171,10 @@ namespace FuncTest.Helpers
         /// Validates Runtime Dependency Telemetry values.
         /// </summary>        
         /// <param name="itemToValidate">RDD Item to be validated.</param>
-        /// <param name="remoteDependencyNameExpected">Expected name.</param>   
         /// <param name="accessTimeMax">Expected maximum limit for access time.</param>   
         /// <param name="successFlagExpected">Expected value for success flag.</param>   
         public static void Validate(
             TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
             TimeSpan accessTimeMax,
             bool successFlagExpected)
         {
