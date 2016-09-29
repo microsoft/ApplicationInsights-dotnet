@@ -103,12 +103,12 @@
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
-        private const string ResourceNameHttpToBing = "http://www.bing.com/";
+        private Uri ResourceNameHttpToBing = new Uri("http://www.bing.com");
 
         /// <summary>
         /// Resource Name for failed request.
         /// </summary>
-        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com/";
+        private Uri ResourceNameHttpToFailedRequest = new Uri("http://www.zzkaodkoakdahdjghejajdnad.com");
 
         /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
@@ -442,7 +442,7 @@
                 application =>
                 {
                     var queryString = "?type=httpClient&count=1";
-                    var resourceNameExpected = "http://www.google.com/404";
+                    var resourceNameExpected = new Uri("http://www.google.com/404");
                     application.ExecuteAnonymousRequest(queryString);
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
@@ -597,17 +597,19 @@
         #endregion
 
         private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
+            Uri expectedUrl,
             TimeSpan accessTimeMax,
             bool successFlagExpected,
             string verb)
         {
             if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
             {
-                Assert.AreEqual(verb + " " + remoteDependencyNameExpected, itemToValidate.data.baseData.name, "For StatusMonitor implementation we expect verb to be collected.");
+                Assert.AreEqual(verb + " " + expectedUrl.AbsolutePath, itemToValidate.data.baseData.name, "For StatusMonitor implementation we expect verb to be collected.");
+                Assert.AreEqual(expectedUrl.Host, itemToValidate.data.baseData.target);
+                Assert.AreEqual(expectedUrl.OriginalString, itemToValidate.data.baseData.data);
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
         }
     }
 }
