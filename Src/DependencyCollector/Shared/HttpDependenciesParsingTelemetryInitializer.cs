@@ -28,7 +28,7 @@
                     if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
                     {
                         // Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
-                        httpDependency.Type = RemoteDependencyConstants.AzureTable;
+                        httpDependency.Type = RemoteDependencyConstants.AzureBlob;
 
                         string nameWithoutVerb = httpDependency.Name;
                         var verb = GetVerb(httpDependency.Name, out nameWithoutVerb);

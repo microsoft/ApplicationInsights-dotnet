@@ -31,12 +31,6 @@
         public bool DisableRuntimeInstrumentation { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether parsing of http dependencies to azure storage dependencies is enabled. 
-        /// This flag is required for the backward compatibility to make sure that Azure Storage dependencies will be recognized as such.
-        /// </summary>
-        public bool DoNotParseHttp { get; set; }
-
-        /// <summary>
         /// IDisposable implementation.
         /// </summary>
         public void Dispose()
@@ -61,24 +55,6 @@
                         try
                         {                            
                             this.telemetryConfiguration = configuration;
-
-                            if (!this.DoNotParseHttp && configuration != null)
-                            {
-                                var initializerRegistered = false;
-                                foreach (var initializer in configuration.TelemetryInitializers)
-                                {
-                                    if (initializer is HttpDependenciesParsingTelemetryInitializer)
-                                    {
-                                        initializerRegistered = true;
-                                        break;
-                                    }
-                                }
-
-                                if (!initializerRegistered)
-                                {
-                                    configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
-                                }
-                            }
 
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication

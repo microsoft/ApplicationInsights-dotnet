@@ -3,6 +3,7 @@
 ## Version 2.2.0-beta3
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
 - Default performance counters will be reported as metrics
+- By default `DependencyTrackingTelemetryModule` will not detect certain http dependencies as Azure Storage calls. You need to register a telemetry initializer `HttpDependenciesParsingTelemetryInitializer` to enable this functionality. 
 
 ## Version 2.2.0-beta2
 
