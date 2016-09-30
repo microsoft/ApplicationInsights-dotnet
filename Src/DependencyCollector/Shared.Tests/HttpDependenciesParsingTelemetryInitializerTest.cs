@@ -1,11 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
-    using DataContracts;
-    using Implementation;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
+    using DataContracts;
+    using Implementation;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
     /// Shared DependencyTrackingTelemetryModuleTest class.
@@ -44,18 +43,17 @@
             Assert.AreEqual("tofinthyperion2dets001.blob.core.windows.net", d.Target);
             Assert.AreEqual("GET tofinthyperion2dets001/observations-v01-1410", d.Name);
 
-
             var testCases = new List<string[]>()
             {
-                //
-                // copied from https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx 9/29/2016
-                //
+                ////
+                //// copied from https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx 9/29/2016
+                ////
 
-                new string[5] { "List Containers",                  "GET",      "https://myaccount.blob.core.windows.net/?comp=list",                                                           "myaccount", "" },
-                new string[5] { "Set Blob Service Properties",      "PUT",      "https://myaccount.blob.core.windows.net/?restype=service&comp=properties",                                     "myaccount", "" },
-                new string[5] { "Get Blob Service Properties",      "GET",      "https://myaccount.blob.core.windows.net/?restype=service&comp=properties",                                     "myaccount", "" },
+                new string[5] { "List Containers",                  "GET",      "https://myaccount.blob.core.windows.net/?comp=list",                                                           "myaccount", string.Empty },
+                new string[5] { "Set Blob Service Properties",      "PUT",      "https://myaccount.blob.core.windows.net/?restype=service&comp=properties",                                     "myaccount", string.Empty },
+                new string[5] { "Get Blob Service Properties",      "GET",      "https://myaccount.blob.core.windows.net/?restype=service&comp=properties",                                     "myaccount", string.Empty },
                 new string[5] { "Preflight Blob Request",           "OPTIONS",  "http://myaccount.blob.core.windows.net/mycontainer/myblockblob",                                               "myaccount", "mycontainer" },
-                new string[5] { "Get Blob Service Stats",           "GET",      "https://myaccount.blob.core.windows.net/?restype=service&comp=stats",                                          "myaccount", "" },
+                new string[5] { "Get Blob Service Stats",           "GET",      "https://myaccount.blob.core.windows.net/?restype=service&comp=stats",                                          "myaccount", string.Empty },
                 new string[5] { "Create Container",                 "PUT",      "https://myaccount.blob.core.windows.net/mycontainer?restype=container",                                        "myaccount", "mycontainer" },
                 new string[5] { "Get Container Properties",         "GET",      "https://myaccount.blob.core.windows.net/mycontainer?restype=container",                                        "myaccount", "mycontainer" },
                 new string[5] { "Get Container Properties",         "HEAD",     "https://myaccount.blob.core.windows.net/mycontainer?restype=container",                                        "myaccount", "mycontainer" },
@@ -107,7 +105,6 @@
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
             Uri parsedUrl = new Uri(url);
 
-
             // Parse with verb
             var d = new DependencyTelemetry(
                 dependencyTypeName: RemoteDependencyConstants.HTTP, 
@@ -133,10 +130,6 @@
             Assert.AreEqual(RemoteDependencyConstants.AzureBlob, d.Type, operation);
             Assert.AreEqual(parsedUrl.Host, d.Target, operation);
             Assert.AreEqual(accountName + "/" + container, d.Name, operation);
-
         }
-
-
-
     }
 }

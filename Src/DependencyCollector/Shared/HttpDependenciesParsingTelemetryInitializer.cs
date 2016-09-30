@@ -11,7 +11,7 @@
     /// </summary>
     public class HttpDependenciesParsingTelemetryInitializer : ITelemetryInitializer
     {
-        private readonly string[] AzureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
+        private readonly string[] azureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
 
         /// <summary>
         /// If telemetry item is http dependency - converts it to the well-known type of the dependency.
@@ -67,15 +67,17 @@
             {
                 if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
+                    ////
+                    //// Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
+                    ////
 
                     account = host.Substring(0, host.IndexOf('.'));
 
                     string nameWithoutVerb = name;
 
-                    for (int i = 0; i < this.AzureBlobVerbPrefixes.Length; i++)
+                    for (int i = 0; i < this.azureBlobVerbPrefixes.Length; i++)
                     {
-                        var verbPrefix = this.AzureBlobVerbPrefixes[i];
+                        var verbPrefix = this.azureBlobVerbPrefixes[i];
                         if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
                         {
                             verb = name.Substring(0, verbPrefix.Length);
