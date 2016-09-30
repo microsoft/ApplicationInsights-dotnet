@@ -236,7 +236,7 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.Type = RemoteDependencyKind.SQL.ToString();
+                telemetry.Type = RemoteDependencyConstants.SQL;
                 telemetry.Target = this.GetResourceTarget(thisObj);
                 telemetry.Data = commandText;
 

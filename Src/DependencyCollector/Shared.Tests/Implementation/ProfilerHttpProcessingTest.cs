@@ -92,7 +92,7 @@
             
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -113,7 +113,7 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
             
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
         }
 
 #if !NET40
@@ -155,7 +155,7 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, "404");
         }
 #endif
         /// <summary>
@@ -243,7 +243,7 @@
             this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //GetRequestStream
@@ -283,7 +283,7 @@
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForEndGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -304,7 +304,7 @@
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForEndGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         /// <summary>
@@ -325,7 +325,7 @@
             this.httpProcessingProfiler.OnExceptionForEndGetResponse(operationReturned, exc, request, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //BeginGetResponse-EndGetResponse
@@ -365,7 +365,7 @@
             this.httpProcessingProfiler.OnExceptionForEndGetRequestStream(operationReturned, exc, request, null, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, string.Empty);
         }
 
         #endregion //BeginGetRequestStream-EndGetRequestStream
@@ -406,7 +406,7 @@
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, 3 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, 3 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>        
@@ -427,7 +427,7 @@
             this.httpProcessingProfiler.OnExceptionForGetRequestStream(null, this.ex, request, null);
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, false, 0, string.Empty);
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, 0, string.Empty);
         }
         #endregion //SyncScenarios
 
@@ -461,7 +461,7 @@
             this.httpProcessingProfiler.OnEndForEndGetResponse(null, returnObjectPassed, request, null);
                         
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyKind.Http, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }        
 
         #endregion AsyncScenarios
@@ -610,12 +610,12 @@
         #region Helpers
         
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, RemoteDependencyKind kind, bool success, double expectedValue, string resultCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, Uri uri, string type, bool success, double expectedValue, string resultCode)
         {
             Assert.AreEqual("GET " + uri.AbsolutePath, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(uri.Host, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
             Assert.AreEqual(uri.OriginalString, remoteDependencyTelemetryActual.Data, true, "Resource data in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(type.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 

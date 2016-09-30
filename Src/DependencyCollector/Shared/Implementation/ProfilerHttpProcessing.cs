@@ -257,7 +257,7 @@
 
                 telemetry.Name = resourceName;
                 telemetry.Target = url.Host;
-                telemetry.Type = RemoteDependencyKind.Http.ToString();
+                telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Data = url.OriginalString;
 
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));

@@ -35,7 +35,7 @@
         private static readonly string ExpectedResourceName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
         private static readonly string ExpectedData = MyStoredProcName;
         private static readonly string ExpectedTarget = DatabaseServer + " | " + DataBaseName;
-        private static readonly string ExpectedType = "SQL";
+        private static readonly string ExpectedType = RemoteDependencyConstants.SQL;
 
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
