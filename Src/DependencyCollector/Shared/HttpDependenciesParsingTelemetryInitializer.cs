@@ -35,7 +35,7 @@
 
                         var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
                         var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
-                        string container = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : string.Empty;
+                        string container = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
 
                         string account = host.Substring(0, host.IndexOf('.'));
 
