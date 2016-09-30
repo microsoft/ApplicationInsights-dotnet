@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Diagnostics;
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
     using System.Linq;
-    using System.Threading;
-
+    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
@@ -23,18 +23,22 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Disposing TelemetryConfiguration after each test.")]
     [TestClass]
-    public sealed class ProfilerSqlProcessingTest : IDisposable
+    public sealed class ProfilerSqlProcessingTest
     {
         private const string DatabaseServer = "ourdatabase.database.windows.net";
         private const string DataBaseName = "mydatabase";
-        private const int TimeAccuracyMilliseconds = 50;
         private const string MyStoredProcName = "apm.MyFavouriteStoredProcedure";
-        private const int SleepTimeMsecBetweenBeginAndEnd = 100;
+        
         private static readonly string ConnectionString = string.Format(CultureInfo.InvariantCulture, "Server={0};DataBase={1};User=myusername;Password=supersecret", DatabaseServer, DataBaseName);
+        private static readonly string ExpectedResourceName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
+        private static readonly string ExpectedData = MyStoredProcName;
+        private static readonly string ExpectedTarget = DatabaseServer + " | " + DataBaseName;
+        private static readonly string ExpectedType = "SQL";
+
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
-        private Exception ex;
         private ProfilerSqlProcessing sqlProcessingProfiler;        
         
         [TestInitialize]
@@ -45,566 +49,262 @@
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.sqlProcessingProfiler = new ProfilerSqlProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
-            this.ex = new Exception();
         }
 
         [TestCleanup]
         public void Cleanup()
-        {        
+        {
+            this.configuration.Dispose();      
         }
 
-        #region ExecuteReader
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns correct operation for OnBeginForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns correct operation for OnBeginForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void OnBeginSavesTelemetryInWeakTable()
+        public void OnBeginSavesTelemetryInWeakTable1()
         {
             var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForExecuteReader(command, null, null);
+            this.sqlProcessingProfiler.OnBeginForOneParameter(command);
             DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
 
-            var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyKind.SQL, "OnBeginForExecuteReader");            
+            Assert.IsNotNull(operationReturned);
+            Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedTarget, operationReturned.Target, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedType, operationReturned.Type, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedData, operationReturned.Data, true, CultureInfo.InvariantCulture);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnEndForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler sends correct telemetry on calling OnEndForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnEndForExecuteReader()
+        public void OnBeginSavesTelemetryInWeakTable2()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
+            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+
+            Assert.IsNotNull(operationReturned);
+            Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedTarget, operationReturned.Target, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedType, operationReturned.Type, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedData, operationReturned.Data, true, CultureInfo.InvariantCulture);
+        }
+
+        [TestMethod]
+        public void OnBeginSavesTelemetryInWeakTable3()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            this.sqlProcessingProfiler.OnBeginForThreeParameters(command, null, null);
+            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+
+            Assert.IsNotNull(operationReturned);
+            Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedTarget, operationReturned.Target, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedType, operationReturned.Type, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedData, operationReturned.Data, true, CultureInfo.InvariantCulture);
+        }
+
+        [TestMethod]
+        public void OnBeginSavesTelemetryInWeakTable4()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            this.sqlProcessingProfiler.OnBeginForFourParameters(command, null, null, null);
+            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+
+            Assert.IsNotNull(operationReturned);
+            Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedTarget, operationReturned.Target, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedType, operationReturned.Type, true, CultureInfo.InvariantCulture);
+            Assert.AreEqual(ExpectedData, operationReturned.Data, true, CultureInfo.InvariantCulture);
+        }
+
+        [TestMethod]
+        public void OnEndSendsCorrectTelemetry1()
         {
             var command = GetSqlCommandTestForStoredProc();
             var returnObjectPassed = new object();
-            var context = this.sqlProcessingProfiler.OnBeginForExecuteReader(command, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForExecuteReader(context, returnObjectPassed, command, null, null);
 
-            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForExecuteReader processor is not the same as expected return object");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlProcessingProfiler.OnEndForOneParameter(context, returnObjectPassed, command);
+            stopwatch.Stop();
+
+            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                true,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: true,
+                expectedResultCode: "0",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnExceptionForExecuteReader()
+        public void OnEndSendsCorrectTelemetry2()
         {
             var command = GetSqlCommandTestForStoredProc();
             var returnObjectPassed = new object();
-            var context = this.sqlProcessingProfiler.OnBeginForExecuteReader(command, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            this.sqlProcessingProfiler.OnExceptionForExecuteReader(
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlProcessingProfiler.OnEndForTwoParameters(context, returnObjectPassed, command, null);
+            stopwatch.Stop();
+
+            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: true,
+                expectedResultCode: "0",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+        }
+
+        [TestMethod]
+        public void OnEndSendsCorrectTelemetry3()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            var returnObjectPassed = new object();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForThreeParameters(command, null, null);
+            var objectReturned = this.sqlProcessingProfiler.OnEndForThreeParameters(context, returnObjectPassed, command, null, null);
+            stopwatch.Stop();
+
+            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: true,
+                expectedResultCode: "0",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+        }
+        
+        [TestMethod]
+        public void OnExceptionSendsCorrectTelemetry1()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
+            this.sqlProcessingProfiler.OnExceptionForOneParameter(
                 context, 
                 TestUtils.GenerateSqlException(10), 
-                command, 
-                null, 
+                command);
+            stopwatch.Stop();
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+        }
+
+        [TestMethod]
+        public void OnExceptionSendsCorrectTelemetry2()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
+            this.sqlProcessingProfiler.OnExceptionForTwoParameters(
+                context,
+                TestUtils.GenerateSqlException(10),
+                command,
                 null);
-            
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                false,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "10");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnBeginForExecuteReaderFailed()
-        {
-            using (var listener = new TestEventListener())
-            {
-            const long AllKeyword = -1;
-            listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-            try
-            {
-                SqlCommand command = null;                
-                DependencyTelemetry operationReturned = (DependencyTelemetry)this.sqlProcessingProfiler.OnBeginForExecuteReader(command, null, null);
-            }
-            catch (Exception)
-            {
-                Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");                
-            }
-
-            TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);
-            }
-        }       
-
-        #endregion //ExecuteReader
-
-        #region SynCallBacks
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns correct operation for OnBeginForSync.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns correct operation for OnBeginForSync.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnBeginForSynCallbacks()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForSync(command);
-            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
-            var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            ValidateDependencyCallOperation(operationReturned, expectedResourceName, RemoteDependencyKind.SQL, "OnBeginForSync");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnEndForSync.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler sends correct telemetry on calling OnEndForSync.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnEndForSynCallbacks()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            var context = this.sqlProcessingProfiler.OnBeginForSync(command);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForSync(context, returnObjectPassed, command);
-
-            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForSync processor is not the same as expected return object");
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                true,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForSync.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForSync.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnExceptionForSynCallbacks()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            var context = this.sqlProcessingProfiler.OnBeginForSync(command);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            this.sqlProcessingProfiler.OnExceptionForSync(context, this.ex, command);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                false,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-        #endregion //SynCallBacks
-
-        #region BeginExecuteNonQueryInternal-End
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteNonQueryInternal.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteNonQueryInternal.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnBeginForBeginExecuteNonQueryInternal()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            DependencyTelemetry operationReturned = (DependencyTelemetry)this.sqlProcessingProfiler.OnBeginForBeginExecuteNonQueryInternal(command, null, null, null, null);
-            var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            Assert.IsNull(operationReturned, "Operation returned should be null as all context is maintained internally for Async calls");            
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnEndForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates sqlProcessingProfiler sends correct telemetry on calling OnEndForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndEndExecuteNonQueryInternal()
+        public void OnExceptionSendsCorrectTelemetry3()
         {
             var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteNonQueryInternal(command, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForSqlAsync(null, returnObjectPassed, command, null);
 
-            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForSqlAsync processor is not the same as expected return object");
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                true,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndEndExecuteNonQueryInternalException()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteNonQueryInternal(command, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            this.sqlProcessingProfiler.OnExceptionForSqlAsync(null, this.ex, command, null);
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
+            this.sqlProcessingProfiler.OnExceptionForThreeParameters(
+                context,
+                TestUtils.GenerateSqlException(10),
+                command,
+                null,
+                null);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                false,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedType: RemoteDependencyKind.SQL,
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginExecuteNonQueryInternalFailedOnStart()
+        public void ResourceNameForNonStoredProcIsCollectedCorrectly()
         {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    this.sqlProcessingProfiler.OnBeginForBeginExecuteNonQueryInternal(null, null, null, null, null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);
-            }
+            SqlCommand command = GetSqlCommandTestForQuery();
+            string actualResourceName = this.sqlProcessingProfiler.GetResourceName(command);
+            Assert.AreEqual(ExpectedTarget, actualResourceName);
         }
-       
-        #endregion //BeginExecuteNonQueryInternal-End
 
-        #region BeginExecuteReaderInternal-End
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteReaderInternal.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteReaderInternal.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnBeginForBeginExecuteReaderInternal()
+        public void CommandNameForNonStoredProcIsCollectedCorrectly()
         {
-            var command = GetSqlCommandTestForStoredProc();
-            DependencyTelemetry operationReturned = (DependencyTelemetry)this.sqlProcessingProfiler.OnBeginForBeginExecuteReaderInternal(command, null, null, null, null, null);
-            var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            Assert.IsNull(operationReturned, "Operation returned should be null as all context is maintained internally for Async calls");
+            SqlCommand command = GetMoreComplexSqlCommandTestForQuery();
+            string actualCommandName = this.sqlProcessingProfiler.GetCommandName(command);
+            Assert.AreEqual(command.CommandText, actualCommandName);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnBeginForBeginExecuteReaderInternal.
-        /// </summary>
         [TestMethod]
-        [Description("Validates sqlProcessingProfiler sends correct telemetry on calling OnBeginForBeginExecuteReaderInternal.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndForBeginExecuteReaderInternal()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteReaderInternal(command, null, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForSqlAsync(null, returnObjectPassed, command, null);
-
-            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForSqlAsync processor is not the same as expected return object");
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                true,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndForBeginExecuteReaderInternalException()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteReaderInternal(command, null, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            this.sqlProcessingProfiler.OnExceptionForSqlAsync(null, this.ex, command, null);
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                false,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginExecuteReaderInternalFailedOnStart()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    this.sqlProcessingProfiler.OnBeginForBeginExecuteReaderInternal(null, null, null, null, null, null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);                 
-            }
-        }
-        #endregion //BeginExecuteReaderInternal-End
-
-        #region BeginExecuteXmlReader-End
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteXmlReaderInternal.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns correct operation for OnBeginForBeginExecuteXmlReaderInternal.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerOnBeginForBeginExecuteXmlReaderInternal()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            DependencyTelemetry operationReturned = (DependencyTelemetry)this.sqlProcessingProfiler.OnBeginForBeginExecuteXmlReaderInternal(command, null, null, null, null);
-            var expectedResourceName = GetResourceNameForStoredProcedure(command);
-            Assert.IsNull(operationReturned, "Operation returned should be null as all context is maintained internally for Async calls");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnBeginForBeginExecuteXmlReaderInternal.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingProfiler sends correct telemetry on calling OnBeginForBeginExecuteXmlReaderInternal.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndForBeginExecuteXmlReaderInternal()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteXmlReaderInternal(command, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForSqlAsync(null, returnObjectPassed, command, null);
-
-            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForSqlAsync processor is not the same as expected return object");
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                true,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler sends correct telemetry on calling OnBeginForBeginExecuteXmlReaderInternal.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingProfiler sends correct telemetry on calling OnExceptionForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginAndForBeginExecuteXmlReaderInternalException()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var returnObjectPassed = new object();
-            this.sqlProcessingProfiler.OnBeginForBeginExecuteXmlReaderInternal(command, null, null, null, null);
-            Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
-            this.sqlProcessingProfiler.OnExceptionForSqlAsync(null, this.ex, command, null);
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(
-                this.sendItems[0] as DependencyTelemetry,
-                GetResourceNameForStoredProcedure(command),
-                RemoteDependencyKind.SQL,
-                false,
-                SleepTimeMsecBetweenBeginAndEnd, 
-                "0");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates sqlProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerBeginExecuteXmlReaderInternalFailedOnStart()
-        {
-            using (var listener = new TestEventListener())
-            {
-                const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
-                try
-                {
-                    this.sqlProcessingProfiler.OnBeginForBeginExecuteXmlReaderInternal(null, null, null, null, null);
-                }
-                catch (Exception)
-                {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
-                }
-
-                TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);
-            }
-        }
-        #endregion //BeginExecuteXmlReader-End
-
-        #region SyncScenarios
-
-        #endregion //SyncScenarios
-
-        #region AsyncScenarios
-
-        #endregion AsyncScenarios
-
-        #region Misc
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler determines resource name correctly for stored procedure.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler determines resource name correctly for stored procedure.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerResourceNameTestForStoredProc()
-        {
-            var command = GetSqlCommandTestForStoredProc();
-            var expectedName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
-            var actualResourceName = this.sqlProcessingProfiler.GetResourceName(command);                        
-            Assert.AreEqual(expectedName, actualResourceName, "SqlProcessingProfiler returned incorrect resource name");
-            
-            Assert.AreEqual(string.Empty, this.sqlProcessingProfiler.GetResourceName(null), "SqlProcessingProfiler should return String.Empty for null object");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler determines resource name correctly for non stored procedure.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler determines resource name correctly for non stored procedure.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerResourceNameTestForNonStoredProc()
-        {
-            var command = GetSqlCommandTestForQuery();
-            var expectedName = GetResourceNameForQuery(command);
-            var actualResourceName = this.sqlProcessingProfiler.GetResourceName(command);
-            Assert.AreEqual(expectedName, actualResourceName, "SqlProcessingProfiler returned incorrect resource name");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler determines command name correctly for non stored procedure.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler determines command name correctly for non stored procedure.")]
-        [Owner("arthurbe")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerCommandNameTestForNonStoredProc()
-        {
-            var command = GetMoreComplexSqlCommandTestForQuery();
-            var actualCommandName = this.sqlProcessingProfiler.GetCommandName(command);
-            Assert.AreEqual(command.CommandText, actualCommandName, "SqlProcessingProfiler returned an incorrect command name");
-        }
-
-        /// <summary>
-        /// Validates SQLProcessingProfiler correctly returns empty string for a null connection object.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates SQLProcessingProfiler handles a null command object.")]
-        [Owner("arthurbe")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerCommandNameTestForNullCommand()
+        public void GetCommandNameReturnsEmptyStringForNullSqlCommand()
         {
             var actualCommandName = this.sqlProcessingProfiler.GetCommandName(null);
-            Assert.AreEqual(string.Empty, actualCommandName, "SqlProcessingProfiler should return empty string for null command object");
+            Assert.AreEqual(string.Empty, actualCommandName);
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler returns stored procedure name in the case of a stored procedure.
-        /// </summary>
         [TestMethod]
-        [Description("Validates SQLProcessingProfiler returns stored procedure name in the case of a stored procedure.")]
-        [Owner("arthurbe")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerReturnsProcNameForStoredProc()
+        public void OnBeginLogsWarningWhenFailed()
         {
-            var command = GetSqlCommandTestForStoredProc();
-            Assert.AreEqual(command.CommandText, this.sqlProcessingProfiler.GetCommandName(command), "SqlProcessingProfiler should return the stored procedure name in the case of a StoredProc");
+            using (var listener = new TestEventListener())
+            {
+                const long AllKeyword = -1;
+                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
+                try
+                {
+                    this.sqlProcessingProfiler.OnBeginForOneParameter(null);
+                }
+                catch (Exception)
+                {
+                    Assert.Fail("Should not be throwing unhandled exceptions.");
+                }
+
+                TestUtils.ValidateEventLogMessage(listener, "will not run for id", EventLevel.Warning);
+            }
         }
 
-        #endregion //Misc
-
-        #region LoggingTests
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject with null connection.
-        /// </summary>
         [TestMethod]
-        [Description("Validates sqlProcessingProfiler logs error into EventLog when passed invalid thisObject with null connection")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerLogsResourceNameNull()
+        public void OnBeginLogsWarningWhenPassedThisObjectWithNullConnection()
         {
             using (var listener = new TestEventListener())
             {
@@ -613,11 +313,11 @@
                 try
                 {
                     SqlCommand command = new SqlCommand();
-                    this.sqlProcessingProfiler.OnBeginForBeginExecuteXmlReaderInternal(command, null, null, null, null);
+                    this.sqlProcessingProfiler.OnBeginForOneParameter(command);
                 }
                 catch (Exception)
                 {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
+                    Assert.Fail("Should not be throwing unhandled exceptions");
                 }
 
                 var message = listener.Messages.First(item => item.EventId == 14);
@@ -625,14 +325,8 @@
             }
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed invalid thisObject to OnBeginForExecuteReader.
-        /// </summary>
         [TestMethod]
-        [Description("Validates sqlProcessingProfiler logs error into EventLog when passed invalid thisObject to any OnEnd.")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerLogsWhenNullObjectPassedToEndMethods()
+        public void OnEndLogsWarningWhenNullObjectPassedToEndMethods()
         {
             using (var listener = new TestEventListener())
             {
@@ -640,11 +334,11 @@
                 listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
                 try
                 {                    
-                    var objectReturned = this.sqlProcessingProfiler.OnEndForSqlAsync(new object(), null, null, null);
+                    this.sqlProcessingProfiler.OnEndForOneParameter(new object(), new object(), null);
                 }
                 catch (Exception)
                 {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
+                    Assert.Fail("Should not be throwing unhandled exceptions.");
                 }
 
                 var message = listener.Messages.First(item => item.EventId == 14);
@@ -652,66 +346,42 @@
             }
         }
 
-        /// <summary>
-        /// Validates SQLProcessingProfiler logs error into EventLog when passed an object to End without corresponding begin in async pattern.
-        /// </summary>
         [TestMethod]
-        [Description("Validates sqlProcessingProfiler logs error into EventLog when passed an object to End without corresponding begin in async pattern")]
-        [Owner("cithomas")]
-        [TestCategory("CVT")]
-        public void RddTestSqlProcessingProfilerLogsWhenObjectPassedToEndWithoutCorrespondingBeginAsync()
+        public void OnEndLogsWarningWhenObjectPassedToEndWithoutCorrespondingBeginAsync()
         {
             using (var listener = new TestEventListener())
             {
                 const long AllKeyword = -1;
-                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, (EventKeywords)AllKeyword);
+                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
                 try
                 {
-                    var objectReturned = this.sqlProcessingProfiler.OnEndForSqlAsync(new object(), null, new SqlCommand(), null);
+                    this.sqlProcessingProfiler.OnEndForOneParameter(new object(), new object(), new SqlCommand());
                 }
                 catch (Exception)
                 {
-                    Assert.Fail("sqlProcessingProfiler should not be throwing unhandled exceptions");
+                    Assert.Fail("Should not be throwing unhandled exceptions.");
                 }
 
                 var message = listener.Messages.First(item => item.EventId == 12);
                 Assert.IsNotNull(message);
             }
         }
-        #endregion //LoggingTests
-
-        #region Disposable
-        public void Dispose()
-        {
-            this.configuration.Dispose();
-            GC.SuppressFinalize(this);
-        }
-        #endregion Disposable
-
-        #region Helpers
-        private static void ValidateDependencyCallOperation(DependencyTelemetry operation, string name, RemoteDependencyKind type, string methodName)
-        {
-            Assert.IsNotNull(operation, "Operation returned should not be null for method:" + methodName);
-            Assert.AreEqual(name, operation.Name, true, "Resource name in the returned operation is wrong for method:" + methodName);            
-        }
 
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool success, double valueMin, string resultCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, 
+            string expectedName, 
+            RemoteDependencyKind expectedType, 
+            bool expectedSuccess,
+            string expectedResultCode,
+            double timeBetweenBeginEndInMs)
         {            
-            Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
-            Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
-            Assert.AreEqual(resultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
+            Assert.AreEqual(expectedName, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual(expectedType.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(expectedSuccess, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
+            Assert.AreEqual(expectedResultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
-            var valueMinRelaxed = valueMin - 50;
-            Assert.IsTrue(
-                remoteDependencyTelemetryActual.Duration >= TimeSpan.FromMilliseconds(valueMinRelaxed),
-                string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should be equal or more than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
-
-            var valueMax = valueMin + TimeAccuracyMilliseconds;
-            Assert.IsTrue(
-                remoteDependencyTelemetryActual.Duration <= TimeSpan.FromMilliseconds(valueMax),
-                string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", remoteDependencyTelemetryActual.Duration));
+            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + 1, "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds >= 0);
 
             string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
@@ -733,14 +403,6 @@
             return command;
         }
 
-        private static string GetResourceNameForQuery(SqlCommand command)
-        {
-            return string.Join(
-                " | ",
-                command.Connection.DataSource,
-                command.Connection.Database);
-        }
-
         private static SqlCommand GetSqlCommandTestForStoredProc()
         {
             var con = new SqlConnection(ConnectionString);
@@ -758,6 +420,5 @@
                 command.Connection.Database,
                 command.CommandText);
         }
-        #endregion Helpers
     }
 }

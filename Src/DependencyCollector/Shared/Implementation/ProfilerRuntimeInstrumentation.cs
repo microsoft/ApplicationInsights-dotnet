@@ -69,135 +69,184 @@
 
         internal static void DecorateProfilerForSql(ref ProfilerSqlProcessing sqlCallbacks)
         {
-            // Decorate Sql ExecuteNonQuery, 0 param
+            //// ___ ExecuteNonQuery ___ ////
+
+            // Decorates Sql BeginExecuteNonQuery, 0 params (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
+                sqlCallbacks.OnBeginForOneParameter,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteNonQuery(AsyncCallback, Object), 2 params (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
+                sqlCallbacks.OnBeginForThreeParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql EndExecuteNonQuery, 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteNonQuery",
+                null,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
+                isStatic: false);
+
+            // Decorate Sql ExecuteNonQuery, 0 param (+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteNonQuery",
-                sqlCallbacks.OnBeginForSync,
-                sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync,
+                sqlCallbacks.OnBeginForOneParameter,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
 
-            // Decorate Sql ExecuteReader, 2 params
+            // Decorate Sql ExecuteNonQueryAsync(CancellationToken)
+            // Only latest instrumentation engine supports Tasks so we need to uncomment this code and add funcs when StatusMonitor is out
+            // + Decorate in the same way ExecuteReader, ExecuteXmlReader and ExecuteScalar
+            ////Functions.Decorate(
+            ////    "System.Data",
+            ////    "System.Data.dll",
+            ////    "System.Data.SqlClient.SqlCommand.ExecuteNonQueryAsync",
+            ////    sqlCallbacks.OnBeginForTwoParameter,
+            ////    null,
+            ////    null,
+            ////    isStatic: false);
+
+            //// ___ ExecuteReader ___ ////
+
+            // Decorates Sql BeginExecuteReader, 0 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReader",
+                sqlCallbacks.OnBeginForOneParameter,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteReader(CommandBehavior), 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReader",
+                sqlCallbacks.OnBeginForTwoParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteReader(AsyncCallback, Object), 2 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReader",
+                sqlCallbacks.OnBeginForThreeParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteReader(AsyncCallback, Object, CommandBehavior), 3 params (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReader",
+                sqlCallbacks.OnBeginForFourParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql EndExecuteReader, 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteReader",
+                null,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
+                isStatic: false);
+
+            // Decorate Sql ExecuteReader, 0 params(+this) (we instrument 2 overloads of ExecuteReader because there are cases when methods get inlined or tail call optimized)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteReader",
-                sqlCallbacks.OnBeginForExecuteReader,
-                sqlCallbacks.OnEndForExecuteReader,
-                sqlCallbacks.OnExceptionForExecuteReader,
+                sqlCallbacks.OnBeginForOneParameter,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
 
-            // Decorate Sql ExecuteReader, 0 params (we instrument 2 overloads of ExecuteReader because there are cases when methods get inlined or tail call optimized)
+            // Decorate Sql ExecuteReader(CommandBehavior), 2 params(+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteReader",
-                sqlCallbacks.OnBeginForSync,
-                sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync,
+                sqlCallbacks.OnBeginForThreeParameters,
+                sqlCallbacks.OnEndForThreeParameters,
+                sqlCallbacks.OnExceptionForThreeParameters,
                 isStatic: false);
 
-            // Decorate Sql ExecuteScalar, 0 params
+            //// ___ ExecuteScalar ___ ////
+
+            // Decorate Sql ExecuteScalar, 0 params(+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteScalar",
-                sqlCallbacks.OnBeginForSync,
-                sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync,
+                sqlCallbacks.OnBeginForOneParameter,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
 
-            // Decorate Sql ExecuteXmlReader, 0 params
+            //// ___ ExecuteXmlReader ___ ////
+
+            // Decorates Sql BeginExecuteXmlReader, 0 params(+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReader",
+                sqlCallbacks.OnBeginForOneParameter,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql BeginExecuteXmlReader(AsyncCallback, Object), 2 params(+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReader",
+                sqlCallbacks.OnBeginForThreeParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Decorates Sql EndExecuteXmlReaderInternal(IAsyncResult), 1 param(+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteXmlReader",
+                null,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
+                isStatic: false);
+
+            // Decorate Sql ExecuteXmlReader, 0 params(+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteXmlReader",
-                sqlCallbacks.OnBeginForSync,
-                sqlCallbacks.OnEndForSync,
-                sqlCallbacks.OnExceptionForSync,
-                isStatic: false);
-
-            // Decorates Sql BeginExecuteNonQueryInternal, 4 params
-            Functions.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
-                0,
-                sqlCallbacks.OnBeginForSync,
-                null,
-                null);
-
-            // Decorates Sql BeginExecuteNonQuery(AsyncCallback, Object)
-            Decorator.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQuery",
-                2,
-                sqlCallbacks.OnBeginForBeginExecuteNonQueryInternal,
-                null,
-                null,
-                isStatic: false);
-
-            // Decorates Sql EndExecuteNonQueryInternal, 1 param
-            Functions.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal",
-                null,
-                sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync,
-                isStatic: false);
-
-            // Decorates Sql BeginExecuteReaderInternal, 5 params
-            Functions.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteReaderInternal",
-                sqlCallbacks.OnBeginForBeginExecuteReaderInternal,
-                null,
-                null,
-                isStatic: false);
-
-            // Decorates Sql BeginExecuteReaderInternal starting from Win10 Anniversary update
-            Decorator.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteReaderInternal",
-                7,
-                sqlCallbacks.OnBeginForBeginExecuteReaderInternal,
-                null,
-                null);
-
-            // Decorates Sql EndExecuteReaderInternal
-            Decorator.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.EndExecuteReaderInternal",
-                null,
-                sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync,
-                isStatic: false);
-
-            // Decorates Sql BeginExecuteXmlReaderInternal, 4 params
-            Functions.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReaderInternal",
-                sqlCallbacks.OnBeginForBeginExecuteXmlReaderInternal,
-                null,
-                null,
-                isStatic: false);
-
-            // Decorates Sql EndExecuteXmlReaderInternal, 1 param
-            Functions.Decorate(
-                "System.Data",
-                "System.Data.dll",
-                "System.Data.SqlClient.SqlCommand.EndExecuteXmlReaderInternal",
-                null,
-                sqlCallbacks.OnEndForSqlAsync,
-                sqlCallbacks.OnExceptionForSqlAsync,
+                sqlCallbacks.OnBeginForOneParameter,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
         }
     }
