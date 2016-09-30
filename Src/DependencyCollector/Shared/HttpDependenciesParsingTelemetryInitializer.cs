@@ -11,6 +11,8 @@
     /// </summary>
     public class HttpDependenciesParsingTelemetryInitializer : ITelemetryInitializer
     {
+        private readonly string[] AzureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
+
         /// <summary>
         /// If telemetry item is http dependency - converts it to the well-known type of the dependency.
         /// </summary>
@@ -23,47 +25,71 @@
             {
                 string host = httpDependency.Target;
 
-                if (!string.IsNullOrEmpty(host))
+                string account;
+                string verb;
+                string container;
+
+                if (this.TryParseAzureBlob(httpDependency.Target, httpDependency.Name, httpDependency.Data, out account, out verb, out container))
                 {
-                    if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
-                        httpDependency.Type = RemoteDependencyConstants.AzureBlob;
+                    httpDependency.Type = RemoteDependencyConstants.AzureBlob;
 
-                        string nameWithoutVerb = httpDependency.Name;
-                        var verb = GetVerb(httpDependency.Name, out nameWithoutVerb);
-
-                        var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
-                        var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
-                        string container = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
-
-                        string account = host.Substring(0, host.IndexOf('.'));
-
-                        httpDependency.Name = verb + account + '/' + container;
-                    }
-
-                    ////else if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                    ////{
-                    ////    httpDependency.Type = RemoteDependencyConstants.AzureTable;;
-                    ////}
-                    ////else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                    ////{
-                    ////    httpDependency.Type = RemoteDependencyConstants.AzureQueue;
-                    ////}
+                    // This is very naive overwriting of Azure Blob dependency that is compatible with the today's implementation
+                    //
+                    // Possible improvements:
+                    //
+                    // 1. Use specific name for specific operations. Like "Lease Blob" for "?comp=lease" query parameter
+                    // 2. Use account name as a target instead of "account.blob.core.windows.net"
+                    // 3. Do not include container name into name as it is high cardinality. Move to custom properties
+                    // 4. Parse blob name and put into custom properties as well
+                    httpDependency.Name = verb + account + '/' + container;
                 }
+
+                ////else if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                ////{
+                ////    httpDependency.Type = RemoteDependencyConstants.AzureTable;;
+                ////}
+                ////else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                ////{
+                ////    httpDependency.Type = RemoteDependencyConstants.AzureQueue;
+                ////}
             }
         }
 
-        private static string GetVerb(string name, out string nameWithoutVerb)
+        private bool TryParseAzureBlob(string host, string name, string url, out string account, out string verb, out string container)
         {
-            var result = string.Empty;
-            nameWithoutVerb = name;
+            bool result = false;
 
-            var idx = name.IndexOf(' ') + 1;
-            if (idx != 0)
+            account = null;
+            verb = null;
+            container = null;
+
+            if (name != null && host != null && url != null)
             {
-                result = name.Substring(0, idx);
-                nameWithoutVerb = name.Substring(idx);
+                if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
+
+                    account = host.Substring(0, host.IndexOf('.'));
+
+                    string nameWithoutVerb = name;
+
+                    for (int i = 0; i < this.AzureBlobVerbPrefixes.Length; i++)
+                    {
+                        var verbPrefix = this.AzureBlobVerbPrefixes[i];
+                        if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            verb = name.Substring(0, verbPrefix.Length);
+                            nameWithoutVerb = name.Substring(verbPrefix.Length);
+                            break;
+                        }
+                    }
+
+                    var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
+                    var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
+                    container = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
+
+                    result = true;
+                }
             }
 
             return result;
