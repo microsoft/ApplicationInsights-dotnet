@@ -3,7 +3,7 @@
     internal static class RemoteDependencyConstants
     {
         public const string SQL = "SQL";
-        public const string HTTP = "HTTP";
+        public const string HTTP = "Http";
 
         public const string AzureBlob = "Azure blob";
         public const string AzureTable = "Azure table";
