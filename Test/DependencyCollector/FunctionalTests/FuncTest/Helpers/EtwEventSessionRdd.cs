@@ -13,6 +13,7 @@
             "Microsoft-ApplicationInsights-Extensibility-DependencyCollector",
             "Microsoft-ApplicationInsights-Core",
             "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel",
+            "Microsoft-ApplicationInsights-Extensibility-Rtia-SharedCore"
         };
 
         private const string SessionName = "RddTelemetryFunctionalTest";
