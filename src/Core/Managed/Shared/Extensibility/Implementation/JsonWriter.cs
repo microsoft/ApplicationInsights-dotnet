@@ -128,11 +128,6 @@
                 this.WriteStartObject();
                 foreach (KeyValuePair<string, string> item in values)
                 {
-                    if (item.Value == null)
-                    {
-                        continue;
-                    }
-
                     this.WriteProperty(item.Key, item.Value);
                 }
 
