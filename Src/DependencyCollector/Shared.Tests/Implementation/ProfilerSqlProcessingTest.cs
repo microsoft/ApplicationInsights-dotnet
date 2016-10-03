@@ -131,7 +131,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: true,
                 expectedResultCode: "0",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -155,7 +154,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: true,
                 expectedResultCode: "0",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -179,7 +177,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: true,
                 expectedResultCode: "0",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -203,7 +200,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: false,
                 expectedResultCode: "10",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -228,7 +224,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: false,
                 expectedResultCode: "10",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -254,7 +249,6 @@
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
                 expectedName: GetResourceNameForStoredProcedure(command),
-                expectedType: RemoteDependencyKind.SQL,
                 expectedSuccess: false,
                 expectedResultCode: "10",
                 timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
@@ -370,13 +364,12 @@
         private static void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual, 
             string expectedName, 
-            RemoteDependencyKind expectedType, 
             bool expectedSuccess,
             string expectedResultCode,
             double timeBetweenBeginEndInMs)
         {            
             Assert.AreEqual(expectedName, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
-            Assert.AreEqual(expectedType.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(ExpectedType, remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(expectedSuccess, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(expectedResultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
