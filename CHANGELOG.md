@@ -4,6 +4,7 @@
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
 - Default performance counters will be reported as metrics
 - When you instantiate `DependencyTrackingTelemetryModule` in code it will not detect certain http dependencies as Azure Storage calls. You need to register a telemetry initializer `HttpDependenciesParsingTelemetryInitializer` to enable this functionality. This telemetry initializer will be registered automatically during NuGet installation.
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version XXX (TODO: update to the final version).
 
 ## Version 2.2.0-beta2
 
