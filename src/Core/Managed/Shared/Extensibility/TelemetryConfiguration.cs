@@ -133,6 +133,15 @@
         }
 
         /// <summary>
+        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing
+        /// before client-side metric aggregation process.
+        /// </summary>
+        public IList<IMetricProcessor> MetricProcessors
+        { 
+            get { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
         /// Gets a readonly collection of TelemetryProcessors.
         /// </summary>
         public ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors

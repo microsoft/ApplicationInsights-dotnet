@@ -217,6 +217,15 @@
         }
 
         /// <summary>
+        /// Send a <see cref="AggregatedMetricTelemetry"/> representing aggregation of metric data.
+        /// Create a separate <see cref="AggregatedMetricTelemetry"/> instance for each call to <see cref="TrackAggregatedMetric(AggregatedMetricTelemetry)"/>.
+        /// </summary>
+        public void TrackAggregatedMetric(AggregatedMetricTelemetry telemetry)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
         /// </summary>
         /// <param name="exception">The exception to log.</param>
