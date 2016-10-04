@@ -99,9 +99,12 @@
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
+#pragma warning disable CS0618
             client.TrackMetric("TestMetric", 42);
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
+#pragma warning restore CS0618
+
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(42, metric.Value);
         }
@@ -112,9 +115,12 @@
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
+#pragma warning disable CS0618
             client.TrackMetric(new MetricTelemetry("TestMetric", 42));
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
+#pragma warning restore CS0618
+
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(42, metric.Value);
         }
@@ -125,9 +131,12 @@
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
+#pragma warning disable CS0618
             client.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "blah", "yoyo" } });
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
+#pragma warning restore CS0618
+
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(4.2, metric.Value);
             Assert.Equal("yoyo", metric.Properties["blah"]);
@@ -139,9 +148,12 @@
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
+#pragma warning disable CS0618
             client.TrackMetric("TestMetric", 4.2, null);
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
+#pragma warning restore CS0618
+
             Assert.Equal("TestMetric", metric.Name);
             Assert.Equal(4.2, metric.Value);
             Assert.Empty(metric.Properties);

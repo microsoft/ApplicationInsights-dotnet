@@ -236,9 +236,11 @@
                 ExceptionTelemetry exceptionTelemetry = telemetryItem as ExceptionTelemetry;
                 SerializeExceptionTelemetry(exceptionTelemetry, jsonWriter);
             }
+#pragma warning disable CS0618
             else if (telemetryItem is MetricTelemetry)
             {
                 MetricTelemetry metricTelemetry = telemetryItem as MetricTelemetry;
+#pragma warning restore CS0618
                 SerializeMetricTelemetry(metricTelemetry, jsonWriter);
             }
             else if (telemetryItem is PageViewTelemetry)

@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track aggregated metric information.
     /// </summary>
-    public class AggregatedMetricTelemetry : ITelemetry, ISupportProperties
+    public sealed class AggregatedMetricTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Metric";
 
@@ -37,7 +37,7 @@
         /// Initializes a new instance of the <see cref="AggregatedMetricTelemetry"/> class with properties provided.
         /// </summary>
         /// <remarks>
-        /// Metric statistics procided are assumed to be calculated over a period of time equalling 1 minute.
+        /// Metric statistics provided are assumed to be calculated over a period of time equaling 1 minute.
         /// </remarks>
         /// <param name="metricName">Metric name.</param>
         /// <param name="count">Count of values taken during aggregation interval.</param>
@@ -49,9 +49,9 @@
             string metricName, 
             int count,
             double sum,
-            double min = 0,
-            double max = 0,
-            double standardDeviation = 0)
+            double min,
+            double max,
+            double standardDeviation)
             : this()
         {
             this.Name = metricName;
@@ -109,7 +109,7 @@
         /// </summary>
         public double Min
         {
-            get { return this.Metric.min?? 0; }
+            get { return this.Metric.min ?? 0; }
             set { this.Metric.min = value; }
         }
 
@@ -145,7 +145,7 @@
         void ITelemetry.Sanitize()
         {
             this.Name = this.Name.SanitizeName();
-            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(MetricTelemetry).FullName);
+            this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(AggregatedMetricTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Count = this.Count < 0 ? 0 : this.Count;
             this.Sum = Utils.SanitizeNanAndInfinity(this.Sum);
