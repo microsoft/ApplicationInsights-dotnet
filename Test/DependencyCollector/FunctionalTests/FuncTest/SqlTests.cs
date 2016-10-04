@@ -1,8 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Reflection;
-
-namespace FuncTest
+﻿namespace FuncTest
 {
     using System;
     using System.Linq;
@@ -75,6 +71,7 @@ namespace FuncTest
             DeploymentAndValidationTools.SdkEventListener.Stop();
         }
 
+        #region Misc tests
         [TestMethod]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
@@ -84,7 +81,7 @@ namespace FuncTest
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, AccessTimeMaxSqlCallToApmdbNormal);
+            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, 1, AccessTimeMaxSqlCallToApmdbNormal);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
@@ -117,23 +114,6 @@ namespace FuncTest
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestExecuteReaderTwice()
-        {
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
-                     application =>
-                     {
-                         application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwice&count=1");
-
-                         var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
-
-                         Assert.AreEqual(0, sqlItems.Length, "We don't have to collect any rdd as it is impossible to execute on the same command two async methods at the same time");
-                     });
-        }
-
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
         {
             this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "0", errorMessage: null);
@@ -162,6 +142,9 @@ namespace FuncTest
                          Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
+#endregion
+
+        #region ExecuteReader
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
@@ -181,16 +164,60 @@ namespace FuncTest
         [TestMethod]
         public void TestBeginExecuteReader()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestBeginExecuteReaderFailed()
+        public void TestBeginExecuteReaderFailed_0Args()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+            this.TestSqlCommandExecute("BeginExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_1Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_2Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader2", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_3Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader3", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReader()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReaderFailed_0Args()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReaderFailed_1Args()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+        #endregion
+
+        #region ExecuteScalar
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
@@ -203,6 +230,37 @@ namespace FuncTest
         public void TestExecuteScalarAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteScalar()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteScalarFailed()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+        #endregion
+
+        #region ExecuteNonQuery
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteNonQuery()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteNonQueryFailed()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
@@ -221,18 +279,27 @@ namespace FuncTest
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestBeginExecuteNonQuery()
+        public void TestBeginExecuteNonQuery_Arg0()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteNonQuery_Arg2()
+        {
+            this.TestSqlCommandExecute("BeginExecuteNonQuery2", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
+        #endregion
 
+        #region ExecuteXmlReader
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
@@ -256,48 +323,6 @@ namespace FuncTest
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestSqlCommandExecuteScalar()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteScalarFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteNonQuery()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteNonQueryFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteReader()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteReaderFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "0", errorMessage: null);
@@ -309,6 +334,7 @@ namespace FuncTest
         {
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
+        #endregion
 
         private void TestSqlCommandExecute(string type, string errorNumber, string errorMessage, string extraClauseForFailureCase = null)
         {
@@ -342,17 +368,6 @@ namespace FuncTest
                          sqlErrorCodeExpected: errorNumber,
                          sqlErrorMessageExpected: errorMessage);
                  });
-        }
-
-        /// <summary>
-        /// Helper to execute Sync Http tests
-        /// </summary>
-        /// <param name="testWebApplication">The test application for which tests are to be executed</param>
-        /// <param name="count">number to RDD calls to be made by the test application </param> 
-        /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteSyncSqlTests(TestWebApplication testWebApplication, int count, TimeSpan accessTimeMax)
-        {
-            this.ExecuteSyncSqlTests(testWebApplication, count, count, accessTimeMax);
         }
 
         /// <summary>
