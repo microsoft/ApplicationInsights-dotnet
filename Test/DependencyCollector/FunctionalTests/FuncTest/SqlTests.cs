@@ -199,7 +199,7 @@
         [TestMethod]
         public void TestSqlCommandExecuteReader()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]

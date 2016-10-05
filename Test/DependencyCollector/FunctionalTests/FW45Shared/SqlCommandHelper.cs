@@ -262,12 +262,16 @@
                     {
                         case 0:
                             {
-                                this.command.BeginExecuteReader();
+                                var result = this.command.BeginExecuteReader();
+                                result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                                this.command.EndExecuteReader(result);
                                 break;
                             }
                         case 1:
                             { 
-                                this.command.BeginExecuteReader(CommandBehavior.SequentialAccess);
+                                var result = this.command.BeginExecuteReader(CommandBehavior.SequentialAccess);
+                                result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                                this.command.EndExecuteReader(result);
                                 break;
                             }
                         case 2:
@@ -462,7 +466,9 @@
                     switch (this.numberOfArgs)
                     {
                         case 0:
-                            this.command.BeginExecuteNonQuery();
+                            var result = this.command.BeginExecuteNonQuery();
+                            result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                            this.command.EndExecuteNonQuery(result);
                             break;
                         case 2:
                             this.command.BeginExecuteNonQuery(Callback, null);
@@ -480,22 +486,6 @@
                 } 
             }
 
-            public void BeginExecuteProc()
-            {
-                try
-                {
-                    this.command.CommandType = CommandType.StoredProcedure;                    
-                    this.command.BeginExecuteNonQuery(Callback, null);
-                }
-                catch (Exception)
-                {
-                    if (connection != null)
-                    {
-                        connection.Close();
-                    }
-                }
-            }
-
             public void Dispose()
             {
                 if (this.connection != null)
@@ -503,6 +493,7 @@
                     this.connection.Dispose();
                 }
             }
+
             private void Callback(IAsyncResult ar)
             {
                 try
