@@ -18,11 +18,11 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.3" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.4" />
       </group>
       <group targetFramework="net45">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.3" />
+        <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.4" />
       </group>
     </dependencies>
   </metadata>
