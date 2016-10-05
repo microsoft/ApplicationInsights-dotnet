@@ -2,20 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET45
-    using System.Diagnostics.Tracing;
-#endif
-    using System.Web;
-
+    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.Helpers;
-    using Microsoft.ApplicationInsights.Web.Implementation;
     using Microsoft.ApplicationInsights.Web.TestFramework;
-#if NET40
-    using Microsoft.Diagnostics.Tracing;
-#endif
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Assert = Xunit.Assert;
@@ -46,12 +39,10 @@
             platformContext.AddError(exception1);
             platformContext.AddError(new Exception("2"));
 
-            using (var module = new TestableExceptionTrackingTelemetryModule(platformContext))
-            {
-                module.Initialize(this.configuration);
-                module.OnError(null);
-            }
-
+            var module = new ExceptionTrackingTelemetryModule();
+            module.Initialize(this.configuration);
+            module.OnError(platformContext);
+            
             Assert.Equal(2, this.sendItems.Count);
             Assert.Equal(exception1, ((ExceptionTelemetry)this.sendItems[0]).Exception);
         }
@@ -63,53 +54,20 @@
             platformContext.Response.StatusCode = 500;
             platformContext.AddError(new Exception());
 
-            using (var module = new TestableExceptionTrackingTelemetryModule(platformContext))
-            {
-                module.Initialize(this.configuration);
-                module.OnError(null);
-            }
-
+            var module = new ExceptionTrackingTelemetryModule();
+            module.Initialize(this.configuration);
+            module.OnError(platformContext);
+            
             Assert.Equal(SeverityLevel.Critical, ((ExceptionTelemetry)this.sendItems[0]).SeverityLevel);
         }
 
         [TestMethod]
         public void OnErrorDoesNotThrowOnNullContext()
         {
-            using (var module = new TestableExceptionTrackingTelemetryModule(null))
-            {
-                module.Initialize(this.configuration);
-                module.OnError(null); // Expected to not throw.
-            }
-        }
+            var module = new ExceptionTrackingTelemetryModule();
 
-        [TestMethod]
-        public void ConstructorSetsOnErrorAsAHanderForEvent3()
-        {
-            var platformContext = HttpModuleHelper.GetFakeHttpContext();
-            platformContext.AddError(new Exception());
-
-            using (var module = new TestableExceptionTrackingTelemetryModule(platformContext))
-            {
-                module.Initialize(this.configuration);
-                WebEventsPublisher.Log.OnError();
-            }
-
-            Assert.Equal(1, this.sendItems.Count);
-        }
-
-        internal class TestableExceptionTrackingTelemetryModule : ExceptionTrackingTelemetryModule
-        {
-            private readonly HttpContext context;
-
-            public TestableExceptionTrackingTelemetryModule(HttpContext context)
-            {
-                this.context = context;
-            }
-
-            protected override HttpContext ResolvePlatformContext()
-            {
-                return this.context;
-            }
+            module.Initialize(this.configuration);
+            module.OnError(null); // is not supposed to throw
         }
     }
 }
