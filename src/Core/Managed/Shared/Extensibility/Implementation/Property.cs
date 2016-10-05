@@ -131,7 +131,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     string sanitizedKey = SanitizeKey(entry.Key);
                     string sanitizedValue = SanitizeValue(entry.Value);
 
-                    if ((string.CompareOrdinal(sanitizedKey, entry.Key) != 0) || (string.CompareOrdinal(sanitizedValue, entry.Value) != 0))
+                    if (string.IsNullOrEmpty(sanitizedValue) || (string.CompareOrdinal(sanitizedKey, entry.Key) != 0) || (string.CompareOrdinal(sanitizedValue, entry.Value) != 0))
                     {
                         sanitizedEntries.Add(entry.Key, new KeyValuePair<string, string>(sanitizedKey, sanitizedValue));
                     }
@@ -140,8 +140,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 foreach (KeyValuePair<string, KeyValuePair<string, string>> entry in sanitizedEntries)
                 {
                     dictionary.Remove(entry.Key);
-                    string uniqueKey = MakeKeyUnique(entry.Value.Key, dictionary);
-                    dictionary.Add(uniqueKey, entry.Value.Value);
+
+                    if (!string.IsNullOrEmpty(entry.Value.Value))
+                    {
+                        string uniqueKey = MakeKeyUnique(entry.Value.Key, dictionary);
+                        dictionary.Add(uniqueKey, entry.Value.Value);
+                    }
                 }
             }
         }

@@ -148,7 +148,7 @@
         [TestMethod]
         public void SanitizePropertiesReplacesEmptyStringWithEmptyWordToEnsurePropertyValueWillBeSerializedWithoutExceptions()
         {
-            var dictionary = new Dictionary<string, string> { { string.Empty, string.Empty } };
+            var dictionary = new Dictionary<string, string> { { string.Empty, "value" } };
             dictionary.SanitizeProperties();
             Assert.Equal("required", dictionary.Single().Key);
         }
