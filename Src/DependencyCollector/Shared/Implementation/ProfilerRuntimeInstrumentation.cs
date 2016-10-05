@@ -123,13 +123,13 @@
             ////    null,
             ////    isStatic: false);
             //// Instead of Decorating public methods we have to use private one that may change signature from one framework to the other: 
-
+             
             // Read comment above. Decorate BeginExecuteNonQueryAsync, 2 param (+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteNonQueryAsync",
-                sqlCallbacks.OnBeginForTwoParameters,
+                sqlCallbacks.OnBeginForThreeParameters,
                 null,
                 null,
                 isStatic: false);
@@ -140,8 +140,8 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync",
                 null,
-                sqlCallbacks.OnEndForOneParameter,
-                sqlCallbacks.OnExceptionForOneParameter,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
                 isStatic: false);
 
             //// ___ ExecuteReader ___ ////
@@ -222,7 +222,7 @@
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteReaderAsync",
-                sqlCallbacks.OnBeginForThreeParameters,
+                sqlCallbacks.OnBeginForFourParameters,
                 null,
                 null,
                 isStatic: false);
@@ -234,8 +234,8 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteReaderAsync",
                 null,
-                sqlCallbacks.OnEndForOneParameter,
-                sqlCallbacks.OnExceptionForOneParameter,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
                 isStatic: false);
 
             //// ___ ExecuteScalar ___ ////
@@ -298,7 +298,7 @@
                 "System.Data",
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReaderAsync",
-                sqlCallbacks.OnBeginForTwoParameters,
+                sqlCallbacks.OnBeginForThreeParameters,
                 null,
                 null,
                 isStatic: false);
@@ -310,8 +310,8 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.EndExecuteXmlReaderAsync",
                 null,
-                sqlCallbacks.OnEndForOneParameter,
-                sqlCallbacks.OnExceptionForOneParameter,
+                sqlCallbacks.OnEndForTwoParameters,
+                sqlCallbacks.OnExceptionForTwoParameters,
                 isStatic: false);
         }
     }
