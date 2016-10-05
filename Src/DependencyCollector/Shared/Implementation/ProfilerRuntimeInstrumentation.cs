@@ -122,6 +122,27 @@
             ////    null,
             ////    null,
             ////    isStatic: false);
+            //// Instead of Decorating public methods we have to use private one that may change signature from one framework to the other: 
+
+            // Read comment above. Decorate BeginExecuteNonQueryAsync, 2 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteNonQueryAsync",
+                sqlCallbacks.OnBeginForTwoParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Read comment above. Decorate EndExecuteNonQueryAsync, 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync",
+                null,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
+                isStatic: false);
 
             //// ___ ExecuteReader ___ ////
 
@@ -195,6 +216,28 @@
                 sqlCallbacks.OnExceptionForThreeParameters,
                 isStatic: false);
 
+            // Should be replaced with public method when InstrumentationEngine supports Tasks. 
+            // Decorate BeginExecuteReaderAsync, 3 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteReaderAsync",
+                sqlCallbacks.OnBeginForThreeParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Should be replaced with public method when InstrumentationEngine supports Tasks.
+            // Decorate EndExecuteReaderAsync, 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteReaderAsync",
+                null,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
+                isStatic: false);
+
             //// ___ ExecuteScalar ___ ////
 
             // Decorate Sql ExecuteScalar, 0 params(+this)
@@ -229,7 +272,7 @@
                 null,
                 isStatic: false);
 
-            // Decorates Sql EndExecuteXmlReaderInternal(IAsyncResult), 1 param(+this)
+            // Decorates Sql EndExecuteXmlReader(IAsyncResult), 1 param(+this)
             Functions.Decorate(
                 "System.Data",
                 "System.Data.dll",
@@ -245,6 +288,28 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlCommand.ExecuteXmlReader",
                 sqlCallbacks.OnBeginForOneParameter,
+                sqlCallbacks.OnEndForOneParameter,
+                sqlCallbacks.OnExceptionForOneParameter,
+                isStatic: false);
+
+            // Should be replaced with public method when InstrumentationEngine supports Tasks. 
+            // Decorate BeginExecuteXmlReaderAsync, 2 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.BeginExecuteXmlReaderAsync",
+                sqlCallbacks.OnBeginForTwoParameters,
+                null,
+                null,
+                isStatic: false);
+
+            // Should be replaced with public method when InstrumentationEngine supports Tasks.
+            // Decorate EndExecuteXmlReaderAsync, 1 param (+this)
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlCommand.EndExecuteXmlReaderAsync",
+                null,
                 sqlCallbacks.OnEndForOneParameter,
                 sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
