@@ -112,8 +112,8 @@
                 isStatic: false);
 
             // Decorate Sql ExecuteNonQueryAsync(CancellationToken)
-            // Only latest instrumentation engine supports Tasks so we need to uncomment this code and add funcs when StatusMonitor is out
-            // + Decorate in the same way ExecuteReader, ExecuteXmlReader and ExecuteScalar
+            // TODO - abaranch 10/6/16 - Only latest instrumentation engine supports Tasks so we need to uncomment this code and add funcs when StatusMonitor is out
+            // + Decorate in the same way ExecuteReader, ExecuteXmlReader and ExecuteScalar and remove 2 decorations below
             ////Functions.Decorate(
             ////    "System.Data",
             ////    "System.Data.dll",

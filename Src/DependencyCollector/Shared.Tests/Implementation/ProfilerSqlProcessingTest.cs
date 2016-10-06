@@ -58,7 +58,7 @@
         }
 
         [TestMethod]
-        public void OnBeginSavesTelemetryInWeakTable1()
+        public void OnBeginSavesTelemetryInWeakTable_1ArgumentOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             this.sqlProcessingProfiler.OnBeginForOneParameter(command);
@@ -72,7 +72,7 @@
         }
 
         [TestMethod]
-        public void OnBeginSavesTelemetryInWeakTable2()
+        public void OnBeginSavesTelemetryInWeakTable_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
@@ -86,7 +86,7 @@
         }
 
         [TestMethod]
-        public void OnBeginSavesTelemetryInWeakTable3()
+        public void OnBeginSavesTelemetryInWeakTable_3ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             this.sqlProcessingProfiler.OnBeginForThreeParameters(command, null, null);
@@ -100,7 +100,7 @@
         }
 
         [TestMethod]
-        public void OnBeginSavesTelemetryInWeakTable4()
+        public void OnBeginSavesTelemetryInWeakTable_4ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             this.sqlProcessingProfiler.OnBeginForFourParameters(command, null, null, null);
@@ -114,7 +114,7 @@
         }
 
         [TestMethod]
-        public void OnEndSendsCorrectTelemetry1()
+        public void OnEndSendsCorrectTelemetry_1ArgumentOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             var returnObjectPassed = new object();
@@ -137,7 +137,7 @@
         }
 
         [TestMethod]
-        public void OnEndSendsCorrectTelemetry2()
+        public void OnEndSendsCorrectTelemetry_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             var returnObjectPassed = new object();
@@ -160,7 +160,7 @@
         }
 
         [TestMethod]
-        public void OnEndSendsCorrectTelemetry3()
+        public void OnEndSendsCorrectTelemetry_3ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
             var returnObjectPassed = new object();
@@ -183,7 +183,7 @@
         }
         
         [TestMethod]
-        public void OnExceptionSendsCorrectTelemetry1()
+        public void OnExceptionSendsCorrectTelemetry_1ArgumentOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
 
@@ -206,7 +206,7 @@
         }
 
         [TestMethod]
-        public void OnExceptionSendsCorrectTelemetry2()
+        public void OnExceptionSendsCorrectTelemetry_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
 
@@ -230,7 +230,7 @@
         }
 
         [TestMethod]
-        public void OnExceptionSendsCorrectTelemetry3()
+        public void OnExceptionSendsCorrectTelemetry_3ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
 
