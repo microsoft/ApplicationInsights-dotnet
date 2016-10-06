@@ -139,7 +139,7 @@
             12,
             Keywords = Keywords.RddEventKeywords,
             Message = "End callback - cannot find start of operation for id = '{0}'",
-            Level = EventLevel.Verbose)]
+            Level = EventLevel.Warning)]
         public void EndCallbackWithNoBegin(string id, string appDomainName = "Incorrect")
         {
             this.WriteEvent(12, id, this.ApplicationName);

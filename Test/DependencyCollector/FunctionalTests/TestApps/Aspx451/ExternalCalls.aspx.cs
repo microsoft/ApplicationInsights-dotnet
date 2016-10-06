@@ -134,8 +134,17 @@
                     case "TestExecuteReaderTwice":
                         SqlCommandHelper.TestExecuteReaderTwice(ConnectionString, sqlQueryTouse);
                         break;
-                    case "BeginExecuteReader":
-                        SqlCommandHelper.BeginExecuteReader(ConnectionString, sqlQueryTouse);
+                    case "BeginExecuteReader0":
+                        SqlCommandHelper.BeginExecuteReader(ConnectionString, sqlQueryTouse, 0);
+                        break;
+                    case "BeginExecuteReader1":
+                        SqlCommandHelper.BeginExecuteReader(ConnectionString, sqlQueryTouse, 1);
+                        break;
+                    case "BeginExecuteReader2":
+                        SqlCommandHelper.BeginExecuteReader(ConnectionString, sqlQueryTouse, 2);
+                        break;
+                    case "BeginExecuteReader3":
+                        SqlCommandHelper.BeginExecuteReader(ConnectionString, sqlQueryTouse, 3);
                         break;
                     case "TestExecuteReaderTwiceInSequence":
                         SqlCommandHelper.TestExecuteReaderTwiceInSequence(ConnectionString, sqlQueryTouse);
@@ -146,8 +155,11 @@
                     case "ExecuteNonQueryAsync":
                         SqlCommandHelper.ExecuteNonQueryAsync(ConnectionString, sqlQueryTouse);
                         break;
-                    case "BeginExecuteNonQuery":
-                        SqlCommandHelper.BeginExecuteNonQuery(ConnectionString, sqlQueryTouse);
+                    case "BeginExecuteNonQuery0":
+                        SqlCommandHelper.BeginExecuteNonQuery(ConnectionString, sqlQueryTouse, 0);
+                        break;
+                    case "BeginExecuteNonQuery2":
+                        SqlCommandHelper.BeginExecuteNonQuery(ConnectionString, sqlQueryTouse, 2);
                         break;
                     case "ExecuteXmlReaderAsync":
                         sqlQueryTouse += " FOR XML AUTO";
@@ -168,8 +180,11 @@
                                : InvalidSqlQueryToApmDatabase;
                         SqlCommandHelper.ExecuteNonQuery(ConnectionString, sqlQueryTouse);
                         break;
-                    case "SqlCommandExecuteReader":
-                        SqlCommandHelper.ExecuteReader(ConnectionString, sqlQueryTouse);
+                    case "SqlCommandExecuteReader0":
+                        SqlCommandHelper.ExecuteReader(ConnectionString, sqlQueryTouse, 0);
+                        break;
+                    case "SqlCommandExecuteReader1":
+                        SqlCommandHelper.ExecuteReader(ConnectionString, sqlQueryTouse, 1);
                         break;
                     case "SqlCommandExecuteXmlReader":
                         sqlQueryTouse += " FOR XML AUTO";
