@@ -430,6 +430,22 @@
         }
 
         [TestMethod]
+        public void ChannelIsInitializedInTrackWhenTelemetryConfigurationIsConstructedViaCtor()
+        {
+            TelemetryConfiguration configuration = new TelemetryConfiguration
+            {
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
+
+            var client = new TelemetryClient(configuration);
+            Assert.Null(configuration.TelemetryChannel);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotNull(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
         public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
         {
             ITelemetry sentTelemetry = null;
