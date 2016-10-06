@@ -62,7 +62,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ContextTagKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Tags.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IClock.cs" />
