@@ -940,6 +940,17 @@
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
         }
 
+        [TestMethod]
+        public void SerailizeRemovesEmptyPropertiesAndProducesValidJson()
+        {
+            var telemetryIn = new ExceptionTelemetry(new ApplicationException());
+            telemetryIn.Properties.Add("MyKey", null);
+
+            string json = JsonSerializer.SerializeAsString(telemetryIn);
+            ExceptionTelemetry telemetryOut = Newtonsoft.Json.JsonConvert.DeserializeObject<ExceptionTelemetry>(json);
+            Assert.Equal(0, telemetryOut.Properties.Count);
+        }
+
         #endregion
 
         private TelemetryClient InitializeTelemetryClient(ICollection<ITelemetry> sentTelemetry)
