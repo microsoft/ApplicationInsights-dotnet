@@ -817,16 +817,6 @@
         }
 
         [TestMethod]
-        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
-        {
-            var config = new TelemetryConfiguration();
-            config.InstrumentationKey = "Foo";
-            var client = new TelemetryClient(config);
-
-            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
-        }
-
-        [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {
             // split version by 4 numbers manually so we do not do the same as in the product code and actually test it

@@ -37,12 +37,6 @@
         /// </summary>
         public void Process(ITelemetry item)
         {
-            if (this.configuration.TelemetryChannel == null)
-            {
-                throw new InvalidOperationException(
-                    "Telemetry channel should be configured for telemetry configuration before tracking telemetry.");
-            }
-
             TelemetryDebugWriter.WriteTelemetry(item);
 
             this.configuration.TelemetryChannel.Send(item);
