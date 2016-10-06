@@ -51,14 +51,6 @@
         }
 
         [TestMethod]
-        public void TransmissionProcessorProcessThrowsWhenChannelIsNull()
-        {
-
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = null };
-            Assert.Throws<InvalidOperationException>(() => new TransmissionProcessor(configuration).Process(new StubTelemetry()));
-        }
-
-        [TestMethod]
         public void TransmissionProcessorStartsChannelSanitizationAfterDebugOutputSanitization()
         {
             var debugOutput = new StubDebugOutput
