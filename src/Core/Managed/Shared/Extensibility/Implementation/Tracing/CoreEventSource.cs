@@ -140,9 +140,9 @@
 
         [Event(
             11,
-            Message = "Invalid duration for Request Telemetry. Setting it to '00:00:00'.",
+            Message = "Invalid duration for Telemetry. Setting it to '00:00:00'.",
             Level = EventLevel.Warning)]
-        public void RequestTelemetryIncorrectDuration(string appDomainName = "Incorrect")
+        public void TelemetryIncorrectDuration(string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, this.nameProvider.Name);
         }

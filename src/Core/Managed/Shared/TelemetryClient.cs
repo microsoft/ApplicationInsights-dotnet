@@ -413,7 +413,7 @@
 
             if (telemetry.Timestamp == default(DateTimeOffset))
             {
-                telemetry.Timestamp = Clock.Instance.Time;
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
             // Currenly backend requires SDK version to comply "name: version"
