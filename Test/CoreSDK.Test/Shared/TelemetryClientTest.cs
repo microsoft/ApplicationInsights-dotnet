@@ -430,6 +430,22 @@
         }
 
         [TestMethod]
+        public void ChannelIsInitializedInTrackWhenTelemetryConfigurationIsConstructedViaCtor()
+        {
+            TelemetryConfiguration configuration = new TelemetryConfiguration
+            {
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
+
+            var client = new TelemetryClient(configuration);
+            Assert.Null(configuration.TelemetryChannel);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotNull(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
         public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
         {
             ITelemetry sentTelemetry = null;
@@ -798,16 +814,6 @@
             client.Track(new StubTelemetry());
 
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
-        }
-
-        [TestMethod]
-        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
-        {
-            var config = new TelemetryConfiguration();
-            config.InstrumentationKey = "Foo";
-            var client = new TelemetryClient(config);
-
-            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
         }
 
         [TestMethod]

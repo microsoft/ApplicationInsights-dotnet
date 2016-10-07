@@ -351,6 +351,12 @@
                     return;
                 }
 
+                // If someone created configuration from scratch and forgot to initialize channel - use default
+                if (this.configuration.TelemetryChannel == null)
+                {
+                    this.configuration.TelemetryChannel = new InMemoryChannel();
+                }
+
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
