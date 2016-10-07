@@ -51,6 +51,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         #region BeginEndCallBacks
 
+        [TestMethod]
+        public void OnBeginDoesNotThrowForIncorrectUrl()
+        {
+            this.httpProcessingFramework.OnBeginHttpCallback(100, "BadUrl"); // Should not throw
+        }
+
         /// <summary>
         /// Validates HttpProcessingFramework returns correct operation for OnBeginHttpCallback.
         /// </summary>

@@ -54,16 +54,19 @@
                     return;
                 }
 
-                var url = new Uri(resourceName);
-
-                if (url == null)
+                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(resourceName))
                 {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(id, "OnBeginHttp", "resourceName is not a URL");
                     return;
                 }
 
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(resourceName))
+                Uri url;
+                try
                 {
+                    url = new Uri(resourceName);
+                }
+                catch (UriFormatException)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(id, "OnBeginHttp", "resourceName is not a URL " + resourceName);
                     return;
                 }
 
