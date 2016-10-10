@@ -117,6 +117,7 @@
     </Compile>
     <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
     <Compile Include="Extensibility\Implementation\TelemetryConfigurationFactory.cs" />
+    <Compile Include="TaskEx.cs" />
     <Compile Include="TimeSpanEx.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

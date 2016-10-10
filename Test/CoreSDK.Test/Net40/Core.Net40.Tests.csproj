@@ -73,6 +73,7 @@
     </Compile>
     <Compile Include="FailOnAssertSetup.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />
+    <Compile Include="TaskExTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Core\Managed\Net40\Core.Net40.csproj">
