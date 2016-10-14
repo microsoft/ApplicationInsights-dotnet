@@ -151,6 +151,7 @@
                     if (lastInaccessibleFileName != file.Name)
                     {
                         lastInaccessibleFileName = file.Name;
+                        Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                         continue; // Because another thread is loading this file right now.
                     }
                     else
@@ -163,7 +164,7 @@
                 }
                 catch (IOException ioe)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionFailedToStoreWarning(file.Name, ioe.ToString());
+                    TelemetryChannelEventSource.Log.TransmissionStorageDequeueIOError(file.Name, ioe.ToString());
                     Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                     continue; // It may be because another thread already loaded this file, we don't know yet.
                 }

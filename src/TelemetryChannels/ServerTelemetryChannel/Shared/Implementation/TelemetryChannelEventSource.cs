@@ -429,7 +429,7 @@
             this.WriteEvent(60, fileName, exception, this.ApplicationName);
         }
 
-        [Event(61, Message = "Repeatedly inaccessible transmission storage file: {0}.", Level = EventLevel.Warning)]
+        [Event(61, Keywords = Keywords.UserActionable, Message = "Repeatedly inaccessible transmission storage file: {0}.", Level = EventLevel.Warning)]
         public void TransmissionStorageInaccessibleFile(string fileName, string appDomainName = "Incorrect")
         {
             this.WriteEvent(61, fileName, this.ApplicationName);
