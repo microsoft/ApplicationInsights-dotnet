@@ -2,13 +2,12 @@
 {
     using System;
     using System.IO;
-    using OsFile = System.IO.FileInfo;
 
     internal class PlatformFile : IPlatformFile
     {
-        private readonly OsFile file;
+        private readonly FileInfo file;
 
-        public PlatformFile(OsFile file)
+        public PlatformFile(FileInfo file)
         {
             if (file == null)
             {
@@ -36,6 +35,11 @@
         public DateTimeOffset DateCreated
         {
             get { return this.file.CreationTime; }
+        }
+
+        public bool Exists
+        {
+            get { return this.file.Exists; }
         }
 
         public void Delete()

@@ -417,6 +417,24 @@
             this.WriteEvent(58, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
+        [Event(59, Message = "Error dequeuing file: {0}. Exception: {1}.", Level = EventLevel.Error)]
+        public void TransmissionStorageDequeueIOError(string fileName, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(59, fileName, exception, this.ApplicationName);
+        }
+
+        [Event(60, Message = "Unauthorized access dequeuing file: {0}. Exception: {1}.", Level = EventLevel.Warning)]
+        public void TransmissionStorageDequeueUnauthorizedAccessException(string fileName, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(60, fileName, exception, this.ApplicationName);
+        }
+
+        [Event(61, Message = "Repeatedly inaccessible transmission storage file: {0}.", Level = EventLevel.Warning)]
+        public void TransmissionStorageInaccessibleFile(string fileName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(61, fileName, this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;

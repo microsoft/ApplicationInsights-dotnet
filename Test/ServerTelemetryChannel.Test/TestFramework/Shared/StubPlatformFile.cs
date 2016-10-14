@@ -70,6 +70,11 @@
             get { return this.OnGetDateCreated(); }
         }
 
+        public bool Exists
+        {
+            get { return true; }
+        }
+
         public void Delete()
         {
             this.OnDelete();

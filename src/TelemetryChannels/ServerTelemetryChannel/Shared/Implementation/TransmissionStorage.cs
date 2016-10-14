@@ -25,6 +25,7 @@
         private long capacity = DefaultCapacityKiloBytes * 1024;
         private long size;
         private bool sizeCalculated;
+        private Random random = new Random();
 
         public TransmissionStorage()
         {
@@ -92,7 +93,7 @@
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    // expected because the process may have lost permission to access the folder or the files in it
+                    // Expected because the process may have lost permission to access the folder or the files in it.
                     TelemetryChannelEventSource.Log.UnauthorizedAccessExceptionOnTransmissionSaveWarning(transmission.Id, e.Message);
                 }
                 catch (Exception exp)
@@ -128,7 +129,7 @@
                     file = this.GetOldestTransmissionFileOrNull();
                     if (file == null)
                     {
-                        return null; // because there are no more transmission files
+                        return null; // Because there are no more transmission files.
                     }
 
                     long fileSize;
@@ -139,24 +140,32 @@
                         return transmission;
                     }
                 }
-                catch (UnauthorizedAccessException)
+                catch (UnauthorizedAccessException uae)
                 {
+                    TelemetryChannelEventSource.Log.TransmissionStorageDequeueUnauthorizedAccessException(file?.Name ?? string.Empty, uae.ToString());
                     if (file == null)
                     {
-                        return null; // because the process does not have permission to access the folder
+                        return null; // Because the process does not have permission to access the folder.
                     }
 
                     if (lastInaccessibleFileName != file.Name)
                     {
                         lastInaccessibleFileName = file.Name;
-                        continue; // because another thread is loading this file right now
+                        continue; // Because another thread is loading this file right now.
+                    }
+                    else
+                    {
+                        // The same file has been inaccessible more than once.
+                        TelemetryChannelEventSource.Log.TransmissionStorageInaccessibleFile(file.Name);
                     }
 
-                    throw; // because the process does not have permission to modify this file
+                    throw; // Because the process does not have permission to modify this file.
                 }
-                catch (IOException)
+                catch (IOException ioe)
                 {
-                    continue; // because another thread already loaded this file
+                    TelemetryChannelEventSource.Log.TransmissionFailedToStoreWarning(file.Name, ioe.ToString());
+                    Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
+                    continue; // It may be because another thread already loaded this file, we don't know yet.
                 }
             }
         }
@@ -169,9 +178,18 @@
 
         private static Transmission LoadFromTransmissionFile(IPlatformFile file, out long fileSize)
         {
-            ChangeFileExtension(file, TemporaryFileExtension);
-            Transmission transmission = LoadFromTemporaryFile(file, out fileSize);
-            file.Delete();
+            Transmission transmission = null;
+            if (file.Exists)
+            {
+                ChangeFileExtension(file, TemporaryFileExtension);
+                transmission = LoadFromTemporaryFile(file, out fileSize);
+                file.Delete();
+            }
+            else
+            {
+                fileSize = 0;
+            }
+
             return transmission;
         }
 
@@ -272,7 +290,7 @@
                                 }
                                 catch (FileNotFoundException)
                                 {
-                                    continue; // because another thread already dequeued this transmission file
+                                    continue; // Because another thread already dequeued this transmission file.
                                 }
                             }
 

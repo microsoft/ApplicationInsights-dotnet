@@ -4,13 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using OSFolder = System.IO.DirectoryInfo;
 
     internal class PlatformFolder : IPlatformFolder
     {
-        private readonly OSFolder folder;
+        private readonly DirectoryInfo folder;
 
-        public PlatformFolder(OSFolder folder)
+        public PlatformFolder(DirectoryInfo folder)
         {
             if (folder == null)
             {
@@ -20,7 +19,7 @@
             this.folder = folder;
         }
 
-        internal OSFolder Folder
+        internal DirectoryInfo Folder
         {
             get { return this.folder; }
         }
@@ -65,7 +64,7 @@
             var fileInfo = new FileInfo(Path.Combine(this.folder.FullName, fileName));
             if (fileInfo.Exists)
             {
-                throw new IOException();
+                throw new IOException("Cannot create file '" + fileName + "' because it already exists.");
             }
 
             using (fileInfo.Create())

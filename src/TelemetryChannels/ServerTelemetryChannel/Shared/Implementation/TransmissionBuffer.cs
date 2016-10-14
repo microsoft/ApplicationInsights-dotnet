@@ -99,7 +99,7 @@
             // Dequeue attempt means that there is available sender. 
             // If buffer is empty and we return null we want to start moving from storage to buffer -> so event in any case
             this.OnTransmissionDequeued(new TransmissionProcessedEventArgs(dequeudTransmission));
-            
+
             return dequeudTransmission;
         }
 
