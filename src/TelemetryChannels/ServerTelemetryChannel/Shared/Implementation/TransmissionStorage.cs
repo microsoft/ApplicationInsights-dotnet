@@ -179,16 +179,21 @@
 
         private static Transmission LoadFromTransmissionFile(IPlatformFile file, out long fileSize)
         {
+            fileSize = 0;
             Transmission transmission = null;
             if (file.Exists)
             {
-                ChangeFileExtension(file, TemporaryFileExtension);
-                transmission = LoadFromTemporaryFile(file, out fileSize);
+                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2))
+                {
+                    ChangeFileExtension(file, TemporaryFileExtension);
+                    transmission = LoadFromTemporaryFile(file, out fileSize);
+                }
+                else
+                {
+                    TelemetryChannelEventSource.Log.TransmissionStorageFileExpired(file.Name, file.DateCreated.ToString());
+                }
+
                 file.Delete();
-            }
-            else
-            {
-                fileSize = 0;
             }
 
             return transmission;
@@ -214,7 +219,7 @@
 
         private static void ChangeFileExtension(IPlatformFile file, string extension)
         {
-            string transmissionFileName = GetUniqueFileName(extension);
+            string transmissionFileName = Path.ChangeExtension(file.Name, extension);
             file.Rename(transmissionFileName);
         }
 

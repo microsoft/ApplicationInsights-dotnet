@@ -435,6 +435,16 @@
             this.WriteEvent(61, fileName, this.ApplicationName);
         }
 
+        [Event(
+            62,
+            Keywords = Keywords.Diagnostics,
+            Message = "Transmission storage file '{0}' has expired and been deleted.  It was created on {1}.",
+            Level = EventLevel.Warning)]
+        public void TransmissionStorageFileExpired(string fileName, string created, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(62, fileName, created, this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;
