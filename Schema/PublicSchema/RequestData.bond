@@ -25,6 +25,10 @@ struct RequestData
     70: required bool 	 success;
     
     [MaxStringLength("1024")]
+    [Description("Source of the request. Examples are the instrumentation key of the caller or the ip address of the caller.")]
+    29: string 	 source;
+    
+    [MaxStringLength("1024")]
     [Description("Name of the request. Represents code path taken to process request. Low cardinality value to allow better grouping of requests. For HTTP requests it represents the HTTP method and URL path template like 'GET /values/{id}'.")]
     30: string 	 name;
     
