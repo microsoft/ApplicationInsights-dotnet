@@ -47,6 +47,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
+        public string source { get; set; }
+
+        
+        
+        
         public string name { get; set; }
 
         
@@ -87,6 +92,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         {
             ver = 2;
             id = "";
+            source = "";
             this.name = "";
             duration = "";
             responseCode = "";
