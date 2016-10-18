@@ -84,7 +84,7 @@
                 using (var cancellationTokenSource = new CancellationTokenSource())
                 {
                     var taskStarted = new AutoResetEvent(false);
-                    TaskEx.Run(() =>
+                    Task.Run(() =>
                     {
                         taskStarted.Set();
                         while (!cancellationTokenSource.IsCancellationRequested)

@@ -140,6 +140,7 @@
             get; private set;
         }
 
+#if !NET40
         /// <summary>
         /// Gets the number of telemetry items in the transmission
         /// </summary>
@@ -169,16 +170,17 @@
                     return null;
                 }
 #else
-                Task timeoutTask = TaskEx.Delay(this.Timeout);
-
                 WebRequest request = this.CreateRequest(this.EndpointAddress);
-                Task<HttpWebResponseWrapper> sendTask = this.SendRequestAsync(request);
-                                
-                Task completedTask = await TaskEx.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);
-                if (completedTask == timeoutTask)
+                Task<HttpWebResponseWrapper> sendTask = this.GetResponseAsync(request);
+                Task timeoutTask = Task.Delay(this.Timeout).ContinueWith(task =>
                 {
-                    request.Abort(); // And force the sendTask to throw WebException.
-                }
+                    if (!sendTask.IsCompleted)
+                    {
+                        request.Abort(); // And force the sendTask to throw WebException.
+                    }
+                });
+
+                Task completedTask = await Task.WhenAny(timeoutTask, sendTask).ConfigureAwait(false);
 
                 // Observe any exceptions the sendTask may have thrown and propagate them to the caller.
                 HttpWebResponseWrapper responseContent = await sendTask.ConfigureAwait(false);
@@ -189,7 +191,47 @@
             {
                 Interlocked.Exchange(ref this.isSending, 0);
             }
+    }
+
+#else // !NET40
+        /// <summary>
+        /// Executes the request that the current transmission represents.
+        /// </summary>
+        /// <returns>The task to await.</returns>
+        public virtual Task<HttpWebResponseWrapper> SendAsync()
+        {
+            if (Interlocked.CompareExchange(ref this.isSending, 1, 0) != 0)
+            {
+                throw new InvalidOperationException("SendAsync is already in progress.");
+            }
+
+            try
+            {
+                WebRequest request = this.CreateRequest(this.EndpointAddress);
+                Task<HttpWebResponseWrapper> sendTask = this.GetResponseAsync(request);
+                Task timeoutTask = TaskEx.Delay(this.Timeout).ContinueWith(task =>
+                {
+                    if (!sendTask.IsCompleted)
+                    {
+                        request.Abort(); // And force the sendTask to throw WebException.
+                    }
+                });
+
+                return TaskEx.WhenAny(timeoutTask, sendTask).ContinueWith(
+                    task =>
+                    {
+                        Interlocked.Exchange(ref this.isSending, 0);
+                        return sendTask;
+                    },
+                    TaskContinuationOptions.ExecuteSynchronously).Unwrap();
+            }
+            catch (Exception)
+            {
+                Interlocked.Exchange(ref this.isSending, 0);
+                throw;
+            }
         }
+#endif // !NET40
 
         /// <summary>
         /// Splits the Transmission object into two pieces using a method 
@@ -336,7 +378,39 @@
             return request;
         }
 
-        private async Task<HttpWebResponseWrapper> SendRequestAsync(WebRequest request)
+#if NET40
+        private Task<HttpWebResponseWrapper> GetResponseAsync(WebRequest request)
+        {
+            return Task.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, null)
+                .ContinueWith(
+                    getRequestStreamTask =>
+                    {
+                        Stream requestStream = getRequestStreamTask.Result;
+                        return Task.Factory.FromAsync(
+                            (callback, o) => requestStream.BeginWrite(Content, 0, Content.Length, callback, o),
+                            requestStream.EndWrite, 
+                            null).ContinueWith(
+                                writeTask =>
+                                {
+                                    requestStream.Dispose();
+                                    writeTask.RethrowIfFaulted();
+                                });
+                    }).Unwrap().ContinueWith(requestTask =>
+                    {
+                        requestTask.RethrowIfFaulted();
+                        return Task.Factory.FromAsync(
+                            request.BeginGetResponse, request.EndGetResponse, null);
+                    }).Unwrap().ContinueWith(responseTask =>
+                    {
+                        using (WebResponse response = responseTask.Result)
+                        {
+                            return CheckResponse(response);
+                        }
+                    });
+        }
+#else // NET40
+
+        private async Task<HttpWebResponseWrapper> GetResponseAsync(WebRequest request)
         {
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
             {
@@ -345,35 +419,41 @@
 
             using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
             {
-                HttpWebResponseWrapper wrapper = null;
-                
-                var httpResponse = response as HttpWebResponse;
-                if (httpResponse != null)
+                return this.CheckResponse(response);
+            }
+        }
+#endif
+
+        private HttpWebResponseWrapper CheckResponse(WebResponse response)
+        {
+            HttpWebResponseWrapper wrapper = null;
+
+            var httpResponse = response as HttpWebResponse;
+            if (httpResponse != null)
+            {
+                // Return content only for 206 for performance reasons
+                // Currently we do not need it in other cases
+                if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
                 {
-                    // Return content only for 206 for performance reasons
-                    // Currently we do not need it in other cases
-                    if (httpResponse.StatusCode == HttpStatusCode.PartialContent)
+                    wrapper = new HttpWebResponseWrapper
                     {
-                        wrapper = new HttpWebResponseWrapper
-                        {
-                            StatusCode = (int)httpResponse.StatusCode,
-                            StatusDescription = httpResponse.StatusDescription
-                        };
+                        StatusCode = (int)httpResponse.StatusCode,
+                        StatusDescription = httpResponse.StatusDescription
+                    };
 
-                        if (httpResponse.Headers != null)
-                        {
-                            wrapper.RetryAfterHeader = httpResponse.Headers["Retry-After"];
-                        }
+                    if (httpResponse.Headers != null)
+                    {
+                        wrapper.RetryAfterHeader = httpResponse.Headers["Retry-After"];
+                    }
 
-                        using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
-                        {
-                            wrapper.Content = content.ReadToEnd();
-                        }
+                    using (StreamReader content = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        wrapper.Content = content.ReadToEnd();
                     }
                 }
-
-                return wrapper;
             }
+
+            return wrapper;
         }
     }
 }

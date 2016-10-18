@@ -11,7 +11,7 @@
     internal class StubPlatformFile : IPlatformFile
     {
         public Func<string> OnGetName;
-        public Func<DateTimeOffset> OnGetDateCreated = () => DateTimeOffset.MinValue;
+        public Func<DateTimeOffset> OnGetDateCreated = () => DateTimeOffset.Now;
         public Func<long> OnGetLength;
         public Action OnDelete = () => { };
         public Func<Stream> OnOpen;
@@ -68,6 +68,11 @@
         public DateTimeOffset DateCreated
         {
             get { return this.OnGetDateCreated(); }
+        }
+
+        public bool Exists
+        {
+            get { return true; }
         }
 
         public void Delete()

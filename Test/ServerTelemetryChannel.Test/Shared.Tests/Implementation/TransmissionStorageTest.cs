@@ -529,7 +529,7 @@
 
                 var oldestAddress = new Uri("http://oldest");
                 StubPlatformFile oldestFile = CreateTransmissionFile(oldestAddress);
-                oldestFile.OnGetDateCreated = () => DateTimeOffset.MinValue;
+                oldestFile.OnGetDateCreated = () => DateTimeOffset.Now.AddDays(-1); // Create file newer than the 2 day old limit.
 
                 var folder = CreateFolder(newestFile, oldestFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
@@ -654,7 +654,7 @@
                 Assert.NotNull(dequeued);
             }
 
-            [TestMethod, Timeout(50)]
+            [TestMethod, Timeout(150)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
                 StubPlatformFile inaccessibleFile = CreateFile("InaccessibleFile.trn");
@@ -714,6 +714,25 @@
                 Transmission result = storage.Dequeue();
 
                 Assert.Null(result);
+            }
+
+            [TestMethod]
+            public void DeletesStoredFilesOlderThanTwoDays()
+            {
+                var files = new List<IPlatformFile>();
+
+                StubPlatformFile oldFile = CreateTransmissionFile();
+                oldFile.OnGetDateCreated = () => DateTimeOffset.Now.AddHours(-49);
+                oldFile.OnDelete = () => files.Remove(oldFile);
+                files.Add(oldFile);
+                var folder = new StubPlatformFolder { OnGetFiles = () => files };
+                var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
+                var storage = new TransmissionStorage();
+                storage.Initialize(provider);
+
+                Transmission dequeued = storage.Dequeue();
+
+                Assert.Null(dequeued);
             }
         }
     }
