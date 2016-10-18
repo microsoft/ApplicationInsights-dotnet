@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -232,6 +233,43 @@
                 Assert.Same(sender, eventSender);
                 Assert.Same(transmission, eventArgs.Transmission);
                 Assert.Same(wrapper, eventArgs.Response);
+            }
+
+            [TestMethod]
+            public void IsRaisedWhenTransmissionIsThrottledLocally()
+            {
+                var sender = new TransmissionSender();
+
+                var eventIsRaised = new ManualResetEventSlim();
+                var firedCount = 0;
+                var eventArgs = new List<Implementation.TransmissionProcessedEventArgs>();
+                sender.TransmissionSent += (s, a) =>
+                {
+                    firedCount++;
+                    eventArgs.Add(a);
+                    if (firedCount == 2)
+                    {
+                        eventIsRaised.Set();
+                    }
+                };
+
+                var telemetryItems = new List<ITelemetry>();
+                for (var i=0; i<sender.ThrottleLimit + 10; i++)
+                {
+                    telemetryItems.Add(new DataContracts.MetricTelemetry());
+                }
+
+                var wrapper = new HttpWebResponseWrapper();
+                Transmission transmission = new StubTransmission(telemetryItems) { OnSend = () => wrapper };
+                sender.Enqueue(() => transmission);
+
+                Assert.True(eventIsRaised.Wait(50));
+                Assert.Equal(2, firedCount);
+                Assert.Equal(429, eventArgs[0].Response.StatusCode);
+                Assert.Equal("Internally Throttled", eventArgs[0].Response.StatusDescription);
+                Assert.Same(wrapper, eventArgs[1].Response);
+                Assert.Equal(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
+                Assert.Equal(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
             }
         }
     }

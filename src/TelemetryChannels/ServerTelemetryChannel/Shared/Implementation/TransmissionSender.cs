@@ -228,96 +228,17 @@
                 return transmission;
             }
 
-            Transmission acceptedTransmission = transmission;
-            Transmission rejectedTransmission = null;
             int attemptedItemsCount = -1;
             int acceptedItemsCount = -1;
+            var transmissions = transmission.Split((transmissionLength) => {
+                attemptedItemsCount = transmissionLength;
+                acceptedItemsCount = this.IsTransmissionSendable(transmissionLength);
+                return acceptedItemsCount;
+            });
 
-            // We can be more efficient if we have a copy of the telemetry items still
-            if (transmission.TelemetryItems != null)
-            {
-                // We don't need to deserialize, we have a copy of each telemetry item
-                attemptedItemsCount = transmission.TelemetryItems.Count;
-                acceptedItemsCount = this.IsTransmissionSendable(transmission.TelemetryItems.Count);
-                if (acceptedItemsCount != transmission.TelemetryItems.Count)
-                {
-                    List<ITelemetry> acceptedItems = new List<ITelemetry>();
-                    List<ITelemetry> rejectedItems = new List<ITelemetry>();
-                    var i = 0;
-                    foreach (var item in transmission.TelemetryItems)
-                    {
-                        if (i < acceptedItemsCount)
-                        {
-                            acceptedItems.Add(item);
-                        }
-                        else
-                        {
-                            rejectedItems.Add(item);
-                        }
-                        i++;
-                    }
-
-                    acceptedTransmission = new Transmission(
-                        transmission.EndpointAddress,
-                        JsonSerializer.Serialize(acceptedItems),
-                        "application-x-json-stream",
-                        JsonSerializer.CompressionType);
-                    rejectedTransmission = new Transmission(
-                        transmission.EndpointAddress,
-                        JsonSerializer.Serialize(rejectedItems),
-                        "application-x-json-stream",
-                        JsonSerializer.CompressionType);
-                }
-            }
-            else
-            {
-                // We have to decode the payload in order to throttle
-                var compress = transmission.ContentEncoding == JsonSerializer.CompressionType;
-                string[] payloadItems = JsonSerializer
-                    .Deserialize(transmission.Content, compress)
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                attemptedItemsCount = payloadItems.Length;
-                acceptedItemsCount = this.IsTransmissionSendable(payloadItems.Length);
-
-                if (acceptedItemsCount != payloadItems.Length)
-                {
-                    string acceptedItems = "";
-                    string rejectedItems = "";
-
-                    for (int i = 0; i < payloadItems.Length; i++)
-                    {
-                        if (i < acceptedItemsCount)
-                        {
-                            if (!string.IsNullOrEmpty(acceptedItems))
-                            {
-                                acceptedItems += Environment.NewLine;
-                            }
-                            acceptedItems += payloadItems[i];
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(rejectedItems))
-                            {
-                                rejectedItems += Environment.NewLine;
-                            }
-                            rejectedItems += payloadItems[i];
-                        }
-                    }
-
-                    acceptedTransmission = new Transmission(
-                        transmission.EndpointAddress,
-                        JsonSerializer.ConvertToByteArray(acceptedItems, compress),
-                        "application-x-json-stream",
-                        transmission.ContentEncoding);
-                    rejectedTransmission = new Transmission(
-                        transmission.EndpointAddress,
-                        JsonSerializer.ConvertToByteArray(rejectedItems, compress),
-                        "application-x-json-stream",
-                        transmission.ContentEncoding);
-                }
-            }
-
+            Transmission acceptedTransmission = transmissions.Item1;
+            Transmission rejectedTransmission = transmissions.Item2;
+            
             // Send rejected payload back for retry
             if (rejectedTransmission != null)
             {

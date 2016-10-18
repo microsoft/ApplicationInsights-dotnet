@@ -63,8 +63,7 @@
                 throw new ArgumentException("One or more telemetry item is expected", "items");
             }
 
-            string encoding = JsonSerializer.CompressionType;
-            var transmission = new Transmission(this.endpointAddress, items, "application/x-json-stream", encoding);
+            var transmission = new Transmission(this.endpointAddress, items);
             this.transmitter.Enqueue(transmission);
         }
     }

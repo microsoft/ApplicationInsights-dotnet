@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -26,6 +27,11 @@
         {
         }
 
+        public StubTransmission(ICollection<ITelemetry> telemetry)
+            : base(new Uri("any://uri"), telemetry)
+        {
+        }
+
         public Task SaveAsync(Stream stream)
         {
             return TaskEx.Run(() => this.OnSave(stream));
@@ -34,6 +40,54 @@
         public override Task<HttpWebResponseWrapper> SendAsync()
         {
             return TaskEx.Run(this.OnSend);
+        }
+
+        public override Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
+        {
+            var ret = base.Split(calculateLength);
+
+            return Tuple.Create((Transmission)this.Convert(ret.Item1), (Transmission)this.Convert(ret.Item2));
+        }
+
+        private StubTransmission Convert(Transmission transmission)
+        {
+            if (transmission != null)
+            {
+                if (transmission.TelemetryItems == null)
+                {
+                    transmission = new StubTransmission(transmission.Content)
+                    {
+                        OnSave = this.OnSave,
+                        OnSend = this.OnSend,
+                    };
+                }
+                else
+                {
+                    transmission = new StubTransmission(transmission.TelemetryItems)
+                    {
+                        OnSave = this.OnSave,
+                        OnSend = this.OnSend,
+                    };
+                }
+            }
+
+            return (StubTransmission)transmission;
+        }
+
+        public int CountOfItems()
+        {
+            if (this.TelemetryItems != null)
+            {
+                return this.TelemetryItems.Count;
+            }
+            else
+            {
+                var compress = this.ContentEncoding == JsonSerializer.CompressionType;
+                string[] payloadItems = JsonSerializer
+                    .Deserialize(this.Content, compress)
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                return payloadItems.Length;
+            }
         }
     }
 }

@@ -66,8 +66,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
-        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan)) 
-            : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan)) 
+            : this(address, JsonSerializer.Serialize(telemetryItems, true), "application-x-json-stream", JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
         }
@@ -189,6 +189,100 @@
             {
                 Interlocked.Exchange(ref this.isSending, 0);
             }
+        }
+
+        /// <summary>
+        /// Splits the Transmission object into two pieces using a method 
+        /// to determine the length of the first piece based off of the length of the transmission
+        /// </summary>
+        /// <returns>
+        /// A tuple with the first item being a Transmission object with n ITelemetry objects
+        /// and the second item being a Transmission object with the remaining ITelemetry objects
+        /// </returns>
+        public virtual Tuple<Transmission, Transmission> Split(Func<int,int> calculateLength)
+        {
+            Transmission transmissionA = this;
+            Transmission transmissionB = null;
+
+            // We can be more efficient if we have a copy of the telemetry items still
+            if (this.TelemetryItems != null)
+            {
+                // We don't need to deserialize, we have a copy of each telemetry item
+                var numItems = calculateLength(this.TelemetryItems.Count);
+                if (numItems != this.TelemetryItems.Count)
+                {
+                    List<ITelemetry> itemsA = new List<ITelemetry>();
+                    List<ITelemetry> itemsB = new List<ITelemetry>();
+                    var i = 0;
+                    foreach (var item in this.TelemetryItems)
+                    {
+                        if (i < numItems)
+                        {
+                            itemsA.Add(item);
+                        }
+                        else
+                        {
+                            itemsB.Add(item);
+                        }
+                        i++;
+                    }
+
+                    transmissionA = new Transmission(
+                        this.EndpointAddress,
+                        itemsA);
+                    transmissionB = new Transmission(
+                        this.EndpointAddress,
+                        itemsB);
+                }
+            }
+            else
+            {
+                // We have to decode the payload in order to split
+                var compress = this.ContentEncoding == JsonSerializer.CompressionType;
+                string[] payloadItems = JsonSerializer
+                    .Deserialize(this.Content, compress)
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var numItems = calculateLength(payloadItems.Length);
+
+                if (numItems != payloadItems.Length)
+                {
+                    string itemsA = "";
+                    string itemsB = "";
+
+                    for (int i = 0; i < payloadItems.Length; i++)
+                    {
+                        if (i < numItems)
+                        {
+                            if (!string.IsNullOrEmpty(itemsA))
+                            {
+                                itemsA += Environment.NewLine;
+                            }
+                            itemsA += payloadItems[i];
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(itemsB))
+                            {
+                                itemsB += Environment.NewLine;
+                            }
+                            itemsB += payloadItems[i];
+                        }
+                    }
+
+                    transmissionA = new Transmission(
+                        this.EndpointAddress,
+                        JsonSerializer.ConvertToByteArray(itemsA, compress),
+                        "application-x-json-stream",
+                        this.ContentEncoding);
+                    transmissionB = new Transmission(
+                        this.EndpointAddress,
+                        JsonSerializer.ConvertToByteArray(itemsB, compress),
+                        "application-x-json-stream",
+                        this.ContentEncoding);
+                }
+            }
+
+            return Tuple.Create(transmissionA, transmissionB);
         }
 
 #if CORE_PCL
