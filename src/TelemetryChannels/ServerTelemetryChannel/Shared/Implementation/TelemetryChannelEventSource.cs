@@ -417,6 +417,40 @@
             this.WriteEvent(58, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
+        [Event(59, Message = "Error dequeuing file: {0}. Exception: {1}.", Level = EventLevel.Warning)]
+        public void TransmissionStorageDequeueIOError(string fileName, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(59, fileName, exception, this.ApplicationName);
+        }
+
+        [Event(60, Message = "Unauthorized access dequeuing file, folder not accessible: {0}. Exception: {1}.", Level = EventLevel.Error)]
+        public void TransmissionStorageDequeueUnauthorizedAccessException(string fileName, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(60, fileName, exception, this.ApplicationName);
+        }
+
+        [Event(61, Keywords = Keywords.UserActionable, Message = "Inaccessible transmission storage file: {0}.", Level = EventLevel.Error)]
+        public void TransmissionStorageInaccessibleFile(string fileName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(61, fileName, this.ApplicationName);
+        }
+
+        [Event(
+            62,
+            Keywords = Keywords.Diagnostics,
+            Message = "Transmission storage file '{0}' has expired and been deleted.  It was created on {1}.",
+            Level = EventLevel.Warning)]
+        public void TransmissionStorageFileExpired(string fileName, string created, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(62, fileName, created, this.ApplicationName);
+        }
+
+        [Event(63, Keywords = Keywords.UserActionable, Message = "Unexpected retry of known bad transmission storage file: {0}.", Level = EventLevel.Error)]
+        public void TransmissionStorageUnexpectedRetryOfBadFile(string fileName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(63, fileName, this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;

@@ -12,7 +12,9 @@
         long Length { get; }
 
         DateTimeOffset DateCreated { get; }
-        
+
+        bool Exists { get; }
+
         void Delete();
 
         void Rename(string newName);

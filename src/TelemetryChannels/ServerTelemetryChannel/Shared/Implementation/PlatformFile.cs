@@ -2,13 +2,12 @@
 {
     using System;
     using System.IO;
-    using OsFile = System.IO.FileInfo;
 
     internal class PlatformFile : IPlatformFile
     {
-        private readonly OsFile file;
+        private readonly FileInfo file;
 
-        public PlatformFile(OsFile file)
+        public PlatformFile(FileInfo file)
         {
             if (file == null)
             {
@@ -38,6 +37,11 @@
             get { return this.file.CreationTime; }
         }
 
+        public bool Exists
+        {
+            get { return this.file.Exists; }
+        }
+
         public void Delete()
         {
             if (!File.Exists(this.file.FullName))
@@ -59,6 +63,11 @@
             if (string.IsNullOrWhiteSpace(newName))
             {
                 throw new ArgumentException("fileName");
+            }
+
+            if (!File.Exists(this.file.FullName))
+            {
+                throw new FileNotFoundException("Could not find the file to rename.", this.file.Name);
             }
 
             this.file.MoveTo(Path.Combine(this.file.DirectoryName, newName));
