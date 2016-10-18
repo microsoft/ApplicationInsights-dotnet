@@ -529,7 +529,7 @@
 
                 var oldestAddress = new Uri("http://oldest");
                 StubPlatformFile oldestFile = CreateTransmissionFile(oldestAddress);
-                oldestFile.OnGetDateCreated = () => DateTimeOffset.Now.AddDays(-1);
+                oldestFile.OnGetDateCreated = () => DateTimeOffset.Now.AddDays(-1); // Create file newer than the 2 day old limit.
 
                 var folder = CreateFolder(newestFile, oldestFile);
                 var provider = new StubApplicationFolderProvider { OnGetApplicationFolder = () => folder };
