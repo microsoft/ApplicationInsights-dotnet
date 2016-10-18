@@ -140,7 +140,6 @@
             get; private set;
         }
 
-#if !NET40
         /// <summary>
         /// Gets the number of telemetry items in the transmission
         /// </summary>
@@ -149,6 +148,7 @@
             get; private set;
         }
 
+#if !NET40
         /// <summary>
         /// Executes the request that the current transmission represents.
         /// </summary>
