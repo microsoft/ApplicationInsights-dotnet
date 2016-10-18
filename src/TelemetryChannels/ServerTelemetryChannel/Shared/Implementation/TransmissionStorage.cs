@@ -18,9 +18,10 @@
         internal const string TransmissionFileExtension = ".trn";
         internal const int DefaultCapacityKiloBytes = 50 * 1024;
 
+        private readonly ConcurrentDictionary<string, string> badFiles;
         private readonly ConcurrentQueue<IPlatformFile> files;
         private readonly object loadFilesLock;
-        
+
         private IPlatformFolder folder;
         private long capacity = DefaultCapacityKiloBytes * 1024;
         private long size;
@@ -30,6 +31,7 @@
         public TransmissionStorage()
         {
             this.files = new ConcurrentQueue<IPlatformFile>();
+            this.badFiles = new ConcurrentDictionary<string, string>();
             this.loadFilesLock = new object();
             this.sizeCalculated = false;
         }
@@ -73,7 +75,7 @@
             }
 
             this.EnsureSizeIsCalculated();
-            
+
             if (this.size < this.Capacity)
             {
                 var transmission = transmissionGetter();
@@ -118,8 +120,6 @@
             }
 
             this.EnsureSizeIsCalculated();
-            
-            string lastInaccessibleFileName = null;
 
             while (true)
             {
@@ -142,28 +142,29 @@
                 }
                 catch (UnauthorizedAccessException uae)
                 {
-                    TelemetryChannelEventSource.Log.TransmissionStorageDequeueUnauthorizedAccessException(file?.Name ?? string.Empty, uae.ToString());
                     if (file == null)
                     {
+                        TelemetryChannelEventSource.Log.TransmissionStorageDequeueUnauthorizedAccessException(this.folder.Name, uae.ToString());
                         return null; // Because the process does not have permission to access the folder.
                     }
 
-                    if (lastInaccessibleFileName != file.Name)
+                    string name = file.Name;
+                    if (this.badFiles.TryAdd(name, null))
                     {
-                        lastInaccessibleFileName = file.Name;
-                        Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
-                        continue; // Because another thread is loading this file right now.
+                        TelemetryChannelEventSource.Log.TransmissionStorageInaccessibleFile(name);
                     }
                     else
                     {
-                        // The same file has been inaccessible more than once.
-                        TelemetryChannelEventSource.Log.TransmissionStorageInaccessibleFile(file.Name);
+                        // The same file has been inaccessible more than once because the process does not have permission to modify this file.
+                        TelemetryChannelEventSource.Log.TransmissionStorageUnexpectedRetryOfBadFile(name);
                     }
 
-                    throw; // Because the process does not have permission to modify this file.
+                    Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                 }
                 catch (IOException ioe)
                 {
+                    // This exception can happen when one thread runs out of files to process and reloads the list while another
+                    // thread is still processing a file and has not deleted it yet thus allowing it to get in the list again.
                     TelemetryChannelEventSource.Log.TransmissionStorageDequeueIOError(file.Name, ioe.ToString());
                     Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                     continue; // It may be because another thread already loaded this file, we don't know yet.
@@ -241,7 +242,7 @@
         private IEnumerable<IPlatformFile> GetTransmissionFiles()
         {
             IEnumerable<IPlatformFile> newFiles = this.folder.GetFiles();
-            newFiles = newFiles.Where(f => f.Extension == TransmissionFileExtension);
+            newFiles = newFiles.Where(f => f.Extension == TransmissionFileExtension && !this.badFiles.ContainsKey(f.Name));
             return newFiles;
         }
 

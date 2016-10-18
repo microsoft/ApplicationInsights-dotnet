@@ -65,6 +65,11 @@
                 throw new ArgumentException("fileName");
             }
 
+            if (!File.Exists(this.file.FullName))
+            {
+                throw new FileNotFoundException("Could not find the file to rename.", this.file.Name);
+            }
+
             this.file.MoveTo(Path.Combine(this.file.DirectoryName, newName));
         }
 

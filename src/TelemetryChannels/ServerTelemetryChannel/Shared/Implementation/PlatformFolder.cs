@@ -19,6 +19,11 @@
             this.folder = folder;
         }
 
+        public string Name
+        {
+            get { return this.folder.Name; }
+        }
+
         internal DirectoryInfo Folder
         {
             get { return this.folder; }
