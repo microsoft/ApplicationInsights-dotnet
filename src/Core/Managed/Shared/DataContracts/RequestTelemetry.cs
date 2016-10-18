@@ -191,7 +191,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller 
+        /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
         /// </summary>
         public string Source
         {
