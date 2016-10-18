@@ -418,7 +418,7 @@
         }
 
         [Event(59, Message = "Transmission locally throttled. Throttle Limit: {0}. Attempted: {1}. Accepted: {2}. ", Level = EventLevel.Warning)]
-        public void TransmissionThrottledWarning(int limit, int attempted, int accepted)
+        public void TransmissionThrottledWarning(int limit, int attempted, int accepted, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 59,
