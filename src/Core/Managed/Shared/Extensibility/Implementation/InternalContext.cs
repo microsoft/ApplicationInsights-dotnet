@@ -38,7 +38,7 @@
         }
 
         /// <summary>
-        /// Node name for the billing purposes. Use this filed to override the standard way node names got detected.
+        /// Gets or sets node name for the billing purposes. Use this filed to override the standard way node names got detected.
         /// </summary>
         public string NodeName
         {
