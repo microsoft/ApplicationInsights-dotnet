@@ -57,12 +57,25 @@
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.TelemetryItems = null;
 #if CORE_PCL
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif
         }
 
-        internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan)) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class.
+        /// </summary>
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan)) 
+            : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
+        {
+            this.TelemetryItems = telemetryItems;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
+        /// </summary>
+        internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
         {
         }
@@ -123,6 +136,14 @@
         /// Gets an id of the transmission.
         /// </summary>
         public string Id
+        {
+            get; private set;
+        }
+
+        /// <summary>
+        /// Gets the number of telemetry items in the transmission
+        /// </summary>
+        public ICollection<ITelemetry> TelemetryItems
         {
             get; private set;
         }
@@ -242,6 +263,7 @@
                         wrapper = new HttpWebResponseWrapper
                         {
                             StatusCode = (int)httpResponse.StatusCode,
+                            StatusDescription = httpResponse.StatusDescription
                         };
 
                         if (httpResponse.Headers != null)

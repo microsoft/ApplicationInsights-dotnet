@@ -417,6 +417,17 @@
             this.WriteEvent(58, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
+        [Event(59, Message = "Transmission locally throttled. Throttle Limit: {0}. Attempted: {1}. Accepted: {2}. ", Level = EventLevel.Warning)]
+        public void TransmissionThrottledWarning(int limit, int attempted, int accepted)
+        {
+            this.WriteEvent(
+                59,
+                limit.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                attempted.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                accepted.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;
