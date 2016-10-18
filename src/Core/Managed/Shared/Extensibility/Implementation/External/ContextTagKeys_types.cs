@@ -151,6 +151,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         public string InternalAgentVersion { get; set; }
 
+        
+        
+        
+        public string InternalNodeName { get; set; }
+
         public ContextTagKeys()
             : this("AI.ContextTagKeys", "ContextTagKeys")
         {}
@@ -180,6 +185,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             CloudRoleInstance = "ai.cloud.roleInstance";
             InternalSdkVersion = "ai.internal.sdkVersion";
             InternalAgentVersion = "ai.internal.agentVersion";
+            InternalNodeName = "ai.internal.nodeName";
         }
     }
 } // AI

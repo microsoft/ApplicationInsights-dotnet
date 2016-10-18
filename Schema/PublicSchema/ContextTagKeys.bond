@@ -98,4 +98,8 @@ struct ContextTagKeys
     [MaxStringLength("64")]
     1001: string 	 InternalAgentVersion = "ai.internal.agentVersion";
     
+    [Description("This is the node name used for billing purposes. Use it to override the standard detection of nodes.")]
+    [MaxStringLength("256")]
+    1002: string 	 InternalNodeName = "ai.internal.nodeName";
+    
 }

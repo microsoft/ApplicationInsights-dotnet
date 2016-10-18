@@ -36,5 +36,14 @@
             get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalAgentVersion); }
             set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalAgentVersion, value); }
         }
+
+        /// <summary>
+        /// Node name for the billing purposes. Use this filed to override the standard way node names got detected.
+        /// </summary>
+        public string NodeName
+        {
+            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalNodeName); }
+            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalNodeName, value); }
+        }
     }
 }
