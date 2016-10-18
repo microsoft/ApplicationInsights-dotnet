@@ -12,7 +12,7 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class TransmissionStorage
+    internal class TransmissionStorage : IDisposable
     {
         internal const string TemporaryFileExtension = ".tmp";
         internal const string TransmissionFileExtension = ".trn";
@@ -27,11 +27,14 @@
         private long size;
         private bool sizeCalculated;
         private Random random = new Random();
+        private Timer clearBadFiles;
 
         public TransmissionStorage()
         {
             this.files = new ConcurrentQueue<IPlatformFile>();
             this.badFiles = new ConcurrentDictionary<string, string>();
+            TimeSpan ClearBadFilesInterval = new TimeSpan(29, 0, 0); // Arbitrarily aligns with IIS restart policy of 29 hours in case IIS isn't restarted.
+            this.clearBadFiles = new Timer((o) => this.badFiles.Clear(), null, ClearBadFilesInterval, ClearBadFilesInterval);
             this.loadFilesLock = new object();
             this.sizeCalculated = false;
         }
@@ -54,6 +57,15 @@
                 }
 
                 this.capacity = value;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (this.clearBadFiles != null)
+            {
+                this.clearBadFiles.Dispose();
+                this.clearBadFiles = null;
             }
         }
 
@@ -184,7 +196,7 @@
             Transmission transmission = null;
             if (file.Exists)
             {
-                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2))
+                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) // The injestion service rejects anything older than 2 days.
                 {
                     ChangeFileExtension(file, TemporaryFileExtension);
                     transmission = LoadFromTemporaryFile(file, out fileSize);
@@ -242,7 +254,7 @@
         private IEnumerable<IPlatformFile> GetTransmissionFiles()
         {
             IEnumerable<IPlatformFile> newFiles = this.folder.GetFiles();
-            newFiles = newFiles.Where(f => f.Extension == TransmissionFileExtension && !this.badFiles.ContainsKey(f.Name));
+            newFiles = newFiles.Where(f => f.Extension == TransmissionFileExtension);
             return newFiles;
         }
 
@@ -266,8 +278,13 @@
                 {
                     if (this.files.Count == 0)
                     {
-                        IEnumerable<IPlatformFile> newFiles = this.GetTransmissionFiles();
-                        foreach (IPlatformFile file in newFiles.OrderBy(f => f.DateCreated))
+                        // Sleep a tiny bit before (re)loading the list so that any other thread still processing
+                        // a file has time to finish and delete it so that it does not get re-added to the new list.
+                        Thread.Sleep(50);
+
+                        // Exclude known bad files and then sort the collection by file creation date.
+                        IEnumerable <IPlatformFile> newFiles = this.GetTransmissionFiles();
+                        foreach (IPlatformFile file in newFiles.Where(f => !this.badFiles.ContainsKey(f.Name)).OrderBy(f => f.DateCreated))
                         {
                             this.files.Enqueue(file);
                         }

@@ -302,6 +302,11 @@
                 {
                     this.backoffLogicManager.Dispose();
                 }
+
+                if (this.Storage != null)
+                {
+                    this.Storage.Dispose();
+                }
             }            
         }
     }

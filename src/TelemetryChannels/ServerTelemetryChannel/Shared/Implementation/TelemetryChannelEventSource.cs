@@ -417,7 +417,7 @@
             this.WriteEvent(58, statusCode, currentDelayInSeconds, this.ApplicationName);
         }
 
-        [Event(59, Message = "Error dequeuing file: {0}. Exception: {1}.", Level = EventLevel.Error)]
+        [Event(59, Message = "Error dequeuing file: {0}. Exception: {1}.", Level = EventLevel.Warning)]
         public void TransmissionStorageDequeueIOError(string fileName, string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(59, fileName, exception, this.ApplicationName);
