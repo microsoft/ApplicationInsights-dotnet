@@ -46,6 +46,11 @@
         {
             var ret = base.Split(calculateLength);
 
+            if (ret.Item2 == null)
+            {
+                return Tuple.Create((Transmission)this, (Transmission) null);
+            }
+
             return Tuple.Create((Transmission)this.Convert(ret.Item1), (Transmission)this.Convert(ret.Item2));
         }
 

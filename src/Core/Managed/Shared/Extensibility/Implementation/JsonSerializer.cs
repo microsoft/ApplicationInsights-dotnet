@@ -89,7 +89,7 @@
         {
             var memoryStream = new MemoryStream(telemetryItemsData);
             
-            using (Stream decompressedStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+            using (Stream decompressedStream = compress ? (Stream)new GZipStream(memoryStream, CompressionMode.Decompress) : memoryStream)
             {
                 using (MemoryStream str = new MemoryStream())
                 {

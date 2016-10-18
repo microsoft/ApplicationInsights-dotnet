@@ -67,7 +67,7 @@
         /// Initializes a new instance of the <see cref="Transmission"/> class.
         /// </summary>
         public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan)) 
-            : this(address, JsonSerializer.Serialize(telemetryItems, true), "application-x-json-stream", JsonSerializer.CompressionType, timeout)
+            : this(address, JsonSerializer.Serialize(telemetryItems, true), "application/x-json-stream", JsonSerializer.CompressionType, timeout)
         {
             this.TelemetryItems = telemetryItems;
         }
@@ -272,12 +272,12 @@
                     transmissionA = new Transmission(
                         this.EndpointAddress,
                         JsonSerializer.ConvertToByteArray(itemsA, compress),
-                        "application-x-json-stream",
+                        "application/x-json-stream",
                         this.ContentEncoding);
                     transmissionB = new Transmission(
                         this.EndpointAddress,
                         JsonSerializer.ConvertToByteArray(itemsB, compress),
-                        "application-x-json-stream",
+                        "application/x-json-stream",
                         this.ContentEncoding);
                 }
             }
