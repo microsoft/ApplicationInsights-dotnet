@@ -55,6 +55,24 @@
                     httpDependency.Type = RemoteDependencyConstants.AzureQueue;
                     httpDependency.Name = verb + account + '/' + container;
                 }
+                else if (httpDependency.Name.EndsWith(".svc", StringComparison.OrdinalIgnoreCase))
+                {
+                    httpDependency.Type = RemoteDependencyConstants.WcfService;
+                }
+                else if (httpDependency.Name.EndsWith(".asmx", StringComparison.OrdinalIgnoreCase))
+                {
+                    httpDependency.Type = RemoteDependencyConstants.WebService;
+                }
+                else if (httpDependency.Name.IndexOf(".svc/", StringComparison.OrdinalIgnoreCase) != -1)
+                {
+                    httpDependency.Type = RemoteDependencyConstants.WcfService;
+                    httpDependency.Name = httpDependency.Name.Substring(0, httpDependency.Name.IndexOf(".svc/", StringComparison.OrdinalIgnoreCase) + ".svc".Length);
+                }
+                else if (httpDependency.Name.IndexOf(".asmx/", StringComparison.OrdinalIgnoreCase) != -1)
+                {
+                    httpDependency.Type = RemoteDependencyConstants.WebService;
+                    httpDependency.Name = httpDependency.Name.Substring(0, httpDependency.Name.IndexOf(".asmx/", StringComparison.OrdinalIgnoreCase) + ".asmx".Length);
+                }
             }
         }
 
