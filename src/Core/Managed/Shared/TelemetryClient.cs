@@ -226,7 +226,12 @@
         /// </summary>
         public void TrackAggregatedMetric(AggregatedMetricTelemetry telemetry)
         {
-            throw new NotImplementedException();
+            if (telemetry == null)
+            {
+                telemetry = new AggregatedMetricTelemetry();
+            }
+
+            this.Track(telemetry);
         }
 
         /// <summary>

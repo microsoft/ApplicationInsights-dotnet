@@ -239,6 +239,10 @@
                 result = "Metric";
             }
 #pragma warning restore 618
+            else if (telemetryType == typeof(AggregatedMetricTelemetry))
+            {
+                result = "Metric";
+            }
             else
             {
                 // common logic is to strip out "Telemetry" suffix from the telemetry type

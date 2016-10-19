@@ -91,6 +91,30 @@
 
         #endregion
 
+        #region TrackAggregatedMetric
+
+        [TestMethod]
+        public void TrackAggregatedMetricSendsSpecifiedAggregatedMetricTelemetry()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            client.TrackAggregatedMetric(
+                new AggregatedMetricTelemetry() {
+                    Name = "Test Metric",
+                    Count = 5,
+                    Sum = 40
+                });
+
+            var metric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal("Test Metric", metric.Name);
+            Assert.Equal(5, metric.Count);
+            Assert.Equal(40, metric.Sum);
+        }
+
+        #endregion
+
         #region TrackMetric
 
         [TestMethod]

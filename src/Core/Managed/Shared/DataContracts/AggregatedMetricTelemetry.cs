@@ -29,6 +29,8 @@
             this.Metric = new DataPoint();
             this.Context = new TelemetryContext(this.Data.properties);
 
+            this.Metric.kind = DataPointType.Aggregation;
+
             // We always have a single 'metric'.
             this.Data.metrics.Add(this.Metric);
         }
