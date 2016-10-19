@@ -262,5 +262,58 @@
             Assert.AreEqual(parsedUrl.Host, d.Target, operation);
             Assert.AreEqual(accountName + "/" + queueName, d.Name, operation);
         }
+
+        [TestMethod]
+        public void HttpDependenciesParsingTelemetryInitializerConvertsServices()
+        {
+            var testCases = new List<string[]>()
+            {
+                ////
+                //// copied from https://msdn.microsoft.com/en-us/library/azure/dd179423.aspx 10/19/2016
+                ////
+
+                new string[4] { "PUT", "https://microsoft.com/test.asmx", RemoteDependencyConstants.WebService, "/test.asmx" },
+                new string[4] { "GET", "https://microsoft.com/test.svc", RemoteDependencyConstants.WcfService, "/test.svc" },
+                new string[4] { "POST", "https://microsoft.com/test.asmx/myargument", RemoteDependencyConstants.WebService, "/test.asmx" },
+                new string[4] { "HEAD", "https://microsoft.com/test.svc/myarguments", RemoteDependencyConstants.WcfService, "/test.svc" },
+            };
+
+            foreach (var testCase in testCases)
+            {
+                this.HttpDependenciesParsingTelemetryInitializerConvertsServices(testCase[0], testCase[1], testCase[2], testCase[3]);
+            }
+        }
+
+        private void HttpDependenciesParsingTelemetryInitializerConvertsServices(string verb, string url, string expectedType, string expectedName)
+        {
+            HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
+            Uri parsedUrl = new Uri(url);
+
+            // Parse with verb
+            var d = new DependencyTelemetry(
+                dependencyTypeName: RemoteDependencyConstants.HTTP,
+                target: parsedUrl.Host,
+                dependencyName: verb + " " + parsedUrl.AbsolutePath,
+                data: parsedUrl.OriginalString);
+
+            initializer.Initialize(d);
+
+            Assert.AreEqual(expectedType, d.Type);
+            Assert.AreEqual(parsedUrl.Host, d.Target);
+            Assert.AreEqual(verb + " " + expectedName, d.Name);
+
+            // Parse without verb
+            d = new DependencyTelemetry(
+                dependencyTypeName: RemoteDependencyConstants.HTTP,
+                target: parsedUrl.Host,
+                dependencyName: parsedUrl.AbsolutePath,
+                data: parsedUrl.OriginalString);
+
+            initializer.Initialize(d);
+
+            Assert.AreEqual(expectedType, d.Type);
+            Assert.AreEqual(parsedUrl.Host, d.Target);
+            Assert.AreEqual(expectedName, d.Name);
+        }
     }
 }
