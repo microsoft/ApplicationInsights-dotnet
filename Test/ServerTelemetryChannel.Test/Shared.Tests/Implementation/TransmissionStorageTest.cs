@@ -654,7 +654,7 @@
                 Assert.NotNull(dequeued);
             }
 
-            [TestMethod, Timeout(150)]
+            [TestMethod, Timeout(200)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
                 StubPlatformFile inaccessibleFile = CreateFile("InaccessibleFile.trn");
@@ -664,7 +664,8 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(provider);
 
-                Assert.Throws<UnauthorizedAccessException>(() => storage.Dequeue());
+                Transmission result = storage.Dequeue();
+                Assert.Null(result);
             }
 
             [TestMethod]

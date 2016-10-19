@@ -51,7 +51,7 @@
             }
         }
 
-        public virtual void Serialize(IEnumerable<ITelemetry> items)
+        public virtual void Serialize(ICollection<ITelemetry> items)
         {
             if (items == null)
             {
@@ -63,9 +63,7 @@
                 throw new ArgumentException("One or more telemetry item is expected", "items");
             }
 
-            byte[] content = JsonSerializer.Serialize(items);
-            string encoding = JsonSerializer.CompressionType;
-            var transmission = new Transmission(this.endpointAddress, content, "application/x-json-stream", encoding);
+            var transmission = new Transmission(this.endpointAddress, items);
             this.transmitter.Enqueue(transmission);
         }
     }

@@ -11,6 +11,12 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Type `PerformanceCounterTelemetry` was marked obsolete. Use `MetricTelemetry` instead.
 - Marked `RequestTelemetry.HttpMethod` as obsolete. Put http verb as part of the name for the better grouping by name and use custom properties to report http verb as a dimension.
 - Marked `RequestTelemetry.StartTime` as obsolete. Use `TimeStamp` instead.
+- [Removed BCL dependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/175)
+- [Added IPv6 support](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/316)
+- [Fixed issue #278](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/278)
+- [Fixed issue #271](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/271)
+- [Fixed issue #319](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/319)
+- [Fixed issue #318](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/318)
 
 ## Version 2.2.0-beta2
 
