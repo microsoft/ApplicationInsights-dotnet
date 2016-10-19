@@ -51,7 +51,7 @@
 
         /// <summary>
         /// Enables a limiter on the maximum number of <see cref="ITelemetry"/> objects that can be sent in a given throttle window.
-        /// Items attempted to be sent in excession of the local throttle amount will be treated the same as a backend throttle
+        /// Items attempted to be sent in excession of the local throttle amount will be treated the same as a backend throttle.
         /// </summary>
         public virtual bool ApplyThrottle
         {
@@ -83,7 +83,7 @@
         }
 
         /// <summary>
-        /// Set the size of the self-limiting throttle window in milliseconds
+        /// Set the size of the self-limiting throttle window in milliseconds.
         /// </summary>
         public virtual int ThrottleWindow
         {
@@ -173,7 +173,7 @@
 
                 if (responseContent == null && exception is WebException)
                 {
-                    var response = (HttpWebResponse)((WebException)exception).Response;
+                    HttpWebResponse response = (HttpWebResponse)((WebException)exception).Response;
                     responseContent = new HttpWebResponseWrapper()
                     {
                         StatusCode = (int)response.StatusCode,
@@ -230,7 +230,7 @@
 
             int attemptedItemsCount = -1;
             int acceptedItemsCount = -1;
-            var transmissions = transmission.Split((transmissionLength) => {
+            Tuple<Transmission,Transmission> transmissions = transmission.Split((transmissionLength) => {
                 attemptedItemsCount = transmissionLength;
                 acceptedItemsCount = this.IsTransmissionSendable(transmissionLength);
                 return acceptedItemsCount;
@@ -251,7 +251,7 @@
 
         private void SendTransmissionThrottleRejection(Transmission rejectedTransmission)
         {
-            var exception = new WebException(
+            WebException exception = new WebException(
                 "Transmission was split by local throttling policy",
                 null,
                 System.Net.WebExceptionStatus.Success,

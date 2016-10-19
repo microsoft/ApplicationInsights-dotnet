@@ -44,7 +44,7 @@
 
         public override Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
         {
-            var ret = base.Split(calculateLength);
+            Tuple<Transmission,Transmission> ret = base.Split(calculateLength);
 
             if (ret.Item2 == null)
             {
@@ -87,7 +87,7 @@
             }
             else
             {
-                var compress = this.ContentEncoding == JsonSerializer.CompressionType;
+                bool compress = this.ContentEncoding == JsonSerializer.CompressionType;
                 string[] payloadItems = JsonSerializer
                     .Deserialize(this.Content, compress)
                     .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
