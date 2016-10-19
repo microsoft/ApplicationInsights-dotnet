@@ -172,8 +172,9 @@
         }
 
         /// <summary>
-        /// Enables a limiter on the maximum number of <see cref="ITelemetry"/> objects that can be sent in a given throttle window.
-        /// Items attempted to be sent in excession of the local throttle amount will be treated the same as a backend throttle.
+        /// Gets or sets a value indicating whether a limiter on the maximum number of <see cref="ITelemetry"/> objects 
+        /// that can be sent in a given throttle window is enabled. Items attempted to be sent exceeding of the local 
+        /// throttle amount will be treated the same as a backend throttle.
         /// </summary>
         public bool EnableLocalThrottling
         {
@@ -182,7 +183,7 @@
         }
 
         /// <summary>
-        /// Set the maximum number of items that will be allowed to send in a given throttle window.
+        /// Gets or sets the maximum number of items that will be allowed to send in a given throttle window.
         /// </summary>
         public int LocalThrottleLimit
         {
@@ -191,7 +192,7 @@
         }
 
         /// <summary>
-        /// Set the size of the self-limiting throttle window in milliseconds.
+        /// Gets or sets the size of the self-limiting throttle window in milliseconds.
         /// </summary>
         public int LocalThrottleWindow
         {

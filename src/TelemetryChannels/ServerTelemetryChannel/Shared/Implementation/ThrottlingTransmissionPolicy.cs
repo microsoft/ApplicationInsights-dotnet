@@ -1,11 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Net;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
-    using Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;

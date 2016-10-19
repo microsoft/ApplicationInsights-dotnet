@@ -33,8 +33,8 @@
         {
             this.files = new ConcurrentQueue<IPlatformFile>();
             this.badFiles = new ConcurrentDictionary<string, string>();
-            TimeSpan ClearBadFilesInterval = new TimeSpan(29, 0, 0); // Arbitrarily aligns with IIS restart policy of 29 hours in case IIS isn't restarted.
-            this.clearBadFiles = new Timer((o) => this.badFiles.Clear(), null, ClearBadFilesInterval, ClearBadFilesInterval);
+            TimeSpan clearBadFilesInterval = new TimeSpan(29, 0, 0); // Arbitrarily aligns with IIS restart policy of 29 hours in case IIS isn't restarted.
+            this.clearBadFiles = new Timer((o) => this.badFiles.Clear(), null, clearBadFilesInterval, clearBadFilesInterval);
             this.loadFilesLock = new object();
             this.sizeCalculated = false;
         }
@@ -171,14 +171,14 @@
                         TelemetryChannelEventSource.Log.TransmissionStorageUnexpectedRetryOfBadFile(name);
                     }
 
-                    Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
+                    Thread.Sleep(this.random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                 }
                 catch (IOException ioe)
                 {
                     // This exception can happen when one thread runs out of files to process and reloads the list while another
                     // thread is still processing a file and has not deleted it yet thus allowing it to get in the list again.
                     TelemetryChannelEventSource.Log.TransmissionStorageDequeueIOError(file.Name, ioe.ToString());
-                    Thread.Sleep(random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
+                    Thread.Sleep(this.random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                     continue; // It may be because another thread already loaded this file, we don't know yet.
                 }
             }
@@ -196,8 +196,9 @@
             Transmission transmission = null;
             if (file.Exists)
             {
-                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) // The injestion service rejects anything older than 2 days.
+                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) 
                 {
+                    // The injestion service rejects anything older than 2 days.
                     ChangeFileExtension(file, TemporaryFileExtension);
                     transmission = LoadFromTemporaryFile(file, out fileSize);
                 }
@@ -283,7 +284,7 @@
                         Thread.Sleep(50);
 
                         // Exclude known bad files and then sort the collection by file creation date.
-                        IEnumerable <IPlatformFile> newFiles = this.GetTransmissionFiles();
+                        IEnumerable<IPlatformFile> newFiles = this.GetTransmissionFiles();
                         foreach (IPlatformFile file in newFiles.Where(f => !this.badFiles.ContainsKey(f.Name)).OrderBy(f => f.DateCreated))
                         {
                             this.files.Enqueue(file);
