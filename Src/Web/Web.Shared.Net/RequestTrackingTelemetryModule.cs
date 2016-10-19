@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Web;
 
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
@@ -84,7 +85,43 @@
                 requestTelemetry.Url = context.Request.UnvalidatedGetUrl();
             }
 
+            // If the source header is present on the incoming request, use that to populate the source field.
+            string sourceIkey = HttpContext.Current.Request.Headers[ComponentCorrelationConstants.SourceInstrumentationKeyHeader];
+
+            if (!string.IsNullOrEmpty(sourceIkey))
+            {
+                requestTelemetry.Source = sourceIkey;
+            }
+
             this.telemetryClient.TrackRequest(requestTelemetry);
+        }
+
+        /// <summary>
+        /// Adds target response header response object.
+        /// </summary>
+        public void AddTargetHashForResponseHeader(HttpContext context)
+        {
+            if (this.telemetryClient == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var requestTelemetry = context.GetRequestTelemetry();
+
+            if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+            {
+                // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
+                // and get they instrumentation key from all possible sources in the process. Let's do that now.
+
+                // Todo (nizarq): Revisit this strategy, we are calling a hidden method where in the implemenation it directly says don't call this guy.
+                // Also this means requestTelemetry is getting initialized twice - may be that will cause issues. 
+                this.telemetryClient.Initialize(requestTelemetry);
+            }
+
+            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+            {
+                context.Response.Headers[ComponentCorrelationConstants.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
+            }
         }
 
         /// <summary>

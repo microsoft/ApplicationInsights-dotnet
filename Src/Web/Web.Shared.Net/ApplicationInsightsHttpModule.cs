@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Reflection;
     using System.Web;
-    
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -92,13 +93,41 @@
 
                 this.TraceCallback("OnBegin", httpApplication);
 
+                this.HookOnSendRequestHeaders(httpApplication);
+
                 if (this.requestModule != null)
                 {
                     this.requestModule.OnBeginRequest(httpApplication.Context);
                 }
 
                 // Kept for backcompat. Should be removed in 2.3 SDK
-                WebEventsPublisher.Log.OnBegin();    
+                WebEventsPublisher.Log.OnBegin();
+            }
+        }
+
+        /// <summary>
+        /// When sending the response headers, allow request module to add the IKey's target hash.
+        /// </summary>
+        /// <param name="httpApplication">HttpApplication instance.</param>
+        private void HookOnSendRequestHeaders(HttpApplication httpApplication)
+        {
+            // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
+            MethodInfo addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
+
+            if (addOnSendingHeadersMethod != null)
+            {
+                var parameters = new object[]
+                {
+                    new Action<HttpContext>((httpContext) =>
+                    {
+                        if (this.requestModule != null)
+                        {
+                            this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
+                        }
+                    })
+                };
+
+                addOnSendingHeadersMethod.Invoke(httpApplication.Response, parameters);
             }
         }
 
