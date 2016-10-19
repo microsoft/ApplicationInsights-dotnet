@@ -135,13 +135,6 @@
         [TestMethod]
         public void HttpDependenciesParsingTelemetryInitializerConvertsTables()
         {
-            HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
-            var d = new DependencyTelemetry(RemoteDependencyConstants.HTTP, "tofinthyperion2dets001.blob.core.windows.net", "GET /observations-v01-1410//ecaf8435-5395-434f-b1e2-f06cd5703792/K0000000102-R1623814285-T3804215385-C3804215385/16/2100", "https://tofinthyperion2dets001.blob.core.windows.net/observations-v01-1410//ecaf8435-5395-434f-b1e2-f06cd5703792/K0000000102-R1623814285-T3804215385-C3804215385/16/2100?comp=page&timeout=3");
-            initializer.Initialize(d);
-            Assert.AreEqual(RemoteDependencyConstants.AzureBlob, d.Type);
-            Assert.AreEqual("tofinthyperion2dets001.blob.core.windows.net", d.Target);
-            Assert.AreEqual("GET tofinthyperion2dets001/observations-v01-1410", d.Name);
-
             var testCases = new List<string[]>()
             {
                 ////
@@ -175,7 +168,7 @@
             }
         }
 
-        private void HttpDependenciesParsingTelemetryInitializerConvertsTables(string operation, string verb, string url, string accountName, string container)
+        private void HttpDependenciesParsingTelemetryInitializerConvertsTables(string operation, string verb, string url, string accountName, string tableName)
         {
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
             Uri parsedUrl = new Uri(url);
@@ -191,7 +184,7 @@
 
             Assert.AreEqual(RemoteDependencyConstants.AzureTable, d.Type, operation);
             Assert.AreEqual(parsedUrl.Host, d.Target, operation);
-            Assert.AreEqual(verb + " " + accountName + "/" + container, d.Name, operation);
+            Assert.AreEqual(verb + " " + accountName + "/" + tableName, d.Name, operation);
 
             // Parse without verb
             d = new DependencyTelemetry(
@@ -204,8 +197,70 @@
 
             Assert.AreEqual(RemoteDependencyConstants.AzureTable, d.Type, operation);
             Assert.AreEqual(parsedUrl.Host, d.Target, operation);
-            Assert.AreEqual(accountName + "/" + container, d.Name, operation);
+            Assert.AreEqual(accountName + "/" + tableName, d.Name, operation);
         }
 
+        [TestMethod]
+        public void HttpDependenciesParsingTelemetryInitializerConvertsQueues()
+        {
+            var testCases = new List<string[]>()
+            {
+                ////
+                //// copied from https://msdn.microsoft.com/en-us/library/azure/dd179423.aspx 10/19/2016
+                ////
+
+                new string[5] { "Set Queue Service Properties",     "PUT",      "https://myaccount.queue.core.windows.net/?restype=service&comp=properties",        "myaccount", string.Empty },
+                new string[5] { "Get Queue Service Properties",     "GET",      "https://myaccount.queue.core.windows.net/?restype=service&comp=properties",        "myaccount", string.Empty },
+                new string[5] { "List Queues",                      "GET",      "https://myaccount.queue.core.windows.net?comp=list",                               "myaccount", string.Empty },
+                new string[5] { "Preflight Queue Request",          "OPTIONS",  "http://myaccount.queue.core.windows.net/myqueue",                                  "myaccount", "myqueue" },
+                new string[5] { "Get Queue Service Stats",          "GET",      "https://myaccount-secondary.queue.core.windows.net/?restype=service&comp=stats",   "myaccount-secondary", string.Empty },
+                new string[5] { "Create Queue",                     "PUT",      "https://myaccount.queue.core.windows.net/myqueue",                                 "myaccount", "myqueue" },
+                new string[5] { "Get Queue Metadata",               "GET",      "https://myaccount.queue.core.windows.net/myqueue?comp=metadata",                   "myaccount", "myqueue" },
+                new string[5] { "Get Queue Metadata",               "HEAD",     "https://myaccount.queue.core.windows.net/myqueue?comp=metadata",                   "myaccount", "myqueue" },
+                new string[5] { "Get Queue ACL",                    "GET",      "https://myaccount.queue.core.windows.net/myqueue?comp=acl",                        "myaccount", "myqueue" },
+                new string[5] { "Get Queue ACL",                    "HEAD",     "https://myaccount.queue.core.windows.net/myqueue?comp=acl",                        "myaccount", "myqueue" },
+                new string[5] { "Set Queue ACL",                    "PUT",      "https://myaccount.queue.core.windows.net/myqueue?comp=acl",                        "myaccount", "myqueue" },
+                new string[5] { "Put Message",                      "POST",     "https://myaccount.queue.core.windows.net/myqueue/messages?visibilitytimeout=<int-seconds>&messagettl=<int-seconds>",   "myaccount", "myqueue" },
+                new string[5] { "Delete Message",                   "DELETE",   "https://myaccount.queue.core.windows.net/myqueue/messages/messageid?popreceipt=string-value",                          "myaccount", "myqueue" },
+                new string[5] { "Clear Messages",                   "DELETE",   "https://myaccount.queue.core.windows.net/myqueue/messages",                        "myaccount", "myqueue" },
+            };
+
+            foreach (var testCase in testCases)
+            {
+                this.HttpDependenciesParsingTelemetryInitializerConvertsQueues(testCase[0], testCase[1], testCase[2], testCase[3], testCase[4]);
+            }
+        }
+
+        private void HttpDependenciesParsingTelemetryInitializerConvertsQueues(string operation, string verb, string url, string accountName, string queueName)
+        {
+            HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
+            Uri parsedUrl = new Uri(url);
+
+            // Parse with verb
+            var d = new DependencyTelemetry(
+                dependencyTypeName: RemoteDependencyConstants.HTTP,
+                target: parsedUrl.Host,
+                dependencyName: verb + " " + parsedUrl.AbsolutePath,
+                data: parsedUrl.OriginalString);
+
+            initializer.Initialize(d);
+
+            Assert.AreEqual(RemoteDependencyConstants.AzureQueue, d.Type, operation);
+            Assert.AreEqual(parsedUrl.Host, d.Target, operation);
+            Assert.AreEqual(verb + " " + accountName + "/" + queueName, d.Name, operation);
+
+            // Parse without verb
+            d = new DependencyTelemetry(
+                dependencyTypeName: RemoteDependencyConstants.HTTP,
+                target: parsedUrl.Host,
+                dependencyName: parsedUrl.AbsolutePath,
+                data: parsedUrl.OriginalString);
+
+            initializer.Initialize(d);
+
+            Assert.AreEqual(RemoteDependencyConstants.AzureQueue, d.Type, operation);
+            Assert.AreEqual(parsedUrl.Host, d.Target, operation);
+            Assert.AreEqual(accountName + "/" + queueName, d.Name, operation);
+        }
     }
 }

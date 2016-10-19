@@ -13,6 +13,7 @@
     {
         private readonly string[] azureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
         private readonly string[] azureTableVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE ", "MERGE ", "POST " };
+        private readonly string[] azureQueueVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE ", "POST " };
 
         /// <summary>
         /// If telemetry item is http dependency - converts it to the well-known type of the dependency.
@@ -49,11 +50,11 @@
                     httpDependency.Type = RemoteDependencyConstants.AzureTable;
                     httpDependency.Name = verb + account + '/' + container;
                 }
-
-                ////else if (host.EndsWith("queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
-                ////{
-                ////    httpDependency.Type = RemoteDependencyConstants.AzureQueue;
-                ////}
+                else if (this.TryParseAzureQueue(httpDependency.Target, httpDependency.Name, httpDependency.Data, out account, out verb, out container))
+                {
+                    httpDependency.Type = RemoteDependencyConstants.AzureQueue;
+                    httpDependency.Name = verb + account + '/' + container;
+                }
             }
         }
 
@@ -67,7 +68,7 @@
 
             if (name != null && host != null && url != null)
             {
-                if (host.EndsWith("blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                if (host.EndsWith(".blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
                 {
                     ////
                     //// Blob Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx
@@ -88,9 +89,9 @@
                         }
                     }
 
-                    var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
-                    var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
-                    container = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
+                    var slashPrefixShift = nameWithoutVerb[0] == '/' ? 1 : 0;
+                    var idx = nameWithoutVerb.IndexOf('/', slashPrefixShift); // typically first symbol of the path is '/'
+                    container = idx != -1 ? nameWithoutVerb.Substring(slashPrefixShift, idx - slashPrefixShift) : nameWithoutVerb.Substring(slashPrefixShift);
 
                     result = true;
                 }
@@ -109,10 +110,10 @@
 
             if (name != null && host != null && url != null)
             {
-                if (host.EndsWith("table.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                if (host.EndsWith(".table.core.windows.net", StringComparison.OrdinalIgnoreCase))
                 {
                     ////
-                    //// Table Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd179423.aspx
+                    //// Queue Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd179363.aspx
                     ////
 
                     account = host.Substring(0, host.IndexOf('.'));
@@ -130,11 +131,53 @@
                         }
                     }
 
-                    var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
-                    var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
-                    tableName = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
+                    var slashPrefixShift = nameWithoutVerb[0] == '/' ? 1 : 0;
+                    var idx = nameWithoutVerb.IndexOf('/', slashPrefixShift); // typically first symbol of the path is '/'
+                    tableName = idx != -1 ? nameWithoutVerb.Substring(slashPrefixShift, idx - slashPrefixShift) : nameWithoutVerb.Substring(slashPrefixShift);
                     idx = tableName.IndexOf('(');
                     tableName = idx != -1 ? tableName.Substring(0, idx) : tableName;
+
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        private bool TryParseAzureQueue(string host, string name, string url, out string account, out string verb, out string queueName)
+        {
+            bool result = false;
+
+            account = null;
+            verb = null;
+            queueName = null;
+
+            if (name != null && host != null && url != null)
+            {
+                if (host.EndsWith(".queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
+                {
+                    ////
+                    //// Queue Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd179423.aspx
+                    ////
+
+                    account = host.Substring(0, host.IndexOf('.'));
+
+                    string nameWithoutVerb = name;
+
+                    for (int i = 0; i < this.azureQueueVerbPrefixes.Length; i++)
+                    {
+                        var verbPrefix = this.azureQueueVerbPrefixes[i];
+                        if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            verb = name.Substring(0, verbPrefix.Length);
+                            nameWithoutVerb = name.Substring(verbPrefix.Length);
+                            break;
+                        }
+                    }
+
+                    var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
+                    var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
+                    queueName = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
 
                     result = true;
                 }
