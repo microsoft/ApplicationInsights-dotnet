@@ -48,7 +48,7 @@
             {
                 using (var streamWriter = new StreamWriter(compressedStream, TransmissionEncoding))
                 {
-                    SeializeToStream(telemetryItems, streamWriter);
+                    SerializeToStream(telemetryItems, streamWriter);
                 }
             }
 
@@ -122,7 +122,7 @@
             var stringBuilder = new StringBuilder();
             using (StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture))
             {
-                SeializeToStream(telemetryItems, stringWriter);
+                SerializeToStream(telemetryItems, stringWriter);
                 return stringBuilder.ToString();
             }
         }
@@ -289,7 +289,7 @@
         /// <summary>
         /// Serializes <paramref name="telemetryItems"/> and write the response to <paramref name="streamWriter"/>.
         /// </summary>
-        private static void SeializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
+        private static void SerializeToStream(IEnumerable<ITelemetry> telemetryItems, TextWriter streamWriter)
         {
             JsonWriter jsonWriter = new JsonWriter(streamWriter);
 

@@ -1,7 +1,7 @@
 $generatorPath = "C:\src\mseng\AppInsights-Common"
-$schemasPath = "C:\src\mseng\DataCollectionSchemas"
+$schemasPath = "C:\src\mseng\One-Breeze\PublicSchemas"
 $publicSchemaLocation = "https://raw.githubusercontent.com/Microsoft/ApplicationInsights-Home/master/EndpointSpecs/Schemas/Bond"
-$localPublicSchema = $false
+$localPublicSchema = $true
 
 
 $currentDir = $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
