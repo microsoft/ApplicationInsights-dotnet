@@ -5,8 +5,9 @@
     using System.Net;
     using System.Threading.Tasks;
 
-    using Microsoft.ApplicationInsights.Channel.Implementation;
-    
+    using ApplicationInsights.Channel.Implementation;
+    using Extensibility.Implementation;
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -33,7 +34,7 @@
             var webException = e.Exception as WebException;
             if (webException != null)
             {
-                HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
+                HttpWebResponseWrapper httpWebResponse = e.Response;
                 if (httpWebResponse != null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWebExceptionWarning(
@@ -42,13 +43,13 @@
                         (int)httpWebResponse.StatusCode,
                         httpWebResponse.StatusDescription);
 
-                    this.AdditionalVerboseTracing(httpWebResponse);
+                    this.AdditionalVerboseTracing((HttpWebResponse)webException.Response);
 
                     switch (httpWebResponse.StatusCode)
                     {
-                        case (HttpStatusCode)ResponseStatusCodes.RequestTimeout:
-                        case (HttpStatusCode)ResponseStatusCodes.ServiceUnavailable:
-                        case (HttpStatusCode)ResponseStatusCodes.InternalServerError:
+                        case ResponseStatusCodes.RequestTimeout:
+                        case ResponseStatusCodes.ServiceUnavailable:
+                        case ResponseStatusCodes.InternalServerError:
                             // Disable sending and buffer capacity (Enqueue will enqueue to the Storage)
                             this.MaxSenderCapacity = 0;
                             this.MaxBufferCapacity = 0;
@@ -59,7 +60,7 @@
                             this.Transmitter.Enqueue(e.Transmission);
 
                             this.backoffLogicManager.ScheduleRestore(
-                               httpWebResponse.Headers,
+                               httpWebResponse.RetryAfterHeader,
                                () =>
                                     {
                                         this.MaxBufferCapacity = null;

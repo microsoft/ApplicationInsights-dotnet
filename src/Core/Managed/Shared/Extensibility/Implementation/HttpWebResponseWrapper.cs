@@ -19,5 +19,10 @@
         /// Gets or sets HttpWebResponse Retry-After header value.
         /// </summary>
         public string RetryAfterHeader { get; set; }
+
+        /// <summary>
+        /// Gets or sets HttpWebResponse StatusDescription.
+        /// </summary>
+        public string StatusDescription { get; set; }
     }
 }

@@ -172,6 +172,34 @@
         }
 
         /// <summary>
+        /// Enables a limiter on the maximum number of <see cref="ITelemetry"/> objects that can be sent in a given throttle window.
+        /// Items attempted to be sent in excession of the local throttle amount will be treated the same as a backend throttle.
+        /// </summary>
+        public bool EnableLocalThrottling
+        {
+            get { return this.Transmitter.ApplyThrottle; }
+            set { this.Transmitter.ApplyThrottle = value; }
+        }
+
+        /// <summary>
+        /// Set the maximum number of items that will be allowed to send in a given throttle window.
+        /// </summary>
+        public int LocalThrottleLimit
+        {
+            get { return this.Transmitter.ThrottleLimit; }
+            set { this.Transmitter.ThrottleLimit = value; }
+        }
+
+        /// <summary>
+        /// Set the size of the self-limiting throttle window in milliseconds.
+        /// </summary>
+        public int LocalThrottleWindow
+        {
+            get { return this.Transmitter.ThrottleWindow; }
+            set { this.Transmitter.ThrottleWindow = value; }
+        }
+
+        /// <summary>
         /// Gets or sets first TelemetryProcessor in processor call chain.
         /// </summary>
         internal ITelemetryProcessor TelemetryProcessor

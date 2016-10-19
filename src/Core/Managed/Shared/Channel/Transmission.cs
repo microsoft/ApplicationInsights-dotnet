@@ -57,12 +57,25 @@
             this.ContentEncoding = contentEncoding;
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.TelemetryItems = null;
 #if CORE_PCL
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif
         }
 
-        internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan)) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class.
+        /// </summary>
+        public Transmission(Uri address, ICollection<ITelemetry> telemetryItems, TimeSpan timeout = default(TimeSpan)) 
+            : this(address, JsonSerializer.Serialize(telemetryItems, true), JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout)
+        {
+            this.TelemetryItems = telemetryItems;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Transmission"/> class. This overload is for Test purposes. 
+        /// </summary>
+        internal Transmission(Uri address, IEnumerable<ITelemetry> telemetryItems, string contentType, string contentEncoding, TimeSpan timeout = default(TimeSpan))
             : this(address, JsonSerializer.Serialize(telemetryItems), contentType, contentEncoding, timeout)
         {
         }
@@ -123,6 +136,14 @@
         /// Gets an id of the transmission.
         /// </summary>
         public string Id
+        {
+            get; private set;
+        }
+
+        /// <summary>
+        /// Gets the number of telemetry items in the transmission.
+        /// </summary>
+        public ICollection<ITelemetry> TelemetryItems
         {
             get; private set;
         }
@@ -211,6 +232,115 @@
             }
         }
 #endif // !NET40
+
+        /// <summary>
+        /// Splits the Transmission object into two pieces using a method 
+        /// to determine the length of the first piece based off of the length of the transmission.
+        /// </summary>
+        /// <returns>
+        /// A tuple with the first item being a Transmission object with n ITelemetry objects
+        /// and the second item being a Transmission object with the remaining ITelemetry objects.
+        /// </returns>
+        public virtual Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
+        {
+            Transmission transmissionA = this;
+            Transmission transmissionB = null;
+
+            // We can be more efficient if we have a copy of the telemetry items still
+            if (this.TelemetryItems != null)
+            {
+                // We don't need to deserialize, we have a copy of each telemetry item
+                int numItems = calculateLength(this.TelemetryItems.Count);
+                if (numItems != this.TelemetryItems.Count)
+                {
+                    List<ITelemetry> itemsA = new List<ITelemetry>();
+                    List<ITelemetry> itemsB = new List<ITelemetry>();
+                    var i = 0;
+                    foreach (var item in this.TelemetryItems)
+                    {
+                        if (i < numItems)
+                        {
+                            itemsA.Add(item);
+                        }
+                        else
+                        {
+                            itemsB.Add(item);
+                        }
+
+                        i++;
+                    }
+
+                    transmissionA = new Transmission(
+                        this.EndpointAddress,
+                        itemsA);
+                    transmissionB = new Transmission(
+                        this.EndpointAddress,
+                        itemsB);
+                }
+            }
+            else if (this.ContentType == JsonSerializer.ContentType)
+            {
+                // We have to decode the payload in order to split
+                bool compress = this.ContentEncoding == JsonSerializer.CompressionType;
+                string[] payloadItems = JsonSerializer
+                    .Deserialize(this.Content, compress)
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                int numItems = calculateLength(payloadItems.Length);
+
+                if (numItems != payloadItems.Length)
+                {
+                    string itemsA = string.Empty;
+                    string itemsB = string.Empty;
+
+                    for (int i = 0; i < payloadItems.Length; i++)
+                    {
+                        if (i < numItems)
+                        {
+                            if (!string.IsNullOrEmpty(itemsA))
+                            {
+                                itemsA += Environment.NewLine;
+                            }
+
+                            itemsA += payloadItems[i];
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(itemsB))
+                            {
+                                itemsB += Environment.NewLine;
+                            }
+
+                            itemsB += payloadItems[i];
+                        }
+                    }
+
+                    transmissionA = new Transmission(
+                        this.EndpointAddress,
+                        JsonSerializer.ConvertToByteArray(itemsA, compress),
+                        this.ContentType,
+                        this.ContentEncoding);
+                    transmissionB = new Transmission(
+                        this.EndpointAddress,
+                        JsonSerializer.ConvertToByteArray(itemsB, compress),
+                        this.ContentType,
+                        this.ContentEncoding);
+                }
+            }
+            else
+            {
+                // We can't deserialize it!
+                // We can say it's of length 1 at the very least
+                int numItems = calculateLength(1);
+
+                if (numItems == 0)
+                {
+                    transmissionA = null;
+                    transmissionB = this;
+                }
+            }
+
+            return Tuple.Create(transmissionA, transmissionB);
+        }
 
 #if CORE_PCL
         /// <summary>
@@ -323,6 +453,7 @@
                     wrapper = new HttpWebResponseWrapper
                     {
                         StatusCode = (int)httpResponse.StatusCode,
+                        StatusDescription = httpResponse.StatusDescription
                     };
 
                     if (httpResponse.Headers != null)

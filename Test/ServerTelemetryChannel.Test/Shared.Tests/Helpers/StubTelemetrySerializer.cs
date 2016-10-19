@@ -9,7 +9,7 @@
     {
         public Action<IEnumerable<ITelemetry>> OnSerialize = _ => { };
 
-        public override void Serialize(IEnumerable<ITelemetry> items)
+        public override void Serialize(ICollection<ITelemetry> items)
         {
             this.OnSerialize(items);
         }

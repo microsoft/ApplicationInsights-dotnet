@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -69,7 +70,7 @@
             public void ThrowsArgumentExceptionWhenTelemetryIsEmptyToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.Throws<ArgumentException>(() => serializer.Serialize(Enumerable.Empty<ITelemetry>()));
+                Assert.Throws<ArgumentException>(() => serializer.Serialize(new List<ITelemetry>()));
             }
 
             [TestMethod]
