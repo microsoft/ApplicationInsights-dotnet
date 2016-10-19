@@ -165,21 +165,21 @@
                 if (exception == null)
                 {
                     TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id, currentCapacity);
-
-                    if (responseContent == null && exception is WebException)
-                    {
-                        var response = (HttpWebResponse)((WebException)exception).Response;
-                        responseContent = new HttpWebResponseWrapper()
-                        {
-                            StatusCode = (int)response.StatusCode,
-                            StatusDescription = response.StatusDescription,
-                            RetryAfterHeader = response.Headers.Get("Retry-After")
-                        };
-                    }
                 }
                 else
                 {
                     TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
+                }
+
+                if (responseContent == null && exception is WebException)
+                {
+                    var response = (HttpWebResponse)((WebException)exception).Response;
+                    responseContent = new HttpWebResponseWrapper()
+                    {
+                        StatusCode = (int)response.StatusCode,
+                        StatusDescription = response.StatusDescription,
+                        RetryAfterHeader = response.Headers?.Get("Retry-After")
+                    };
                 }
 
                 this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
@@ -191,18 +191,18 @@
         /// If so, this method will add a request to the current throttle count (unless peeking)
         /// </summary>
         /// <returns>The number of events that are sendable</returns>
-        private int IsTransmissionSendable(int numEvents = 1, bool peek = false)
+        private int IsTransmissionSendable(int numEvents, bool peek = false)
         {
             if (!this.applyThrottle)
             {
                 return numEvents;
             }
 
-            var throttleWindowId = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds / this.ThrottleWindow);
-            var isInThrottleWindow = throttleWindowId == currentThrottleWindowId;
+            long throttleWindowId = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds / this.ThrottleWindow);
+            bool isInThrottleWindow = throttleWindowId == this.currentThrottleWindowId;
             if (isInThrottleWindow && currentItemsCount < this.ThrottleLimit)
             {
-                var numAccepted = Math.Min(numEvents, this.ThrottleLimit - this.currentItemsCount);
+                int numAccepted = Math.Min(numEvents, this.ThrottleLimit - this.currentItemsCount);
                 if (!peek)
                 {
                     this.currentItemsCount += numAccepted;
@@ -212,7 +212,7 @@
             }
             else if (!isInThrottleWindow)
             {
-                var numAccepted = Math.Min(numEvents, this.ThrottleLimit);
+                int numAccepted = Math.Min(numEvents, this.ThrottleLimit);
                 this.currentThrottleWindowId = throttleWindowId;
                 this.currentItemsCount = numAccepted;
                 return numAccepted;

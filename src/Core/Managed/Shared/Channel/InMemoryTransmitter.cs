@@ -146,7 +146,7 @@ namespace Microsoft.ApplicationInsights.Channel
             }
 
             byte[] data = JsonSerializer.Serialize(telemetryItems);
-            var transmission = new Transmission(this.endpointAddress, data, "application/x-json-stream", JsonSerializer.CompressionType, timeout);
+            var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
             return transmission.SendAsync();
         }

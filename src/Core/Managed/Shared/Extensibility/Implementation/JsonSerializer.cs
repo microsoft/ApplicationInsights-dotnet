@@ -35,6 +35,17 @@
         }
 
         /// <summary>
+        /// Gets the content type used by the serializer. 
+        /// </summary>
+        public static string ContentType
+        {
+            get
+            {
+                return "application/x-json-stream";
+            }
+        }
+
+        /// <summary>
         /// Serializes and compress the telemetry items into a JSON string. Each JSON object is separated by a new line. 
         /// </summary>
         /// <param name="telemetryItems">The list of telemetry items to serialize.</param>
