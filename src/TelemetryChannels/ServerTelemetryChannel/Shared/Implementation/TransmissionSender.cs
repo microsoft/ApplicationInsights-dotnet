@@ -15,7 +15,7 @@
         private int transmissionCount = 0;
         private int capacity = 3;
 
-        private bool applyThrottle = true;
+        private bool applyThrottle = false;
         private int throttleWindowInMilliseconds = 1000;
         private long currentThrottleWindowId = 0;
         private int currentItemsCount = 0;

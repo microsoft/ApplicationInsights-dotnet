@@ -18,12 +18,12 @@
         public Func<HttpWebResponseWrapper> OnSend = () => null;
 
         public StubTransmission()
-            : base(new Uri("any://uri"), new byte[0], string.Empty, string.Empty)
+            : base(new Uri("any://uri"), new byte[0], JsonSerializer.ContentType, string.Empty)
         {
         }
 
         public StubTransmission(byte[] content)
-            : base(new Uri("any://uri"), content, string.Empty, string.Empty)
+            : base(new Uri("any://uri"), content, JsonSerializer.ContentType, string.Empty)
         {
         }
 

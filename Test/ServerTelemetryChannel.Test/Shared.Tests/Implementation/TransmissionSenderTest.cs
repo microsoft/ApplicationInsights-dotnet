@@ -239,6 +239,7 @@
             public void IsRaisedWhenTransmissionIsThrottledLocallyWithItems()
             {
                 var sender = new TransmissionSender();
+                sender.ApplyThrottle = true;
 
                 var eventIsRaised = new ManualResetEventSlim();
                 var firedCount = 0;
@@ -276,6 +277,7 @@
             public void IsRaisedWhenTransmissionIsThrottledLocallyWithByteArray()
             {
                 var sender = new TransmissionSender();
+                sender.ApplyThrottle = true;
 
                 var eventIsRaised = new ManualResetEventSlim();
                 var firedCount = 0;
