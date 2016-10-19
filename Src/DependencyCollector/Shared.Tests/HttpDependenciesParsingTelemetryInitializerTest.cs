@@ -100,7 +100,7 @@
             }
         }
 
-        private void HttpDependenciesParsingTelemetryInitializerConvertsBlobs(string operation, string verb, string url, string accountName, string container)
+        public void HttpDependenciesParsingTelemetryInitializerConvertsBlobs(string operation, string verb, string url, string accountName, string container)
         {
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
             Uri parsedUrl = new Uri(url);
@@ -168,7 +168,7 @@
             }
         }
 
-        private void HttpDependenciesParsingTelemetryInitializerConvertsTables(string operation, string verb, string url, string accountName, string tableName)
+        public void HttpDependenciesParsingTelemetryInitializerConvertsTables(string operation, string verb, string url, string accountName, string tableName)
         {
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
             Uri parsedUrl = new Uri(url);
@@ -231,7 +231,7 @@
             }
         }
 
-        private void HttpDependenciesParsingTelemetryInitializerConvertsQueues(string operation, string verb, string url, string accountName, string queueName)
+        public void HttpDependenciesParsingTelemetryInitializerConvertsQueues(string operation, string verb, string url, string accountName, string queueName)
         {
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
             Uri parsedUrl = new Uri(url);
