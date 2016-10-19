@@ -241,7 +241,7 @@
         /// A tuple with the first item being a Transmission object with n ITelemetry objects
         /// and the second item being a Transmission object with the remaining ITelemetry objects.
         /// </returns>
-        public virtual Tuple<Transmission, Transmission> Split(Func<int,int> calculateLength)
+        public virtual Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
         {
             Transmission transmissionA = this;
             Transmission transmissionB = null;
@@ -266,6 +266,7 @@
                         {
                             itemsB.Add(item);
                         }
+
                         i++;
                     }
 
@@ -288,8 +289,8 @@
 
                 if (numItems != payloadItems.Length)
                 {
-                    string itemsA = "";
-                    string itemsB = "";
+                    string itemsA = string.Empty;
+                    string itemsB = string.Empty;
 
                     for (int i = 0; i < payloadItems.Length; i++)
                     {
@@ -299,6 +300,7 @@
                             {
                                 itemsA += Environment.NewLine;
                             }
+
                             itemsA += payloadItems[i];
                         }
                         else
@@ -307,6 +309,7 @@
                             {
                                 itemsB += Environment.NewLine;
                             }
+
                             itemsB += payloadItems[i];
                         }
                     }
