@@ -14,12 +14,12 @@
             if (exception != null && response == null && exception is WebException &&
                 ((WebException)exception).Response is HttpWebResponse)
             {
-                var excResponse = (HttpWebResponse)((WebException)exception).Response;
+                HttpWebResponse exceptionResponse = (HttpWebResponse)((WebException)exception).Response;
                 response = new HttpWebResponseWrapper()
                 {
-                    StatusCode = (int)excResponse.StatusCode,
-                    StatusDescription = excResponse.StatusDescription,
-                    RetryAfterHeader = excResponse.Headers?.Get("Retry-After")
+                    StatusCode = (int)exceptionResponse.StatusCode,
+                    StatusDescription = exceptionResponse.StatusDescription,
+                    RetryAfterHeader = exceptionResponse.Headers?.Get("Retry-After")
                 };
             }
 
