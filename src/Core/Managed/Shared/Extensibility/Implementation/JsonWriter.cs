@@ -49,13 +49,34 @@
             this.textWriter.Write(string.Format(CultureInfo.InvariantCulture, "{0}", value));
         }
 
-        public void WriteProperty(string name, string value)
+        public void WriteRequiredProperty(string name, string value)
+        {
+            this.WriteRequiredProperty(name, value, value.Length);
+        }
+
+        public void WriteRequiredProperty(string name, string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                value = "n/a";
+            }
+
+            this.WritePropertyName(name);
+            this.WriteString(value, maxLength);
+        }
+
+        public void WriteProperty(string name, string value, int maxLength)
         {
             if (!string.IsNullOrEmpty(value))
-            { 
+            {
                 this.WritePropertyName(name);
-                this.WriteString(value);
+                this.WriteString(value, maxLength);
             }
+        }
+
+        public void WriteProperty(string name, string value)
+        {
+            this.WriteProperty(name, value, value == null ? 0 : value.Length);
         }
 
         public void WriteProperty(string name, bool? value)
@@ -67,6 +88,18 @@
             }
         }
 
+        public void WriteRequiredProperty(string name, bool value)
+        {
+            this.WritePropertyName(name);
+            this.textWriter.Write(value ? "true" : "false");
+        }
+
+        public void WriteRequiredProperty(string name, int value)
+        {
+            this.WritePropertyName(name);
+            this.textWriter.Write(value.ToString(CultureInfo.InvariantCulture));
+        }
+
         public void WriteProperty(string name, int? value)
         {
             if (value.HasValue)
@@ -74,6 +107,12 @@
                 this.WritePropertyName(name);
                 this.textWriter.Write(value.Value.ToString(CultureInfo.InvariantCulture));
             }
+        }
+
+        public void WriteRequiredProperty(string name, double value)
+        {
+            this.WritePropertyName(name);
+            this.textWriter.Write(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public void WriteProperty(string name, double? value)
@@ -107,12 +146,26 @@
 
         public void WriteProperty(string name, IDictionary<string, double> values)
         {
+            this.WriteProperty(name, values, int.MaxValue);
+        }
+
+        public void WriteProperty(string name, IDictionary<string, double> values, int maxCount)
+        {
             if (values != null && values.Count > 0)
             {
                 this.WritePropertyName(name);
                 this.WriteStartObject();
+
+                int count = 0;
                 foreach (KeyValuePair<string, double> item in values)
                 {
+                    if (count > maxCount)
+                    {
+                        break;
+                    }
+
+                    ++count;
+
                     this.WriteProperty(item.Key, item.Value);
                 }
 
@@ -122,13 +175,26 @@
 
         public void WriteProperty(string name, IDictionary<string, string> values)
         {
+            this.WriteProperty(name, values, int.MaxValue, int.MaxValue);
+        }
+
+        public void WriteProperty(string name, IDictionary<string, string> values, int maxKeysCount, int maxValueLength)
+        {
             if (values != null && values.Count > 0)
             {
                 this.WritePropertyName(name);
                 this.WriteStartObject();
+
+                int count = 0;
                 foreach (KeyValuePair<string, string> item in values)
                 {
-                    this.WriteProperty(item.Key, item.Value);
+                    if (count > maxKeysCount)
+                    {
+                        break;
+                    }
+                    ++count;
+
+                    this.WriteProperty(item.Key, item.Value, maxValueLength);
                 }
 
                 this.WriteEndObject();
@@ -166,13 +232,27 @@
             this.WriteString(name);
             this.textWriter.Write(':');
         }
-        
+
         protected void WriteString(string value)
+        {
+            this.WriteString(value, value.Length);
+        }
+
+        protected void WriteString(string value, int maxLength)
         {
             this.textWriter.Write('"');
 
+            int count = 0;
+
             foreach (char c in value)
             {
+                if (count > maxLength)
+                {
+                    break;
+                }
+
+                ++count;
+
                 switch (c)
                 {
                     case '\\':

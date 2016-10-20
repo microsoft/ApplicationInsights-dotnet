@@ -124,3 +124,43 @@ dir "$currentDir\obj\gbc\*_types.cs" | ForEach-Object {
     $fileName = $_
     copy $fileName "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\"
 }
+
+
+#####################################################################
+## Serializers
+#####################################################################
+
+del "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\*Serializer.cs"
+
+mkdir -Force $currentDir\PublicSchema
+
+del "$currentDir\PublicSchema\*.bond"
+
+# Generate public schema using bond generator
+& "$generatorPath\BondSchemaGenerator.exe" -v -i "$schemasPath\AppInsightsTypes.bond" -i "$schemasPath\PerformanceCounterData.bond" -i "$schemasPath\SessionStateData.bond" -i "$schemasPath\ContextTagKeys.bond" -o "$currentDir\PublicSchema\" -e BondLanguage -t BondLayout -n test --flatten false
+    @(
+    "AvailabilityData.bond",
+    "Base.bond",
+    #"ContextTagKeys.bond",
+    #"Data.bond", 
+    #"DataPoint.bond", 
+    #"DataPointType.bond", 
+    #"Domain.bond", 
+    #"Envelope.bond", 
+    "EventData.bond", 
+    "ExceptionData.bond", 
+    #"ExceptionDetails.bond", 
+    "MessageData.bond", 
+    "MetricData.bond", 
+    "PageViewData.bond", 
+    "PageViewPerfData.bond", 
+    "RemoteDependencyData.bond", 
+    "RequestData.bond"
+    #"SeverityLevel.bond", 
+    #"StackFrame.bond"
+    )  | ForEach-Object { 
+        $fileName = $_
+        & "$generatorPath\BondSchemaGenerator.exe" -v -i "$currentDir\PublicSchema\$fileName" -o $currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\ -e NetSerializationLanguage -t NetSerializationLayout -n Microsoft.ApplicationInsights.Extensibility.Implementation.External --flatten false
+    }
+
+

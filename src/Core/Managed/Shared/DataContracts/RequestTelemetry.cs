@@ -34,6 +34,7 @@
             this.Data = new RequestData();
             this.context = new TelemetryContext(this.Data.properties);
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.Duration = TimeSpan.FromTicks(0);
         }
 
         /// <summary>

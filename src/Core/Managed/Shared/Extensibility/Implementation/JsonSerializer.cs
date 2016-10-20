@@ -332,14 +332,7 @@
                 writer.WriteProperty("baseType", eventTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", eventTelemetry.Data.ver);
-                    writer.WriteProperty("name", eventTelemetry.Data.name);
-                    writer.WriteProperty("measurements", eventTelemetry.Data.measurements);
-                    writer.WriteProperty("properties", eventTelemetry.Data.properties);
-
-                    writer.WriteEndObject();
+                    EventDataSerializer.Serialize(eventTelemetry.Data, writer);
                 }
 
                 writer.WriteEndObject();
@@ -403,27 +396,7 @@
                 writer.WriteProperty("baseType", metricTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", metricTelemetry.Data.ver);
-                    writer.WritePropertyName("metrics");
-                    {
-                        writer.WriteStartArray();
-                        writer.WriteStartObject();
-                        writer.WriteProperty("name", metricTelemetry.Metric.name);
-                        writer.WriteProperty("kind", metricTelemetry.Metric.kind.ToString());
-                        writer.WriteProperty("value", metricTelemetry.Metric.value);
-                        writer.WriteProperty("count", metricTelemetry.Metric.count);
-                        writer.WriteProperty("min", metricTelemetry.Metric.min);
-                        writer.WriteProperty("max", metricTelemetry.Metric.max);
-                        writer.WriteProperty("stdDev", metricTelemetry.Metric.stdDev);
-                        writer.WriteEndObject();
-                        writer.WriteEndArray();
-                    }
-
-                    writer.WriteProperty("properties", metricTelemetry.Data.properties);
-
-                    writer.WriteEndObject();
+                    MetricDataSerializer.Serialize(metricTelemetry.Data, writer);
                 }
 
                 writer.WriteEndObject();
@@ -442,20 +415,10 @@
             {
                 writer.WriteStartObject();
 
-                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
                 writer.WriteProperty("baseType", pageViewTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", pageViewTelemetry.Data.ver);
-                    writer.WriteProperty("name", pageViewTelemetry.Data.name);
-                    writer.WriteProperty("url", pageViewTelemetry.Data.url);
-                    writer.WriteProperty("duration", pageViewTelemetry.Data.duration);
-                    writer.WriteProperty("measurements", pageViewTelemetry.Data.measurements);
-                    writer.WriteProperty("properties", pageViewTelemetry.Data.properties);
-
-                    writer.WriteEndObject();
+                    PageViewDataSerializer.Serialize(pageViewTelemetry.Data, writer);
                 }
 
                 writer.WriteEndObject();
@@ -477,21 +440,7 @@
                 writer.WriteProperty("baseType", dependencyTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", dependencyTelemetry.InternalData.ver);
-                    writer.WriteProperty("name", dependencyTelemetry.InternalData.name);
-                    writer.WriteProperty("id", dependencyTelemetry.InternalData.id);
-                    writer.WriteProperty("data", dependencyTelemetry.InternalData.data);
-                    writer.WriteProperty("duration", dependencyTelemetry.InternalData.duration);
-                    writer.WriteProperty("resultCode", dependencyTelemetry.InternalData.resultCode);
-                    writer.WriteProperty("success", dependencyTelemetry.InternalData.success);
-                    writer.WriteProperty("type", dependencyTelemetry.InternalData.type);
-                    writer.WriteProperty("target", dependencyTelemetry.InternalData.target);
-
-                    writer.WriteProperty("properties", dependencyTelemetry.InternalData.properties);
-                    writer.WriteProperty("measurements", dependencyTelemetry.InternalData.measurements);
-                    writer.WriteEndObject();
+                    RemoteDependencyDataSerializer.Serialize(dependencyTelemetry.InternalData, writer);
                 }
 
                 writer.WriteEndObject();
@@ -500,38 +449,26 @@
             writer.WriteEndObject();
         }
 
-        private static void SerializeRequestTelemetry(RequestTelemetry requestTelemetry, JsonWriter jsonWriter)
+        private static void SerializeRequestTelemetry(RequestTelemetry requestTelemetry, JsonWriter writer)
         {
-            jsonWriter.WriteStartObject();
+            writer.WriteStartObject();
 
-            requestTelemetry.WriteTelemetryName(jsonWriter, RequestTelemetry.TelemetryName);
-            requestTelemetry.WriteEnvelopeProperties(jsonWriter);
-            jsonWriter.WritePropertyName("data");
+            requestTelemetry.WriteTelemetryName(writer, RequestTelemetry.TelemetryName);
+            requestTelemetry.WriteEnvelopeProperties(writer);
+            writer.WritePropertyName("data");
             {
-                jsonWriter.WriteStartObject();
+                writer.WriteStartObject();
 
-                jsonWriter.WriteProperty("baseType", requestTelemetry.BaseType);
-                jsonWriter.WritePropertyName("baseData");
+                writer.WriteProperty("baseType", requestTelemetry.BaseType);
+                writer.WritePropertyName("baseData");
                 {
-                    jsonWriter.WriteStartObject();
-
-                    jsonWriter.WriteProperty("ver", requestTelemetry.Data.ver);
-                    jsonWriter.WriteProperty("id", requestTelemetry.Data.id);
-                    jsonWriter.WriteProperty("name", requestTelemetry.Data.name);
-                    jsonWriter.WriteProperty("duration", requestTelemetry.Duration);
-                    jsonWriter.WriteProperty("success", requestTelemetry.Data.success);
-                    jsonWriter.WriteProperty("responseCode", requestTelemetry.Data.responseCode);
-                    jsonWriter.WriteProperty("url", requestTelemetry.Data.url);
-                    jsonWriter.WriteProperty("measurements", requestTelemetry.Data.measurements);
-                    jsonWriter.WriteProperty("properties", requestTelemetry.Data.properties);
-
-                    jsonWriter.WriteEndObject();
+                    RequestDataSerializer.Serialize(requestTelemetry.Data, writer);
                 }
 
-                jsonWriter.WriteEndObject();
+                writer.WriteEndObject();
             }
 
-            jsonWriter.WriteEndObject();
+            writer.WriteEndObject();
         }
 
         private static void SerializeTraceTelemetry(TraceTelemetry traceTelemetry, JsonWriter writer)
@@ -548,19 +485,7 @@
                 writer.WriteProperty("baseType", traceTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", traceTelemetry.Data.ver);
-                    writer.WriteProperty("message", traceTelemetry.Message);
-
-                    if (traceTelemetry.SeverityLevel.HasValue)
-                    {
-                        writer.WriteProperty("severityLevel", traceTelemetry.SeverityLevel.Value.ToString());
-                    }
-
-                    writer.WriteProperty("properties", traceTelemetry.Properties); // TODO: handle case where the property dictionary doesn't need to be instantiated.
-
-                    writer.WriteEndObject();
+                    MessageDataSerializer.Serialize(traceTelemetry.Data, writer);
                 }
 
                 writer.WriteEndObject();
@@ -585,20 +510,7 @@
                 writer.WriteProperty("baseType", availabilityTelemetry.BaseType);
                 writer.WritePropertyName("baseData");
                 {
-                    writer.WriteStartObject();
-
-                    writer.WriteProperty("ver", availabilityTelemetry.Data.ver);
-                    writer.WriteProperty("id", availabilityTelemetry.Data.id);
-                    writer.WriteProperty("name", availabilityTelemetry.Data.name);
-                    writer.WriteProperty("duration", availabilityTelemetry.Duration);
-                    writer.WriteProperty("success", availabilityTelemetry.Data.success);
-                    writer.WriteProperty("runLocation", availabilityTelemetry.Data.runLocation);
-                    writer.WriteProperty("message", availabilityTelemetry.Data.message);
-                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
-                    writer.WriteProperty("properties", availabilityTelemetry.Data.properties);
-                    writer.WriteProperty("measurements", availabilityTelemetry.Data.measurements);
-
-                    writer.WriteEndObject();
+                    AvailabilityDataSerializer.Serialize(availabilityTelemetry.Data, writer);
                 }
 
                 writer.WriteEndObject();
