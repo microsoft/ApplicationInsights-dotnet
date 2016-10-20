@@ -196,9 +196,9 @@
             Transmission transmission = null;
             if (file.Exists)
             {
+                // The injestion service rejects anything older than 2 days.
                 if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) 
                 {
-                    // The injestion service rejects anything older than 2 days.
                     ChangeFileExtension(file, TemporaryFileExtension);
                     transmission = LoadFromTemporaryFile(file, out fileSize);
                 }
