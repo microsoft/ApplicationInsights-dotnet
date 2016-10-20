@@ -66,9 +66,10 @@
             module.EnableIISExpressPerformanceCounters = true;
 
             // set test-friendly timings
-            var privateObject = new PrivateObject(module);
-            privateObject.SetField("collectionPeriod", TimeSpan.FromMilliseconds(10));
-            privateObject.SetField("defaultCounters", new List<string>() { @"\Memory\Available Bytes", @"Will not parse;\Does\NotExist" });
+            module.CollectionPeriod = TimeSpan.FromMilliseconds(10);
+
+            module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Memory\Available Bytes", @"\Memory\Available Bytes"));
+            module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"Will not parse;\Does\NotExist", @"Will not parse;\Does\NotExist"));
 
             module.Counters.Add(new PerformanceCounterCollectionRequest(@"Will not parse", "Custom counter - will not parse"));
 

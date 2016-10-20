@@ -24,7 +24,7 @@
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
         /// </summary>

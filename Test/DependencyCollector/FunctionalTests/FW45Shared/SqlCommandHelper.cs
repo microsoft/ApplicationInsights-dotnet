@@ -16,11 +16,11 @@
             await ExecuteReaderAsyncInternal(connectionString, commandText, commandType);
         }
 
-        public static void BeginExecuteReader(string connectionString, string commandText)
+        public static void BeginExecuteReader(string connectionString, string commandText, int numberOfAsyncArgs)
         {
-           ManualResetEvent mre = new ManualResetEvent(false);
+            ManualResetEvent mre = new ManualResetEvent(false);
 
-           var executor = new AsyncExecuteReaderWrapper(connectionString, commandText, mre);
+            var executor = new AsyncExecuteReaderWrapper(connectionString, commandText, mre, numberOfAsyncArgs);
             executor.BeginExecute();
 
             mre.WaitOne(1000);
@@ -55,8 +55,10 @@
             task2.Wait();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-        public static void ExecuteReader(string connectionString, string commandText, CommandType commandType = CommandType.Text)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security",
+            "CA2100:Review SQL queries for security vulnerabilities")]
+        public static void ExecuteReader(string connectionString, string commandText, int numberOfArgs,
+            CommandType commandType = CommandType.Text)
         {
             using (var connection = new SqlConnection(connectionString))
             {
@@ -64,7 +66,16 @@
                 SqlCommand command = connection.CreateCommand();
                 command.CommandText = commandText;
                 command.CommandType = commandType;
-                using (DbDataReader reader = command.ExecuteReader())
+
+                DbDataReader reader = null;
+
+                try
+                {
+                    reader = numberOfArgs == 0
+                        ? command.ExecuteReader()
+                        : command.ExecuteReader(CommandBehavior.SequentialAccess);
+                }
+                finally
                 {
                     while (reader.Read())
                     {
@@ -87,21 +98,13 @@
             await ExecuteNonQueryAsyncInternal(connectionString, commandText);
         }
 
-        public static void BeginExecuteNonQuery(string connectionString, string commandText)
+        public static void BeginExecuteNonQuery(string connectionString, string commandText, int numberOfArgs)
         {
             ManualResetEvent mre = new ManualResetEvent(false);
-            var executor = new AsyncExecuteNonQueryWrapper(connectionString, commandText, mre);
+            var executor = new AsyncExecuteNonQueryWrapper(connectionString, commandText, mre, numberOfArgs);
             executor.BeginExecute();
             mre.WaitOne(1000);
 
-        }
-
-        public static void BeginExecuteNonQueryProc(string connectionString, string commandText)
-        {
-            ManualResetEvent mre = new ManualResetEvent(false);
-            var executor = new AsyncExecuteNonQueryWrapper(connectionString, commandText, mre);
-            executor.BeginExecuteProc();
-            mre.WaitOne(1000);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
@@ -235,14 +238,15 @@
         private sealed class AsyncExecuteReaderWrapper : IDisposable
         {
             private readonly SqlCommand command;
-
             private readonly SqlConnection connection;
+            private readonly int numberOfAsyncArguments;
 
             private ManualResetEvent mre;
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-            public AsyncExecuteReaderWrapper(string connectionString, string commandText, ManualResetEvent mre)
+            public AsyncExecuteReaderWrapper(string connectionString, string commandText, ManualResetEvent mre, int numberOfAsyncArgs)
             {
+                this.numberOfAsyncArguments = numberOfAsyncArgs;
                 this.mre = mre;
                 this.connection =new SqlConnection(connectionString);
                 this.connection.Open();
@@ -254,10 +258,39 @@
             {
                 try
                 {
-                    this.command.BeginExecuteReader(Callback, null);
-                    
+                    switch (this.numberOfAsyncArguments)
+                    {
+                        case 0:
+                            {
+                                var result = this.command.BeginExecuteReader();
+                                result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                                this.command.EndExecuteReader(result);
+                                break;
+                            }
+                        case 1:
+                            { 
+                                var result = this.command.BeginExecuteReader(CommandBehavior.SequentialAccess);
+                                result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                                this.command.EndExecuteReader(result);
+                                break;
+                            }
+                        case 2:
+                            {
+                                this.command.BeginExecuteReader(Callback, null);
+                                break;
+                            }
+                        case 3:
+                            {
+                                this.command.BeginExecuteReader(Callback, null, CommandBehavior.SequentialAccess);
+                                break;
+                            }
+                        default:
+                            {
+                                throw new NotSupportedException("Not supported override");
+                            }
+                    }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     if (connection != null)
                     {
@@ -272,11 +305,22 @@
                     this.connection.Dispose();
                 }
             }
+
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteReader(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+
+                    if (connection != null)
+                    {
+                        this.connection.Close();
+                    }
+                }
             }
         }
 
@@ -326,9 +370,15 @@
 
             private void Callback2(IAsyncResult ar2)
             {
-                this.command.EndExecuteReader(ar2);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar2);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -378,22 +428,30 @@
 
             private void Callback2(IAsyncResult ar2)
             {
-                this.command.EndExecuteReader(ar2);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteReader(ar2);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
         private sealed class AsyncExecuteNonQueryWrapper : IDisposable
         {
             private readonly SqlCommand command;
-
+            private readonly int numberOfArgs;
             private readonly SqlConnection connection;
-            private ManualResetEvent mre;
 
+            private ManualResetEvent mre;
+            
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-            public AsyncExecuteNonQueryWrapper(string connectionString, string commandText, ManualResetEvent mre)
+            public AsyncExecuteNonQueryWrapper(string connectionString, string commandText, ManualResetEvent mre, int numberOfArgs)
             {
+                this.numberOfArgs = numberOfArgs;
                 this.mre = mre;
                 this.connection = new SqlConnection(connectionString);
                 this.connection.Open();
@@ -405,7 +463,19 @@
             {
                 try
                 {
-                    this.command.BeginExecuteNonQuery(Callback, null); 
+                    switch (this.numberOfArgs)
+                    {
+                        case 0:
+                            var result = this.command.BeginExecuteNonQuery();
+                            result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(15000));
+                            this.command.EndExecuteNonQuery(result);
+                            break;
+                        case 2:
+                            this.command.BeginExecuteNonQuery(Callback, null);
+                            break;
+                        default:
+                            throw new NotSupportedException("Override is not supported");
+                    }
                 }
                 catch (Exception)
                 {
@@ -416,22 +486,6 @@
                 } 
             }
 
-            public void BeginExecuteProc()
-            {
-                try
-                {
-                    this.command.CommandType = CommandType.StoredProcedure;                    
-                    this.command.BeginExecuteNonQuery(Callback, null);
-                }
-                catch (Exception)
-                {
-                    if (connection != null)
-                    {
-                        connection.Close();
-                    }
-                }
-            }
-
             public void Dispose()
             {
                 if (this.connection != null)
@@ -439,11 +493,18 @@
                     this.connection.Dispose();
                 }
             }
+
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteNonQuery(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteNonQuery(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }
         }
 
@@ -488,9 +549,15 @@
 
             private void Callback(IAsyncResult ar)
             {
-                this.command.EndExecuteXmlReader(ar);
-                this.connection.Close();
-                this.mre.Set();
+                try
+                {
+                    this.command.EndExecuteXmlReader(ar);
+                }
+                finally
+                {
+                    this.mre.Set();
+                    this.connection.Close();
+                }
             }          
         }
     }

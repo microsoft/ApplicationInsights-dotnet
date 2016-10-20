@@ -23,7 +23,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticUserAgentFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsPublisher.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsSubscriber.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryInitializerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryModuleBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationCorrelationTelemetryInitializer.cs" />

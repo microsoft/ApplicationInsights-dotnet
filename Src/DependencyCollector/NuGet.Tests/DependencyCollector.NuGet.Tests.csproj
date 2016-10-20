@@ -87,6 +87,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TelemetryInitializerTransformTests.cs" />
     <Compile Include="ModuleTransformTests.cs" />
   </ItemGroup>
   <ItemGroup>

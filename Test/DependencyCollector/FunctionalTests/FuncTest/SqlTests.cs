@@ -3,12 +3,11 @@
     using System;
     using System.Linq;
 
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    using RemoteDependencyKind = Microsoft.Developer.Analytics.DataCollection.Model.v2.DependencyKind;
     
     [TestClass]
     public class SqlTests
@@ -72,6 +71,7 @@
             DeploymentAndValidationTools.SdkEventListener.Stop();
         }
 
+        #region Misc tests
         [TestMethod]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
@@ -81,7 +81,7 @@
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, AccessTimeMaxSqlCallToApmdbNormal);
+            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, 1, AccessTimeMaxSqlCallToApmdbNormal);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
@@ -99,11 +99,11 @@
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
+                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
                          this.Validate(
-                             sqlItems[0], 
-                             ResourceNameSQLToDevApm + " | " + StoredProcedureName, 
+                             sqlItems[0],
+                             ResourceNameSQLToDevApm,
                              StoredProcedureName, 
                              TimeSpan.FromSeconds(10), 
                              successFlagExpected: true,
@@ -111,23 +111,6 @@
                              sqlErrorMessageExpected: null);
                      });           
         }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestExecuteReaderTwice()
-        {
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
-                     application =>
-                     {
-                         application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwice&count=1");
-
-                         var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
-
-                         Assert.AreEqual(0, sqlItems.Length, "We don't have to collect any rdd as it is impossible to execute on the same command two async methods at the same time");
-                     });
-        }
-
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
@@ -155,10 +138,13 @@
                          //// The above request would have trigged RDD module to monitor and create RDD telemetry
                          //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                          var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                         var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
+                         var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
                          Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
+#endregion
+
+        #region ExecuteReader
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
@@ -178,16 +164,60 @@
         [TestMethod]
         public void TestBeginExecuteReader()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestBeginExecuteReaderFailed()
+        public void TestBeginExecuteReaderFailed_0Args()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+            this.TestSqlCommandExecute("BeginExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_1Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_2Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader2", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteReaderFailed_3Arg()
+        {
+            this.TestSqlCommandExecute("BeginExecuteReader3", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReader()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReaderFailed_0Args()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteReaderFailed_1Args()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+        #endregion
+
+        #region ExecuteScalar
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
@@ -200,6 +230,37 @@
         public void TestExecuteScalarAsyncFailed()
         {
             this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteScalar()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteScalarFailed()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+        }
+        #endregion
+
+        #region ExecuteNonQuery
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteNonQuery()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlCommandExecuteNonQueryFailed()
+        {
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
@@ -218,18 +279,27 @@
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestBeginExecuteNonQuery()
+        public void TestBeginExecuteNonQuery_Arg0()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "0", errorMessage: null);
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestBeginExecuteNonQuery_Arg2()
+        {
+            this.TestSqlCommandExecute("BeginExecuteNonQuery2", errorNumber: "0", errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
+            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
+        #endregion
 
+        #region ExecuteXmlReader
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
@@ -253,48 +323,6 @@
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestSqlCommandExecuteScalar()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteScalarFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteNonQuery()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteNonQueryFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteReader()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "0", errorMessage: null);
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
-        public void TestSqlCommandExecuteReaderFailed()
-        {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
-        }
-
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "0", errorMessage: null);
@@ -306,6 +334,7 @@
         {
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
+        #endregion
 
         private void TestSqlCommandExecute(string type, string errorNumber, string errorMessage, string extraClauseForFailureCase = null)
         {
@@ -319,7 +348,7 @@
                      //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
 
                      var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                     var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();                     
+                     var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();                     
                      Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
                      
                      string queryToValidate = success ? string.Empty : InvalidSqlQueryToApmDatabase + extraClauseForFailureCase;
@@ -345,17 +374,6 @@
         /// Helper to execute Sync Http tests
         /// </summary>
         /// <param name="testWebApplication">The test application for which tests are to be executed</param>
-        /// <param name="count">number to RDD calls to be made by the test application </param> 
-        /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteSyncSqlTests(TestWebApplication testWebApplication, int count, TimeSpan accessTimeMax)
-        {
-            this.ExecuteSyncSqlTests(testWebApplication, count, count, accessTimeMax);
-        }
-
-        /// <summary>
-        /// Helper to execute Sync Http tests
-        /// </summary>
-        /// <param name="testWebApplication">The test application for which tests are to be executed</param>
         /// <param name="expectedCount">number of expected RDD calls to be made by the test application </param> 
         /// <param name="count">number to RDD calls to be made by the test application </param> 
         /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
@@ -369,8 +387,8 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
-                    var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var sqlItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.SQL).ToArray();
+                    var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents).ToArray();
+                    var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
 
 
                     Assert.AreEqual(
@@ -383,7 +401,7 @@
                         string spName = "GetTopTenMessages";
                         this.Validate(
                             sqlItem, 
-                            ResourceNameSQLToDevApm + " | " + spName, 
+                            ResourceNameSQLToDevApm, 
                             spName, 
                             accessTimeMax, successFlagExpected: true,
                             sqlErrorCodeExpected: "0",
@@ -393,7 +411,7 @@
         }
 
         private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
+            string targetExpected,
             string commandNameExpected,
             TimeSpan accessTimeMax,
             bool successFlagExpected,
@@ -401,32 +419,32 @@
             string sqlErrorMessageExpected)
         {
             // For http name is validated in test itself
-            Assert.IsTrue(itemToValidate.Data.BaseData.Name.Contains(remoteDependencyNameExpected),
-                "The remote dependancy name is incorrect. Expected: " + remoteDependencyNameExpected +
-                ". Collected: " + itemToValidate.Data.BaseData.Name);
+            Assert.IsTrue(itemToValidate.data.baseData.target.Contains(targetExpected),
+                "The remote dependancy target is incorrect. Expected: " + targetExpected +
+                ". Collected: " + itemToValidate.data.baseData.target);
 
-            Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.Data.BaseData.ResultCode);
+            Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.data.baseData.resultCode);
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
-            if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
             {
                 // Additional checks for profiler collection
                 if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
                 {
-                    Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.Data.BaseData.Properties["ErrorMessage"]);
+                    Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.data.baseData.properties["ErrorMessage"]);
                 }
 
                 if (string.IsNullOrEmpty(commandNameExpected))
                 {
-                    Assert.IsNull(itemToValidate.Data.BaseData.CommandName);
+                    Assert.IsNull(itemToValidate.data.baseData.data);
                 }
                 else
                 {
-                    Assert.IsTrue(itemToValidate.Data.BaseData.CommandName.Equals(commandNameExpected), "The command name is incorrect");
+                    Assert.IsTrue(itemToValidate.data.baseData.data.Equals(commandNameExpected), "The command name is incorrect");
                 }
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
         }
     } 
 }

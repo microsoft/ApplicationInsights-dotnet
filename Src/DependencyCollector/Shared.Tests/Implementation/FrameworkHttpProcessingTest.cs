@@ -51,6 +51,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         #region BeginEndCallBacks
 
+        [TestMethod]
+        public void OnBeginDoesNotThrowForIncorrectUrl()
+        {
+            this.httpProcessingFramework.OnBeginHttpCallback(100, "BadUrl"); // Should not throw
+        }
+
         /// <summary>
         /// Validates HttpProcessingFramework returns correct operation for OnBeginHttpCallback.
         /// </summary>
@@ -77,7 +83,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, true, false, 200);  
             
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }
 
         /// <summary>
@@ -94,7 +100,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id, false, false, 500);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, false, this.sleepTimeMsecBetweenBeginAndEnd, "500");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, "500");
         }
 
         [TestMethod]
@@ -223,7 +229,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnEndHttpCallback(id1, true, false, 200);                        
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, TestUrl, RemoteDependencyKind.Http, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
         }        
 
         #endregion AsyncScenarios
@@ -239,10 +245,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         #region Helpers
         private static void ValidateTelemetryPacket(
-            DependencyTelemetry remoteDependencyTelemetryActual, string name, RemoteDependencyKind kind, bool? success, double valueMin, string statusCode)
+            DependencyTelemetry remoteDependencyTelemetryActual, Uri url, string kind, bool? success, double valueMin, string statusCode)
         {
-            Assert.AreEqual(name, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
-            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.DependencyKind, "DependencyKind in the sent telemetry is wrong");
+            Assert.AreEqual(url.AbsolutePath, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
+            Assert.AreEqual(url.Host, remoteDependencyTelemetryActual.Target, true, "Resource target in the sent telemetry is wrong");
+            Assert.AreEqual(url.OriginalString, remoteDependencyTelemetryActual.Data, true, "Resource data in the sent telemetry is wrong");
+            Assert.AreEqual(kind.ToString(), remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(success, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(statusCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 

@@ -34,13 +34,11 @@
                     {
                         Assert.AreEqual(configuration.InstrumentationKey, telemetry.Context.InstrumentationKey);
 
-                        Assert.IsInstanceOfType(telemetry, typeof(PerformanceCounterTelemetry));
+                        Assert.IsInstanceOfType(telemetry, typeof(MetricTelemetry));
 
-                        var perfTelemetry = telemetry as PerformanceCounterTelemetry;
+                        var perfTelemetry = telemetry as MetricTelemetry;
                         
-                        Assert.AreEqual(
-                            (float)(perfTelemetry.CategoryName.GetHashCode() + perfTelemetry.InstanceName.GetHashCode() + perfTelemetry.CounterName.GetHashCode()),
-                            perfTelemetry.Value);
+                        Assert.AreEqual((float)perfTelemetry.Name.GetHashCode(), perfTelemetry.Value);
                     }
                     catch (AssertFailedException e)
                     {
@@ -115,14 +113,10 @@
                 // now wait to let the module's timer run
                 Thread.Sleep(TimeSpan.FromSeconds(3));
 
-                var privateModule = new PrivateObject(module);
-
                 lock (collector.Sync)
                 {
                     // check that the default counter list has been registered
-                    Assert.AreEqual(
-                        (privateModule.GetField("defaultCounters") as List<string>).Count(),
-                        collector.Counters.Count);
+                    Assert.AreEqual(module.DefaultCounters.Count(), collector.Counters.Count);
                 }
             }
         }
@@ -155,12 +149,10 @@
                 // now wait to let the module's timer run
                 Thread.Sleep(TimeSpan.FromSeconds(3));
 
-                var privateModule = new PrivateObject(module);
-
                 lock (collector.Sync)
                 {
                     // check that the configured counter list has been registered
-                    var defaultCounterCount = (privateModule.GetField("defaultCounters") as List<string>).Count();
+                    var defaultCounterCount = module.DefaultCounters.Count();
 
                     Assert.AreEqual(customCounters.Count() + defaultCounterCount, collector.Counters.Count);
                 }
@@ -385,18 +377,10 @@
                 customCounterList.ForEach(module.Counters.Add);
             }
 
-            // set test-friendly timings
-            var privateObject = new PrivateObject(module);
-            privateObject.SetField("collectionPeriod", TimeSpan.FromMilliseconds(10));
+            module.CollectionPeriod = TimeSpan.FromMilliseconds(10);
 
-            // build agent is unable to handle performance collection, so don't put any placeholders here for unit testing
-            privateObject.SetField(
-                "defaultCounters",
-                new List<string>()
-                    {
-                        @"\DefaultCategory1\DefaultCounter1",
-                        @"\DefaultCategory2(Instance2)\DefaultCounter2"
-                    });
+            module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\DefaultCategory1\DefaultCounter1", @"\DefaultCategory1\DefaultCounter1"));
+            module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\DefaultCategory2(Instance2)\DefaultCounter2", @"\DefaultCategory2(Instance2)\DefaultCounter2"));
 
             return module;
         }

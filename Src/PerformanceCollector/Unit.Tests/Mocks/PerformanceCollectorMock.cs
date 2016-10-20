@@ -74,10 +74,7 @@
             {
                 foreach (var counter in this.counters)
                 {
-                    var value =
-                        (float)
-                        (counter.Item1.PerformanceCounter.CategoryName.GetHashCode() + counter.Item1.PerformanceCounter.CounterName.GetHashCode()
-                         + counter.Item1.PerformanceCounter.InstanceName.GetHashCode());
+                    var value = (float)counter.Item1.OriginalString.GetHashCode();
 
                     var result =
                         Tuple.Create(

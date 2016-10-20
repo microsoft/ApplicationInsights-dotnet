@@ -191,12 +191,10 @@
                            Timestamp = requestTelemetry.Timestamp,
                            OperationId = TruncateValue(requestTelemetry.Context?.Operation?.Id),
                            Name = TruncateValue(requestTelemetry.Name),
-                           StartTime = requestTelemetry.StartTime,
                            Success = IsRequestSuccessful(requestTelemetry),
                            Duration = requestTelemetry.Duration,
                            ResponseCode = requestTelemetry.ResponseCode,
                            Url = requestTelemetry.Url,
-                           HttpMethod = requestTelemetry.HttpMethod,
                            Properties = GetProperties(requestTelemetry)
                        };
         }
@@ -209,14 +207,12 @@
                            Version = TelemetryDocumentContractVersion,
                            Timestamp = dependencyTelemetry.Timestamp,
                            Name = TruncateValue(dependencyTelemetry.Name),
-                           StartTime = dependencyTelemetry.StartTime,
                            Success = dependencyTelemetry.Success,
                            Duration = dependencyTelemetry.Duration,
                            OperationId = TruncateValue(dependencyTelemetry.Context?.Operation?.Id),
                            ResultCode = dependencyTelemetry.ResultCode,
-                           CommandName = TruncateValue(dependencyTelemetry.CommandName),
-                           DependencyTypeName = dependencyTelemetry.DependencyTypeName,
-                           DependencyKind = dependencyTelemetry.DependencyKind,
+                           CommandName = TruncateValue(dependencyTelemetry.Data),
+                           DependencyTypeName = dependencyTelemetry.Type,
                            Properties = GetProperties(dependencyTelemetry, SpecialDependencyPropertyName)
                        };
         }
@@ -231,7 +227,6 @@
                                exceptionTelemetry.SeverityLevel != null
                                    ? exceptionTelemetry.SeverityLevel.Value.ToString()
                                    : null,
-                           HandledAt = exceptionTelemetry.HandledAt.ToString(),
                            Exception =
                                exceptionTelemetry.Exception != null
                                    ? TruncateValue(exceptionTelemetry.Exception.ToString())

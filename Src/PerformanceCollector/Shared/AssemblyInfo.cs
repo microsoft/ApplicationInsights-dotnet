@@ -4,6 +4,8 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Unit.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("TestApp40, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("TestApp45, PublicKey=" + AssemblyInfo.PublicKey)]
 
 internal static class AssemblyInfo
 {

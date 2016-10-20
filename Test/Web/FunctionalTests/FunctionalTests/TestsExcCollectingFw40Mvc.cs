@@ -2,7 +2,7 @@
 {
     using Functional.Helpers;
     using Functional.IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
     using System.IO;
@@ -75,7 +75,7 @@
                 1);
 
             this.ValidateExceptionDetails(
-                exceptionItem.Data.BaseData.Exceptions[0],
+                exceptionItem.data.baseData.exceptions[0],
                 "System.Web.HttpException",
                 "The controller for path '/wrongController' was not found or does not implement IController.",
                 "System.Web.Mvc.DefaultControllerFactory.GetControllerInstance",

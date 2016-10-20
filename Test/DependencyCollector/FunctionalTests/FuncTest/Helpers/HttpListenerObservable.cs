@@ -11,12 +11,12 @@
     using System.Reactive.Threading.Tasks;
     using System.Text;
     using System.Threading.Tasks;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
 
-    public class HttpListenerObservable : IObservable<TelemetryItem>, IDisposable
+    public class HttpListenerObservable : IObservable<Envelope>, IDisposable
     {
         private readonly HttpListener listener;
-        private IObservable<TelemetryItem> stream;
+        private IObservable<Envelope> stream;
         private int validatedPackages;
 
         public HttpListenerObservable(string url)
@@ -61,7 +61,7 @@
             listener.Stop();
         }
 
-        public IDisposable Subscribe(IObserver<TelemetryItem> observer)
+        public IDisposable Subscribe(IObserver<Envelope> observer)
         {
             if (this.stream == null)
             {
@@ -90,10 +90,10 @@
             this.Dispose(true);
         }
 
-        private IObservable<TelemetryItem> CreateStream()
+        private IObservable<Envelope> CreateStream()
         {
             return Observable
-                .Create<TelemetryItem>
+                .Create<Envelope>
                 (obs =>
                     Task.Factory.FromAsync(
                         (a, c) =>
@@ -117,7 +117,7 @@
               .RefCount();
         }
 
-        private IEnumerable<TelemetryItem> CreateNewItemsFromContext(HttpListenerContext context)
+        private IEnumerable<Envelope> CreateNewItemsFromContext(HttpListenerContext context)
         {
             try
             {

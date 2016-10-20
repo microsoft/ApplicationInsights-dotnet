@@ -182,12 +182,12 @@
         /// </summary>
         /// <param name="webRequest">Represents web request.</param>
         /// <returns>The url if possible otherwise empty string.</returns>
-        internal string GetUrl(WebRequest webRequest)
+        internal Uri GetUrl(WebRequest webRequest)
         {
-            string resource = string.Empty;
+            Uri resource = null;
             if (webRequest != null && webRequest.RequestUri != null)
             {
-                resource = webRequest.RequestUri.ToString();
+                resource = webRequest.RequestUri;
             }
 
             return resource;
@@ -215,10 +215,16 @@
                     DependencyCollectorEventSource.Log.UnexpectedCallbackParameter("WebRequest");
                 }
 
-                string url = this.GetUrl(webRequest);
-                string httMethod = webRequest.Method;
+                var url = this.GetUrl(webRequest);
 
-                string resourceName = url;
+                if (url == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp", "resourceName is empty");
+                    return null;
+                }
+
+                string httMethod = webRequest.Method;
+                string resourceName = url.AbsolutePath;
 
                 if (!string.IsNullOrEmpty(httMethod))
                 {
@@ -227,13 +233,7 @@
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
 
-                if (string.IsNullOrEmpty(url))
-                {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp", "resourceName is empty");
-                    return null;
-                }
-
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url))
+                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url.ToString()))
                 {
                     // Not logging as we will be logging for all outbound AI calls
                     return null;
@@ -256,7 +256,9 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.DependencyKind = RemoteDependencyKind.Http.ToString();
+                telemetry.Target = url.Host;
+                telemetry.Type = RemoteDependencyConstants.HTTP;
+                telemetry.Data = url.OriginalString;
 
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
             }
