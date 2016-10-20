@@ -12,23 +12,29 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class TransmissionStorage
+    internal class TransmissionStorage : IDisposable
     {
         internal const string TemporaryFileExtension = ".tmp";
         internal const string TransmissionFileExtension = ".trn";
         internal const int DefaultCapacityKiloBytes = 50 * 1024;
 
+        private readonly ConcurrentDictionary<string, string> badFiles;
         private readonly ConcurrentQueue<IPlatformFile> files;
         private readonly object loadFilesLock;
-        
+
         private IPlatformFolder folder;
         private long capacity = DefaultCapacityKiloBytes * 1024;
         private long size;
         private bool sizeCalculated;
+        private Random random = new Random();
+        private Timer clearBadFiles;
 
         public TransmissionStorage()
         {
             this.files = new ConcurrentQueue<IPlatformFile>();
+            this.badFiles = new ConcurrentDictionary<string, string>();
+            TimeSpan clearBadFilesInterval = new TimeSpan(29, 0, 0); // Arbitrarily aligns with IIS restart policy of 29 hours in case IIS isn't restarted.
+            this.clearBadFiles = new Timer((o) => this.badFiles.Clear(), null, clearBadFilesInterval, clearBadFilesInterval);
             this.loadFilesLock = new object();
             this.sizeCalculated = false;
         }
@@ -54,6 +60,15 @@
             }
         }
 
+        public void Dispose()
+        {
+            if (this.clearBadFiles != null)
+            {
+                this.clearBadFiles.Dispose();
+                this.clearBadFiles = null;
+            }
+        }
+
         public virtual void Initialize(IApplicationFolderProvider applicationFolderProvider)
         {
             if (applicationFolderProvider == null)
@@ -72,7 +87,7 @@
             }
 
             this.EnsureSizeIsCalculated();
-            
+
             if (this.size < this.Capacity)
             {
                 var transmission = transmissionGetter();
@@ -92,7 +107,7 @@
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    // expected because the process may have lost permission to access the folder or the files in it
+                    // Expected because the process may have lost permission to access the folder or the files in it.
                     TelemetryChannelEventSource.Log.UnauthorizedAccessExceptionOnTransmissionSaveWarning(transmission.Id, e.Message);
                 }
                 catch (Exception exp)
@@ -117,8 +132,6 @@
             }
 
             this.EnsureSizeIsCalculated();
-            
-            string lastInaccessibleFileName = null;
 
             while (true)
             {
@@ -128,7 +141,7 @@
                     file = this.GetOldestTransmissionFileOrNull();
                     if (file == null)
                     {
-                        return null; // because there are no more transmission files
+                        return null; // Because there are no more transmission files.
                     }
 
                     long fileSize;
@@ -139,24 +152,34 @@
                         return transmission;
                     }
                 }
-                catch (UnauthorizedAccessException)
+                catch (UnauthorizedAccessException uae)
                 {
                     if (file == null)
                     {
-                        return null; // because the process does not have permission to access the folder
+                        TelemetryChannelEventSource.Log.TransmissionStorageDequeueUnauthorizedAccessException(this.folder.Name, uae.ToString());
+                        return null; // Because the process does not have permission to access the folder.
                     }
 
-                    if (lastInaccessibleFileName != file.Name)
+                    string name = file.Name;
+                    if (this.badFiles.TryAdd(name, null))
                     {
-                        lastInaccessibleFileName = file.Name;
-                        continue; // because another thread is loading this file right now
+                        TelemetryChannelEventSource.Log.TransmissionStorageInaccessibleFile(name);
+                    }
+                    else
+                    {
+                        // The same file has been inaccessible more than once because the process does not have permission to modify this file.
+                        TelemetryChannelEventSource.Log.TransmissionStorageUnexpectedRetryOfBadFile(name);
                     }
 
-                    throw; // because the process does not have permission to modify this file
+                    Thread.Sleep(this.random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
                 }
-                catch (IOException)
+                catch (IOException ioe)
                 {
-                    continue; // because another thread already loaded this file
+                    // This exception can happen when one thread runs out of files to process and reloads the list while another
+                    // thread is still processing a file and has not deleted it yet thus allowing it to get in the list again.
+                    TelemetryChannelEventSource.Log.TransmissionStorageDequeueIOError(file.Name, ioe.ToString());
+                    Thread.Sleep(this.random.Next(1, 100)); // Sleep for random time of 1 to 100 milliseconds to try to avoid future timing conflicts.
+                    continue; // It may be because another thread already loaded this file, we don't know yet.
                 }
             }
         }
@@ -169,9 +192,24 @@
 
         private static Transmission LoadFromTransmissionFile(IPlatformFile file, out long fileSize)
         {
-            ChangeFileExtension(file, TemporaryFileExtension);
-            Transmission transmission = LoadFromTemporaryFile(file, out fileSize);
-            file.Delete();
+            fileSize = 0;
+            Transmission transmission = null;
+            if (file.Exists)
+            {
+                // The injestion service rejects anything older than 2 days.
+                if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) 
+                {
+                    ChangeFileExtension(file, TemporaryFileExtension);
+                    transmission = LoadFromTemporaryFile(file, out fileSize);
+                }
+                else
+                {
+                    TelemetryChannelEventSource.Log.TransmissionStorageFileExpired(file.Name, file.DateCreated.ToString());
+                }
+
+                file.Delete();
+            }
+
             return transmission;
         }
 
@@ -195,7 +233,7 @@
 
         private static void ChangeFileExtension(IPlatformFile file, string extension)
         {
-            string transmissionFileName = GetUniqueFileName(extension);
+            string transmissionFileName = Path.ChangeExtension(file.Name, extension);
             file.Rename(transmissionFileName);
         }
 
@@ -241,8 +279,13 @@
                 {
                     if (this.files.Count == 0)
                     {
+                        // Sleep a tiny bit before (re)loading the list so that any other thread still processing
+                        // a file has time to finish and delete it so that it does not get re-added to the new list.
+                        Thread.Sleep(50);
+
+                        // Exclude known bad files and then sort the collection by file creation date.
                         IEnumerable<IPlatformFile> newFiles = this.GetTransmissionFiles();
-                        foreach (IPlatformFile file in newFiles.OrderBy(f => f.DateCreated))
+                        foreach (IPlatformFile file in newFiles.Where(f => !this.badFiles.ContainsKey(f.Name)).OrderBy(f => f.DateCreated))
                         {
                             this.files.Enqueue(file);
                         }
@@ -272,7 +315,7 @@
                                 }
                                 catch (FileNotFoundException)
                                 {
-                                    continue; // because another thread already dequeued this transmission file
+                                    continue; // Because another thread already dequeued this transmission file.
                                 }
                             }
 

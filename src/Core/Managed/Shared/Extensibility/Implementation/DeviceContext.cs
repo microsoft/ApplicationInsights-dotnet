@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
@@ -9,10 +10,12 @@
     public sealed class DeviceContext
     {
         private readonly IDictionary<string, string> tags;
+        private readonly IDictionary<string, string> properties;
 
-        internal DeviceContext(IDictionary<string, string> tags)
+        internal DeviceContext(IDictionary<string, string> tags, IDictionary<string, string> properties)
         {
             this.tags = tags;
+            this.properties = properties;
         }
         
         /// <summary>
@@ -64,28 +67,31 @@
         /// Gets or sets the <a href="http://www.iana.org/assignments/ianaiftype-mib/ianaiftype-mib">IANA interface type</a> 
         /// for the internet connected network adapter.
         /// </summary>
+        [Obsolete("Use custom properties.")]
         public string NetworkType
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceNetwork); }
-            set { this.tags.SetTagValueOrRemove(ContextTagKeys.Keys.DeviceNetwork, value); }
+            get { return this.properties.GetTagValueOrNull("ai.device.network"); }
+            set { this.properties.SetTagValueOrRemove("ai.device.network", value); }
         }
 
         /// <summary>
         /// Gets or sets the current application screen resolution.
         /// </summary>
+        [Obsolete("Use custom properties.")]
         public string ScreenResolution
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceScreenResolution); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceScreenResolution, value); }
+            get { return this.properties.GetTagValueOrNull("ai.device.screenResolution"); }
+            set { this.properties.SetStringValueOrRemove("ai.device.screenResolution", value); }
         }
 
         /// <summary>
         /// Gets or sets the current display language of the operating system.
         /// </summary>
+        [Obsolete("Use custom properties.")]
         public string Language
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.DeviceLanguage); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.DeviceLanguage, value); }
+            get { return this.properties.GetTagValueOrNull("ai.device.language"); }
+            set { this.properties.SetStringValueOrRemove("ai.device.language", value); }
         }
     }
 }

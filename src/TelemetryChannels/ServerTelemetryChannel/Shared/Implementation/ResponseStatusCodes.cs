@@ -2,6 +2,7 @@
 {
     internal class ResponseStatusCodes
     {
+        public const int Success = 200;
         public const int PartialSuccess = 206;
         public const int RequestTimeout = 408;
         public const int ResponseCodeTooManyRequests = 429;

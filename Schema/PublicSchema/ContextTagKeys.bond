@@ -13,8 +13,6 @@ struct ContextTagKeys
     [MaxStringLength("1024")]
     100: string 	 DeviceId = "ai.device.id";
     
-    110: string 	 DeviceLanguage = "ai.device.language";
-    
     [Description("Device locale using <language>-<REGION> pattern, following RFC 5646. Example 'en-US'.")]
     [MaxStringLength("64")]
     115: string 	 DeviceLocale = "ai.device.locale";
@@ -22,8 +20,6 @@ struct ContextTagKeys
     [Description("Model of the device the end user of the application is using. Used for client scenarios. If this field is empty then it is derived from the user agent.")]
     [MaxStringLength("256")]
     120: string 	 DeviceModel = "ai.device.model";
-    
-    125: string 	 DeviceNetwork = "ai.device.network";
     
     [Description("Client device OEM name taken from the browser.")]
     [MaxStringLength("256")]
@@ -33,21 +29,11 @@ struct ContextTagKeys
     [MaxStringLength("256")]
     140: string 	 DeviceOSVersion = "ai.device.osVersion";
     
-    [Description("Name of the instance where application is running. Computer name for on-premisis, instance name for Azure.")]
-    [MaxStringLength("256")]
-    145: string 	 DeviceRoleInstance = "ai.device.roleInstance";
-    
-    [Description("Name of the role application is part of. Maps directly to the role name in azure.")]
-    [MaxStringLength("256")]
-    150: string 	 DeviceRoleName = "ai.device.roleName";
-    
-    155: string 	 DeviceScreenResolution = "ai.device.screenResolution";
-    
     [Description("The type of the device the end user of the application is using. Used primarily to distinguish JavaScript telemetry from server side telemetry. Examples: 'PC', 'Phone', 'Browser'. 'PC' is the default value.")]
     [MaxStringLength("64")]
     160: string 	 DeviceType = "ai.device.type";
     
-    [Description("The IPv4 IP address of the client device. IPv6 is not currently supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [Description("The IP address of the client device. IPv4 and IPv6 is supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
     [MaxStringLength("45")]
     200: string 	 LocationIp = "ai.location.ip";
     
@@ -111,5 +97,9 @@ struct ContextTagKeys
     [Description("Agent version. Used to indicate the version of StatusMonitor installed on the computer if it is used for data collection.")]
     [MaxStringLength("64")]
     1001: string 	 InternalAgentVersion = "ai.internal.agentVersion";
+    
+    [Description("This is the node name used for billing purposes. Use it to override the standard detection of nodes.")]
+    [MaxStringLength("256")]
+    1002: string 	 InternalNodeName = "ai.internal.nodeName";
     
 }

@@ -23,5 +23,8 @@
         /// Returns the platform specific Debugger writer to the VS output console.
         /// </summary>
         IDebugOutput GetDebugOutput();
+
+        // Read environment variable.
+        string GetEnvironmentVariable(string name);
     }
 }

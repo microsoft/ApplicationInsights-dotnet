@@ -13,7 +13,19 @@
         /// <summary>
         /// Gets or sets the start time of the operation.
         /// </summary>
-        public abstract DateTimeOffset StartTime { get; set;  }
+        [Obsolete("Use Timestamp")]
+        public DateTimeOffset StartTime
+        {
+            get
+            {
+                return this.Timestamp;
+            }
+
+            set
+            {
+                this.Timestamp = value;
+            }
+        }
 
         /// <summary>  
         /// Gets or sets Operation ID.

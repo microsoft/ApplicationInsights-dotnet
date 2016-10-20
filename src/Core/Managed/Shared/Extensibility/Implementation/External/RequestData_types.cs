@@ -26,6 +26,7 @@
 
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     
@@ -56,12 +57,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         
-        
-        public string startTime { get; set; }
-
-        
-        
-        
         public string duration { get; set; }
 
         
@@ -72,9 +67,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
         
         
         public bool success { get; set; }
-
-        
-        public string httpMethod { get; set; }
 
         
         
@@ -102,23 +94,11 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             id = "";
             source = "";
             this.name = "";
-            startTime = "";
             duration = "";
             responseCode = "";
-            httpMethod = "";
             url = "";
-            properties = new Dictionary<string, string>();
-            measurements = new Dictionary<string, double>();
+            properties = new ConcurrentDictionary<string, string>();
+            measurements = new ConcurrentDictionary<string, double>();
         }
     }
 } // AI
-
-
-
-
-
-
-
-
-
-

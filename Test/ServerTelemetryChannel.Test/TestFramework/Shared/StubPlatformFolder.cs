@@ -26,6 +26,11 @@
             };
         }
 
+        public string Name
+        {
+            get { return string.Empty; }
+        }
+
         public IPlatformFile CreateFile(string fileName)
         {
             return this.OnCreateFile(fileName);

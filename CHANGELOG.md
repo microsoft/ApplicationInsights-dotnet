@@ -2,6 +2,22 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.2.0-beta3
+
+- Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline. If provided it overrides what is set though configuration file. (Feature is not available in PCL version of SDK).
+- Context properties `NetworkType`, `ScreenResolution` and `Language` marked as obsolete. Please use custom properties to report network type, screen resolution and language. Values stored in these properties will be send as custom properties. 
+- Dependency type was updated to reflect the latest developments in Applicaiton Insights Applicaiton Map feature. You can set a new field - `Target`. `CommandName` was renamed to `Data` for consistancy with the Application Analytics schema. `DependencyKind` will never be send any more and will not be set to "Other" by default. Also there are two more constructors for `DependencyTelemetry` item.
+- Type `SessionStateTelemetry` was marked obsolete. Use `IsFirst` flag in `SessionContext` to indicate that the session is just started.
+- Type `PerformanceCounterTelemetry` was marked obsolete. Use `MetricTelemetry` instead.
+- Marked `RequestTelemetry.HttpMethod` as obsolete. Put http verb as part of the name for the better grouping by name and use custom properties to report http verb as a dimension.
+- Marked `RequestTelemetry.StartTime` as obsolete. Use `TimeStamp` instead.
+- [Removed BCL dependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/175)
+- [Added IPv6 support](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/316)
+- [Fixed an issue where channels sent expired data from storage](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/278)
+- [Fixed an issue where the clock implementation would accumulate error](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/271)
+- [Fixed an issue where telemetry with emptry properties would be dropped](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/319)
+- [Added support for SDK-side throttling](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/318)
+
 ## Version 2.2.0-beta2
 
 - InMemoryChannel has a new override for Flush method that accepts timeout.

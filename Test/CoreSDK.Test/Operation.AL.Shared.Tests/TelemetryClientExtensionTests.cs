@@ -69,8 +69,7 @@
         public void StartDependencyTrackingCreatesADependencyTelemetryItemWithTimeStamp()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null);
-            Assert.AreEqual(operation.Telemetry.StartTime, operation.Telemetry.Timestamp);
-            Assert.AreNotEqual(operation.Telemetry.StartTime, DateTimeOffset.MinValue);
+            Assert.AreNotEqual(operation.Telemetry.Timestamp, DateTimeOffset.MinValue);
 
             AsyncLocalHelpers.SaveOperationContext(null);
         }

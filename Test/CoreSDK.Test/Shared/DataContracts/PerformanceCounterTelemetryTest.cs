@@ -8,6 +8,8 @@
     [TestClass]
     public class PerformanceCounterTelemetryTest
     {
+#pragma warning disable 618
+
         [TestMethod]
         public void SerializeWritesNullValuesAsExpectedByEndpoint()
         {
@@ -16,7 +18,7 @@
             original.CounterName = null;
             original.InstanceName = null;
             ((ITelemetry)original).Sanitize();
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, AI.PerformanceCounterData>(original);
+            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, AI.MetricData>(original);
 
             Assert.Equal(2, item.data.baseData.ver);
         }
@@ -30,5 +32,6 @@
 
             Assert.Equal("b", item.Properties["a"]);
         }
+#pragma warning restore 618
     }
 }

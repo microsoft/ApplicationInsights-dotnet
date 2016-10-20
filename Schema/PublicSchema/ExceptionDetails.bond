@@ -16,7 +16,7 @@ struct ExceptionDetails
     30: required string 	 typeName;
     
     [Description("Exception message.")]
-    [MaxStringLength("1024")]
+    [MaxStringLength("32768")]
     40: required string 	 message;
     
     [Description("Indicates if full exception stack is provided in the exception. The stack may be trimmed, such as in the case of a StackOverflow exception.")]

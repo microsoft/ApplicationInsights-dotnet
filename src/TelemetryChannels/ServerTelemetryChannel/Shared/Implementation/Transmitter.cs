@@ -99,6 +99,24 @@
             }
         }
 
+        public bool ApplyThrottle
+        {
+            get { return this.Sender.ApplyThrottle; }
+            set { this.Sender.ApplyThrottle = value; }
+        }
+
+        public int ThrottleLimit
+        {
+            get { return this.Sender.ThrottleLimit; }
+            set { this.Sender.ThrottleLimit = value; }
+        }
+
+        public int ThrottleWindow
+        {
+            get { return this.Sender.ThrottleWindow; }
+            set { this.Sender.ThrottleWindow = value; }
+        }
+
         public BackoffLogicManager BackoffLogicManager
         {
             get { return this.backoffLogicManager; }
@@ -301,6 +319,11 @@
                 if (this.backoffLogicManager != null)
                 {
                     this.backoffLogicManager.Dispose();
+                }
+
+                if (this.Storage != null)
+                {
+                    this.Storage.Dispose();
                 }
             }            
         }

@@ -31,7 +31,7 @@
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
         {
-            if (args.Exception == null && args.Response == null)
+            if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
             {
                 // We succesfully sent transmittion
                 this.backoffLogicManager.ResetConsecutiveErrors();

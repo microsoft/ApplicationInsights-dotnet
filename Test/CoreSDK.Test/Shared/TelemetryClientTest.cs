@@ -346,7 +346,7 @@
             var dependency = (DependencyTelemetry)sentTelemetry.Single();
 
             Assert.Equal("name", dependency.Name);
-            Assert.Equal("command name", dependency.CommandName);
+            Assert.Equal("command name", dependency.Data);
             Assert.Equal(timestamp, dependency.Timestamp);
             Assert.Equal(TimeSpan.FromSeconds(42), dependency.Duration);
             Assert.Equal(false, dependency.Success);
@@ -382,7 +382,6 @@
 
             Assert.Equal("test name", availability.Name);
             Assert.Equal("test location", availability.RunLocation);
-            Assert.Equal(timestamp, availability.TestTimeStamp);
             Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);
             Assert.Equal(true, availability.Success);
         }
@@ -418,7 +417,7 @@
         }
 
         [TestMethod]
-        public void TrackMethodDontThrowsWhenInstrumentationKeyIsEmptyAndNotSendingTheTelemetryItem()
+        public void TrackMethodDoesNotThrowWhenInstrumentationKeyIsEmptyAndNotSendingTheTelemetryItem()
         {
             var channel = new StubTelemetryChannel { ThrowError = true };
             TelemetryConfiguration.Active = new TelemetryConfiguration
@@ -431,25 +430,82 @@
         }
 
         [TestMethod]
-        public void TrackUsesInstrumentationKeyFromConfigurationWhenTheInstrumenationKeyIsEmpty()
+        public void ChannelIsInitializedInTrackWhenTelemetryConfigurationIsConstructedViaCtor()
+        {
+            TelemetryConfiguration configuration = new TelemetryConfiguration
+            {
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
+
+            var client = new TelemetryClient(configuration);
+            Assert.Null(configuration.TelemetryChannel);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotNull(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
         {
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
             var client = new TelemetryClient(configuration);
-            var observe = client.Context.InstrumentationKey;
-            
+
             string expectedKey = Guid.NewGuid().ToString();
-            configuration.InstrumentationKey = expectedKey;
+            client.Context.InstrumentationKey = expectedKey; // Set in code
+            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
+            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+
+            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyFromEnvironmentIfEmptyInCode()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            string expectedKey = Guid.NewGuid().ToString();
+            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
+            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+
+            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyFromConfigIfEnvironmentVariableIsEmpty()
+        {
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            string expectedKey = Guid.NewGuid().ToString();
+            configuration.InstrumentationKey = expectedKey; // Set in config
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null); // Not set via env. variable
             Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
 
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
         }
 
         [TestMethod]
-        public void TrackDoesNotInitializeInstrumentationKeyWhenItWasSetExplicitly()
+        public void TrackDoesNotInitializeInstrumentationKeyFromConfigWhenItWasSetExplicitly()
         {
-            var configuration = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel(), InstrumentationKey = Guid.NewGuid().ToString() };
+            var configuration = new TelemetryConfiguration
+            {
+                TelemetryChannel = new StubTelemetryChannel(),
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
             var client = new TelemetryClient(configuration);
 
             var expectedKey = Guid.NewGuid().ToString();
@@ -611,7 +667,9 @@
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel, InstrumentationKey = "Test Key" };
             var client = new TelemetryClient(configuration);
 
+#pragma warning disable 618
             Assert.DoesNotThrow(() => client.Track(new SessionStateTelemetry()));
+#pragma warning disable 618
         }
 
         [TestMethod]
@@ -759,16 +817,6 @@
         }
 
         [TestMethod]
-        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
-        {
-            var config = new TelemetryConfiguration();
-            config.InstrumentationKey = "Foo";
-            var client = new TelemetryClient(config);
-
-            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
-        }
-
-        [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {
             // split version by 4 numbers manually so we do not do the same as in the product code and actually test it
@@ -840,9 +888,13 @@
             ExceptionTelemetry telemetry4 = new ExceptionTelemetry(new ArgumentException("Test"));
             MetricTelemetry telemetry5 = new MetricTelemetry("name", 100);
             PageViewTelemetry telemetry6 = new PageViewTelemetry("name");
+#pragma warning disable 618
             PerformanceCounterTelemetry telemetry7 = new PerformanceCounterTelemetry("category", "name", "instance", 100);
+#pragma warning restore 618
             RequestTelemetry telemetry8 = new RequestTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(2), "200", true);
+#pragma warning disable 618
             SessionStateTelemetry telemetry9 = new SessionStateTelemetry(SessionState.Start);
+#pragma warning restore 618
             TraceTelemetry telemetry10 = new TraceTelemetry("text");
             AvailabilityTelemetry telemetry11 = new AvailabilityTelemetry("name", DateTimeOffset.UtcNow, TimeSpan.FromHours(10), "location", true, "message");
 
@@ -892,6 +944,17 @@
             }
 
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [TestMethod]
+        public void SerailizeRemovesEmptyPropertiesAndProducesValidJson()
+        {
+            var telemetryIn = new ExceptionTelemetry(new ApplicationException());
+            telemetryIn.Properties.Add("MyKey", null);
+
+            string json = JsonSerializer.SerializeAsString(telemetryIn);
+            ExceptionTelemetry telemetryOut = Newtonsoft.Json.JsonConvert.DeserializeObject<ExceptionTelemetry>(json);
+            Assert.Equal(0, telemetryOut.Properties.Count);
         }
 
         #endregion

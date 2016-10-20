@@ -66,31 +66,45 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
             TaskEx.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
-                    async previousTask => 
+#if !NET40
+                async previousTask =>
+#else
+                    previousTask =>
+#endif
                     {
                         CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
-                            var task = elapsed();
+                            Task task = elapsed();
 
                             // Task may be executed syncronously
                             // It should return Task.FromResult but just in case we check for null if someone returned null
                             if (task != null)
                             {
+#if !NET40
                                 await task.ConfigureAwait(false);
+#else
+                                task.ContinueWith(
+                                    userTask =>
+                                    {
+                                        try
+                                        {
+                                            userTask.RethrowIfFaulted();
+                                        }
+                                        catch (Exception exception)
+                                        {
+                                            LogException(exception);
+                                        }
+                                    },
+                                    CancellationToken.None,
+                                    TaskContinuationOptions.ExecuteSynchronously,
+                                    TaskScheduler.Default);
+#endif
                             }
                         }
                         catch (Exception exception)
                         {
-                            if (exception is AggregateException)
-                            {
-                                foreach (Exception e in ((AggregateException)exception).InnerExceptions)
-                                {
-                                    CoreEventSource.Log.LogError(e.ToInvariantString());
-                                }
-                            }
-
-                            CoreEventSource.Log.LogError(exception.ToInvariantString());
+                            LogException(exception);
                         }
                     },
                     CancellationToken.None,
@@ -115,6 +129,25 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Log exception thrown by outer code.
+        /// </summary>
+        /// <param name="exception">Exception to log.</param>
+        private static void LogException(Exception exception)
+        {
+            var aggregateException = exception as AggregateException;
+            if (aggregateException != null)
+            {
+                aggregateException = aggregateException.Flatten();
+                foreach (Exception e in aggregateException.InnerExceptions)
+                {
+                    CoreEventSource.Log.LogError(e.ToInvariantString());
+                }
+            }
+
+            CoreEventSource.Log.LogError(exception.ToInvariantString());
         }
 
         private static void CancelAndDispose(CancellationTokenSource tokenSource)

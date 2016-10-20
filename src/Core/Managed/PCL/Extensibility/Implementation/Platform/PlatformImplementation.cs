@@ -35,5 +35,10 @@
             
             return this.debugOutput;
         }
+
+        public string GetEnvironmentVariable(string name)
+        {
+            return null;
+        }
     }
 }

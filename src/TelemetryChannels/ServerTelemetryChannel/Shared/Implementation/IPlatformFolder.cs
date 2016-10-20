@@ -4,6 +4,8 @@
     
     internal interface IPlatformFolder
     {
+        string Name { get; }
+
         void Delete();
 
         bool Exists();

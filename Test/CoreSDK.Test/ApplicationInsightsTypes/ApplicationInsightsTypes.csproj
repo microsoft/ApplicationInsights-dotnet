@@ -45,7 +45,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -71,12 +70,6 @@
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\DataPointType.bond">
       <Link>DataPointType.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\DependencyKind.bond">
-      <Link>DependencyKind.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\DependencySourceType.bond">
-      <Link>DependencySourceType.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\Domain.bond">
       <Link>Domain.bond</Link>
@@ -105,29 +98,17 @@
     <BondCodegen Include="..\..\..\Schema\PublicSchema\PageViewPerfData.bond">
       <Link>PageViewPerfData.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\PerformanceCounterData.bond">
-      <Link>PerformanceCounterData.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\RemoteDependencyData.bond">
       <Link>RemoteDependencyData.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\RequestData.bond">
       <Link>RequestData.bond</Link>
     </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\SessionState.bond">
-      <Link>SessionState.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\SessionStateData.bond">
-      <Link>SessionStateData.bond</Link>
-    </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\SeverityLevel.bond">
       <Link>SeverityLevel.bond</Link>
     </BondCodegen>
     <BondCodegen Include="..\..\..\Schema\PublicSchema\StackFrame.bond">
       <Link>StackFrame.bond</Link>
-    </BondCodegen>
-    <BondCodegen Include="..\..\..\Schema\PublicSchema\TestResult.bond">
-      <Link>TestResult.bond</Link>
     </BondCodegen>
     <None Include="app.config" />
     <None Include="packages.config" />

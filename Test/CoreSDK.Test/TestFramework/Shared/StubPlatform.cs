@@ -23,5 +23,10 @@
         {
             return this.OnGetDebugOutput();
         }
+
+        public string GetEnvironmentVariable(string name)
+        {
+            return Environment.GetEnvironmentVariable(name);
+        }
     }
 }
