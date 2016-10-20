@@ -50,8 +50,9 @@
         }
 
         /// <summary>
-        /// Enables a limiter on the maximum number of <see cref="ITelemetry"/> objects that can be sent in a given throttle window.
-        /// Items attempted to be sent in excession of the local throttle amount will be treated the same as a backend throttle.
+        /// Gets or sets a value indicating whether a limiter on the maximum number of <see cref="ITelemetry"/> objects 
+        /// that can be sent in a given throttle window is enabled. Items attempted to be sent exceeding of the local 
+        /// throttle amount will be treated the same as a backend throttle.
         /// </summary>
         public virtual bool ApplyThrottle
         {
@@ -67,7 +68,7 @@
         }
 
         /// <summary>
-        /// Set the maximum number of items that will be allowed to send in a given throttle window.
+        /// Gets or sets the maximum number of items that will be allowed to send in a given throttle window.
         /// </summary>
         public virtual int ThrottleLimit
         {
@@ -83,7 +84,7 @@
         }
 
         /// <summary>
-        /// Set the size of the self-limiting throttle window in milliseconds.
+        /// Gets or sets the size of the self-limiting throttle window in milliseconds.
         /// </summary>
         public virtual int ThrottleWindow
         {
@@ -97,7 +98,6 @@
                 this.throttleWindowInMilliseconds = value;
             }
         }
-
 
         public virtual bool Enqueue(Func<Transmission> transmissionGetter)
         {
@@ -147,7 +147,7 @@
             HttpWebResponseWrapper responseContent = null;
 
             // Locally self-throttle this payload before we send it
-            Transmission acceptedTransmission = Throttle(transmission);
+            Transmission acceptedTransmission = this.Throttle(transmission);
 
             // Now that we've self-imposed a throttle, we can try to send the remaining data
             try
@@ -188,9 +188,9 @@
 
         /// <summary>
         /// Checks if the transmission throttling policy allows for sending another request.
-        /// If so, this method will add a request to the current throttle count (unless peeking)
+        /// If so, this method will add a request to the current throttle count (unless peeking).
         /// </summary>
-        /// <returns>The number of events that are sendable</returns>
+        /// <returns>The number of events that are able to be sent.</returns>
         private int IsTransmissionSendable(int numEvents, bool peek = false)
         {
             if (!this.applyThrottle)
@@ -200,7 +200,7 @@
 
             long throttleWindowId = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds / this.ThrottleWindow);
             bool isInThrottleWindow = throttleWindowId == this.currentThrottleWindowId;
-            if (isInThrottleWindow && currentItemsCount < this.ThrottleLimit)
+            if (isInThrottleWindow && this.currentItemsCount < this.ThrottleLimit)
             {
                 int numAccepted = Math.Min(numEvents, this.ThrottleLimit - this.currentItemsCount);
                 if (!peek)
@@ -230,7 +230,8 @@
 
             int attemptedItemsCount = -1;
             int acceptedItemsCount = -1;
-            Tuple<Transmission,Transmission> transmissions = transmission.Split((transmissionLength) => {
+            Tuple<Transmission, Transmission> transmissions = transmission.Split((transmissionLength) => 
+            {
                 attemptedItemsCount = transmissionLength;
                 acceptedItemsCount = this.IsTransmissionSendable(transmissionLength);
                 return acceptedItemsCount;
@@ -243,7 +244,7 @@
             if (rejectedTransmission != null)
             {
                 TelemetryChannelEventSource.Log.TransmissionThrottledWarning(this.ThrottleLimit, attemptedItemsCount, acceptedItemsCount);
-                SendTransmissionThrottleRejection(rejectedTransmission);
+                this.SendTransmissionThrottleRejection(rejectedTransmission);
             }
             
             return acceptedTransmission;
@@ -255,14 +256,16 @@
                 "Transmission was split by local throttling policy",
                 null,
                 System.Net.WebExceptionStatus.Success,
-                null
-            );
-            this.OnTransmissionSent(new TransmissionProcessedEventArgs(rejectedTransmission, exception, new HttpWebResponseWrapper()
-            {
-                StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
-                StatusDescription = "Internally Throttled",
-                RetryAfterHeader = null
-            }));
+                null);
+            this.OnTransmissionSent(new TransmissionProcessedEventArgs(
+                rejectedTransmission, 
+                exception, 
+                new HttpWebResponseWrapper()
+                {
+                    StatusCode = ResponseStatusCodes.ResponseCodeTooManyRequests,
+                    StatusDescription = "Internally Throttled",
+                    RetryAfterHeader = null
+                }));
         }
     }
 }

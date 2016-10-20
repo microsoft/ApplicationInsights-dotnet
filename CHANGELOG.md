@@ -13,10 +13,10 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Marked `RequestTelemetry.StartTime` as obsolete. Use `TimeStamp` instead.
 - [Removed BCL dependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/175)
 - [Added IPv6 support](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/316)
-- [Fixed issue #278](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/278)
-- [Fixed issue #271](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/271)
-- [Fixed issue #319](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/319)
-- [Fixed issue #318](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/318)
+- [Fixed an issue where channels sent expired data from storage](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/278)
+- [Fixed an issue where the clock implementation would accumulate error](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/271)
+- [Fixed an issue where telemetry with emptry properties would be dropped](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/319)
+- [Added support for SDK-side throttling](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/318)
 
 ## Version 2.2.0-beta2
 
