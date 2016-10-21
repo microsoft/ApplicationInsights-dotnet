@@ -70,9 +70,9 @@ namespace TestApp45
             perfModule.EnableIISExpressPerformanceCounters = true;
 
             // set test-friendly timings
-            var privateObject = new PrivateObject(perfModule);
-            privateObject.SetField("collectionPeriod", TimeSpan.FromMilliseconds(10));
-            privateObject.SetField("defaultCounters", new List<string>() { @"\Memory\Available Bytes", @"Will not parse;\Does\NotExist" });
+            perfModule.CollectionPeriod = TimeSpan.FromMilliseconds(10);
+            perfModule.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Memory\Available Bytes", @"\Memory\Available Bytes"));
+            perfModule.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"Will not parse;\Does\NotExist", @"Will not parse;\Does\NotExist"));
 
             perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"Will not parse", "Custom counter - will not parse"));
 

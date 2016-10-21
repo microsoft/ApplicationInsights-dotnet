@@ -3,7 +3,7 @@
     using Functional.Helpers;
     using Functional.IisExpress;
     using Helpers;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Diagnostics;

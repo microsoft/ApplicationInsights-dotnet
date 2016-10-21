@@ -4,7 +4,6 @@
     using System.Data;
     using System.Data.SqlClient;
     using System.Globalization;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -52,154 +51,86 @@
         #region Sql callbacks
 
         /// <summary>
-        /// On begin callback for ExecuteReader.
+        /// On begin callback for methods with 1 parameter.
         /// </summary>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="behavior">The callback parameter.</param>
-        /// <param name="method">The state parameter.</param>
-        /// <returns>The context for end callback.</returns>
-        public object OnBeginForExecuteReader(object thisObj, object behavior, object method)
+        public object OnBeginForOneParameter(object thisObj)
         {
-            return this.OnBegin(thisObj, false);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
-        /// On begin callback for sync methods except ExecuteReader.
+        /// On begin callback for methods with 2 parameter.
         /// </summary>
-        /// <param name="thisObj">This object.</param>        
-        /// <returns>The context for end callback.</returns>
-        public object OnBeginForSync(object thisObj)
+        public object OnBeginForTwoParameters(object thisObj, object parameter1)
         {
-            return this.OnBegin(thisObj, false);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
-        /// On end callback for ExecuteReader.
+        /// On begin callback for methods with 3 parameters.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="returnValue">The return value.</param>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="behavior">The callback parameter.</param>
-        /// <param name="method">The state parameter.</param>
-        /// <returns>The resulting return value.</returns>
-        public object OnEndForExecuteReader(object context, object returnValue, object thisObj, object behavior, object method)
+        public object OnBeginForThreeParameters(object thisObj, object parameter1, object parameter2)
         {
-            this.OnEnd(context, null, thisObj, false);
+            return this.OnBegin(thisObj);
+        }
+
+        /// <summary>
+        /// On begin callback for methods with 4 parameter.
+        /// </summary>
+        public object OnBeginForFourParameters(object thisObj, object parameter1, object parameter2, object parameter3)
+        {
+            return this.OnBegin(thisObj);
+        }
+
+        /// <summary>
+        /// On end callback for methods with 1 parameter.
+        /// </summary>
+        public object OnEndForOneParameter(object context, object returnValue, object thisObj)
+        {
+            this.OnEnd(null, thisObj);
             return returnValue;
         }
 
         /// <summary>
-        /// On end for sync methods except ExecuteReader callback.
+        /// On end callback for methods with 2 parameter.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="returnValue">The return value.</param>
-        /// <param name="thisObj">This object.</param>        
-        /// <returns>The resulting return value.</returns>
-        public object OnEndForSync(object context, object returnValue, object thisObj)
+        public object OnEndForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
         {
-            this.OnEnd(context, null, thisObj, false);
+            this.OnEnd(null, thisObj);
             return returnValue;
         }
 
         /// <summary>
-        /// On exception callback for ExecuteReader.
+        /// On end callback for methods with 3 parameter.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="behavior">The callback parameter.</param>
-        /// <param name="method">The state parameter.</param>
-        public void OnExceptionForExecuteReader(object context, object exception, object thisObj, object behavior, object method)
+        public object OnEndForThreeParameters(object context, object returnValue, object thisObj, object parameter1, object parameter2)
         {
-            this.OnEnd(context, exception, thisObj, false);
-        }
-
-        /// <summary>
-        /// On end callback for sync methods except ExecuteReader.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="thisObj">This object.</param>        
-        public void OnExceptionForSync(object context, object exception, object thisObj)
-        {
-            this.OnEnd(context, exception, thisObj, false);
-        }
-
-        /// <summary>
-        /// On begin for BeginExecuteNonQueryInternal callback.
-        /// </summary>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="callback">The callback parameter.</param>
-        /// <param name="stateObject">The stateObject parameter.</param>
-        /// <param name="timeout">The timeout parameter.</param>
-        /// <param name="asyncWrite">The asyncWrite parameter.</param>
-        /// <returns>The context for end callback.</returns>
-        public object OnBeginForBeginExecuteNonQueryInternal(object thisObj, object callback, object stateObject, object timeout, object asyncWrite)
-        {
-            return this.OnBegin(thisObj, true);
-        }
-
-        /// <summary>
-        /// On begin for BeginExecuteReaderInternal callback.
-        /// </summary>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="behavior">The behavior parameter.</param>
-        /// <param name="callback">The callback parameter.</param>
-        /// <param name="stateObject">The stateObject parameter.</param>
-        /// <param name="timeout">The timeout parameter.</param>
-        /// <param name="asyncWrite">The asyncWrite parameter.</param>
-        /// <returns>The context for end callback.</returns>
-        public object OnBeginForBeginExecuteReaderInternal(object thisObj, object behavior, object callback, object stateObject, object timeout, object asyncWrite)
-        {
-            return this.OnBegin(thisObj, true);
-        }
-
-        /// <summary>
-        /// On begin for BeginExecuteXmlReaderInternal callback.
-        /// </summary>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="callback">The callback parameter.</param>
-        /// <param name="stateObject">The stateObject parameter.</param>
-        /// <param name="timeout">The timeout parameter.</param>
-        /// <param name="asyncWrite">The asyncWrite parameter.</param>
-        /// <returns>The context for end callback.</returns>
-        public object OnBeginForBeginExecuteXmlReaderInternal(object thisObj, object callback, object stateObject, object timeout, object asyncWrite)
-        {
-            return this.OnBegin(thisObj, true);
-        }
-
-        /// <summary>
-        /// On end for all SQL async callbacks.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="returnValue">The return value.</param>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="asyncResult">The asyncResult parameter.</param>
-        /// <returns>The context for end callback.</returns>
-        public object OnEndForSqlAsync(object context, object returnValue, object thisObj, object asyncResult)
-        {
-            // See implementation of EndExecuteXXX - before calling EndExecuteXXX it will check exception 
-            // set by BeginXXX and throw it if it had failed
-            Exception exc = null;
-            if (asyncResult is Task)
-            {
-                exc = ((Task)asyncResult).Exception;
-            }
-
-            this.OnEnd(context, null, thisObj, true);
+            this.OnEnd(null, thisObj);
             return returnValue;
         }
 
         /// <summary>
-        /// On exception for all SQL async callback.
+        /// On exception callback for methods with 1 parameter.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="thisObj">This object.</param>
-        /// <param name="asyncResult">The asyncResult parameter.</param>
-        public void OnExceptionForSqlAsync(object context, object exception, object thisObj, object asyncResult)
+        public void OnExceptionForOneParameter(object context, object exception, object thisObj)
         {
-            this.OnEnd(context, exception, thisObj, true);
+            this.OnEnd(exception, thisObj);
+        }
+
+        /// <summary>
+        /// On exception callback for methods with 2 parameter.
+        /// </summary>
+        public void OnExceptionForTwoParameters(object context, object exception, object thisObj, object parameter1)
+        {
+            this.OnEnd(exception, thisObj);
+        }
+
+        /// <summary>
+        /// On exception callback for methods with 3 parameter.
+        /// </summary>
+        public void OnExceptionForThreeParameters(object context, object exception, object thisObj, object parameter1, object parameter2)
+        {
+            this.OnEnd(exception, thisObj);
         }
 
         #endregion //Sql callbacks
@@ -231,6 +162,21 @@
             return resource;
         }
 
+        internal string GetResourceTarget(object thisObj)
+        {
+            SqlCommand command = thisObj as SqlCommand;
+            string result = string.Empty;
+            if (command != null)
+            {
+                if (command.Connection != null)
+                {
+                    result = string.Join(" | ", command.Connection.DataSource, command.Connection.Database);
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Return CommandTest for SQL resource.
         /// </summary>
@@ -240,7 +186,7 @@
         {
             SqlCommand command = thisObj as SqlCommand;
 
-            if (command != null && command.Connection != null)
+            if (command != null)
             {
                 return command.CommandText ?? string.Empty;
             }
@@ -252,9 +198,8 @@
         ///  Common helper for all Begin Callbacks.
         /// </summary>
         /// <param name="thisObj">This object.</param>
-        /// <param name="isAsyncCall">Is Async Invocation.</param>
         /// <returns>The context for end callback.</returns>
-        private object OnBegin(object thisObj, bool isAsyncCall)
+        private object OnBegin(object thisObj)
         {
             try
             {
@@ -291,8 +236,9 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.DependencyKind = RemoteDependencyKind.SQL.ToString();
-                telemetry.CommandName = commandText;
+                telemetry.Type = RemoteDependencyConstants.SQL;
+                telemetry.Target = this.GetResourceTarget(thisObj);
+                telemetry.Data = commandText;
 
                 // We use weaktables to store the thisObj for correlating begin with end call.
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
@@ -309,11 +255,9 @@
         /// <summary>
         ///  Common helper for all End Callbacks.
         /// </summary>
-        /// <param name="context">The context.</param>        
         /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
-        /// <param name="isAsync">Whether the End is for an async invocation.</param>        
-        private void OnEnd(object context, object exceptionObj, object thisObj, bool isAsync)
+        private void OnEnd(object exceptionObj, object thisObj)
         {
             try
             {

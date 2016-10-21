@@ -4,11 +4,9 @@
     using System.Linq;    
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using RemoteDependencyKind = Microsoft.Developer.Analytics.DataCollection.Model.v2.DependencyKind;
-    
     /// <summary>
     /// Tests RDD Functionality for a ASP.NET WebApplication in DOTNET 4.5.1 and DOTNET 4.6
     /// ASPX451 refers to the test application throughout the functional test context.
@@ -105,12 +103,12 @@
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
-        private const string ResourceNameHttpToBing = "http://www.bing.com/";
+        private Uri ResourceNameHttpToBing = new Uri("http://www.bing.com");
 
         /// <summary>
         /// Resource Name for failed request.
         /// </summary>
-        private const string ResourceNameHttpToFailedRequest = "http://www.zzkaodkoakdahdjghejajdnad.com/";
+        private Uri ResourceNameHttpToFailedRequest = new Uri("http://www.zzkaodkoakdahdjghejajdnad.com");
 
         /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
@@ -391,7 +389,7 @@
                             DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
 
                     var httpItems =
-                        allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
+                        allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         3*count,
@@ -424,7 +422,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         count,
@@ -444,13 +442,13 @@
                 application =>
                 {
                     var queryString = "?type=httpClient&count=1";
-                    var resourceNameExpected = "http://www.google.com/404";
+                    var resourceNameExpected = new Uri("http://www.google.com/404");
                     application.ExecuteAnonymousRequest(queryString);
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
                         1,
@@ -483,7 +481,7 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
   
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -516,7 +514,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -545,7 +543,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -573,15 +571,15 @@
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.Data.BaseData.DependencyKind == RemoteDependencyKind.Http).ToArray();                  
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
                     int countItem = 0;
 
                     foreach (var httpItem in httpItems)
                     {
-                        var accessTime = httpItem.Data.BaseData.Value;
-                        Assert.IsTrue(accessTime >= 0, "Access time should be above zero for azure calls");
+                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
+                        Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
-                        var url = httpItem.Data.BaseData.Name;
+                        var url = httpItem.data.baseData.data;
                         if (url.Contains(expectedUrl))
                         {
                             countItem++;
@@ -599,17 +597,19 @@
         #endregion
 
         private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
+            Uri expectedUrl,
             TimeSpan accessTimeMax,
             bool successFlagExpected,
             string verb)
         {
-            if (DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
             {
-                Assert.AreEqual(verb + " " + remoteDependencyNameExpected, itemToValidate.Data.BaseData.Name, "For StatusMonitor implementation we expect verb to be collected.");
+                Assert.AreEqual(verb + " " + expectedUrl.AbsolutePath, itemToValidate.data.baseData.name, "For StatusMonitor implementation we expect verb to be collected.");
+                Assert.AreEqual(expectedUrl.Host, itemToValidate.data.baseData.target);
+                Assert.AreEqual(expectedUrl.OriginalString, itemToValidate.data.baseData.data);
             }
 
-            DeploymentAndValidationTools.Validate(itemToValidate, remoteDependencyNameExpected, accessTimeMax, successFlagExpected);
+            DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
         }
     }
 }

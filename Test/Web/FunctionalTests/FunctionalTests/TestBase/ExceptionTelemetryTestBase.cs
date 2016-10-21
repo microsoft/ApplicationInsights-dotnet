@@ -1,21 +1,20 @@
 ﻿namespace Functional
 {
     using Functional.Helpers;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Linq;
 
     public class ExceptionTelemetryTestBase : SingleWebHostTestBase
     {
         protected void ValidateExceptionTelemetry(TelemetryItem<ExceptionData> exceptionTelemetry, TelemetryItem<RequestData> request, int expectedExceptionsCount)
         {
-            Assert.AreEqual(this.Config.IKey, exceptionTelemetry.IKey, "iKey is not the same as in config file for exception");
-            Assert.AreEqual(request.OperationContext.Id, exceptionTelemetry.OperationContext.Id, "Operation id is incorrect");
+            Assert.AreEqual(this.Config.IKey, exceptionTelemetry.iKey, "iKey is not the same as in config file for exception");
+            Assert.AreEqual(request.tags[new ContextTagKeys().OperationId], exceptionTelemetry.tags[new ContextTagKeys().OperationId], "Operation id is incorrect");
 
-            Assert.AreEqual("Platform", exceptionTelemetry.Data.BaseData.HandledAt, "handledAt is incorrect");
+            Assert.AreEqual(expectedExceptionsCount, exceptionTelemetry.data.baseData.exceptions.Count, "Exceptions count is incorrect");
 
-            Assert.AreEqual(expectedExceptionsCount, exceptionTelemetry.Data.BaseData.Exceptions.Count, "Exceptions count is incorrect");
-
-            Assert.IsNotNull(exceptionTelemetry.DeviceContext, "Device was not collected");
+            Assert.IsTrue(exceptionTelemetry.tags.Where((x)=> { return x.Key.StartsWith("ai.cloud"); }).Count() > 0, "Cloud was not collected");
         }
 
         protected void ValidateExceptionDetails(
@@ -26,19 +25,19 @@
             string expectedAssembly,
             int expectedMaxStackPointCount)
         {
-            Assert.AreEqual(expectedTypeName, exceptionDetails0.TypeName, "exception type 0 name is incorrect");
+            Assert.AreEqual(expectedTypeName, exceptionDetails0.typeName, "exception type 0 name is incorrect");
             
-            Assert.AreEqual(expectedMessage, exceptionDetails0.Message, "message 1 is incorrect");
+            Assert.AreEqual(expectedMessage, exceptionDetails0.message, "message 1 is incorrect");
 
-            Assert.IsTrue(exceptionDetails0.HasFullStack, "'hasFullStack' for type 0 is incorrect");
+            Assert.IsTrue(exceptionDetails0.hasFullStack, "'hasFullStack' for type 0 is incorrect");
             
-            Assert.IsTrue(exceptionDetails0.ParsedStack.Count > 0, "no stackpoints");
-            Assert.IsTrue(exceptionDetails0.ParsedStack.Count <= expectedMaxStackPointCount, "too many stackpoints");
+            Assert.IsTrue(exceptionDetails0.parsedStack.Count > 0, "no stackpoints");
+            Assert.IsTrue(exceptionDetails0.parsedStack.Count <= expectedMaxStackPointCount, "too many stackpoints");
 
-            var firstStackPoint = exceptionDetails0.ParsedStack[0];
-            Assert.AreEqual(0, firstStackPoint.Level, "stackpoint level is incorrect");
-            Assert.AreEqual(expectedMethod, firstStackPoint.Method, "stackpoint method is incorrect");
-            Assert.IsTrue(firstStackPoint.Assembly.StartsWith(expectedAssembly), "Assembly name is incorrect");
+            var firstStackPoint = exceptionDetails0.parsedStack[0];
+            Assert.AreEqual(0, firstStackPoint.level, "stackpoint level is incorrect");
+            Assert.AreEqual(expectedMethod, firstStackPoint.method, "stackpoint method is incorrect");
+            Assert.IsTrue(firstStackPoint.assembly.StartsWith(expectedAssembly), "Assembly name is incorrect");
         }
     }
 }

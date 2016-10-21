@@ -33,17 +33,5 @@
 
             Assert.Equal(hostName, id);
         }
-
-        [TestMethod]
-        public void DeviceContextReaderAssignedNetwork()
-        {
-            var requestTelemetry = new RequestTelemetry();
-
-            new DeviceTelemetryInitializer().Initialize(requestTelemetry);
-
-            string networkType = requestTelemetry.Context.Device.NetworkType;
-
-            Assert.True(Enum.IsDefined(typeof(NetworkInterfaceType), networkType));
-        }
     }
 }

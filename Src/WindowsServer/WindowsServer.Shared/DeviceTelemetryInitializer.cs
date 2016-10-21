@@ -27,8 +27,6 @@
                 telemetry.Context.Device.Id = reader.GetDeviceUniqueId();
                 telemetry.Context.Device.OemName = reader.GetOemName();
                 telemetry.Context.Device.Model = reader.GetDeviceModel();
-                telemetry.Context.Device.NetworkType = reader.GetNetworkType();
-                telemetry.Context.Device.Language = reader.GetHostSystemLocale();
             }
         }
     }

@@ -2,7 +2,7 @@
 {
     using Helpers;
     using IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
     using System.IO;
@@ -62,10 +62,10 @@
             var items = Listener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<MessageData>>(TestListenerTimeoutInMs);
             
             // Check that instrumentation key is correct
-            Assert.AreEqual(0, items.Count(i => !i.IKey.Equals(DiagnosticsInstrumentationKey)), "Some item does not have DiagnosticsInstrumentationKey");
+            Assert.AreEqual(0, items.Count(i => !i.iKey.Equals(DiagnosticsInstrumentationKey)), "Some item does not have DiagnosticsInstrumentationKey");
 
             // There should be one custom actionable event about incorrect timeout of session expiration
-            Assert.IsTrue(items.Count(i => i.Data.BaseData.Message.StartsWith("AI: ")) == 1, "AI actionable event was not recieved");
+            Assert.IsTrue(items.Count(i => i.data.baseData.message.StartsWith("AI: ")) == 1, "AI actionable event was not recieved");
         }
     }
 }

@@ -218,8 +218,6 @@
             telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new MetricTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new PageViewTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new PerformanceCounterTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new SessionStateTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new TraceTelemetry() { Context = { InstrumentationKey = "some ikey" } });
 
             // ASSERT
@@ -796,15 +794,21 @@
             var dependencyShort = new DependencyTelemetry(
                 new string('c', MaxFieldLength),
                 new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                new string('c', MaxFieldLength),
                 false) { Context = { InstrumentationKey = instrumentationKey } };
 
             var dependencyLong = new DependencyTelemetry(
                 new string('c', MaxFieldLength + 1),
                 new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                new string('c', MaxFieldLength + 1),
                 false) { Context = { InstrumentationKey = instrumentationKey } };
 
             // process in the opposite order to allow for an easier validation order
@@ -814,8 +818,8 @@
             // ASSERT
             var telemetryDocuments = accumulatorManager.CurrentDataAccumulator.TelemetryDocuments.Cast<DependencyTelemetryDocument>().ToList();
 
-            Assert.AreEqual(telemetryDocuments[0].CommandName, dependencyShort.CommandName);
-            Assert.AreEqual(telemetryDocuments[1].CommandName, dependencyLong.CommandName.Substring(0, MaxFieldLength));
+            Assert.AreEqual(telemetryDocuments[0].CommandName, dependencyShort.Data);
+            Assert.AreEqual(telemetryDocuments[1].CommandName, dependencyLong.Data.Substring(0, MaxFieldLength));
         }
 
         [TestMethod]
@@ -834,16 +838,22 @@
             var dependencyShort = new DependencyTelemetry(
                 new string('c', MaxFieldLength),
                 new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
+                new string('c', MaxFieldLength),
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                new string('c', MaxFieldLength),
                 false)
             { Context = { InstrumentationKey = instrumentationKey } };
 
             var dependencyLong = new DependencyTelemetry(
                 new string('c', MaxFieldLength + 1),
                 new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
+                new string('c', MaxFieldLength + 1),
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                new string('c', MaxFieldLength + 1),
                 false)
             { Context = { InstrumentationKey = instrumentationKey } };
 
@@ -874,8 +884,11 @@
             var dependencyShort = new DependencyTelemetry(
                 "dependencyShort",
                 "dependencyShort",
+                "dependencyShort",
+                "dependencyShort",
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                "dependencyShort",
                 false)
             {
                 Properties = { { new string('p', MaxFieldLength), new string('v', MaxFieldLength) } },
@@ -885,8 +898,11 @@
             var dependencyLong = new DependencyTelemetry(
                 "dependencyLong",
                 "dependencyLong",
+                "dependencyLong",
+                "dependencyLong",
                 DateTimeOffset.Now,
                 TimeSpan.FromSeconds(1),
+                "dependencyLong",
                 false)
             {
                 Properties = { { new string('p', MaxFieldLength + 1), new string('v', MaxFieldLength + 1) } },

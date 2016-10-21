@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 2.2.0-beta3
+- New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
+- Default performance counters will be reported as metrics
+- When you instantiate `DependencyTrackingTelemetryModule` in code it will not detect certain http dependencies as Azure Storage calls. You need to register a telemetry initializer `HttpDependenciesParsingTelemetryInitializer` to enable this functionality. This telemetry initializer will be registered automatically during NuGet installation.
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version XXX (TODO: update to the final version).
+- The list of userAgent substrings that indicate that traffic is from a synthetic source was minimized for performance reasons. If you want to include more substrings please add them under SyntheticUserAgentTelemetryInitializer/Filters. (List of filters that were used before is saved as a comment in the configuration file)
+- Added HTTP dependencies parsing support for Azure tables, queues, and services (.svc & .asmx).
+
 ## Version 2.2.0-beta2
 
 - DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.1. Agent.Intercept nuget was updated to EventSource.Redist version 1.1.28. 

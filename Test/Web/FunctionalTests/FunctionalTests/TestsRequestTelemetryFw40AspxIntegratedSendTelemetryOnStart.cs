@@ -12,7 +12,7 @@ namespace Functional
     using System.Linq;
     using Helpers;
     using IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -96,14 +96,14 @@ namespace Functional
 
             var traceItems = this.Listener
                 .ReceiveAllItemsDuringTimeOfType<TelemetryItem<MessageData>>(TestListenerTimeoutInMs)
-                .Where(item => item.Data.BaseData.Message.Contains(ExpectedTelemetryMessage))
+                .Where(item => item.data.baseData.message.Contains(ExpectedTelemetryMessage))
                 .ToList();
             
             Assert.AreEqual(
                 1,
                 traceItems.Count, "Unexpected count of received items");
 
-            Assert.AreEqual(ExpectedTelemetryMessage, traceItems[0].Data.BaseData.Message, "Message is not expected");
+            Assert.AreEqual(ExpectedTelemetryMessage, traceItems[0].data.baseData.message, "Message is not expected");
         }
     }
 }

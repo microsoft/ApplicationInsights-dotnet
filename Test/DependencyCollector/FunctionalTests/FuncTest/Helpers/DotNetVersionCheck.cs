@@ -1,4 +1,8 @@
-﻿namespace FuncTest.Helpers
+﻿using System;
+using System.Diagnostics;
+using Microsoft.WindowsAzure.Storage;
+
+namespace FuncTest.Helpers
 {
     using Microsoft.Win32;
 
@@ -93,10 +97,24 @@
 
         private static object GetRegistryValue(string regKey, string regValue)
         {
+            object result = null;
+
             using (RegistryKey key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(regKey))
             {
-                return key != null ? key.GetValue(regValue) : null;
+                if (key != null)
+                {
+                    Trace.TraceInformation("RegKey " + regKey + " exists.");
+                    result = key.GetValue(regValue);
+                }
+                else
+                {
+                    Trace.TraceInformation("RegKey " + regKey + " does not exist.");
+                }
             }
+
+            Trace.TraceInformation("RegKey: " + regKey + ". Reg Value: " + regValue + ". Value: " + (result != null ? result.ToString() : "NULL"));
+
+            return result;
         }
     }
 }

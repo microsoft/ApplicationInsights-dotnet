@@ -1,10 +1,12 @@
-﻿namespace FuncTest.Helpers
+﻿using Functional.Helpers;
+
+namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
     using FuncTest.IIS;
     using Microsoft.Deployment.WindowsInstaller;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -41,13 +43,15 @@
 
         private static bool isInitialized;
 
-        public static DependencySourceType ExpectedSource { get; private set; }
+        public static string ExpectedSDKPrefix { get; private set; }
 
         public static HttpListenerObservable SdkEventListener { get; private set; }
 
         public static TestWebApplication Aspx451TestWebApplication { get; private set; }
 
         public static TestWebApplication Aspx451TestWebApplicationWin32 { get; private set; }
+
+        public static EtwEventSessionRdd EtwSession { get; private set; }
 
         /// <summary>
         /// Deploy all test applications and prepera infra.
@@ -83,19 +87,24 @@
 
                         SdkEventListener = new HttpListenerObservable(Aspx451FakeDataPlatformEndpoint);
 
+                        EtwSession = new EtwEventSessionRdd();
+                        EtwSession.Start();
+
                         Aspx451TestWebApplication.Deploy();
                         Aspx451TestWebApplicationWin32.Deploy(true);
 
                         if (RegistryCheck.IsNet46Installed)
                         {
                             // .NET 4.6 onwards, there is no need of installing agent
-                            ExpectedSource = !RegistryCheck.IsStatusMonitorInstalled
-                                ? DependencySourceType.Aic
-                                : DependencySourceType.Apmc;
+                            ExpectedSDKPrefix = !RegistryCheck.IsStatusMonitorInstalled
+                                ? "rddf"
+                                : "rddp";
+                            Trace.TraceInformation("Tests against 4.6 framework (Excpected prefix: "+ ExpectedSDKPrefix + ").");
                         }
                         else
                         {
-                            ExpectedSource = DependencySourceType.Apmc;
+                            Trace.TraceInformation("Tests against StatusMonitor instrumentation.");
+                            ExpectedSDKPrefix = "rddp";
 
                             if (!RegistryCheck.IsStatusMonitorInstalled)
                             {
@@ -136,6 +145,8 @@
                     {
                         SdkEventListener.Dispose();
 
+                        EtwSession.Stop();
+
                         Aspx451TestWebApplication.Remove();
                         Aspx451TestWebApplicationWin32.Remove();
 
@@ -160,25 +171,18 @@
         /// Validates Runtime Dependency Telemetry values.
         /// </summary>        
         /// <param name="itemToValidate">RDD Item to be validated.</param>
-        /// <param name="remoteDependencyNameExpected">Expected name.</param>   
         /// <param name="accessTimeMax">Expected maximum limit for access time.</param>   
         /// <param name="successFlagExpected">Expected value for success flag.</param>   
         public static void Validate(
             TelemetryItem<RemoteDependencyData> itemToValidate,
-            string remoteDependencyNameExpected,
             TimeSpan accessTimeMax,
             bool successFlagExpected)
         {
-            string actualSdkVersion = itemToValidate.InternalContext.SdkVersion;
-            Assert.IsTrue(
-                DependencySourceType.Apmc == DeploymentAndValidationTools.ExpectedSource
-                    ? actualSdkVersion.Contains("rddp")
-                    : actualSdkVersion.Contains("rddf"), "Actual version:" + actualSdkVersion);
+            string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
+            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
 
             // Validate is within expected limits
-            var ticks = (long)(itemToValidate.Data.BaseData.Value * 10000);
-
-            var accessTime = TimeSpan.FromTicks(ticks);
+            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration);
 
             // DNS resolution may take up to 15 seconds https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.timeout(v=vs.110).aspx.
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 
@@ -196,7 +200,7 @@
             Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format("Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
 
             // Validate success flag
-            var successFlagActual = itemToValidate.Data.BaseData.Success;
+            var successFlagActual = itemToValidate.data.baseData.success;
             Assert.AreEqual(successFlagExpected, successFlagActual, "Success flag collected is wrong");
         }
     }

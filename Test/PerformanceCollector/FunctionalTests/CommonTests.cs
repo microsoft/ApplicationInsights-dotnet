@@ -5,7 +5,7 @@
     using System.Net.Http;
 
     using Functional.Helpers;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,9 +15,9 @@
 
         public static void DefaultCounterCollection(HttpListenerObservable listener)
         {
-            var counterItems = listener.ReceiveItemsOfType<TelemetryItem<PerformanceCounterData>>(10, TestListenerWaitTimeInMs);
+            var counterItems = listener.ReceiveItemsOfType<TelemetryItem<MetricData>>(10, TestListenerWaitTimeInMs);
 
-            AssertDefaultCounterReported(counterItems, "Memory", "Available Bytes");  
+            AssertCustomCounterReported(counterItems, "\\Memory\\Available Bytes");  
         }
 
         public static void CustomCounterCollection(HttpListenerObservable listener)
@@ -137,35 +137,14 @@
             Assert.IsTrue(samples.Any(item => item.Metrics.Any(m => m.Name == metricName && m.Value > 0)));
         }
 
-        private static void AssertDefaultCounterReported(TelemetryItem[] counterItems, string categoryName, string counterName, bool reported = true)
-        {
-            bool counterReported = counterItems.Any(
-                item =>
-                {
-                    var perfData = item as TelemetryItem<PerformanceCounterData>;
-
-                    return perfData != null && perfData.Data.BaseData.CategoryName == categoryName
-                           && perfData.Data.BaseData.CounterName == counterName;
-                });
-
-            if (reported)
-            {
-                Assert.IsTrue(counterReported);
-            }
-            else
-            {
-                Assert.IsFalse(counterReported);
-            }
-        }
-
-        private static void AssertCustomCounterReported(TelemetryItem[] counterItems, string metricName, bool reported = true)
+        private static void AssertCustomCounterReported(Envelope[] counterItems, string metricName, bool reported = true)
         {
             bool counterReported = counterItems.Any(
                 item =>
                 {
                     var metricData = item as TelemetryItem<MetricData>;
 
-                    return metricData != null && metricData.Data.BaseData.Metrics[0].Name == metricName;
+                    return metricData != null && metricData.data.baseData.metrics[0].name == metricName;
                 });
 
             if (reported)

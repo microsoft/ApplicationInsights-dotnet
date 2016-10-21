@@ -6,7 +6,7 @@
     using System.Net.Http;
     using Helpers;
     using IisExpress;
-    using Microsoft.Developer.Analytics.DataCollection.Model.v2;
+    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -97,7 +97,7 @@
                 testStart,
                 testStart);
 
-            Assert.AreEqual(0, request.Data.BaseData.Duration.TotalMilliseconds, "Duration will be 0 till we make it optional");
+            Assert.AreEqual(0, TimeSpan.Parse(request.data.baseData.duration).TotalMilliseconds, "Duration will be 0 till we make it optional");
         }
     }
 }

@@ -12,10 +12,11 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyKind.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
