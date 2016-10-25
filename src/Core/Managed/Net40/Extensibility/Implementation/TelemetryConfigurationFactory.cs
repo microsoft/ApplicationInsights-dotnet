@@ -57,6 +57,7 @@
 
 #if !CORE_PCL
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            configuration.TelemetryInitializers.Add(new DomainNameRoleInstanceTelemetryInitializer());
 #endif
             // Load configuration from the specified configuration
             if (!string.IsNullOrEmpty(serializedConfiguration))

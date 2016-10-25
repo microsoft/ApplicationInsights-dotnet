@@ -312,6 +312,15 @@
                 this.nameProvider.Name);
         }
 
+        [Event(25, Message = "{0} loaded.", Level = EventLevel.Verbose)]
+        public void TelemetryInitializerLoaded(string msg, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                25,
+                msg ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

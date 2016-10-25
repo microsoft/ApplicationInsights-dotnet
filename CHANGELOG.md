@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.0.0-beta4
+- ```DomainNameRoleInstanceTelemetryInitializer``` is added by default to enable RoleInstance and NodeName initialization based on the machine name.
+
 ## Version 2.2.0-beta3
 
 - Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline. If provided it overrides what is set though configuration file. (Feature is not available in PCL version of SDK).
