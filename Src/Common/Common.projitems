@@ -9,7 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentCorrelationConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstrumentationKeyHashLookupHelper.cs" />
   </ItemGroup>
 </Project>

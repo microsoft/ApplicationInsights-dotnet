@@ -111,23 +111,34 @@
         /// <param name="httpApplication">HttpApplication instance.</param>
         private void HookOnSendRequestHeaders(HttpApplication httpApplication)
         {
-            // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
-            MethodInfo addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
-
-            if (addOnSendingHeadersMethod != null)
+            try
             {
-                var parameters = new object[]
+                if (httpApplication != null && httpApplication.Response != null)
                 {
-                    new Action<HttpContext>((httpContext) =>
-                    {
-                        if (this.requestModule != null)
-                        {
-                            this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
-                        }
-                    })
-                };
+                    // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
+                    // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
+                    MethodInfo addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
 
-                addOnSendingHeadersMethod.Invoke(httpApplication.Response, parameters);
+                    if (addOnSendingHeadersMethod != null)
+                    {
+                        var parameters = new object[]
+                        {
+                            new Action<HttpContext>((httpContext) =>
+                            {
+                                if (this.requestModule != null)
+                                {
+                                    this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
+                                }
+                            })
+                        };
+
+                        addOnSendingHeadersMethod.Invoke(httpApplication.Response, parameters);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WebEventSource.Log.HookAddOnSendingHeadersFailedWarning(ex.ToInvariantString());
             }
         }
 

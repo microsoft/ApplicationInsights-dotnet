@@ -331,6 +331,18 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            35,
+            Message = "Failed to hook onto AddOnSendingHeaders with exception {0}",
+            Level = EventLevel.Warning)]
+        public void HookAddOnSendingHeadersFailedWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                35,
+                exception,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

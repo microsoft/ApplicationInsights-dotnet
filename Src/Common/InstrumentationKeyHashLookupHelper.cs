@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Globalization;
     using System.Security.Cryptography;
@@ -8,8 +9,13 @@
     /// <summary>
     /// A store for instrumentation key hashes. This is order so as to optimize the computation of hashes.
     /// </summary>
-    public static class InstrumentationKeyHashLookupHelper
+    internal static class InstrumentationKeyHashLookupHelper
     {
+        /// <summary>
+        /// Max number of component hashes to cache.
+        /// </summary>
+        private const int MAXSIZE = 100;
+
         private static ConcurrentDictionary<string, string> knownIKeyHashes = new ConcurrentDictionary<string, string>();
 
         /// <summary>
@@ -24,32 +30,37 @@
                 return null;
             }
 
-            if (!knownIKeyHashes.ContainsKey(instrumentationKey))
+            // Let's make sure we don't get different hashes for different casing.
+            instrumentationKey = instrumentationKey.ToLowerInvariant();
+
+            string hash;
+            var found = knownIKeyHashes.TryGetValue(instrumentationKey, out hash);
+
+            if (!found)
             {
-                knownIKeyHashes[instrumentationKey] = GenerateSHA256Hash(instrumentationKey);
+                // Simplistic cleanup to guard against this becoming a memory hog.
+                if (knownIKeyHashes.Keys.Count >= MAXSIZE)
+                {
+                    knownIKeyHashes.Clear();
+                }
+
+                knownIKeyHashes[instrumentationKey] = hash = GenerateEncodedSHA256Hash(instrumentationKey);
             }
 
-            return knownIKeyHashes[instrumentationKey];
+            return hash;
         }
 
         /// <summary>
-        /// Computes the SHA256 hash for a given value.
+        /// Computes the SHA256 hash for a given value and returns it in the form of a base64 encoded string.
         /// </summary>
         /// <param name="value">Value for which the hash is to be computed.</param>
-        /// <returns>Hash string.</returns>
-        private static string GenerateSHA256Hash(string value)
+        /// <returns>Base64 encoded hash string.</returns>
+        private static string GenerateEncodedSHA256Hash(string value)
         {
-            string hashString = string.Empty;
-
             var sha256 = SHA256Managed.Create();
             byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(value));
 
-            foreach (byte x in hash)
-            {
-                hashString += string.Format(CultureInfo.InvariantCulture, "{0:x2}", x);
-            }
-
-            return hashString;
+            return Convert.ToBase64String(hash);
         }
     }
 }

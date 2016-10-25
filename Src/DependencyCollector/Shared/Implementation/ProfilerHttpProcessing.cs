@@ -271,11 +271,10 @@
                     this.telemetryClient.Initialize(telemetry);
                 }
 
-                // Add the source instrumentation key header
-                // We should probably store a hash rather than the whole key
-                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+                // Add the source instrumentation key header if one doesn't already exist
+                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && webRequest.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader] == null)
                 {
-                    webRequest.Headers.Add(ComponentCorrelationConstants.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                    webRequest.Headers.Add(RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
                 }
             }
             catch (Exception exception)
@@ -361,11 +360,11 @@
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
 
-                        var targetIkeyHash = responseObj.Headers[ComponentCorrelationConstants.TargetInstrumentationKeyHeader];
+                        var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader];
                         if (!string.IsNullOrEmpty(targetIkeyHash))
                         {
                             telemetry.Type = RemoteDependencyConstants.AI;
-                            telemetry.Target += "|" + targetIkeyHash;
+                            telemetry.Target += " | " + targetIkeyHash;
                         }
                     }
                     
