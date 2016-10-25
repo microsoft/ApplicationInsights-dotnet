@@ -9,10 +9,9 @@
 
     internal class StubPlatform : IPlatform
     {
-        public Func<IDictionary<string, object>> OnGetApplicationSettings = () => new Dictionary<string, object>();
         public Func<IDebugOutput> OnGetDebugOutput = () => new StubDebugOutput();
         public Func<string> OnReadConfigurationXml = () => null;
-        public Func<Exception, ExceptionDetails, ExceptionDetails> OnGetExceptionDetails = (e, p) => new ExceptionDetails();
+        public Func<string> OnGetMachineName = () => null;
 
         public string ReadConfigurationXml()
         {
@@ -27,6 +26,11 @@
         public string GetEnvironmentVariable(string name)
         {
             return Environment.GetEnvironmentVariable(name);
+        }
+
+        public string GetMachineName()
+        {
+            return this.OnGetMachineName();
         }
     }
 }

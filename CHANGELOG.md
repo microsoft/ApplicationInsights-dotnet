@@ -3,7 +3,7 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.0.0-beta4
-- ```DomainNameRoleInstanceTelemetryInitializer``` is added by default to enable RoleInstance and NodeName initialization based on the machine name.
+- RoleInstance and NodeName by the default are initialized with the machine name.
 
 ## Version 2.2.0-beta3
 

@@ -2,13 +2,17 @@
 {
     using System;
     using System.Collections;
+    using System.Globalization;
     using System.IO;
+    using System.Net;
+    using System.Net.NetworkInformation;
     using System.Security;
+    using System.Threading;
 
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-
+    
     /// <summary>
     /// The .NET 4.0 and 4.5 implementation of the <see cref="IPlatform"/> interface.
     /// </summary>
@@ -17,6 +21,7 @@
         private readonly IDictionary environmentVariables = Environment.GetEnvironmentVariables();
 
         private IDebugOutput debugOutput = null;
+        private string hostName;
 
         /// <summary>
         /// Returns contents of the ApplicationInsights.config file in the application directory.
@@ -78,6 +83,28 @@
 
             object resultObj = this.environmentVariables[name];
             return resultObj != null ? resultObj.ToString() : null;
+        }
+
+        /// <summary>
+        /// Returns the machine name.
+        /// </summary>
+        /// <returns>The machine name.</returns>
+        public string GetMachineName()
+        {
+            return LazyInitializer.EnsureInitialized(ref this.hostName, this.GetHostName);
+        }
+
+        private string GetHostName()
+        {
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            string hostName = Dns.GetHostName();
+
+            if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
+            {
+                hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
+            }
+
+            return hostName;
         }
     }
 }

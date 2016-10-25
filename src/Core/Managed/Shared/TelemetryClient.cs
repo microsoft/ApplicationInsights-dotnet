@@ -428,6 +428,17 @@
                 var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetSdkVersion);
                 telemetry.Context.Internal.SdkVersion = version;
             }
+
+            // set RoleInstance and NodeName to the machine name if they're not initialized yet
+            if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName))
+            {
+                telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+            }
+
+            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+            {
+                telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
+            }
         }
 
         /// <summary>
