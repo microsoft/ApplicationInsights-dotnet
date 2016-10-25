@@ -4,8 +4,9 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.Implementation;
-    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Implementation;    
+
     /// <summary>
     /// A telemetry initializer that will gather Azure Role Environment context information.
     /// </summary>
@@ -35,6 +36,12 @@
             }
 
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+            {
+                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, AzureRoleEnvironmentContextReader.Instance.GetRoleInstanceName);
+                telemetry.Context.Cloud.RoleInstance = name;
+            }
+
+            if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, AzureRoleEnvironmentContextReader.Instance.GetRoleInstanceName);
                 telemetry.Context.Cloud.RoleInstance = name;

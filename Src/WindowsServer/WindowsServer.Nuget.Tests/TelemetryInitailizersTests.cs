@@ -24,21 +24,6 @@
         }
 
         [TestMethod]
-        public void InstallAddsDomainNameRoleInstanceTelemetryInitializer()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            Type typeToFind = typeof(DomainNameRoleInstanceTelemetryInitializer);
-
-            var node = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform)
-                .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
-            
-            Assert.IsNotNull(node);
-        }
-
-        [TestMethod]
         public void InstallAddsBuildInfoConfigComponentVersionTelemetryInitializer()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
@@ -75,13 +60,11 @@
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
             Type typeToFind1 = typeof(AzureRoleEnvironmentTelemetryInitializer);
-            Type typeToFind2 = typeof(DomainNameRoleInstanceTelemetryInitializer);
 
             var node = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform)
                 .Descendants()
                 .Where(element =>
-                    element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind1)
-                    || element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind2))
+                    element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind1))
                 .ToList();
 
             Assert.AreEqual(node[0].Attribute("Type").Value, ConfigurationHelpers.GetPartialTypeName(typeToFind1));

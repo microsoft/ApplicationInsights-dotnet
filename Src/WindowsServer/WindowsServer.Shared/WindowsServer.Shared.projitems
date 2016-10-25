@@ -14,7 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureRoleEnvironmentContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DeviceContextReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IAzureRoleEnvironmentContextReader.cs" />

@@ -19,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializerTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DomainNameRoleInstanceTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntimeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TypeHelpersTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
