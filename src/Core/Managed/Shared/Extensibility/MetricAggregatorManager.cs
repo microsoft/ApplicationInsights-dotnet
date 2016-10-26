@@ -178,7 +178,15 @@
             {
                 foreach (IMetricProcessor processor in metricProcessors)
                 {
-                    processor.Track(metricName, value, dimensions);
+                    try
+                    {
+                        processor.Track(metricName, value, dimensions);
+                    }
+                    catch (Exception ex)
+                    {
+                        // TODO log exception and suppress
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    }
                 }
             }
         }
