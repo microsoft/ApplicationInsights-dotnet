@@ -44,7 +44,7 @@
             if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, AzureRoleEnvironmentContextReader.Instance.GetRoleInstanceName);
-                telemetry.Context.Cloud.RoleInstance = name;
+                telemetry.Context.GetInternalContext().NodeName = name;
             }
         }
     }

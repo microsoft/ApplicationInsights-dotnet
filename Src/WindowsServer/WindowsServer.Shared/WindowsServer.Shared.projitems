@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BuildInfoConfigComponentVersionTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModule.cs" />
