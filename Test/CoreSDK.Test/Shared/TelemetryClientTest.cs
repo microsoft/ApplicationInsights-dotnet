@@ -98,7 +98,7 @@
             new TelemetryClient().Initialize(telemetry);
 
             Assert.Equal("TestMachine", telemetry.Context.Cloud.RoleInstance);
-            Assert.Equal("TestMachine", telemetry.Context.Internal.NodeName);
+            Assert.Null(telemetry.Context.Internal.NodeName);
 
             PlatformSingleton.Current = null;
         }
