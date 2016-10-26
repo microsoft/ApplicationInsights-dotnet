@@ -31,8 +31,9 @@
 
             Type typeToFind = typeof(AzureWebAppRoleEnvironmentTelemetryInitializer);
 
-            var nodes = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform).Descendants().ToList();
-            var node = nodes.FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
+            var node = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform)
+                .Descendants()
+                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
 
             Assert.IsNotNull(node);
         }
