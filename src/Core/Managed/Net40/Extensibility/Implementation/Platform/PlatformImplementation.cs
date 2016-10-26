@@ -96,15 +96,24 @@
 
         private string GetHostName()
         {
-            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
-            string hostName = Dns.GetHostName();
-
-            if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
+            try
             {
-                hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
+                string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+                string hostName = Dns.GetHostName();
+
+                if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
+                {
+                    hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
+                }
+
+                return hostName;
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToGetMachineName(ex.Message);
             }
 
-            return hostName;
+            return string.Empty;
         }
     }
 }
