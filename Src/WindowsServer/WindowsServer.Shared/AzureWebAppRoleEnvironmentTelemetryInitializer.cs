@@ -37,19 +37,19 @@
         {
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
             {
-                var name = LazyInitializer.EnsureInitialized(ref this.roleName, this.GetRoleName);
+                string name = LazyInitializer.EnsureInitialized(ref this.roleName, this.GetRoleName);
                 telemetry.Context.Cloud.RoleName = name;
             }
 
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {
-                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
+                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
                 telemetry.Context.Cloud.RoleInstance = name;
             }
 
             if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
             {
-                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
+                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
                 telemetry.Context.GetInternalContext().NodeName = name;
             }
         }
