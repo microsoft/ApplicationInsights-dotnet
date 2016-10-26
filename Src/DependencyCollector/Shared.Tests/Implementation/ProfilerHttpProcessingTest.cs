@@ -14,6 +14,7 @@
     using System.Web;
 #endif
 
+    using Common;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
@@ -25,6 +26,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
@@ -93,6 +95,64 @@
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+        }
+
+        /// <summary>
+        /// Validates if DependencyTelemetry sent contains the cross component instrumentation key hash.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates if DependencyTelemetry sent contains the cross component IKey hash.")]
+        public void DependencyTargetContainsIkeyTest()
+        {
+            string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
+
+            var request = WebRequest.Create(this.testUrl);
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader, hashedIkey);
+
+            var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
+            returnObjectPassed.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader] = hashedIkey;
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            Assert.AreEqual(this.testUrl.Host + " | " + hashedIkey, ((DependencyTelemetry)this.sendItems[0]).Target);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is added when request is sent.")]
+        public void EnsureSourceHeaderIsAdded()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader]);
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNotNull(request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader]);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is not overwritten if already provided by the user.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
+        public void EnsureSourceHeaderIsNotOverwritten()
+        {
+            string sampleHeaderValue = "helloWorld";
+            var request = WebRequest.Create(this.testUrl);
+
+            request.Headers.Add(RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader, sampleHeaderValue);
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            var actualHeaderValue = request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader];
+
+            Assert.IsNotNull(actualHeaderValue);
+            Assert.AreEqual(sampleHeaderValue, actualHeaderValue);
         }
 
         /// <summary>

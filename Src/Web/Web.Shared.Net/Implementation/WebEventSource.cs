@@ -333,7 +333,7 @@
 
         [Event(
             35,
-            Message = "Failed to hook onto AddOnSendingHeaders with exception {0}",
+            Message = "Failed to hook onto AddOnSendingHeaders event. Exception {0}",
             Level = EventLevel.Warning)]
         public void HookAddOnSendingHeadersFailedWarning(string exception, string appDomainName = "Incorrect")
         {

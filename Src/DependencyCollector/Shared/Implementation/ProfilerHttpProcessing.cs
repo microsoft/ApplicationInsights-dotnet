@@ -353,18 +353,21 @@
                         try
                         {
                             statusCode = (int)responseObj.StatusCode;
+
+                            if (responseObj.Headers != null)
+                            {
+                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader];
+                                if (!string.IsNullOrEmpty(targetIkeyHash))
+                                {
+                                    telemetry.Type = RemoteDependencyConstants.AI;
+                                    telemetry.Target += " | " + targetIkeyHash;
+                                }
+                            }
                         }
                         catch (ObjectDisposedException)
                         {
                             // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
                             // on the second call to GetResponse() we cannot determine the statusCode.
-                        }
-
-                        var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader];
-                        if (!string.IsNullOrEmpty(targetIkeyHash))
-                        {
-                            telemetry.Type = RemoteDependencyConstants.AI;
-                            telemetry.Target += " | " + targetIkeyHash;
                         }
                     }
                     
