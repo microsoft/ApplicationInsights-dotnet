@@ -312,6 +312,18 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+           25,
+           Message = "Exception happened during getting the machine name: '{0}'.",
+           Level = EventLevel.Error)]
+        public void FailedToGetMachineName(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                25,
+                error ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
