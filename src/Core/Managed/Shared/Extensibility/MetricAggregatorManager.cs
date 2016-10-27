@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -20,9 +21,19 @@
     public sealed class MetricAggregatorManager : IDisposable
     {
         /// <summary>
+        /// Name of the property added to aggregation results to indicate duration of the aggregation interval.
+        /// </summary>
+        private static string intervalDurationPropertyName = "IntervalDurationMs";
+
+        /// <summary>
         /// Reporting frequency.
         /// </summary>
         private static TimeSpan snapshotFrequency = TimeSpan.FromMinutes(1);
+
+        /// <summary>
+        /// Last time snapshot was initiated.
+        /// </summary>
+        private DateTimeOffset lastSnapshotStartDateTime;
 
         /// <summary>
         /// A dictionary of all metric aggregators instantiated via this manager.
@@ -60,6 +71,7 @@
         {
             this.client = client ?? new TelemetryClient();
 
+            this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
             this.aggregatorDictionary = new ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator>();
 
             this.cancellationSource = new CancellationTokenSource();
@@ -135,6 +147,7 @@
 #if NET40 || NET45 || NET46
                 catch (ThreadAbortException)
                 {
+                    // TODO THreadAbort is re-thrown after catch. Need to refactor code beow to make sure we Flush()
                     break;
                 }
 #endif
@@ -216,7 +229,7 @@
         /// <param name="aggregator">Metric aggregator.</param>
         /// <param name="stats">Aggregation statistics.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static ITelemetry CreateAggergatedMetricTelemetry(MetricAggregator aggregator, SimpleMetricStatsAggregator stats)
+        private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(MetricAggregator aggregator, SimpleMetricStatsAggregator stats)
         {
             if ((aggregator == null) || (stats == null) || (stats.Count <= 0))
             {
@@ -250,11 +263,31 @@
             ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator> aggregatorSnapshot =
                 Interlocked.Exchange(ref this.aggregatorDictionary, new ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator>());
 
+            // calculate aggregation interval duration interval
+            TimeSpan aggregationIntervalDuation = DateTimeOffset.UtcNow - this.lastSnapshotStartDateTime;
+            this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
+
+            // prevent zero duration for interval
+            if (aggregationIntervalDuation == TimeSpan.Zero)
+            {
+                aggregationIntervalDuation = TimeSpan.FromMilliseconds(1);
+            }
+
+            // adjust interval duration to exactly snapshot frequency if it is close (within 1%)
+            double difference = Math.Abs(aggregationIntervalDuation.TotalMilliseconds - snapshotFrequency.TotalMilliseconds);
+
+            if (difference <= snapshotFrequency.TotalMilliseconds / 100)
+            {
+                aggregationIntervalDuation = snapshotFrequency;
+            }
+
             if (aggregatorSnapshot.Count > 0)
             {
                 foreach (KeyValuePair<MetricAggregator, SimpleMetricStatsAggregator> metricStats in aggregatorSnapshot)
                 {
-                    ITelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(metricStats.Key, metricStats.Value);
+                    AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(metricStats.Key, metricStats.Value);
+
+                    aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
                     if (aggergatedMetricTelemetry != null)
                     {

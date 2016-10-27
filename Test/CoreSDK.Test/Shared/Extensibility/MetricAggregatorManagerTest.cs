@@ -42,7 +42,8 @@
             Assert.Equal(42, aggregatedMetric.Max);
             Assert.Equal(0, aggregatedMetric.StandardDeviation);
 
-            Assert.Equal(0, aggregatedMetric.Properties.Count);
+            // note: interval duration property is auto-generated
+            Assert.Equal(1, aggregatedMetric.Properties.Count);
         }
 
         [TestMethod]
@@ -70,7 +71,8 @@
             Assert.Equal(42, aggregatedMetric.Max);
             Assert.Equal(0, aggregatedMetric.StandardDeviation);
 
-            Assert.Equal(0, aggregatedMetric.Properties.Count);
+            // note: interval duration property is auto-generated
+            Assert.Equal(1, aggregatedMetric.Properties.Count);
         }
 
         [TestMethod]
@@ -103,7 +105,8 @@
             Assert.Equal(42, aggregatedMetric.Max);
             Assert.Equal(0, aggregatedMetric.StandardDeviation);
 
-            Assert.Equal(2, aggregatedMetric.Properties.Count);
+            // note: interval duration property is auto-generated
+            Assert.Equal(3, aggregatedMetric.Properties.Count);
 
             Assert.Equal("Value1", aggregatedMetric.Properties["Dim1"]);
             Assert.Equal("Value2", aggregatedMetric.Properties["Dim2"]);
@@ -131,7 +134,53 @@
             Assert.Equal(42, aggregatedMetric.Max);
             Assert.Equal(0, aggregatedMetric.StandardDeviation);
 
-            Assert.Equal(0, aggregatedMetric.Properties.Count);
+            // note: interval duration property is auto-generated
+            Assert.Equal(1, aggregatedMetric.Properties.Count);
+        }
+
+        [TestMethod]
+        public void AggregatedMetricTelemetryHasIntervalDurationProperty()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                aggregator.Track(42);
+            }
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal("Test Metric", aggregatedMetric.Name);
+
+            Assert.Equal(1, aggregatedMetric.Count);
+            Assert.Equal(1, aggregatedMetric.Properties.Count);
+
+            Assert.True(aggregatedMetric.Properties.ContainsKey("IntervalDurationMs"));
+        }
+
+        [TestMethod]
+        public void AggregatedMetricTelemetryIntervalDurationPropertyIsPositiveInteger()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                aggregator.Track(42);
+            }
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal("Test Metric", aggregatedMetric.Name);
+
+            Assert.Equal(1, aggregatedMetric.Count);
+            Assert.Equal(1, aggregatedMetric.Properties.Count);
+
+            Assert.True(aggregatedMetric.Properties.ContainsKey("IntervalDurationMs"));
+            Assert.True(long.Parse(aggregatedMetric.Properties["IntervalDurationMs"]) > 0);
         }
 
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry)

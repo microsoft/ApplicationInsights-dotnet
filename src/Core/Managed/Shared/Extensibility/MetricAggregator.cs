@@ -28,8 +28,14 @@
             this.Dimensions = dimensions;
         }
 
+        /// <summary>
+        /// Gets metric name.
+        /// </summary>
         internal string MetricName { get; private set; }
 
+        /// <summary>
+        /// Gets a set of metric dimensions and their values.
+        /// </summary>
         internal IDictionary<string, string> Dimensions { get; private set; }
 
         /// <summary>
