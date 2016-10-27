@@ -1,6 +1,10 @@
 # Changelog
 
 ## Version 2.2.0-beta3
+- DomainNameRoleInstanceTelemetryInitializer is obsolete.
+- New AzureWebAppRoleEnvironmentTelemetryInitializer telemetry initializer that populates role name and role instance name for Azure Web Apps.
+
+## Version 2.2.0-beta3
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
 - Default performance counters will be reported as metrics
 - When you instantiate `DependencyTrackingTelemetryModule` in code it will not detect certain http dependencies as Azure Storage calls. You need to register a telemetry initializer `HttpDependenciesParsingTelemetryInitializer` to enable this functionality. This telemetry initializer will be registered automatically during NuGet installation.

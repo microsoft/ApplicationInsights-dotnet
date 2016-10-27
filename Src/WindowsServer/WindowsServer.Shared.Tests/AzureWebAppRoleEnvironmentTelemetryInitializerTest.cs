@@ -93,5 +93,21 @@
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
             Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
         }
+
+        [TestMethod]
+        public void AzureWebAppRoleEnvironmentTelemetryInitializerEmptyVariable()
+        {
+            Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
+
+            var telemetryItem = new EventTelemetry();
+
+            var initializer = new AzureWebAppRoleEnvironmentTelemetryInitializer();
+            initializer.Initialize(telemetryItem);
+
+            Assert.Null(telemetryItem.Context.Cloud.RoleName);
+            Assert.Null(telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Null(telemetryItem.Context.GetInternalContext().NodeName);
+        }
     }
 }
