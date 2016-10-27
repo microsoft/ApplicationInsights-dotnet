@@ -140,7 +140,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-                        
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -298,7 +298,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             var performanceCollector = new PerformanceCollectorMock();
-                        
+
             var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, timings);
 
             // ACT & ASSERT
@@ -324,7 +324,7 @@
             var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-                        
+
             var module = new QuickPulseTelemetryModule(null, null, serviceClient, performanceCollector, timings);
 
             var timestampStart = DateTimeOffset.UtcNow;
@@ -459,7 +459,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-                        
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -545,7 +545,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { AlwaysThrow = true, ReturnValueFromPing = false, ReturnValueFromSubmitSample = null };
             var performanceCollector = new PerformanceCollectorMock();
-                        
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
