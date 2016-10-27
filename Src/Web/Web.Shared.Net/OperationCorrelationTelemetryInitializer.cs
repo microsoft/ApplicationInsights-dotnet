@@ -17,8 +17,8 @@
         /// </summary>
         public OperationCorrelationTelemetryInitializer()
         {
-            this.ParentOperationIdHeaderName = RequestResponseHeaders.OperationCorrelation.StandardParentIdHeader;
-            this.RootOperationIdHeaderName = RequestResponseHeaders.OperationCorrelation.StandardRootIdHeader;
+            this.ParentOperationIdHeaderName = RequestResponseHeaders.StandardParentIdHeader;
+            this.RootOperationIdHeaderName = RequestResponseHeaders.StandardRootIdHeader;
         }
 
         /// <summary>

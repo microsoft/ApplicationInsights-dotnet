@@ -68,13 +68,13 @@
             var webRequest = WebRequest.Create(new Uri("http://bing.com"));
             var telemetry = new DependencyTelemetry();
 
-            string rootId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardRootIdHeader];
-            string operationId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardParentIdHeader];
+            string rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            string operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.IsNull(rootId);
             Assert.IsNull(operationId);
             WebRequestDependencyTrackingHelpers.SetUserAndSessionContextForWebRequest(telemetry, webRequest);
-            rootId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardRootIdHeader];
-            operationId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardParentIdHeader];
+            rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.IsNull(rootId);
             Assert.IsNull(operationId);
         }
@@ -88,8 +88,8 @@
             telemetry.Context.Operation.Id = "RootId";
 
             WebRequestDependencyTrackingHelpers.SetCorrelationContextForWebRequest(telemetry, webRequest);
-            var rootId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardRootIdHeader];
-            var operationId = webRequest.Headers[RequestResponseHeaders.OperationCorrelation.StandardParentIdHeader];
+            var rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            var operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.AreEqual("RootId", rootId);
             Assert.AreEqual("Id", operationId);
         }

@@ -109,10 +109,10 @@
             var request = WebRequest.Create(this.testUrl);
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, hashedIkey);
 
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
-            returnObjectPassed.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader] = hashedIkey;
+            returnObjectPassed.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = hashedIkey;
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
             var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
@@ -130,10 +130,10 @@
         {
             var request = WebRequest.Create(this.testUrl);
 
-            Assert.IsNull(request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader]);
+            Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
         }
 
         /// <summary>
@@ -146,10 +146,10 @@
             string sampleHeaderValue = "helloWorld";
             var request = WebRequest.Create(this.testUrl);
 
-            request.Headers.Add(RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader, sampleHeaderValue);
+            request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, sampleHeaderValue);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            var actualHeaderValue = request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader];
+            var actualHeaderValue = request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
 
             Assert.IsNotNull(actualHeaderValue);
             Assert.AreEqual(sampleHeaderValue, actualHeaderValue);

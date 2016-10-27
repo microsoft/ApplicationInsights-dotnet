@@ -88,7 +88,7 @@
             if (context.Request.Headers != null)
             {
                 // If the source header is present on the incoming request, use that to populate the source field.
-                string sourceIkey = context.Request.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader];
+                string sourceIkey = context.Request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
 
                 if (!string.IsNullOrEmpty(sourceIkey))
                 {
@@ -118,9 +118,9 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && context.Response.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader] == null)
+            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] == null)
             {
-                context.Response.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
+                context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
             }
         }
 

@@ -27,24 +27,30 @@
         {
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                return null;
+                throw new ArgumentNullException("instrumentationKey");
             }
-
-            // Let's make sure we don't get different hashes for different casing.
-            instrumentationKey = instrumentationKey.ToLowerInvariant();
 
             string hash;
             var found = knownIKeyHashes.TryGetValue(instrumentationKey, out hash);
 
             if (!found)
             {
-                // Simplistic cleanup to guard against this becoming a memory hog.
-                if (knownIKeyHashes.Keys.Count >= MAXSIZE)
-                {
-                    knownIKeyHashes.Clear();
-                }
+                // Instrumentation key is not case sensitive, let's now try for the lowercase - may be that's found. Also in any case we want to add the lowercase key in the dictionary.
+                instrumentationKey = instrumentationKey.ToLowerInvariant();
 
-                knownIKeyHashes[instrumentationKey] = hash = GenerateEncodedSHA256Hash(instrumentationKey);
+                found = knownIKeyHashes.TryGetValue(instrumentationKey, out hash);
+
+                if (!found)
+                {
+                    // Simplistic cleanup to guard against this becoming a memory hog.
+                    if (knownIKeyHashes.Keys.Count >= MAXSIZE)
+                    {
+                        knownIKeyHashes.Clear();
+                    }
+
+                    hash = GenerateEncodedSHA256Hash(instrumentationKey);
+                    knownIKeyHashes[instrumentationKey] = hash;
+                }
             }
 
             return hash;
@@ -57,10 +63,11 @@
         /// <returns>Base64 encoded hash string.</returns>
         private static string GenerateEncodedSHA256Hash(string value)
         {
-            var sha256 = SHA256Managed.Create();
-            byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(value));
-
-            return Convert.ToBase64String(hash);
+            using (var sha256 = SHA256Managed.Create())
+            {
+                byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(value));
+                return Convert.ToBase64String(hash);
+            }
         }
     }
 }

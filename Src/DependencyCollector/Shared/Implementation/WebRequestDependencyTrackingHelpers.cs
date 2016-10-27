@@ -62,12 +62,12 @@
 
                 if (!string.IsNullOrEmpty(context.Id))
                 {
-                    webRequest.Headers.Add(RequestResponseHeaders.OperationCorrelation.StandardRootIdHeader, context.Id);
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, context.Id);
                 }
 
                 if (!string.IsNullOrEmpty(dependencyTelemetry.Id))
                 {
-                    webRequest.Headers.Add(RequestResponseHeaders.OperationCorrelation.StandardParentIdHeader, dependencyTelemetry.Id);
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, dependencyTelemetry.Id);
                 }
             }
             else

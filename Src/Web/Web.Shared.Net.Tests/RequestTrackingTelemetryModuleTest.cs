@@ -279,7 +279,7 @@
             string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 

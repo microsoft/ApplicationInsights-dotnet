@@ -272,9 +272,9 @@
                 }
 
                 // Add the source instrumentation key header if one doesn't already exist
-                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && webRequest.Headers[RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader] == null)
+                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
                 {
-                    webRequest.Headers.Add(RequestResponseHeaders.ComponentCorrelation.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                    webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
                 }
             }
             catch (Exception exception)
@@ -356,7 +356,7 @@
 
                             if (responseObj.Headers != null)
                             {
-                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.ComponentCorrelation.TargetInstrumentationKeyHeader];
+                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader];
                                 if (!string.IsNullOrEmpty(targetIkeyHash))
                                 {
                                     telemetry.Type = RemoteDependencyConstants.AI;

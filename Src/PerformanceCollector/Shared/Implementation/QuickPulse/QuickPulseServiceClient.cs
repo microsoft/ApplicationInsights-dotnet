@@ -78,7 +78,7 @@
         private static bool? ProcessResponse(HttpWebResponse response)
         {
             bool isSubscribed;
-            if (!bool.TryParse(response.GetResponseHeader(RequestResponseHeaders.QuickPulseService.XMsQpsSubscribedHeaderName), out isSubscribed))
+            if (!bool.TryParse(response.GetResponseHeader(RequestResponseHeaders.XMsQpsSubscribedHeaderName), out isSubscribed))
             {
                 return null;
             }
@@ -204,7 +204,7 @@
                 var request = WebRequest.Create(requestUri) as HttpWebRequest;
                 request.Method = httpVerb;
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
-                request.Headers.Add(RequestResponseHeaders.QuickPulseService.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
+                request.Headers.Add(RequestResponseHeaders.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
 
                 onWriteBody?.Invoke(request.GetRequestStream());
 
