@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
 
     using CounterData = System.Tuple<Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.PerformanceCounterData, System.Collections.Generic.List<float>>;
@@ -56,14 +56,12 @@
                         new PerformanceCounterData(
                             originalString,
                             reportAs,
-                            new PerformanceCounter()
-                                {
-                                    CategoryName = categoryName,
-                                    CounterName = counterName,
-                                    InstanceName = instanceName
-                                },
                             usesInstanceNamePlaceholder,
-                            isCustomCounter),
+                            isCustomCounter,
+                            false,
+                            categoryName,
+                            counterName,
+                            instanceName),
                         new List<float>()));
             }
         }
@@ -81,14 +79,12 @@
                             new PerformanceCounterData(
                                 counter.Item1.OriginalString,
                                 counter.Item1.ReportAs,
-                                new PerformanceCounter()
-                                    {
-                                        CategoryName = counter.Item1.PerformanceCounter.CategoryName,
-                                        CounterName = counter.Item1.PerformanceCounter.CounterName,
-                                        InstanceName = counter.Item1.PerformanceCounter.InstanceName
-                                    },
                                 counter.Item1.UsesInstanceNamePlaceholder,
-                                counter.Item1.IsCustomCounter),
+                                counter.Item1.IsCustomCounter,
+                                counter.Item1.IsInBadState,
+                                counter.Item1.CategoryName,
+                                counter.Item1.CounterName,
+                                counter.Item1.InstanceName),
                             value);
 
                     counter.Item2.Add(value);
@@ -98,8 +94,97 @@
             }
         }
 
-        public void RefreshPerformanceCounter(PerformanceCounterData pcd, PerformanceCounter pc)
+        public void RefreshPerformanceCounter(PerformanceCounterData pcd)
         {
+        }
+
+        public void RefreshCounters()
+        {
+        }
+
+        public void LoadDependentInstances()
+        {
+        }
+
+        public void RegisterCounter(
+            string perfCounterName,
+            string reportAs,
+            bool isCustomCounter,
+            out string error)
+        {
+            bool usesInstanceNamePlaceholder;
+            var pc = this.CreateCounter(
+                perfCounterName,
+                out usesInstanceNamePlaceholder,
+                out error);
+
+            if (pc != null)
+            {
+                this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
+            }
+        }
+
+        public PerformanceCounter CreateCounter(
+            string perfCounterName,
+            out bool usesInstanceNamePlaceholder,
+            out string error)
+        {
+            error = null;
+
+            try
+            {
+                return PerformanceCounterUtility.ParsePerformanceCounter(
+                    perfCounterName,
+                    new string[] { },
+                    new string[] { },
+                    out usesInstanceNamePlaceholder);
+            }
+            catch (Exception e)
+            {
+                usesInstanceNamePlaceholder = false;
+                PerformanceCollectorEventSource.Log.CounterParsingFailedEvent(e.Message, perfCounterName);
+                error = e.Message;
+
+                return null;
+            }
+        }
+
+        public MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
+        {
+            return null;
+        }
+
+        private void RegisterCounter(
+            string originalString,
+            string reportAs,
+            PerformanceCounter pc,
+            bool isCustomCounter,
+            bool usesInstanceNamePlaceholder,
+            out string error)
+        {
+            error = null;
+
+            try
+            {
+                this.RegisterPerformanceCounter(
+                    originalString,
+                    reportAs,
+                    pc.CategoryName,
+                    pc.CounterName,
+                    pc.InstanceName,
+                    usesInstanceNamePlaceholder,
+                    isCustomCounter);
+
+                PerformanceCollectorEventSource.Log.CounterRegisteredEvent(
+                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
+            }
+            catch (InvalidOperationException e)
+            {
+                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(
+                    e.Message,
+                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
+                error = e.Message;
+            }
         }
     }
 }

@@ -21,7 +21,7 @@
             const string CounterName = "% Processor Time";
             const string InstanceName = "_Total";
 
-            IPerformanceCollector collector = new PerformanceCollector();
+            IPerformanceCollector collector = new StandardPerformanceCollector();
 
             for (int i = 0; i < CounterCount; i++)
             {
@@ -41,12 +41,11 @@
 
             foreach (var result in results)
             {
-                var pc = result.Item1.PerformanceCounter;
                 var value = result.Item2;
 
-                Assert.AreEqual(CategoryName, pc.CategoryName);
-                Assert.AreEqual(CounterName, pc.CounterName);
-                Assert.AreEqual(InstanceName, pc.InstanceName);
+                Assert.AreEqual(CategoryName,  result.Item1.CategoryName);
+                Assert.AreEqual(CounterName,  result.Item1.CounterName);
+                Assert.AreEqual(InstanceName,  result.Item1.InstanceName);
 
                 Assert.IsTrue(value >= 0 && value <= 100);
             }
@@ -62,9 +61,9 @@
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total") 
                                };
 
-            var newCounter = new PerformanceCounter("Memory", "Available Bytes", string.Empty);
+            var newCounter = new PerformanceCounterData("Available Bytes", "Available Bytes", false, false, false, "Memory", "Available Bytes", string.Empty);
 
-            IPerformanceCollector collector = new PerformanceCollector();
+            IPerformanceCollector collector = new StandardPerformanceCollector();
 
             foreach (var pc in counters)
             {
@@ -78,11 +77,11 @@
                     true);
             }
 
-            collector.RefreshPerformanceCounter(collector.PerformanceCounters.Last(), newCounter);
+            collector.RefreshPerformanceCounter(newCounter);
 
-            Assert.IsTrue(collector.PerformanceCounters.Last().PerformanceCounter.CategoryName == newCounter.CategoryName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().PerformanceCounter.CounterName == newCounter.CounterName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().PerformanceCounter.InstanceName == newCounter.InstanceName);
+            Assert.IsTrue(collector.PerformanceCounters.Last().CategoryName == newCounter.CategoryName);
+            Assert.IsTrue(collector.PerformanceCounters.Last().CounterName == newCounter.CounterName);
+            Assert.IsTrue(collector.PerformanceCounters.Last().InstanceName == newCounter.InstanceName);
         }
 
         [TestMethod]
@@ -95,7 +94,7 @@
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total") 
                                };
 
-            IPerformanceCollector collector = new PerformanceCollector();
+            IPerformanceCollector collector = new StandardPerformanceCollector();
 
             foreach (var pc in counters)
             {

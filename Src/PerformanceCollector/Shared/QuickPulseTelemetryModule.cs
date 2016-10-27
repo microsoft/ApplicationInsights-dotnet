@@ -136,7 +136,7 @@
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
-                        this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
+                        this.performanceCollector = this.performanceCollector ?? new StandardPerformanceCollector();
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.timings = timings ?? QuickPulseTimings.Default;
 
@@ -436,7 +436,7 @@
             // For performance collection, we have to read perf samples from Windows
             List<Tuple<PerformanceCounterData, float>> perfData =
                 this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
-                    .ToList();
+                .ToList();
 
             return this.CreateDataSample(completeAccumulator, perfData);
         }
