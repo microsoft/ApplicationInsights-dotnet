@@ -47,7 +47,7 @@
             {
                 if (this.TargetType == null)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Cannot get a deployment Id when no TargetType is set.");
                 }
 
                 return (string)this.GetProperty("DeploymentId");
@@ -63,7 +63,7 @@
             {
                 if (this.TargetType == null)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Cannot get a role instance when no TargetType is set.");
                 }
 
                 object currentRoleInstance = this.GetProperty("CurrentRoleInstance");
