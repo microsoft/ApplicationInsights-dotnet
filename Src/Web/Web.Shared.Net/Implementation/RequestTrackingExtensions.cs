@@ -4,8 +4,9 @@
     using System.Globalization;
     using System.Linq;
     using System.Web;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
-    
+
     internal static class RequestTrackingExtensions
     {
         internal static RequestTelemetry CreateRequestTelemetryPrivate(

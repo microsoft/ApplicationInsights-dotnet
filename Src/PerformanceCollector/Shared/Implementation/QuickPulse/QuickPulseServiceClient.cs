@@ -16,10 +16,6 @@
     /// </summary>
     internal sealed class QuickPulseServiceClient : IQuickPulseServiceClient
     {
-        private const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
-
-        private const string XMsQpsTransmissionTimeHeaderName = "x-ms-qps-transmission-time";
-
         private readonly string instanceName;
 
         private readonly string streamId;
@@ -81,7 +77,7 @@
         private static bool? ProcessResponse(HttpWebResponse response)
         {
             bool isSubscribed;
-            if (!bool.TryParse(response.GetResponseHeader(XMsQpsSubscribedHeaderName), out isSubscribed))
+            if (!bool.TryParse(response.GetResponseHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName), out isSubscribed))
             {
                 return null;
             }
@@ -207,7 +203,7 @@
                 var request = WebRequest.Create(requestUri) as HttpWebRequest;
                 request.Method = httpVerb;
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
-                request.Headers.Add(XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
+                request.Headers.Add(QuickPulseConstants.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
 
                 onWriteBody?.Invoke(request.GetRequestStream());
 

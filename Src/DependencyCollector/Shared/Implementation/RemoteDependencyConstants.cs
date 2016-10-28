@@ -4,6 +4,7 @@
     {
         public const string SQL = "SQL";
         public const string HTTP = "Http";
+        public const string AI = "Application Insights";
 
         public const string AzureBlob = "Azure blob";
         public const string AzureTable = "Azure table";

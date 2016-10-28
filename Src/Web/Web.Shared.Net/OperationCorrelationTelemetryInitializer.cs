@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System.Web;
+    using Common;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -11,16 +12,13 @@
     /// </summary>
     public class OperationCorrelationTelemetryInitializer : WebTelemetryInitializerBase
     {
-        private const string StandardParentIdHeader = "x-ms-request-id";
-        private const string StandardRootIdHeader = "x-ms-request-root-id";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationCorrelationTelemetryInitializer"/> class.
         /// </summary>
         public OperationCorrelationTelemetryInitializer()
         {
-            this.ParentOperationIdHeaderName = StandardParentIdHeader;
-            this.RootOperationIdHeaderName = StandardRootIdHeader;
+            this.ParentOperationIdHeaderName = RequestResponseHeaders.StandardParentIdHeader;
+            this.RootOperationIdHeaderName = RequestResponseHeaders.StandardRootIdHeader;
         }
 
         /// <summary>
