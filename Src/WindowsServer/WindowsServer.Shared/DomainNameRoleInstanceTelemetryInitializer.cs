@@ -14,7 +14,7 @@
     public class DomainNameRoleInstanceTelemetryInitializer : ITelemetryInitializer
     {   
         /// <summary>
-        /// Initializes <see cref="ITelemetry" /> device context.
+        /// Obsolete method.
         /// </summary>
         /// <param name="telemetry">The telemetry to initialize.</param>
         public void Initialize(ITelemetry telemetry)
