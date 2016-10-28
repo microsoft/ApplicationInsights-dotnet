@@ -26,7 +26,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -55,7 +55,7 @@
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", null);
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric", null);
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -89,7 +89,7 @@
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", dimensions);
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric", dimensions);
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -120,7 +120,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -146,7 +146,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -168,7 +168,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -181,6 +181,328 @@
 
             Assert.True(aggregatedMetric.Properties.ContainsKey("IntervalDurationMs"));
             Assert.True(long.Parse(aggregatedMetric.Properties["IntervalDurationMs"]) > 0);
+        }
+
+        [TestMethod]
+        public void SameMetricAggregatorIsUsedIfMetricNameIsTheSame()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric");
+                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.Equal(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void MetricNameIsCaseSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric");
+                    aggregator2 = manager.GetMetricAggregator("Test metric");
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void MetricNameIsAccentSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric");
+                    aggregator2 = manager.GetMetricAggregator("Test Métric");
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void SameMetricAggregatorIsUsedIfDimensionsSetToNothingExplicitlyAndImplicitly()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", null);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.Equal(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void SameMetricAggregatorIsUsedIfDimensionsSetToNullAndEmptySet()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", new Dictionary<string, string> ());
+                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.Equal(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void SameMetricAggregatorIsUsedIfSameDimensionsSpecifiedInDifferentOrder()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            var dimensionSet1 = new Dictionary<string, string>() {
+                { "Dim1", "Value1"},
+                { "Dim2", "Value2"},
+            };
+
+            var dimensionSet2 = new Dictionary<string, string>() {
+                { "Dim2", "Value2"},
+                { "Dim1", "Value1"},
+            };
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.Equal(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void DimensionNamesAreCaseSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1"} };
+            var dimensionSet2 = new Dictionary<string, string>() { { "dim2", "Value2"} };
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void DimensionNamesAreAccentSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+            var dimensionSet2 = new Dictionary<string, string>() { { "dím2", "Value2" } };
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void DimensionValuesAreCaseSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+            var dimensionSet2 = new Dictionary<string, string>() { { "Dim2", "value2" } };
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
+        }
+
+        [TestMethod]
+        public void DimensionValuesAreAccentSensitive()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            MetricAggregator aggregator1 = null;
+            MetricAggregator aggregator2 = null;
+
+            var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+            var dimensionSet2 = new Dictionary<string, string>() { { "Dim2", "Válue2" } };
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                // note: on first go aggregators may be different because manager may
+                // snapshot after first got created but before the second
+                for (int i = 0; i < 2; i++)
+                {
+                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+
+                    if (aggregator1 == aggregator2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Assert.NotEqual(null, aggregator1);
+            Assert.NotEqual(aggregator1, aggregator2);
         }
 
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry)

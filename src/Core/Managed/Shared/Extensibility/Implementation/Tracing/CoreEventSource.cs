@@ -338,7 +338,7 @@
 
         [Event(
             27,
-            Message = "Failed to run metric processor. Exception: {0}.",
+            Message = "Failed to invoke metric processor. Exception: {0}.",
             Level = EventLevel.Error)]
         public void FailedToRunMetricProcessor(string ex, string appDomainName = "Incorrect")
         {

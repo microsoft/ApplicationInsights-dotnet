@@ -39,7 +39,7 @@
         /// <summary>
         /// A dictionary of all metric aggregators instantiated via this manager.
         /// </summary>
-        private ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator> aggregatorDictionary;
+        private ConcurrentDictionary<string, MetricAggregator> aggregatorDictionary;
 
         /// <summary>
         /// Cancellation token source to allow cancellation of the snapshotting task.
@@ -73,7 +73,7 @@
             this.client = client ?? new TelemetryClient();
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
-            this.aggregatorDictionary = new ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator>();
+            this.aggregatorDictionary = new ConcurrentDictionary<string, MetricAggregator>();
 
             this.cancellationSource = new CancellationTokenSource();
 
@@ -82,14 +82,19 @@
         }
 
         /// <summary>
-        /// Creates single time series data aggregator.
+        /// Returns single time series metric data aggregator.
         /// </summary>
         /// <param name="metricName">Name of the metric.</param>
         /// <param name="dimensions">Optional dimensions.</param>
         /// <returns>Value aggregator for the metric specified.</returns>
-        public MetricAggregator CreateMetricAggregator(string metricName, IDictionary<string, string> dimensions = null)
+        public MetricAggregator GetMetricAggregator(string metricName, IDictionary<string, string> dimensions = null)
         {
-            return new MetricAggregator(this, metricName, dimensions);
+            // get aggregator id to use as a key to find the aggregator if one exists
+            string aggregatorId = MetricAggregator.GetAggregatorId(metricName, dimensions);
+
+            return this.aggregatorDictionary.GetOrAdd(
+                aggregatorId, 
+                (aid) => { return new MetricAggregator(this.client.TelemetryConfiguration, metricName, dimensions); });
         }
 
         /// <summary>
@@ -130,16 +135,6 @@
         }
 
         /// <summary>
-        /// Gets metric statistics set based on the aggregator.
-        /// </summary>
-        /// <param name="aggregator">Metric aggregator.</param>
-        /// <returns>Metric statistics.</returns>
-        internal SimpleMetricStatsAggregator GetSimpleStatisticsAggregator(MetricAggregator aggregator)
-        {
-            return this.aggregatorDictionary.GetOrAdd(aggregator, (a) => { return new SimpleMetricStatsAggregator(); });
-        }
-
-        /// <summary>
         /// Represents long running task to periodically snapshot metric aggregators.
         /// </summary>
         internal async void SnapshotRunner()
@@ -176,36 +171,6 @@
         }
 
         /// <summary>
-        /// Forwards metric sample to metric processors.
-        /// </summary>
-        /// <param name="metricName">Metric name.</param>
-        /// <param name="value">Metric value.</param>
-        /// <param name="dimensions">Optional metric dimensions.</param>
-        internal void ForwardToProcessors(string metricName, double value, IDictionary<string, string> dimensions = null)
-        {
-            TelemetryConfiguration configuration = this.client.TelemetryConfiguration;
-
-            // create a local reference to metric processor collection
-            // if collection changes after that - it will be copied not affecting local reference
-            IList<IMetricProcessor> metricProcessors = configuration.MetricProcessors;
-
-            if (metricProcessors != null)
-            {
-                foreach (IMetricProcessor processor in metricProcessors)
-                {
-                    try
-                    {
-                        processor.Track(metricName, value, dimensions);
-                    }
-                    catch (Exception ex)
-                    {
-                        CoreEventSource.Log.FailedToRunMetricProcessor(ex.ToString());
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Calculates wait time until next snapshot of the aggregators.
         /// </summary>
         /// <returns>Wait time.</returns>
@@ -232,22 +197,21 @@
         /// Generates telemetry object based on the metric aggregator.
         /// </summary>
         /// <param name="aggregator">Metric aggregator.</param>
-        /// <param name="stats">Aggregation statistics.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(MetricAggregator aggregator, SimpleMetricStatsAggregator stats)
+        private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(MetricAggregator aggregator)
         {
-            if ((aggregator == null) || (stats == null) || (stats.Count <= 0))
+            if ((aggregator == null) || (aggregator.Count <= 0))
             {
                 return null;
             }
 
             var telemetry = new AggregatedMetricTelemetry(
                 aggregator.MetricName,
-                stats.Count,
-                stats.Sum,
-                stats.Min,
-                stats.Max,
-                stats.StandardDeviation);
+                aggregator.Count,
+                aggregator.Sum,
+                aggregator.Min,
+                aggregator.Max,
+                aggregator.StandardDeviation);
 
             if (aggregator.Dimensions != null)
             {
@@ -265,15 +229,15 @@
         /// </summary>
         private void Snapshot()
         {
-            ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator> aggregatorSnapshot =
-                Interlocked.Exchange(ref this.aggregatorDictionary, new ConcurrentDictionary<MetricAggregator, SimpleMetricStatsAggregator>());
+            ConcurrentDictionary<string, MetricAggregator> aggregatorSnapshot =
+                Interlocked.Exchange(ref this.aggregatorDictionary, new ConcurrentDictionary<string, MetricAggregator>());
 
             // calculate aggregation interval duration interval
             TimeSpan aggregationIntervalDuation = DateTimeOffset.UtcNow - this.lastSnapshotStartDateTime;
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
 
             // prevent zero duration for interval
-            if (aggregationIntervalDuation == TimeSpan.Zero)
+            if (aggregationIntervalDuation.TotalMilliseconds < 1)
             {
                 aggregationIntervalDuation = TimeSpan.FromMilliseconds(1);
             }
@@ -288,9 +252,9 @@
 
             if (aggregatorSnapshot.Count > 0)
             {
-                foreach (KeyValuePair<MetricAggregator, SimpleMetricStatsAggregator> metricStats in aggregatorSnapshot)
+                foreach (MetricAggregator aggregator in aggregatorSnapshot.Values)
                 {
-                    AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(metricStats.Key, metricStats.Value);
+                    AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregator);
 
                     aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
