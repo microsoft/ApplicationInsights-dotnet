@@ -12,18 +12,6 @@
         IEnumerable<PerformanceCounterData> PerformanceCounters { get; }
 
         /// <summary>
-        /// Register a performance counter for collection.
-        /// </summary>
-        /// <param name="originalString">Original string definition of the counter.</param>
-        /// <param name="reportAs">Alias to report the counter as.</param>
-        /// <param name="categoryName">Category name.</param>
-        /// <param name="counterName">Counter name.</param>
-        /// <param name="instanceName">Instance name.</param>
-        /// <param name="usesInstanceNamePlaceholder">Indicates whether the counter uses a placeholder in the instance name.</param>
-        /// <param name="isCustomCounter">Indicates whether the counter is a custom counter.</param>
-        void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter);
-        
-        /// <summary>
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
@@ -41,7 +29,8 @@
         /// <param name="reportAs">Report as name for the performance counter.</param>
         /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
-        void RegisterCounter(string perfCounterName, string reportAs, bool isCustomCounter, out string error);
+        /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
+        void RegisterCounter(string perfCounterName, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
 
         /// <summary>
         /// Rebinds performance counters to Windows resources.

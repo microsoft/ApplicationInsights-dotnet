@@ -308,7 +308,8 @@
                         req.PerformanceCounter,
                         req.ReportAs,
                         true,
-                        out error);
+                        out error,
+                        false);
 
                     if (!string.IsNullOrWhiteSpace(error))
                     {

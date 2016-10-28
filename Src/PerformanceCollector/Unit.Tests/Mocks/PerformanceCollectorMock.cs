@@ -40,32 +40,6 @@
             }
         }
 
-        public void RegisterPerformanceCounter(
-            string originalString,
-            string reportAs,
-            string categoryName,
-            string counterName,
-            string instanceName,
-            bool usesInstanceNamePlaceholder,
-            bool isCustomCounter)
-        {
-            lock (this.Sync)
-            {
-                this.counters.Add(
-                    Tuple.Create(
-                        new PerformanceCounterData(
-                            originalString,
-                            reportAs,
-                            usesInstanceNamePlaceholder,
-                            isCustomCounter,
-                            false,
-                            categoryName,
-                            counterName,
-                            instanceName),
-                        new List<float>()));
-            }
-        }
-
         public IEnumerable<Tuple<PerformanceCounterData, float>> Collect(Action<string, Exception> onReadingFailure)
         {
             lock (this.Sync)
@@ -106,7 +80,8 @@
             string perfCounterName,
             string reportAs,
             bool isCustomCounter,
-            out string error)
+            out string error,
+            bool blockCounterWithInstancePlaceHolder)
         {
             bool usesInstanceNamePlaceholder;
             var pc = this.CreateCounter(
@@ -175,6 +150,32 @@
                     e.Message,
                     PerformanceCounterUtility.FormatPerformanceCounter(pc));
                 error = e.Message;
+            }
+        }
+
+        private void RegisterPerformanceCounter(
+            string originalString,
+            string reportAs,
+            string categoryName,
+            string counterName,
+            string instanceName,
+            bool usesInstanceNamePlaceholder,
+            bool isCustomCounter)
+        {
+            lock (this.Sync)
+            {
+                this.counters.Add(
+                    Tuple.Create(
+                        new PerformanceCounterData(
+                            originalString,
+                            reportAs,
+                            usesInstanceNamePlaceholder,
+                            isCustomCounter,
+                            false,
+                            categoryName,
+                            counterName,
+                            instanceName),
+                        new List<float>()));
             }
         }
     }

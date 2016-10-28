@@ -207,34 +207,14 @@
         {
             foreach (var counter in QuickPulseDefaults.CountersToCollect)
             {
-                PerformanceCounter pc = null;
-                bool usesPlaceholder;
-
                 try
                 {
-                    pc = PerformanceCounterUtility.ParsePerformanceCounter(counter, null, null, out usesPlaceholder);
-                }
-                catch (Exception e)
-                {
-                    QuickPulseEventSource.Log.CounterParsingFailedEvent(e.Message, counter);
-                    continue;
-                }
-
-                if (usesPlaceholder)
-                {
-                    // Instance placeholders are not currently supported since they require refresh. Refresh is not implemented at this time.
-                    continue;
-                }
-
-                try
-                {
-                    this.performanceCollector.RegisterPerformanceCounter(
+                    string error = null;
+                    this.performanceCollector.RegisterCounter(
                         counter,
                         counter,
-                        pc.CategoryName,
-                        pc.CounterName,
-                        pc.InstanceName,
-                        false,
+                        true,
+                        out error,
                         true);
 
                     QuickPulseEventSource.Log.CounterRegisteredEvent(counter);
