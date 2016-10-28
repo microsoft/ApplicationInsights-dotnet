@@ -362,6 +362,7 @@
 
 #if !CORE_PCL
                 // logs rich payload ETW event for any partners to process it
+                telemetry.Sanitize();
                 RichPayloadEventSource.Log.Process(telemetry);
 #endif
             }
