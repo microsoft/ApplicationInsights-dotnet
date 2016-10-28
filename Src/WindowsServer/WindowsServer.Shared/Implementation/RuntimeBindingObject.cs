@@ -104,7 +104,7 @@
             PropertyInfo info = this.targetType.GetProperty(name, bindingFlags, null, null, parameterTypes, null);
             if (info == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not get property info for '{0}' with the specified parameters.", name));
             }
 
             return info.GetValue(this.targetObject, args);
