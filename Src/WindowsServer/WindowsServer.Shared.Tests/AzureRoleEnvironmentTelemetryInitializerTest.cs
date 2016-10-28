@@ -2,6 +2,7 @@
 {
     using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     using Microsoft.ApplicationInsights.WindowsServer.Azure;
     using Microsoft.ApplicationInsights.WindowsServer.Azure.Emulation;
@@ -32,6 +33,7 @@
 
             Assert.Equal(ServiceRuntimeHelper.RoleName, telemetryItem.Context.Cloud.RoleName);
             Assert.Equal(expectedRoleInstanceName, telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Equal(expectedRoleInstanceName, telemetryItem.Context.GetInternalContext().NodeName);
         }
 
         [TestMethod]
@@ -65,6 +67,21 @@
         }
 
         [TestMethod]
+        public void AzureRoleEnvironmentTelemetryInitializerDoesNotOverrideNodeName()
+        {
+            var telemetryItem = new EventTelemetry();
+            AzureRoleEnvironmentTelemetryInitializer initializer = new AzureRoleEnvironmentTelemetryInitializer();
+            AzureRoleEnvironmentContextReader.BaseDirectory = ServiceRuntimeHelper.TestWithServiceRuntimePath;
+            AzureRoleEnvironmentContextReader.Instance = null;
+            ServiceRuntimeHelper.IsAvailable = true;
+
+            telemetryItem.Context.GetInternalContext().NodeName = "Test";
+            initializer.Initialize(telemetryItem);
+
+            Assert.Equal("Test", telemetryItem.Context.GetInternalContext().NodeName);
+        }
+
+        [TestMethod]
         public void AzureRoleEnvironmentTelemetryInitializerSetsTelemetryContextPropertiesWhenRoleEnvironmentIsNotAvailable()
         {
             var telemetryItem = new EventTelemetry();
@@ -78,6 +95,7 @@
 
             Assert.Null(telemetryItem.Context.Cloud.RoleName);
             Assert.Null(telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Null(telemetryItem.Context.GetInternalContext().NodeName);
         }
     }
 }
