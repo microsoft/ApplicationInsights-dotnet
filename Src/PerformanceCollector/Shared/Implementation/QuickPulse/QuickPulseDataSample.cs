@@ -38,7 +38,7 @@
 
             if ((this.EndTimestamp - this.StartTimestamp) < TimeSpan.Zero)
             {
-                throw new InvalidOperationException("StartTimestamp must be lesser than EndTimestamp.");
+                throw new InvalidOperationException("StartTimestamp must be less than EndTimestamp.");
             }
 
             TimeSpan sampleDuration = this.EndTimestamp - this.StartTimestamp;
