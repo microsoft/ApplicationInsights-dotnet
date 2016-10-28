@@ -11,7 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollectorEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IPerformanceCounterData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\Clock.cs" />
