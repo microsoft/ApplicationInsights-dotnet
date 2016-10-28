@@ -209,13 +209,19 @@
             {
                 try
                 {
-                    string error = null;
+                    string error;
                     this.performanceCollector.RegisterCounter(
                         counter,
                         counter,
                         true,
                         out error,
                         true);
+
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        QuickPulseEventSource.Log.CounterParsingFailedEvent(error, counter);
+                        continue;
+                    }
 
                     QuickPulseEventSource.Log.CounterRegisteredEvent(counter);
                 }
