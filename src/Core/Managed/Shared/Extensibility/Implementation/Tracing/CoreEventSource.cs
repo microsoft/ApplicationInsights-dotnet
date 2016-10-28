@@ -312,6 +312,42 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            25,
+            Message = "Failed to flush aggregated metrics. Exception: {0}.",
+            Level = EventLevel.Error)]
+        public void FailedToFlushMetricAggregators(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                25,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            26,
+            Message = "Failed to snapshot aggregated metrics. Exception: {0}.",
+            Level = EventLevel.Error)]
+        public void FailedToSnapshotMetricAggregators(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                26,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            27,
+            Message = "Failed to run metric processor. Exception: {0}.",
+            Level = EventLevel.Error)]
+        public void FailedToRunMetricProcessor(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                27,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

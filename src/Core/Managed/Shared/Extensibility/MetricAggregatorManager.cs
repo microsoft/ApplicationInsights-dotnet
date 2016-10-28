@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
 #if CORE_PCL || NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
@@ -96,8 +97,15 @@
         /// </summary>
         public void Flush()
         {
-            this.Snapshot();
-            this.client.Flush();
+            try
+            {
+                this.Snapshot();
+                this.client.Flush();
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -147,7 +155,9 @@
 #if NET40 || NET45 || NET46
                 catch (ThreadAbortException)
                 {
-                    // TODO THreadAbort is re-thrown after catch. Need to refactor code beow to make sure we Flush()
+                    // note: we need to flush under catch since ThreadAbortException 
+                    // is re-thrown after the try block
+                    this.Flush();
                     break;
                 }
 #endif
@@ -157,20 +167,12 @@
                 }
                 catch (Exception ex)
                 {
-                    // TODO log exception and try to survive
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    CoreEventSource.Log.FailedToSnapshotMetricAggregators(ex.ToString());
                 }
             }
 
-            try
-            {
-                this.Flush();
-            }
-            catch (Exception ex)
-            {
-                // TODO log exception and suppress
-                System.Diagnostics.Debug.WriteLine(ex.ToString());
-            }
+            // relying in the fact that Flush() suppresses exceptions
+            this.Flush();
         }
 
         /// <summary>
@@ -197,8 +199,7 @@
                     }
                     catch (Exception ex)
                     {
-                        // TODO log exception and suppress
-                        System.Diagnostics.Debug.WriteLine(ex.ToString());
+                        CoreEventSource.Log.FailedToRunMetricProcessor(ex.ToString());
                     }
                 }
             }
@@ -214,8 +215,12 @@
 
             double minutesFromZero = currentTime.Subtract(DateTimeOffset.MinValue).TotalMinutes;
 
-            // we want to wake up exactly at the middle of the minute
-            var nextWakeTime = DateTimeOffset.MinValue.AddMinutes((long)minutesFromZero).AddSeconds(30);
+            // we want to wake up exactly at 1 second past minute
+            // to make perceived system latency look smaller
+            var nextWakeTime = DateTimeOffset.MinValue
+                .AddMinutes((long)minutesFromZero)
+                .Add(snapshotFrequency)
+                .AddSeconds(1);
 
             TimeSpan sleepTime = nextWakeTime - DateTimeOffset.UtcNow;
 
