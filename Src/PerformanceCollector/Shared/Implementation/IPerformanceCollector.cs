@@ -35,11 +35,6 @@
         void RefreshCounters();
 
         /// <summary>
-        /// Loads instances that are used in performance counter computation - example: WIN32 and CLR instances.
-        /// </summary>
-        void LoadDependentInstances();
-
-        /// <summary>
         /// Registers a counter using the counter name and reportAs value to the total list of counters.
         /// </summary>
         /// <param name="perfCounterName">Name of the performance counter.</param>
@@ -47,14 +42,6 @@
         /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         void RegisterCounter(string perfCounterName, string reportAs, bool isCustomCounter, out string error);
-
-        /// <summary>
-        /// Creates a metric telemetry associated with the PerformanceCounterData, with the respective float value.
-        /// </summary>
-        /// <param name="perfData">PerformanceCounterData for which we are generating the telemetry.</param>
-        /// <param name="value">The metric value for the respective performance counter data.</param>
-        /// <returns>Metric Telemetry object associated with the specific counter.</returns>
-        MetricTelemetry CreateTelemetry(PerformanceCounterData perfData, float value);
 
         /// <summary>
         /// Rebinds performance counters to Windows resources.

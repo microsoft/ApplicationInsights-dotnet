@@ -102,10 +102,6 @@
         {
         }
 
-        public void LoadDependentInstances()
-        {
-        }
-
         public void RegisterCounter(
             string perfCounterName,
             string reportAs,
@@ -147,11 +143,6 @@
 
                 return null;
             }
-        }
-
-        public MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
-        {
-            return null;
         }
 
         private void RegisterCounter(

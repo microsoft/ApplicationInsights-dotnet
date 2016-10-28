@@ -28,15 +28,6 @@
         }
 
         /// <summary>
-        /// Loads instances that are used in performance counter computation.
-        /// </summary>
-        public void LoadDependentInstances()
-        {
-            this.win32Instances = PerformanceCounterUtility.GetWin32ProcessInstances();
-            this.clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
-        }
-
-        /// <summary>
         /// Register a performance counter for collection.
         /// </summary>
         public void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
@@ -140,35 +131,12 @@
         }
 
         /// <summary>
-        /// Creates a metric telemetry associated with the PerformanceCounterData, with the respective float value.
-        /// </summary>
-        /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
-        /// <param name="value">The metric value for the respective performance counter data.</param>
-        /// <returns>Metric telemetry object associated with the specific counter.</returns>
-        public MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
-        {
-            var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
-                                 ? pc.ReportAs
-                                 : string.Format(
-                                     CultureInfo.InvariantCulture,
-                                     "{0} - {1}",
-                                     pc.CategoryName,
-                                     pc.CounterName);
-
-            var metricTelemetry = new MetricTelemetry(metricName, value);
-
-            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
-            metricTelemetry.Properties.Add("CustomPerfCounter", "true");
-
-            return metricTelemetry;
-        }
-
-        /// <summary>
         /// Refreshes counters.
         /// </summary>
         public void RefreshCounters()
         {
-            // we need to refresh counters in bad state and counters with placeholders in instance names
+            this.LoadDependentInstances();
+            //// we need to refresh counters in bad state and counters with placeholders in instance names
             var countersToRefresh =
                 this.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
                     .ToList();
@@ -242,6 +210,15 @@
                         PerformanceCounterUtility.FormatPerformanceCounter(pc)),
                     e);
             }
+        }
+
+        /// <summary>
+        /// Loads instances that are used in performance counter computation.
+        /// </summary>
+        private void LoadDependentInstances()
+        {
+            this.win32Instances = PerformanceCounterUtility.GetWin32ProcessInstances();
+            this.clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
         }
 
         /// <summary>
