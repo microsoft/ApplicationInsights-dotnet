@@ -35,8 +35,10 @@
 
             if (!found)
             {
+                var instrumentationKeyLowerCase = instrumentationKey.ToLowerInvariant();
+                
                 // Instrumentation key is not case sensitive, let's now try for the lowercase - may be that's found.
-                found = knownIKeyHashes.TryGetValue(instrumentationKey.ToLowerInvariant(), out hash);
+                found = knownIKeyHashes.TryGetValue(instrumentationKeyLowerCase, out hash);
 
                 if (!found)
                 {
@@ -46,7 +48,7 @@
                         knownIKeyHashes.Clear();
                     }
 
-                    hash = GenerateEncodedSHA256Hash(instrumentationKey);
+                    hash = GenerateEncodedSHA256Hash(instrumentationKeyLowerCase);
                     knownIKeyHashes[instrumentationKey] = hash;
                 }
             }
