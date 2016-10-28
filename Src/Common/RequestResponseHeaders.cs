@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
+    /// <summary>
+    /// Header names for requests / responses.
+    /// </summary>
     internal static class RequestResponseHeaders
     {
         /// <summary>
@@ -21,15 +24,5 @@
         /// Standard root id header.
         /// </summary>
         public const string StandardRootIdHeader = "x-ms-request-root-id";
-
-        /// <summary>
-        /// Subscribed header.
-        /// </summary>
-        public const string XMsQpsSubscribedHeaderName = "x-ms-qps-subscribed";
-
-        /// <summary>
-        /// Transmission time header.
-        /// </summary>
-        public const string XMsQpsTransmissionTimeHeaderName = "x-ms-qps-transmission-time";
     }
 }

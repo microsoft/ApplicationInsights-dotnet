@@ -343,6 +343,18 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            36,
+            Message = "Failed to add target instrumentation key hash as a response header. Exception {0}",
+            Level = EventLevel.Warning)]
+        public void AddTargetHeaderFailedWarning(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                36,
+                exception,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

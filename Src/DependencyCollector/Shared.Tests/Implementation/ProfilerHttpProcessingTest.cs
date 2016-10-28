@@ -102,7 +102,7 @@
         /// </summary>
         [TestMethod]
         [Description("Validates if DependencyTelemetry sent contains the cross component IKey hash.")]
-        public void DependencyTargetContainsIkeyTest()
+        public void RddTestHttpProcessingProfilerOnEndAddsIkeyToTargetField()
         {
             string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
 
@@ -126,7 +126,7 @@
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is added when request is sent.")]
-        public void EnsureSourceHeaderIsAdded()
+        public void RddTestHttpProcessingProfilerOnBeginAddsSourceHeader()
         {
             var request = WebRequest.Create(this.testUrl);
 
@@ -141,7 +141,7 @@
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
-        public void EnsureSourceHeaderIsNotOverwritten()
+        public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSourceHeader()
         {
             string sampleHeaderValue = "helloWorld";
             var request = WebRequest.Create(this.testUrl);

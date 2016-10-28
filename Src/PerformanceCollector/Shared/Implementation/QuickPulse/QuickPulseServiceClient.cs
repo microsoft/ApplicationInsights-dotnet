@@ -8,7 +8,6 @@
     using System.Net;
     using System.Runtime.Serialization.Json;
 
-    using Common;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
@@ -78,7 +77,7 @@
         private static bool? ProcessResponse(HttpWebResponse response)
         {
             bool isSubscribed;
-            if (!bool.TryParse(response.GetResponseHeader(RequestResponseHeaders.XMsQpsSubscribedHeaderName), out isSubscribed))
+            if (!bool.TryParse(response.GetResponseHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName), out isSubscribed))
             {
                 return null;
             }
@@ -204,7 +203,7 @@
                 var request = WebRequest.Create(requestUri) as HttpWebRequest;
                 request.Method = httpVerb;
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
-                request.Headers.Add(RequestResponseHeaders.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
+                request.Headers.Add(QuickPulseConstants.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
 
                 onWriteBody?.Invoke(request.GetRequestStream());
 

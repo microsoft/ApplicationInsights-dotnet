@@ -274,7 +274,7 @@
         }
 
         [TestMethod]
-        public void EnsureSourceFieldFilled()
+        public void OnEndAddsSourceFieldForRequestWithSourceIkey()
         {
             string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
 

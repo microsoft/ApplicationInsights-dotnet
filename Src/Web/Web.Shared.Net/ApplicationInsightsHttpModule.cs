@@ -125,9 +125,16 @@
                         {
                             new Action<HttpContext>((httpContext) =>
                             {
-                                if (this.requestModule != null)
+                                try
                                 {
-                                    this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
+                                    if (this.requestModule != null)
+                                    {
+                                        this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
                                 }
                             })
                         };

@@ -35,10 +35,8 @@
 
             if (!found)
             {
-                // Instrumentation key is not case sensitive, let's now try for the lowercase - may be that's found. Also in any case we want to add the lowercase key in the dictionary.
-                instrumentationKey = instrumentationKey.ToLowerInvariant();
-
-                found = knownIKeyHashes.TryGetValue(instrumentationKey, out hash);
+                // Instrumentation key is not case sensitive, let's now try for the lowercase - may be that's found.
+                found = knownIKeyHashes.TryGetValue(instrumentationKey.ToLowerInvariant(), out hash);
 
                 if (!found)
                 {
