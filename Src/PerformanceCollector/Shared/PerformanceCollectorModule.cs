@@ -255,7 +255,7 @@
 
                 foreach (var result in results)
                 {
-                    var telemetry = this.collector.CreateTelemetry(result.Item1, result.Item2);
+                    var telemetry = this.CreateTelemetry(result.Item1, result.Item2);
                     try
                     {
                         this.client.Track(telemetry);
@@ -292,8 +292,6 @@
                 return;
             }
            
-            this.collector.LoadDependentInstances();
-
             PerformanceCounterUtility.InvalidatePlaceholderCache();
 
             if (this.lastRefreshTimestamp == DateTime.MinValue)
@@ -310,7 +308,8 @@
                         req.PerformanceCounter,
                         req.ReportAs,
                         true,
-                        out error);
+                        out error,
+                        false);
 
                     if (!string.IsNullOrWhiteSpace(error))
                     {
@@ -357,6 +356,30 @@
                     ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
                     : req.ReportAs;
             }
+        }
+
+        /// <summary>
+        /// Creates a metric telemetry associated with the PerformanceCounterData, with the respective float value.
+        /// </summary>
+        /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
+        /// <param name="value">The metric value for the respective performance counter data.</param>
+        /// <returns>Metric telemetry object associated with the specific counter.</returns>
+        private MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
+        {
+            var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
+                                 ? pc.ReportAs
+                                 : string.Format(
+                                     CultureInfo.InvariantCulture,
+                                     "{0} - {1}",
+                                     pc.CategoryName,
+                                     pc.CounterName);
+
+            var metricTelemetry = new MetricTelemetry(metricName, value);
+
+            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
+            metricTelemetry.Properties.Add("CustomPerfCounter", "true");
+
+            return metricTelemetry;
         }
     }
 }

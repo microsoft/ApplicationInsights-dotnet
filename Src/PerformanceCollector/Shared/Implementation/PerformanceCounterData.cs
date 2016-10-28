@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
-    internal class PerformanceCounterData : IPerformanceData
+    internal class PerformanceCounterData
     {
         public PerformanceCounterData(
             string originalString,

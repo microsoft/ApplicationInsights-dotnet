@@ -25,14 +25,14 @@
 
             for (int i = 0; i < CounterCount; i++)
             {
-                collector.RegisterPerformanceCounter(
+                string error = null;
+
+                collector.RegisterCounter(
                     @"\Processor(_Total)\% Processor Time",
                     null,
-                    CategoryName,
-                    CounterName,
-                    InstanceName,
-                    false,
-                    true);
+                    true,
+                    out error,
+                    false);
             }
 
             var results = collector.Collect().ToList();
@@ -67,14 +67,13 @@
 
             foreach (var pc in counters)
             {
-                collector.RegisterPerformanceCounter(
+                string error = null;
+                collector.RegisterCounter(
                     PerformanceCounterUtility.FormatPerformanceCounter(pc), 
                     null,
-                    pc.CategoryName,
-                    pc.CounterName,
-                    pc.InstanceName,
-                    false,
-                    true);
+                    true,
+                    out error,
+                    false);
             }
 
             collector.RefreshPerformanceCounter(newCounter);
@@ -100,14 +99,13 @@
             {
                 try
                 {
-                    collector.RegisterPerformanceCounter(
-                        PerformanceCounterUtility.FormatPerformanceCounter(pc),
+                    string error = null;
+                    collector.RegisterCounter(
+                        PerformanceCounterUtility.FormatPerformanceCounter(pc), 
                         null,
-                        pc.CategoryName,
-                        pc.CounterName,
-                        pc.InstanceName,
-                        false,
-                        true);
+                        true,
+                        out error,
+                        false);
                 }
                 catch (Exception)
                 {

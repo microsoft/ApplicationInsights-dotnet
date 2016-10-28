@@ -14,7 +14,7 @@
         /// <summary>
         /// Dictionary to store the performance counter for each unique key - category name + counter name + instance name.
         /// </summary>
-        private Dictionary<string, PerformanceCounter> dictionary = new Dictionary<string, PerformanceCounter>();
+        private Dictionary<string, PerformanceCounter> performanceCounterStore = new Dictionary<string, PerformanceCounter>();
 
         private IEnumerable<string> win32Instances;
         private IEnumerable<string> clrInstances;
@@ -27,86 +27,6 @@
             get { return this.performanceCounters; }
         }
 
-        /// <summary>
-        /// Loads instances that are used in performance counter computation.
-        /// </summary>
-        public void LoadDependentInstances()
-        {
-            this.win32Instances = PerformanceCounterUtility.GetWin32ProcessInstances();
-            this.clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
-        }
-
-        /// <summary>
-        /// Register a performance counter for collection.
-        /// </summary>
-        public void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
-        {
-            PerformanceCounter performanceCounter = null;
-
-            try
-            {
-                performanceCounter = new PerformanceCounter(categoryName, counterName, instanceName, true);
-            }
-            catch (Exception e)
-            {
-                // we want to have another crack at it if instance placeholder is used,
-                // notably due to the fact that CLR process ID counter only starts returning values after the first garbage collection
-                if (!usesInstanceNamePlaceholder)
-                {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            Resources.PerformanceCounterRegistrationFailed,
-                            categoryName,
-                            counterName,
-                            instanceName),
-                        e);
-                }
-            }
-
-            bool firstReadOk = false;
-            try
-            {
-                // perform the first read. For many counters the first read will always return 0
-                // since a single sample is not enough to calculate a value
-                performanceCounter.NextValue();
-
-                firstReadOk = true;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Resources.PerformanceCounterFirstReadFailed,
-                        categoryName,
-                        counterName,
-                        instanceName),
-                    e);
-            }
-            finally
-            {
-                PerformanceCounterData perfData = new PerformanceCounterData(
-                        originalString,
-                        reportAs,
-                        usesInstanceNamePlaceholder,
-                        isCustomCounter,
-                        !firstReadOk,
-                        performanceCounter.CategoryName,
-                        performanceCounter.CounterName,
-                        performanceCounter.InstanceName);
-
-                string key = this.GenerateKeyForPerformanceCounter(perfData);
-                if (this.dictionary.ContainsKey(key))
-                {
-                    this.dictionary.Remove(key);
-                }
-
-                this.dictionary.Add(key, performanceCounter);
-                this.performanceCounters.Add(perfData);
-            }
-        }
-        
         /// <summary>
         /// Performs collection for all registered counters.
         /// </summary>
@@ -121,14 +41,14 @@
 
                         try
                         {
-                            value = CollectCounter(this.dictionary[this.GenerateKeyForPerformanceCounter(pc)]);
+                            value = CollectCounter(this.performanceCounterStore[this.GenerateKeyForPerformanceCounter(pc)]);
                         }
                         catch (InvalidOperationException e)
                         {
                             if (onReadingFailure != null)
                             {
                                 onReadingFailure(
-                                    PerformanceCounterUtility.FormatPerformanceCounter(this.dictionary[this.GenerateKeyForPerformanceCounter(pc)]),
+                                    PerformanceCounterUtility.FormatPerformanceCounter(this.performanceCounterStore[this.GenerateKeyForPerformanceCounter(pc)]),
                                     e);
                             }
 
@@ -140,35 +60,12 @@
         }
 
         /// <summary>
-        /// Creates a metric telemetry associated with the PerformanceCounterData, with the respective float value.
-        /// </summary>
-        /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
-        /// <param name="value">The metric value for the respective performance counter data.</param>
-        /// <returns>Metric telemetry object associated with the specific counter.</returns>
-        public MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
-        {
-            var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
-                                 ? pc.ReportAs
-                                 : string.Format(
-                                     CultureInfo.InvariantCulture,
-                                     "{0} - {1}",
-                                     pc.CategoryName,
-                                     pc.CounterName);
-
-            var metricTelemetry = new MetricTelemetry(metricName, value);
-
-            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
-            metricTelemetry.Properties.Add("CustomPerfCounter", "true");
-
-            return metricTelemetry;
-        }
-
-        /// <summary>
         /// Refreshes counters.
         /// </summary>
         public void RefreshCounters()
         {
-            // we need to refresh counters in bad state and counters with placeholders in instance names
+            this.LoadDependentInstances();
+            //// we need to refresh counters in bad state and counters with placeholders in instance names
             var countersToRefresh =
                 this.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
                     .ToList();
@@ -185,11 +82,13 @@
         /// <param name="reportAs">Report as name for the performance counter.</param>
         /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
+        /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         public void RegisterCounter(
             string perfCounterName,
             string reportAs,
             bool isCustomCounter,
-            out string error)
+            out string error,
+            bool blockCounterWithInstancePlaceHolder = false)
         {
             bool usesInstanceNamePlaceholder;
             var pc = this.CreateAndValidateCounter(
@@ -197,7 +96,8 @@
                 out usesInstanceNamePlaceholder,
                 out error);
 
-            if (pc != null)
+            //// If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
+            if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
                 this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
             }
@@ -209,9 +109,9 @@
         public void RefreshPerformanceCounter(PerformanceCounterData pcd)
         {
             this.performanceCounters.Remove(pcd);
-            if (this.dictionary.ContainsKey(this.GenerateKeyForPerformanceCounter(pcd)))
+            if (this.performanceCounterStore.ContainsKey(this.GenerateKeyForPerformanceCounter(pcd)))
             {
-                this.dictionary.Remove(this.GenerateKeyForPerformanceCounter(pcd));
+                this.performanceCounterStore.Remove(this.GenerateKeyForPerformanceCounter(pcd));
             }
 
             this.RegisterPerformanceCounter(
@@ -242,6 +142,15 @@
                         PerformanceCounterUtility.FormatPerformanceCounter(pc)),
                     e);
             }
+        }
+
+        /// <summary>
+        /// Loads instances that are used in performance counter computation.
+        /// </summary>
+        private void LoadDependentInstances()
+        {
+            this.win32Instances = PerformanceCounterUtility.GetWin32ProcessInstances();
+            this.clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
         }
 
         /// <summary>
@@ -344,6 +253,84 @@
                     e.Message,
                     PerformanceCounterUtility.FormatPerformanceCounter(pc));
                 error = e.Message;
+            }
+        }
+
+        /// <summary>
+        /// Register a performance counter for collection.
+        /// </summary>
+        /// <param name="originalString">Original string definition of the counter.</param>
+        /// <param name="reportAs">Alias to report the counter as.</param>
+        /// <param name="categoryName">Category name.</param>
+        /// <param name="counterName">Counter name.</param>
+        /// <param name="instanceName">Instance name.</param>
+        /// <param name="usesInstanceNamePlaceholder">Indicates whether the counter uses a placeholder in the instance name.</param>
+        /// <param name="isCustomCounter">Indicates whether the counter is a custom counter.</param>
+        private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
+        {
+            PerformanceCounter performanceCounter = null;
+
+            try
+            {
+                performanceCounter = new PerformanceCounter(categoryName, counterName, instanceName, true);
+            }
+            catch (Exception e)
+            {
+                // we want to have another crack at it if instance placeholder is used,
+                // notably due to the fact that CLR process ID counter only starts returning values after the first garbage collection
+                if (!usesInstanceNamePlaceholder)
+                {
+                    throw new InvalidOperationException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Resources.PerformanceCounterRegistrationFailed,
+                            categoryName,
+                            counterName,
+                            instanceName),
+                        e);
+                }
+            }
+
+            bool firstReadOk = false;
+            try
+            {
+                // perform the first read. For many counters the first read will always return 0
+                // since a single sample is not enough to calculate a value
+                performanceCounter.NextValue();
+
+                firstReadOk = true;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Resources.PerformanceCounterFirstReadFailed,
+                        categoryName,
+                        counterName,
+                        instanceName),
+                    e);
+            }
+            finally
+            {
+                PerformanceCounterData perfData = new PerformanceCounterData(
+                        originalString,
+                        reportAs,
+                        usesInstanceNamePlaceholder,
+                        isCustomCounter,
+                        !firstReadOk,
+                        performanceCounter.CategoryName,
+                        performanceCounter.CounterName,
+                        performanceCounter.InstanceName);
+
+                string key = this.GenerateKeyForPerformanceCounter(perfData);
+                if (this.performanceCounterStore.ContainsKey(key))
+                {
+                    this.performanceCounterStore.Remove(key);
+                }
+
+                this.performanceCounterStore.Add(key, performanceCounter);
+                this.performanceCounters.Add(perfData);
             }
         }
 
