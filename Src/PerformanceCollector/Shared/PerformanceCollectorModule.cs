@@ -5,10 +5,9 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Threading;
-
+    using System.Threading; 
     using Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Channel;
+    using Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;

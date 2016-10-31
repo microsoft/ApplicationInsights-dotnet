@@ -4,6 +4,7 @@
     using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -115,7 +116,7 @@
 
             collector.RefreshCounters();
             
-            //// All bad state counters are removed and added later through register counter, and as a result, the order of the performance coutners is changed.
+            // All bad state counters are removed and added later through register counter, and as a result, the order of the performance coutners is changed.
             Assert.AreEqual(collector.PerformanceCounters.First().InstanceName, "_Total");
             Assert.AreEqual(collector.PerformanceCounters.Last().InstanceName, "_Total123afadfdsdf");
         }

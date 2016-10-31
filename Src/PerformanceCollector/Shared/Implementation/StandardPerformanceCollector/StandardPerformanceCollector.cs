@@ -1,11 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using DataContracts;
 
     internal class StandardPerformanceCollector : IPerformanceCollector
     {
@@ -60,7 +59,8 @@
         public void RefreshCounters()
         {
             this.LoadDependentInstances();
-            //// we need to refresh counters in bad state and counters with placeholders in instance names
+
+            // We need to refresh counters in bad state and counters with placeholders in instance names
             var countersToRefresh =
                 this.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
                     .ToList();
@@ -91,7 +91,7 @@
                 out usesInstanceNamePlaceholder,
                 out error);
 
-            //// If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
+            // If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
             if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
                 this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
@@ -318,24 +318,8 @@
                         performanceCounter.CounterName,
                         performanceCounter.InstanceName);
 
-                string key = this.GenerateKeyForPerformanceCounter(perfData);
                 this.performanceCounters.Add(new Tuple<PerformanceCounterData, PerformanceCounter>(perfData, performanceCounter));
             }
-        }
-
-        /// <summary>
-        /// Generates Unique key for a specific performance counter data using the category name, counter name and instance name.
-        /// </summary>
-        /// <param name="pcd">Target performance counter data.</param>
-        /// <returns>Unique key for the specific counter data.</returns>
-        private string GenerateKeyForPerformanceCounter(PerformanceCounterData pcd)
-        {
-            if (pcd != null)
-            {
-                return pcd.CategoryName + pcd.CounterName + pcd.InstanceName;
-            }
-
-            return string.Empty;
         }
     }
 }

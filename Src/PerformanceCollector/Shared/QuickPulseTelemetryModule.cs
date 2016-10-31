@@ -7,12 +7,14 @@
     using System.Linq;
     using System.Threading;
 
+    using Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Implementation;
+
 
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
