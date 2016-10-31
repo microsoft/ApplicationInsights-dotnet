@@ -99,27 +99,6 @@
         }
 
         /// <summary>
-        /// Rebinds performance counters to Windows resources.
-        /// </summary>
-        public void RefreshPerformanceCounter(PerformanceCounterData pcd)
-        {
-            Tuple<PerformanceCounterData, PerformanceCounter> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
-            if (tupleToRemove != null)
-            {
-                this.performanceCounters.Remove(tupleToRemove);
-            }
-
-            this.RegisterPerformanceCounter(
-                pcd.OriginalString,
-                pcd.ReportAs,
-                pcd.CategoryName,
-                pcd.CounterName,
-                pcd.InstanceName,
-                pcd.UsesInstanceNamePlaceholder,
-                pcd.IsCustomCounter);
-        }
-        
-        /// <summary>
         /// Collects a value for a single counter.
         /// </summary>
         private static float CollectCounter(PerformanceCounter pc)
@@ -137,6 +116,27 @@
                         PerformanceCounterUtility.FormatPerformanceCounter(pc)),
                     e);
             }
+        }
+
+        /// <summary>
+        /// Rebinds performance counters to Windows resources.
+        /// </summary>
+        private void RefreshPerformanceCounter(PerformanceCounterData pcd)
+        {
+            Tuple<PerformanceCounterData, PerformanceCounter> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
+            if (tupleToRemove != null)
+            {
+                this.performanceCounters.Remove(tupleToRemove);
+            }
+
+            this.RegisterPerformanceCounter(
+                pcd.OriginalString,
+                pcd.ReportAs,
+                pcd.CategoryName,
+                pcd.CounterName,
+                pcd.InstanceName,
+                pcd.UsesInstanceNamePlaceholder,
+                pcd.IsCustomCounter);
         }
 
         /// <summary>

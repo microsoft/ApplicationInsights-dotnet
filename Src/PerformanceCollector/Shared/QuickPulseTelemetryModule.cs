@@ -15,7 +15,6 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
-
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
     /// </summary>

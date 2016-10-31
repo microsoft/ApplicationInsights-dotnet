@@ -54,38 +54,6 @@
 
         [TestMethod]
         [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorRefreshTest()
-        {
-            var counters = new PerformanceCounter[]
-                               {
-                                   new PerformanceCounter("Processor", "% Processor Time", "_Total"),
-                                   new PerformanceCounter("Processor", "% Processor Time", "_Total") 
-                               };
-
-            var newCounter = new PerformanceCounterData("Available Bytes", "Available Bytes", false, false, false, "Memory", "Available Bytes", string.Empty);
-
-            IPerformanceCollector collector = new StandardPerformanceCollector();
-
-            foreach (var pc in counters)
-            {
-                string error = null;
-                collector.RegisterCounter(
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc), 
-                    null,
-                    true,
-                    out error,
-                    false);
-            }
-
-            collector.RefreshPerformanceCounter(newCounter);
-
-            Assert.IsTrue(collector.PerformanceCounters.Last().CategoryName == newCounter.CategoryName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().CounterName == newCounter.CounterName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().InstanceName == newCounter.InstanceName);
-        }
-
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
         public void PerformanceCollectorRefreshCountersTest()
         {
             var counters = new PerformanceCounter[]

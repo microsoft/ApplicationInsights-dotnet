@@ -31,11 +31,5 @@
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         void RegisterCounter(string perfCounterName, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
-
-        /// <summary>
-        /// Rebinds performance counters to Windows resources.
-        /// </summary>
-        /// <param name="pcd">Performance counter to refresh.</param> 
-        void RefreshPerformanceCounter(PerformanceCounterData pcd);
     }
 }
