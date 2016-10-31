@@ -85,6 +85,43 @@
 
         [TestMethod]
         [TestCategory("RequiresPerformanceCounters")]
+        public void PerformanceCollectorRefreshCountersTest()
+        {
+            var counters = new PerformanceCounter[]
+                               {
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total123blabla"),
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total"),
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total123afadfdsdf"), 
+                               };
+
+            IPerformanceCollector collector = new StandardPerformanceCollector();
+
+            foreach (var pc in counters)
+            {
+                try
+                {
+                    string error = null;
+                    collector.RegisterCounter(
+                        PerformanceCounterUtility.FormatPerformanceCounter(pc), 
+                        null,
+                        true,
+                        out error,
+                        false);
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            collector.RefreshCounters();
+            
+            //// All bad state counters are removed and added later through register counter, and as a result, the order of the performance coutners is changed.
+            Assert.AreEqual(collector.PerformanceCounters.First().InstanceName, "_Total");
+            Assert.AreEqual(collector.PerformanceCounters.Last().InstanceName, "_Total123afadfdsdf");
+        }
+
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
         public void PerformanceCollectorBadStateTest()
         {
             var counters = new PerformanceCounter[]
