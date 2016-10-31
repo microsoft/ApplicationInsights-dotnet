@@ -78,9 +78,9 @@
         {
             this.Counters = new List<PerformanceCounterCollectionRequest>();
 
-            if (this.collector != null)
+            if (this.collector == null)
             {
-                this.collector = new StandardPerformanceCollector();
+                this.collector = PerformanceCounterUtility.WebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector();
             }
         }
 
@@ -174,7 +174,7 @@
 
                         this.telemetryConfiguration = configuration;
                         this.client = new TelemetryClient(configuration);
-                        this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("pc:");
+                        this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(PerformanceCounterUtility.SDKVersionPrefix());
 
                         this.lastRefreshTimestamp = DateTime.MinValue;
 

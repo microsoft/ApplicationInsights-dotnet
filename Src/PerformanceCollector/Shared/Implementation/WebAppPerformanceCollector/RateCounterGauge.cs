@@ -15,7 +15,7 @@
         private string name;
 
         /// <summary>
-        /// Json identifier of the counter variable.
+        /// JSON identifier of the counter variable.
         /// </summary>
         private string jsonId;
 
@@ -39,7 +39,7 @@
         /// Initializes a new instance of the <see cref="RateCounterGauge"/> class.
         /// </summary>
         /// <param name="name"> Name of counter variable.</param>
-        /// <param name="jsonId">Json identifier of the counter variable.</param>
+        /// <param name="jsonId">JSON identifier of the counter variable.</param>
         /// <param name="environmentVariable"> Identifier of the corresponding environment variable.</param>
         /// <param name="counter">Dependant counter.</param>
         public RateCounterGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable, ICounterValue counter = null)
@@ -47,13 +47,12 @@
         {
         }
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RateCounterGauge"/> class. 
         /// This constructor is intended for Unit Tests.
         /// </summary>
         /// <param name="name"> Name of the counter variable.</param>
-        /// <param name="jsonId">Json identifier of the counter variable.</param>
+        /// <param name="jsonId">JSON identifier of the counter variable.</param>
         /// <param name="environmentVariable"> Identifier of the corresponding environment variable.</param>
         /// <param name="counter">Dependant counter.</param>
         /// <param name="cache"> Cache object.</param>

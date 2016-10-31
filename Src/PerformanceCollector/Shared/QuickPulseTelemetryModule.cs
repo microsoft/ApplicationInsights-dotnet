@@ -136,7 +136,7 @@
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
-                        this.performanceCollector = this.performanceCollector ?? new StandardPerformanceCollector();
+                        this.performanceCollector = PerformanceCounterUtility.WebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector();
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.timings = timings ?? QuickPulseTimings.Default;
 

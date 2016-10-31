@@ -10,7 +10,7 @@
         /// <summary>
         /// Returns the current value of the counter as a <c ref="MetricTelemetry"/> and resets the metric.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Value of the counter.</returns>
         float GetValueAndReset();
     }
 }

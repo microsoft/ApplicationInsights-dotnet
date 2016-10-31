@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="counterName">Name of the counter to retrieve.</param>
         /// <param name="reportAs">Alias to report the counter under.</param>
-        /// <returns>The counter identified by counterName</returns>
+        /// <returns>The counter identified by counter name.</returns>
         public ICounterValue GetCounter(string counterName, string reportAs)
         {
             switch (counterName)
@@ -43,12 +43,6 @@
                     reportAs,
                     "privateBytes",
                     AzureWebApEnvironmentVariables.App);
-                case @"\Process(?? APP_WIN32_PROC ??)\% Processor Time":
-                    return new CPUPercenageGauge(reportAs, 
-                        new SumUpGauge(
-                            reportAs,
-                            new PerformanceCounterFromJsonGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
-                            new PerformanceCounterFromJsonGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
                 case @"\Process(??APP_WIN32_PROC??)\IO Data Bytes/sec":
                     return new RateCounterGauge(
                         reportAs,
@@ -69,8 +63,8 @@
                                 "otherIoBytes",
                                 AzureWebApEnvironmentVariables.App)));
 
-                //$set = Get-Counter -ListSet "ASP.NET Applications"
-                //$set.Paths
+                ////$set = Get-Counter -ListSet "ASP.NET Applications"
+                ////$set.Paths
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Anonymous Requests":
                     return new PerformanceCounterFromJsonGauge(
                         reportAs,
@@ -460,11 +454,11 @@
                         "requestsTotalWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
 
-
-                // $set = Get-Counter -ListSet Process
-                // $set.Paths
+                //// $set = Get-Counter -ListSet Process
+                //// $set.Paths
                 case @"\Process(??APP_WIN32_PROC??)\% Processor Time":
-                    return new CPUPercenageGauge(reportAs, 
+                    return new CPUPercenageGauge(
+                        reportAs, 
                         new SumUpGauge(
                             reportAs,
                             new PerformanceCounterFromJsonGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
@@ -521,9 +515,8 @@
                         AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\Working Set - Private":
 
-
-                //$set = Get - Counter - ListSet ".NET CLR Memory"
-                //$set.Paths
+                ////$set = Get - Counter - ListSet ".NET CLR Memory"
+                ////$set.Paths
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Gen 0 Collections":
                     return new PerformanceCounterFromJsonGauge(
                         reportAs,
@@ -595,7 +588,25 @@
                         reportAs,
                         "pinnedObjects",
                         AzureWebApEnvironmentVariables.CLR);
-
+                
+                //// Quick pulse related hard coded performance counters.
+                case @"\Memory\Committed Bytes":
+                    return new PerformanceCounterFromJsonGauge(
+                        reportAs,
+                        "committedBytes",
+                        AzureWebApEnvironmentVariables.CLR);
+                case @"\Processor(_Total)\% Processor Time":
+                    return new CPUPercenageGauge(
+                        reportAs, 
+                        new SumUpGauge(
+                            reportAs,
+                            new PerformanceCounterFromJsonGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
+                            new PerformanceCounterFromJsonGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
+                case @"\ASP.NET Applications(__Total__)\Requests In Application Queue":
+                    return new PerformanceCounterFromJsonGauge(
+                        reportAs,
+                        "requestsInApplicationQueue",
+                        AzureWebApEnvironmentVariables.AspNet);
                 default:
                     throw new ArgumentException("Performance counter was not found.", counterName);
             }

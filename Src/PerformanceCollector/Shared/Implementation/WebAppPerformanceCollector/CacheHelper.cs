@@ -32,10 +32,10 @@
         }
 
         /// <summary>
-        /// Search for the value of a given performance counter in a Json.
+        /// Search for the value of a given performance counter in a JSON.
         /// </summary>
         /// <param name="performanceCounterName"> The name of the performance counter.</param>
-        /// <param name="json"> String containing the Json.</param>
+        /// <param name="json"> String containing the JSON.</param>
         /// <returns> Value of the performance counter.</returns>
         public int PerformanceCounterValue(string performanceCounterName, string json)
         {
@@ -68,11 +68,11 @@
         /// Checks if a key is in the cache and if not
         /// Retrieves raw counter data from Environment Variables
         /// Cleans raw JSON for only requested counter
-        /// Creates value for caching
+        /// Creates value for caching.
         /// </summary>
-        /// <param name="name">Cache key and name of the counter to be selected from JSON</param>
-        /// <param name="environmentVariable">Identifier of the environment variable </param>
-        /// <returns>value from cache</returns>
+        /// <param name="name">Cache key and name of the counter to be selected from JSON.</param>
+        /// <param name="environmentVariable">Identifier of the environment variable.</param>
+        /// <returns>Value from cache.</returns>
         public int GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
         {
             if (!CacheHelper.Instance.IsInCache(name))
@@ -95,11 +95,11 @@
         }
 
         /// <summary>
-        /// Method saves an object to the cache
+        /// Method saves an object to the cache.
         /// </summary>
-        /// <param name="cacheKey"> string name of the counter value to be saved to cache</param>
-        /// /<param name="toCache">Object to be cached</param>
-        /// <param name="absoluteExpiration"> DateTimeOffset until item expires from cache</param>
+        /// <param name="cacheKey"> String name of the counter value to be saved to cache.</param>
+        /// /<param name="toCache">Object to be cached.</param>
+        /// <param name="absoluteExpiration">DateTimeOffset until item expires from cache.</param>
         public void SaveToCache(string cacheKey, object toCache,  DateTimeOffset absoluteExpiration)
         {  
             MemoryCache.Default.Add(cacheKey, toCache, absoluteExpiration);
@@ -116,10 +116,10 @@
         }
 
         /// <summary>
-        /// Method to check if a key is in a cache
+        /// Method to check if a key is in a cache.
         /// </summary>
-        /// <param name="cacheKey">key to search for in cache</param>
-        /// <returns>Boolean value for whether or not a key is in the cache</returns>
+        /// <param name="cacheKey">Key to search for in cache.</param>
+        /// <returns>Boolean value for whether or not a key is in the cache.</returns>
         public bool IsInCache(string cacheKey)
         {
             return MemoryCache.Default[cacheKey] != null;

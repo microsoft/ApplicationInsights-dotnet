@@ -3,7 +3,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
-    /// Gauge that gives the user an aggregate of requested counters in a cache
+    /// Gauge that gives the user an aggregate of requested counters in a cache.
     /// </summary>
     internal class PerformanceCounterFromJsonGauge : ICounterValue
     {
@@ -13,7 +13,7 @@
         private string name;
 
         /// <summary>
-        /// Json identifier of the counter variable.
+        /// JSON identifier of the counter variable.
         /// </summary>
         private string jsonId;
 
@@ -28,7 +28,7 @@
         /// Initializes a new instance of the <see cref="PerformanceCounterFromJsonGauge"/> class.
         /// </summary>
         /// <param name="name">Name of counter variable.</param>
-        /// <param name="jsonId">Json identifier of the counter variable.</param>
+        /// <param name="jsonId">JSON identifier of the counter variable.</param>
         /// <param name="environmentVariable">Identifier of the environment variable.</param>
         public PerformanceCounterFromJsonGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable)
             : this(name, jsonId, environmentVariable, CacheHelper.Instance)
@@ -46,7 +46,7 @@
         /// <summary>
         /// Returns the current value of the counter as a <c ref="MetricTelemetry"/> and resets the metric.
         /// </summary>
-        /// <returns> Metric Telemetry object, with values for Name and Value </returns>
+        /// <returns> Metric Telemetry object, with values for Name and Value.</returns>
         public float GetValueAndReset()
         {
             return this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable);

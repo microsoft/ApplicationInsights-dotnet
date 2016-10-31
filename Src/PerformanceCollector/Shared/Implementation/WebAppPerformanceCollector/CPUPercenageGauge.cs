@@ -1,9 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using System;
 
     /// <summary>
@@ -23,7 +19,7 @@
         private ICounterValue valueProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SumUpGauge"/> class.
+        /// Initializes a new instance of the <see cref="CPUPercenageGauge"/> class.
         /// </summary>
         /// <param name="name"> Name of the SumUpGauge.</param>
         /// <param name="value"> Gauges to sum.</param>
@@ -36,7 +32,7 @@
         /// <summary>
         /// Returns the current value of the sum of all different gauges attached to this one and resets their values.
         /// </summary>
-        /// <returns> MetricTelemetry object</returns>
+        /// <returns> MetricTelemetry object.</returns>
         public float GetValueAndReset()
         {
             float previouslyCollectedValue = this.lastCollectedValue;
@@ -48,10 +44,10 @@
             float value = 0;
             if (previouslyCollectedTime != DateTimeOffset.MinValue)
             {
-                var baseValue = lastCollectedTime.Ticks - previouslyCollectedTime.Ticks;
+                var baseValue = this.lastCollectedTime.Ticks - previouslyCollectedTime.Ticks;
                 baseValue = baseValue != 0 ? baseValue : 1;
 
-                value = (float) ((this.lastCollectedValue - previouslyCollectedValue) / baseValue * 100.0);
+                value = (float)((this.lastCollectedValue - previouslyCollectedValue) / baseValue * 100.0);
             }
 
             return value;

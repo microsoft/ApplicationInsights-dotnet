@@ -9,17 +9,17 @@
     public enum AzureWebApEnvironmentVariables
     {
         /// <summary>
-        /// ASP.NET.
+        /// For ASPNET.
         /// </summary>
         AspNet = 0,
 
         /// <summary>
-        /// Application.
+        /// For Application.
         /// </summary>
         App = 1,
 
         /// <summary>
-        /// Common Language Runtime.
+        /// For Common Language Runtime.
         /// </summary>
         CLR = 2,
 
@@ -27,5 +27,5 @@
         /// All of the above.
         /// </summary>
         All = 3
-    };
+    }
 }

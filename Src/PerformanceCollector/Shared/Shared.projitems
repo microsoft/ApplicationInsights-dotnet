@@ -49,7 +49,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterFromJsonGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterImplementation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RateCounterGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SdkVersionAzureWebApp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\WebAppPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryProcessor.cs" />

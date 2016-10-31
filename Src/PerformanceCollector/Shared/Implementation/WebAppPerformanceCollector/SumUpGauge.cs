@@ -34,11 +34,11 @@
         /// <summary>
         /// Returns the current value of the sum of all different gauges attached to this one and resets their values.
         /// </summary>
-        /// <returns> MetricTelemetry object</returns>
+        /// <returns> MetricTelemetry object.</returns>
         public float GetValueAndReset()
         {
             return this.gaugesToSum.Sum((g) => { return g.GetValueAndReset(); });
-            //metric.Context.GetInternalContext().SdkVersion = SdkVersionAzureWebApp.sdkVersionAzureWebApp;
+            //// metric.Context.GetInternalContext().SdkVersion = SdkVersionAzureWebApp.sdkVersionAzureWebApp;
         }
     }
 }

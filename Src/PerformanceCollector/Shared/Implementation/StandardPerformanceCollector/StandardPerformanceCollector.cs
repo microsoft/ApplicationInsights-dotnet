@@ -78,28 +78,30 @@
         /// <summary>
         /// Registers a counter using the counter name and reportAs value to the total list of counters.
         /// </summary>
-        /// <param name="perfCounterName">Name of the performance counter.</param>
+        /// <param name="perfCounter">Name of the performance counter.</param>
         /// <param name="reportAs">Report as name for the performance counter.</param>
         /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         public void RegisterCounter(
-            string perfCounterName,
+            string perfCounter,
             string reportAs,
             bool isCustomCounter,
             out string error,
             bool blockCounterWithInstancePlaceHolder = false)
         {
             bool usesInstanceNamePlaceholder;
-            var pc = this.CreateAndValidateCounter(
-                perfCounterName,
+            var pc = PerformanceCounterUtility.CreateAndValidateCounter(
+                perfCounter,
+                this.win32Instances,
+                this.clrInstances,
                 out usesInstanceNamePlaceholder,
                 out error);
 
             //// If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
             if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
-                this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
+                this.RegisterCounter(perfCounter, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
             }
         }
 
@@ -154,38 +156,6 @@
         }
 
         /// <summary>
-        /// Validates the counter by parsing.
-        /// </summary>
-        /// <param name="perfCounterName">Performance counter name to validate.</param>
-        /// <param name="usesInstanceNamePlaceholder">Boolean to check if it is using an instance name place holder.</param>
-        /// <param name="error">Error message.</param>
-        /// <returns>Performance counter.</returns>
-        private PerformanceCounter CreateAndValidateCounter(
-            string perfCounterName,
-            out bool usesInstanceNamePlaceholder,
-            out string error)
-        {
-            error = null;
-
-            try
-            {
-                return PerformanceCounterUtility.ParsePerformanceCounter(
-                    perfCounterName,
-                    this.win32Instances,
-                    this.clrInstances,
-                    out usesInstanceNamePlaceholder);
-            }
-            catch (Exception e)
-            {
-                usesInstanceNamePlaceholder = false;
-                PerformanceCollectorEventSource.Log.CounterParsingFailedEvent(e.Message, perfCounterName);
-                error = e.Message;
-
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Refreshes the counter associated with a specific performance counter data.
         /// </summary>
         /// <param name="pcd">Target performance counter data to refresh.</param>
@@ -194,8 +164,10 @@
             string dummy;
 
             bool usesInstanceNamePlaceholder;
-            var pc = this.CreateAndValidateCounter(
+            var pc = PerformanceCounterUtility.CreateAndValidateCounter(
                 pcd.OriginalString,
+                this.win32Instances,
+                this.clrInstances,
                 out usesInstanceNamePlaceholder,
                 out dummy);
 

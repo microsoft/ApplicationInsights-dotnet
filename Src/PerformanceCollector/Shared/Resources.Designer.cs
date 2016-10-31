@@ -232,6 +232,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}..
+        /// </summary>
+        internal static string WebAppPerformanceCounterAccessFailed {
+            get {
+                return ResourceManager.GetString("WebAppPerformanceCounterAccessFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Category name is required..
         /// </summary>
         internal static string PerformanceCounterTelemetryCategoryNameIsRequired {
