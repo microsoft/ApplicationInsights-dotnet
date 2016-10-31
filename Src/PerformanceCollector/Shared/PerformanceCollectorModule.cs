@@ -77,7 +77,7 @@
         {
             this.Counters = new List<PerformanceCounterCollectionRequest>();
 
-            if (this.collector != null)
+            if (this.collector == null)
             {
                 this.collector = new StandardPerformanceCollector();
             }
