@@ -21,7 +21,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="CPUPercenageGauge"/> class.
         /// </summary>
-        /// <param name="name"> Name of the SumUpGauge.</param>
+        /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="value"> Gauges to sum.</param>
         public CPUPercenageGauge(string name, ICounterValue value)
         {

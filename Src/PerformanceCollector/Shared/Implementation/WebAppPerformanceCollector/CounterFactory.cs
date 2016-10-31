@@ -19,12 +19,12 @@
             {
                 // Default performance counters
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "appRequestExecTime",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsInApplicationQueue",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -39,7 +39,7 @@
                         "exceptionsThrown",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\Process(??APP_WIN32_PROC??)\Private Bytes":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                     reportAs,
                     "privateBytes",
                     AzureWebApEnvironmentVariables.App);
@@ -48,17 +48,17 @@
                         reportAs,
                         "ioDataBytesRate",
                         AzureWebApEnvironmentVariables.App,
-                        new SumUpGauge(
+                        new SumUpCountersGauge(
                             "ioDataBytesRate",
-                            new PerformanceCounterFromJsonGauge(
+                            new RawCounterGauge(
                                 "readIoBytes",
                                 "readIoBytes",
                                 AzureWebApEnvironmentVariables.App),
-                            new PerformanceCounterFromJsonGauge(
+                            new RawCounterGauge(
                                 "writeIoBytes",
                                 "writeIoBytes",
                                 AzureWebApEnvironmentVariables.App),
-                            new PerformanceCounterFromJsonGauge(
+                            new RawCounterGauge(
                                 "otherIoBytes",
                                 "otherIoBytes",
                                 AzureWebApEnvironmentVariables.App)));
@@ -66,7 +66,7 @@
                 ////$set = Get-Counter -ListSet "ASP.NET Applications"
                 ////$set.Paths
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Anonymous Requests":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "anonymousRequests",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -76,7 +76,7 @@
                         "anonymousRequests",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Entries":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "totalCacheEntries",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -86,82 +86,82 @@
                         "totalCacheTurnoverRate",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Hits":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "totalCacheHits",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Misses":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "totalCacheMisses",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Entries":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "apiCacheEntries",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Turnover Rate":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "apiCacheTurnoverRate",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Hits":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "apiCacheHits",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Misses":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "apiCacheMisses",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Entries":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "outputCacheEntries",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Turnover Rate":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "outputCacheTurnoverRate",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Hits":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "outputCacheHits",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Misses":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "outputCacheMisses",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Compilations Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "compilations",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Debugging Requests":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "debuggingRequests",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Preprocessing":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "errorsPreProcessing",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Compilation":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "errorsCompiling",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Execution":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "errorsDuringRequest",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Unhandled During Execution":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "errorsUnhandled",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -171,7 +171,7 @@
                         "errorsUnhandled",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "errorsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -181,52 +181,52 @@
                     "errorsTotal",
                     AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Pipeline Instance Count":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "pipelines",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes In Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsBytesIn",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes Out Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsBytesOut",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Executing":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsExecuting",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Failed":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsFailed",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Not Found":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsFailed",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Not Authorized":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsNotAuthorized",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Timed Out":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsTimedOut",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Succeeded":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsSucceded",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -236,42 +236,42 @@
                         "requestsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Active":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionsActive",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Abandoned":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionsAbandoned",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Timed Out":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionsTimedOut",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Aborted":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "transactionsAborted",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Committed":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "transactionsCommited",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Pending":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "transactionsPending",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "transactionsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -281,17 +281,17 @@
                         "transactionsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Session State Server connections total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionStateServerConnections",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Session SQL Server connections total":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "sessionSqlServerConnections",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -301,7 +301,7 @@
                         "eventsTotal",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Application Lifetime Events":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsApp",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -311,7 +311,7 @@
                         "eventsApp",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Error Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsError",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -321,7 +321,7 @@
                         "eventsError",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Error Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsHttpReqError",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -331,7 +331,7 @@
                         "eventsHttpReqError",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Infrastructure Error Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsHttpInfraError",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -341,7 +341,7 @@
                         "eventsHttpInfraError",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "eventsWebReq",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -351,67 +351,67 @@
                         "eventsWebReq",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Audit Success Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "auditSuccess",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Audit Failure Events Raised":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "auditFail",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Membership Authentication Success":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "memberSuccess",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Membership Authentication Failure":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "memberFail",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Forms Authentication Success":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "formsAuthSuccess",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Forms Authentication Failure":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "formsAuthFail",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Viewstate MAC Validation Failure":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "viewstateMacFail",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Disconnected":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "appRequestDisconnected",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Rejected":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "appRequestsRejected",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Wait Time":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "appRequestWaitTime",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Trims":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "cacheTotalTrims",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Trims":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "cacheApiTrims",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Trims":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "cacheOutputTrims",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -419,37 +419,37 @@
                     // maybe appCpuUsed and appCpuUsedBase
                     throw new ArgumentException("Performance counter was not found.", counterName);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Managed Memory Used(estimated)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "appMemoryUsed",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes In Total(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestBytesInWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes Out Total(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestBytesOutWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Executing(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsExecutingWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Failed(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsFailedWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Succeeded(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsSucceededWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Total(WebSockets)":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsTotalWebsockets",
                         AzureWebApEnvironmentVariables.AspNet);
@@ -459,12 +459,12 @@
                 case @"\Process(??APP_WIN32_PROC??)\% Processor Time":
                     return new CPUPercenageGauge(
                         reportAs, 
-                        new SumUpGauge(
+                        new SumUpCountersGauge(
                             reportAs,
-                            new PerformanceCounterFromJsonGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
-                            new PerformanceCounterFromJsonGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
+                            new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
+                            new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
                 case @"\Process(??APP_WIN32_PROC??)\% User Time":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "userTime",
                         AzureWebApEnvironmentVariables.App);
@@ -474,12 +474,12 @@
                         "pageFaults",
                         AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\Thread Count":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                     reportAs,
                     "threads",
                     AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\Handle Count":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                     reportAs,
                     "handles",
                     AzureWebApEnvironmentVariables.App);
@@ -518,43 +518,43 @@
                 ////$set = Get - Counter - ListSet ".NET CLR Memory"
                 ////$set.Paths
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Gen 0 Collections":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen0Collections",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Gen 1 Collections":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen1Collections",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Gen 2 Collections":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen2Collections",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\Gen 0 heap size":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen0HeapSize",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\Gen 1 heap size":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen1HeapSize",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\Gen 2 heap size":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gen2HeapSize",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\Large Object Heap size":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "largeObjectHeapSize",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\Finalization Survivors":
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# GC Handles":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "gcHandles",
                         AzureWebApEnvironmentVariables.CLR);
@@ -569,41 +569,41 @@
                         "inducedGC",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Bytes in all Heaps":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "bytesInAllHeaps",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Total committed Bytes":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "commitedBytes",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# Total reserved Bytes":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "reservedBytes",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\# of Pinned Objects":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "pinnedObjects",
                         AzureWebApEnvironmentVariables.CLR);
                 
                 //// Quick pulse related hard coded performance counters.
                 case @"\Memory\Committed Bytes":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "committedBytes",
                         AzureWebApEnvironmentVariables.CLR);
                 case @"\Processor(_Total)\% Processor Time":
                     return new CPUPercenageGauge(
                         reportAs, 
-                        new SumUpGauge(
+                        new SumUpCountersGauge(
                             reportAs,
-                            new PerformanceCounterFromJsonGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
-                            new PerformanceCounterFromJsonGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
+                            new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
+                            new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
                 case @"\ASP.NET Applications(__Total__)\Requests In Application Queue":
-                    return new PerformanceCounterFromJsonGauge(
+                    return new RawCounterGauge(
                         reportAs,
                         "requestsInApplicationQueue",
                         AzureWebApEnvironmentVariables.AspNet);

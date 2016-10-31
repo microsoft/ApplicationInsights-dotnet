@@ -7,21 +7,16 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
-    /// PerformanceCollector tests.
+    /// PerformanceCollector test base.
     /// </summary>
-    [TestClass]
-    public class PerformanceCollectorTests
-    {
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorSanityTest()
+    public class PerformanceCollectorTestBase
+    { 
+        internal void PerformanceCollectorSanityTest(IPerformanceCollector collector)
         {
             const int CounterCount = 3;
             const string CategoryName = "Processor";
             const string CounterName = "% Processor Time";
             const string InstanceName = "_Total";
-
-            IPerformanceCollector collector = new StandardPerformanceCollector();
 
             for (int i = 0; i < CounterCount; i++)
             {
@@ -51,9 +46,7 @@
             }
         }
 
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorRefreshTest()
+        internal void PerformanceCollectorRefreshTest(IPerformanceCollector collector)
         {
             var counters = new PerformanceCounter[]
                                {
@@ -61,9 +54,7 @@
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total") 
                                };
 
-            var newCounter = new PerformanceCounterData("Available Bytes", "Available Bytes", false, false, false, "Memory", "Available Bytes", string.Empty);
-
-            IPerformanceCollector collector = new StandardPerformanceCollector();
+            var newCounter = new PerformanceCounterData(@"\Memory\Committed Bytes", "Committed Bytes", false, false, false, "Memory", "Committed Bytes", string.Empty);
 
             foreach (var pc in counters)
             {
@@ -83,17 +74,13 @@
             Assert.IsTrue(collector.PerformanceCounters.Last().InstanceName == newCounter.InstanceName);
         }
 
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorBadStateTest()
+        internal void PerformanceCollectorBadStateTest(IPerformanceCollector collector)
         {
             var counters = new PerformanceCounter[]
                                {
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total123blabla"),
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total") 
                                };
-
-            IPerformanceCollector collector = new StandardPerformanceCollector();
 
             foreach (var pc in counters)
             {

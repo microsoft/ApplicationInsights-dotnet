@@ -14,7 +14,7 @@
         {
             CPUPercenageGauge gauge = new CPUPercenageGauge(
                 "CPU",
-                new PerformanceCounterFromJsonGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
+                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "userTime", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
             float value1 = gauge.GetValueAndReset();
 

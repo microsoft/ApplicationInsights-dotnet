@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.2.0-beta4
+- Support of performance collection and live metrics for Azure Web Apps is enabled.
+- Custom performance metric support is not supported for Azure Web Apps.
+
+
 ## Version 2.2.0-beta3
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
 - Default performance counters will be reported as metrics

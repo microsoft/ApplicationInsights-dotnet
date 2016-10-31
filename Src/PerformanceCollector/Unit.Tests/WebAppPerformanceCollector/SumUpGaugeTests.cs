@@ -4,17 +4,17 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class SumUpGaugeTests
+    public class SumUpCountersGaugeTests
     {
         [TestMethod]
-        public void SumUpGaugeGetValueAndResetWorking()
+        public void SumUpCountersGaugeGetValueAndResetWorking()
         {
-            SumUpGauge twoTimesPrivateBytes = new SumUpGauge(
+            SumUpCountersGauge twoTimesPrivateBytes = new SumUpCountersGauge(
                 "twoTimesPrivateBytes", 
-                new PerformanceCounterFromJsonGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests()), 
-                new PerformanceCounterFromJsonGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
+                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes * 2", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests()), 
+                new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests()));
 
-            PerformanceCounterFromJsonGauge privateBytes = new PerformanceCounterFromJsonGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
+            RawCounterGauge privateBytes = new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
 
             float expectedValue = privateBytes.GetValueAndReset();
             float actualValue = twoTimesPrivateBytes.GetValueAndReset();

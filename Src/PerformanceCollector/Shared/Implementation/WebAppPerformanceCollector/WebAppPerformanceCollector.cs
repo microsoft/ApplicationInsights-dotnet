@@ -126,7 +126,11 @@
         /// </summary>
         public void RefreshPerformanceCounter(PerformanceCounterData pcd)
         {
-            this.performanceCounters.Remove(this.performanceCounters.First(t => t.Item1 == pcd));
+            Tuple<PerformanceCounterData, ICounterValue> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
+            if (tupleToRemove != null)
+            {
+                this.performanceCounters.Remove(tupleToRemove);
+            }
 
             this.RegisterPerformanceCounter(
                 pcd.OriginalString,

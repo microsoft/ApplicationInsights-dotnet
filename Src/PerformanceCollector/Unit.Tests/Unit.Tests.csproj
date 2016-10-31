@@ -72,10 +72,12 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Mocks\PerformanceCollectorMock.cs" />
+    <Compile Include="PerformanceCollectorTestBase.cs" />
+    <Compile Include="WebAppPerformanceCollectorTests.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />
     <Compile Include="PerformanceCollectorModuleTests.cs" />
     <Compile Include="PerformanceCollectorEventSourceTests.cs" />
-    <Compile Include="PerformanceCollectorTests.cs" />
+    <Compile Include="StandardPerformanceCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickPulse\Mocks\QuickPulseCollectionTimeSlotManagerMock.cs" />
     <Compile Include="QuickPulse\Mocks\ClockMock.cs" />

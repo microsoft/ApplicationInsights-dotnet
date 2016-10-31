@@ -8,7 +8,7 @@
     /// <summary>
     /// Gauge that sums up the values of different gauges.
     /// </summary>
-    internal class SumUpGauge : ICounterValue
+    internal class SumUpCountersGauge : ICounterValue
     {
         /// <summary>
         /// List of gauges whose values will be added.
@@ -21,11 +21,11 @@
         private string name;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SumUpGauge"/> class.
+        /// Initializes a new instance of the <see cref="SumUpCountersGauge"/> class.
         /// </summary>
-        /// <param name="name"> Name of the SumUpGauge.</param>
+        /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="gauges"> Gauges to sum.</param>
-        public SumUpGauge(string name, params ICounterValue[] gauges)
+        public SumUpCountersGauge(string name, params ICounterValue[] gauges)
         {
             this.name = name;
             this.gaugesToSum = new List<ICounterValue>(gauges);
@@ -38,7 +38,6 @@
         public float GetValueAndReset()
         {
             return this.gaugesToSum.Sum((g) => { return g.GetValueAndReset(); });
-            //// metric.Context.GetInternalContext().SdkVersion = SdkVersionAzureWebApp.sdkVersionAzureWebApp;
         }
     }
 }

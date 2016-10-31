@@ -5,7 +5,7 @@
     /// <summary>
     /// Gauge that gives the user an aggregate of requested counters in a cache.
     /// </summary>
-    internal class PerformanceCounterFromJsonGauge : ICounterValue
+    internal class RawCounterGauge : ICounterValue
     {
         /// <summary>
         /// Name of the counter.
@@ -25,17 +25,17 @@
         private ICachedEnvironmentVariableAccess cacheHelper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PerformanceCounterFromJsonGauge"/> class.
+        /// Initializes a new instance of the <see cref="RawCounterGauge"/> class.
         /// </summary>
         /// <param name="name">Name of counter variable.</param>
         /// <param name="jsonId">JSON identifier of the counter variable.</param>
         /// <param name="environmentVariable">Identifier of the environment variable.</param>
-        public PerformanceCounterFromJsonGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable)
+        public RawCounterGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable)
             : this(name, jsonId, environmentVariable, CacheHelper.Instance)
         {
         }
 
-        internal PerformanceCounterFromJsonGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable, ICachedEnvironmentVariableAccess cache)
+        internal RawCounterGauge(string name, string jsonId, AzureWebApEnvironmentVariables environmentVariable, ICachedEnvironmentVariableAccess cache)
         {
             this.name = name;
             this.jsonId = jsonId;

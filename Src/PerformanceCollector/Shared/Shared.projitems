@@ -46,10 +46,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CPUPercenageGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICachedEnvironmentVariableAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICounterValue.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterFromJsonGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RawCounterGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterImplementation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RateCounterGauge.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpCountersGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\WebAppPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryModule.cs">

@@ -7,9 +7,9 @@
     public class UnitTestAzureWeb
     {
         [TestMethod]
-        public void TestPerformanceCounterValuesAreCorrectlyRetrievedUsingPerformanceCounterFromJsonGauge()
+        public void TestPerformanceCounterValuesAreCorrectlyRetrievedUsingRawCounterGauge()
         {
-            PerformanceCounterFromJsonGauge gauge = new PerformanceCounterFromJsonGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
+            RawCounterGauge gauge = new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
             float value = gauge.GetValueAndReset();
 
             Assert.IsTrue(value > 0);
