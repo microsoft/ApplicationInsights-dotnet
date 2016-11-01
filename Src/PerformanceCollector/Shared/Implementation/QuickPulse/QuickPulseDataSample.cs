@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    using Helpers;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>

@@ -1,8 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using Helpers;
 
     internal static class QuickPulseDefaults
     {

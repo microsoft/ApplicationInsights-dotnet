@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Net;
     using System.Runtime.Serialization.Json;
-
+    using Helpers;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
