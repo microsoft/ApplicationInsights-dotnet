@@ -7,6 +7,7 @@
     using System.Text;
     using System.Threading;
 
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -15,89 +16,36 @@
     public class MetricAggregator
     {
         /// <summary>
-        /// Telemetry configuration for the aggregator.
+        /// Aggregator manager for the aggregator.
         /// </summary>
-        private TelemetryConfiguration telemetryConfiguration;
+        private MetricAggregatorManager manager;
 
         /// <summary>
-        /// Lock to make Track() method thread-safe.
+        /// Metric aggregator id to look for in the aggregator dictionary.
         /// </summary>
-        private SpinLock trackLock = new SpinLock();
+        private string aggregatorId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricAggregator"/> class.
         /// </summary>
+        /// <param name="manager">Aggregator manager handling this instance.</param>
+        /// <param name="metricName">Metric name.</param>
+        /// <param name="dimensions">Metric dimensions.</param>
         internal MetricAggregator(
-            TelemetryConfiguration telemetryConfiguration,
+            MetricAggregatorManager manager,
             string metricName, 
             IDictionary<string, string> dimensions = null)
         {
-            if (telemetryConfiguration == null)
+            if (manager == null)
             {
-                throw new ArgumentNullException("telemetryConfiguration");
+                throw new ArgumentNullException("manager");
             }
 
-            this.telemetryConfiguration = telemetryConfiguration;
+            this.manager = manager;
             this.MetricName = metricName;
             this.Dimensions = dimensions;
-        }
 
-        /// <summary>
-        /// Gets sample count.
-        /// </summary>
-        internal int Count { get; private set; }
-
-        /// <summary>
-        /// Gets sum of the samples.
-        /// </summary>
-        internal double Sum { get; private set; }
-
-        /// <summary>
-        /// Gets sum of squares of the samples.
-        /// </summary>
-        internal double SumOfSquares { get; private set; }
-
-        /// <summary>
-        /// Gets minimum sample value.
-        /// </summary>
-        internal double Min { get; private set; }
-
-        /// <summary>
-        /// Gets maximum sample value.
-        /// </summary>
-        internal double Max { get; private set; }
-
-        /// <summary>
-        /// Gets arithmetic average value in the population.
-        /// </summary>
-        internal double Average
-        {
-            get
-            {
-                return this.Count == 0 ? 0 : this.Sum / this.Count;
-            }
-        }
-
-        /// <summary>
-        /// Gets variance of the values in the population.
-        /// </summary>
-        internal double Variance
-        {
-            get
-            {
-                return this.Count == 0 ? 0 : (this.SumOfSquares / this.Count) - (this.Average * this.Average);
-            }
-        }
-
-        /// <summary>
-        /// Gets standard deviation of the values in the population.
-        /// </summary>
-        internal double StandardDeviation
-        {
-            get
-            {
-                return Math.Sqrt(this.Variance);
-            }
+            this.aggregatorId = MetricAggregator.GetAggregatorId(metricName, dimensions);
         }
 
         /// <summary>
@@ -116,33 +64,11 @@
         /// <param name="value">Metric value.</param>
         public void Track(double value)
         {
-            bool lockAcquired = false;
+            SimpleMetricStatisticsAggregator aggregator = this.manager.AggregatorDictionary.GetOrAdd(
+                this.aggregatorId,
+                (aid) => { return new SimpleMetricStatisticsAggregator(this.MetricName, this.Dimensions); });
 
-            try
-            {
-                this.trackLock.Enter(ref lockAcquired);
-
-                if ((this.Count == 0) || (value < this.Min))
-                {
-                    this.Min = value;
-                }
-
-                if ((this.Count == 0) || (value > this.Max))
-                {
-                    this.Max = value;
-                }
-
-                this.Count++;
-                this.Sum += value;
-                this.SumOfSquares += value * value;
-            }
-            finally
-            {
-                if (lockAcquired)
-                {
-                    this.trackLock.Exit();
-                }
-            }
+            aggregator.Track(value);
 
             this.ForwardToProcessors(value);
         }
@@ -153,7 +79,7 @@
         /// <param name="metricName">Metric name.</param>
         /// <param name="dimensions">Optional metric dimensions.</param>
         /// <returns>Aggregator id that can be used to get aggregator.</returns>
-        internal static string GetAggregatorId(string metricName, IDictionary<string, string> dimensions = null)
+        private static string GetAggregatorId(string metricName, IDictionary<string, string> dimensions = null)
         {
             StringBuilder aggregatorIdBuilder = new StringBuilder(metricName ?? string.Empty);
 
@@ -178,7 +104,7 @@
         {
             // create a local reference to metric processor collection
             // if collection changes after that - it will be copied not affecting local reference
-            IList<IMetricProcessor> metricProcessors = this.telemetryConfiguration.MetricProcessors;
+            IList<IMetricProcessor> metricProcessors = this.manager.Client.TelemetryConfiguration.MetricProcessors;
 
             if (metricProcessors != null)
             {
