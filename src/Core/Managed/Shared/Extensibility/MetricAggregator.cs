@@ -13,7 +13,7 @@
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.
     /// </summary>
-    public class MetricAggregator
+    public class MetricAggregator : IEquatable<MetricAggregator>
     {
         /// <summary>
         /// Aggregator manager for the aggregator.
@@ -24,6 +24,11 @@
         /// Metric aggregator id to look for in the aggregator dictionary.
         /// </summary>
         private string aggregatorId;
+
+        /// <summary>
+        /// Aggregator hash code.
+        /// </summary>
+        private int hashCode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricAggregator"/> class.
@@ -46,17 +51,18 @@
             this.Dimensions = dimensions;
 
             this.aggregatorId = MetricAggregator.GetAggregatorId(metricName, dimensions);
+            this.hashCode = this.aggregatorId.GetHashCode();
         }
 
         /// <summary>
         /// Gets metric name.
         /// </summary>
-        internal string MetricName { get; private set; }
+        public string MetricName { get; private set; }
 
         /// <summary>
         /// Gets a set of metric dimensions and their values.
         /// </summary>
-        internal IDictionary<string, string> Dimensions { get; private set; }
+        public IDictionary<string, string> Dimensions { get; private set; }
 
         /// <summary>
         /// Adds a value to the time series.
@@ -64,13 +70,54 @@
         /// <param name="value">Metric value.</param>
         public void Track(double value)
         {
-            SimpleMetricStatisticsAggregator aggregator = this.manager.AggregatorDictionary.GetOrAdd(
-                this.aggregatorId,
-                (aid) => { return new SimpleMetricStatisticsAggregator(this.MetricName, this.Dimensions); });
-
+            SimpleMetricStatisticsAggregator aggregator = this.manager.GetStatisticsAggregator(this);
             aggregator.Track(value);
 
             this.ForwardToProcessors(value);
+        }
+
+        /// <summary>
+        /// Returns the hash code for this object.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
+        public override int GetHashCode()
+        {
+            return this.hashCode;
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="other">The object to compare with the current object. </param>
+        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        public bool Equals(MetricAggregator other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return string.Compare(this.aggregatorId, other.aggregatorId, StringComparison.Ordinal) == 0;
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object. </param>
+        /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return this.Equals(obj as MetricAggregator);
         }
 
         /// <summary>

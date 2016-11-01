@@ -1,8 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Threading;
 
     /// <summary>
@@ -18,14 +16,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleMetricStatisticsAggregator"/> class.
         /// </summary>
-        /// <param name="metricName">Metric name.</param>
-        /// <param name="dimensions">Metric dimensions.</param>
-        internal SimpleMetricStatisticsAggregator(
-            string metricName,
-            IDictionary<string, string> dimensions = null)
+        internal SimpleMetricStatisticsAggregator()
         {
-            this.MetricName = metricName;
-            this.Dimensions = dimensions;
         }
 
         /// <summary>
@@ -85,16 +77,6 @@
                 return Math.Sqrt(this.Variance);
             }
         }
-
-        /// <summary>
-        /// Gets metric name.
-        /// </summary>
-        internal string MetricName { get; private set; }
-
-        /// <summary>
-        /// Gets a set of metric dimensions and their values.
-        /// </summary>
-        internal IDictionary<string, string> Dimensions { get; private set; }
 
         /// <summary>
         /// Adds a value to the time series.

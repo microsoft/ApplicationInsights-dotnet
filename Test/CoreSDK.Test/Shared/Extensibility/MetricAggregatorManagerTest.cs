@@ -26,7 +26,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -55,7 +55,7 @@
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric", null);
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", null);
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -89,7 +89,7 @@
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric", dimensions);
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", dimensions);
                 aggregator.Track(42);
 
                 manager.Flush();
@@ -120,7 +120,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -146,7 +146,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -168,7 +168,7 @@
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
@@ -199,18 +199,31 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric");
-                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric");
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric");
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count == 1)
                     {
                         break;
+                    }
+                    else
+                    {
+                        sentTelemetry.Clear();
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.Equal(aggregator1, aggregator2);
+            Assert.Equal(1, sentTelemetry.Count);
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal(2, aggregatedMetric.Count);
+            Assert.Equal(15, aggregatedMetric.Sum);
         }
 
         [TestMethod]
@@ -229,18 +242,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric");
-                    aggregator2 = manager.GetMetricAggregator("Test metric");
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric");
+                    aggregator2 = manager.CreateMetricAggregator("Test metric");
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -259,18 +278,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric");
-                    aggregator2 = manager.GetMetricAggregator("Test Métric");
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric");
+                    aggregator2 = manager.CreateMetricAggregator("Test Métric");
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -289,18 +314,31 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", null);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", null);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric");
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count == 1)
                     {
                         break;
+                    }
+                    else
+                    {
+                        sentTelemetry.Clear();
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.Equal(aggregator1, aggregator2);
+            Assert.Equal(1, sentTelemetry.Count);
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal(2, aggregatedMetric.Count);
+            Assert.Equal(15, aggregatedMetric.Sum);
         }
 
         [TestMethod]
@@ -319,18 +357,31 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", new Dictionary<string, string> ());
-                    aggregator2 = manager.GetMetricAggregator("Test Metric");
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", new Dictionary<string, string> ());
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric");
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count == 1)
                     {
                         break;
+                    }
+                    else
+                    {
+                        sentTelemetry.Clear();
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.Equal(aggregator1, aggregator2);
+            Assert.Equal(1, sentTelemetry.Count);
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal(2, aggregatedMetric.Count);
+            Assert.Equal(15, aggregatedMetric.Sum);
         }
 
         [TestMethod]
@@ -359,18 +410,31 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric", dimensionSet2);
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count == 1)
                     {
                         break;
+                    }
+                    else
+                    {
+                        sentTelemetry.Clear();
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.Equal(aggregator1, aggregator2);
+            Assert.Equal(1, sentTelemetry.Count);
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+
+            Assert.Equal(2, aggregatedMetric.Count);
+            Assert.Equal(15, aggregatedMetric.Sum);
         }
 
         [TestMethod]
@@ -392,18 +456,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric", dimensionSet2);
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -425,18 +495,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric", dimensionSet2);
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -458,18 +534,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric", dimensionSet2);
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -491,18 +573,24 @@
                 // snapshot after first got created but before the second
                 for (int i = 0; i < 2; i++)
                 {
-                    aggregator1 = manager.GetMetricAggregator("Test Metric", dimensionSet1);
-                    aggregator2 = manager.GetMetricAggregator("Test Metric", dimensionSet2);
+                    sentTelemetry.Clear();
 
-                    if (aggregator1 == aggregator2)
+                    aggregator1 = manager.CreateMetricAggregator("Test Metric", dimensionSet1);
+                    aggregator2 = manager.CreateMetricAggregator("Test Metric", dimensionSet2);
+
+                    aggregator1.Track(10);
+                    aggregator2.Track(5);
+
+                    manager.Flush();
+
+                    if (sentTelemetry.Count != 2)
                     {
                         break;
                     }
                 }
             }
 
-            Assert.NotEqual(null, aggregator1);
-            Assert.NotEqual(aggregator1, aggregator2);
+            Assert.Equal(2, sentTelemetry.Count);
         }
 
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry)

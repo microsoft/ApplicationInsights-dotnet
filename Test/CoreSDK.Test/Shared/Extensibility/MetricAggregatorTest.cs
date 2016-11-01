@@ -34,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric", dimensions);
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", dimensions);
                 aggregator.Track(42);
             }
 
@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
                 for (int i = 0; i < testValues.Length; i++)
                 {
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
                 for (int i = 0; i < testValues.Length; i++)
                 {
@@ -118,7 +118,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
                 for (int i = 0; i < testValues.Length; i++)
                 {
@@ -147,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
                 for (int i = 0; i < testValues.Length; i++)
                 {
@@ -176,7 +176,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
-                MetricAggregator aggregator = manager.GetMetricAggregator("Test Metric");
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
                 for (int i = 0; i < testValues.Length; i++)
                 {
