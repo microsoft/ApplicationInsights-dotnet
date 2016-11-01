@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -34,7 +34,7 @@
         /// <summary>
         /// Returns the current value of the sum of all different gauges attached to this one and resets their values.
         /// </summary>
-        /// <returns> MetricTelemetry object.</returns>
+        /// <returns>The value of the target metric.</returns>
         public float GetValueAndReset()
         {
             return this.gaugesToSum.Sum((g) => { return g.GetValueAndReset(); });

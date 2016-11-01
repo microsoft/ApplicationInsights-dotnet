@@ -13,6 +13,8 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
     using Web.Implementation;
     using Timer = Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.Timer.Timer;
 
@@ -78,10 +80,8 @@
         {
             this.Counters = new List<PerformanceCounterCollectionRequest>();
 
-            if (this.collector == null)
-            {
-                this.collector = PerformanceCounterUtility.WebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector();
-            }
+            this.collector = this.collector ?? (PerformanceCounterUtility.IsWebAppRunningInAzure() ? 
+                (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector());
         }
 
         /// <summary>

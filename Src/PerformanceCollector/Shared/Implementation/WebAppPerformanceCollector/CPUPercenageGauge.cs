@@ -1,9 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
 
     /// <summary>
-    /// Gauge that sums up the values of different gauges.
+    /// Gauge that computes the CPU percentage utilized by a process by utilizing the last computed time.
     /// </summary>
     internal class CPUPercenageGauge : ICounterValue
     {
@@ -30,9 +30,9 @@
         }
 
         /// <summary>
-        /// Returns the current value of the sum of all different gauges attached to this one and resets their values.
+        /// Returns the percentage of the CPU process utilization time with respect to the total duration.
         /// </summary>
-        /// <returns> MetricTelemetry object.</returns>
+        /// <returns>The value of the target metric.</returns>
         public float GetValueAndReset()
         {
             float previouslyCollectedValue = this.lastCollectedValue;

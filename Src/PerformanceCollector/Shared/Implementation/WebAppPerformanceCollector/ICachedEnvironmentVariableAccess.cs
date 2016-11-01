@@ -1,9 +1,9 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     /// <summary>
     /// Interface for classes that implement a CacheHelper.
     /// </summary>
-    public interface ICachedEnvironmentVariableAccess
+    internal interface ICachedEnvironmentVariableAccess
     {
         /// <summary>
         /// Returns value of a counter from cache.

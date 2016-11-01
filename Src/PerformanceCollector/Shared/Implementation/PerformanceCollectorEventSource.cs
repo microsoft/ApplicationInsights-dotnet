@@ -154,7 +154,7 @@
             this.WriteEvent(14, message, this.ApplicationName);
         }
 
-        [Event(16, Level = EventLevel.Informational, Message = @"Performance counter is not available in the web app supported list. Counter is {0}.")]
+        [Event(16, Keywords = Keywords.UserActionable, Level = EventLevel.Error, Message = @"Performance counter is not available in the web app supported list. Counter is {0}.")]
         public void CounterNotWebAppSupported(
             string counterName,
             string applicationName = "dummy")

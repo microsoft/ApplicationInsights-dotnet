@@ -12,6 +12,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
@@ -136,7 +138,8 @@
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
-                        this.performanceCollector = PerformanceCounterUtility.WebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector();
+                        this.performanceCollector = this.performanceCollector ?? 
+                            (PerformanceCounterUtility.IsWebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector());
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.timings = timings ?? QuickPulseTimings.Default;
 

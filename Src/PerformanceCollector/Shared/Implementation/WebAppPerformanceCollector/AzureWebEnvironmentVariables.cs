@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
 
@@ -6,7 +6,7 @@
     /// Enum for Azure Web App environment variables.
     /// </summary>
     [Flags]
-    public enum AzureWebApEnvironmentVariables
+    internal enum AzureWebApEnvironmentVariables
     {
         /// <summary>
         /// For ASPNET.

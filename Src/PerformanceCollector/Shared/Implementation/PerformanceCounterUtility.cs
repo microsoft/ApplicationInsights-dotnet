@@ -37,14 +37,6 @@
                 @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
                 RegexOptions.Compiled);
 
-        private static readonly Regex DisallowedCharsInReportAsRegex = new Regex(
-            @"[^a-zA-Z()/\\_. \t-]+",
-            RegexOptions.Compiled);
-
-        private static readonly Regex MultipleSpacesRegex = new Regex(
-            @"[  ]+",
-            RegexOptions.Compiled);
-
         /// <summary>
         /// Formats a counter into a readable string.
         /// </summary>
@@ -57,7 +49,7 @@
         /// Searches for the environment variable specific to Azure web applications and confirms if the current application is a web application or not.
         /// </summary>
         /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
-        public static bool WebAppRunningInAzure()
+        public static bool IsWebAppRunningInAzure()
         {
             return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
         }
@@ -68,7 +60,7 @@
         /// <returns>Returns the SDK version prefix based on the platform.</returns>
         public static string SDKVersionPrefix()
         {
-            return WebAppRunningInAzure() ? AzureWebAppSdkVersionPrefix : StandardSdkVersionPrefix;
+            return IsWebAppRunningInAzure() ? AzureWebAppSdkVersionPrefix : StandardSdkVersionPrefix;
         }
 
         /// <summary>
@@ -201,28 +193,6 @@
             }
             
             return match;
-        }
-
-        /// <summary>
-        /// Sanitizes report as string that is used to track the performance counter.
-        /// </summary>
-        /// <param name="reportAs">Report as string name.</param>
-        /// <param name="performanceCounter">Performance counter name.</param>
-        /// <returns>Sanitized report as string.</returns>
-        public static string SanitizeReportAs(string reportAs, string performanceCounter)
-        {
-            // Strip off disallowed characters.
-            var newReportAs = DisallowedCharsInReportAsRegex.Replace(reportAs, string.Empty);
-            newReportAs = MultipleSpacesRegex.Replace(newReportAs, " ");
-            newReportAs = newReportAs.Trim();
-
-            // If nothing is left, use default performance counter name.
-            if (string.IsNullOrWhiteSpace(newReportAs))
-            {
-                return performanceCounter;
-            }
-
-            return newReportAs;
         }
 
         internal static string GetInstanceForCurrentW3SvcWorker()

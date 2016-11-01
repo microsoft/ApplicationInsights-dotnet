@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
 
@@ -593,8 +593,8 @@
                 case @"\Memory\Committed Bytes":
                     return new RawCounterGauge(
                         reportAs,
-                        "committedBytes",
-                        AzureWebApEnvironmentVariables.CLR);
+                        "privateBytes",
+                        AzureWebApEnvironmentVariables.App);
                 case @"\Processor(_Total)\% Processor Time":
                     return new CPUPercenageGauge(
                         reportAs, 
@@ -602,11 +602,6 @@
                             reportAs,
                             new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
                             new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
-                case @"\ASP.NET Applications(__Total__)\Requests In Application Queue":
-                    return new RawCounterGauge(
-                        reportAs,
-                        "requestsInApplicationQueue",
-                        AzureWebApEnvironmentVariables.AspNet);
                 default:
                     throw new ArgumentException("Performance counter was not found.", counterName);
             }

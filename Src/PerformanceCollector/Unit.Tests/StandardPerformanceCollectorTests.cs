@@ -1,6 +1,6 @@
 ﻿namespace Unit.Tests
 {
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>

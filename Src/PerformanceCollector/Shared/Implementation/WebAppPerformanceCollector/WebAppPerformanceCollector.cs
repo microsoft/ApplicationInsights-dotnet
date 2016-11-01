@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
     using System.Collections.Concurrent;
@@ -48,7 +48,6 @@
                         {
                             if (onReadingFailure != null)
                             {
-                                // TODO: add logic to do after exception.
                                 onReadingFailure(counter.Item1.OriginalString, e);
                             }
 

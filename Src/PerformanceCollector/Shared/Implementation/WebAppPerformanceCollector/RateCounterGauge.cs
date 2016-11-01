@@ -1,8 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Struct for metrics dependant on time.
@@ -66,9 +64,9 @@
         }
 
         /// <summary>
-        /// Returns the current value of the rate counter if enough information exists.
+        /// Computes the rate of a specific counter by tracking the last collected time and value.
         /// </summary>
-        /// <returns> MetricTelemetry object.</returns>
+        /// <returns>The value of the target metric.</returns>
         public float GetValueAndReset()
         {
             DateTimeOffset currentTime = System.DateTimeOffset.Now;

@@ -102,12 +102,18 @@
     <Compile Include="WebAppPerformanceCollector\CacheHelperTests.cs" />
     <Compile Include="WebAppPerformanceCollector\CPUPercenageGaugeTests.cs" />
     <Compile Include="WebAppPerformanceCollector\RateCounterTests.cs" />
-    <Compile Include="WebAppPerformanceCollector\SumUpGaugeTests.cs" />
+    <Compile Include="WebAppPerformanceCollector\SumUpCountersGaugeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleTwo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -119,14 +125,6 @@
       <Project>{61fc6e01-b40d-4db2-9dab-b27b82f02244}</Project>
       <Name>Perf.Net40</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleOne.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebAppPerformanceCollector\SampleFiles\RemoteEnvironmentVariablesAllSampleTwo.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

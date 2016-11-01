@@ -3,7 +3,7 @@
     using System;
     using System.Globalization;
     using System.Threading;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
