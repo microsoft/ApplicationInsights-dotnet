@@ -32,13 +32,13 @@
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
-        public IEnumerable<Tuple<PerformanceCounterData, float>> Collect(
+        public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(
             Action<string, Exception> onReadingFailure = null)
         {
             return this.performanceCounters.Where(pc => !pc.Item1.IsInBadState).SelectMany(
                 counter =>
                     {
-                        float value;
+                        double value;
 
                         try
                         {
@@ -51,7 +51,7 @@
                                 onReadingFailure(counter.Item1.OriginalString, e);
                             }
 
-                            return new Tuple<PerformanceCounterData, float>[] { };
+                            return new Tuple<PerformanceCounterData, double>[] { };
                         }
 
                         return new[] { Tuple.Create(counter.Item1, value) };
@@ -144,7 +144,7 @@
         /// <summary>
         /// Collects a value for a single counter.
         /// </summary>
-        private static float CollectCounter(string coutnerOriginalString, ICounterValue counter)
+        private static double CollectCounter(string coutnerOriginalString, ICounterValue counter)
         {
             try
             {

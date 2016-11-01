@@ -10,7 +10,7 @@
         public void TestPerformanceCounterValuesAreCorrectlyRetrievedUsingRawCounterGauge()
         {
             RawCounterGauge gauge = new RawCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
-            float value = gauge.GetValueAndReset();
+            double value = gauge.GetValueAndReset();
 
             Assert.IsTrue(value > 0);
         }

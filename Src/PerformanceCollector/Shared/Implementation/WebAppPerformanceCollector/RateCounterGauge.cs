@@ -24,7 +24,7 @@
 
         private ICounterValue counter;
 
-        private float? lastValue;
+        private double? lastValue;
 
         private ICachedEnvironmentVariableAccess cacheHelper;
 
@@ -67,12 +67,12 @@
         /// Computes the rate of a specific counter by tracking the last collected time and value.
         /// </summary>
         /// <returns>The value of the target metric.</returns>
-        public float GetValueAndReset()
+        public double GetValueAndReset()
         {
             DateTimeOffset currentTime = System.DateTimeOffset.Now;
 
             var timeDifferenceInSeconds = currentTime.Subtract(this.dateTime).Seconds;
-            float value = 0;
+            double value = 0;
 
             if (this.lastValue == null)
             {

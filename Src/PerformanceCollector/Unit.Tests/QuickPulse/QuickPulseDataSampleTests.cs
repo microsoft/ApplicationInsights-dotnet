@@ -11,12 +11,12 @@
     [TestClass]
     public class QuickPulseDataSampleTests
     {
-        private IDictionary<string, Tuple<PerformanceCounterData, float>> dummyDictionary;
+        private IDictionary<string, Tuple<PerformanceCounterData, double>> dummyDictionary;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.dummyDictionary = new Dictionary<string, Tuple<PerformanceCounterData, float>>();
+            this.dummyDictionary = new Dictionary<string, Tuple<PerformanceCounterData, double>>();
         }
 
         [TestMethod]

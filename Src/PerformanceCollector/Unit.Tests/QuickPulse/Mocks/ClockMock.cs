@@ -1,7 +1,6 @@
 ﻿namespace Unit.Tests
 {
     using System;
-
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
 
     internal class ClockMock : Clock

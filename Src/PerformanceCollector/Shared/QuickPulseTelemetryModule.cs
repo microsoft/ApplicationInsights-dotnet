@@ -15,6 +15,8 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
     using Microsoft.ApplicationInsights.Web.Implementation;
+    using static Implementation.QuickPulse.QuickPulseDefaults;
+    using Implementation.QuickPulse.Helpers;
 
     /// <summary>
     /// Telemetry module for collecting QuickPulse data.
@@ -208,29 +210,32 @@
 
         private void InitializePerformanceCollector()
         {
-            foreach (var counter in QuickPulseDefaults.CountersToCollect)
+            Dictionary<QuickPulseCounter, string> counters = QuickPulseDefaults.CountersToCollect;
+
+            foreach (var counterKey in counters.Keys)
             {
+                string originalCounterString = counters[counterKey];
                 try
                 {
                     string error;
                     this.performanceCollector.RegisterCounter(
-                        counter,
-                        counter,
+                        originalCounterString,
+                        originalCounterString,
                         true,
                         out error,
                         true);
 
                     if (!string.IsNullOrWhiteSpace(error))
                     {
-                        QuickPulseEventSource.Log.CounterParsingFailedEvent(error, counter);
+                        QuickPulseEventSource.Log.CounterParsingFailedEvent(error, originalCounterString);
                         continue;
                     }
 
-                    QuickPulseEventSource.Log.CounterRegisteredEvent(counter);
+                    QuickPulseEventSource.Log.CounterRegisteredEvent(originalCounterString);
                 }
                 catch (Exception e)
                 {
-                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter);
+                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, originalCounterString);
                 }
             }
         }
@@ -423,7 +428,7 @@
             QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
 
             // For performance collection, we have to read perf samples from Windows
-            List<Tuple<PerformanceCounterData, float>> perfData =
+            List<Tuple<PerformanceCounterData, double>> perfData =
                 this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
                 .ToList();
 
@@ -432,7 +437,7 @@
 
         private QuickPulseDataSample CreateDataSample(
             QuickPulseDataAccumulator accumulator,
-            IEnumerable<Tuple<PerformanceCounterData, float>> perfData)
+            IEnumerable<Tuple<PerformanceCounterData, double>> perfData)
         {
             return new QuickPulseDataSample(accumulator, perfData.ToDictionary(tuple => tuple.Item1.ReportAs, tuple => tuple));
         }

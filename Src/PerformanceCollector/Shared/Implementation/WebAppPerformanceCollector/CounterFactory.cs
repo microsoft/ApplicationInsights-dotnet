@@ -588,20 +588,6 @@
                         reportAs,
                         "pinnedObjects",
                         AzureWebApEnvironmentVariables.CLR);
-                
-                //// Quick pulse related hard coded performance counters.
-                case @"\Memory\Committed Bytes":
-                    return new RawCounterGauge(
-                        reportAs,
-                        "privateBytes",
-                        AzureWebApEnvironmentVariables.App);
-                case @"\Processor(_Total)\% Processor Time":
-                    return new CPUPercenageGauge(
-                        reportAs, 
-                        new SumUpCountersGauge(
-                            reportAs,
-                            new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
-                            new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
                 default:
                     throw new ArgumentException("Performance counter was not found.", counterName);
             }

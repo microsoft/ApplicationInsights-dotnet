@@ -47,7 +47,7 @@
         /// Returns the current value of the counter as a <c ref="float"/> and resets the metric.
         /// </summary>
         /// <returns>The value of the target metric.</returns>
-        public float GetValueAndReset()
+        public double GetValueAndReset()
         {
             return this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable);
         }

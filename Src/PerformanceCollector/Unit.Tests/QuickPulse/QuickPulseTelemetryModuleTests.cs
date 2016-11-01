@@ -7,7 +7,6 @@
     using System.IO;
     using System.Linq;
     using System.Threading;
-
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -226,7 +225,7 @@
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
             Assert.IsTrue(
                 serviceClient.SnappedSamples.Any(
-                    s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
+                    s => Math.Abs(s.PerfCountersLookup[@"\Processor(_Total)\% Processor Time"]) > double.Epsilon));
         }
 
         [TestMethod]
@@ -313,7 +312,7 @@
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
             Assert.IsTrue(performanceCollector.PerformanceCounters.Any());
-            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfCountersLookup[@"\Processor(_Total)\% Processor Time"]) > double.Epsilon));
         }
 
         [TestMethod]
