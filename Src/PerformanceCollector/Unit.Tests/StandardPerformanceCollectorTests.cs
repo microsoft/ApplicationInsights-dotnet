@@ -18,9 +18,9 @@
 
         [TestMethod]
         [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorRefreshTest()
+        public void PerformanceCollectorRefreshCountersTest()
         {
-            this.PerformanceCollectorRefreshTest(new StandardPerformanceCollector());
+            this.PerformanceCollectorRefreshCountersTest(new StandardPerformanceCollector());
         }
 
         [TestMethod]

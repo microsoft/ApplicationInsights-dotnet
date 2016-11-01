@@ -4,6 +4,7 @@
     using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -46,32 +47,39 @@
             }
         }
 
-        internal void PerformanceCollectorRefreshTest(IPerformanceCollector collector)
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
+        internal void PerformanceCollectorRefreshCountersTest(IPerformanceCollector collector)
         {
             var counters = new PerformanceCounter[]
                                {
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total123blabla"),
                                    new PerformanceCounter("Processor", "% Processor Time", "_Total"),
-                                   new PerformanceCounter("Processor", "% Processor Time", "_Total") 
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total123afadfdsdf"), 
                                };
-
-            var newCounter = new PerformanceCounterData(@"\Memory\Committed Bytes", "Committed Bytes", false, false, false, "Memory", "Committed Bytes", string.Empty);
 
             foreach (var pc in counters)
             {
-                string error = null;
-                collector.RegisterCounter(
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc), 
-                    null,
-                    true,
-                    out error,
-                    false);
+                try
+                {
+                    string error = null;
+                    collector.RegisterCounter(
+                        PerformanceCounterUtility.FormatPerformanceCounter(pc), 
+                        null,
+                        true,
+                        out error,
+                        false);
+                }
+                catch (Exception)
+                {
+                }
             }
 
-            collector.RefreshPerformanceCounter(newCounter);
-
-            Assert.IsTrue(collector.PerformanceCounters.Last().CategoryName == newCounter.CategoryName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().CounterName == newCounter.CounterName);
-            Assert.IsTrue(collector.PerformanceCounters.Last().InstanceName == newCounter.InstanceName);
+            collector.RefreshCounters();
+            
+            // All bad state counters are removed and added later through register counter, and as a result, the order of the performance coutners is changed.
+            Assert.AreEqual(collector.PerformanceCounters.First().InstanceName, "_Total");
+            Assert.AreEqual(collector.PerformanceCounters.Last().InstanceName, "_Total123afadfdsdf");
         }
 
         internal void PerformanceCollectorBadStateTest(IPerformanceCollector collector)

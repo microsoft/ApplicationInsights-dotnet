@@ -15,19 +15,5 @@
         {
             this.PerformanceCollectorSanityTest(new WebAppPerformanceCollector());
         }
-
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorRefreshTest()
-        {
-            this.PerformanceCollectorRefreshTest(new WebAppPerformanceCollector());
-        }
-
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
-        public void PerformanceCollectorBadStateTest()
-        {
-            // Bad State Is not actualy suppported in web apps. When the value is not available, it by default returns zero today.
-        }
     }
 }

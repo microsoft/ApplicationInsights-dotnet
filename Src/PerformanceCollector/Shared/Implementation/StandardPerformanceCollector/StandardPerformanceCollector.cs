@@ -5,16 +5,10 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using DataContracts;
 
     internal class StandardPerformanceCollector : IPerformanceCollector
     {
-        private readonly List<PerformanceCounterData> performanceCounters = new List<PerformanceCounterData>();
-
-        /// <summary>
-        /// Dictionary to store the performance counter for each unique key - category name + counter name + instance name.
-        /// </summary>
-        private Dictionary<string, PerformanceCounter> performanceCounterStore = new Dictionary<string, PerformanceCounter>();
+        private readonly List<Tuple<PerformanceCounterData, PerformanceCounter>> performanceCounters = new List<Tuple<PerformanceCounterData, PerformanceCounter>>();
 
         private IEnumerable<string> win32Instances;
         private IEnumerable<string> clrInstances;
@@ -24,7 +18,7 @@
         /// </summary>
         public IEnumerable<PerformanceCounterData> PerformanceCounters
         {
-            get { return this.performanceCounters; }
+            get { return this.performanceCounters.Select(t => t.Item1).ToList(); }
         }
 
         /// <summary>
@@ -34,28 +28,28 @@
         public IEnumerable<Tuple<PerformanceCounterData, float>> Collect(
             Action<string, Exception> onReadingFailure = null)
         {
-            return this.performanceCounters.Where(pc => !pc.IsInBadState).SelectMany(
+            return this.performanceCounters.Where(pc => !pc.Item1.IsInBadState).SelectMany(
                 pc =>
                     {
                         float value;
 
                         try
                         {
-                            value = CollectCounter(this.performanceCounterStore[this.GenerateKeyForPerformanceCounter(pc)]);
+                            value = CollectCounter(pc.Item2);
                         }
                         catch (InvalidOperationException e)
                         {
                             if (onReadingFailure != null)
                             {
                                 onReadingFailure(
-                                    PerformanceCounterUtility.FormatPerformanceCounter(this.performanceCounterStore[this.GenerateKeyForPerformanceCounter(pc)]),
+                                    PerformanceCounterUtility.FormatPerformanceCounter(pc.Item2),
                                     e);
                             }
 
                             return new Tuple<PerformanceCounterData, float>[] { };
                         }
 
-                        return new[] { Tuple.Create(pc, value) };
+                        return new[] { Tuple.Create(pc.Item1, value) };
                     });
         }
 
@@ -65,7 +59,8 @@
         public void RefreshCounters()
         {
             this.LoadDependentInstances();
-            //// we need to refresh counters in bad state and counters with placeholders in instance names
+
+            // We need to refresh counters in bad state and counters with placeholders in instance names
             var countersToRefresh =
                 this.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
                     .ToList();
@@ -98,34 +93,13 @@
                 out usesInstanceNamePlaceholder,
                 out error);
 
-            //// If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
+            // If blockCounterWithInstancePlaceHolder is true, then we register the counter only if usesInstanceNamePlaceHolder is true.
             if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
                 this.RegisterCounter(perfCounter, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
             }
         }
 
-        /// <summary>
-        /// Rebinds performance counters to Windows resources.
-        /// </summary>
-        public void RefreshPerformanceCounter(PerformanceCounterData pcd)
-        {
-            this.performanceCounters.Remove(pcd);
-            if (this.performanceCounterStore.ContainsKey(this.GenerateKeyForPerformanceCounter(pcd)))
-            {
-                this.performanceCounterStore.Remove(this.GenerateKeyForPerformanceCounter(pcd));
-            }
-
-            this.RegisterPerformanceCounter(
-                pcd.OriginalString,
-                pcd.ReportAs,
-                pcd.CategoryName,
-                pcd.CounterName,
-                pcd.InstanceName,
-                pcd.UsesInstanceNamePlaceholder,
-                pcd.IsCustomCounter);
-        }
-        
         /// <summary>
         /// Collects a value for a single counter.
         /// </summary>
@@ -144,6 +118,27 @@
                         PerformanceCounterUtility.FormatPerformanceCounter(pc)),
                     e);
             }
+        }
+
+        /// <summary>
+        /// Rebinds performance counters to Windows resources.
+        /// </summary>
+        private void RefreshPerformanceCounter(PerformanceCounterData pcd)
+        {
+            Tuple<PerformanceCounterData, PerformanceCounter> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
+            if (tupleToRemove != null)
+            {
+                this.performanceCounters.Remove(tupleToRemove);
+            }
+
+            this.RegisterPerformanceCounter(
+                pcd.OriginalString,
+                pcd.ReportAs,
+                pcd.CategoryName,
+                pcd.CounterName,
+                pcd.InstanceName,
+                pcd.UsesInstanceNamePlaceholder,
+                pcd.IsCustomCounter);
         }
 
         /// <summary>
@@ -295,30 +290,8 @@
                         performanceCounter.CounterName,
                         performanceCounter.InstanceName);
 
-                string key = this.GenerateKeyForPerformanceCounter(perfData);
-                if (this.performanceCounterStore.ContainsKey(key))
-                {
-                    this.performanceCounterStore.Remove(key);
-                }
-
-                this.performanceCounterStore.Add(key, performanceCounter);
-                this.performanceCounters.Add(perfData);
+                this.performanceCounters.Add(new Tuple<PerformanceCounterData, PerformanceCounter>(perfData, performanceCounter));
             }
-        }
-
-        /// <summary>
-        /// Generates Unique key for a specific performance counter data using the category name, counter name and instance name.
-        /// </summary>
-        /// <param name="pcd">Target performance counter data.</param>
-        /// <returns>Unique key for the specific counter data.</returns>
-        private string GenerateKeyForPerformanceCounter(PerformanceCounterData pcd)
-        {
-            if (pcd != null)
-            {
-                return pcd.CategoryName + pcd.CounterName + pcd.InstanceName;
-            }
-
-            return string.Empty;
         }
     }
 }
