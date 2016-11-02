@@ -87,7 +87,7 @@
             string instance = Guid.NewGuid().ToString();
             var timestamp = DateTimeOffset.UtcNow;
 
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, instance, instance, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, instance, instance, string.Empty, new Clock(), false);
 
             // ACT
             serviceClient.Ping(string.Empty, timestamp);
@@ -105,7 +105,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIRequestSuccessCount = 5, StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -141,7 +141,7 @@
             var dummy = new Dictionary<string, Tuple<PerformanceCounterData, double>>();
             var timeProvider = new ClockMock();
 
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, timeProvider);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, timeProvider, false);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow.AddSeconds(-1), EndTimestamp = timeProvider.UtcNow },
@@ -178,7 +178,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator { AIRequestSuccessCount = 1, StartTimestamp = now, EndTimestamp = now.AddSeconds(3) },
@@ -198,7 +198,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator
@@ -235,7 +235,7 @@
         {
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
             var properties = new Dictionary<string, string>() { { "Prop1", "Val1" } };
             var sample =
                 new QuickPulseDataSample(
@@ -277,7 +277,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderTrue()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
@@ -293,7 +293,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderFalse()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
@@ -309,7 +309,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderInvalid()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.pingResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
@@ -325,7 +325,7 @@
         public void QuickPulseServiceClientInterpretsPingResponseCorrectlyWhenHeaderMissing()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.pingResponse = r => { };
@@ -341,7 +341,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderTrue()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", true.ToString()); };
@@ -357,7 +357,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderFalse()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", false.ToString()); };
@@ -373,7 +373,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderInvalid()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.submitResponse = r => { r.AddHeader("x-ms-qps-subscribed", "bla"); };
@@ -389,7 +389,7 @@
         public void QuickPulseServiceClientInterpretsSubmitSamplesResponseCorrectlyWhenHeaderMissing()
         {
             // ARRANGE
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             this.submitResponse = r => { };
@@ -412,6 +412,7 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
+                false,
                 TimeSpan.FromMilliseconds(50));
 
             this.emulateTimeout = true;
@@ -436,6 +437,7 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
+                false,
                 TimeSpan.FromMilliseconds(50));
 
             this.emulateTimeout = true;
@@ -454,7 +456,7 @@
         {
             // ARRANGE
             var instanceName = "this instance";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, instanceName, instanceName, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, instanceName, instanceName, string.Empty, new Clock(), false);
 
             // ACT
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow);
@@ -472,7 +474,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var instanceName = "this instance";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, instanceName, instanceName, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instanceName, instanceName, instanceName, string.Empty, new Clock(), false);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, double>>());
@@ -492,7 +494,7 @@
         {
             // ARRANGE
             var streamId = "this stream";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, streamId, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, streamId, string.Empty, string.Empty, new Clock(), false);
 
             // ACT
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow);
@@ -510,7 +512,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var streamId = "this stream";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, streamId, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, streamId, string.Empty, string.Empty, new Clock(), false);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, double>>());
@@ -530,7 +532,7 @@
         {
             // ARRANGE
             var machineName = "this machine";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, machineName, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, machineName, string.Empty, new Clock(), false);
 
             // ACT
             serviceClient.Ping(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow);
@@ -548,7 +550,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var machineName = "this machine";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, machineName, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, machineName, string.Empty, new Clock(), false);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, double>>());
@@ -569,7 +571,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var version = "this version";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, version, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, version, new Clock(), false);
 
             // ACT
             serviceClient.Ping("some ikey", now);
@@ -587,7 +589,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var version = "this version";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, version, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, version, new Clock(), false);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, double>>());
@@ -609,7 +611,7 @@
             // ARRANGE
             var now = DateTimeOffset.UtcNow;
             var ikey = "some ikey";
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock());
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), false);
             var sample = new QuickPulseDataSample(
                 new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
                 new Dictionary<string, Tuple<PerformanceCounterData, double>>());
@@ -623,7 +625,28 @@
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(ikey, this.samples[0].Item2.InstrumentationKey);
         }
-        
+
+        [TestMethod]
+        public void QuickPulseServiceClientSubmitsIsWebAppToService()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var ikey = "some ikey";
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, new Clock(), true);
+            var sample = new QuickPulseDataSample(
+                new QuickPulseDataAccumulator { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                new Dictionary<string, Tuple<PerformanceCounterData, double>>());
+
+            // ACT
+            serviceClient.SubmitSamples(new[] { sample }, ikey);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(1, this.samples.Count);
+            Assert.IsTrue(this.samples[0].Item2.IsWebApp);
+        }
+
         public void Dispose()
         {
             ((IDisposable)this.listener).Dispose();

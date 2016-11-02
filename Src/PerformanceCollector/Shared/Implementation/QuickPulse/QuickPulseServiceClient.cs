@@ -32,11 +32,13 @@
 
         private readonly Clock timeProvider;
 
+        private readonly bool isWebApp;
+
         private readonly DataContractJsonSerializer serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
 
         private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
 
-        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string machineName, string version, Clock timeProvider, TimeSpan? timeout = null)
+        public QuickPulseServiceClient(Uri serviceUri, string instanceName, string streamId, string machineName, string version, Clock timeProvider, bool isWebApp, TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
             this.instanceName = instanceName;
@@ -44,6 +46,7 @@
             this.machineName = machineName;
             this.version = version;
             this.timeProvider = timeProvider;
+            this.isWebApp = isWebApp;
             this.timeout = timeout ?? this.timeout;
         }
 
@@ -104,7 +107,8 @@
                 Instance = this.instanceName,
                 StreamId = this.streamId,
                 MachineName = this.machineName,
-                Timestamp = timestamp.UtcDateTime
+                Timestamp = timestamp.UtcDateTime,
+                IsWebApp = this.isWebApp
             };
 
             this.serializerDataPoint.WriteObject(stream, dataPoint);
@@ -188,6 +192,7 @@
                                         StreamId = this.streamId,
                                         MachineName = this.machineName,
                                         Timestamp = sample.EndTimestamp.UtcDateTime,
+                                        IsWebApp = this.isWebApp,
                                         Metrics = metricPoints.ToArray(),
                                         Documents = documents
                                     };

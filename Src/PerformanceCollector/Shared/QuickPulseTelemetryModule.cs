@@ -296,7 +296,15 @@
             string streamId = GetStreamId();
             string machineName = Environment.MachineName;
             var assemblyVersion = SdkVersionUtils.GetSdkVersion(null);
-            this.serviceClient = new QuickPulseServiceClient(serviceEndpointUri, instanceName, streamId, machineName, assemblyVersion, this.timeProvider);
+            bool isWebApp = PerformanceCounterUtility.IsWebAppRunningInAzure();
+            this.serviceClient = new QuickPulseServiceClient(
+                serviceEndpointUri,
+                instanceName,
+                streamId,
+                machineName,
+                assemblyVersion,
+                this.timeProvider,
+                isWebApp);
 
             QuickPulseEventSource.Log.TroubleshootingMessageEvent(
                 string.Format(
