@@ -85,7 +85,7 @@
                     return 0;
                 }
 
-                CacheHelper.Instance.SaveToCache(name, uncachedJson, DateTimeOffset.Now.AddSeconds(5.0));
+                CacheHelper.Instance.SaveToCache(name, uncachedJson, DateTimeOffset.Now.AddMilliseconds(500));
             }
 
             string json = this.GetFromCache(name).ToString();

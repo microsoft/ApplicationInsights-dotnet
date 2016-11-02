@@ -50,6 +50,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RawCounterGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\PerformanceCounterImplementation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RateCounterGauge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\RatioCounterGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\SumUpCountersGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\WebAppPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryProcessor.cs" />

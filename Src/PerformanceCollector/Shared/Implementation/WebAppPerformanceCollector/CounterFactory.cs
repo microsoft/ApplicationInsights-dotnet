@@ -588,6 +588,39 @@
                         reportAs,
                         "pinnedObjects",
                         AzureWebApEnvironmentVariables.CLR);
+                case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Hit Ratio":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("totalCacheHits", "totalCacheHits", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("totalCacheMisses", "totalCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Hit Ratio":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("apiCacheHits", "apiCacheHits", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("apiCacheMisses", "apiCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Hit Ratio":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("outputCacheHits", "outputCacheHits", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("outputCacheMisses", "outputCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache % Machine Memory Limit Used":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("cachePercentMachMemLimitUsed", "cachePercentMachMemLimitUsed", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("cachePercentMachMemLimitUsedBase", "cachePercentMachMemLimitUsedBase", AzureWebApEnvironmentVariables.AspNet),
+                        100);
+                case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache % Process Memory Limit Used":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("cachePercentProcMemLimitUsed", "cachePercentProcMemLimitUsed", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("cachePercentProcMemLimitUsedBase", "cachePercentProcMemLimitUsedBase", AzureWebApEnvironmentVariables.AspNet),
+                        100);
+                case @"\.NET CLR Memory(??APP_CLR_PROC??)\% Time in GC":
+                    return new RatioCounterGauge(
+                        reportAs,
+                        new RawCounterGauge("timeInGC", "timeInGC", AzureWebApEnvironmentVariables.CLR),
+                        new RawCounterGauge("timeInGCBase", "timeInGCBase", AzureWebApEnvironmentVariables.CLR),
+                        100);
                 default:
                     throw new ArgumentException("Performance counter was not found.", counterName);
             }

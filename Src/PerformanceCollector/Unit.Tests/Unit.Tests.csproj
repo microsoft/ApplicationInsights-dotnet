@@ -101,6 +101,7 @@
     <Compile Include="WebAppPerformanceCollector\AzureWebAppTest.cs" />
     <Compile Include="WebAppPerformanceCollector\CacheHelperTests.cs" />
     <Compile Include="WebAppPerformanceCollector\CPUPercenageGaugeTests.cs" />
+    <Compile Include="WebAppPerformanceCollector\RatioCounterTests.cs" />
     <Compile Include="WebAppPerformanceCollector\RateCounterTests.cs" />
     <Compile Include="WebAppPerformanceCollector\SumUpCountersGaugeTests.cs" />
   </ItemGroup>
