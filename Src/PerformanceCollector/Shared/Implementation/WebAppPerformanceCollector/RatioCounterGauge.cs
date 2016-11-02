@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     /// <summary>
-    /// Gauge that sums up the values of different gauges.
+    /// Gauge that computes the ratio of two different gauges.
     /// </summary>
     internal class RatioCounterGauge : ICounterValue
     {
@@ -21,17 +21,17 @@
         private string name;
 
         /// <summary>
-        /// Scale to measure the percentage or other increase the scaling of the ratio.
+        /// Scale to measure the percentage or increase the scaling of the ratio.
         /// </summary>
         private double scale;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RatioCounterGauge"/> class.
         /// </summary>
-        /// <param name="name"> Name of the SumUpCountersGauge.</param>
+        /// <param name="name"> Name of the RatioCounterGauge.</param>
         /// <param name="numeratorGauge">The numerator for computing the ratio.</param>
         /// <param name="denominatorGauge">The denominator for computing the ratio.</param>
-        /// <param name="scale">Scale to measure the percentage or other increase the scaling of the ratio.</param>
+        /// <param name="scale">Scale to measure the percentage or increase the scaling of the ratio.</param>
         public RatioCounterGauge(string name, ICounterValue numeratorGauge, ICounterValue denominatorGauge, double scale = 1)
         {
             this.name = name;
