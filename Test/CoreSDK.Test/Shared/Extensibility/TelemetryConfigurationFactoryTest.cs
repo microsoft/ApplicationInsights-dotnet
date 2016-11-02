@@ -18,6 +18,14 @@
     [TestClass]
     public class TelemetryConfigurationFactoryTest
     {
+        private const string EnvironmentVariableName = "APPINSIGHTS_INSTRUMENTATIONKEY";
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
+        }
+
         #region Instance
 
         [TestMethod]
@@ -112,6 +120,55 @@
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, Configuration("<blah></blah>"));
 
             Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
+        public void InitializeReadsInstrumentationKeyFromEnvironmentVariableIfNotSpecifiedInConfig()
+        {
+            // ARRANGE
+            var ikey = Guid.NewGuid().ToString();
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, ikey);
+
+            var configuration = new TelemetryConfiguration();
+
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
+
+            // ASSERT
+            Assert.Equal(ikey, configuration.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeDoesNotReadInstrumentationKeyFromEnvironmentVariableIfSpecifiedInConfig()
+        {
+            // ARRANGE
+            var ikeyConfig = Guid.NewGuid().ToString();
+            var ikeyEnvironmentVariable = Guid.NewGuid().ToString();
+
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnvironmentVariable);
+
+            var configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
+
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
+
+            // ASSERT
+            Assert.Equal(ikeyConfig, configuration.InstrumentationKey);
+        }
+
+        [TestMethod]
+        public void InitializeLeavesInstrumentationKeyEmptyWhenNotSpecifiedInConfigOrInEnvironmentVariable()
+        {
+            // ARRANGE
+            Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
+            
+            var configuration = new TelemetryConfiguration();
+
+            // ACT
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
+
+            // ASSERT
+            Assert.Equal(string.Empty, configuration.InstrumentationKey);
         }
 
         #endregion

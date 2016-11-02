@@ -19,6 +19,7 @@
     {
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
+        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
 
@@ -70,6 +71,13 @@
                 {
                     CoreEventSource.Log.ConfigurationFileCouldNotBeParsedError(exp.Message);
                 }
+            }
+
+            // If no instrumentation key is found, try to fall back to an environment variable (for blackfield scenario)
+            if (string.IsNullOrEmpty(configuration.InstrumentationKey))
+            {
+                configuration.InstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable)
+                                                   ?? string.Empty;
             }
 
             // Creating the default channel if no channel configuration supplied
