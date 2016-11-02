@@ -16,7 +16,7 @@
         /// <summary>Azure Web App name corresponding to the resource name.</summary>
         private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";
 
-        /// <summary>Azure Web App host that contains site name and slot: site-slot.azurewebsites.net.</summary>
+        /// <summary>Azure Web App host that contains site name and slot: site-slot.</summary>
         private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
 
         private string roleInstanceName;
