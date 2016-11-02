@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollectorEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCollectionTimeSlotManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseDefaults.cs" />
@@ -51,9 +53,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Timer\TimerInterface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\IPerformanceCollector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PerformanceCollectorModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>

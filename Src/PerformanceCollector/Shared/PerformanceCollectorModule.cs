@@ -5,10 +5,9 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Threading;
-
+    using System.Threading; 
     using Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Channel;
+    using Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -25,7 +24,7 @@
 
         private readonly List<PerformanceCounterCollectionRequest> defaultCounters = new List<PerformanceCounterCollectionRequest>();
 
-        private readonly IPerformanceCollector collector = new PerformanceCollector();
+        private readonly IPerformanceCollector collector;
 
         /// <summary>
         /// Determines how often we re-register performance counters.
@@ -77,6 +76,11 @@
         public PerformanceCollectorModule()
         {
             this.Counters = new List<PerformanceCounterCollectionRequest>();
+
+            if (this.collector == null)
+            {
+                this.collector = new StandardPerformanceCollector();
+            }
         }
 
         /// <summary>
@@ -192,24 +196,6 @@
             GC.SuppressFinalize(this);
         }
 
-        private static ITelemetry CreateTelemetry(PerformanceCounter pc, string reportAs, bool isCustomCounter, float value)
-        {
-            var metricName = !string.IsNullOrWhiteSpace(reportAs)
-                                 ? reportAs
-                                 : string.Format(
-                                     CultureInfo.InvariantCulture,
-                                     "{0} - {1}",
-                                     pc.CategoryName,
-                                     pc.CounterName);
-
-            var metricTelemetry = new MetricTelemetry(metricName, value);
-
-            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
-            metricTelemetry.Properties.Add("CustomPerfCounter", "true");
-
-            return metricTelemetry;
-        }
-
         private static bool IsRunningUnderIisExpress()
         {
             var iisExpressProcessName = "iisexpress";
@@ -268,12 +254,7 @@
 
                 foreach (var result in results)
                 {
-                    var telemetry = CreateTelemetry(
-                        result.Item1.PerformanceCounter,
-                        result.Item1.ReportAs,
-                        result.Item1.IsCustomCounter,
-                        result.Item2);
-
+                    var telemetry = this.CreateTelemetry(result.Item1, result.Item2);
                     try
                     {
                         this.client.Track(telemetry);
@@ -309,11 +290,7 @@
                 // re-registration period hasn't elapsed yet, do nothing
                 return;
             }
-            
-            // get all instances that currently exist in the system
-            var win32Instances = PerformanceCounterUtility.GetWin32ProcessInstances();
-            var clrInstances = PerformanceCounterUtility.GetClrProcessInstances();
-
+           
             PerformanceCounterUtility.InvalidatePlaceholderCache();
 
             if (this.lastRefreshTimestamp == DateTime.MinValue)
@@ -326,13 +303,12 @@
 
                 foreach (PerformanceCounterCollectionRequest req in this.DefaultCounters.Union(this.Counters))
                 {
-                    this.RegisterCounter(
+                    this.collector.RegisterCounter(
                         req.PerformanceCounter,
                         req.ReportAs,
-                        win32Instances,
-                        clrInstances,
                         true,
-                        out error);
+                        out error,
+                        false);
 
                     if (!string.IsNullOrWhiteSpace(error))
                     {
@@ -357,137 +333,13 @@
             else
             {
                 // this is a periodic refresh
-                this.RefreshCounters(win32Instances, clrInstances);
+                this.collector.RefreshCounters();
             }
 
             // as per MSDN, we need to wait at least 1s before proceeding with counter collection
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
             this.lastRefreshTimestamp = DateTime.Now;
-        }
-
-        private void RefreshCounters(IEnumerable<string> win32Instances, IEnumerable<string> clrInstances)
-        {
-            // we need to refresh counters in bad state and counters with placeholders in instance names
-            var countersToRefresh =
-                this.collector.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
-                    .ToList();
-
-            countersToRefresh.ForEach(pcd => this.RefreshCounter(pcd, win32Instances, clrInstances));
-
-            PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count.ToString(CultureInfo.InvariantCulture));
-        }
-
-        private void RefreshCounter(
-            PerformanceCounterData pcd,
-            IEnumerable<string> win32Instances,
-            IEnumerable<string> clrInstances)
-        {
-            string dummy;
-
-            bool usesInstanceNamePlaceholder;
-            var pc = this.CreateCounter(
-                pcd.OriginalString,
-                win32Instances,
-                clrInstances,
-                out usesInstanceNamePlaceholder,
-                out dummy);
-
-            try
-            {
-                this.collector.RefreshPerformanceCounter(pcd, pc);
-
-                PerformanceCollectorEventSource.Log.CounterRegisteredEvent(
-                        PerformanceCounterUtility.FormatPerformanceCounter(pc));
-            }
-            catch (InvalidOperationException e)
-            {
-                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(
-                    e.Message,
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
-            }
-        }
-
-        private PerformanceCounter CreateCounter(
-            string perfCounterName,
-            IEnumerable<string> win32Instances,
-            IEnumerable<string> clrInstances,
-            out bool usesInstanceNamePlaceholder,
-            out string error)
-        {
-            error = null;
-
-            try
-            {
-                return PerformanceCounterUtility.ParsePerformanceCounter(
-                    perfCounterName,
-                    win32Instances,
-                    clrInstances,
-                    out usesInstanceNamePlaceholder);
-            }
-            catch (Exception e)
-            {
-                usesInstanceNamePlaceholder = false;
-                PerformanceCollectorEventSource.Log.CounterParsingFailedEvent(e.Message, perfCounterName);
-                error = e.Message;
-
-                return null;
-            }
-        }
-
-        private void RegisterCounter(
-            string perfCounterName,
-            string reportAs,
-            IList<string> win32Instances,
-            IList<string> clrInstances,
-            bool isCustomCounter,
-            out string error)
-        {
-            bool usesInstanceNamePlaceholder;
-            var pc = this.CreateCounter(
-                perfCounterName,
-                win32Instances,
-                clrInstances,
-                out usesInstanceNamePlaceholder,
-                out error);
-
-            if (pc != null)
-            {
-                this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
-            }
-        }
-
-        private void RegisterCounter(
-            string originalString,
-            string reportAs,
-            PerformanceCounter pc,
-            bool isCustomCounter,
-            bool usesInstanceNamePlaceholder,
-            out string error)
-        {
-            error = null;
-
-            try
-            {
-                this.collector.RegisterPerformanceCounter(
-                    originalString,
-                    reportAs,
-                    pc.CategoryName,
-                    pc.CounterName,
-                    pc.InstanceName,
-                    usesInstanceNamePlaceholder,
-                    isCustomCounter);
-
-                PerformanceCollectorEventSource.Log.CounterRegisteredEvent(
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
-            }
-            catch (InvalidOperationException e)
-            {
-                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(
-                    e.Message,
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
-                error = e.Message;
-            }
         }
 
         private void ProcessCustomCounters()
@@ -503,6 +355,30 @@
                     ? req.PerformanceCounter.Trim('\\').Replace(@"\", @" - ")
                     : req.ReportAs;
             }
+        }
+
+        /// <summary>
+        /// Creates a metric telemetry associated with the PerformanceCounterData, with the respective float value.
+        /// </summary>
+        /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
+        /// <param name="value">The metric value for the respective performance counter data.</param>
+        /// <returns>Metric telemetry object associated with the specific counter.</returns>
+        private MetricTelemetry CreateTelemetry(PerformanceCounterData pc, float value)
+        {
+            var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
+                                 ? pc.ReportAs
+                                 : string.Format(
+                                     CultureInfo.InvariantCulture,
+                                     "{0} - {1}",
+                                     pc.CategoryName,
+                                     pc.CounterName);
+
+            var metricTelemetry = new MetricTelemetry(metricName, value);
+
+            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
+            metricTelemetry.Properties.Add("CustomPerfCounter", "true");
+
+            return metricTelemetry;
         }
     }
 }

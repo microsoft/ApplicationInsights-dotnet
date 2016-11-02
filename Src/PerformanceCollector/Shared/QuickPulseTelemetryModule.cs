@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Threading;
 
+    using Implementation.StandardPerformanceCollector;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -136,7 +137,7 @@
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
-                        this.performanceCollector = this.performanceCollector ?? new PerformanceCollector();
+                        this.performanceCollector = this.performanceCollector ?? new StandardPerformanceCollector();
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.timings = timings ?? QuickPulseTimings.Default;
 
@@ -207,35 +208,21 @@
         {
             foreach (var counter in QuickPulseDefaults.CountersToCollect)
             {
-                PerformanceCounter pc = null;
-                bool usesPlaceholder;
-
                 try
                 {
-                    pc = PerformanceCounterUtility.ParsePerformanceCounter(counter, null, null, out usesPlaceholder);
-                }
-                catch (Exception e)
-                {
-                    QuickPulseEventSource.Log.CounterParsingFailedEvent(e.Message, counter);
-                    continue;
-                }
-
-                if (usesPlaceholder)
-                {
-                    // Instance placeholders are not currently supported since they require refresh. Refresh is not implemented at this time.
-                    continue;
-                }
-
-                try
-                {
-                    this.performanceCollector.RegisterPerformanceCounter(
+                    string error;
+                    this.performanceCollector.RegisterCounter(
                         counter,
                         counter,
-                        pc.CategoryName,
-                        pc.CounterName,
-                        pc.InstanceName,
-                        false,
+                        true,
+                        out error,
                         true);
+
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        QuickPulseEventSource.Log.CounterParsingFailedEvent(error, counter);
+                        continue;
+                    }
 
                     QuickPulseEventSource.Log.CounterRegisteredEvent(counter);
                 }
@@ -436,7 +423,7 @@
             // For performance collection, we have to read perf samples from Windows
             List<Tuple<PerformanceCounterData, float>> perfData =
                 this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
-                    .ToList();
+                .ToList();
 
             return this.CreateDataSample(completeAccumulator, perfData);
         }
