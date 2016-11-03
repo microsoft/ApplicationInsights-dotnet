@@ -13,9 +13,7 @@
         [TestCategory("RequiresPerformanceCounters")]
         public void PerformanceCollectorSanityTest()
         {
-           this.PerformanceCollectorSanityTest(
-               new WebAppPerformanceCollector(), 
-               @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec", "ASP.NET Applications", "Requests/Sec", null);
+           this.PerformanceCollectorSanityTest(new WebAppPerformanceCollector(), @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec", "ASP.NET Applications", "Requests/Sec", null);
         }
     }
 }

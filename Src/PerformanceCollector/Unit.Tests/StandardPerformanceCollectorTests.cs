@@ -13,9 +13,7 @@
         [TestCategory("RequiresPerformanceCounters")]
         public void PerformanceCollectorSanityTest()
         {
-           this.PerformanceCollectorSanityTest(
-               new StandardPerformanceCollector(), 
-               @"\Processor(_Total)\% Processor Time", "Processor", "% Processor Time", "_Total");
+           this.PerformanceCollectorSanityTest(new StandardPerformanceCollector(), @"\Processor(_Total)\% Processor Time", "Processor", "% Processor Time", "_Total");
         }
 
         [TestMethod]
