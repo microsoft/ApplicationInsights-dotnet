@@ -25,7 +25,6 @@
         private const string StandardSdkVersionPrefix = "pc:";
         private const string AzureWebAppSdkVersionPrefix = "azwapc:";
 
-        private const string IsAzureWebApp = "IsAzureWebAppBoolInCache";
         private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
 
         private static readonly Dictionary<string, string> PlaceholderCache = new Dictionary<string, string>();
@@ -38,6 +37,8 @@
             new Regex(
                 @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
                 RegexOptions.Compiled);
+
+        private static bool? isAzureWebApp = null;
 
         /// <summary>
         /// Formats a counter into a readable string.
@@ -53,24 +54,20 @@
         /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
         public static bool IsWebAppRunningInAzure()
         {
-            bool? cacheValue = MemoryCache.Default[IsAzureWebApp] as bool?;
-
-            if (!cacheValue.HasValue)
+            if (!isAzureWebApp.HasValue)
             {
                 try
                 {
-                    cacheValue = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
+                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
                 } 
                 catch (Exception)
                 {
                     PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(WebSiteEnvironmentVariable);
                     return false;
                 }
-
-                MemoryCache.Default.Add(IsAzureWebApp, cacheValue, DateTimeOffset.Now.AddMinutes(10));
             }
 
-            return (bool)cacheValue;
+            return (bool)isAzureWebApp;
         }
 
         /// <summary>
