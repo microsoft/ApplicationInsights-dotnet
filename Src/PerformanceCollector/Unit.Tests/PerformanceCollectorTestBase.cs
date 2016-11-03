@@ -11,19 +11,16 @@
     /// </summary>
     public class PerformanceCollectorTestBase
     { 
-        internal void PerformanceCollectorSanityTest(IPerformanceCollector collector)
+        internal void PerformanceCollectorSanityTest(IPerformanceCollector collector, string counter, string categoryName, string counterName, string instanceName)
         {
             const int CounterCount = 3;
-            const string CategoryName = "Processor";
-            const string CounterName = "% Processor Time";
-            const string InstanceName = "_Total";
 
             for (int i = 0; i < CounterCount; i++)
             {
                 string error = null;
 
                 collector.RegisterCounter(
-                    @"\Processor(_Total)\% Processor Time",
+                    counter,
                     null,
                     true,
                     out error,
@@ -38,9 +35,13 @@
             {
                 var value = result.Item2;
 
-                Assert.AreEqual(CategoryName,  result.Item1.CategoryName);
-                Assert.AreEqual(CounterName,  result.Item1.CounterName);
-                Assert.AreEqual(InstanceName,  result.Item1.InstanceName);
+                Assert.AreEqual(categoryName,  result.Item1.CategoryName);
+                Assert.AreEqual(counterName,  result.Item1.CounterName);
+
+                if (instanceName != null)
+                {
+                    Assert.AreEqual(instanceName,  result.Item1.InstanceName);
+                }
 
                 Assert.IsTrue(value >= 0 && value <= 100);
             }
