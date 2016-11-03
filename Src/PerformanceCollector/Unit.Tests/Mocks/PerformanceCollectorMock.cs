@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
 
-    using CounterData = System.Tuple<Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.PerformanceCounterData, System.Collections.Generic.List<float>>;
+    using CounterData = System.Tuple<Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.PerformanceCounterData, System.Collections.Generic.List<double>>;
 
     /// <summary>
     /// Mock to test clients of PerformanceCollector.
@@ -40,13 +40,13 @@
             }
         }
 
-        public IEnumerable<Tuple<PerformanceCounterData, float>> Collect(Action<string, Exception> onReadingFailure)
+        public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure)
         {
             lock (this.Sync)
             {
                 foreach (var counter in this.counters)
                 {
-                    var value = (float)counter.Item1.OriginalString.GetHashCode();
+                    var value = (double)counter.Item1.OriginalString.GetHashCode();
 
                     var result =
                         Tuple.Create(
@@ -175,7 +175,7 @@
                             categoryName,
                             counterName,
                             instanceName),
-                        new List<float>()));
+                        new List<double>()));
             }
         }
     }

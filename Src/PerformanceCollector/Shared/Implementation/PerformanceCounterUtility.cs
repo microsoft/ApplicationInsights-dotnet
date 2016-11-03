@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Runtime.Caching;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -23,6 +22,11 @@
         private const string Win32ProcessCounterName = "ID Process";
         private const string ClrProcessCounterName = "Process ID";
 
+        private const string StandardSdkVersionPrefix = "pc:";
+        private const string AzureWebAppSdkVersionPrefix = "azwapc:";
+
+        private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
+
         private static readonly Dictionary<string, string> PlaceholderCache = new Dictionary<string, string>();
 
         private static readonly Regex InstancePlaceholderRegex = new Regex(
@@ -33,13 +37,46 @@
             new Regex(
                 @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
                 RegexOptions.Compiled);
-        
+
+        private static bool? isAzureWebApp = null;
+
         /// <summary>
         /// Formats a counter into a readable string.
         /// </summary>
         public static string FormatPerformanceCounter(PerformanceCounter pc)
         {
             return FormatPerformanceCounter(pc.CategoryName, pc.CounterName, pc.InstanceName);
+        }
+
+        /// <summary>
+        /// Searches for the environment variable specific to Azure web applications and confirms if the current application is a web application or not.
+        /// </summary>
+        /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
+        public static bool IsWebAppRunningInAzure()
+        {
+            if (!isAzureWebApp.HasValue)
+            {
+                try
+                {
+                    isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
+                } 
+                catch (Exception)
+                {
+                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(WebSiteEnvironmentVariable);
+                    return false;
+                }
+            }
+
+            return (bool)isAzureWebApp;
+        }
+
+        /// <summary>
+        /// Differentiates the SDK version prefix for azure web applications with standard applications.
+        /// </summary>
+        /// <returns>Returns the SDK version prefix based on the platform.</returns>
+        public static string SDKVersionPrefix()
+        {
+            return IsWebAppRunningInAzure() ? AzureWebAppSdkVersionPrefix : StandardSdkVersionPrefix;
         }
 
         /// <summary>
@@ -76,6 +113,42 @@
                 win32Instances,
                 clrInstances,
                 out usesInstanceNamePlaceholder);
+        }
+
+        /// <summary>
+        /// Validates the counter by parsing.
+        /// </summary>
+        /// <param name="perfCounterName">Performance counter name to validate.</param>
+        /// <param name="win32Instances">Windows 32 instances.</param>
+        /// <param name="clrInstances">CLR instances.</param>
+        /// <param name="usesInstanceNamePlaceholder">Boolean to check if it is using an instance name place holder.</param>
+        /// <param name="error">Error message.</param>
+        /// <returns>Performance counter.</returns>
+        public static PerformanceCounter CreateAndValidateCounter(
+            string perfCounterName,
+            IEnumerable<string> win32Instances,
+            IEnumerable<string> clrInstances,
+            out bool usesInstanceNamePlaceholder,
+            out string error)
+        {
+            error = null;
+
+            try
+            {
+                return PerformanceCounterUtility.ParsePerformanceCounter(
+                    perfCounterName,
+                    win32Instances,
+                    clrInstances,
+                    out usesInstanceNamePlaceholder);
+            }
+            catch (Exception e)
+            {
+                usesInstanceNamePlaceholder = false;
+                PerformanceCollectorEventSource.Log.CounterParsingFailedEvent(e.Message, perfCounterName);
+                error = e.Message;
+
+                return null;
+            }
         }
 
         /// <summary>

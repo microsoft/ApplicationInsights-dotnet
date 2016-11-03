@@ -38,7 +38,7 @@
 
                         var perfTelemetry = telemetry as MetricTelemetry;
                         
-                        Assert.AreEqual((float)perfTelemetry.Name.GetHashCode(), perfTelemetry.Value);
+                        Assert.AreEqual((double)perfTelemetry.Name.GetHashCode(), perfTelemetry.Value);
                     }
                     catch (AssertFailedException e)
                     {

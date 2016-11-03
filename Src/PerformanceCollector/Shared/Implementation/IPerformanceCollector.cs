@@ -15,7 +15,7 @@
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
-        IEnumerable<Tuple<PerformanceCounterData, float>> Collect(Action<string, Exception> onReadingFailure = null);
+        IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null);
 
         /// <summary>
         /// Refreshes and rebinds all the set of counters that are intended to be collected.
@@ -25,11 +25,11 @@
         /// <summary>
         /// Registers a counter using the counter name and reportAs value to the total list of counters.
         /// </summary>
-        /// <param name="perfCounterName">Name of the performance counter.</param>
+        /// <param name="perfCounter">Name of the performance counter.</param>
         /// <param name="reportAs">Report as name for the performance counter.</param>
         /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
-        void RegisterCounter(string perfCounterName, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
+        void RegisterCounter(string perfCounter, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
     }
 }
