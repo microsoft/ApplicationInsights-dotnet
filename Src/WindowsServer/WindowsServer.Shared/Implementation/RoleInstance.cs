@@ -26,7 +26,7 @@
             {
                 if (this.TargetObject == null)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Cannot get an Id when no TargetObject is set.");
                 }
 
                 return (string)this.GetProperty("Id");
@@ -42,7 +42,7 @@
             {
                 if (this.TargetObject == null)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Cannot get a role when no TargetObject is set.");
                 }
 
                 object role = this.GetProperty("Role");

@@ -1,6 +1,8 @@
 # Changelog
 
 ## Version 2.2.0-beta4
+- ```DomainNameRoleInstanceTelemetryInitializer``` is obsolete. Role instance is still populated with machine name as it was before.
+- New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
 - Support of performance collection and live metrics for Azure Web Apps is enabled.
 
 ## Version 2.2.0-beta3
