@@ -10,7 +10,7 @@
         /// </summary>
         private readonly Dictionary<AzureWebApEnvironmentVariables, string> environmentVariableMapping = new Dictionary<AzureWebApEnvironmentVariables, string>
         {
-            { AzureWebApEnvironmentVariables.AspNet, "WEBSITE_COUNTERS_ASPNET" },
+            { AzureWebApEnvironmentVariables.AspDotNet, "WEBSITE_COUNTERS_ASPNET" },
             { AzureWebApEnvironmentVariables.App, "WEBSITE_COUNTERS_APP" },
             { AzureWebApEnvironmentVariables.CLR, "WEBSITE_COUNTERS_CLR" },
             { AzureWebApEnvironmentVariables.All, "WEBSITE_COUNTERS_ALL" }

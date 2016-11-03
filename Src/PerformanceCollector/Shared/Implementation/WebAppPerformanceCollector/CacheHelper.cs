@@ -2,6 +2,7 @@
 {
     using System;
     using System.Runtime.Caching;
+    using System.Text;
 
     /// <summary>
     /// Class to contain the one cache for all Gauges.
@@ -48,15 +49,15 @@
 
             int startingIndex = jsonSubstring.IndexOf(" ", StringComparison.Ordinal) + 1;
             int value;
-            string valueString = string.Empty;
+            StringBuilder valueString = new StringBuilder();
 
             while (char.IsDigit(jsonSubstring[startingIndex]))
             {
-                valueString += jsonSubstring[startingIndex];
+                valueString.Append(jsonSubstring[startingIndex]);
                 startingIndex++;
             }
 
-            if (!int.TryParse(valueString, out value))
+            if (!int.TryParse(valueString.ToString(), out value))
             {
                 throw new System.InvalidCastException("The value of the counter cannot be converted to integer type.");
             }

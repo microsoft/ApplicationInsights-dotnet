@@ -7,7 +7,7 @@
     public class RateCounterTests
     {
         [TestMethod]
-        public void RateCounterGaugeGetValueAndResetWorking()
+        public void RateCounterGaugeGetValueAndResetGetsTheValueFromJson()
         {
             RateCounterGauge privateBytesRate = new RateCounterGauge(@"\Process(??APP_WIN32_PROC??)\Private Bytes", "privateBytes", AzureWebApEnvironmentVariables.App, null, new CacheHelperTests());
 

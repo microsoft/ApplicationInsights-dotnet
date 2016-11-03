@@ -49,8 +49,6 @@
                 baseValue = baseValue != 0 ? baseValue : 1;
 
                 value = (float)((this.lastCollectedValue - previouslyCollectedValue) / baseValue * 100.0);
-                var client = new TelemetryClient();
-                client.TrackTrace(new TraceTelemetry("Time Tracking: " + previouslyCollectedValue + "|" + this.lastCollectedValue + "|" + previouslyCollectedTime.Ticks + "|" + this.lastCollectedTime.Ticks));
             }
 
             return value;

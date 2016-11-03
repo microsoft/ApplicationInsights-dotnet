@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -47,8 +46,6 @@
             }
         }
 
-        [TestMethod]
-        [TestCategory("RequiresPerformanceCounters")]
         internal void PerformanceCollectorRefreshCountersTest(IPerformanceCollector collector)
         {
             var counters = new PerformanceCounter[]

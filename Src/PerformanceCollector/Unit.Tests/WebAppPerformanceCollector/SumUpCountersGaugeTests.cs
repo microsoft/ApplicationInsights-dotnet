@@ -7,7 +7,7 @@
     public class SumUpCountersGaugeTests
     {
         [TestMethod]
-        public void SumUpCountersGaugeGetValueAndResetWorking()
+        public void RateCounterGaugeGetValueAndResetGetsTheValueFromJson()
         {
             SumUpCountersGauge twoTimesPrivateBytes = new SumUpCountersGauge(
                 "twoTimesPrivateBytes", 

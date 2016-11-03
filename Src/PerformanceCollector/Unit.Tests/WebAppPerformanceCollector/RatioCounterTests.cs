@@ -8,7 +8,7 @@
     public class RatioCounterTests
     {
         [TestMethod]
-        public void RatioCounterGaugeGetValueAndResetWorking()
+        public void RateCounterGaugeGetValueAndResetGetsTheValueFromJson()
         {
             RawCounterGauge readIoBytes = new RawCounterGauge("READ IO BYTES", "readIoBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());
             RawCounterGauge writeIoBytes = new RawCounterGauge("WRITE IO BYTES", "writeIoBytes", AzureWebApEnvironmentVariables.App, new CacheHelperTests());

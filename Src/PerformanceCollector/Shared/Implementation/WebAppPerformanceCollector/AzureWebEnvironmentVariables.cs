@@ -9,9 +9,9 @@
     internal enum AzureWebApEnvironmentVariables
     {
         /// <summary>
-        /// For ASPNET.
+        /// For ASP.NET.
         /// </summary>
-        AspNet = 0,
+        AspDotNet = 0,
 
         /// <summary>
         /// For Application.

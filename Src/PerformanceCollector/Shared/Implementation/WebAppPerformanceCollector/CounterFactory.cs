@@ -22,17 +22,17 @@
                     return new RawCounterGauge(
                         reportAs,
                         "appRequestExecTime",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsInApplicationQueue",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "requestsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec":
                     return new RateCounterGauge(
                         reportAs,
@@ -69,352 +69,352 @@
                     return new RawCounterGauge(
                         reportAs,
                         "anonymousRequests",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Anonymous Requests / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "anonymousRequests",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Entries":
                     return new RawCounterGauge(
                         reportAs,
                         "totalCacheEntries",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Turnover Rate":
                     return new RateCounterGauge(
                         reportAs,
                         "totalCacheTurnoverRate",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Hits":
                     return new RawCounterGauge(
                         reportAs,
                         "totalCacheHits",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Misses":
                     return new RawCounterGauge(
                         reportAs,
                         "totalCacheMisses",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Entries":
                     return new RawCounterGauge(
                         reportAs,
                         "apiCacheEntries",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Turnover Rate":
                     return new RawCounterGauge(
                         reportAs,
                         "apiCacheTurnoverRate",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Hits":
                     return new RawCounterGauge(
                         reportAs,
                         "apiCacheHits",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Misses":
                     return new RawCounterGauge(
                         reportAs,
                         "apiCacheMisses",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Entries":
                     return new RawCounterGauge(
                         reportAs,
                         "outputCacheEntries",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Turnover Rate":
                     return new RawCounterGauge(
                         reportAs,
                         "outputCacheTurnoverRate",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Hits":
                     return new RawCounterGauge(
                         reportAs,
                         "outputCacheHits",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Misses":
                     return new RawCounterGauge(
                         reportAs,
                         "outputCacheMisses",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Compilations Total":
                     return new RawCounterGauge(
                         reportAs,
                         "compilations",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Debugging Requests":
                     return new RawCounterGauge(
                         reportAs,
                         "debuggingRequests",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Preprocessing":
                     return new RawCounterGauge(
                         reportAs,
                         "errorsPreProcessing",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Compilation":
                     return new RawCounterGauge(
                         reportAs,
                         "errorsCompiling",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors During Execution":
                     return new RawCounterGauge(
                         reportAs,
                         "errorsDuringRequest",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Unhandled During Execution":
                     return new RawCounterGauge(
                         reportAs,
                         "errorsUnhandled",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Unhandled During Execution / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "errorsUnhandled",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Total":
                     return new RawCounterGauge(
                         reportAs,
                         "errorsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Errors Total / Sec":
                     return new RateCounterGauge(
                     reportAs,
                     "errorsTotal",
-                    AzureWebApEnvironmentVariables.AspNet);
+                    AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Pipeline Instance Count":
                     return new RawCounterGauge(
                         reportAs,
                         "pipelines",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes In Total":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsBytesIn",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes Out Total":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsBytesOut",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Executing":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsExecuting",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Failed":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsFailed",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Not Found":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsFailed",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Not Authorized":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsNotAuthorized",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Timed Out":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsTimedOut",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Succeeded":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsSucceded",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Total":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "requestsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Active":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionsActive",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Abandoned":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionsAbandoned",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Timed Out":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionsTimedOut",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Sessions Total":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Aborted":
                     return new RawCounterGauge(
                         reportAs,
                         "transactionsAborted",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Committed":
                     return new RawCounterGauge(
                         reportAs,
                         "transactionsCommited",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Pending":
                     return new RawCounterGauge(
                         reportAs,
                         "transactionsPending",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions Total":
                     return new RawCounterGauge(
                         reportAs,
                         "transactionsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Transactions / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "transactionsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Session State Server connections total":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionStateServerConnections",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Session SQL Server connections total":
                     return new RawCounterGauge(
                         reportAs,
                         "sessionSqlServerConnections",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Events Raised / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsTotal",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Application Lifetime Events":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsApp",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Application Lifetime Events / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsApp",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Error Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Error Events Raised / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Error Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsHttpReqError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Error Events Raised / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsHttpReqError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Infrastructure Error Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsHttpInfraError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Infrastructure Error Events Raised / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsHttpInfraError",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "eventsWebReq",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Events Raised / Sec":
                     return new RateCounterGauge(
                         reportAs,
                         "eventsWebReq",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Audit Success Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "auditSuccess",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Audit Failure Events Raised":
                     return new RawCounterGauge(
                         reportAs,
                         "auditFail",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Membership Authentication Success":
                     return new RawCounterGauge(
                         reportAs,
                         "memberSuccess",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Membership Authentication Failure":
                     return new RawCounterGauge(
                         reportAs,
                         "memberFail",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Forms Authentication Success":
                     return new RawCounterGauge(
                         reportAs,
                         "formsAuthSuccess",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Forms Authentication Failure":
                     return new RawCounterGauge(
                         reportAs,
                         "formsAuthFail",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Viewstate MAC Validation Failure":
                     return new RawCounterGauge(
                         reportAs,
                         "viewstateMacFail",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Disconnected":
                     return new RawCounterGauge(
                         reportAs,
                         "appRequestDisconnected",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Rejected":
                     return new RawCounterGauge(
                         reportAs,
                         "appRequestsRejected",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Wait Time":
                     return new RawCounterGauge(
                         reportAs,
                         "appRequestWaitTime",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Trims":
                     return new RawCounterGauge(
                         reportAs,
                         "cacheTotalTrims",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Trims":
                     return new RawCounterGauge(
                         reportAs,
                         "cacheApiTrims",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Trims":
                     return new RawCounterGauge(
                         reportAs,
                         "cacheOutputTrims",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\% Managed Processor Time(estimated)":
                     // maybe appCpuUsed and appCpuUsedBase
                     throw new ArgumentException("Performance counter was not found.", counterName);
@@ -422,37 +422,37 @@
                     return new RawCounterGauge(
                         reportAs,
                         "appMemoryUsed",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes In Total(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestBytesInWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Bytes Out Total(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestBytesOutWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Executing(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsExecutingWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Failed(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsFailedWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Succeeded(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsSucceededWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests Total(WebSockets)":
                     return new RawCounterGauge(
                         reportAs,
                         "requestsTotalWebsockets",
-                        AzureWebApEnvironmentVariables.AspNet);
+                        AzureWebApEnvironmentVariables.AspDotNet);
 
                 //// $set = Get-Counter -ListSet Process
                 //// $set.Paths
@@ -475,14 +475,14 @@
                         AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\Thread Count":
                     return new RawCounterGauge(
-                    reportAs,
-                    "threads",
-                    AzureWebApEnvironmentVariables.App);
+                        reportAs,
+                        "threads",
+                        AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\Handle Count":
                     return new RawCounterGauge(
-                    reportAs,
-                    "handles",
-                    AzureWebApEnvironmentVariables.App);
+                        reportAs,
+                        "handles",
+                        AzureWebApEnvironmentVariables.App);
                 case @"\Process(??APP_WIN32_PROC??)\IO Read Operations / sec":
                     return new RateCounterGauge(
                         reportAs,
@@ -591,29 +591,29 @@
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache Total Hit Ratio":
                     return new RatioCounterGauge(
                         reportAs,
-                        new RawCounterGauge("totalCacheHits", "totalCacheHits", AzureWebApEnvironmentVariables.AspNet),
-                        new RawCounterGauge("totalCacheMisses", "totalCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                        new RawCounterGauge("totalCacheHits", "totalCacheHits", AzureWebApEnvironmentVariables.AspDotNet),
+                        new RawCounterGauge("totalCacheMisses", "totalCacheMisses", AzureWebApEnvironmentVariables.AspDotNet));
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache API Hit Ratio":
                     return new RatioCounterGauge(
                         reportAs,
-                        new RawCounterGauge("apiCacheHits", "apiCacheHits", AzureWebApEnvironmentVariables.AspNet),
-                        new RawCounterGauge("apiCacheMisses", "apiCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                        new RawCounterGauge("apiCacheHits", "apiCacheHits", AzureWebApEnvironmentVariables.AspDotNet),
+                        new RawCounterGauge("apiCacheMisses", "apiCacheMisses", AzureWebApEnvironmentVariables.AspDotNet));
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Output Cache Hit Ratio":
                     return new RatioCounterGauge(
                         reportAs,
-                        new RawCounterGauge("outputCacheHits", "outputCacheHits", AzureWebApEnvironmentVariables.AspNet),
-                        new RawCounterGauge("outputCacheMisses", "outputCacheMisses", AzureWebApEnvironmentVariables.AspNet));
+                        new RawCounterGauge("outputCacheHits", "outputCacheHits", AzureWebApEnvironmentVariables.AspDotNet),
+                        new RawCounterGauge("outputCacheMisses", "outputCacheMisses", AzureWebApEnvironmentVariables.AspDotNet));
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache % Machine Memory Limit Used":
                     return new RatioCounterGauge(
                         reportAs,
-                        new RawCounterGauge("cachePercentMachMemLimitUsed", "cachePercentMachMemLimitUsed", AzureWebApEnvironmentVariables.AspNet),
-                        new RawCounterGauge("cachePercentMachMemLimitUsedBase", "cachePercentMachMemLimitUsedBase", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("cachePercentMachMemLimitUsed", "cachePercentMachMemLimitUsed", AzureWebApEnvironmentVariables.AspDotNet),
+                        new RawCounterGauge("cachePercentMachMemLimitUsedBase", "cachePercentMachMemLimitUsedBase", AzureWebApEnvironmentVariables.AspDotNet),
                         100);
                 case @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Cache % Process Memory Limit Used":
                     return new RatioCounterGauge(
                         reportAs,
-                        new RawCounterGauge("cachePercentProcMemLimitUsed", "cachePercentProcMemLimitUsed", AzureWebApEnvironmentVariables.AspNet),
-                        new RawCounterGauge("cachePercentProcMemLimitUsedBase", "cachePercentProcMemLimitUsedBase", AzureWebApEnvironmentVariables.AspNet),
+                        new RawCounterGauge("cachePercentProcMemLimitUsed", "cachePercentProcMemLimitUsed", AzureWebApEnvironmentVariables.AspDotNet),
+                        new RawCounterGauge("cachePercentProcMemLimitUsedBase", "cachePercentProcMemLimitUsedBase", AzureWebApEnvironmentVariables.AspDotNet),
                         100);
                 case @"\.NET CLR Memory(??APP_CLR_PROC??)\% Time in GC":
                     return new RatioCounterGauge(
