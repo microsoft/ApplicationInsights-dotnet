@@ -152,7 +152,7 @@
 
             // note: we set count to 1 if it isn't a postitive integer
             // thinking that if it is zero (negative case is clearly broken)
-            // that most likely menas somebody set the sum but forgot to set count
+            // that most likely means somebody set the sum but forgot to set count
             this.Count = this.Count <= 0 ? 1 : this.Count;
 
             this.Sum = Utils.SanitizeNanAndInfinity(this.Sum);
