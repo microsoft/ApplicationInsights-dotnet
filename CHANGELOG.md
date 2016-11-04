@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.0.3-beta1
+
+- New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
+
 ## Version 1.0.2
 
 - Marked code analysis packages as only for build and not NuGet package dependencies.

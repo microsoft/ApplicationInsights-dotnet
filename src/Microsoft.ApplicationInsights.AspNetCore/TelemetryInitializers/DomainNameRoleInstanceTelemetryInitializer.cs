@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.ContextInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
     using System.Globalization;
@@ -7,8 +7,8 @@
     using System.Threading;
     using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Http;
-    using TelemetryInitializers;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.AspNetCore.Http;    
 
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.
@@ -17,16 +17,33 @@
     {
         private string roleInstanceName;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DomainNameRoleInstanceTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">HTTP context accessor.</param>
         public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
         }
 
+        /// <summary>
+        /// Initializes role instance name and node name with the host name.
+        /// </summary>
+        /// <param name="platformContext">Platform context.</param>
+        /// <param name="requestTelemetry">Request telemetry.</param>
+        /// <param name="telemetry">Telemetry item.</param>
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
                 telemetry.Context.Cloud.RoleInstance = name;
+            }
+
+            InternalContext internalContext = telemetry.Context.GetInternalContext();
+            if (string.IsNullOrEmpty(internalContext.NodeName))
+            {
+                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
+                internalContext.NodeName = name;
             }
         }
 
