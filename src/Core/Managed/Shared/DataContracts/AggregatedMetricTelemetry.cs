@@ -149,7 +149,12 @@
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(AggregatedMetricTelemetry).FullName);
             this.Properties.SanitizeProperties();
-            this.Count = this.Count < 0 ? 0 : this.Count;
+
+            // note: we set count to 1 if it isn't a postitive integer
+            // thinking that if it is zero (negative case is clearly broken)
+            // that most likely menas somebody set the sum but forgot to set count
+            this.Count = this.Count <= 0 ? 1 : this.Count;
+
             this.Sum = Utils.SanitizeNanAndInfinity(this.Sum);
             this.Min = Utils.SanitizeNanAndInfinity(this.Min);
             this.Max = Utils.SanitizeNanAndInfinity(this.Max);

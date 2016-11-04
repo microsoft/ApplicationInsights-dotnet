@@ -184,7 +184,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesNegativeCountOn0()
+        public void SerializeReplacesNegativeCountOn1()
         {
             AggregatedMetricTelemetry original = new AggregatedMetricTelemetry();
             original.Name = "Test";
@@ -192,7 +192,18 @@
 
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.Count);
+            Assert.Equal(1, original.Count);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesZeroCountOn1()
+        {
+            AggregatedMetricTelemetry original = new AggregatedMetricTelemetry();
+            original.Name = "Test";
+
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(1, original.Count);
         }
     }
 }

@@ -18,17 +18,17 @@
         /// <summary>
         /// Aggregator manager for the aggregator.
         /// </summary>
-        private MetricAggregatorManager manager;
+        private readonly MetricAggregatorManager manager;
 
         /// <summary>
         /// Metric aggregator id to look for in the aggregator dictionary.
         /// </summary>
-        private string aggregatorId;
+        private readonly string aggregatorId;
 
         /// <summary>
         /// Aggregator hash code.
         /// </summary>
-        private int hashCode;
+        private readonly int hashCode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricAggregator"/> class.
@@ -163,7 +163,7 @@
                     }
                     catch (Exception ex)
                     {
-                        CoreEventSource.Log.FailedToRunMetricProcessor(ex.ToString());
+                        CoreEventSource.Log.FailedToRunMetricProcessor(processor.GetType().FullName, ex.ToString());
                     }
                 }
             }

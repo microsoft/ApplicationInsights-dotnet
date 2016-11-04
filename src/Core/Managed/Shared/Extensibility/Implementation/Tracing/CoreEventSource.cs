@@ -338,12 +338,13 @@
 
         [Event(
             27,
-            Message = "Failed to invoke metric processor. Exception: {0}.",
+            Message = "Failed to invoke metric processor '{0}'. If the issue persists, remove the processor. Exception: {1}.",
             Level = EventLevel.Error)]
-        public void FailedToRunMetricProcessor(string ex, string appDomainName = "Incorrect")
+        public void FailedToRunMetricProcessor(string processorName, string ex, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 27,
+                processorName ?? string.Empty,
                 ex ?? string.Empty,
                 this.nameProvider.Name);
         }
