@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.1.0
+
+[Stable 1.1.0 release](http://www.nuget.org/packages/Microsoft.ApplicationInsights.AspNetCore/1.1.0).
+Supports .NET framework and [.NET Core](https://www.microsoft.com/net/core).
+
+- New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
+
+Depends on:
+- [Application Insights Core 2.2.0 SDK](http://www.nuget.org/packages/Microsoft.ApplicationInsights/2.2.0)
+- [AI Dependency Collector](http://www.nuget.org/packages/Microsoft.ApplicationInsights.DependencyCollector/2.2.0) (.NET framework only)
+- [AI Performance Counter Collector](http://www.nuget.org/packages/Microsoft.ApplicationInsights.PerfCounterCollector/2.2.0) (.NET framework only)
+- [AI Windows Server Telemetry Channel](http://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/2.2.0) (.NET framework only)
+
+
 ## Version 1.0.2
 
 - Marked code analysis packages as only for build and not NuGet package dependencies.

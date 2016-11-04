@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.ContextInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using System;
     using System.Globalization;
@@ -7,8 +7,8 @@
     using System.Threading;
     using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Http;
-    using TelemetryInitializers;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.AspNetCore.Http;    
 
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.
@@ -27,6 +27,12 @@
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
                 telemetry.Context.Cloud.RoleInstance = name;
+            }
+
+            if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
+            {
+                var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
+                telemetry.Context.GetInternalContext().NodeName = name;
             }
         }
 
