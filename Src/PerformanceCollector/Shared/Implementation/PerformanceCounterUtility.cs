@@ -282,11 +282,11 @@
             }
 
             // expand
-            if (string.Equals(placeholder, Win32ProcessInstancePlaceholder, StringComparison.OrdinalIgnoreCase) && win32Instances != null)
+            if (string.Equals(placeholder, Win32ProcessInstancePlaceholder, StringComparison.OrdinalIgnoreCase))
             {
                 cachedResult = GetInstanceForWin32Process(win32Instances);
             }
-            else if (string.Equals(placeholder, ClrProcessInstancePlaceholder, StringComparison.OrdinalIgnoreCase) && clrInstances != null)
+            else if (string.Equals(placeholder, ClrProcessInstancePlaceholder, StringComparison.OrdinalIgnoreCase))
             {
                 cachedResult = GetInstanceForClrProcess(clrInstances);
             }
