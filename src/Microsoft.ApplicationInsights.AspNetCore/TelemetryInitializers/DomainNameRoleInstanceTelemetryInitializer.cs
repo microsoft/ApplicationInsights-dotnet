@@ -17,10 +17,20 @@
     {
         private string roleInstanceName;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DomainNameRoleInstanceTelemetryInitializer" /> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">HTTP context accessor.</param>
         public DomainNameRoleInstanceTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
         }
 
+        /// <summary>
+        /// Initializes role instance name and node name with the host name.
+        /// </summary>
+        /// <param name="platformContext">Platform context.</param>
+        /// <param name="requestTelemetry">Request telemetry.</param>
+        /// <param name="telemetry">Telemetry item.</param>
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
@@ -29,10 +39,11 @@
                 telemetry.Context.Cloud.RoleInstance = name;
             }
 
-            if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
+            InternalContext internalContext = telemetry.Context.GetInternalContext();
+            if (string.IsNullOrEmpty(internalContext.NodeName))
             {
                 var name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetMachineName);
-                telemetry.Context.GetInternalContext().NodeName = name;
+                internalContext.NodeName = name;
             }
         }
 

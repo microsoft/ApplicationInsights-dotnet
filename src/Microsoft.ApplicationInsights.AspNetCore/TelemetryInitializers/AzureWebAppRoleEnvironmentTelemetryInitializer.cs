@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading;
-
+        
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Http;
-    using DataContracts;
 
     /// <summary>
     /// A telemetry initializer that will gather Azure Web App Role Environment context information.
@@ -31,6 +30,12 @@
         {
         }
 
+        /// <summary>
+        /// Initializes role name, role instance name and node name for Azure Web App case.
+        /// </summary>
+        /// <param name="platformContext">Platform context.</param>
+        /// <param name="requestTelemetry">Request telemetry.</param>
+        /// <param name="telemetry">Telemetry item.</param>
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
@@ -45,10 +50,11 @@
                 telemetry.Context.Cloud.RoleInstance = name;
             }
 
-            if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
+            InternalContext internalContext = telemetry.Context.GetInternalContext();
+            if (string.IsNullOrEmpty(internalContext.NodeName))
             {
                 string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
-                telemetry.Context.GetInternalContext().NodeName = name;
+                internalContext.NodeName = name;
             }
         }
 
