@@ -18,6 +18,13 @@
 
         [TestMethod]
         [TestCategory("RequiresPerformanceCounters")]
+        public void PerformanceCollectorWithPlaceHolderSanityTest()
+        {
+           this.PerformanceCollectorSanityTest(new StandardPerformanceCollector(), @"\Process(??APP_WIN32_PROC??)\Thread Count", "Process", "Thread Count", null);
+        }
+
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
         public void PerformanceCollectorRefreshCountersTest()
         {
             this.PerformanceCollectorRefreshCountersTest(new StandardPerformanceCollector());

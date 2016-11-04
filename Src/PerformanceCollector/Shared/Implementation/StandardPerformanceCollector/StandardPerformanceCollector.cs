@@ -12,6 +12,7 @@
 
         private IEnumerable<string> win32Instances;
         private IEnumerable<string> clrInstances;
+        private bool dependendentInstancesLoaded = false;
 
         /// <summary>
         /// Gets a collection of registered performance counters.
@@ -86,6 +87,13 @@
             bool blockCounterWithInstancePlaceHolder = false)
         {
             bool usesInstanceNamePlaceholder;
+
+            if (!this.dependendentInstancesLoaded)
+            {
+                this.LoadDependentInstances();
+                this.dependendentInstancesLoaded = true;
+            }
+
             var pc = PerformanceCounterUtility.CreateAndValidateCounter(
                 perfCounter,
                 this.win32Instances,
