@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Web;
 
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
@@ -84,7 +85,43 @@
                 requestTelemetry.Url = context.Request.UnvalidatedGetUrl();
             }
 
+            if (context.Request.Headers != null)
+            {
+                // If the source header is present on the incoming request, use that to populate the source field.
+                string sourceIkey = context.Request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+
+                if (!string.IsNullOrEmpty(sourceIkey))
+                {
+                    requestTelemetry.Source = sourceIkey;
+                }
+            }
+
             this.telemetryClient.TrackRequest(requestTelemetry);
+        }
+
+        /// <summary>
+        /// Adds target response header response object.
+        /// </summary>
+        public void AddTargetHashForResponseHeader(HttpContext context)
+        {
+            if (this.telemetryClient == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var requestTelemetry = context.GetRequestTelemetry();
+
+            if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+            {
+                // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
+                // and get they instrumentation key from all possible sources in the process. Let's do that now.
+                this.telemetryClient.Initialize(requestTelemetry);
+            }
+
+            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] == null)
+            {
+                context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
+            }
         }
 
         /// <summary>

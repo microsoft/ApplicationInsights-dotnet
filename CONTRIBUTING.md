@@ -52,7 +52,8 @@ If all or most of the Dependency Collector functional tests fail with messages l
 ## Debugging the SDK
 
 * Build the project using ```buildDebug.cmd``` 
-* If the build was successful, you'll find that it generated NuGet packages in <repository root>\..\bin\Debug\NuGet 
+* If the build was successful, you'll find that it generated NuGet packages in <repository root>\..\bin\Debug\NuGet
+* If your change is confined to one of the nuget packages (say Web sdk), and you are developing on one of VNext branches, you can get the rest of the compatible nuget packages from [myget feed](https://www.myget.org/F/applicationinsights/)  
 * Create a web application project to test the SDK on, and install the Microsoft.ApplicationInsights.Web NuGet package from the above directory
 * In your web application, point your project references to Microsoft.AI.Web, Microsoft.AI.WindowsServer, Microsoft.AI.PerfCounterCollector and Microsoft.AI.DependencyCollector to those DLLs in the SDK debug output folder (this makes sure you get the symbol files and that your web application is updated when you recompile the SDK).
 * From your web application, open the .cs file you want your breakpoint in and set it

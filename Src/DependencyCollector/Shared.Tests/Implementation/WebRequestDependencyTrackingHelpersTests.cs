@@ -2,6 +2,7 @@
 {
     using System;
     using System.Net;
+    using Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.TestFramework;
@@ -67,13 +68,13 @@
             var webRequest = WebRequest.Create(new Uri("http://bing.com"));
             var telemetry = new DependencyTelemetry();
 
-            string rootId = webRequest.Headers["x-ms-request-root-id"];
-            string operationId = webRequest.Headers["x-ms-request-id"];
+            string rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            string operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.IsNull(rootId);
             Assert.IsNull(operationId);
             WebRequestDependencyTrackingHelpers.SetUserAndSessionContextForWebRequest(telemetry, webRequest);
-            rootId = webRequest.Headers["x-ms-request-root-id"];
-            operationId = webRequest.Headers["x-ms-request-id"];
+            rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.IsNull(rootId);
             Assert.IsNull(operationId);
         }
@@ -87,8 +88,8 @@
             telemetry.Context.Operation.Id = "RootId";
 
             WebRequestDependencyTrackingHelpers.SetCorrelationContextForWebRequest(telemetry, webRequest);
-            var rootId = webRequest.Headers["x-ms-request-root-id"];
-            var operationId = webRequest.Headers["x-ms-request-id"];
+            var rootId = webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader];
+            var operationId = webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader];
             Assert.AreEqual("RootId", rootId);
             Assert.AreEqual("Id", operationId);
         }

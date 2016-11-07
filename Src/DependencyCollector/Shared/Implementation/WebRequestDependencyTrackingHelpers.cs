@@ -2,6 +2,7 @@
 {
     using System;
     using System.Net;
+    using Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
@@ -61,12 +62,12 @@
 
                 if (!string.IsNullOrEmpty(context.Id))
                 {
-                    webRequest.Headers.Add("x-ms-request-root-id", context.Id);
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, context.Id);
                 }
 
                 if (!string.IsNullOrEmpty(dependencyTelemetry.Id))
                 {
-                    webRequest.Headers.Add("x-ms-request-id", dependencyTelemetry.Id);
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, dependencyTelemetry.Id);
                 }
             }
             else

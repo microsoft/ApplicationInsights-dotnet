@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseDataAccumulatorManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseServiceClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionStateManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseServiceClient.cs">
       <!--C# 6-->

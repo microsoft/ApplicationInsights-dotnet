@@ -1,11 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Net;
 #if !NET40
     using System.Web;
 #endif
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -239,7 +241,7 @@
                     return null;
                 }
 
-                // If the object already exists, dont add again. This happens because either GetResponse or GetRequestStream could
+                // If the object already exists, don't add again. This happens because either GetResponse or GetRequestStream could
                 // be the starting point for the outbound call.
                 var telemetryTuple = this.TelemetryTable.Get(thisObj);
                 if (telemetryTuple != null)
@@ -261,6 +263,19 @@
                 telemetry.Data = url.OriginalString;
 
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
+
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+                {
+                    // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
+                    // and get they instrumentation key from all possible sources in the process. Let's do that now.
+                    this.telemetryClient.Initialize(telemetry);
+                }
+
+                // Add the source instrumentation key header if one doesn't already exist
+                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                }
             }
             catch (Exception exception)
             {
@@ -302,6 +317,7 @@
                     return;
                 }
 
+                // Not custom created
                 if (!telemetryTuple.Item2)
                 {
                     this.TelemetryTable.Remove(thisObj);
@@ -337,6 +353,16 @@
                         try
                         {
                             statusCode = (int)responseObj.StatusCode;
+
+                            if (responseObj.Headers != null)
+                            {
+                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader];
+                                if (!string.IsNullOrEmpty(targetIkeyHash))
+                                {
+                                    telemetry.Type = RemoteDependencyConstants.AI;
+                                    telemetry.Target += " | " + targetIkeyHash;
+                                }
+                            }
                         }
                         catch (ObjectDisposedException)
                         {

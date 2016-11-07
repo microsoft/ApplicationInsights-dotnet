@@ -1,13 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Data.SqlClient;
 #if NET45
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
     using System.Linq;
-    using System.Net; 
+    using System.Net;
     using System.Runtime.Serialization;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
@@ -64,6 +65,27 @@
             var response = (HttpWebResponse)FormatterServices.GetUninitializedObject(typeof(HttpWebResponse));
 
             SetPrivateField(response, "m_StatusCode", statusCode);
+            return response;
+        }
+
+        /// <summary>
+        /// Generates an HttpWebResponse that has the specified status code using reflection. 
+        /// This is necessary because the constructors for HttpWebResponse are internal to the .NET framework.
+        /// </summary>
+        /// <param name="statusCode">Http status code of the response.</param>
+        /// <param name="headers">Headers to be set on the response.</param>
+        /// <returns>A new instance of <see cref="System.Net.HttpWebResponse"/></returns>
+        public static HttpWebResponse GenerateHttpWebResponse(HttpStatusCode statusCode, Dictionary<string, string> headers)
+        {
+            var response = GenerateHttpWebResponse(statusCode);
+
+            var headerCollection = new WebHeaderCollection();
+            foreach (var item in headers)
+            {
+                headerCollection.Add(item.Key, item.Value);
+            }
+
+            SetPrivateField(response, "m_HttpResponseHeaders", headerCollection);
             return response;
         }
 

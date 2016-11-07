@@ -118,31 +118,40 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\CHANGELOG.md = ..\CHANGELOG.md
 	EndProjectSection
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		PerformanceCollector\Shared\Shared.projitems*{092a02b5-9acc-48b5-b317-428f71257196}*SharedItemsImports = 13
 		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{1981591a-6ae7-4c2f-9bb7-a1cef6531bc5}*SharedItemsImports = 4
 		TestFramework\Shared\TestFramework.Shared.projitems*{1be54ee7-6627-4206-86dd-3d2c709a1500}*SharedItemsImports = 4
+		Common\Common.projitems*{2043d5bb-d20d-4c87-be2f-b6c6bb396f48}*SharedItemsImports = 4
 		Web\Web.Shared.Net\Web.Shared.Net.projitems*{2043d5bb-d20d-4c87-be2f-b6c6bb396f48}*SharedItemsImports = 4
 		DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{257fce5a-0779-45a5-b541-0ce43d79d009}*SharedItemsImports = 4
 		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{2ee203ef-573e-458d-9a4f-4810aa44ed00}*SharedItemsImports = 4
 		Web\Web.Shared.Net\Web.Shared.Net.projitems*{395e03bb-d061-4c9d-9d47-18676566444d}*SharedItemsImports = 13
 		DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{3c694472-e6b9-4b31-98a2-432f46b47161}*SharedItemsImports = 4
 		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{579f42e8-b711-411e-be52-4a3fd208507f}*SharedItemsImports = 13
+		Common\Common.projitems*{61fc6e01-b40d-4db2-9dab-b27b82f02244}*SharedItemsImports = 4
 		PerformanceCollector\Shared\Shared.projitems*{61fc6e01-b40d-4db2-9dab-b27b82f02244}*SharedItemsImports = 4
 		TestFramework\Shared\TestFramework.Shared.projitems*{63e687d2-97ab-4d64-a92d-31b305d5f1b9}*SharedItemsImports = 4
 		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{669e7e58-072d-4b0a-a4dd-4eb2ae2ea4d4}*SharedItemsImports = 13
 		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{7916ae39-ae89-4886-8842-33ac9883905a}*SharedItemsImports = 13
 		TestFramework\Shared\TestFramework.Shared.projitems*{9718f051-147f-4f5f-9ff3-c926430efcf7}*SharedItemsImports = 13
+		Common\Common.projitems*{aa823e8e-2eb1-4e82-8d62-a6528e204a0e}*SharedItemsImports = 4
 		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{aa823e8e-2eb1-4e82-8d62-a6528e204a0e}*SharedItemsImports = 4
 		Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems*{ac2e85bb-05f7-43cb-b966-3611ccf47156}*SharedItemsImports = 13
 		DependencyCollector\Shared.Tests\DependencyCollector.Shared.Tests.projitems*{ace58393-3419-4fca-87cc-c33eb756c7e4}*SharedItemsImports = 13
+		Common\Common.projitems*{ccab7a34-8dc5-4a6f-b637-46ceba93c687}*SharedItemsImports = 13
 		Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems*{db628ebb-3033-45cf-b2b6-623909d47c28}*SharedItemsImports = 4
 		WindowsServer\WindowsServer.Shared\WindowsServer.Shared.projitems*{e7e874bd-609c-41ca-8594-f793da2fa0d0}*SharedItemsImports = 4
+		Common\Common.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
 		DependencyCollector\Shared\DependencyCollector.Shared.projitems*{ea2d14aa-ae1e-4982-9326-11d4dcbb9529}*SharedItemsImports = 4
 		WindowsServer\WindowsServer.Shared.Tests\WindowsServer.Shared.Tests.projitems*{f05eb480-b209-47dd-90e3-1ddc47efc579}*SharedItemsImports = 4
 		Web\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems*{f71138bb-b3f8-4767-b394-857b0776038e}*SharedItemsImports = 4
+		Common\Common.projitems*{fbfcb985-bbfe-4954-a2ef-8124a42f56c7}*SharedItemsImports = 4
 		PerformanceCollector\Shared\Shared.projitems*{fbfcb985-bbfe-4954-a2ef-8124a42f56c7}*SharedItemsImports = 4
+		Common\Common.projitems*{fe97e6bb-7c7e-4503-af35-ebbbedeb850a}*SharedItemsImports = 4
 		Web\Web.Shared.Net\Web.Shared.Net.projitems*{fe97e6bb-7c7e-4503-af35-ebbbedeb850a}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
