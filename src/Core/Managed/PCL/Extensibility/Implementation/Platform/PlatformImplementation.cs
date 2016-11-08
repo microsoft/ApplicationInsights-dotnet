@@ -40,5 +40,14 @@
         {
             return null;
         }
+
+        /// <summary>
+        /// Returns the machine name.
+        /// </summary>
+        /// <returns>The machine name.</returns>
+        public string GetMachineName()
+        {
+            return null;
+        }
     }
 }

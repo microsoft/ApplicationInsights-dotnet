@@ -145,6 +145,41 @@
 #pragma warning restore 618
         }
 
+
+        /// <summary>
+        /// Tests sanitizing telemetry event
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceSanitizeTest()
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var request = new RequestTelemetry()
+                {
+                    Name = new String('n', 5000),
+                    Url = new Uri("https://www.bing.com/" + new String('u', 5000)),
+                    ResponseCode = "200"
+                };
+
+                var client = new TelemetryClient();
+                client.InstrumentationKey = Guid.NewGuid().ToString();
+
+                using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
+                {
+                    listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Verbose, RichPayloadEventSource.Keywords.Requests);
+
+                    client.Track(request);
+
+                    IDictionary<string, object> richPayload = (IDictionary<string, object>)listener.Messages.FirstOrDefault().Payload[2];
+
+                    Assert.AreEqual(Property.MaxNameLength, richPayload["name"].ToString().Length);
+                    Assert.AreEqual(Property.MaxUrlLength, richPayload["url"].ToString().Length);
+                    Assert.AreEqual(true, richPayload["success"]);
+                };
+            }
+        }
+
+
         /// <summary>
         /// Helper method to setup shared context and call the desired tracking for testing.
         /// </summary>

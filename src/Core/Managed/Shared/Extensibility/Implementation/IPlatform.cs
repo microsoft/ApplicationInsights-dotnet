@@ -26,5 +26,11 @@
 
         // Read environment variable.
         string GetEnvironmentVariable(string name);
+
+        /// <summary>
+        /// Returns the machine name.
+        /// </summary>
+        /// <returns>The machine name.</returns>
+        string GetMachineName();
     }
 }
