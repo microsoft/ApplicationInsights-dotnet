@@ -654,7 +654,7 @@
                 Assert.NotNull(dequeued);
             }
 
-            [TestMethod, Timeout(200)]
+            [TestMethod, Timeout(250)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
                 StubPlatformFile inaccessibleFile = CreateFile("InaccessibleFile.trn");
