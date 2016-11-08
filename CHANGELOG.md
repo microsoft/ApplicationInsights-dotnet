@@ -3,7 +3,9 @@
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
 ## Version 2.2.0-beta4
-- RoleInstance and NodeName by the default are initialized with the machine name.
+- Payload sanitization for RichPayloadEventSource.
+- Fix to fallback to an environment variable for instrumentation key when not specified when initializing TelemetryConfiguration.
+- RoleInstance and NodeName are initialized with the machine name by default.
 
 ## Version 2.2.0-beta3
 
@@ -95,7 +97,7 @@ item is being filtered out.
 - Fix UI thread locking when initializing InMemoryChannel (default channel) from UI thread.
 - Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
 - Version of ```Microsoft.ApplicationInsights.dll``` for the framework 4.6 is now part of the package.
-- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguraiton object.
+- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguration object.
 - The max length limit for the ```Name``` property of ```EventTelemetry``` was set to 512.
 - Property ```Name``` of ```OperationContext``` was renamed to ```RootName```
 - Property ```Id``` of ```RequestTelemetry``` was removed.
