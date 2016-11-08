@@ -210,6 +210,187 @@ namespace Microsoft.ApplicationInsights.Extensibility
             Assert.Equal(testValues.StdDev(), stddev);
         }
 
+        #region Equitable<T> implementation tests
+
+        [TestMethod]
+        public void MetricAggregatorNeverEqualsNull()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+                object other = null;
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricAggregatorEqualsItself()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+
+                Assert.True(aggregator.Equals(aggregator));
+            }
+        }
+
+        [TestMethod]
+        public void MetricAggregatorNoEqualsOtherObject()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+                var other = new object();
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricAggregatorsAreEqualForTheSameMetricNameWithoutDimensions()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+                MetricAggregator other = manager.CreateMetricAggregator("My metric");
+
+                Assert.True(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricNameIsCaseSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+                MetricAggregator other = manager.CreateMetricAggregator("My Metric");
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricNameIsAccentSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric");
+                MetricAggregator other = manager.CreateMetricAggregator("My métric");
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricAggregatorsAreEqualIfDimensionsSetToNothingImplicitlyAndExplicitly()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", null);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric");
+
+                Assert.True(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void MetricAggregatorsAreEqualIfDimensionsSetToNothingImplicitlyAndExplicitlyAsEmptySet()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", new Dictionary<string, string>());
+                MetricAggregator other = manager.CreateMetricAggregator("My metric");
+
+                Assert.True(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void DimensionsAreOrderInsensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                var dimensionSet1 = new Dictionary<string, string>() {
+                    { "Dim1", "Value1"},
+                    { "Dim2", "Value2"},
+                };
+
+                var dimensionSet2 = new Dictionary<string, string>() {
+                    { "Dim2", "Value2"},
+                    { "Dim1", "Value1"},
+                };
+
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", dimensionSet1);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric", dimensionSet2);
+
+                Assert.True(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void DimensionNamesAreCaseSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+                var dimensionSet2 = new Dictionary<string, string>() { { "dim1", "Value1" } };
+
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", dimensionSet1);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric", dimensionSet2);
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void DimensionNamesAreAccentSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+                var dimensionSet2 = new Dictionary<string, string>() { { "Dím1", "Value1" } };
+
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", dimensionSet1);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric", dimensionSet2);
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void DimensionValuesAreCaseSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+                var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "value1" } };
+
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", dimensionSet1);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric", dimensionSet2);
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        [TestMethod]
+        public void DimensionValuesAreAccentSensitive()
+        {
+            using (var manager = new MetricAggregatorManager())
+            {
+                var dimensionSet1 = new Dictionary<string, string>() { { "Dim1", "Value1" } };
+                var dimensionSet2 = new Dictionary<string, string>() { { "Dim1", "Válue1" } };
+
+                MetricAggregator aggregator = manager.CreateMetricAggregator("My metric", dimensionSet1);
+                MetricAggregator other = manager.CreateMetricAggregator("My metric", dimensionSet2);
+
+                Assert.False(aggregator.Equals(other));
+            }
+        }
+
+        #endregion
+
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry, List<MetricSample> sentSamples)
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
