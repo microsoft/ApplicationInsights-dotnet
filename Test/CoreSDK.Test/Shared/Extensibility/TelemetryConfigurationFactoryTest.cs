@@ -24,6 +24,7 @@
         public void TestCleanup()
         {
             Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
+            PlatformSingleton.Current = null; // Force reinitialization in future tests so that new environment variables will be loaded.
         }
 
         #region Instance
@@ -62,7 +63,7 @@
         [TestMethod]
         public void InitializeCreatesInMemoryChannel()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
@@ -73,7 +74,7 @@
         {
             string configFileContents = Configuration("<InstrumentationKey>F8474271-D231-45B6-8DD4-D344C309AE69</InstrumentationKey>");
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
 
             // Assume that LoadFromXml method is called, tested separately
@@ -84,7 +85,7 @@
         [TestMethod]
         public void InitializeAddsOperationContextTelemetryInitializerByDefault()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             var contextInitializer = configuration.TelemetryInitializers[0];
@@ -107,7 +108,7 @@
         [TestMethod]
         public void InitializeCreatesInMemoryChannelEvenWhenConfigIsBroken()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, Configuration("</blah>"));
 
             Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
@@ -116,7 +117,7 @@
         [TestMethod]
         public void InitializeCreatesInMemoryChannelEvenWhenConfigIsInvalid()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, Configuration("<blah></blah>"));
 
             Assert.IsType<InMemoryChannel>(configuration.TelemetryChannel);
@@ -128,8 +129,7 @@
             // ARRANGE
             var ikey = Guid.NewGuid().ToString();
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikey);
-
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
@@ -147,7 +147,7 @@
 
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnvironmentVariable);
 
-            var configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
+            TelemetryConfiguration configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
@@ -162,7 +162,7 @@
             // ARRANGE
             Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
             
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
@@ -198,7 +198,7 @@
         [TestMethod]
         public void CreateInstanceReturnsNullWhenInstanceDoesNotImplementExpectedInterface()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             Type invalidType = typeof(object);
             Assert.Null(TestableTelemetryConfigurationFactory.CreateInstance(typeof(ITelemetryInitializer), invalidType.AssemblyQualifiedName));
         }
@@ -213,7 +213,7 @@
             string expected = Guid.NewGuid().ToString();
             string profile = Configuration("<InstrumentationKey>" + expected + "</InstrumentationKey>");
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             TestableTelemetryConfigurationFactory.LoadFromXml(configuration, null, XDocument.Parse(profile));
 
             // Assume LoadFromXml calls LoadInstance, which is tested separately.
@@ -387,7 +387,7 @@
                   "<Add Type=\"" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />" +
                   "</TelemetryProcessors>");
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
 
             // Assume that LoadFromXml method is called, tested separately
@@ -410,7 +410,7 @@
                   "<Add Type=\"" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />" +
                   "</TelemetryProcessors>");
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, new TestableTelemetryModules(), configFileContents);
 
             Assert.True(configuration.TelemetryProcessors != null);
@@ -432,7 +432,7 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             // Assume that LoadFromXml method is called, tested separately
@@ -452,7 +452,7 @@
                   "<Add Type=\""+ typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />"+
                   "</TelemetryProcessors>");
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             Assert.True(configuration.TelemetryProcessors != null);
@@ -472,7 +472,7 @@
                   </TelemetryProcessors>-->"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             // Assume that LoadFromXml method is called, tested separately
@@ -493,7 +493,7 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             // Assume that LoadFromXml method is called, tested separately
@@ -511,7 +511,7 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             configuration.TelemetryProcessorChainBuilder.Build();
@@ -530,7 +530,7 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             var builder = configuration.TelemetryProcessorChainBuilder;
@@ -551,7 +551,7 @@
                   </TelemetryProcessors>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             var builder = configuration.TelemetryProcessorChainBuilder;
@@ -652,7 +652,7 @@
                   </TelemetryInitializers>"
                 );
 
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
 
             Assert.Equal(2, configuration.TelemetryInitializers.Count); // Time and operation initializers are added by default
@@ -682,7 +682,7 @@
         [TestMethod]
         public void LoadInstancesUpdatesInstanceWithMatchingType()
         {
-            var configuration = new TelemetryConfiguration();
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
             var element = XElement.Parse(@"
                 <List xmlns=""http://schemas.microsoft.com/ApplicationInsights/2013/Settings"">
                     <Add Type=""" + typeof(StubConfigurableWithProperties).AssemblyQualifiedName + @""" > 
