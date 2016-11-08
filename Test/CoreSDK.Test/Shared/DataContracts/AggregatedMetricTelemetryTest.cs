@@ -205,5 +205,13 @@
 
             Assert.Equal(1, original.Count);
         }
+
+        [TestMethod]
+        public void CountPropertyGetterReturnsOneIfNoValueIsSet()
+        {
+            AggregatedMetricTelemetry telemetry = new AggregatedMetricTelemetry();
+
+            Assert.Equal(1, telemetry.Count);
+        }
     }
 }

@@ -93,7 +93,7 @@
         /// </summary>
         public int Count
         {
-            get { return this.Metric.count ?? 0; }
+            get { return this.Metric.count ?? 1; }
             set { this.Metric.count = value; }
         }
 
