@@ -32,19 +32,19 @@
         private static TimeSpan snapshotFrequency = TimeSpan.FromMinutes(1);
 
         /// <summary>
-        /// Last time snapshot was initiated.
-        /// </summary>
-        private DateTimeOffset lastSnapshotStartDateTime;
-
-        /// <summary>
         /// Cancellation token source to allow cancellation of the snapshotting task.
         /// </summary>
-        private CancellationTokenSource cancellationSource;
+        private readonly CancellationTokenSource cancellationSource;
 
         /// <summary>
         /// Metric aggregator snapshotting task.
         /// </summary>
-        private Task snapshotTask;
+        private readonly Task snapshotTask;
+
+        /// <summary>
+        /// Last time snapshot was initiated.
+        /// </summary>
+        private DateTimeOffset lastSnapshotStartDateTime;
 
         /// <summary>
         /// A dictionary of all metric aggregators instantiated via this manager.
@@ -171,7 +171,7 @@
                 }
             }
 
-            // relying in the fact that Flush() suppresses exceptions
+            // relying on the fact that Flush() suppresses exceptions
             this.Flush();
         }
 
