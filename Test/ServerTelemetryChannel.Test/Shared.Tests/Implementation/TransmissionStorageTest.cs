@@ -654,6 +654,8 @@
                 Assert.NotNull(dequeued);
             }
 
+            // The test timeout must be large enough to account for potential conficts in the storage dequeue that
+            // cause small sleeps of up to 100 ms each plus the overhead of the test runner itself.
             [TestMethod, Timeout(250)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
