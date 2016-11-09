@@ -151,7 +151,7 @@
         {
             // create a local reference to metric processor collection
             // if collection changes after that - it will be copied not affecting local reference
-            IList<IMetricProcessor> metricProcessors = this.manager.Client.TelemetryConfiguration.MetricProcessors;
+            IList<IMetricProcessor> metricProcessors = this.manager.MetricProcessors;
 
             if (metricProcessors != null)
             {

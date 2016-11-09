@@ -32,6 +32,11 @@
         private static TimeSpan snapshotFrequency = TimeSpan.FromMinutes(1);
 
         /// <summary>
+        /// Telemetry client used to track resulting aggregated metrics.
+        /// </summary>
+        private readonly TelemetryClient telemetryClient;
+
+        /// <summary>
         /// Cancellation token source to allow cancellation of the snapshotting task.
         /// </summary>
         private readonly CancellationTokenSource cancellationSource;
@@ -65,7 +70,7 @@
         /// <param name="client">Telemetry client to use to output aggregated metric data.</param>
         public MetricAggregatorManager(TelemetryClient client)
         {
-            this.Client = client ?? new TelemetryClient();
+            this.telemetryClient = client ?? new TelemetryClient();
             this.aggregatorDictionary = new ConcurrentDictionary<MetricAggregator, SimpleMetricStatisticsAggregator>();
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
@@ -77,9 +82,18 @@
         }
 
         /// <summary>
-        /// Gets telemetry client used to output aggregation results.
+        /// Gets a list of metric processors associated
+        /// with this instance of <see cref="MetricAggregatorManager"/>.
         /// </summary>
-        internal TelemetryClient Client { get; private set; }
+        internal IList<IMetricProcessor> MetricProcessors
+        {
+            get
+            {
+                TelemetryConfiguration config = this.telemetryClient.TelemetryConfiguration;
+
+                return config.MetricProcessors;
+            }
+        }
 
         /// <summary>
         /// Creates single time series metric data aggregator.
@@ -100,7 +114,7 @@
             try
             {
                 this.Snapshot();
-                this.Client.Flush();
+                this.telemetryClient.Flush();
             }
             catch (Exception ex)
             {
@@ -266,7 +280,7 @@
 
                     if (aggergatedMetricTelemetry != null)
                     {
-                        this.Client.Track(aggergatedMetricTelemetry);
+                        this.telemetryClient.Track(aggergatedMetricTelemetry);
                     }
                 }
             }
