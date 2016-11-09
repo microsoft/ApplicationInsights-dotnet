@@ -24,17 +24,17 @@
         }
 
         [TestMethod]
-        public void InstallAddsDomainNameRoleInstanceTelemetryInitializer()
+        public void InstallAddsAzureWebAppTelemetryInitializer()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
-            Type typeToFind = typeof(DomainNameRoleInstanceTelemetryInitializer);
+            Type typeToFind = typeof(AzureWebAppRoleEnvironmentTelemetryInitializer);
 
             var node = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform)
                 .Descendants()
                 .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
-            
+
             Assert.IsNotNull(node);
         }
 
@@ -75,7 +75,7 @@
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
             Type typeToFind1 = typeof(AzureRoleEnvironmentTelemetryInitializer);
-            Type typeToFind2 = typeof(DomainNameRoleInstanceTelemetryInitializer);
+            Type typeToFind2 = typeof(AzureWebAppRoleEnvironmentTelemetryInitializer);
 
             var node = ConfigurationHelpers.GetTelemetryInitializers(configAfterTransform)
                 .Descendants()

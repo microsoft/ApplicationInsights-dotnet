@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

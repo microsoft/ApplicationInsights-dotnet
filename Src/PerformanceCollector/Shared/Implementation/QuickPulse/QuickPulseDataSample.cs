@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    using Helpers;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -11,7 +11,7 @@
     /// </summary>
     internal class QuickPulseDataSample
     {
-        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, float>> perfData)
+        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, double>> perfData)
         {
             if (accumulator == null)
             {
@@ -38,7 +38,7 @@
 
             if ((this.EndTimestamp - this.StartTimestamp) < TimeSpan.Zero)
             {
-                throw new InvalidOperationException("StartTimestamp must be lesser than EndTimestamp.");
+                throw new InvalidOperationException("StartTimestamp must be less than EndTimestamp.");
             }
 
             TimeSpan sampleDuration = this.EndTimestamp - this.StartTimestamp;
@@ -65,7 +65,9 @@
 
             this.AIExceptionsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIExceptionCount / sampleDuration.TotalSeconds : 0;
 
-            this.PerfCountersLookup = perfData.ToDictionary(p => p.Value.Item1.OriginalString, p => p.Value.Item2);
+            this.PerfCountersLookup = perfData.ToDictionary(
+                p => (QuickPulseDefaults.CounterOriginalStringMapping.ContainsKey(p.Value.Item1.OriginalString) ? QuickPulseDefaults.CounterOriginalStringMapping[p.Value.Item1.OriginalString] : p.Value.Item1.OriginalString), 
+                p => p.Value.Item2);
 
             this.TelemetryDocuments = accumulator.TelemetryDocuments.ToArray();
         }
@@ -99,7 +101,7 @@
 
         #endregion
 
-        public IDictionary<string, float> PerfCountersLookup { get; private set; }
+        public IDictionary<string, double> PerfCountersLookup { get; private set; }
         
         public ITelemetryDocument[] TelemetryDocuments { get; set; }
     }

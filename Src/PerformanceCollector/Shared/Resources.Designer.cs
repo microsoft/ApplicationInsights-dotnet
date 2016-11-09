@@ -187,6 +187,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to perform the first read for performance counter. Category: {0}, counter: {1}, instance {2}.
+        /// </summary>
+        internal static string WebAppPerformanceCounterFirstReadFailed {
+            get {
+                return ResourceManager.GetString("WebAppPerformanceCounterFirstReadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Failed to perform a read for performance counter {0}.
         /// </summary>
         internal static string PerformanceCounterReadFailed {
@@ -196,6 +205,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to perform a read for performance counter {0}.
+        /// </summary>
+        internal static string WebAppPerformanceCounterReadFailed {
+            get {
+                return ResourceManager.GetString("WebAppPerformanceCounterReadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}..
         /// </summary>
         internal static string PerformanceCounterRegistrationFailed {
@@ -204,6 +222,24 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}..
+        /// </summary>
+        internal static string WebAppPerformanceCounterRegistrationFailed {
+            get {
+                return ResourceManager.GetString("WebAppPerformanceCounterRegistrationFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}..
+        /// </summary>
+        internal static string WebAppPerformanceCounterAccessFailed {
+            get {
+                return ResourceManager.GetString("WebAppPerformanceCounterAccessFailed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Category name is required..
         /// </summary>

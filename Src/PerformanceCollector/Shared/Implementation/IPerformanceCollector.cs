@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    using DataContracts;
 
-    using PerformanceCounterReading = System.Tuple<PerformanceCounterData, float>;
-    
     internal interface IPerformanceCollector
     {
         /// <summary>
@@ -14,28 +12,24 @@
         IEnumerable<PerformanceCounterData> PerformanceCounters { get; }
 
         /// <summary>
-        /// Register a performance counter for collection.
-        /// </summary>
-        /// <param name="originalString">Original string definition of the counter.</param>
-        /// <param name="reportAs">Alias to report the counter as.</param>
-        /// <param name="categoryName">Category name.</param>
-        /// <param name="counterName">Counter name.</param>
-        /// <param name="instanceName">Instance name.</param>
-        /// <param name="usesInstanceNamePlaceholder">Indicates whether the counter uses a placeholder in the instance name.</param>
-        /// <param name="isCustomCounter">Indicates whether the counter is a custom counter.</param>
-        void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter);
-        
-        /// <summary>
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
-        IEnumerable<PerformanceCounterReading> Collect(Action<string, Exception> onReadingFailure = null);
+        IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null);
 
         /// <summary>
-        /// Rebinds performance counters to Windows resources.
+        /// Refreshes and rebinds all the set of counters that are intended to be collected.
         /// </summary>
-        /// <param name="pcd">Performance counter to refresh.</param>
-        /// <param name="pc">Updated performance counter object.</param>
-        void RefreshPerformanceCounter(PerformanceCounterData pcd, PerformanceCounter pc);
+        void RefreshCounters();
+
+        /// <summary>
+        /// Registers a counter using the counter name and reportAs value to the total list of counters.
+        /// </summary>
+        /// <param name="perfCounter">Name of the performance counter.</param>
+        /// <param name="reportAs">Report as name for the performance counter.</param>
+        /// <param name="isCustomCounter">Boolean to check if the performance counter is custom defined.</param>
+        /// <param name="error">Captures the error logged.</param>
+        /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
+        void RegisterCounter(string perfCounter, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
     }
 }

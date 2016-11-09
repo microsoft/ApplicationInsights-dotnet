@@ -36,7 +36,7 @@
         {
             if (this.telemetryClient == null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Initialize has not been called on this module yet.");
             }
 
             if (context == null)
@@ -62,7 +62,7 @@
         {
             if (this.telemetryClient == null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Initialize has not been called on this module yet.");
             }
 
             if (!this.NeedProcessRequest(context))

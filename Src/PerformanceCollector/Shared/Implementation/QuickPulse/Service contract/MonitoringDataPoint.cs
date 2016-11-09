@@ -33,6 +33,9 @@
         public DateTime Timestamp { get; set; }
 
         [DataMember]
+        public bool IsWebApp { get; set; }
+
+        [DataMember]
         public MetricPoint[] Metrics { get; set; }
 
         [DataMember]

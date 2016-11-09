@@ -1,9 +1,9 @@
-#$oldFileVersion = "2.0.0-beta3-build34090"
-#$newFileVersion = "2.0.0-beta3"
+#$oldFileVersion = "2.0.0-beta3"
+#$newFileVersion = "2.0.0-beta4"
 
 $newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://www.myget.org/F/applicationinsights -Pre -NonInteractive | Select-String -Pattern "Microsoft.ApplicationInsights " | %{$_.Line.Split(" ")} | Select -skip 1
 
-#$newVersion ="2.2.0-beta3"
+#$newVersion ="2.2.0-beta4"
 
 Write-Host $newVersion
 

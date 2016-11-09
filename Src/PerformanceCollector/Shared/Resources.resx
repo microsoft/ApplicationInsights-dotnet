@@ -120,11 +120,20 @@
   <data name="PerformanceCounterFirstReadFailed" xml:space="preserve">
     <value>Failed to perform the first read for performance counter. Please make sure it exists. Category: {0}, counter: {1}, instance {2}</value>
   </data>
+  <data name="WebAppPerformanceCounterFirstReadFailed" xml:space="preserve">
+    <value>Failed to perform the first read for web app performance counter. Please make sure it exists. Counter: {0}</value>
+  </data>
   <data name="PerformanceCounterReadFailed" xml:space="preserve">
     <value>Failed to perform a read for performance counter {0}</value>
   </data>
+  <data name="WebAppPerformanceCounterReadFailed" xml:space="preserve">
+    <value>Failed to perform a read for web app performance counter {0}</value>
+  </data>
   <data name="PerformanceCounterRegistrationFailed" xml:space="preserve">
     <value>Failed to register performance counter. Category: {0}, counter: {1}, instance: {2}.</value>
+  </data>
+  <data name="WebAppPerformanceCounterRegistrationFailed" xml:space="preserve">
+    <value>Failed to register web app performance counter. Counter: {0}.</value>
   </data>
   <data name="PerformanceCounterTelemetryCounterNameIsRequired" xml:space="preserve">
     <value>Counter name is required.</value>
@@ -137,5 +146,8 @@
   </data>
   <data name="PerformanceCounterCheckConfigurationEntry" xml:space="preserve">
     <value>Counter {0}: {1}</value>
+  </data>
+  <data name="WebAppPerformanceCounterAccessFailed" xml:space="preserve">
+    <value>Failed to access or create the web app counter. Counter: {0}.</value>
   </data>
 </root>

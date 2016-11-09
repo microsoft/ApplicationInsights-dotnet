@@ -7,11 +7,11 @@
     using System.IO;
     using System.Linq;
     using System.Threading;
-
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
+        using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -118,7 +118,7 @@
             var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(null, null, serviceClient, performanceCollector, timings);
 
             module.Initialize(new TelemetryConfiguration());
@@ -140,7 +140,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -168,12 +168,13 @@
             var interval = TimeSpan.FromMilliseconds(1);
             var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
+            var performanceCollector = new PerformanceCollectorMock();
             
             var module = new QuickPulseTelemetryModule(
                 null,
                 null,
                 serviceClient,
-                new PerformanceCollectorMock(),
+                performanceCollector,
                 timings);
 
             // ACT
@@ -225,7 +226,7 @@
             Assert.IsTrue(serviceClient.SnappedSamples.Any(s => s.AIDependencyCallsPerSecond > 0));
             Assert.IsTrue(
                 serviceClient.SnappedSamples.Any(
-                    s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
+                    s => Math.Abs(s.PerfCountersLookup[@"\Processor(_Total)\% Processor Time"]) > double.Epsilon));
         }
 
         [TestMethod]
@@ -297,7 +298,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = false };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(collectionTimeSlotManager, null, serviceClient, performanceCollector, timings);
 
             // ACT & ASSERT
@@ -305,14 +306,14 @@
             
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
             
-            Assert.IsFalse(performanceCollector.Counters.Any());
+            Assert.IsFalse(performanceCollector.PerformanceCounters.Any());
 
             serviceClient.ReturnValueFromPing = true;
             
             Thread.Sleep((int)(interval.TotalMilliseconds * 100));
 
-            Assert.IsTrue(performanceCollector.Counters.Any());
-            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfCountersLookup[@"\ASP.NET Applications(__Total__)\Requests In Application Queue"]) > double.Epsilon));
+            Assert.IsTrue(performanceCollector.PerformanceCounters.Any());
+            Assert.IsTrue(serviceClient.SnappedSamples.All(s => Math.Abs(s.PerfCountersLookup[@"\Processor(_Total)\% Processor Time"]) > double.Epsilon));
         }
 
         [TestMethod]
@@ -323,7 +324,7 @@
             var timings = new QuickPulseTimings(interval, interval);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(null, null, serviceClient, performanceCollector, timings);
 
             var timestampStart = DateTimeOffset.UtcNow;
@@ -458,7 +459,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = false, ReturnValueFromSubmitSample = true };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,
@@ -544,7 +545,7 @@
             var collectionTimeSlotManager = new QuickPulseCollectionTimeSlotManagerMock(timings);
             var serviceClient = new QuickPulseServiceClientMock { AlwaysThrow = true, ReturnValueFromPing = false, ReturnValueFromSubmitSample = null };
             var performanceCollector = new PerformanceCollectorMock();
-            
+
             var module = new QuickPulseTelemetryModule(
                 collectionTimeSlotManager,
                 null,

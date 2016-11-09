@@ -3,11 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
 
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
-    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -449,7 +448,7 @@
                                                 StartTimestamp = now,
                                                 EndTimestamp = now.AddSeconds(1)
                                             },
-                                        new Dictionary<string, Tuple<PerformanceCounterData, float>>())
+                                        new Dictionary<string, Tuple<PerformanceCounterData, double>>())
                                 }.ToList();
                     },
                 samples =>
