@@ -22,6 +22,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorInvokesMetricProcessorsForEachSample()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
             var sentSamples = new List<MetricSample>();
 
@@ -35,9 +36,12 @@ namespace Microsoft.ApplicationInsights.Extensibility
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", dimensions);
+
+                // Act
                 aggregator.Track(42);
             }
 
+            // Assert
             var sample = (MetricSample)sentSamples.Single();
 
             Assert.Equal("Test Metric", sample.MetricName);
@@ -51,6 +55,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorCalculatesSampleCountCorrectly()
         {
+            // Arrange
             double[] testValues = { 4.45, 8, 29.21, 78.43, 0 };
 
             var sentTelemetry = new List<ITelemetry>();
@@ -62,12 +67,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
+                // Act
                 for (int i = 0; i < testValues.Length; i++)
                 {
                     aggregator.Track(testValues[i]);
                 }
             }
 
+            // Assert
             int sentSampleCount = sentTelemetry.Sum(
                 (telemetry) => {
                     var metric = telemetry as AggregatedMetricTelemetry;
@@ -80,6 +87,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorCalculatesSumCorrectly()
         {
+            // Arrange
             double[] testValues = { 4.45, 8, 29.21, 78.43, 0 };
 
             var sentTelemetry = new List<ITelemetry>();
@@ -91,12 +99,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
+                // Act
                 for (int i = 0; i < testValues.Length; i++)
                 {
                     aggregator.Track(testValues[i]);
                 }
             }
 
+            // Assert
             double sentSampleSum = sentTelemetry.Sum(
                 (telemetry) => {
                     var metric = telemetry as AggregatedMetricTelemetry;
@@ -109,6 +119,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorCalculatesMinCorrectly()
         {
+            // Arrange
             double[] testValues = { 4.45, 8, 29.21, 78.43, 1.4 };
 
             var sentTelemetry = new List<ITelemetry>();
@@ -120,12 +131,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
+                // Act
                 for (int i = 0; i < testValues.Length; i++)
                 {
                     aggregator.Track(testValues[i]);
                 }
             }
 
+            // Assert
             double sentSampleSum = sentTelemetry.Min(
                 (telemetry) => {
                     var metric = telemetry as AggregatedMetricTelemetry;
@@ -138,6 +151,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorCalculatesMaxCorrectly()
         {
+            // Arrange
             double[] testValues = { 4.45, 8, 29.21, 78.43, 1.4 };
 
             var sentTelemetry = new List<ITelemetry>();
@@ -149,12 +163,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
+                // Act
                 for (int i = 0; i < testValues.Length; i++)
                 {
                     aggregator.Track(testValues[i]);
                 }
             }
 
+            // Assert
             double sentSampleMax = sentTelemetry.Max(
                 (telemetry) => {
                     var metric = telemetry as AggregatedMetricTelemetry;
@@ -167,6 +183,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         [TestMethod]
         public void MetricAggregatorCalculatesStandardDeviationCorrectly()
         {
+            // Arrange
             double[] testValues = { 1, 2, 3, 4, 5 }; 
 
             var sentTelemetry = new List<ITelemetry>();
@@ -178,12 +195,14 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
 
+                // Act
                 for (int i = 0; i < testValues.Length; i++)
                 {
                     aggregator.Track(testValues[i]);
                 }
             }
 
+            // Assert
             double sumOfSquares = sentTelemetry.Sum(
                 (telemetry) => {
                     var metric = telemetry as AggregatedMetricTelemetry;

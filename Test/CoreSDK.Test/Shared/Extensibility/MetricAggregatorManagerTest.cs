@@ -21,17 +21,18 @@
         [TestMethod]
         public void MetricAggregatorMayBeCreatedForMetricHavingNoDimensions()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
+                // Act
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
-
-                manager.Flush();
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -49,18 +50,19 @@
         [TestMethod]
         public void MetricAggregatorMayBeCreatedExplicitlySettingDimensionsToNull()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
+                // Act
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", null);
                 aggregator.Track(42);
-
-                manager.Flush();
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -78,6 +80,7 @@
         [TestMethod]
         public void MetricAggregatorMayBeCreatedWithASetOfDimensions()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
@@ -89,12 +92,12 @@
 
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
+                // Act
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric", dimensions);
                 aggregator.Track(42);
-
-                manager.Flush();
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -115,15 +118,19 @@
         [TestMethod]
         public void MetricAggregatorsFlushedWhenManagerIsDisposed()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
+
+            // Act
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
                 aggregator.Track(42);
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -141,15 +148,19 @@
         [TestMethod]
         public void AggregatedMetricTelemetryHasIntervalDurationProperty()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+
+                // Act
                 aggregator.Track(42);
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -163,15 +174,19 @@
         [TestMethod]
         public void AggregatedMetricTelemetryIntervalDurationPropertyIsPositiveInteger()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
             using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
             {
                 MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+
+                // Act
                 aggregator.Track(42);
             }
 
+            // Assert
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
@@ -187,6 +202,7 @@
         [TestMethod]
         public void EqualAggregatorsAreCombinedIntoSignleStatsStructure()
         {
+            // Arrange
             var sentTelemetry = new List<ITelemetry>();
 
             var client = this.InitializeTelemetryClient(sentTelemetry);
@@ -203,6 +219,7 @@
                     aggregator1 = manager.CreateMetricAggregator("Test Metric");
                     aggregator2 = manager.CreateMetricAggregator("Test Metric");
 
+                    // Act
                     aggregator1.Track(10);
                     aggregator2.Track(5);
 
@@ -219,6 +236,7 @@
                 }
             }
 
+            // Assert
             Assert.Equal(1, sentTelemetry.Count);
 
             var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
