@@ -10,6 +10,7 @@
 #endif
     using Assert = Xunit.Assert;
     using DataContracts;
+    using External;
 
     [TestClass]
     public class PropertyTest
@@ -298,74 +299,74 @@
             var telemetryContext = new TelemetryContext();
 
             var componentContext = telemetryContext.Component;
-            componentContext.Version = new string('Z', Property.MaxApplicationVersionLength + 1);
+            componentContext.Version = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.ApplicationVersion]+ 1);
 
             var deviceContext = telemetryContext.Device;
-            deviceContext.Id = new string('Z', Property.MaxDeviceIdLength + 1);
-            deviceContext.Model = new string('Z', Property.MaxDeviceModelLength + 1);
-            deviceContext.OemName = new string('Z', Property.MaxDeviceOemNameLength + 1);
-            deviceContext.OperatingSystem = new string('Z', Property.MaxDeviceOperatingSystemLength + 1);
-            deviceContext.Type = new string('Z', Property.MaxDeviceTypeLength + 1);
+            deviceContext.Id = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceId] + 1);
+            deviceContext.Model = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceModel] + 1);
+            deviceContext.OemName = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOEMName] + 1);
+            deviceContext.OperatingSystem = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOSVersion] + 1);
+            deviceContext.Type = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceType] + 1);
 
             var locationContext = telemetryContext.Location;
-            locationContext.Ip = new string('Z', Property.MaxLocationIpLength + 1);
+            locationContext.Ip = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.LocationIp] + 1);
 
             var operationContext = telemetryContext.Operation;
-            operationContext.Id = new string('Z', Property.MaxOperationIdLength + 1);
-            operationContext.Name = new string('Z', Property.MaxOperationNameLength + 1);
-            operationContext.ParentId = new string('Z', Property.MaxOperationParentIdLength + 1);
-            operationContext.SyntheticSource = new string('Z', Property.MaxOperationSyntheticSourceLength + 1);
-            operationContext.CorrelationVector = new string('Z', Property.MaxOperationCorrelationVectorLength + 1);
+            operationContext.Id = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationId] + 1);
+            operationContext.Name = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationName] + 1);
+            operationContext.ParentId = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationParentId] + 1);
+            operationContext.SyntheticSource = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationSyntheticSource] + 1);
+            operationContext.CorrelationVector = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationCorrelationVector] + 1);
 
             var sessionContext = telemetryContext.Session;
-            sessionContext.Id = new string('Z', Property.MaxSessionIdLength + 1);
+            sessionContext.Id = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.SessionId] + 1);
 
             var userContext = telemetryContext.User;
-            userContext.Id = new string('Z', Property.MaxUserIdLength + 1);
-            userContext.AccountId = new string('Z', Property.MaxUserAccountIdLength + 1);
-            userContext.UserAgent = new string('Z', Property.MaxUserAgentLength + 1);
-            userContext.AuthenticatedUserId = new string('Z', Property.MaxUserAuthenticatedIdLength + 1);
+            userContext.Id = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId] + 1);
+            userContext.AccountId = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId] + 1);
+            userContext.UserAgent = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent] + 1);
+            userContext.AuthenticatedUserId = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId] + 1);
 
             var cloudContext = telemetryContext.Cloud;
-            cloudContext.RoleName = new string('Z', Property.MaxCloudRoleNameLength + 1);
-            cloudContext.RoleInstance = new string('Z', Property.MaxCloudRoleInstanceLength + 1);
+            cloudContext.RoleName = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRole] + 1);
+            cloudContext.RoleInstance = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRoleInstance] + 1);
 
             var internalContext = telemetryContext.Internal;
-            internalContext.SdkVersion = new string('Z', Property.MaxInternalSdkVersionLength + 1);
-            internalContext.AgentVersion = new string('Z', Property.MaxInternalAgentVersionLength + 1);
-            internalContext.NodeName = new string('Z', Property.MaxInternalNodeNameLength + 1);            
+            internalContext.SdkVersion = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalSdkVersion] + 1);
+            internalContext.AgentVersion = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalAgentVersion] + 1);
+            internalContext.NodeName = new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalNodeName] + 1);            
 
             telemetryContext.SanitizeTelemetryContext();
 
-            Assert.Equal(new string('Z', Property.MaxApplicationVersionLength), componentContext.Version);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.ApplicationVersion]), componentContext.Version);
 
-            Assert.Equal(new string('Z', Property.MaxDeviceIdLength), deviceContext.Id);
-            Assert.Equal(new string('Z', Property.MaxDeviceModelLength), deviceContext.Model);
-            Assert.Equal(new string('Z', Property.MaxDeviceOemNameLength), deviceContext.OemName);
-            Assert.Equal(new string('Z', Property.MaxDeviceOperatingSystemLength), deviceContext.OperatingSystem);
-            Assert.Equal(new string('Z', Property.MaxDeviceTypeLength), deviceContext.Type);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceId]), deviceContext.Id);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceModel]), deviceContext.Model);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOEMName]), deviceContext.OemName);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOSVersion]), deviceContext.OperatingSystem);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceType]), deviceContext.Type);
 
-            Assert.Equal(new string('Z', Property.MaxLocationIpLength), locationContext.Ip);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.LocationIp]), locationContext.Ip);
 
-            Assert.Equal(new string('Z', Property.MaxOperationIdLength), operationContext.Id);
-            Assert.Equal(new string('Z', Property.MaxOperationNameLength), operationContext.Name);
-            Assert.Equal(new string('Z', Property.MaxOperationParentIdLength), operationContext.ParentId);
-            Assert.Equal(new string('Z', Property.MaxOperationSyntheticSourceLength), operationContext.SyntheticSource);
-            Assert.Equal(new string('Z', Property.MaxOperationCorrelationVectorLength), operationContext.CorrelationVector);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationId]), operationContext.Id);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationName]), operationContext.Name);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationParentId]), operationContext.ParentId);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationSyntheticSource]), operationContext.SyntheticSource);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationCorrelationVector]), operationContext.CorrelationVector);
 
-            Assert.Equal(new string('Z', Property.MaxSessionIdLength), sessionContext.Id);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.SessionId]), sessionContext.Id);
 
-            Assert.Equal(new string('Z', Property.MaxUserIdLength), userContext.Id);
-            Assert.Equal(new string('Z', Property.MaxUserAccountIdLength), userContext.AccountId);
-            Assert.Equal(new string('Z', Property.MaxUserAgentLength), userContext.UserAgent);
-            Assert.Equal(new string('Z', Property.MaxUserAuthenticatedIdLength), userContext.AuthenticatedUserId);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId]), userContext.Id);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId]), userContext.AccountId);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent]), userContext.UserAgent);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId]), userContext.AuthenticatedUserId);
 
-            Assert.Equal(new string('Z', Property.MaxCloudRoleNameLength), cloudContext.RoleName);
-            Assert.Equal(new string('Z', Property.MaxCloudRoleInstanceLength), cloudContext.RoleInstance);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRole]), cloudContext.RoleName);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRoleInstance]), cloudContext.RoleInstance);
 
-            Assert.Equal(new string('Z', Property.MaxInternalSdkVersionLength), internalContext.SdkVersion);
-            Assert.Equal(new string('Z', Property.MaxInternalAgentVersionLength), internalContext.AgentVersion);
-            Assert.Equal(new string('Z', Property.MaxInternalNodeNameLength), internalContext.NodeName);            
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalSdkVersion]), internalContext.SdkVersion);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalAgentVersion]), internalContext.AgentVersion);
+            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalNodeName]), internalContext.NodeName);            
         }
 
         private static IEnumerable<char> GetInvalidNameCharacters()
