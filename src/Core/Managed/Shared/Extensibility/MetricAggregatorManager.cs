@@ -37,14 +37,9 @@
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
-        /// Cancellation token source to allow cancellation of the snapshotting task.
-        /// </summary>
-        private readonly CancellationTokenSource cancellationSource;
-
-        /// <summary>
         /// Metric aggregator snapshotting task.
         /// </summary>
-        private readonly Task snapshotTask;
+        private readonly TaskTimer snapshotTask;
 
         /// <summary>
         /// Last time snapshot was initiated.
@@ -75,10 +70,8 @@
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
 
-            this.cancellationSource = new CancellationTokenSource();
-
-            this.snapshotTask = new Task(this.SnapshotRunner, TaskCreationOptions.LongRunning);
-            this.snapshotTask.Start();
+            this.snapshotTask = new TaskTimer() { Delay = GetWaitTime() };
+            this.snapshotTask.Start(this.SnapshotAndReschedule);
         }
 
         /// <summary>
@@ -127,20 +120,12 @@
         /// </summary>
         public void Dispose()
         {
-            if (this.cancellationSource != null)
+            if (this.snapshotTask != null)
             {
-                this.cancellationSource.Cancel();
-
-                if (this.snapshotTask != null)
-                {
-                    this.snapshotTask.Wait();
-#if NET40 || NET45 || NET46
-                    this.snapshotTask.Dispose();
-#endif
-                }
-
-                this.cancellationSource.Dispose();
+                this.snapshotTask.Dispose();
             }
+
+            this.Flush();
         }
 
         internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(MetricAggregator aggregator)
@@ -151,42 +136,6 @@
             }
 
             return this.aggregatorDictionary.GetOrAdd(aggregator, (aid) => { return new SimpleMetricStatisticsAggregator(); });
-        }
-
-        /// <summary>
-        /// Represents long running task to periodically snapshot metric aggregators.
-        /// </summary>
-        internal async void SnapshotRunner()
-        {
-            while (!this.cancellationSource.Token.IsCancellationRequested)
-            {
-                try
-                {
-                    await TaskEx.Delay(GetWaitTime(), this.cancellationSource.Token).ConfigureAwait(false);
-
-                    this.Snapshot();
-                }
-#if NET40 || NET45 || NET46
-                catch (ThreadAbortException)
-                {
-                    // note: we need to flush under catch since ThreadAbortException 
-                    // is re-thrown after the try block
-                    this.Flush();
-                    break;
-                }
-#endif
-                catch (TaskCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    CoreEventSource.Log.FailedToSnapshotMetricAggregators(ex.ToString());
-                }
-            }
-
-            // relying on the fact that Flush() suppresses exceptions
-            this.Flush();
         }
 
         /// <summary>
@@ -242,6 +191,31 @@
             }
 
             return telemetry;
+        }
+
+        /// <summary>
+        /// Takes a snapshot of aggregators collected by this instance of the manager
+        /// and schedules the next snapshot.
+        /// </summary>
+        private Task SnapshotAndReschedule()
+        {
+            return Task.Factory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        this.Snapshot();
+                    }
+                    catch (Exception ex)
+                    {
+                        CoreEventSource.Log.FailedToSnapshotMetricAggregators(ex.ToString());
+                    }
+                    finally
+                    {
+                        this.snapshotTask.Delay = GetWaitTime();
+                        this.snapshotTask.Start(this.SnapshotAndReschedule);
+                    }
+                });
         }
 
         /// <summary>
