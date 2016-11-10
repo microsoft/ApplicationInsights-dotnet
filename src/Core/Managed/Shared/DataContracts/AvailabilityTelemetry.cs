@@ -157,6 +157,8 @@
 
             this.Data.properties.SanitizeProperties();
             this.Data.measurements.SanitizeMeasurements();
+
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }

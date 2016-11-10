@@ -238,10 +238,11 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Name = this.Name.SanitizeName();
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(DependencyTelemetry).FullName);
             this.Id.SanitizeName();
-            this.ResultCode = this.ResultCode.SanitizeValue();
+            this.ResultCode = this.ResultCode.SanitizeResultCode();
             this.Type = this.Type.SanitizeDependencyType();
-            this.Data = this.Data.SanitizeCommandName();
+            this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }
