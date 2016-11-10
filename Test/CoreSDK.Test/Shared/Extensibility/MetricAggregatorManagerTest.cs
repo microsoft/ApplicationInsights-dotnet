@@ -198,7 +198,6 @@
             Assert.True(long.Parse(aggregatedMetric.Properties["IntervalDurationMs"]) > 0);
         }
 
-
         [TestMethod]
         public void EqualAggregatorsAreCombinedIntoSignleStatsStructure()
         {
@@ -243,6 +242,97 @@
 
             Assert.Equal(2, aggregatedMetric.Count);
             Assert.Equal(15, aggregatedMetric.Sum);
+        }
+
+        [TestMethod]
+        public void CantCreateAggregatorUsingDisposedAggregatorManager()
+        {
+            MetricAggregatorManager manager = null;
+
+            using (manager = new MetricAggregatorManager()) { }
+
+            Assert.Throws<ObjectDisposedException>(() => { var aggregator = manager.CreateMetricAggregator("My Metric"); });
+        }
+
+        [TestMethod]
+        public void CantFlushUsingDisposedAggregatorManager()
+        {
+            MetricAggregatorManager manager = null;
+
+            using (manager = new MetricAggregatorManager()) { }
+
+            Assert.Throws<ObjectDisposedException>(() => { manager.Flush(); });
+        }
+
+        [TestMethod]
+        public void CantTrackValueonAggregatorCreatedViaDisposedAggregatorManager()
+        {
+            MetricAggregator aggregator = null;
+
+            using (MetricAggregatorManager manager = new MetricAggregatorManager())
+            {
+                aggregator = manager.CreateMetricAggregator("My metric");
+            }
+
+            Assert.Throws<ObjectDisposedException>(() => { aggregator.Track(42); });
+        }
+
+        [TestMethod]
+        public void CanDisposeAggregatorManagerMultipleTimes()
+        {
+            MetricAggregatorManager manager = null;
+
+            using (manager = new MetricAggregatorManager()) { }
+
+            Assert.DoesNotThrow(() => { manager.Dispose(); });
+        }
+
+        [TestMethod]
+        public void FlushCreatesAggregatedMetricTelemetry()
+        {
+            // Arrange
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+
+                aggregator.Track(42);
+
+                // Act
+                manager.Flush();
+
+                // Assert
+                Assert.Equal(1, sentTelemetry.Count);
+
+                var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+                Assert.NotNull(aggregatedMetric);
+            }
+        }
+
+        [TestMethod]
+        public void DisposingManagerCreatesAggregatedMetricTelemetry()
+        {
+            // Arrange
+            var sentTelemetry = new List<ITelemetry>();
+
+            var client = this.InitializeTelemetryClient(sentTelemetry);
+            using (MetricAggregatorManager manager = new MetricAggregatorManager(client))
+            {
+                MetricAggregator aggregator = manager.CreateMetricAggregator("Test Metric");
+
+                aggregator.Track(42);
+
+                // Act
+                manager.Dispose();
+            }
+
+            // Assert
+            Assert.Equal(1, sentTelemetry.Count);
+
+            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            Assert.NotNull(aggregatedMetric);
         }
 
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry)

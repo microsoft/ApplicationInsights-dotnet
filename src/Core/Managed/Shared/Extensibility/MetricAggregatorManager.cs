@@ -47,6 +47,11 @@
         private DateTimeOffset lastSnapshotStartDateTime;
 
         /// <summary>
+        /// Indicates whether the object was disposed.
+        /// </summary>
+        private bool disposed;
+
+        /// <summary>
         /// A dictionary of all metric aggregators instantiated via this manager.
         /// </summary>
         private ConcurrentDictionary<MetricAggregator, SimpleMetricStatisticsAggregator> aggregatorDictionary;
@@ -96,6 +101,11 @@
         /// <returns>Value aggregator for the metric specified.</returns>
         public MetricAggregator CreateMetricAggregator(string metricName, IDictionary<string, string> dimensions = null)
         {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException(nameof(MetricAggregatorManager));
+            }
+
             return new MetricAggregator(this, metricName, dimensions);
         }
 
@@ -104,15 +114,12 @@
         /// </summary>
         public void Flush()
         {
-            try
+            if (this.disposed)
             {
-                this.Snapshot();
-                this.telemetryClient.Flush();
+                throw new ObjectDisposedException(nameof(MetricAggregatorManager));
             }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
-            }
+
+            this.Flush(false);
         }
 
         /// <summary>
@@ -120,16 +127,23 @@
         /// </summary>
         public void Dispose()
         {
+            this.disposed = true;
+
             if (this.snapshotTask != null)
             {
                 this.snapshotTask.Dispose();
             }
 
-            this.Flush();
+            this.Flush(true);
         }
 
         internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(MetricAggregator aggregator)
         {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException(nameof(MetricAggregatorManager));
+            }
+
             if (aggregator == null)
             {
                 return null;
@@ -191,6 +205,24 @@
             }
 
             return telemetry;
+        }
+
+        private void Flush(bool disposing)
+        {
+            if ((!disposing) && this.disposed)
+            {
+                throw new ObjectDisposedException(nameof(MetricAggregatorManager));
+            }
+
+            try
+            {
+                this.Snapshot();
+                this.telemetryClient.Flush();
+            }
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
+            }
         }
 
         /// <summary>
