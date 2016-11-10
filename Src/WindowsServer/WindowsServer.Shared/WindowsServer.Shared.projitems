@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TypeHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
   </ItemGroup>
 </Project>
