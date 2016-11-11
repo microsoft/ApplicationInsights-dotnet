@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
-
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using TestFramework;
     using Assert = Xunit.Assert;
 
     [TestClass]
@@ -54,6 +54,32 @@
         [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleRecievesFirstChance()
         {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuraiton);
+
+                try
+                {
+                    throw new Exception("test");
+                }
+                catch (Exception exc)
+                {
+                    Assert.NotNull(exc);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleDoNotCauseStackOverflow()
+        {
+            this.configuraiton.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    throw new Exception("this exception may cause stack overflow");
+                }
+            });
+
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuraiton);

@@ -15,11 +15,20 @@
     /// </summary>
     public sealed class FirstChanceExceptionStatisticsTelemetryModule : ITelemetryModule, IDisposable
     {
+        private const int LOCKED = 1;
+
+        /// <summary>
+        /// This object prevents double entry into the exception callback.
+        /// </summary>
+        [ThreadStatic]
+        private static int executionSyncObject;
+
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction;
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
 
         private TelemetryClient telemetryClient;
+
         private bool isInitialized = false;
 
         /// <summary>
@@ -73,8 +82,15 @@
 
         private void CalculateStatistics(object sender, FirstChanceExceptionEventArgs firstChanceExceptionArgs)
         {
+            if (executionSyncObject == LOCKED)
+            {
+                return;
+            }
+
             try
             {
+                executionSyncObject = LOCKED;
+
                 var exception = firstChanceExceptionArgs?.Exception;
 
                 if (exception == null)
@@ -110,6 +126,10 @@
                     // this is absolutely critical to not throw out of this method
                     // Otherwise it will affect the customer application behavior significantly
                 }
+            }
+            finally
+            {
+                executionSyncObject = LOCKED;
             }
         }
 
