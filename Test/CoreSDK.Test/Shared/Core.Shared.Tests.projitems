@@ -34,8 +34,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilderTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\CoreEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\ExtensionsTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricAggregatorManagerTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricAggregatorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContextTest.cs" />

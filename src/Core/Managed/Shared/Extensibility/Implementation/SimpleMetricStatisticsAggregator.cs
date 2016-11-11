@@ -4,7 +4,7 @@
     using System.Threading;
 
     /// <summary>
-    /// Represents aggregator for a single time series of a given metric.
+    /// Represents mechanism to calculate basic statistical parameters of a series of numeric values.
     /// </summary>
     internal class SimpleMetricStatisticsAggregator
     {
