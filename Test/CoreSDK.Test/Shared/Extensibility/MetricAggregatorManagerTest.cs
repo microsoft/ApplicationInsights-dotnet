@@ -326,13 +326,13 @@
 
                 // Act
                 manager.Dispose();
+
+                // Assert
+                Assert.Equal(1, sentTelemetry.Count);
+
+                var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+                Assert.NotNull(aggregatedMetric);
             }
-
-            // Assert
-            Assert.Equal(1, sentTelemetry.Count);
-
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
-            Assert.NotNull(aggregatedMetric);
         }
 
         private TelemetryClient InitializeTelemetryClient(List<ITelemetry> sentTelemetry)
