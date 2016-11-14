@@ -178,6 +178,7 @@
             // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+            this.Context.SanitizeTelemetryContext();
         }
 
         private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)

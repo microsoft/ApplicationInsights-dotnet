@@ -113,7 +113,7 @@
         {
             DependencyTelemetry telemetry = new DependencyTelemetry();
             telemetry.Name = new string('Z', Property.MaxNameLength + 1);
-            telemetry.Data = new string('Y', Property.MaxCommandNameLength + 1);
+            telemetry.Data = new string('Y', Property.MaxDataLength + 1);
             telemetry.Type = new string('D', Property.MaxDependencyTypeLength + 1);
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'X', new string('X', Property.MaxValueLength + 1));
             telemetry.Properties.Add(new string('X', Property.MaxDictionaryNameLength) + 'Y', new string('X', Property.MaxValueLength + 1));
@@ -121,7 +121,7 @@
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
-            Assert.Equal(new string('Y', Property.MaxCommandNameLength), telemetry.Data);
+            Assert.Equal(new string('Y', Property.MaxDataLength), telemetry.Data);
             Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.Type);
 
             Assert.Equal(2, telemetry.Properties.Count);
