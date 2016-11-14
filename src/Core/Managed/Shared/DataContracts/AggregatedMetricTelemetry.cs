@@ -41,14 +41,14 @@
         /// <remarks>
         /// Metric statistics provided are assumed to be calculated over a period of time equaling 1 minute.
         /// </remarks>
-        /// <param name="metricName">Metric name.</param>
+        /// <param name="name">Metric name.</param>
         /// <param name="count">Count of values taken during aggregation interval.</param>
         /// <param name="sum">Sum of values taken during aggregation interval.</param>
         /// <param name="min">Minimum value taken during aggregation interval.</param>
         /// <param name="max">Maximum of values taken during aggregation interval.</param>
         /// <param name="standardDeviation">Standard deviation of values taken during aggregation interval.</param>
         public AggregatedMetricTelemetry(
-            string metricName, 
+            string name, 
             int count,
             double sum,
             double min,
@@ -56,7 +56,7 @@
             double standardDeviation)
             : this()
         {
-            this.Name = metricName;
+            this.Name = name;
             this.Count = count;
             this.Sum = sum;
             this.Min = min;

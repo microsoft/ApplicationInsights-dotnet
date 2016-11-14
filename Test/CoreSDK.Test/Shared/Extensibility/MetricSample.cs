@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
     internal class MetricSample
     {
-        public string MetricName { get; set; }
+        public string Name { get; set; }
 
         public IDictionary<string, string> Dimensions { get; set; }
 

@@ -17,13 +17,13 @@
             this.sampleList = sampleList;
         }
 
-        public void Track(string metricName, double value, IDictionary<string, string> dimensions = null)
+        public void Track(Metric metric, double value)
         {
             this.sampleList.Add(
                 new MetricSample()
                 {
-                    MetricName = metricName,
-                    Dimensions = dimensions,
+                    Name = metric.Name,
+                    Dimensions = metric.Dimensions,
                     Value = value
                 });
         }

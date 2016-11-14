@@ -5,7 +5,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using System.Threading;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -13,12 +12,12 @@
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.
     /// </summary>
-    public class MetricAggregator : IEquatable<MetricAggregator>
+    public class Metric : IEquatable<Metric>
     {
         /// <summary>
         /// Aggregator manager for the aggregator.
         /// </summary>
-        private readonly MetricAggregatorManager manager;
+        private readonly MetricManager manager;
 
         /// <summary>
         /// Metric aggregator id to look for in the aggregator dictionary.
@@ -31,14 +30,14 @@
         private readonly int hashCode;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricAggregator"/> class.
+        /// Initializes a new instance of the <see cref="Metric"/> class.
         /// </summary>
         /// <param name="manager">Aggregator manager handling this instance.</param>
-        /// <param name="metricName">Metric name.</param>
+        /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Metric dimensions.</param>
-        internal MetricAggregator(
-            MetricAggregatorManager manager,
-            string metricName, 
+        internal Metric(
+            MetricManager manager,
+            string name, 
             IDictionary<string, string> dimensions = null)
         {
             if (manager == null)
@@ -47,17 +46,17 @@
             }
 
             this.manager = manager;
-            this.MetricName = metricName;
+            this.Name = name;
             this.Dimensions = dimensions;
 
-            this.aggregatorId = MetricAggregator.GetAggregatorId(metricName, dimensions);
+            this.aggregatorId = Metric.GetAggregatorId(name, dimensions);
             this.hashCode = this.aggregatorId.GetHashCode();
         }
 
         /// <summary>
         /// Gets metric name.
         /// </summary>
-        public string MetricName { get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets a set of metric dimensions and their values.
@@ -90,7 +89,7 @@
         /// </summary>
         /// <param name="other">The object to compare with the current object. </param>
         /// <returns>True if the specified object is equal to the current object; otherwise, false.</returns>
-        public bool Equals(MetricAggregator other)
+        public bool Equals(Metric other)
         {
             if (other == null)
             {
@@ -117,18 +116,18 @@
                 return true;
             }
 
-            return this.Equals(obj as MetricAggregator);
+            return this.Equals(obj as Metric);
         }
 
         /// <summary>
         /// Generates id of the aggregator serving time series specified in the parameters.
         /// </summary>
-        /// <param name="metricName">Metric name.</param>
+        /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Optional metric dimensions.</param>
         /// <returns>Aggregator id that can be used to get aggregator.</returns>
-        private static string GetAggregatorId(string metricName, IDictionary<string, string> dimensions = null)
+        private static string GetAggregatorId(string name, IDictionary<string, string> dimensions = null)
         {
-            StringBuilder aggregatorIdBuilder = new StringBuilder(metricName ?? string.Empty);
+            StringBuilder aggregatorIdBuilder = new StringBuilder(name ?? string.Empty);
 
             if (dimensions != null)
             {
@@ -159,7 +158,7 @@
                 {
                     try
                     {
-                        processor.Track(this.MetricName, value, this.Dimensions);
+                        processor.Track(this, value);
                     }
                     catch (Exception ex)
                     {

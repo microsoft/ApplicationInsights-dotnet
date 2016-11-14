@@ -121,8 +121,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricAggregator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricAggregatorManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metric.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
