@@ -69,10 +69,20 @@
 
         [TestMethod]
         [Owner("alkaplan")]
-        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        [Description("Tests that non existent counters are not collected and wont affect other counters")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]        
         public void NonExistentCounter()
         {
             CommonTests.NonExistentCounter(this.Listener);
+        }
+
+        [TestMethod]
+        [Owner("alkaplan")]
+        [Description("Tests that non existent counters which use placeholders are not collected and wont affect other counters")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void NonExistentCounterWhichUsesPlaceHolder()
+        {
+            CommonTests.NonExistentCounterWhichUsesPlaceHolder(this.Listener);
         }
 
         [TestMethod]
