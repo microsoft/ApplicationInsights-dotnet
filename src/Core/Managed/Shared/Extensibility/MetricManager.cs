@@ -95,17 +95,17 @@
         /// <summary>
         /// Creates metric.
         /// </summary>
-        /// <param name="metricName">Name of the metric.</param>
+        /// <param name="name">Name of the metric.</param>
         /// <param name="dimensions">Optional dimensions.</param>
         /// <returns>Metric instance.</returns>
-        public Metric CreateMetric(string metricName, IDictionary<string, string> dimensions = null)
+        public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
             if (this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
             }
 
-            return new Metric(this, metricName, dimensions);
+            return new Metric(this, name, dimensions);
         }
 
         /// <summary>
@@ -188,7 +188,7 @@
             }
 
             var telemetry = new AggregatedMetricTelemetry(
-                metric.MetricName,
+                metric.Name,
                 statistics.Count,
                 statistics.Sum,
                 statistics.Min,

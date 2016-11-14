@@ -22,7 +22,7 @@
             this.sampleList.Add(
                 new MetricSample()
                 {
-                    MetricName = metric.MetricName,
+                    Name = metric.Name,
                     Dimensions = metric.Dimensions,
                     Value = value
                 });

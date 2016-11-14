@@ -39,7 +39,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             var sample = (MetricSample)sentSamples.Single();
 
-            Assert.Equal("Test Metric", sample.MetricName);
+            Assert.Equal("Test Metric", sample.Name);
 
             Assert.Equal(42, sample.Value);
 

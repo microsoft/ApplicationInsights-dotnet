@@ -33,11 +33,11 @@
         /// Initializes a new instance of the <see cref="Metric"/> class.
         /// </summary>
         /// <param name="manager">Aggregator manager handling this instance.</param>
-        /// <param name="metricName">Metric name.</param>
+        /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Metric dimensions.</param>
         internal Metric(
             MetricManager manager,
-            string metricName, 
+            string name, 
             IDictionary<string, string> dimensions = null)
         {
             if (manager == null)
@@ -46,17 +46,17 @@
             }
 
             this.manager = manager;
-            this.MetricName = metricName;
+            this.Name = name;
             this.Dimensions = dimensions;
 
-            this.aggregatorId = Metric.GetAggregatorId(metricName, dimensions);
+            this.aggregatorId = Metric.GetAggregatorId(name, dimensions);
             this.hashCode = this.aggregatorId.GetHashCode();
         }
 
         /// <summary>
         /// Gets metric name.
         /// </summary>
-        public string MetricName { get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets a set of metric dimensions and their values.
@@ -122,12 +122,12 @@
         /// <summary>
         /// Generates id of the aggregator serving time series specified in the parameters.
         /// </summary>
-        /// <param name="metricName">Metric name.</param>
+        /// <param name="name">Metric name.</param>
         /// <param name="dimensions">Optional metric dimensions.</param>
         /// <returns>Aggregator id that can be used to get aggregator.</returns>
-        private static string GetAggregatorId(string metricName, IDictionary<string, string> dimensions = null)
+        private static string GetAggregatorId(string name, IDictionary<string, string> dimensions = null)
         {
-            StringBuilder aggregatorIdBuilder = new StringBuilder(metricName ?? string.Empty);
+            StringBuilder aggregatorIdBuilder = new StringBuilder(name ?? string.Empty);
 
             if (dimensions != null)
             {
