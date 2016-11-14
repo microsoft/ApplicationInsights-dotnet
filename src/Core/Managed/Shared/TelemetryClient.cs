@@ -191,7 +191,7 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricAggregatorManager class to setup data aggregators.")]
+        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricManager class to create metrics.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
@@ -208,7 +208,7 @@
         /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
         /// </summary>
-        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricAggregatorManager class to setup data aggregators.")]
+        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricManager class to create metrics.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(MetricTelemetry telemetry)
         {
