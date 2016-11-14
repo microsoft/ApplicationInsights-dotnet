@@ -38,7 +38,7 @@
         /// <summary>
         /// Metric aggregation snapshot task.
         /// </summary>
-        private readonly TaskTimer snapshotTask;
+        private TaskTimer snapshotTimer;
 
         /// <summary>
         /// Last time snapshot was initiated.
@@ -74,8 +74,8 @@
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
 
-            this.snapshotTask = new TaskTimer() { Delay = GetWaitTime() };
-            this.snapshotTask.Start(this.SnapshotAndReschedule);
+            this.snapshotTimer = new TaskTimer() { Delay = GetWaitTime() };
+            this.snapshotTimer.Start(this.SnapshotAndReschedule);
         }
 
         /// <summary>
@@ -128,9 +128,10 @@
         {
             this.disposed = true;
 
-            if (this.snapshotTask != null)
+            if (this.snapshotTimer != null)
             {
-                this.snapshotTask.Dispose();
+                this.snapshotTimer.Dispose();
+                this.snapshotTimer = null;
             }
 
             this.Flush(true);
@@ -141,11 +142,6 @@
             if (this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
-            if (metric == null)
-            {
-                return null;
             }
 
             return this.metricDictionary.GetOrAdd(metric, (m) => { return new SimpleMetricStatisticsAggregator(); });
@@ -182,11 +178,6 @@
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
         private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
         {
-            if ((metric == null) || (statistics == null) || (statistics.Count <= 0))
-            {
-                return null;
-            }
-
             var telemetry = new AggregatedMetricTelemetry(
                 metric.Name,
                 statistics.Count,
@@ -243,8 +234,8 @@
                     }
                     finally
                     {
-                        this.snapshotTask.Delay = GetWaitTime();
-                        this.snapshotTask.Start(this.SnapshotAndReschedule);
+                        this.snapshotTimer.Delay = GetWaitTime();
+                        this.snapshotTimer.Start(this.SnapshotAndReschedule);
                     }
                 });
         }
@@ -281,10 +272,10 @@
                 {
                     AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
 
-                    aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
-
-                    if (aggergatedMetricTelemetry != null)
+                    if (aggergatedMetricTelemetry.Count > 0)
                     {
+                        aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
+
                         this.telemetryClient.Track(aggergatedMetricTelemetry);
                     }
                 }
