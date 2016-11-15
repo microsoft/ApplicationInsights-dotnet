@@ -272,6 +272,12 @@
             }
 
             usesPlaceholder = true;
+
+            if (IsWebAppRunningInAzure())
+            {
+                return instanceName;
+            } 
+
             var placeholder = match.Groups["placeholder"].Value;
 
             // use a cached value if available

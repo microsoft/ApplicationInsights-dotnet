@@ -102,21 +102,19 @@
 
                 if (pc != null)
                 {
-                    this.RegisterPerformanceCounter(perfCounter, reportAs, pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
                 }
                 else
                 {
-                    this.RegisterPerformanceCounter(perfCounter, reportAs, string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
+                    this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
                 }
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Resources.WebAppPerformanceCounterRegistrationFailed,
-                        perfCounter),
-                    e);
+                PerformanceCollectorEventSource.Log.WebAppCounterRegistrationFailedEvent(
+                    e.Message,
+                    perfCounter);
+                error = e.Message;
             }
         }
 

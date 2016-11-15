@@ -170,6 +170,12 @@
             this.WriteEvent(17, environmentVariable, this.ApplicationName);
         }
 
+        [Event(18, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Web App Performance counter {1} has failed to register with performance collector. Please make sure it exists. Technical details: {0}")]
+        public void WebAppCounterRegistrationFailedEvent(string e, string counter, string applicationName = "dummy")
+        {
+            this.WriteEvent(18, e, counter, this.ApplicationName);
+        }
+
         #endregion
 
         [NonEvent]
