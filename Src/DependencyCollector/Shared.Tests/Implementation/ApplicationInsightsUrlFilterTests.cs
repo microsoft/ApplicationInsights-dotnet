@@ -20,6 +20,17 @@
         }
 
         [TestMethod]
+        public void IsApplicationInsightsUrlReturnsTrueForQuickPulseServiceEndpoint()
+        {
+            using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
+            {
+                string url = "https://rt.services.visualstudio.com/QuickPulseService.svc";
+                ApplicationInsightsUrlFilter urlFilter = new ApplicationInsightsUrlFilter(configuration);
+                Assert.IsTrue(urlFilter.IsApplicationInsightsUrl(url));
+            }
+        }
+
+        [TestMethod]
         public void IsApplicationInsightsUrlReturnsTrueForTelemetryChannelEndpointAddress()
         {
             using (TelemetryConfiguration configuration = this.CreateStubTelemetryConfiguration())
