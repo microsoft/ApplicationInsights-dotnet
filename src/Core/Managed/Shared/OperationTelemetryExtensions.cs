@@ -35,7 +35,7 @@
             if (telemetry.BeginTimeInTicks != 0L)
             {
                 long stopWatchTicksDiff = Stopwatch.GetTimestamp() - telemetry.BeginTimeInTicks;
-                double durationInMillisecs = (stopWatchTicksDiff * 1000 / (double) Stopwatch.Frequency);
+                double durationInMillisecs = stopWatchTicksDiff * 1000 / (double)Stopwatch.Frequency;
                 telemetry.Duration = TimeSpan.FromMilliseconds(durationInMillisecs);
             }
             else
@@ -43,7 +43,7 @@
                 telemetry.Duration = TimeSpan.Zero;
             }
 
-            if(telemetry.Timestamp == DateTimeOffset.MinValue)
+            if (telemetry.Timestamp == DateTimeOffset.MinValue)
             {
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }            
