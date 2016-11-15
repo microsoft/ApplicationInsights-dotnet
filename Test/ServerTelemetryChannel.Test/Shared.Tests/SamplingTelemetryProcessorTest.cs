@@ -95,7 +95,8 @@
         {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new ExceptionTelemetry(new Exception("exception"))));
         }
-        
+
+#pragma warning disable CS0618
         [TestMethod]
         public void MetricTelemetryIsNotSubjectToSampling()
         {
@@ -105,7 +106,18 @@
                 return 1;
             });
         }
-        
+#pragma warning restore CS0618
+
+        [TestMethod]
+        public void AggregatedMetricTelemetryIsNotSubjectToSampling()
+        {
+            TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
+            {
+                telemetryProcessors.Process(new AggregatedMetricTelemetry() { Count = 1, Sum = 1.0 } );
+                return 1;
+            });
+        }
+
         [TestMethod]
         public void PageViewTelemetryIsSubjectToSampling()
         {
