@@ -77,6 +77,7 @@ namespace TestApp45
             perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"Will not parse", "Custom counter - will not parse"));
 
             perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"\Does\NotExist", "Custom counter - does not exist"));
+            perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\IDontExist", "Custom counter with placeholder - does not exist"));
 
             perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\Handle Count", "Custom counter one"));
 
