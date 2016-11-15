@@ -104,6 +104,7 @@
                     // The properties and layout should be the same as RequestData_types.cs
                     dummyRequestData.ver,
                     dummyRequestData.id,
+                    dummyRequestData.source,
                     dummyRequestData.name,
                     dummyRequestData.duration,
                     dummyRequestData.responseCode,
@@ -129,6 +130,7 @@
                         {
                             data.ver,
                             data.id,
+                            data.source,
                             data.name,
                             data.duration,
                             data.responseCode,

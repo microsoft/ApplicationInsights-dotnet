@@ -140,9 +140,9 @@
 
         [Event(
             11,
-            Message = "Invalid duration for Request Telemetry. Setting it to '00:00:00'.",
+            Message = "Invalid duration for Telemetry. Setting it to '00:00:00'.",
             Level = EventLevel.Warning)]
-        public void RequestTelemetryIncorrectDuration(string appDomainName = "Incorrect")
+        public void TelemetryIncorrectDuration(string appDomainName = "Incorrect")
         {
             this.WriteEvent(11, this.nameProvider.Name);
         }
@@ -313,22 +313,22 @@
         }
 
         [Event(
-            25,
-            Message = "Failed to flush aggregated metrics. Exception: {0}.",
-            Level = EventLevel.Error)]
-        public void FailedToFlushMetricAggregators(string ex, string appDomainName = "Incorrect")
+           25,
+           Message = "Exception happened during getting the machine name: '{0}'.",
+           Level = EventLevel.Error)]
+        public void FailedToGetMachineName(string error, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 25,
-                ex ?? string.Empty,
+                error ?? string.Empty,
                 this.nameProvider.Name);
         }
 
         [Event(
             26,
-            Message = "Failed to snapshot aggregated metrics. Exception: {0}.",
+            Message = "Failed to flush aggregated metrics. Exception: {0}.",
             Level = EventLevel.Error)]
-        public void FailedToSnapshotMetricAggregators(string ex, string appDomainName = "Incorrect")
+        public void FailedToFlushMetricAggregators(string ex, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
                 26,
@@ -338,12 +338,24 @@
 
         [Event(
             27,
+            Message = "Failed to snapshot aggregated metrics. Exception: {0}.",
+            Level = EventLevel.Error)]
+        public void FailedToSnapshotMetricAggregators(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                27,
+                ex ?? string.Empty,
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            28,
             Message = "Failed to invoke metric processor '{0}'. If the issue persists, remove the processor. Exception: {1}.",
             Level = EventLevel.Error)]
         public void FailedToRunMetricProcessor(string processorName, string ex, string appDomainName = "Incorrect")
         {
             this.WriteEvent(
-                27,
+                28,
                 processorName ?? string.Empty,
                 ex ?? string.Empty,
                 this.nameProvider.Name);

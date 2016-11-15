@@ -67,7 +67,7 @@
             if (!TimeSpanEx.TryParse(value, CultureInfo.InvariantCulture, out interval))
 #endif
             {
-                CoreEventSource.Log.RequestTelemetryIncorrectDuration();
+                CoreEventSource.Log.TelemetryIncorrectDuration();
                 return TimeSpan.Zero;
             }
 

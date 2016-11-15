@@ -71,7 +71,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Add(new object()));
+                    anotherThread = Task.Run(() => target.Add(new object()));
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -112,7 +112,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Clear());
+                    anotherThread = Task.Run(() => target.Clear());
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -263,7 +263,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = TaskEx.Run(() => target.Remove(null));
+                    anotherThread = Task.Run(() => target.Remove(null));
                     Assert.False(anotherThread.Wait(20));
                 }
 

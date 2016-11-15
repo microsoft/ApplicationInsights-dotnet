@@ -17,7 +17,7 @@
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
         {
-            var startTime = Clock.Instance.Time;
+            var startTime = DateTimeOffset.UtcNow;
             telemetry.Timestamp = startTime;
         }
 
@@ -29,11 +29,11 @@
         {
             if (telemetry.Timestamp != DateTimeOffset.MinValue)
             {
-                telemetry.Duration = Clock.Instance.Time - telemetry.Timestamp;
+                telemetry.Duration = DateTimeOffset.UtcNow - telemetry.Timestamp;
             }
             else
             {
-                telemetry.Timestamp = Clock.Instance.Time;
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
                 telemetry.Duration = TimeSpan.Zero;
             }
         }

@@ -121,7 +121,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 try
                 {
                     // send request
-                    this.Send(telemetryItems, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
+                    this.Send(telemetryItems, timeout).Wait();
                 }
                 catch (Exception e)
                 {
@@ -133,18 +133,22 @@ namespace Microsoft.ApplicationInsights.Channel
         /// <summary>
         /// Serializes a list of telemetry items and sends them.
         /// </summary>
-        private async Task Send(IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout)
+        private Task Send(IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout)
         {
             if (telemetryItems == null || !telemetryItems.Any())
             {
                 CoreEventSource.Log.LogVerbose("No Telemetry Items passed to Enqueue");
-                return;
+#if NET40
+                return TaskEx.FromResult<object>(null);
+#else
+                return Task.FromResult<object>(null);
+#endif
             }
 
             byte[] data = JsonSerializer.Serialize(telemetryItems);
-            var transmission = new Transmission(this.endpointAddress, data, "application/x-json-stream", JsonSerializer.CompressionType, timeout);
+            var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
-            await transmission.SendAsync().ConfigureAwait(false);
+            return transmission.SendAsync();
         }
 
         private void Dispose(bool disposing)

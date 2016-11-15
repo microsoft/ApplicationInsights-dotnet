@@ -191,6 +191,15 @@
         }
 
         /// <summary>
+        /// Gets or sets the source for the request telemetry object. This often is a hashed instrumentation key identifying the caller.
+        /// </summary>
+        public string Source
+        {
+            get { return this.Data.source; }
+            set { this.Data.source = value; }
+        }
+
+        /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()
@@ -225,6 +234,8 @@
                     this.Success = true;
                 }
             }
+
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }

@@ -181,6 +181,8 @@
             {
                 this.StandardDeviation = Utils.SanitizeNanAndInfinity(this.StandardDeviation.Value);
             }
+
+            this.Context.SanitizeTelemetryContext();
         }
 
         private void UpdateKind() 

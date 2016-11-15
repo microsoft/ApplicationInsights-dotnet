@@ -369,11 +369,18 @@
                     return;
                 }
 
+                // If someone created configuration from scratch and forgot to initialize channel - use default
+                if (this.configuration.TelemetryChannel == null)
+                {
+                    this.configuration.TelemetryChannel = new InMemoryChannel();
+                }
+
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if !CORE_PCL
                 // logs rich payload ETW event for any partners to process it
+                telemetry.Sanitize();
                 RichPayloadEventSource.Log.Process(telemetry);
 #endif
             }
@@ -431,7 +438,7 @@
 
             if (telemetry.Timestamp == default(DateTimeOffset))
             {
-                telemetry.Timestamp = Clock.Instance.Time;
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
             // Currenly backend requires SDK version to comply "name: version"
@@ -439,6 +446,18 @@
             {
                 var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetSdkVersion);
                 telemetry.Context.Internal.SdkVersion = version;
+            }
+
+            // set NodeName to the machine name if it's not initialized yet, if RoleInstance is also not set then we send only RoleInstance
+            if (string.IsNullOrEmpty(telemetry.Context.Internal.NodeName) && !string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+            {
+                telemetry.Context.Internal.NodeName = PlatformSingleton.Current.GetMachineName();
+            }
+
+            // set RoleInstance to the machine name if it's not initialized yet
+            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
+            {
+                telemetry.Context.Cloud.RoleInstance = PlatformSingleton.Current.GetMachineName();
             }
         }
 

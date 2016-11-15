@@ -33,7 +33,7 @@ struct ContextTagKeys
     [MaxStringLength("64")]
     160: string 	 DeviceType = "ai.device.type";
     
-    [Description("The IPv4 IP address of the client device. IPv6 is not currently supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
+    [Description("The IP address of the client device. IPv4 and IPv6 is supported. Information in the location context fields is always about the end user. When telemetry is sent from a service, the location context is about the user that initiated the operation in the service.")]
     [MaxStringLength("45")]
     200: string 	 LocationIp = "ai.location.ip";
     
@@ -97,5 +97,9 @@ struct ContextTagKeys
     [Description("Agent version. Used to indicate the version of StatusMonitor installed on the computer if it is used for data collection.")]
     [MaxStringLength("64")]
     1001: string 	 InternalAgentVersion = "ai.internal.agentVersion";
+    
+    [Description("This is the node name used for billing purposes. Use it to override the standard detection of nodes.")]
+    [MaxStringLength("256")]
+    1002: string 	 InternalNodeName = "ai.internal.nodeName";
     
 }

@@ -89,6 +89,52 @@
             Assert.True(telemetry.Timestamp != default(DateTimeOffset));
         }
 
+        [TestMethod]
+        public void InitializeSetsRoleInstance()
+        {
+            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
+
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+            new TelemetryClient().Initialize(telemetry);
+
+            Assert.Equal("TestMachine", telemetry.Context.Cloud.RoleInstance);
+            Assert.Null(telemetry.Context.Internal.NodeName);
+
+            PlatformSingleton.Current = null;
+        }
+
+        [TestMethod]
+        public void InitializeDoesNotOverrideRoleInstance()
+        {
+            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
+
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+            telemetry.Context.Cloud.RoleInstance = "MyMachineImplementation";
+
+            new TelemetryClient().Initialize(telemetry);
+
+            Assert.Equal("MyMachineImplementation", telemetry.Context.Cloud.RoleInstance);
+            Assert.Equal("TestMachine", telemetry.Context.Internal.NodeName);
+
+            PlatformSingleton.Current = null;
+        }
+
+        [TestMethod]
+        public void InitializeDoesNotOverrideNodeName()
+        {
+            PlatformSingleton.Current = new StubPlatform { OnGetMachineName = () => "TestMachine" };
+
+            EventTelemetry telemetry = new EventTelemetry("TestEvent");
+            telemetry.Context.Internal.NodeName = "MyMachineImplementation";
+
+            new TelemetryClient().Initialize(telemetry);
+
+            Assert.Equal("TestMachine", telemetry.Context.Cloud.RoleInstance);
+            Assert.Equal("MyMachineImplementation", telemetry.Context.Internal.NodeName);
+
+            PlatformSingleton.Current = null;
+        }
+
         #endregion
 
         #region TrackAggregatedMetric
@@ -466,8 +512,26 @@
         }
 
         [TestMethod]
+        public void ChannelIsInitializedInTrackWhenTelemetryConfigurationIsConstructedViaCtor()
+        {
+            TelemetryConfiguration configuration = new TelemetryConfiguration
+            {
+                InstrumentationKey = Guid.NewGuid().ToString()
+            };
+
+            var client = new TelemetryClient(configuration);
+            Assert.Null(configuration.TelemetryChannel);
+
+            client.Track(new StubTelemetry());
+
+            Assert.NotNull(configuration.TelemetryChannel);
+        }
+
+        [TestMethod]
         public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
         {
+            PlatformSingleton.Current = new StubPlatform();
+
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
@@ -482,11 +546,15 @@
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+
+            PlatformSingleton.Current = null;
         }
 
         [TestMethod]
         public void TrackUsesInstrumentationKeyFromEnvironmentIfEmptyInCode()
         {
+            PlatformSingleton.Current = new StubPlatform();
+
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
@@ -500,11 +568,15 @@
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+
+            PlatformSingleton.Current = null;
         }
 
         [TestMethod]
         public void TrackUsesInstrumentationKeyFromConfigIfEnvironmentVariableIsEmpty()
         {
+            PlatformSingleton.Current = new StubPlatform();
+
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
@@ -516,6 +588,8 @@
             Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
 
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+
+            PlatformSingleton.Current = null;
         }
 
         [TestMethod]
@@ -837,16 +911,6 @@
         }
 
         [TestMethod]
-        public void TrackWhenChannelIsNullWillThrowInvalidOperationException()
-        {
-            var config = new TelemetryConfiguration();
-            config.InstrumentationKey = "Foo";
-            var client = new TelemetryClient(config);
-
-            Assert.Throws<InvalidOperationException>(() => client.TrackTrace("test trace"));
-        }
-
-        [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {
             // split version by 4 numbers manually so we do not do the same as in the product code and actually test it
@@ -974,6 +1038,17 @@
             }
 
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [TestMethod]
+        public void SerailizeRemovesEmptyPropertiesAndProducesValidJson()
+        {
+            var telemetryIn = new ExceptionTelemetry(new ApplicationException());
+            telemetryIn.Properties.Add("MyKey", null);
+
+            string json = JsonSerializer.SerializeAsString(telemetryIn);
+            ExceptionTelemetry telemetryOut = Newtonsoft.Json.JsonConvert.DeserializeObject<ExceptionTelemetry>(json);
+            Assert.Equal(0, telemetryOut.Properties.Count);
         }
 
         #endregion

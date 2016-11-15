@@ -2,6 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.2.0-beta4
+- Payload sanitization for RichPayloadEventSource.
+- Fix to fallback to an environment variable for instrumentation key when not specified when initializing TelemetryConfiguration.
+- RoleInstance and NodeName are initialized with the machine name by default.
+
 ## Version 2.2.0-beta3
 
 - Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline. If provided it overrides what is set though configuration file. (Feature is not available in PCL version of SDK).
@@ -11,6 +16,12 @@ This changelog will be used to generate documentation on [release notes page](ht
 - Type `PerformanceCounterTelemetry` was marked obsolete. Use `MetricTelemetry` instead.
 - Marked `RequestTelemetry.HttpMethod` as obsolete. Put http verb as part of the name for the better grouping by name and use custom properties to report http verb as a dimension.
 - Marked `RequestTelemetry.StartTime` as obsolete. Use `TimeStamp` instead.
+- [Removed BCL dependency](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/175)
+- [Added IPv6 support](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/316)
+- [Fixed an issue where channels sent expired data from storage](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/278)
+- [Fixed an issue where the clock implementation would accumulate error](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/271)
+- [Fixed an issue where telemetry with emptry properties would be dropped](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/319)
+- [Added support for SDK-side throttling](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/318)
 
 ## Version 2.2.0-beta2
 
@@ -86,7 +97,7 @@ item is being filtered out.
 - Fix UI thread locking when initializing InMemoryChannel (default channel) from UI thread.
 - Added support for ```ITelemetryProcessor``` and ability to construct chain of TelemetryProcessors via code or config.
 - Version of ```Microsoft.ApplicationInsights.dll``` for the framework 4.6 is now part of the package.
-- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguraiton object.
+- IContextInitializer interface is not supported any longer. ContextInitializers collection was removed from TelemetryConfiguration object.
 - The max length limit for the ```Name``` property of ```EventTelemetry``` was set to 512.
 - Property ```Name``` of ```OperationContext``` was renamed to ```RootName```
 - Property ```Id``` of ```RequestTelemetry``` was removed.

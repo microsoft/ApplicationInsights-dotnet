@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-    using System.Net;
     using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
@@ -29,42 +29,38 @@
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs e)
         {
-            var webException = e.Exception as WebException;
-            if (webException != null)
+            HttpWebResponseWrapper httpWebResponse = e.Response;
+            if (httpWebResponse != null)
             {
-                HttpWebResponse httpWebResponse = webException.Response as HttpWebResponse;
-                if (httpWebResponse != null)
+                if (httpWebResponse.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequests ||
+                    httpWebResponse.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                 {
-                    if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequests ||
-                        httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
+                    this.MaxSenderCapacity = 0;
+                    if (httpWebResponse.StatusCode == ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
                     {
-                        this.MaxSenderCapacity = 0;
-                        if (httpWebResponse.StatusCode == (HttpStatusCode)ResponseStatusCodes.ResponseCodeTooManyRequestsOverExtendedTime)
-                        {
-                            // We start loosing data!
-                            this.MaxBufferCapacity = 0;
-                            this.MaxStorageCapacity = 0;
-                        }
-                        else
-                        {
-                            this.MaxBufferCapacity = null;
-                            this.MaxStorageCapacity = null;
-                        }
-
-                        this.LogCapacityChanged();
-                        this.Apply();
-
-                        this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponse.StatusCode);
-                        this.Transmitter.Enqueue(e.Transmission);
-
-                        this.backoffLogicManager.ScheduleRestore(
-                            httpWebResponse.Headers, 
-                            () =>
-                                {
-                                    this.ResetPolicy();
-                                    return TaskEx.FromResult<object>(null);
-                                });
+                        // We start losing data!
+                        this.MaxBufferCapacity = 0;
+                        this.MaxStorageCapacity = 0;
                     }
+                    else
+                    {
+                        this.MaxBufferCapacity = null;
+                        this.MaxStorageCapacity = null;
+                    }
+
+                    this.LogCapacityChanged();
+                    this.Apply();
+
+                    this.backoffLogicManager.ReportBackoffEnabled((int)httpWebResponse.StatusCode);
+                    this.Transmitter.Enqueue(e.Transmission);
+
+                    this.backoffLogicManager.ScheduleRestore(
+                        httpWebResponse.RetryAfterHeader, 
+                        () =>
+                            {
+                                this.ResetPolicy();
+                                return TaskEx.FromResult<object>(null);
+                            });
                 }
             }
         }
