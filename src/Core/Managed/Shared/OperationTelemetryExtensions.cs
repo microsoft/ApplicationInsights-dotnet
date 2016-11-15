@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
@@ -16,9 +17,13 @@
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
-        {
-            var startTime = DateTimeOffset.UtcNow;
-            telemetry.Timestamp = startTime;
+        {            
+            telemetry.Timestamp = DateTimeOffset.UtcNow;
+
+            // Begin time is used internally for calculating duration of operation at the end call,
+            // and hence is stored using higher precision Clock.
+            // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
+            telemetry.BeginTimeInTicks = Stopwatch.GetTimestamp();
         }
 
         /// <summary>
@@ -27,15 +32,21 @@
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Stop(this OperationTelemetry telemetry)
         {
-            if (telemetry.Timestamp != DateTimeOffset.MinValue)
+            if (telemetry.BeginTimeInTicks != 0L)
             {
-                telemetry.Duration = DateTimeOffset.UtcNow - telemetry.Timestamp;
+                long stopWatchTicksDiff = Stopwatch.GetTimestamp() - telemetry.BeginTimeInTicks;
+                double durationInMillisecs = (stopWatchTicksDiff * 1000 / (double) Stopwatch.Frequency);
+                telemetry.Duration = TimeSpan.FromMilliseconds(durationInMillisecs);
             }
             else
-            {
-                telemetry.Timestamp = DateTimeOffset.UtcNow;
+            {                
                 telemetry.Duration = TimeSpan.Zero;
             }
+
+            if(telemetry.Timestamp == DateTimeOffset.MinValue)
+            {
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
+            }            
         }
 
         /// <summary>

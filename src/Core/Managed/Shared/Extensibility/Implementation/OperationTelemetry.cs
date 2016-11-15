@@ -32,6 +32,12 @@
         /// </summary>  
         public abstract string Id { get; set; }
 
+        /// <summary>  
+        /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
+        /// for calculating duration between begin and end.
+        /// </summary>  
+        internal long BeginTimeInTicks { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the operation.
         /// </summary>
