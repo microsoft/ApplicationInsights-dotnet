@@ -30,13 +30,7 @@
         /// <summary>  
         /// Gets or sets Operation ID.
         /// </summary>  
-        public abstract string Id { get; set; }
-
-        /// <summary>  
-        /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
-        /// for calculating duration between begin and end.
-        /// </summary>  
-        internal long BeginTimeInTicks { get; set; }
+        public abstract string Id { get; set; }        
 
         /// <summary>
         /// Gets or sets the name of the operation.
@@ -72,6 +66,12 @@
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
         public abstract string Sequence { get; set; }
+
+        /// <summary>  
+        /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
+        /// for calculating duration between begin and end.
+        /// </summary>  
+        internal long BeginTimeInTicks { get; set; }
 
         /// <summary>
         /// Sanitizes the properties based on constraints.
