@@ -133,8 +133,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: true,
                 expectedResultCode: "0",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
-            
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);            
         }
 
         [TestMethod]
