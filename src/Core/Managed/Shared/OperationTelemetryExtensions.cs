@@ -32,17 +32,21 @@
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Stop(this OperationTelemetry telemetry)
         {
-            if (telemetry.Timestamp != DateTimeOffset.MinValue)
+            if (telemetry.BeginTimeInTicks != 0L)
             {
                 long stopWatchTicksDiff = Stopwatch.GetTimestamp() - telemetry.BeginTimeInTicks;
-                double durationInMillisecs = (stopWatchTicksDiff / (double) Stopwatch.Frequency) * 1000;
+                double durationInMillisecs = (stopWatchTicksDiff * 1000 / (double) Stopwatch.Frequency);
                 telemetry.Duration = TimeSpan.FromMilliseconds(durationInMillisecs);
             }
             else
-            {
-                telemetry.Timestamp = DateTimeOffset.UtcNow;
+            {                
                 telemetry.Duration = TimeSpan.Zero;
             }
+
+            if(telemetry.Timestamp == DateTimeOffset.MinValue)
+            {
+                telemetry.Timestamp = DateTimeOffset.UtcNow;
+            }            
         }
 
         /// <summary>
