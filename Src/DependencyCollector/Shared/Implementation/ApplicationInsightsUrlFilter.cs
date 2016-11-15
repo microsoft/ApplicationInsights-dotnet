@@ -69,9 +69,9 @@
             {
                 // Check if url matches default values for service endpoint/quick pulse.
                 result = url.StartsWith(ApplicationInsightsUrlFilter.TelemetryServiceEndpoint, StringComparison.OrdinalIgnoreCase)
-                    || url.StartsWith(ApplicationInsightsUrlFilter.QuickPulseServiceEndpoint, StringComparison.OrdinalIgnoreCase) ;
+                    || url.StartsWith(ApplicationInsightsUrlFilter.QuickPulseServiceEndpoint, StringComparison.OrdinalIgnoreCase);
 
-                if(!result)
+                if (!result)
                 {
                     // Check if the url is a user-configured service endpoint.
                     var endpointUrl = this.EndpointLeftPart;
@@ -79,7 +79,8 @@
                     {
                         result = url.StartsWith(endpointUrl, StringComparison.OrdinalIgnoreCase);
                     }
-                }                
+                }   
+                             
                 return result;
             }
             else
