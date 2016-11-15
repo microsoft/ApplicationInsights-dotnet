@@ -145,6 +145,7 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }

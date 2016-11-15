@@ -99,6 +99,7 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }

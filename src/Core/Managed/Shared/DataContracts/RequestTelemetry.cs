@@ -234,6 +234,8 @@
                     this.Success = true;
                 }
             }
+
+            this.Context.SanitizeTelemetryContext();
         }
     }
 }

@@ -64,7 +64,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ExceptionConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ContextTagKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Tags.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\InternalContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\IRandomNumberBatchGenerator.cs" />
