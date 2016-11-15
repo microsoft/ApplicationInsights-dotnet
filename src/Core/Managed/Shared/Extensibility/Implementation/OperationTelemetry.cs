@@ -33,10 +33,10 @@
         public abstract string Id { get; set; }
 
         /// <summary>  
-        /// Gets or sets TimeSpan representing begin time of the operation. Used internally
-        /// for calculating duration.
+        /// Gets or sets Time in StopWatch ticks representing begin time of the operation. Used internally
+        /// for calculating duration between begin and end.
         /// </summary>  
-        public TimeSpan BeginTime { get; set; }
+        internal long BeginTimeInTicks { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the operation.

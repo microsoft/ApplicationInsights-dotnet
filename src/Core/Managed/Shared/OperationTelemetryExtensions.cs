@@ -2,8 +2,9 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;    
 
     /// <summary>
     /// Extension functions to operation telemetry that start and stop the timer.
@@ -21,7 +22,8 @@
 
             // Begin time is used internally for calculating duration of operation at the end call,
             // and hence is stored using higher precision Clock.
-            telemetry.BeginTime = Clock.Instance.Time;
+            // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
+            telemetry.BeginTimeInTicks = Stopwatch.GetTimestamp();
         }
 
         /// <summary>
@@ -32,7 +34,9 @@
         {
             if (telemetry.Timestamp != DateTimeOffset.MinValue)
             {
-                telemetry.Duration = Clock.Instance.Time - telemetry.BeginTime;
+                long stopWatchTicksDiff = Stopwatch.GetTimestamp() - telemetry.BeginTimeInTicks;
+                double durationInMillisecs = (stopWatchTicksDiff / (double) Stopwatch.Frequency) * 1000;
+                telemetry.Duration = TimeSpan.FromMilliseconds(durationInMillisecs);
             }
             else
             {
