@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.AspNetCore.Mvc.Rendering
 {
-    using AspNetCore.Mvc.Rendering;
     using Html;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -13,7 +12,7 @@
         /// <param name="helper">Html helper object to align with razor code style.</param>
         /// <param name="configuration">Telemetry configuraiton to initialize snippet.</param>
         /// <returns>JavaScript snippt to insert into html page.</returns>
-        public static HtmlString ApplicationInsightsJavaScript(this IHtmlHelper helper, TelemetryConfiguration configuration)
+        public static HtmlString ApplicationInsightsJavaScript(TelemetryConfiguration configuration)
         {
             JavaScriptSnippet snippet = new JavaScriptSnippet(configuration);
             return new HtmlString(snippet.FullScript);

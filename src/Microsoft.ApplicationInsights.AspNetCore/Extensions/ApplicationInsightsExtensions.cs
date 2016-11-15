@@ -1,19 +1,18 @@
-﻿namespace Microsoft.Extensions.DependencyInjection
+﻿using Microsoft.AspNetCore.Hosting;
+
+namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
     using AspNetCore.Http;
-    using AspNetCore.Mvc.Infrastructure;
 
 #if NET451
     using ApplicationInsights.DependencyCollector;
@@ -31,23 +30,13 @@
         private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
-
-        public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
-        {
-            return app.UseMiddleware<RequestTrackingMiddleware>();
-        }
-
-        public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
-        {
-            return app.UseMiddleware<ExceptionTrackingMiddleware>();
-        }
-
+        
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
             var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            //services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
@@ -81,12 +70,13 @@
 
             services.AddSingleton<TelemetryClient>();
 
-            services.AddScoped<RequestTelemetry>((svcs) => {
-                // Default constructor need to be used
-                var rt = new RequestTelemetry();
-                return rt;
-            });
-            
+            // Default constructor need to be used
+            services.AddScoped<RequestTelemetry>(serviceProvider => new RequestTelemetry());
+
+            services.AddSingleton<ApplicationInsightInitializer, ApplicationInsightInitializer>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingListener>();
+            services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
+
             return services;
         }
 
@@ -97,15 +87,15 @@
             string instrumentationKey = null)
         {
             var telemetryConfigValues = new List<KeyValuePair<string, string>>();
-            
+
             bool wasAnythingSet = false;
 
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites, developerMode.Value.ToString()));
                 wasAnythingSet = true;
-            } 
-  
+            }
+
             if (instrumentationKey != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites, instrumentationKey));
@@ -199,7 +189,6 @@
             }
         }
 
-
         private static void AddTelemetryChannelAndProcessorsForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, ApplicationInsightsServiceOptions serviceOptions)
         {
 #if NET451
@@ -208,7 +197,7 @@
 
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
-                // Enabling Quick Pulse Metric Stream 
+                // Enabling Quick Pulse Metric Stream
                 if (serviceOptions.EnableQuickPulseMetricStream)
                 {
                     var quickPulseModule = new QuickPulseTelemetryModule();

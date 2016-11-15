@@ -1,4 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+﻿using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
@@ -16,10 +18,9 @@
         [Fact]
         public async Task InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
-            RequestDelegate nextMiddleware = httpContext => { throw new Exception(); };
-            var middleware = new ExceptionTrackingMiddleware(nextMiddleware, CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            var middleware = new AspNetCoreHostingListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
-            await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
+            middleware.OnHostingException(null, null);
 
             Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)sentTelemetry).HandledAt);
         }
@@ -27,10 +28,9 @@
         [Fact]
         public async Task SdkVersionIsPopulatedByMiddleware()
         {
-            RequestDelegate nextMiddleware = httpContext => { throw new Exception(); };
-            var middleware = new ExceptionTrackingMiddleware(nextMiddleware, CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            var middleware = new AspNetCoreHostingListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
-            await Assert.ThrowsAnyAsync<Exception>(() => middleware.Invoke(null));
+            middleware.OnHostingException(null, null);
 
             Assert.NotEmpty(sentTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, sentTelemetry.Context.GetInternalContext().SdkVersion);

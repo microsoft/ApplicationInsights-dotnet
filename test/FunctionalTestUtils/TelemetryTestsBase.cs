@@ -1,4 +1,6 @@
-﻿namespace FunctionalTestUtils
+﻿using System.Threading.Tasks;
+
+namespace FunctionalTestUtils
 {
     using System;
     using System.Diagnostics;
@@ -27,14 +29,18 @@
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
+            Task<HttpResponseMessage> task;
+            using (var httpClient = new HttpClient(httpClientHandler, true))
+            {
+                task = httpClient.GetAsync(server.BaseHost + requestPath);
+                task.Wait(TestTimeoutMs);
+            }
             var result = task.Result;
 
+            timer.Stop();
+            server.Dispose();
             var actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
 
-            timer.Stop();
             Assert.Equal(expected.ResponseCode, actual.ResponseCode);
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Success, actual.Success);
@@ -50,9 +56,13 @@
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
+            Task<HttpResponseMessage> task;
+            using (var httpClient = new HttpClient(httpClientHandler, true))
+            {
+                task = httpClient.GetAsync(server.BaseHost + requestPath);
+                task.Wait(TestTimeoutMs);
+            }
+            Thread.Sleep(1000);
             var result = task.Result;
 
             var actual = server.BackChannel.Buffer.OfType<ExceptionTelemetry>().Single();
@@ -67,27 +77,32 @@
 #if NET451
         public void ValidateBasicDependency(string assemblyName, string requestPath)
         {
-            using (InProcessServer server = new InProcessServer(assemblyName))
+            DependencyTelemetry expected = new DependencyTelemetry();
+            expected.ResultCode = "200";
+            expected.Success = true;
+
+            InProcessServer server;
+            using (server = new InProcessServer(assemblyName))
             {
-                DependencyTelemetry expected = new DependencyTelemetry();
                 expected.Name = server.BaseHost + requestPath;
-                expected.ResultCode = "200";
-                expected.Success = true;
 
                 DateTimeOffset testStart = DateTimeOffset.Now;
                 var timer = Stopwatch.StartNew();
-                var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + requestPath);
-                task.Wait(TestTimeoutMs);
+                Task<HttpResponseMessage> task;
+                using (var httpClient = new HttpClient())
+                {
+                    task = httpClient.GetAsync(server.BaseHost + requestPath);
+                    task.Wait(TestTimeoutMs);
+                }
                 var result = task.Result;
-
-                var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
                 timer.Stop();
-
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Success, actual.Success);
-                Assert.Equal(expected.ResultCode, actual.ResultCode);
             }
+            var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
+
+
+            Assert.Equal(expected.Name, actual.Name);
+            Assert.Equal(expected.Success, actual.Success);
+            Assert.Equal(expected.ResultCode, actual.ResultCode);
         }
 
         public void ValidatePerformanceCountersAreCollected(string assemblyName)

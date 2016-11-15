@@ -49,7 +49,7 @@
         [DiagnosticName(BeforeActionNotificationName)]
         public void OnBeforeAction(ActionDescriptor actionDescriptor, HttpContext httpContext, RouteData routeData)
         {
-            var telemetry = httpContext.RequestServices.GetService<RequestTelemetry>();
+            var telemetry = httpContext.Features.Get<RequestTelemetry>();
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
                 string name = this.GetNameFromRouteContext(routeData);

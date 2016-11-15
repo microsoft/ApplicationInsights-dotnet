@@ -11,7 +11,7 @@
     public class InProcessServer : IDisposable
     {
         private static Random random = new Random();
-        
+
         private IWebHost hostingEngine;
         private string url;
 
@@ -24,7 +24,7 @@
                 return this.backChannel;
             }
         }
-        
+
         public InProcessServer(string assemblyName)
         {
             this.url = "http://localhost:" + random.Next(5000, 14000).ToString();
@@ -64,7 +64,7 @@
                 this.hostingEngine.Dispose();
             }
         }
-        
+
         private WebHostBuilder CreateBuilder()
         {
             var config = new ConfigurationBuilder()

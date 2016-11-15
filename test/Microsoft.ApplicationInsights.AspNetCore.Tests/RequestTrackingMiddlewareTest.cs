@@ -1,84 +1,85 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
-{
-    using System;
-    using System.Globalization;
-    using System.Threading.Tasks;
-    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.AspNetCore.Http;
-    using Xunit;
+﻿//namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+//{
+//    using System;
+//    using System.Globalization;
+//    using System.Threading.Tasks;
+//    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
+//    using Microsoft.ApplicationInsights.Channel;
+//    using Microsoft.ApplicationInsights.DataContracts;
+//    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+//    using Microsoft.AspNetCore.Http;
+//    using Xunit;
 
-    public class RequestTrackingMiddlewareTest
-    {
-        private const string HttpRequestScheme = "http";
-        private readonly HostString httpRequestHost = new HostString("testHost");
-        private readonly PathString httpRequestPath = new PathString("/path/path");
-        private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
-        
-        private ITelemetry sentTelemetry;
+//    public class RequestTrackingMiddlewareTest
+//    {
+//        private const string HttpRequestScheme = "http";
+//        private readonly HostString httpRequestHost = new HostString("testHost");
+//        private readonly PathString httpRequestPath = new PathString("/path/path");
+//        private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
 
-        private readonly RequestDelegate nextMiddleware = async httpContext => {
-            httpContext.Response.StatusCode = 200;
-            await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
-        };
+//        private ITelemetry sentTelemetry;
 
-        private readonly RequestTrackingMiddleware middleware;
+//        private readonly RequestDelegate nextMiddleware = async httpContext =>
+//        {
+//            httpContext.Response.StatusCode = 200;
+//            await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
+//        };
 
-        public RequestTrackingMiddlewareTest()
-        {
-            this.middleware = new RequestTrackingMiddleware(
-                this.nextMiddleware,
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
-        }
+//        private readonly RequestTrackingMiddleware middleware;
 
-        [Fact]
-        public async Task TestSdkVersionIsPopulatedByMiddleware()
-        {
-            var context = new DefaultHttpContext();
-            context.Request.Scheme = HttpRequestScheme;
-            context.Request.Host = this.httpRequestHost;
+//        public RequestTrackingMiddlewareTest()
+//        {
+//            this.middleware = new RequestTrackingMiddleware(
+//                this.nextMiddleware,
+//                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+//        }
 
-            await middleware.Invoke(context, new RequestTelemetry());
+//        [Fact]
+//        public async Task TestSdkVersionIsPopulatedByMiddleware()
+//        {
+//            var context = new DefaultHttpContext();
+//            context.Request.Scheme = HttpRequestScheme;
+//            context.Request.Host = this.httpRequestHost;
 
-            Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
-            Assert.Contains(SdkVersionTestUtils.VersionPrefix, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
-        }
+//            await middleware.Invoke(context, new RequestTelemetry());
 
-        [Fact]
-        public async Task TestRequestUriIsPopulatedByMiddleware()
-        {
-            var context = new DefaultHttpContext();
-            context.Request.Scheme = HttpRequestScheme;
-            context.Request.Host = this.httpRequestHost;
-            context.Request.Path = this.httpRequestPath;
-            context.Request.QueryString = this.httpRequestQueryString;
+//            Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+//            Assert.Contains(SdkVersionTestUtils.VersionPrefix, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
+//        }
 
-            var telemetry = new RequestTelemetry();
-            await middleware.Invoke(context, telemetry);
+//        [Fact]
+//        public async Task TestRequestUriIsPopulatedByMiddleware()
+//        {
+//            var context = new DefaultHttpContext();
+//            context.Request.Scheme = HttpRequestScheme;
+//            context.Request.Host = this.httpRequestHost;
+//            context.Request.Path = this.httpRequestPath;
+//            context.Request.QueryString = this.httpRequestQueryString;
 
-            Assert.NotNull(telemetry.Url);
+//            var telemetry = new RequestTelemetry();
+//            await middleware.Invoke(context, telemetry);
 
-            Assert.Equal(
-                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
-                telemetry.Url);
-        }
+//            Assert.NotNull(telemetry.Url);
 
-        [Fact]
-        public async Task RequestWillBeMarkedAsFailedForRunawayException()
-        {
-            var context = new DefaultHttpContext();
-            context.Request.Scheme = HttpRequestScheme;
-            context.Request.Host = this.httpRequestHost;
+//            Assert.Equal(
+//                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)),
+//                telemetry.Url);
+//        }
 
-            var requestMiddleware = new RequestTrackingMiddleware(
-                httpContext => { throw new InvalidOperationException(); },
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+//        [Fact]
+//        public async Task RequestWillBeMarkedAsFailedForRunawayException()
+//        {
+//            var context = new DefaultHttpContext();
+//            context.Request.Scheme = HttpRequestScheme;
+//            context.Request.Host = this.httpRequestHost;
 
-            await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => { await requestMiddleware.Invoke(context, new RequestTelemetry()); } );
+//            var requestMiddleware = new RequestTrackingMiddleware(
+//                httpContext => { throw new InvalidOperationException(); },
+//                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
-            Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
-        }
-    }
-}
+//            await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => { await requestMiddleware.Invoke(context, new RequestTelemetry()); });
+
+//            Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
+//        }
+//    }
+//}

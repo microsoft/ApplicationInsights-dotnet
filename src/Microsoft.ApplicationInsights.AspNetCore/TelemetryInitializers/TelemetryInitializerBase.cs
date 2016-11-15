@@ -33,13 +33,7 @@
                 return;
             }
 
-            if (context.RequestServices == null)
-            {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
-                return;
-            }
-
-            var request = context.RequestServices.GetService<RequestTelemetry>();
+            var request = context.Features.Get<RequestTelemetry>();
 
             if (request == null)
             {

@@ -49,28 +49,29 @@
         [Fact]
         public void TestMixedTelemetryItemsReceived()
         {
-            using (var server = new InProcessServer(assemblyName))
+            InProcessServer server;
+            using (server = new InProcessServer(assemblyName))
             {
-                var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + "/Mixed");
-                task.Wait(TestTimeoutMs);
-
-                var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
-                var eventTelemetry = server.BackChannel.Buffer.OfType<EventTelemetry>().Single();
-                var metricTelemetry = server.BackChannel.Buffer.OfType<MetricTelemetry>().Single();
-                var traceTelemetry = server.BackChannel.Buffer.OfType<TraceTelemetry>().Single();
-
+                using (var httpClient = new HttpClient())
+                {
+                    var task = httpClient.GetAsync(server.BaseHost + "/Mixed");
+                    task.Wait(TestTimeoutMs);
+                }
+            }
+            var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
+            var eventTelemetry = server.BackChannel.Buffer.OfType<EventTelemetry>().Single();
+            var metricTelemetry = server.BackChannel.Buffer.OfType<MetricTelemetry>().Single();
+            var traceTelemetry = server.BackChannel.Buffer.OfType<TraceTelemetry>().Single();
 #if NET451
-                var dependencyTelemetry = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
-                Assert.NotNull(dependencyTelemetry);               
+            var dependencyTelemetry = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
+            Assert.NotNull(dependencyTelemetry);
 #endif
 
-                Assert.True(server.BackChannel.Buffer.Count >= 4);
-                Assert.NotNull(request);
-                Assert.NotNull(eventTelemetry);
-                Assert.NotNull(metricTelemetry);
-                Assert.NotNull(traceTelemetry);
-            } 
+            Assert.True(server.BackChannel.Buffer.Count >= 4);
+            Assert.NotNull(request);
+            Assert.NotNull(eventTelemetry);
+            Assert.NotNull(metricTelemetry);
+            Assert.NotNull(traceTelemetry);
         }
     }
 }

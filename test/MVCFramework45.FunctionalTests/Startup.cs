@@ -64,7 +64,6 @@ namespace MVCFramework45.FunctionalTests
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -87,7 +86,6 @@ namespace MVCFramework45.FunctionalTests
                 catch { }
             }
 
-            app.UseApplicationInsightsExceptionTelemetry();
             app.UseStaticFiles();
 
             app.UseIdentity();
