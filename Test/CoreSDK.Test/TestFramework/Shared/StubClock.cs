@@ -5,15 +5,15 @@
 
     internal class StubClock : IClock
     {
-        public DateTimeOffset Time { get; set; }
+        public TimeSpan Time { get; set; }
 
-        DateTimeOffset IClock.Time
+        TimeSpan IClock.Time
         {
             get 
             { 
-                if (this.Time == default(DateTimeOffset))
+                if (this.Time == default(TimeSpan))
                 {
-                    return DateTimeOffset.Now;
+                    return TimeSpan.Zero;
                 }
 
                 return this.Time; 

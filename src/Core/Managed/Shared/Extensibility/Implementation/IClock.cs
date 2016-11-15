@@ -4,6 +4,6 @@
 
     internal interface IClock
     {
-        DateTimeOffset Time { get; }
+        TimeSpan Time { get; }
     }
 }

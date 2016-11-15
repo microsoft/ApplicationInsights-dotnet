@@ -32,6 +32,12 @@
         /// </summary>  
         public abstract string Id { get; set; }
 
+        /// <summary>  
+        /// Gets or sets TimeSpan representing begin time of the operation. Used internally
+        /// for calculating duration.
+        /// </summary>  
+        public TimeSpan BeginTime { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the operation.
         /// </summary>

@@ -16,9 +16,12 @@
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
-        {
-            var startTime = DateTimeOffset.UtcNow;
-            telemetry.Timestamp = startTime;
+        {            
+            telemetry.Timestamp = DateTimeOffset.UtcNow;
+
+            // Begin time is used internally for calculating duration of operation at the end call,
+            // and hence is stored using higher precision Clock.
+            telemetry.BeginTime = Clock.Instance.Time;
         }
 
         /// <summary>
@@ -29,7 +32,7 @@
         {
             if (telemetry.Timestamp != DateTimeOffset.MinValue)
             {
-                telemetry.Duration = DateTimeOffset.UtcNow - telemetry.Timestamp;
+                telemetry.Duration = Clock.Instance.Time - telemetry.BeginTime;
             }
             else
             {

@@ -38,6 +38,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AvailabilityData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Base_types.cs" />
