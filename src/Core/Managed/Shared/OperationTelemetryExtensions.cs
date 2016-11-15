@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;    
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Extension functions to operation telemetry that start and stop the timer.
