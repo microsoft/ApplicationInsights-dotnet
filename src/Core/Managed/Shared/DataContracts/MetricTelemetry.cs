@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track metrics.
     /// </summary>
-    [Obsolete("This class is obsolete. Use AggregatedMetricTelemetry class to represent pre-aggregated metric data or MetricAggregatorManager class to setup data aggregators.")]
+    [Obsolete("This class is obsolete. Use AggregatedMetricTelemetry class to represent pre-aggregated metric data or MetricManager class create metrics.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties
     {
