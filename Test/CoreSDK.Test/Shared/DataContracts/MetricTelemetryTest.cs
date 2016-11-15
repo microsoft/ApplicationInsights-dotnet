@@ -7,7 +7,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+
+#pragma warning disable CS0618
 
     [TestClass]
     public class MetricTelemetryTest
@@ -36,6 +37,7 @@
         public void MetricTelemetrySuppliesConstructorThatTakesNameAndValueToSimplifyAdvancedScenarios()
         {
             var instance = new MetricTelemetry("Test Metric", 4.2);
+
             Assert.Equal("Test Metric", instance.Name);
             Assert.Equal(4.2, instance.Value);
         }
@@ -44,6 +46,7 @@
         public void MetricTelemetrySuppliesPropertiesForCustomerToSendAggregatedMetric()
         {
             var instance = new MetricTelemetry("Test Metric", 4.2);
+
             instance.Count = 5;
             instance.Min = 1.2;
             instance.Max = 6.4;
@@ -58,6 +61,7 @@
         public void MeasurementMetricTelemetrySerializesToJsonCorrectly()
         {
             var expected = new MetricTelemetry();
+
             expected.Name = "My Page";
             expected.Value = 42;
             expected.Properties.Add("Property1", "Value1");
@@ -84,6 +88,7 @@
         public void AggregateMetricTelemetrySerializesToJsonCorrectly()
         {
             var expected = new MetricTelemetry();
+
             expected.Name = "My Page";
             expected.Value = 42;
             expected.Count = 5;
@@ -202,3 +207,5 @@
         }
     }
 }
+
+#pragma warning restore CS0618

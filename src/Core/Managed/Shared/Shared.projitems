@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Channel\TelemetryBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\Transmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\AggregatedMetricTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\AvailabilityTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionHandledAt.cs" />
@@ -38,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IMetricProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AvailabilityData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Base_types.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SeverityLevel_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\StackFrame_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\HttpWebResponseWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryDebugWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
@@ -118,6 +121,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metric.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />

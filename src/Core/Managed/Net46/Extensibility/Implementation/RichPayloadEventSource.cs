@@ -106,6 +106,7 @@
                     telemetryItem.InternalData,
                     Keywords.Dependencies);
             }
+#pragma warning disable CS0618
             else if (item is MetricTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Metrics))
@@ -121,6 +122,7 @@
                     telemetryItem.Data,
                     Keywords.Metrics);
             }
+#pragma warning restore CS0618
             else if (item is ExceptionTelemetry)
             {
                 if (!this.EventSourceInternal.IsEnabled(EventLevel.Verbose, Keywords.Exceptions))

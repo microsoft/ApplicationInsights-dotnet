@@ -236,10 +236,17 @@
                 ExceptionTelemetry exceptionTelemetry = telemetryItem as ExceptionTelemetry;
                 SerializeExceptionTelemetry(exceptionTelemetry, jsonWriter);
             }
+#pragma warning disable CS0618
             else if (telemetryItem is MetricTelemetry)
             {
                 MetricTelemetry metricTelemetry = telemetryItem as MetricTelemetry;
+#pragma warning restore CS0618
                 SerializeMetricTelemetry(metricTelemetry, jsonWriter);
+            }
+            else if (telemetryItem is AggregatedMetricTelemetry)
+            {
+                AggregatedMetricTelemetry aggregatedMetricTelemetry = telemetryItem as AggregatedMetricTelemetry;
+                SerializeAggregatedMetricTelemetry(aggregatedMetricTelemetry, jsonWriter);
             }
             else if (telemetryItem is PageViewTelemetry)
             {
@@ -411,6 +418,49 @@
                     }
 
                     writer.WriteProperty("properties", metricTelemetry.Data.properties);
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private static void SerializeAggregatedMetricTelemetry(AggregatedMetricTelemetry aggregatedMetricTelemetry, JsonWriter writer)
+        {
+            writer.WriteStartObject();
+
+            aggregatedMetricTelemetry.WriteTelemetryName(writer, AggregatedMetricTelemetry.TelemetryName);
+            aggregatedMetricTelemetry.WriteEnvelopeProperties(writer);
+            writer.WritePropertyName("data");
+            {
+                writer.WriteStartObject();
+
+                // TODO: MetricTelemetry should write type as this.data.baseType once Common Schema 2.0 compliant.
+                writer.WriteProperty("baseType", aggregatedMetricTelemetry.BaseType);
+                writer.WritePropertyName("baseData");
+                {
+                    writer.WriteStartObject();
+
+                    writer.WriteProperty("ver", aggregatedMetricTelemetry.Data.ver);
+                    writer.WritePropertyName("metrics");
+                    {
+                        writer.WriteStartArray();
+                        writer.WriteStartObject();
+                        writer.WriteProperty("name", aggregatedMetricTelemetry.Metric.name);
+                        writer.WriteProperty("kind", aggregatedMetricTelemetry.Metric.kind.ToString());
+                        writer.WriteProperty("value", aggregatedMetricTelemetry.Metric.value);
+                        writer.WriteProperty("count", aggregatedMetricTelemetry.Metric.count);
+                        writer.WriteProperty("min", aggregatedMetricTelemetry.Metric.min);
+                        writer.WriteProperty("max", aggregatedMetricTelemetry.Metric.max);
+                        writer.WriteProperty("stdDev", aggregatedMetricTelemetry.Metric.stdDev);
+                        writer.WriteEndObject();
+                        writer.WriteEndArray();
+                    }
+
+                    writer.WriteProperty("properties", aggregatedMetricTelemetry.Data.properties);
 
                     writer.WriteEndObject();
                 }
