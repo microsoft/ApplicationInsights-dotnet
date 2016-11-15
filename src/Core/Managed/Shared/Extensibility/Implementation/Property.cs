@@ -30,30 +30,30 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public const int MaxAvailabilityMessageLength = 8192;
 
         public static readonly IDictionary<string, int> TagSizeLimits = new Dictionary<string, int>()
-                                                        {
-                                                            { ContextTagKeys.Keys.ApplicationVersion, 1024 },
-                                                            { ContextTagKeys.Keys.DeviceId, 1024 },
-                                                            { ContextTagKeys.Keys.DeviceModel, 256 },
-                                                            { ContextTagKeys.Keys.DeviceOEMName, 256 },
-                                                            { ContextTagKeys.Keys.DeviceOSVersion, 256 },
-                                                            { ContextTagKeys.Keys.DeviceType, 64 },
-                                                            { ContextTagKeys.Keys.LocationIp, 45 },
-                                                            { ContextTagKeys.Keys.OperationId, 128 },
-                                                            { ContextTagKeys.Keys.OperationName, 1024 },
-                                                            { ContextTagKeys.Keys.OperationParentId, 128 },
-                                                            { ContextTagKeys.Keys.OperationSyntheticSource, 1024 },
-                                                            { ContextTagKeys.Keys.OperationCorrelationVector, 64 },
-                                                            { ContextTagKeys.Keys.SessionId, 64 },
-                                                            { ContextTagKeys.Keys.UserId, 128 },
-                                                            { ContextTagKeys.Keys.UserAccountId, 1024 },
-                                                            { ContextTagKeys.Keys.UserAgent, 2048 },
-                                                            { ContextTagKeys.Keys.UserAuthUserId, 1024 },
-                                                            { ContextTagKeys.Keys.CloudRole, 256 },
-                                                            { ContextTagKeys.Keys.CloudRoleInstance, 256 },
-                                                            { ContextTagKeys.Keys.InternalSdkVersion, 64 },
-                                                            { ContextTagKeys.Keys.InternalAgentVersion, 64 },
-                                                            { ContextTagKeys.Keys.InternalNodeName, 256 }                                                            
-                                                        };
+        {
+            { ContextTagKeys.Keys.ApplicationVersion, 1024 },
+            { ContextTagKeys.Keys.DeviceId, 1024 },
+            { ContextTagKeys.Keys.DeviceModel, 256 },
+            { ContextTagKeys.Keys.DeviceOEMName, 256 },
+            { ContextTagKeys.Keys.DeviceOSVersion, 256 },
+            { ContextTagKeys.Keys.DeviceType, 64 },
+            { ContextTagKeys.Keys.LocationIp, 45 },
+            { ContextTagKeys.Keys.OperationId, 128 },
+            { ContextTagKeys.Keys.OperationName, 1024 },
+            { ContextTagKeys.Keys.OperationParentId, 128 },
+            { ContextTagKeys.Keys.OperationSyntheticSource, 1024 },
+            { ContextTagKeys.Keys.OperationCorrelationVector, 64 },
+            { ContextTagKeys.Keys.SessionId, 64 },
+            { ContextTagKeys.Keys.UserId, 128 },
+            { ContextTagKeys.Keys.UserAccountId, 1024 },
+            { ContextTagKeys.Keys.UserAgent, 2048 },
+            { ContextTagKeys.Keys.UserAuthUserId, 1024 },
+            { ContextTagKeys.Keys.CloudRole, 256 },
+            { ContextTagKeys.Keys.CloudRoleInstance, 256 },
+            { ContextTagKeys.Keys.InternalSdkVersion, 64 },
+            { ContextTagKeys.Keys.InternalAgentVersion, 64 },
+            { ContextTagKeys.Keys.InternalNodeName, 256 }                                                            
+        };
         
         public static void Set<T>(ref T property, T value) where T : class
         {
