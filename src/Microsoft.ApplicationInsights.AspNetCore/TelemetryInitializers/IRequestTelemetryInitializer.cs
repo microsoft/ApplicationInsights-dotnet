@@ -4,48 +4,21 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DiagnosticAdapter;
 using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
-    interface IRequestTelemetryInitializer
-    {
-        void Initialize(HttpContext context, RequestTelemetry requestTelemetry);
-    }
-
-    internal class ApplicationInsightsStartupFilter : IStartupFilter
-    {
-        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
-        {
-            return app =>
-            {
-                var appInsightsInitializer = app.ApplicationServices.GetService<ApplicationInsightInitializer>();
-                appInsightsInitializer.Start();
-                next(app);
-            };
-        }
-    }
-
     internal class ApplicationInsightInitializer: IObserver<DiagnosticListener>, IDisposable
     {
         private readonly List<IDisposable> _subscriptions;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly TelemetryClient _telemetryClient;
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> _diagnosticListeners;
 
         public ApplicationInsightInitializer(
-            ILoggerFactory loggerFactory,
-            TelemetryClient telemetryClient,
             IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners)
         {
-            _loggerFactory = loggerFactory;
-            _telemetryClient = telemetryClient;
             _diagnosticListeners = diagnosticListeners;
 
             _subscriptions = new List<IDisposable>();
@@ -92,18 +65,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
         }
     }
 
-    internal interface IApplicationInsightDiagnosticListener
-    {
-        string ListenerName { get; }
-    }
-
-    public class AspNetCoreHostingListener: IApplicationInsightDiagnosticListener
+    public class AspNetCoreHostingDiagnosticListener: IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient _client;
         private readonly ContextData<long> _beginRequestTimestamp = new ContextData<long>();
         private readonly string _sdkVersion;
 
-        public AspNetCoreHostingListener(TelemetryClient client)
+        public AspNetCoreHostingDiagnosticListener(TelemetryClient client)
         {
             _client = client;
             _sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
@@ -128,7 +96,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
             telemetry.Duration = new TimeSpan(timestamp - _beginRequestTimestamp.Value);
             telemetry.Timestamp = DateTime.Now - telemetry.Duration;
             telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
-            telemetry.Success =  (httpContext.Response.StatusCode < 400);
+            telemetry.Success &=  (httpContext.Response.StatusCode < 400);
             telemetry.HttpMethod = httpContext.Request.Method;
             telemetry.Url = httpContext.Request.GetUri();
             telemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
@@ -153,8 +121,14 @@ namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
             OnException(httpContext, exception);
         }
 
-        private void OnException(HttpContext context, Exception exception)
+        private void OnException(HttpContext httpContext, Exception exception)
         {
+            var telemetry = httpContext?.Features.Get<RequestTelemetry>();
+            if (telemetry != null)
+            {
+                telemetry.Success = false;
+            }
+
             var exceptionTelemetry = new ExceptionTelemetry(exception);
             exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
             exceptionTelemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;

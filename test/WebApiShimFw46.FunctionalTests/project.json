@@ -23,14 +23,11 @@
     "xunit": "2.2.0-*"
   },
   "frameworks": {
-    "netcoreapp1.0": {
+    "netcoreapp1.1": {
       "imports": [
-        "dnxcore50",
-        "dotnet5.6",
-        "portable-net451+win8"
+        "portable-net45+netcore45+wp8+wp81+wpa81"
       ],
       "dependencies": {
-        "Microsoft.Extensions.CodeGenerators.Mvc": "1.0.0-rc1-final",
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.1.0"

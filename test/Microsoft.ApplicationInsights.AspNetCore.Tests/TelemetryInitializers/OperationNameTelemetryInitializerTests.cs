@@ -20,7 +20,7 @@
         [Fact]
         public void InitializeThrowIfHttpContextAccessorIsNull()
         {
-            Assert.ThrowsAny<ArgumentNullException>(() => 
+            Assert.ThrowsAny<ArgumentNullException>(() =>
             {
                 var initializer = new OperationNameTelemetryInitializer(null, new DiagnosticListener(TestListenerName));
             });
@@ -96,14 +96,14 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
             var telemetryListener = new DiagnosticListener(TestListenerName);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
-            telemetryListener.Write(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write(MvcDiagnosticsListener.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
-            Assert.Equal("GET home", telemetry.Context.Operation.Name);
+            Assert.Equal("GET home", telemetry.Name);
         }
 
         [Fact]
@@ -117,14 +117,14 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
             var telemetryListener = new DiagnosticListener(TestListenerName);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
-            telemetryListener.Write(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write(MvcDiagnosticsListener.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
-            Assert.Equal("GET account/login", telemetry.Context.Operation.Name);
+            Assert.Equal("GET account/login", telemetry.Name);
         }
 
         [Fact]
@@ -139,14 +139,14 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
             var telemetryListener = new DiagnosticListener(TestListenerName);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
-            telemetryListener.Write(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write(MvcDiagnosticsListener.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
-            Assert.Equal("GET account/login [parameter]", telemetry.Context.Operation.Name);
+            Assert.Equal("GET account/login [parameter]", telemetry.Name);
         }
 
         [Fact]
@@ -163,14 +163,14 @@
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
 
             var telemetryListener = new DiagnosticListener(TestListenerName);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
-            telemetryListener.Write(OperationNameTelemetryInitializer.BeforeActionNotificationName,
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write(MvcDiagnosticsListener.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
-            Assert.Equal("GET account/login [parameterA/parameterN/parameterZ]", telemetry.Context.Operation.Name);
+            Assert.Equal("GET account/login [parameterA/parameterN/parameterZ]", telemetry.Name);
         }
 
         [Fact]
@@ -181,18 +181,18 @@
             actionContext.RouteData.Values.Add("controller", "account");
             actionContext.RouteData.Values.Add("action", "login");
             actionContext.RouteData.Values.Add(TreeRouter.RouteGroupKey, "RouteGroupKey");
-            
+
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
             var telemetryListener = new DiagnosticListener(TestListenerName);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, telemetryListener);
-            telemetryListener.Write(OperationNameTelemetryInitializer.BeforeActionNotificationName, 
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write(MvcDiagnosticsListener.BeforeActionNotificationName,
                 new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
 
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
-            Assert.Equal("GET account/login", telemetry.Context.Operation.Name);
-        }        
+            Assert.Equal("GET account/login", telemetry.Name);
+        }
 
         [Fact]
         public void InitializeSetsRequestNameToMethodAndPathForPostRequest()
@@ -207,6 +207,20 @@
             initializer.Initialize(telemetry);
 
             Assert.Equal("POST /Test", telemetry.Name);
+        }
+
+        [Fact]
+        public void InitializeSetsRequestContextOperationNameToRequestName()
+        {
+            var telemetry = new RequestTelemetry();
+            telemetry.Name = "POST /Test";
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry);
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("POST /Test", telemetry.Context.Operation.Name);
         }
 
     }

@@ -16,9 +16,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         private ITelemetry sentTelemetry;
 
         [Fact]
-        public async Task InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
+        public void InvokeTracksExceptionThrownByNextMiddlewareAsHandledByPlatform()
         {
-            var middleware = new AspNetCoreHostingListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            var middleware = new AspNetCoreHostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
             middleware.OnHostingException(null, null);
 
@@ -26,9 +26,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         }
 
         [Fact]
-        public async Task SdkVersionIsPopulatedByMiddleware()
+        public void SdkVersionIsPopulatedByMiddleware()
         {
-            var middleware = new AspNetCoreHostingListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            var middleware = new AspNetCoreHostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
 
             middleware.OnHostingException(null, null);
 

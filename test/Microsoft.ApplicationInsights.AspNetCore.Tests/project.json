@@ -19,16 +19,12 @@
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",
     "Microsoft.Extensions.Configuration.Json": "1.1.0",
     "Microsoft.Extensions.Logging": "1.1.0",
+    "Microsoft.DotNet.InternalAbstractions": "1.0.0",
     "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50",
-        "dotnet5.4",
-        "portable-net451+win8+win10"
-      ],
+    "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",

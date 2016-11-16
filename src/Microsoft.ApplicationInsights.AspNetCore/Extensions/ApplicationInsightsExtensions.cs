@@ -30,13 +30,12 @@ namespace Microsoft.Extensions.DependencyInjection
         private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
-        
+
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
         {
             var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
@@ -70,11 +69,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton<TelemetryClient>();
 
-            // Default constructor need to be used
-            services.AddScoped<RequestTelemetry>(serviceProvider => new RequestTelemetry());
-
             services.AddSingleton<ApplicationInsightInitializer, ApplicationInsightInitializer>();
-            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingListener>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingDiagnosticListener>();
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             return services;
