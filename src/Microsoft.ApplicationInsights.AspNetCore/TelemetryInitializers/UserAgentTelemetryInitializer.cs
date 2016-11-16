@@ -21,11 +21,11 @@
             // TODO: conside using
             // var connectionFeature = platformContext.GetFeature<HttpRequestFeature>();
             // connectionFeature.Headers
-            
+
             if (string.IsNullOrEmpty(telemetry.Context.User.UserAgent))
             {
                 telemetry.Context.User.UserAgent = platformContext.Request.Headers[HeaderNames.UserAgent];
-            }            
+            }
         }
     }
 }

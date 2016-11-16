@@ -5,7 +5,7 @@ using System.Runtime.Remoting;
 using System.Threading;
 # endif
 
-namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
+namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     public class ContextData<T>
     {

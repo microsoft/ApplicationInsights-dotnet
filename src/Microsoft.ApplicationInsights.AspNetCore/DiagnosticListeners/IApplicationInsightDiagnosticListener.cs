@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     internal interface IApplicationInsightDiagnosticListener
     {
