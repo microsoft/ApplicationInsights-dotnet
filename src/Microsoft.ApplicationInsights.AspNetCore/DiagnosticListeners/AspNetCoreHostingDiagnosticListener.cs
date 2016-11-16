@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Threading;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DiagnosticAdapter;
-using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners

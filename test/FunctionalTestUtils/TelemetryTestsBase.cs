@@ -62,9 +62,8 @@ namespace FunctionalTestUtils
                 task = httpClient.GetAsync(server.BaseHost + requestPath);
                 task.Wait(TestTimeoutMs);
             }
-            Thread.Sleep(1000);
             var result = task.Result;
-
+            server.Dispose();
             var actual = server.BackChannel.Buffer.OfType<ExceptionTelemetry>().Single();
 
             Assert.Equal(expected.Exception.GetType(), actual.Exception.GetType());

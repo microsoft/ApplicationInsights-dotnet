@@ -5,7 +5,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DiagnosticAdapter;
 
-namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
+namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
     public class MvcDiagnosticsListener: IApplicationInsightDiagnosticListener
     {

@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         {
             return app =>
             {
-                var appInsightsInitializer = app.ApplicationServices.GetService<ApplicationInsightInitializer>();
+                var appInsightsInitializer = app.ApplicationServices.GetService<ApplicationInsightsInitializer>();
                 appInsightsInitializer.Start();
                 next(app);
             };

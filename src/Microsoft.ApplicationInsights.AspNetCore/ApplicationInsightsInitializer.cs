@@ -2,20 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ApplicationInsights.AspNetCore
 {
-    internal class ApplicationInsightInitializer: IObserver<DiagnosticListener>, IDisposable
+    internal class ApplicationInsightsInitializer: IObserver<DiagnosticListener>, IDisposable
     {
         private readonly List<IDisposable> _subscriptions;
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> _diagnosticListeners;
 
-        public ApplicationInsightInitializer(
-            IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners)
+        public ApplicationInsightsInitializer(IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners,
+            TelemetryClient telemetryClient,
+            ILoggerFactory loggerFactory)
         {
             _diagnosticListeners = diagnosticListeners;
-
             _subscriptions = new List<IDisposable>();
+
+            loggerFactory.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClient));
         }
 
         public void Start()

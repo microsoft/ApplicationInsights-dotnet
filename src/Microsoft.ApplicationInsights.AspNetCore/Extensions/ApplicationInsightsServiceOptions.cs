@@ -1,4 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Configuration;
+
+namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of featuers obtained from Application Insights.
@@ -25,5 +28,9 @@
         /// that controls sampling is added to the service by default.
         /// </summary>
         public bool EnableAdaptiveSampling { get; set; }
+
+
+        public TelemetryConfiguration TelemetryConfiguration { get; set; }
+        public string Version { get; set; }
     }
 }

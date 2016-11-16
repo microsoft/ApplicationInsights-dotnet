@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.ApplicationInsights.AspNetCore;
+using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -7,8 +10,6 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
@@ -17,8 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 #if NET451
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using ApplicationInsights.WindowsServer.TelemetryChannel;
+
 #endif
 
     public static class ApplicationInsightsExtensions
@@ -31,18 +31,24 @@ namespace Microsoft.Extensions.DependencyInjection
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, string instrumentationKey)
         {
-            var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
+            services.AddApplicationInsightsTelemetry(options => options.TelemetryConfiguration.InstrumentationKey = instrumentationKey);
+            return services;
+        }
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options.TelemetryConfiguration));
+            return services;
+        }
 
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, Action<ApplicationInsightsServiceOptions> options)
+        {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>(serviceProvider =>
-            {
-                return new ComponentVersionTelemetryInitializer(config);
-            });
+            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -55,21 +61,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
-
-            services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
-            {
-                var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddTelemetryChannelAndProcessorsForFullFramework(serviceProvider, telemetryConfiguration, options);
-                telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
-                AddTelemetryConfiguration(config, telemetryConfiguration);
-                AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
-                InitializeModulesWithConfiguration(serviceProvider, telemetryConfiguration);
-                return telemetryConfiguration;
-            });
+            services.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, AppInsightsTelemetryConfigurationOptionsSetup>();
+            services.Configure<ApplicationInsightsServiceOptions>(options);
 
             services.AddSingleton<TelemetryClient>();
 
-            services.AddSingleton<ApplicationInsightInitializer, ApplicationInsightInitializer>();
+            services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
             services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingDiagnosticListener>();
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
@@ -165,61 +162,6 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 telemetryConfiguration.TelemetryChannel.EndpointAddress = endpointAddress;
             }
-        }
-
-        private static void AddServicesToCollection<T>(IServiceProvider serviceProvider, ICollection<T> collection)
-        {
-            var services = serviceProvider.GetService<IEnumerable<T>>();
-            foreach (T service in services)
-            {
-                collection.Add(service);
-            }
-        }
-
-        private static void InitializeModulesWithConfiguration(IServiceProvider serviceProvider, TelemetryConfiguration configuration)
-        {
-            var services = serviceProvider.GetService<IEnumerable<ITelemetryModule>>();
-            foreach (ITelemetryModule service in services)
-            {
-                service.Initialize(configuration);
-            }
-        }
-
-        private static void AddTelemetryChannelAndProcessorsForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, ApplicationInsightsServiceOptions serviceOptions)
-        {
-#if NET451
-            // Adding Server Telemetry Channel if services doesn't have an existing channel
-            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? new ServerTelemetryChannel();
-
-            if (configuration.TelemetryChannel is ServerTelemetryChannel)
-            {
-                // Enabling Quick Pulse Metric Stream
-                if (serviceOptions.EnableQuickPulseMetricStream)
-                {
-                    var quickPulseModule = new QuickPulseTelemetryModule();
-                    quickPulseModule.Initialize(configuration);
-
-                    QuickPulseTelemetryProcessor processor = null;
-                    configuration.TelemetryProcessorChainBuilder.Use((next) => {
-                        processor = new QuickPulseTelemetryProcessor(next);
-                        quickPulseModule.RegisterTelemetryProcessor(processor);
-                        return processor;
-                    });
-                }
-
-                // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
-                if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
-                {
-                    if (serviceOptions.EnableAdaptiveSampling)
-                    {
-                        configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                    }
-                    (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
-                }
-
-                configuration.TelemetryProcessorChainBuilder.Build();
-            }
-#endif
         }
     }
 }
