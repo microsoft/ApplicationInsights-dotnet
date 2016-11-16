@@ -133,7 +133,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: true,
                 expectedResultCode: "0",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);            
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: true,
                 expectedResultCode: "0",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: true,
                 expectedResultCode: "0",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
         }
         
         [TestMethod]
@@ -202,7 +202,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
         }
 
         [TestMethod]
@@ -226,7 +226,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
         }
 
         [TestMethod]
@@ -251,7 +251,7 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.ElapsedMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
         }
 
         [TestMethod]

@@ -35,6 +35,14 @@
             AssertCustomCounterReported(counterItems, @"Custom counter - does not exist", false);
         }
 
+        public static void NonExistentCounterWhichUsesPlaceHolder(HttpListenerObservable listener)
+        {
+            var counterItems = listener.ReceiveItemsOfType<TelemetryItem<MetricData>>(10, TestListenerWaitTimeInMs);
+
+            AssertCustomCounterReported(counterItems, @"Custom counter with placeholder - does not exist", false);
+        }
+        
+
         public static void NonParsableCounter(HttpListenerObservable listener)
         {
             var counterItems = listener.ReceiveItemsOfType<TelemetryItem<MetricData>>(10, TestListenerWaitTimeInMs);

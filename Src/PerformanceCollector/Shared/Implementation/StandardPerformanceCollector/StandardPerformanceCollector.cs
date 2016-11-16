@@ -294,9 +294,9 @@
                         usesInstanceNamePlaceholder,
                         isCustomCounter,
                         !firstReadOk,
-                        performanceCounter.CategoryName,
-                        performanceCounter.CounterName,
-                        performanceCounter.InstanceName);
+                        categoryName,
+                        counterName,
+                        instanceName);
 
                 this.performanceCounters.Add(new Tuple<PerformanceCounterData, PerformanceCounter>(perfData, performanceCounter));
             }
