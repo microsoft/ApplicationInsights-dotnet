@@ -96,7 +96,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
             telemetry.Duration = new TimeSpan(timestamp - _beginRequestTimestamp.Value);
             telemetry.Timestamp = DateTime.Now - telemetry.Duration;
             telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
-            telemetry.Success &=  (httpContext.Response.StatusCode < 400);
+
+            var successExitCode = httpContext.Response.StatusCode < 400;
+            if (telemetry.Success == null)
+            {
+                telemetry.Success = successExitCode;
+            }
+            else
+            {
+                telemetry.Success &= successExitCode;
+            }
+
             telemetry.HttpMethod = httpContext.Request.Method;
             telemetry.Url = httpContext.Request.GetUri();
             telemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
