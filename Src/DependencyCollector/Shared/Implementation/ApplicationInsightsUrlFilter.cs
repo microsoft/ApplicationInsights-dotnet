@@ -7,6 +7,7 @@
     internal sealed class ApplicationInsightsUrlFilter
     {
         internal const string TelemetryServiceEndpoint = "https://dc.services.visualstudio.com/v2/track";
+        internal const string QuickPulseServiceEndpoint = "https://rt.services.visualstudio.com/QuickPulseService.svc";
 
         private readonly TelemetryConfiguration telemetryConfiguration;
 
@@ -66,14 +67,20 @@
             bool result = false;
             if (!string.IsNullOrEmpty(url))
             {
-                result = url.StartsWith(ApplicationInsightsUrlFilter.TelemetryServiceEndpoint, StringComparison.OrdinalIgnoreCase);
+                // Check if url matches default values for service endpoint/quick pulse.
+                result = url.StartsWith(ApplicationInsightsUrlFilter.TelemetryServiceEndpoint, StringComparison.OrdinalIgnoreCase)
+                    || url.StartsWith(ApplicationInsightsUrlFilter.QuickPulseServiceEndpoint, StringComparison.OrdinalIgnoreCase);
 
-                var endpointUrl = this.EndpointLeftPart;
-                if (!string.IsNullOrEmpty(endpointUrl) && !result)
+                if (!result)
                 {
-                    result = url.StartsWith(endpointUrl, StringComparison.OrdinalIgnoreCase);
-                }
-
+                    // Check if the url is a user-configured service endpoint.
+                    var endpointUrl = this.EndpointLeftPart;
+                    if (!string.IsNullOrEmpty(endpointUrl))
+                    {
+                        result = url.StartsWith(endpointUrl, StringComparison.OrdinalIgnoreCase);
+                    }
+                }   
+                             
                 return result;
             }
             else
