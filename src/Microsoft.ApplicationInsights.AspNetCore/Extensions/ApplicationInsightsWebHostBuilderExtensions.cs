@@ -21,5 +21,11 @@ namespace Microsoft.AspNetCore.Hosting
             });
             return webHostBuilder;
         }
+
+        public static IWebHostBuilder UseApplicationInsights(this IWebHostBuilder webHostBuilder, string instrumentationKey)
+        {
+            webHostBuilder.ConfigureServices(collection => collection.AddApplicationInsightsTelemetry(instrumentationKey));
+            return webHostBuilder;
+        }
     }
 }

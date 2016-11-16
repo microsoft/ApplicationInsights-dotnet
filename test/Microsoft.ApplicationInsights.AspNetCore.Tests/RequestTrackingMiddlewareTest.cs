@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+﻿using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {

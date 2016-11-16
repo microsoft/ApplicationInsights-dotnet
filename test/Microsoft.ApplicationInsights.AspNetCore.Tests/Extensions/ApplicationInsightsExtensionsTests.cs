@@ -245,7 +245,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(configuration.InstrumentationKey, sentTelemetry.Context.InstrumentationKey);
             }
 
-            
             [Fact]
             public static void AddApplicationInsightsTelemetryDoesNotThrowOnNullServiceOptions()
             {
@@ -287,8 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void DoesNotAddSamplingToConfigurationIfExplicitlyControlledThroughParameter()
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
-                var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.EnableAdaptiveSampling = false;
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -300,8 +298,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkWithServiceOptions()
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<AdaptiveSamplingTelemetryProcessor>(TelemetryConfiguration.Active);
-                var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.EnableAdaptiveSampling = true;
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableAdaptiveSampling = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -346,8 +343,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void DoesNotAddQuickPulseProcessorToConfigurationIfExplicitlyControlledThroughParameter()
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
-                var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.EnableQuickPulseMetricStream = false;
+                Action<ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableQuickPulseMetricStream = false;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -359,8 +355,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void AddsQuickPulseProcessorToTheConfigurationInFullFrameworkWithServiceOptions()
             {
                 var exisitingProcessorCount = GetTelemetryProcessorsCountInConfiguration<QuickPulseTelemetryProcessor>(TelemetryConfiguration.Active);
-                var serviceOptions = new ApplicationInsightsServiceOptions();
-                serviceOptions.EnableQuickPulseMetricStream = true;
+                Action< ApplicationInsightsServiceOptions> serviceOptions = options => options.EnableQuickPulseMetricStream = true;
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, "http://localhost:1234/v2/track/", serviceOptions, false);
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetRequiredService<TelemetryConfiguration>();
@@ -422,7 +417,8 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal("http://localhost:1234/v2/track/", telemetryConfiguration.TelemetryChannel.EndpointAddress);
             }
         }
-        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, ApplicationInsightsServiceOptions serviceOptions = null, bool addChannel = true)
+
+        public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true)
         {
             var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
             if (addChannel)
@@ -444,8 +440,12 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 config = new ConfigurationBuilder().Build();
             }
 
-             services.AddApplicationInsightsTelemetry(config, serviceOptions);
-             return services;
+            services.AddApplicationInsightsTelemetry(config);
+            if (serviceOptions != null)
+            {
+                services.Configure(serviceOptions);
+            }
+            return services;
         }
     }
 }

@@ -1,15 +1,12 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+﻿using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Xunit;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
-    using System;
-    using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.AspNetCore.Http;
-    using Xunit;
-    using System.Threading.Tasks;
 
     public class ExceptionTrackingMiddlewareTest
     {
