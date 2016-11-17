@@ -3,7 +3,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting;
 #else
 using System.Threading;
-# endif
+#endif
 
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {

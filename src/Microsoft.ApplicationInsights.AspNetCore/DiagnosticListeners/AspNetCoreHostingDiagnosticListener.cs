@@ -28,8 +28,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
             _beginRequestTimestamp.Value = timestamp;
             _client.Context.Operation.Id = httpContext.TraceIdentifier;
-
-            Console.WriteLine("OnBeginRequest");
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
@@ -59,8 +57,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             telemetry.Url = httpContext.Request.GetUri();
             telemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
             _client.TrackRequest(telemetry);
-
-            Console.WriteLine("OnEndRequest");
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.UnhandledException")]
