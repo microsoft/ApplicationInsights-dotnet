@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AddTelemetryChannelAndProcessorsForFullFramework(options);
 
-            options.TelemetryChannel = options.TelemetryChannel ?? _telemetryChannel;
+            options.TelemetryChannel = _telemetryChannel ?? options.TelemetryChannel;
 
             if (_applicationInsightsServiceOptions.DeveloperMode != null)
             {
@@ -68,8 +68,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Adding Server Telemetry Channel if services doesn't have an existing channel
             configuration.TelemetryChannel = _telemetryChannel ?? new ServerTelemetryChannel();
-
-            Console.WriteLine(configuration.TelemetryChannel);
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
                 // Enabling Quick Pulse Metric Stream

@@ -9,8 +9,6 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
-
-            Console.WriteLine(Value.TelemetryChannel);
             foreach (var c in configureOptions)
             {
                 c.Configure(Value);
