@@ -63,8 +63,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddOptions();
             services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
             services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
-            services.Configure<ApplicationInsightsServiceOptions>(options);
-
+            if (options != null)
+            {
+                services.Configure<ApplicationInsightsServiceOptions>(options);
+            }
             services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
             services.AddSingleton<TelemetryClient>();
@@ -73,6 +75,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingDiagnosticListener>();
             services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreMvcDiagnosticsListener>();
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
+
+            services.AddSingleton<JavaScriptSnippet>();
 
             return services;
         }
@@ -128,7 +132,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
         /// <param name="serviceOptions">Telemetry configuration to populate</param>
-        private static void AddTelemetryConfiguration(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions)
+        internal static void AddTelemetryConfiguration(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions)
         {
             string instrumentationKey = config[InstrumentationKeyForWebSites];
             if (string.IsNullOrWhiteSpace(instrumentationKey))

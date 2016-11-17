@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Hosting
 {
@@ -13,11 +11,8 @@ namespace Microsoft.AspNetCore.Hosting
         {
             webHostBuilder.ConfigureServices(collection =>
             {
-                var configBuilder = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true)
-                    .AddEnvironmentVariables();
-
-                collection.AddApplicationInsightsTelemetry(configBuilder.Build());
+                collection.AddApplicationInsightsTelemetry((Action<ApplicationInsightsServiceOptions>)null);
+                collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, AppSettingsApplicationInsightsServiceConfigureOptions>();
             });
             return webHostBuilder;
         }
