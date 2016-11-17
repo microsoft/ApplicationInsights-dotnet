@@ -74,6 +74,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
             services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingDiagnosticListener>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreMvcDiagnosticsListener>();
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             return services;

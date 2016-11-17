@@ -7,7 +7,7 @@ using Microsoft.Extensions.DiagnosticAdapter;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-    public class MvcDiagnosticsListener: IApplicationInsightDiagnosticListener
+    public class AspNetCoreMvcDiagnosticsListener: IApplicationInsightDiagnosticListener
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 
@@ -17,6 +17,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         public void OnBeforeAction(HttpContext httpContext, IRouteData routeData)
         {
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
+
+Console.WriteLine("OnBeforAction" + telemetry.Name);
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
                 string name = this.GetNameFromRouteContext(routeData);

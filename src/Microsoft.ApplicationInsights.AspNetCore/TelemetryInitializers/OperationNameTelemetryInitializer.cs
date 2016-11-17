@@ -8,16 +8,8 @@
 
     public class OperationNameTelemetryInitializer : TelemetryInitializerBase
     {
-
-        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor, DiagnosticListener telemetryListener)
-            : base(httpContextAccessor)
+        public OperationNameTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
-            if (telemetryListener == null)
-            {
-                throw new ArgumentNullException("telemetryListener");
-            }
-
-            telemetryListener.SubscribeWithAdapter(this);
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
@@ -32,7 +24,6 @@
                 {
                     // We didn't get BeforeAction notification
                     string name = platformContext.Request.Method + " " + platformContext.Request.Path.Value;
-                    requestTelemetry.Name = name;
                     telemetry.Context.Operation.Name = name;
                 }
             }

@@ -28,6 +28,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
             _beginRequestTimestamp.Value = timestamp;
             _client.Context.Operation.Id = httpContext.TraceIdentifier;
+
+            Console.WriteLine("OnBeginRequest");
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
@@ -49,10 +51,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 telemetry.Success &= successExitCode;
             }
 
+            if (string.IsNullOrEmpty(telemetry.Name))
+            {
+                telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
+            }
             telemetry.HttpMethod = httpContext.Request.Method;
             telemetry.Url = httpContext.Request.GetUri();
             telemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
             _client.TrackRequest(telemetry);
+
+            Console.WriteLine("OnEndRequest");
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.UnhandledException")]

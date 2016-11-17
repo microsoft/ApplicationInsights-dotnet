@@ -85,7 +85,6 @@ namespace FunctionalTestUtils
             {
                 expected.Name = server.BaseHost + requestPath;
 
-                DateTimeOffset testStart = DateTimeOffset.Now;
                 var timer = Stopwatch.StartNew();
                 Task<HttpResponseMessage> task;
                 using (var httpClient = new HttpClient())
@@ -96,8 +95,11 @@ namespace FunctionalTestUtils
                 var result = task.Result;
                 timer.Stop();
             }
+            foreach (var dependencyTelemetry in server.BackChannel.Buffer.OfType<DependencyTelemetry>())
+            {
+                Console.WriteLine(">>" + dependencyTelemetry.Name + "="+ dependencyTelemetry.Data);
+            }
             var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
-
 
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Success, actual.Success);
