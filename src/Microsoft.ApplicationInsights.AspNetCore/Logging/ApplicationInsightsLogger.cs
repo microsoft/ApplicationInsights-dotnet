@@ -30,15 +30,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
         {
             var dict = new Dictionary<string, string>();
             dict["CategoryName"] = _categoryName;
+            dict["Exception"] = exception?.ToString();
+            var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
+            if (stateDictionary != null)
+            {
+                foreach (var item in stateDictionary)
+                {
+                    dict[item.Key] = Convert.ToString(item.Value);
+                }
+            }
 
-            if (exception != null)
-            {
-                _telemetryClient.TrackException(exception, dict);
-            }
-            else
-            {
-                _telemetryClient.TrackTrace(formatter(state, exception), GetSeverityLevel(logLevel), dict);
-            }
+            _telemetryClient.TrackTrace(formatter(state, exception), GetSeverityLevel(logLevel), dict);
         }
 
         private SeverityLevel GetSeverityLevel(LogLevel logLevel)
