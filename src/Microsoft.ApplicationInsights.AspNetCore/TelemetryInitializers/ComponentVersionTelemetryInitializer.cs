@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
     using Channel;
-    using Microsoft.Extensions.Configuration;
     using ApplicationInsights.Extensibility;
 
     /// <summary>

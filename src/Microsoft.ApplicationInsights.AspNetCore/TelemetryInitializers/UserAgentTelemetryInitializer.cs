@@ -7,7 +7,7 @@
     using Microsoft.Net.Http.Headers;
 
     /// <summary>
-    /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for 
+    /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for
     /// all telemetry data items.
     /// </summary>
     public class UserAgentTelemetryInitializer : TelemetryInitializerBase

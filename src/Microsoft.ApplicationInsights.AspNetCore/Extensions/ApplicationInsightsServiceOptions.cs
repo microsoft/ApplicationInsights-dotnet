@@ -31,6 +31,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 
 
         public TelemetryConfiguration TelemetryConfiguration { get; set; }
+
         public string Version { get; set; }
     }
 }

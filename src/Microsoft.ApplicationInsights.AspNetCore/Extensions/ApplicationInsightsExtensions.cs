@@ -61,6 +61,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
+
+            services.AddOptions();
             services.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, AppInsightsTelemetryConfigurationOptionsSetup>();
             services.Configure<ApplicationInsightsServiceOptions>(options);
 
