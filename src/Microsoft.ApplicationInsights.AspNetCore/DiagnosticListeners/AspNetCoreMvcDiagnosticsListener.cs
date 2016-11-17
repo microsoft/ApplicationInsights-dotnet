@@ -18,7 +18,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         {
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
-Console.WriteLine("OnBeforAction" + telemetry.Name);
             if (telemetry != null && string.IsNullOrEmpty(telemetry.Name))
             {
                 string name = this.GetNameFromRouteContext(routeData);

@@ -39,13 +39,14 @@ namespace FunctionalTestUtils
 
             timer.Stop();
             server.Dispose();
+
             var actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
 
             Assert.Equal(expected.ResponseCode, actual.ResponseCode);
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Url, actual.Url);
-            Assert.InRange<DateTimeOffset>(actual.Timestamp, testStart, DateTimeOffset.Now);
+            Assert.InRange(actual.Timestamp, testStart, DateTimeOffset.Now);
             Assert.True(actual.Duration < timer.Elapsed, "duration");
             Assert.Equal(expected.HttpMethod, actual.HttpMethod);
         }
@@ -79,11 +80,12 @@ namespace FunctionalTestUtils
             DependencyTelemetry expected = new DependencyTelemetry();
             expected.ResultCode = "200";
             expected.Success = true;
+            expected.Name = requestPath;
 
             InProcessServer server;
             using (server = new InProcessServer(assemblyName))
             {
-                expected.Name = server.BaseHost + requestPath;
+                expected.Data = server.BaseHost + requestPath;
 
                 var timer = Stopwatch.StartNew();
                 Task<HttpResponseMessage> task;
@@ -95,15 +97,13 @@ namespace FunctionalTestUtils
                 var result = task.Result;
                 timer.Stop();
             }
-            foreach (var dependencyTelemetry in server.BackChannel.Buffer.OfType<DependencyTelemetry>())
-            {
-                Console.WriteLine(">>" + dependencyTelemetry.Name + "="+ dependencyTelemetry.Data);
-            }
-            var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
 
-            Assert.Equal(expected.Name, actual.Name);
-            Assert.Equal(expected.Success, actual.Success);
-            Assert.Equal(expected.ResultCode, actual.ResultCode);
+            Assert.Contains(server.BackChannel.Buffer.OfType<DependencyTelemetry>(),
+                d => d.Name == expected.Name
+                  && d.Data == expected.Data
+                  && d.Success == expected.Success
+                  && d.ResultCode == expected.ResultCode
+                );
         }
 
         public void ValidatePerformanceCountersAreCollected(string assemblyName)

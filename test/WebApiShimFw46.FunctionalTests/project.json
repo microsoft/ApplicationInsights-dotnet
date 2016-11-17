@@ -7,7 +7,8 @@
     "preserveCompilationContext": true,
     "copyToOutput": {
       "includeFiles": [ "config.json" ]
-    }
+    },
+    "nowarn": [ "CS0618" ]
   },
   "testRunner": "xunit",
   "dependencies": {

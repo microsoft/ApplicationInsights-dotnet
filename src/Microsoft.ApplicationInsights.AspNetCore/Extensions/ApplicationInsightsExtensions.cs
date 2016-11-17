@@ -1,26 +1,23 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
+using Microsoft.AspNetCore.Http;
+using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+#if NET451
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+#endif
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-    using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Configuration.Memory;
-    using AspNetCore.Http;
-
-#if NET451
-    using ApplicationInsights.DependencyCollector;
-    using ApplicationInsights.Extensibility.PerfCounterCollector;
-
-#endif
-
     public static class ApplicationInsightsExtensions
     {
         private const string VersionKeyFromConfig = "version";

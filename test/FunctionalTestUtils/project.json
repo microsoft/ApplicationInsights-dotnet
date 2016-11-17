@@ -3,7 +3,8 @@
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "nowarn": [ "CS0618" ]
   },
   "dependencies": {
     "Microsoft.ApplicationInsights.AspNetCore": {
@@ -15,11 +16,7 @@
     "xunit": "2.2.0-*"
   },
   "frameworks": {
-    "net451": {
-      "dependencies": {
-        "System.Net.Http": "4.0.0"
-      }
-    },
+    "net451": { },
     "netstandard1.6": { }
   }
 }

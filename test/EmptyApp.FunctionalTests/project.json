@@ -4,7 +4,8 @@
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "nowarn": [ "CS0618" ]
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",

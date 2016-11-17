@@ -20,7 +20,7 @@
         "keyFile": "../../keys/35MSSharedLib1024.snk",
         "delaySign": true,
         "xmlDoc": true,
-      "nowarn": [ "CS0618", "CS1591" ]
+        "nowarn": [ "CS0618", "CS1591" ]
     },
     "dependencies": {
         "Desktop.Analyzers": {

@@ -24,7 +24,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             Assert.ThrowsAny<ArgumentNullException>(() =>
             {
-                var initializer = new OperationNameTelemetryInitializer(null, new DiagnosticListener(TestListenerName));
+                var initializer = new OperationNameTelemetryInitializer(null);
             });
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             var ac = new HttpContextAccessor() { HttpContext = null };
 
-            var initializer = new OperationNameTelemetryInitializer(ac, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             var ac = new HttpContextAccessor() { HttpContext = new DefaultHttpContext() };
 
-            var initializer = new OperationNameTelemetryInitializer(ac, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(ac);
 
             initializer.Initialize(new RequestTelemetry());
         }
@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             var telemetry = new EventTelemetry();
             telemetry.Context.Operation.Name = "Name";
@@ -67,7 +67,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             var telemetry = new EventTelemetry();
             initializer.Initialize(telemetry);
@@ -81,7 +81,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             var telemetry = new RequestTelemetry();
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry, null);
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 
@@ -204,7 +204,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry);
             contextAccessor.HttpContext.Request.Method = "POST";
 
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 
@@ -218,7 +218,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             telemetry.Name = "POST /Test";
 
             var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry);
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor, new DiagnosticListener(TestListenerName));
+            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
 
             initializer.Initialize(telemetry);
 

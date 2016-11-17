@@ -6,7 +6,8 @@
     "preserveCompilationContext": true,
     "copyToOutput": {
       "include": [ "content/*" ]
-    }
+    },
+    "nowarn": [ "CS0618" ]
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
