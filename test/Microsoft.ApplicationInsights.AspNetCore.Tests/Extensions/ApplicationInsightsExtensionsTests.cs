@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [Theory]
             [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), null, ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -422,7 +422,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
         public static TelemetryConfiguration GetTelemetryConfiguration(this IServiceProvider serviceProvider)
         {
-            return serviceProvider.GetRequiredService<IOptions<ApplicationInsightsServiceOptions>>().Value.TelemetryConfiguration;
+            return serviceProvider.GetRequiredService<IOptions<TelemetryConfiguration>>().Value;
         }
 
         public static ServiceCollection CreateServicesAndAddApplicationinsightsTelemetry(string jsonPath, string channelEndPointAddress, Action<ApplicationInsightsServiceOptions> serviceOptions = null, bool addChannel = true)

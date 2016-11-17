@@ -29,9 +29,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         /// </summary>
         public bool EnableAdaptiveSampling { get; set; }
 
-
-        public TelemetryConfiguration TelemetryConfiguration { get; set; }
+        public string InstrumentationKey { get; set; }
 
         public string Version { get; set; }
+
+        public bool? DeveloperMode { get; set; }
+
+        public string EndpointAddress { get; set; }
     }
 }

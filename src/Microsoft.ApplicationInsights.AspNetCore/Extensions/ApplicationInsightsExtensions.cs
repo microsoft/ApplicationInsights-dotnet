@@ -23,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
     public static class ApplicationInsightsExtensions
     {
+        private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
         private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
@@ -33,12 +34,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, string instrumentationKey)
         {
-            services.AddApplicationInsightsTelemetry(options => options.TelemetryConfiguration.InstrumentationKey = instrumentationKey);
+            services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
             return services;
         }
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options.TelemetryConfiguration));
+            services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
             return services;
         }
 
@@ -63,8 +64,11 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
 
             services.AddOptions();
-            services.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, AppInsightsTelemetryConfigurationOptionsSetup>();
+            services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
+            services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
             services.Configure<ApplicationInsightsServiceOptions>(options);
+
+            services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
             services.AddSingleton<TelemetryClient>();
 
@@ -125,8 +129,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Values can also be read from environment variables to support azure web sites configuration:
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
-        /// <param name="telemetryConfiguration">Telemetry configuration to populate</param>
-        private static void AddTelemetryConfiguration(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
+        /// <param name="serviceOptions">Telemetry configuration to populate</param>
+        private static void AddTelemetryConfiguration(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions)
         {
             string instrumentationKey = config[InstrumentationKeyForWebSites];
             if (string.IsNullOrWhiteSpace(instrumentationKey))
@@ -136,7 +140,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
-                telemetryConfiguration.InstrumentationKey = instrumentationKey;
+                serviceOptions.InstrumentationKey = instrumentationKey;
             }
 
             string developerModeValue = config[DeveloperModeForWebSites];
@@ -150,7 +154,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 bool developerMode = false;
                 if (bool.TryParse(developerModeValue, out developerMode))
                 {
-                    telemetryConfiguration.TelemetryChannel.DeveloperMode = developerMode;
+                    serviceOptions.DeveloperMode = developerMode;
                 }
             }
 
@@ -162,8 +166,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (!string.IsNullOrWhiteSpace(endpointAddress))
             {
-                telemetryConfiguration.TelemetryChannel.EndpointAddress = endpointAddress;
+                serviceOptions.EndpointAddress = endpointAddress;
             }
+
+            serviceOptions.Version = config[VersionKeyFromConfig];
         }
     }
 }
