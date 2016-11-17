@@ -76,19 +76,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         }
 
         [Fact]
-        public void InitializeSetsRequestNameToMethodAndPath()
-        {
-            var telemetry = new RequestTelemetry();
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry, null);
-
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
-
-            initializer.Initialize(telemetry);
-
-            Assert.Equal("GET /Test", telemetry.Name);
-        }
-
-        [Fact]
         public void InitializeSetsTelemetryOperationNameToControllerFromActionContext()
         {
             var actionContext = new ActionContext();
@@ -194,21 +181,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
             var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
 
             Assert.Equal("GET account/login", telemetry.Name);
-        }
-
-        [Fact]
-        public void InitializeSetsRequestNameToMethodAndPathForPostRequest()
-        {
-            var telemetry = new RequestTelemetry();
-
-            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(telemetry);
-            contextAccessor.HttpContext.Request.Method = "POST";
-
-            var initializer = new OperationNameTelemetryInitializer(contextAccessor);
-
-            initializer.Initialize(telemetry);
-
-            Assert.Equal("POST /Test", telemetry.Name);
         }
 
         [Fact]

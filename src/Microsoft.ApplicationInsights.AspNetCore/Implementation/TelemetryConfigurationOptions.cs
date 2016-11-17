@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
+    internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {

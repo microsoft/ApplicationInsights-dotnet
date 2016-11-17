@@ -7,13 +7,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
     internal class ApplicationInsightsLogger : ILogger
     {
-        private string _categoryName;
+        private readonly string _categoryName;
         private readonly TelemetryClient _telemetryClient;
+        private readonly LogLevel _minimumLevel;
 
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient)
+        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, LogLevel minimumLevel)
         {
             _categoryName = name;
             _telemetryClient = telemetryClient;
+            _minimumLevel = minimumLevel;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -23,24 +25,27 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return _telemetryClient.IsEnabled();
+            return logLevel > _minimumLevel && _telemetryClient.IsEnabled();
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            var dict = new Dictionary<string, string>();
-            dict["CategoryName"] = _categoryName;
-            dict["Exception"] = exception?.ToString();
-            var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
-            if (stateDictionary != null)
+            if (IsEnabled(logLevel))
             {
-                foreach (var item in stateDictionary)
+                var dict = new Dictionary<string, string>();
+                dict["CategoryName"] = _categoryName;
+                dict["Exception"] = exception?.ToString();
+                var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
+                if (stateDictionary != null)
                 {
-                    dict[item.Key] = Convert.ToString(item.Value);
+                    foreach (var item in stateDictionary)
+                    {
+                        dict[item.Key] = Convert.ToString(item.Value);
+                    }
                 }
-            }
 
-            _telemetryClient.TrackTrace(formatter(state, exception), GetSeverityLevel(logLevel), dict);
+                _telemetryClient.TrackTrace(formatter(state, exception), GetSeverityLevel(logLevel), dict);
+            }
         }
 
         private SeverityLevel GetSeverityLevel(LogLevel logLevel)

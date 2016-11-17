@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
+    internal class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
     {
         private readonly ApplicationInsightsServiceOptions _applicationInsightsServiceOptions;
         private readonly IServiceProvider _serviceProvider;

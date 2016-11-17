@@ -1,5 +1,6 @@
 ﻿using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
@@ -15,6 +16,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         {
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
+            this.LoggerMinimumLevel = LogLevel.Information;
         }
 
         /// <summary>
@@ -36,5 +38,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public bool? DeveloperMode { get; set; }
 
         public string EndpointAddress { get; set; }
+
+        public LogLevel LoggerMinimumLevel { get; set; }
     }
 }

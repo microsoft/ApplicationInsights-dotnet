@@ -76,5 +76,39 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 
             Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
         }
+
+        [Fact]
+        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Method = "POST";
+            context.Request.Host = this.httpRequestHost;
+            context.Request.Path = "/Test";
+
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
+
+            var telemetry = (RequestTelemetry)sentTelemetry;
+
+            Assert.Equal("POST /Test", telemetry.Name);
+        }
+
+        [Fact]
+        public void OnEndRequestSetsRequestNameToMethodAndPath()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Method = "GET";
+            context.Request.Host = this.httpRequestHost;
+            context.Request.Path = "/Test";
+
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
+
+            var telemetry = (RequestTelemetry)sentTelemetry;
+
+            Assert.Equal("GET /Test", telemetry.Name);
+        }
     }
 }

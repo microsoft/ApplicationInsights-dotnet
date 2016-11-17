@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.AspNetCore.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.ApplicationInsights.AspNetCore
 {
@@ -13,13 +15,14 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> _diagnosticListeners;
 
         public ApplicationInsightsInitializer(IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners,
+            IOptions<ApplicationInsightsServiceOptions> options,
             TelemetryClient telemetryClient,
             ILoggerFactory loggerFactory)
         {
             _diagnosticListeners = diagnosticListeners;
             _subscriptions = new List<IDisposable>();
 
-            loggerFactory.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClient));
+            loggerFactory.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClient, options.Value.LoggerMinimumLevel));
         }
 
         public void Start()

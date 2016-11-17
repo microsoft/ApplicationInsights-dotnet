@@ -59,14 +59,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
-
-            services.AddOptions();
-            services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
-            services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
-            if (options != null)
-            {
-                services.Configure<ApplicationInsightsServiceOptions>(options);
-            }
             services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
             services.AddSingleton<TelemetryClient>();
@@ -77,6 +69,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             services.AddSingleton<JavaScriptSnippet>();
+
+            services.AddOptions();
+            services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
+            services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
+            if (options != null)
+            {
+                services.Configure<ApplicationInsightsServiceOptions>(options);
+            }
 
             return services;
         }

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-    public class ContextData<T>
+    internal class ContextData<T>
     {
 #if NET451
         private static string Key = typeof(ContextData<T>).FullName;
