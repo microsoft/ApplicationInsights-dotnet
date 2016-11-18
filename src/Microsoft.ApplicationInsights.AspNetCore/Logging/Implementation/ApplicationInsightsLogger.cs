@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel > _minimumLevel && _telemetryClient.IsEnabled();
+            return logLevel >= _minimumLevel && _telemetryClient.IsEnabled();
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

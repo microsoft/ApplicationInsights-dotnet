@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Hosting
 {
-    internal class AppSettingsApplicationInsightsServiceConfigureOptions: IConfigureOptions<ApplicationInsightsServiceOptions>
+    internal class DefaultApplicationInsightsServiceConfigureOptions: IConfigureOptions<ApplicationInsightsServiceOptions>
     {
         private readonly IHostingEnvironment _hostingEnvironment;
 
-        public AppSettingsApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment)
+        public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
         }
@@ -21,6 +21,11 @@ namespace Microsoft.AspNetCore.Hosting
                 .AddJsonFile("appsettings.json", true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
+
+            if (_hostingEnvironment.IsDevelopment())
+            {
+                options.DeveloperMode = true;
+            }
         }
     }
 }

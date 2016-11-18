@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Hosting
             webHostBuilder.ConfigureServices(collection =>
             {
                 collection.AddApplicationInsightsTelemetry((Action<ApplicationInsightsServiceOptions>)null);
-                collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, AppSettingsApplicationInsightsServiceConfigureOptions>();
+                collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
             });
             return webHostBuilder;
         }
