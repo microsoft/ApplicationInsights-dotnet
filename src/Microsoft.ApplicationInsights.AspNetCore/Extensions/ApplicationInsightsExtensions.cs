@@ -91,6 +91,10 @@
             services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
             services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
             services.AddSingleton<IApplicationInsightDiagnosticListener, MvcDiagnosticsListener>();
+
+            // Using startup filter instead of starting DiagnosticListeners directly because
+            // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
+            // that requires IOptions infrastructure to run and initialize
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             services.AddSingleton<JavaScriptSnippet>();
