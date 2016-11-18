@@ -137,31 +137,34 @@
 
         #endregion
 
-        #region TrackAggregatedMetric
+        #region TrackMetric
 
         [TestMethod]
-        public void TrackAggregatedMetricSendsSpecifiedAggregatedMetricTelemetry()
+        public void TrackMetricSendsSpecifiedAggregatedMetricTelemetry()
         {
             var sentTelemetry = new List<ITelemetry>();
             var client = this.InitializeTelemetryClient(sentTelemetry);
 
-            client.TrackAggregatedMetric(
-                new AggregatedMetricTelemetry() {
+            client.TrackMetric(
+                new MetricTelemetry()
+                {
                     Name = "Test Metric",
                     Count = 5,
-                    Sum = 40
+                    Sum = 40,
+                    Min = 3.0,
+                    Max = 4.0,
+                    StandardDeviation = 1.0
                 });
 
-            var metric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var metric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", metric.Name);
             Assert.Equal(5, metric.Count);
             Assert.Equal(40, metric.Sum);
+            Assert.Equal(3.0, metric.Min);
+            Assert.Equal(4.0, metric.Max);
+            Assert.Equal(1.0, metric.StandardDeviation);
         }
-
-        #endregion
-
-        #region TrackMetric
 
         [TestMethod]
         public void TrackMetricSendsMetricTelemetryWithSpecifiedNameAndValue()
@@ -171,12 +174,15 @@
 
 #pragma warning disable CS0618
             client.TrackMetric("TestMetric", 42);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
 #pragma warning restore CS0618
 
+            var metric = (MetricTelemetry)sentTelemetry.Single();
+
             Assert.Equal("TestMetric", metric.Name);
+
+#pragma warning disable CS0618
             Assert.Equal(42, metric.Value);
+#pragma warning restore CS0618
         }
 
         [TestMethod]
@@ -187,12 +193,15 @@
 
 #pragma warning disable CS0618
             client.TrackMetric(new MetricTelemetry("TestMetric", 42));
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
 #pragma warning restore CS0618
 
+            var metric = (MetricTelemetry)sentTelemetry.Single();
+
             Assert.Equal("TestMetric", metric.Name);
+
+#pragma warning disable CS0618
             Assert.Equal(42, metric.Value);
+#pragma warning restore CS0618
         }
 
         [TestMethod]
@@ -203,12 +212,16 @@
 
 #pragma warning disable CS0618
             client.TrackMetric("TestMetric", 4.2, new Dictionary<string, string> { { "blah", "yoyo" } });
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
 #pragma warning restore CS0618
 
+            var metric = (MetricTelemetry)sentTelemetry.Single();
+
             Assert.Equal("TestMetric", metric.Name);
+
+#pragma warning disable CS0618
             Assert.Equal(4.2, metric.Value);
+#pragma warning restore CS0618
+
             Assert.Equal("yoyo", metric.Properties["blah"]);
         }
 
@@ -220,12 +233,14 @@
 
 #pragma warning disable CS0618
             client.TrackMetric("TestMetric", 4.2, null);
-
-            var metric = (MetricTelemetry)sentTelemetry.Single();
 #pragma warning restore CS0618
 
+            var metric = (MetricTelemetry)sentTelemetry.Single();
+
             Assert.Equal("TestMetric", metric.Name);
+#pragma warning disable CS0618
             Assert.Equal(4.2, metric.Value);
+#pragma warning restore CS0618
             Assert.Empty(metric.Properties);
         }
 

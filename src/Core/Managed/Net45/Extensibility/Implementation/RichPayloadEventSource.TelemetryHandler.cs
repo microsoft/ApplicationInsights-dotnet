@@ -58,9 +58,7 @@
                 telemetryHandlers.Add(typeof(DependencyTelemetry), this.CreateHandlerForDependencyTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
 
                 // Metric
-#pragma warning disable CS0618
                 telemetryHandlers.Add(typeof(MetricTelemetry), this.CreateHandlerForMetricTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
-#pragma warning restore CS0618
 
                 // Exception
                 telemetryHandlers.Add(typeof(ExceptionTelemetry), this.CreateHandlerForExceptionTelemetry(eventSource, writeGenericMethod, eventSourceOptionsType, eventSourceOptionsKeywordsProperty));
@@ -344,9 +342,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
-#pragma warning disable CS0618
                     var telemetryItem = item as MetricTelemetry;
-#pragma warning restore CS0618
                     var data = telemetryItem.Data;
                     var extendedData = new
                     {
@@ -370,9 +366,7 @@
                         }
                     };
 
-#pragma warning disable CS0618
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
-#pragma warning restore CS0618
                 }
             };
         }
@@ -537,9 +531,7 @@
                         }
                     };
 
-#pragma warning disable CS0618
                     writeMethod.Invoke(eventSource, new object[] { MetricTelemetry.TelemetryName, eventSourceOptions, extendedData });
-#pragma warning restore CS0618
                 }
             };
         }

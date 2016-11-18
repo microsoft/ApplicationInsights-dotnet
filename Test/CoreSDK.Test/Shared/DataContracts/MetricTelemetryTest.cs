@@ -8,8 +8,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
-#pragma warning disable CS0618
-
     [TestClass]
     public class MetricTelemetryTest
     {
@@ -33,6 +31,7 @@
             Assert.NotNull(item.Context);
         }
 
+#pragma warning disable CS0618
         [TestMethod]
         public void MetricTelemetrySuppliesConstructorThatTakesNameAndValueToSimplifyAdvancedScenarios()
         {
@@ -41,11 +40,14 @@
             Assert.Equal("Test Metric", instance.Name);
             Assert.Equal(4.2, instance.Value);
         }
+#pragma warning restore CS0618
 
         [TestMethod]
         public void MetricTelemetrySuppliesPropertiesForCustomerToSendAggregatedMetric()
         {
+#pragma warning disable CS0618
             var instance = new MetricTelemetry("Test Metric", 4.2);
+#pragma warning restore CS0618
 
             instance.Count = 5;
             instance.Min = 1.2;
@@ -58,39 +60,14 @@
         }
 
         [TestMethod]
-        public void MeasurementMetricTelemetrySerializesToJsonCorrectly()
-        {
-            var expected = new MetricTelemetry();
-
-            expected.Name = "My Page";
-            expected.Value = 42;
-            expected.Properties.Add("Property1", "Value1");
-
-            var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
-
-            // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.name, AI.ItemType.Metric);
-
-            Assert.Equal(typeof(AI.MetricData).Name, item.data.baseType);
-            Assert.Equal(2, item.data.baseData.ver);
-            Assert.Equal(1, item.data.baseData.metrics.Count);
-            Assert.Equal(expected.Name, item.data.baseData.metrics[0].name);
-            Assert.Equal(AI.DataPointType.Measurement, item.data.baseData.metrics[0].kind);
-            Assert.Equal(expected.Value, item.data.baseData.metrics[0].value);
-            Assert.False(item.data.baseData.metrics[0].count.HasValue);
-            Assert.False(item.data.baseData.metrics[0].min.HasValue);
-            Assert.False(item.data.baseData.metrics[0].max.HasValue);
-            Assert.False(item.data.baseData.metrics[0].stdDev.HasValue);
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
-        }
-
-        [TestMethod]
         public void AggregateMetricTelemetrySerializesToJsonCorrectly()
         {
             var expected = new MetricTelemetry();
 
             expected.Name = "My Page";
+#pragma warning disable CS0618
             expected.Value = 42;
+#pragma warning restore CS0618
             expected.Count = 5;
             expected.Min = 1.2;
             expected.Max = 6.4;
@@ -105,13 +82,54 @@
             Assert.Equal(1, item.data.baseData.metrics.Count);
             Assert.Equal(expected.Name, item.data.baseData.metrics[0].name);
             Assert.Equal(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
+#pragma warning disable CS0618
             Assert.Equal(expected.Value, item.data.baseData.metrics[0].value);
+#pragma warning restore CS0618
             Assert.Equal(expected.Count.Value, item.data.baseData.metrics[0].count.Value);
             Assert.Equal(expected.Min.Value, item.data.baseData.metrics[0].min.Value);
             Assert.Equal(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
             Assert.Equal(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
 
             Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+        }
+
+        [TestMethod]
+        public void MetricTelemetrySuppliesConstructorThatAllowsToFullyPopulateAggregationData()
+        {
+            var instance = new MetricTelemetry(
+                name: "Test Metric", 
+                count: 4, 
+                sum: 40, 
+                min: 5, 
+                max: 15, 
+                standardDeviation: 4.2);
+
+            Assert.Equal("Test Metric", instance.Name);
+            Assert.Equal(4, instance.Count);
+            Assert.Equal(40, instance.Sum);
+            Assert.Equal(5, instance.Min);
+            Assert.Equal(15, instance.Max);
+            Assert.Equal(4.2, instance.StandardDeviation);
+        }
+
+        [TestMethod]
+        public void MetricTelemetrySuppliesPropertiesForCustomerToSendAggregionData()
+        {
+            var instance = new MetricTelemetry();
+
+            instance.Name = "Test Metric";
+            instance.Count = 4;
+            instance.Sum = 40;
+            instance.Min = 5.0;
+            instance.Max = 15.0;
+            instance.StandardDeviation = 4.2;
+
+            Assert.Equal("Test Metric", instance.Name);
+            Assert.Equal(4, instance.Count);
+            Assert.Equal(40, instance.Sum);
+            Assert.Equal(5, instance.Min);
+            Assert.Equal(15, instance.Max);
+            Assert.Equal(4.2, instance.StandardDeviation);
         }
 
         [TestMethod]
@@ -170,6 +188,7 @@
             Assert.Equal(2, item.data.baseData.ver);
         }
 
+#pragma warning disable CS0618
         [TestMethod]
         public void SerializeReplacesNaNValueOn0()
         {
@@ -178,6 +197,7 @@
 
             Assert.Equal(0, original.Value);
         }
+#pragma warning restore CS0618
 
         [TestMethod]
         public void SerializeReplacesNaNMinOn0()
@@ -205,7 +225,48 @@
 
             Assert.Equal(0, original.StandardDeviation.Value);
         }
+
+        [TestMethod]
+        public void SerializeReplacesNaNSumOn0()
+        {
+            MetricTelemetry original = new MetricTelemetry();
+            original.Name = "Test";
+            original.Sum = double.NaN;
+
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(0, original.Sum);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesNegativeCountOn1()
+        {
+            MetricTelemetry original = new MetricTelemetry();
+            original.Name = "Test";
+            original.Count = -5; ;
+
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(1, original.Count);
+        }
+
+        [TestMethod]
+        public void SerializeReplacesZeroCountOn1()
+        {
+            MetricTelemetry original = new MetricTelemetry();
+            original.Name = "Test";
+
+            ((ITelemetry)original).Sanitize();
+
+            Assert.Equal(1, original.Count);
+        }
+
+        [TestMethod]
+        public void CountPropertyGetterReturnsOneIfNoValueIsSet()
+        {
+            MetricTelemetry telemetry = new MetricTelemetry();
+
+            Assert.Equal(1, telemetry.Count);
+        }
     }
 }
-
-#pragma warning restore CS0618

@@ -28,7 +28,7 @@
         /// <summary>
         /// Reporting frequency.
         /// </summary>
-        private static TimeSpan snapshotFrequency = TimeSpan.FromMinutes(1);
+        private static TimeSpan aggregationPeriod = TimeSpan.FromMinutes(1);
 
         /// <summary>
         /// Telemetry client used to track resulting aggregated metrics.
@@ -48,6 +48,13 @@
         /// <summary>
         /// Indicates whether the object was disposed.
         /// </summary>
+        /// <remarks>
+        /// The class have a fairly simple and basic implementation of "is disposed"
+        /// flag which does not eliminate the possibility of a race condition. We're
+        /// not looking to eliminate all race conditions but rather trying to make 
+        /// sure the user does not make a mistake by running a long time doing a lot
+        /// of operations using disposed <see cref="MetricManager" />.
+        /// </remarks>
         private bool disposed;
 
         /// <summary>
@@ -100,6 +107,7 @@
         /// <returns>Metric instance.</returns>
         public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
+            // note: possible race conditions see remarks on this.disposed property above
             if (this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
@@ -113,6 +121,7 @@
         /// </summary>
         public void Flush()
         {
+            // note: possible race conditions see remarks on this.disposed property above
             if (this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
@@ -139,6 +148,7 @@
 
         internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(Metric metric)
         {
+            // note: possible race conditions see remarks on this.disposed property above
             if (this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
@@ -161,13 +171,13 @@
             // to make perceived system latency look smaller
             var nextWakeTime = DateTimeOffset.MinValue
                 .AddMinutes((long)minutesFromZero)
-                .Add(snapshotFrequency)
+                .Add(aggregationPeriod)
                 .AddSeconds(1);
 
             TimeSpan sleepTime = nextWakeTime - DateTimeOffset.UtcNow;
 
             // adjust wait time to a bit longer than a minute if the wake up time is within few seconds from now
-            return sleepTime < TimeSpan.FromSeconds(3) ? sleepTime.Add(snapshotFrequency) : sleepTime;
+            return sleepTime < TimeSpan.FromSeconds(3) ? sleepTime.Add(aggregationPeriod) : sleepTime;
         }
 
         /// <summary>
@@ -176,9 +186,9 @@
         /// <param name="metric">Metric definition.</param>
         /// <param name="statistics">Metric aggregator statistics calculated for a period of time.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
+        private static MetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
         {
-            var telemetry = new AggregatedMetricTelemetry(
+            var telemetry = new MetricTelemetry(
                 metric.Name,
                 statistics.Count,
                 statistics.Sum,
@@ -199,6 +209,7 @@
 
         private void Flush(bool disposing)
         {
+            // note: possible race conditions see remarks on this.disposed property above
             if ((!disposing) && this.disposed)
             {
                 throw new ObjectDisposedException(nameof(MetricManager));
@@ -259,21 +270,21 @@
             }
 
             // adjust interval duration to exactly snapshot frequency if it is close (within 1%)
-            double difference = Math.Abs(aggregationIntervalDuation.TotalMilliseconds - snapshotFrequency.TotalMilliseconds);
+            double difference = Math.Abs(aggregationIntervalDuation.TotalMilliseconds - aggregationPeriod.TotalMilliseconds);
 
-            if (difference <= snapshotFrequency.TotalMilliseconds / 100)
+            if (difference <= aggregationPeriod.TotalMilliseconds / 100)
             {
-                aggregationIntervalDuation = snapshotFrequency;
+                aggregationIntervalDuation = aggregationPeriod;
             }
 
             if (aggregatorSnapshot.Count > 0)
             {
                 foreach (KeyValuePair<Metric, SimpleMetricStatisticsAggregator> aggregatorWithStats in aggregatorSnapshot)
                 {
-                    AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
+                    if (aggregatorWithStats.Value.Count > 0)
+                    { 
+                        MetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
 
-                    if (aggergatedMetricTelemetry.Count > 0)
-                    {
                         aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
                         this.telemetryClient.Track(aggergatedMetricTelemetry);

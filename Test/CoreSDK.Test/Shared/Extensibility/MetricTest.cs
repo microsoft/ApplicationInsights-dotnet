@@ -72,8 +72,8 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             int sentSampleCount = sentTelemetry.Sum(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
-                    return metric == null ? 0 : metric.Count;
+                    var metric = telemetry as MetricTelemetry;
+                    return (metric == null) || (!metric.Count.HasValue) ? 0 : metric.Count.Value;
                 });
 
             Assert.Equal(testValues.Length, sentSampleCount);
@@ -104,7 +104,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             double sentSampleSum = sentTelemetry.Sum(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
+                    var metric = telemetry as MetricTelemetry;
                     return metric == null ? 0 : metric.Sum;
                 });
 
@@ -136,8 +136,8 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             double sentSampleSum = sentTelemetry.Min(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
-                    return metric == null ? 0 : metric.Min;
+                    var metric = telemetry as MetricTelemetry;
+                    return (metric == null) || (!metric.Min.HasValue) ? 0 : metric.Min.Value;
                 });
 
             Assert.Equal(testValues.Min(), sentSampleSum);
@@ -168,8 +168,8 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             double sentSampleMax = sentTelemetry.Max(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
-                    return metric == null ? 0 : metric.Max;
+                    var metric = telemetry as MetricTelemetry;
+                    return (metric == null) || (!metric.Max.HasValue) ? 0 : metric.Max.Value;
                 });
 
             Assert.Equal(testValues.Max(), sentSampleMax);
@@ -200,22 +200,22 @@ namespace Microsoft.ApplicationInsights.Extensibility
             // Assert
             double sumOfSquares = sentTelemetry.Sum(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
+                    var metric = telemetry as MetricTelemetry;
                     return
                     metric == null
                         ? 0
-                        : Math.Pow(metric.StandardDeviation, 2) * metric.Count + Math.Pow(metric.Sum, 2) / metric.Count;
+                        : Math.Pow(metric.StandardDeviation.Value, 2) * metric.Count.Value + Math.Pow(metric.Sum, 2) / metric.Count.Value;
                 });
 
             int count = sentTelemetry.Sum(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
-                    return metric == null ? 0 : metric.Count;
+                    var metric = telemetry as MetricTelemetry;
+                    return metric == null ? 0 : metric.Count.Value;
                 });
 
             double sum = sentTelemetry.Sum(
                 (telemetry) => {
-                    var metric = telemetry as AggregatedMetricTelemetry;
+                    var metric = telemetry as MetricTelemetry;
                     return metric == null ? 0 : metric.Sum;
                 });
 

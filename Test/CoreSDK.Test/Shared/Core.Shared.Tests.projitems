@@ -15,7 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Channel\ITelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\TelemetryBufferTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\TransmissionTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\AggregatedMetricTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\AvailabilityTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\EventTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetryTest.cs" />

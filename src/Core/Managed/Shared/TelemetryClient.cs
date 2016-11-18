@@ -191,7 +191,7 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricManager class to create metrics.")]
+        [Obsolete("This method is obsolete. Use TrackMetric(metricTelemetry) method to send pre-aggregated metric data or MetricManager class to create metrics.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
@@ -205,30 +205,15 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
+        /// Send a <see cref="MetricTelemetry"/> for representing aggregated metric data.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
         /// </summary>
-        [Obsolete("This method is obsolete. Use TrackAggregatedMetric method to send pre-aggregated metric data or MetricManager class to create metrics.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
             {
                 telemetry = new MetricTelemetry();
-            }
-
-            this.Track(telemetry);
-        }
-
-        /// <summary>
-        /// Send a <see cref="AggregatedMetricTelemetry"/> representing aggregation of metric data.
-        /// Create a separate <see cref="AggregatedMetricTelemetry"/> instance for each call to <see cref="TrackAggregatedMetric(AggregatedMetricTelemetry)"/>.
-        /// </summary>
-        public void TrackAggregatedMetric(AggregatedMetricTelemetry telemetry)
-        {
-            if (telemetry == null)
-            {
-                telemetry = new AggregatedMetricTelemetry();
             }
 
             this.Track(telemetry);
