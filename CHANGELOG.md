@@ -4,12 +4,13 @@
 - ```DomainNameRoleInstanceTelemetryInitializer``` is obsolete. Role instance is still populated with machine name as it was before.
 - New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
 - Support of performance collection and live metrics for Azure Web Apps is enabled.
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.5 for net46 and reverted to 2.0.1 for net40 and net45.
 
 ## Version 2.2.0-beta3
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
 - Default performance counters will be reported as metrics
 - When you instantiate `DependencyTrackingTelemetryModule` in code it will not detect certain http dependencies as Azure Storage calls. You need to register a telemetry initializer `HttpDependenciesParsingTelemetryInitializer` to enable this functionality. This telemetry initializer will be registered automatically during NuGet installation.
-- DependencyCollection nuget package was updated to Agent.Intercept nuget version XXX (TODO: update to the final version).
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.5.
 - The list of userAgent substrings that indicate that traffic is from a synthetic source was minimized for performance reasons. If you want to include more substrings please add them under SyntheticUserAgentTelemetryInitializer/Filters. (List of filters that were used before is saved as a comment in the configuration file)
 - Added HTTP dependencies parsing support for Azure tables, queues, and services (.svc & .asmx).
 
