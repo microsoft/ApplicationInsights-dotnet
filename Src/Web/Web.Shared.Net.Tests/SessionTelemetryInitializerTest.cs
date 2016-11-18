@@ -21,15 +21,15 @@
         [TestMethod]
         public void InitializeSetsIdForTelemetryUsingIdFromRequestTelemetry()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
             var source = new TestableSessionTelemetryInitializer();
             var context = source.FakeContext.CreateRequestTelemetryPrivate();
             
             context.Context.Session.Id = "1";
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("1", metricTelemetry.Context.Session.Id);
+            Assert.AreEqual("1", eventTelemetry.Context.Session.Id);
         }
 
         [TestMethod]
@@ -50,16 +50,16 @@
         [TestMethod]
         public void InitializeDoesNotSetIdIfTelemetryHasIt()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
             var source = new TestableSessionTelemetryInitializer();
             var context = source.FakeContext.CreateRequestTelemetryPrivate();
 
             context.Context.Session.Id = "1";
-            metricTelemetry.Context.Session.Id = "2";
-            source.Initialize(metricTelemetry);
+            eventTelemetry.Context.Session.Id = "2";
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("2", metricTelemetry.Context.Session.Id);
+            Assert.AreEqual("2", eventTelemetry.Context.Session.Id);
         }
 
         [TestMethod]

@@ -34,11 +34,11 @@
                     {
                         Assert.AreEqual(configuration.InstrumentationKey, telemetry.Context.InstrumentationKey);
 
-                        Assert.IsInstanceOfType(telemetry, typeof(MetricTelemetry));
+                        Assert.IsInstanceOfType(telemetry, typeof(AggregatedMetricTelemetry));
 
-                        var perfTelemetry = telemetry as MetricTelemetry;
+                        var perfTelemetry = telemetry as AggregatedMetricTelemetry;
                         
-                        Assert.AreEqual((double)perfTelemetry.Name.GetHashCode(), perfTelemetry.Value);
+                        Assert.AreEqual((double)perfTelemetry.Name.GetHashCode(), perfTelemetry.Sum);
                     }
                     catch (AssertFailedException e)
                     {

@@ -170,7 +170,7 @@
             var module = new TestableClientIpHeaderTelemetryInitializer(dictionary);
             module.HeaderNames.Clear();
             module.HeaderNames.Add("CustomHeader");
-            var telemetry = new MetricTelemetry();
+            var telemetry = new EventTelemetry();
 
             module.Initialize(telemetry);
 

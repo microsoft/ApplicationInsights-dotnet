@@ -216,7 +216,7 @@
             // ACT
             telemetryProcessor.Process(new EventTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new ExceptionTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-            telemetryProcessor.Process(new MetricTelemetry() { Context = { InstrumentationKey = "some ikey" } });
+            telemetryProcessor.Process(new AggregatedMetricTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new PageViewTelemetry() { Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new TraceTelemetry() { Context = { InstrumentationKey = "some ikey" } });
 

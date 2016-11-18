@@ -31,33 +31,33 @@
         public void InitializeSetsIdForTelemetryUsingIdFromRequestTelemetry()
         {
             // Arrange
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableAuthenticatedUserIdTelemetryInitializer();
             RequestTelemetry requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
             requestTelemetry.Context.User.AuthenticatedUserId = "1";
 
             // Act
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
             // Assert
-            Assert.AreEqual("1", metricTelemetry.Context.User.AuthenticatedUserId);
+            Assert.AreEqual("1", eventTelemetry.Context.User.AuthenticatedUserId);
         }
 
         [TestMethod]
         public void InitializeDoesNotSetIdIfTelemetryHasIt()
         {
             // Arrange
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableAuthenticatedUserIdTelemetryInitializer();
             RequestTelemetry requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
             requestTelemetry.Context.User.AuthenticatedUserId = "1";
-            metricTelemetry.Context.User.AuthenticatedUserId = "2";
+            eventTelemetry.Context.User.AuthenticatedUserId = "2";
 
             // Act
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
             // Assert
-            Assert.AreEqual("2", metricTelemetry.Context.User.AuthenticatedUserId);
+            Assert.AreEqual("2", eventTelemetry.Context.User.AuthenticatedUserId);
         }
 
         [TestMethod]

@@ -12,9 +12,9 @@
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
-            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+            eventTelemetry.Context.Operation.SyntheticSource = "SOURCE";
 
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
@@ -22,80 +22,80 @@
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("SOURCE", metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.AreEqual("SOURCE", eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void SyntheticSourceIsSetToWellKnownValue()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "SyntheticTest-Location", "LOCATION" },
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("Application Insights Availability Monitoring", metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.AreEqual("Application Insights Availability Monitoring", eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void UserIdIsSetToLocationPlusRun()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "SyntheticTest-Location", "LOCATION" },
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("LOCATION_ID", metricTelemetry.Context.User.Id);
+            Assert.AreEqual("LOCATION_ID", eventTelemetry.Context.User.Id);
         }
 
         [TestMethod]
         public void UserSessionSourceAreNotSetIfLocationIsNotSet()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.IsNull(metricTelemetry.Context.User.Id);
-            Assert.IsNull(metricTelemetry.Context.Session.Id);
-            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.IsNull(eventTelemetry.Context.User.Id);
+            Assert.IsNull(eventTelemetry.Context.Session.Id);
+            Assert.IsNull(eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void UserSessionSourceAreNotSetIfRunIsNotSet()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "SyntheticTest-Location", "LOCATION" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.IsNull(metricTelemetry.Context.User.Id);
-            Assert.IsNull(metricTelemetry.Context.Session.Id);
-            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.IsNull(eventTelemetry.Context.User.Id);
+            Assert.IsNull(eventTelemetry.Context.Session.Id);
+            Assert.IsNull(eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void UserIdIsNotOverriden()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
-            metricTelemetry.Context.User.Id = "UserId";
-            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+            eventTelemetry.Context.User.Id = "UserId";
+            eventTelemetry.Context.Operation.SyntheticSource = "SOURCE";
 
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
@@ -103,18 +103,18 @@
                     { "synthetictest-runid", "ID" },
                 });
             
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("UserId", metricTelemetry.Context.User.Id);
+            Assert.AreEqual("UserId", eventTelemetry.Context.User.Id);
         }
 
         [TestMethod]
         public void SessionIdIsNotOverriden()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
-            metricTelemetry.Context.Session.Id = "SessionId";
-            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+            eventTelemetry.Context.Session.Id = "SessionId";
+            eventTelemetry.Context.Operation.SyntheticSource = "SOURCE";
 
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
@@ -122,15 +122,15 @@
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("SessionId", metricTelemetry.Context.Session.Id);
+            Assert.AreEqual("SessionId", eventTelemetry.Context.Session.Id);
         }
 
         [TestMethod]
         public void SessionIdIsSetToRunId()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
 
             var source = new TestableWebTestTelemetryInitializer(new Dictionary<string, string>
                 {
@@ -138,9 +138,9 @@
                     { "synthetictest-runid", "ID" },
                 });
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("ID", metricTelemetry.Context.Session.Id);
+            Assert.AreEqual("ID", eventTelemetry.Context.Session.Id);
         }
 
         private class TestableWebTestTelemetryInitializer : WebTestTelemetryInitializer
