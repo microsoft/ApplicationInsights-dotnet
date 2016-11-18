@@ -201,39 +201,6 @@
         }
 
         [TestMethod]
-        public void CannotCreateMetricUsingDisposedMetricManager()
-        {
-            MetricManager manager = null;
-
-            using (manager = new MetricManager()) { }
-
-            Assert.Throws<ObjectDisposedException>(() => { var metric = manager.CreateMetric("My Metric"); });
-        }
-
-        [TestMethod]
-        public void CannotFlushUsingDisposedMetricManager()
-        {
-            MetricManager manager = null;
-
-            using (manager = new MetricManager()) { }
-
-            Assert.Throws<ObjectDisposedException>(() => { manager.Flush(); });
-        }
-
-        [TestMethod]
-        public void CannotTrackValueOnMetricCreatedViaNowDisposedMetricManager()
-        {
-            Metric metric = null;
-
-            using (MetricManager manager = new MetricManager())
-            {
-                metric = manager.CreateMetric("My metric");
-            }
-
-            Assert.Throws<ObjectDisposedException>(() => { metric.Track(42); });
-        }
-
-        [TestMethod]
         public void CanDisposeMetricManagerMultipleTimes()
         {
             MetricManager manager = null;

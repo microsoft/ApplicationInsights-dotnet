@@ -46,18 +46,6 @@
         private DateTimeOffset lastSnapshotStartDateTime;
 
         /// <summary>
-        /// Indicates whether the object was disposed.
-        /// </summary>
-        /// <remarks>
-        /// The class have a fairly simple and basic implementation of "is disposed"
-        /// flag which does not eliminate the possibility of a race condition. We're
-        /// not looking to eliminate all race conditions but rather trying to make 
-        /// sure the user does not make a mistake by running a long time doing a lot
-        /// of operations using disposed <see cref="MetricManager" />.
-        /// </remarks>
-        private bool disposed;
-
-        /// <summary>
         /// A dictionary of all metrics instantiated via this manager.
         /// </summary>
         private ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator> metricDictionary;
@@ -107,12 +95,6 @@
         /// <returns>Metric instance.</returns>
         public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
-            // note: possible race conditions see remarks on this.disposed property above
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
             return new Metric(this, name, dimensions);
         }
 
@@ -121,13 +103,15 @@
         /// </summary>
         public void Flush()
         {
-            // note: possible race conditions see remarks on this.disposed property above
-            if (this.disposed)
+            try
             {
-                throw new ObjectDisposedException(nameof(MetricManager));
+                this.Snapshot();
+                this.telemetryClient.Flush();
             }
-
-            this.Flush(false);
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -135,25 +119,17 @@
         /// </summary>
         public void Dispose()
         {
-            this.disposed = true;
-
             if (this.snapshotTimer != null)
             {
                 this.snapshotTimer.Dispose();
                 this.snapshotTimer = null;
             }
 
-            this.Flush(true);
+            this.Flush();
         }
 
         internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(Metric metric)
         {
-            // note: possible race conditions see remarks on this.disposed property above
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
             return this.metricDictionary.GetOrAdd(metric, (m) => { return new SimpleMetricStatisticsAggregator(); });
         }
 
@@ -205,25 +181,6 @@
             }
 
             return telemetry;
-        }
-
-        private void Flush(bool disposing)
-        {
-            // note: possible race conditions see remarks on this.disposed property above
-            if ((!disposing) && this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
-            try
-            {
-                this.Snapshot();
-                this.telemetryClient.Flush();
-            }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
-            }
         }
 
         /// <summary>
