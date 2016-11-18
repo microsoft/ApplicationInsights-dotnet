@@ -32,7 +32,11 @@
             "type": "build"
         },
         "Microsoft.ApplicationInsights": "2.2.0-beta4-*",
-        "Microsoft.AspNetCore.Hosting": "1.1.0",
+        "Microsoft.AspNetCore.Hosting": "1.0.0",
+        "Microsoft.Extensions.Configuration": "1.0.0",
+        "Microsoft.Extensions.Configuration.Json": "1.0.0",
+        "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
+        "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
         "Microsoft.CodeAnalysis.Analyzers": {
             "version": "1.2.0-beta2",
             "type": "build"
@@ -41,10 +45,6 @@
             "version": "1.2.0-beta2",
             "type": "build"
         },
-        "Microsoft.Extensions.Configuration": "1.1.0",
-      "Microsoft.Extensions.Configuration.Json": "1.1.0",
-        "Microsoft.Extensions.DiagnosticAdapter": "1.1.0",
-        "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
         "Microsoft.Maintainability.Analyzers": {
             "version": "1.2.0-beta2",
             "type": "build"
@@ -101,7 +101,7 @@
         },
         "netstandard1.6": {
           "dependencies": {
-            "NETStandard.Library": "1.6.1",
+            "NETStandard.Library": "1.6.0",
             "System.Net.NameResolution": "4.0.0"
           }
         }

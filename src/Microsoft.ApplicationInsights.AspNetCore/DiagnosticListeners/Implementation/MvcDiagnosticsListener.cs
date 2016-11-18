@@ -7,9 +7,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
 
-    public class MvcDiagnosticsListener: IApplicationInsightDiagnosticListener
+    public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
-        public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
+        internal const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 

@@ -7,7 +7,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
 
-    internal class HostingDiagnosticListener: IApplicationInsightDiagnosticListener
+    internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient client;
         private readonly ContextData<long> beginRequestTimestamp = new ContextData<long>();

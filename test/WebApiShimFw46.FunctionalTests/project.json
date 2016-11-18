@@ -16,23 +16,23 @@
     "FunctionalTestUtils": { "target": "project" },
     "Microsoft.ApplicationInsights.AspNetCore": { "target": "project" },
     "Microsoft.AspNet.WebApi.Client": "5.2.3",
-    "Microsoft.AspNetCore.Mvc": "1.1.0",
-    "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.1.0",
-    "Microsoft.AspNetCore.StaticFiles": "1.1.0",
-    "Microsoft.Extensions.Configuration.Json": "1.1.0",
+    "Microsoft.AspNetCore.Mvc": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.WebApiCompatShim": "1.0.0",
+    "Microsoft.AspNetCore.StaticFiles": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "Microsoft.VisualStudio.Web.CodeGeneration.Utils": "1.0.0-preview3-final",
     "Microsoft.DotNet.InternalAbstractions": "1.0.0",
     "xunit": "2.2.0-*"
   },
   "frameworks": {
-    "netcoreapp1.1": {
+    "netcoreapp1.0": {
       "imports": [
         "portable-net45+netcore45+wp8+wp81+wpa81"
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.1.0"
+          "version": "1.0.0"
         }
       }
     },

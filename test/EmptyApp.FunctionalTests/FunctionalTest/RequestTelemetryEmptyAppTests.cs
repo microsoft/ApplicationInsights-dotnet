@@ -58,20 +58,20 @@
                     task.Wait(TestTimeoutMs);
                 }
             }
-            var request = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
-            var eventTelemetry = server.BackChannel.Buffer.OfType<EventTelemetry>().Single();
-            var metricTelemetry = server.BackChannel.Buffer.OfType<MetricTelemetry>().Single();
-            var traceTelemetry = server.BackChannel.Buffer.OfType<TraceTelemetry>().Single();
+
+            var telemetries = server.BackChannel.Buffer;
 #if NET451
-            var dependencyTelemetry = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
-            Assert.NotNull(dependencyTelemetry);
+            Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "/Mixed");
 #endif
 
-            Assert.True(server.BackChannel.Buffer.Count >= 4);
-            Assert.NotNull(request);
-            Assert.NotNull(eventTelemetry);
-            Assert.NotNull(metricTelemetry);
-            Assert.NotNull(traceTelemetry);
+            Assert.True(telemetries.Count >= 4);
+            Assert.Contains(telemetries.OfType<RequestTelemetry>(), t => t.Name == "GET /Mixed");
+            Assert.Contains(telemetries.OfType<EventTelemetry>(), t => t.Name == "GetContact");
+            Assert.Contains(telemetries.OfType<MetricTelemetry>(),
+                t => t.Name == "ContactFile" && t.Value == 1);
+
+            Assert.Contains(telemetries.OfType<TraceTelemetry>(),
+                t => t.Message == "Fetched contact details." && t.SeverityLevel == SeverityLevel.Information);
         }
     }
 }
