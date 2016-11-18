@@ -171,7 +171,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceOptions.EndpointAddress = endpointAddress;
             }
 
-            serviceOptions.Version = config[VersionKeyFromConfig];
+            var version = config[VersionKeyFromConfig];
+            if (!string.IsNullOrWhiteSpace(version))
+            {
+                serviceOptions.Version = version;
+            }
         }
     }
 }

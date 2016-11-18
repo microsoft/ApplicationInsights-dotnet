@@ -1,4 +1,5 @@
-﻿using Microsoft.ApplicationInsights.Extensibility;
+﻿using System.Reflection;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +18,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
             this.LoggerMinimumLevel = LogLevel.Information;
+            this.Version = Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
 
         /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
         public bool EnableQuickPulseMetricStream { get; set; }
 
         /// <summary>
-        /// Setting EnableAdaptiveSampling to false, will disable the default adaptive sampling feature. As a result, no telemetry processor 
+        /// Setting EnableAdaptiveSampling to false, will disable the default adaptive sampling feature. As a result, no telemetry processor
         /// that controls sampling is added to the service by default.
         /// </summary>
         public bool EnableAdaptiveSampling { get; set; }
