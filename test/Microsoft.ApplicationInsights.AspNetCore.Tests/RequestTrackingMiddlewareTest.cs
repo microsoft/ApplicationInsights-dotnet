@@ -22,11 +22,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 
         private ITelemetry sentTelemetry;
 
-        private readonly AspNetCoreHostingDiagnosticListener middleware;
+        private readonly HostingDiagnosticListener middleware;
 
         public RequestTrackingMiddlewareTest()
         {
-            this.middleware = new AspNetCoreHostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
         }
 
         [Fact]

@@ -7,7 +7,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
 
-    public class AspNetCoreMvcDiagnosticsListener : IApplicationInsightDiagnosticListener
+    public class MvcDiagnosticsListener: IApplicationInsightDiagnosticListener
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 

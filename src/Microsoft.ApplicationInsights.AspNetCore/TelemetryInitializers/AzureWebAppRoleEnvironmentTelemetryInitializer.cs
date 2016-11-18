@@ -10,7 +10,7 @@
     /// <summary>
     /// A telemetry initializer that will gather Azure Web App Role Environment context information.
     /// </summary>
-    public class AzureWebAppRoleEnvironmentTelemetryInitializer : TelemetryInitializerBase
+    internal class AzureWebAppRoleEnvironmentTelemetryInitializer : TelemetryInitializerBase
     {
         /// <summary>Azure Web App name corresponding to the resource name.</summary>
         private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";

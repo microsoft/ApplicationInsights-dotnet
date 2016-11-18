@@ -19,6 +19,9 @@
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
+    /// <summary>
+    /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
+    /// </summary>
     public static class ApplicationInsightsExtensions
     {
         private const string VersionKeyFromConfig = "version";
@@ -30,18 +33,38 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, string instrumentationKey)
         {
             services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
             return services;
         }
 
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="configuration">Configuration to use for sending telemetry.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
             return services;
         }
 
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="options">The action used to configure the options.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, Action<ApplicationInsightsServiceOptions> options)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -66,8 +89,8 @@
             services.AddSingleton<TelemetryClient>();
 
             services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
-            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreHostingDiagnosticListener>();
-            services.AddSingleton<IApplicationInsightDiagnosticListener, AspNetCoreMvcDiagnosticsListener>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, MvcDiagnosticsListener>();
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             services.AddSingleton<JavaScriptSnippet>();
@@ -83,6 +106,14 @@
             return services;
         }
 
+        /// <summary>
+        /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>
+        /// </summary>
+        /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
+        /// <param name="developerMode">Enables or disables developer mode</param>
+        /// <param name="endpointAddress">Sets telemetry endpoint address</param>
+        /// <param name="instrumentationKey">Sets instrumentation key</param>
+        /// <returns>The <see cref="IConfigurationBuilder"/></returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
@@ -177,7 +208,7 @@
             var version = config[VersionKeyFromConfig];
             if (!string.IsNullOrWhiteSpace(version))
             {
-                serviceOptions.Version = version;
+                serviceOptions.ApplicationVersion = version;
             }
         }
     }

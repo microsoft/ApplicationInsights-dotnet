@@ -7,13 +7,13 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
 
-    internal class AspNetCoreHostingDiagnosticListener : IApplicationInsightDiagnosticListener
+    internal class HostingDiagnosticListener: IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient client;
         private readonly ContextData<long> beginRequestTimestamp = new ContextData<long>();
         private readonly string sdkVersion;
 
-        public AspNetCoreHostingDiagnosticListener(TelemetryClient client)
+        public HostingDiagnosticListener(TelemetryClient client)
         {
             this.client = client;
             this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();

@@ -9,7 +9,7 @@
     /// Telemetry initializer populates user agent (telemetry.Context.User.UserAgent) for
     /// all telemetry data items.
     /// </summary>
-    public class UserAgentTelemetryInitializer : TelemetryInitializerBase
+    internal class UserAgentTelemetryInitializer : TelemetryInitializerBase
     {
         public UserAgentTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {

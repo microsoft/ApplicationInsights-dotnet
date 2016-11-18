@@ -22,7 +22,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         public static readonly AspNetCoreEventSource Instance = new AspNetCoreEventSource();
 
         /// <summary>
-        /// Prevents a default instance of the AspNetEventSource class from being created.
+        /// Prevents a default instance of the <see cref="AspNetCoreEventSource"/> class from being created.
         /// </summary>
         private AspNetCoreEventSource() : base()
         {

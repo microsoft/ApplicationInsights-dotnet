@@ -7,12 +7,12 @@
     /// <summary>
     /// Set of extension methods for Microsoft.AspNetCore.Http.HttpRequest
     /// </summary>
-    internal static class HttpRequestExtensions
+    public static class HttpRequestExtensions
     {
         /// <summary>
         /// Gets http request Uri from request object
         /// </summary>
-        /// <param name="request">request</param>
+        /// <param name="request">The <see cref="HttpRequest"/></param>
         /// <returns>A New Uri object representing request Uri</returns>
         public static Uri GetUri(this HttpRequest request)
         {

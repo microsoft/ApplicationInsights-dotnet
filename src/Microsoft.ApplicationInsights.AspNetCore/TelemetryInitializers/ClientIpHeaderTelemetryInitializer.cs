@@ -13,7 +13,7 @@
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
     /// </summary>
-    public class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
+    internal class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
         private const string HeaderNameDefault = "X-Forwarded-For";
         private readonly char[] headerValuesSeparatorDefault = { ',' };
@@ -57,37 +57,6 @@
         /// Gets or sets a value indicating whether the first or the last IP should be used from the lists of IPs in the header.
         /// </summary>
         public bool UseFirstIp { get; set; }
-
-        private static string CutPort(string address)
-        {
-            // For Web sites in Azure header contains ip address with port e.g. 50.47.87.223:54464
-            int portSeparatorIndex = address.IndexOf(":", StringComparison.OrdinalIgnoreCase);
-
-            if (portSeparatorIndex > 0)
-            {
-                return address.Substring(0, portSeparatorIndex);
-            }
-
-            return address;
-        }
-
-        private static bool IsCorrectIpAddress(string address)
-        {
-            IPAddress outParameter;
-            address = address.Trim();
-
-            // Core SDK does not support setting Location.Ip to malformed ip address
-            if (IPAddress.TryParse(address, out outParameter))
-            {
-                // Also SDK supports only ipv4!
-                if (outParameter.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
@@ -134,6 +103,37 @@
             }
 
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
+        }
+
+        private static string CutPort(string address)
+        {
+            // For Web sites in Azure header contains ip address with port e.g. 50.47.87.223:54464
+            int portSeparatorIndex = address.IndexOf(":", StringComparison.OrdinalIgnoreCase);
+
+            if (portSeparatorIndex > 0)
+            {
+                return address.Substring(0, portSeparatorIndex);
+            }
+
+            return address;
+        }
+
+        private static bool IsCorrectIpAddress(string address)
+        {
+            IPAddress outParameter;
+            address = address.Trim();
+
+            // Core SDK does not support setting Location.Ip to malformed ip address
+            if (IPAddress.TryParse(address, out outParameter))
+            {
+                // Also SDK supports only ipv4!
+                if (outParameter.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private string GetIpFromHeader(string clientIpsFromHeader)

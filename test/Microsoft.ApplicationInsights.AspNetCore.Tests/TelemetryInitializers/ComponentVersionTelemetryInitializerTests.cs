@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         {
             return new OptionsWrapper<ApplicationInsightsServiceOptions>(new ApplicationInsightsServiceOptions()
             {
-                Version = versions
+                ApplicationVersion = versions
             });
         }
     }

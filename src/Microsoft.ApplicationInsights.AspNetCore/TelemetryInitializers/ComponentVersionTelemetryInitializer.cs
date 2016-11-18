@@ -14,7 +14,7 @@
 
         public ComponentVersionTelemetryInitializer(IOptions<ApplicationInsightsServiceOptions> options)
         {
-             this.version = options.Value.Version;
+             this.version = options.Value.ApplicationVersion;
         }
 
         public void Initialize(ITelemetry telemetry)

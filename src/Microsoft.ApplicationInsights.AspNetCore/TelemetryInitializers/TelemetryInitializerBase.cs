@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
 
-    public abstract class TelemetryInitializerBase : ITelemetryInitializer
+    internal abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
         private IHttpContextAccessor httpContextAccessor;
 
