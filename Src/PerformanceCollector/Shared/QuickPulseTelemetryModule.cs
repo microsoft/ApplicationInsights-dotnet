@@ -318,7 +318,7 @@
         private static string GetInstanceName(TelemetryConfiguration configuration)
         {
             // we need to initialize an item to get instance information
-            var fakeItem = new MetricTelemetry();
+            var fakeItem = new EventTelemetry();
 
             try
             {
