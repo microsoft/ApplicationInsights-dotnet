@@ -95,24 +95,34 @@ namespace FuncTest.Helpers
 
                         if (RegistryCheck.IsNet46Installed)
                         {
-                            // .NET 4.6 onwards, there is no need of installing agent
-                            ExpectedSDKPrefix = !RegistryCheck.IsStatusMonitorInstalled
-                                ? "rddf"
-                                : "rddp";
-                            Trace.TraceInformation("Tests against 4.6 framework (Excpected prefix: "+ ExpectedSDKPrefix + ").");
+                            Trace.TraceInformation("Detected DotNet46 as installed. Will check StatusMonitor status to determine expected prefix");
+
+                            if(RegistryCheck.IsStatusMonitorInstalled)
+                            {
+                                Trace.TraceInformation("Detected Status Monitor as installed, ExpectedPrefix: rddp");
+                                ExpectedSDKPrefix = "rddp";
+                            }
+                            else
+                            {
+                                Trace.TraceInformation("Detected Status Monitor as not installed, ExpectedPrefix: rddf");
+                                ExpectedSDKPrefix = "rddf";
+                            }                                                        
                         }
                         else
                         {
+                            Trace.TraceInformation("Detected DotNet46 as not installed. Will install StatusMonitor if not already installed.");
                             Trace.TraceInformation("Tests against StatusMonitor instrumentation.");
                             ExpectedSDKPrefix = "rddp";
 
                             if (!RegistryCheck.IsStatusMonitorInstalled)
                             {
+                                Trace.TraceInformation("StatusMonitor not already installed.Installing from:" + ExecutionEnvironment.InstallerPath);
                                 Installer.SetInternalUI(InstallUIOptions.Silent);
                                 string installerPath = ExecutionEnvironment.InstallerPath;
                                 try
                                 {
                                     Installer.InstallProduct(installerPath, "ACTION=INSTALL ALLUSERS=1 MSIINSTALLPERUSER=1");
+                                    Trace.TraceInformation("StatusMonitor installed without errors.");
                                 }
                                 catch (Exception ex)
                                 {
@@ -122,9 +132,15 @@ namespace FuncTest.Helpers
                                     throw;
                                 }
                             }
+                            else
+                            {
+                                Trace.TraceInformation("StatusMonitor already installed.");
+                            }
                         }
 
+                        Trace.TraceInformation("IIS Restart begin.");
                         Iis.Reset();
+                        Trace.TraceInformation("IIS Restart end.");
 
                         isInitialized = true;
                     }
