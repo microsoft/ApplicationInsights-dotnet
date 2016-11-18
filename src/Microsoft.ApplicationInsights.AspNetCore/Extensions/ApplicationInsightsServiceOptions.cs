@@ -1,10 +1,8 @@
-﻿using System.Reflection;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
+    using System.Reflection;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
     /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of featuers obtained from Application Insights.
     /// </summary>

@@ -1,22 +1,22 @@
-﻿using System;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DiagnosticAdapter;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-    internal class AspNetCoreHostingDiagnosticListener: IApplicationInsightDiagnosticListener
+    using System;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.DiagnosticAdapter;
+
+    internal class AspNetCoreHostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
-        private readonly TelemetryClient _client;
-        private readonly ContextData<long> _beginRequestTimestamp = new ContextData<long>();
-        private readonly string _sdkVersion;
+        private readonly TelemetryClient client;
+        private readonly ContextData<long> beginRequestTimestamp = new ContextData<long>();
+        private readonly string sdkVersion;
 
         public AspNetCoreHostingDiagnosticListener(TelemetryClient client)
         {
-            _client = client;
-            _sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
+            this.client = client;
+            this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
         public string ListenerName { get; } = "Microsoft.AspNetCore";
@@ -24,23 +24,23 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         [DiagnosticName("Microsoft.AspNetCore.Hosting.BeginRequest")]
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
         {
-            if (_client.IsEnabled())
+            if (this.client.IsEnabled())
             {
                 httpContext.Features.Set(new RequestTelemetry());
 
-                _beginRequestTimestamp.Value = timestamp;
-                _client.Context.Operation.Id = httpContext.TraceIdentifier;
+                this.beginRequestTimestamp.Value = timestamp;
+                this.client.Context.Operation.Id = httpContext.TraceIdentifier;
             }
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
         public void OnEndRequest(HttpContext httpContext, long timestamp)
         {
-            if (_client.IsEnabled())
+            if (this.client.IsEnabled())
             {
                 var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
-                telemetry.Duration = new TimeSpan(timestamp - _beginRequestTimestamp.Value);
+                telemetry.Duration = new TimeSpan(timestamp - this.beginRequestTimestamp.Value);
                 telemetry.Timestamp = DateTime.Now - telemetry.Duration;
                 telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
 
@@ -58,34 +58,35 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 {
                     telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
                 }
+
                 telemetry.HttpMethod = httpContext.Request.Method;
                 telemetry.Url = httpContext.Request.GetUri();
-                telemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
-                _client.TrackRequest(telemetry);
+                telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
+                this.client.TrackRequest(telemetry);
             }
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Hosting.UnhandledException")]
         public void OnHostingException(HttpContext httpContext, Exception exception)
         {
-            OnException(httpContext, exception);
+            this.OnException(httpContext, exception);
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Diagnostics.HandledException")]
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
         {
-            OnException(httpContext, exception);
+            this.OnException(httpContext, exception);
         }
 
         [DiagnosticName("Microsoft.AspNetCore.Diagnostics.UnhandledException")]
         public void OnDiagnosticsUnhandledException(HttpContext httpContext, Exception exception)
         {
-            OnException(httpContext, exception);
+            this.OnException(httpContext, exception);
         }
 
         private void OnException(HttpContext httpContext, Exception exception)
         {
-            if (_client.IsEnabled())
+            if (this.client.IsEnabled())
             {
                 var telemetry = httpContext?.Features.Get<RequestTelemetry>();
                 if (telemetry != null)
@@ -95,8 +96,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
                 var exceptionTelemetry = new ExceptionTelemetry(exception);
                 exceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
-                exceptionTelemetry.Context.GetInternalContext().SdkVersion = _sdkVersion;
-                _client.Track(exceptionTelemetry);
+                exceptionTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
+                this.client.Track(exceptionTelemetry);
             }
         }
     }

@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using Microsoft.ApplicationInsights.DataContracts;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Logging
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.Extensions.Logging;
+
     internal class ApplicationInsightsLogger : ILogger
     {
-        private readonly string _categoryName;
-        private readonly TelemetryClient _telemetryClient;
-        private readonly LogLevel _minimumLevel;
+        private readonly string categoryName;
+        private readonly TelemetryClient telemetryClient;
+        private readonly LogLevel minimumLevel;
 
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, LogLevel minimumLevel)
         {
-            _categoryName = name;
-            _telemetryClient = telemetryClient;
-            _minimumLevel = minimumLevel;
+            this.categoryName = name;
+            this.telemetryClient = telemetryClient;
+            this.minimumLevel = minimumLevel;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -25,15 +25,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel >= _minimumLevel && _telemetryClient.IsEnabled();
+            return logLevel >= this.minimumLevel && this.telemetryClient.IsEnabled();
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (IsEnabled(logLevel))
+            if (this.IsEnabled(logLevel))
             {
                 var dict = new Dictionary<string, string>();
-                dict["CategoryName"] = _categoryName;
+                dict["CategoryName"] = this.categoryName;
                 dict["Exception"] = exception?.ToString();
                 var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
                 if (stateDictionary != null)
@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
                     }
                 }
 
-                _telemetryClient.TrackTrace(formatter(state, exception), GetSeverityLevel(logLevel), dict);
+                this.telemetryClient.TrackTrace(formatter(state, exception), this.GetSeverityLevel(logLevel), dict);
             }
         }
 
@@ -66,6 +66,5 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Logging
                     return SeverityLevel.Verbose;
             }
         }
-
     }
 }

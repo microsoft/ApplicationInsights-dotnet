@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Extensions.Options;
-
-namespace Microsoft.Extensions.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.Extensions.Options;
+
     internal class TelemetryConfigurationOptions : IOptions<TelemetryConfiguration>
     {
         public TelemetryConfigurationOptions(IEnumerable<IConfigureOptions<TelemetryConfiguration>> configureOptions)
         {
             foreach (var c in configureOptions)
             {
-                c.Configure(Value);
+                c.Configure(this.Value);
             }
         }
 

@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DiagnosticAdapter;
-
 namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-    public class AspNetCoreMvcDiagnosticsListener: IApplicationInsightDiagnosticListener
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.DiagnosticAdapter;
+
+    public class AspNetCoreMvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
         public const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
 

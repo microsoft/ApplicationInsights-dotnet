@@ -1,12 +1,12 @@
-﻿#if NET451
-using System.Runtime.Remoting.Messaging;
-using System.Runtime.Remoting;
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
+{
+#if NET451
+    using System.Runtime.Remoting.Messaging;
+    using System.Runtime.Remoting;
 #else
-using System.Threading;
+    using System.Threading;
 #endif
 
-namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
-{
     internal class ContextData<T>
     {
 #if NET451
@@ -25,12 +25,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
         }
 #else
-        private readonly AsyncLocal<T> _storage = new AsyncLocal<T>();
+        private readonly AsyncLocal<T> storage = new AsyncLocal<T>();
 
         public T Value
         {
-            get { return _storage.Value; }
-            set { _storage.Value = value; }
+            get { return this.storage.Value; }
+            set { this.storage.Value = value; }
         }
 #endif
     }

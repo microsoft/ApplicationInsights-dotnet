@@ -1,28 +1,28 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
-namespace Microsoft.AspNetCore.Hosting
+﻿namespace Microsoft.AspNetCore.Hosting
 {
-    internal class DefaultApplicationInsightsServiceConfigureOptions: IConfigureOptions<ApplicationInsightsServiceOptions>
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
+
+    internal class DefaultApplicationInsightsServiceConfigureOptions : IConfigureOptions<ApplicationInsightsServiceOptions>
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IHostingEnvironment hostingEnvironment;
 
         public DefaultApplicationInsightsServiceConfigureOptions(IHostingEnvironment hostingEnvironment)
         {
-            _hostingEnvironment = hostingEnvironment;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public void Configure(ApplicationInsightsServiceOptions options)
         {
             var configBuilder = new ConfigurationBuilder()
-                .SetBasePath(_hostingEnvironment.ContentRootPath)
+                .SetBasePath(this.hostingEnvironment.ContentRootPath)
                 .AddJsonFile("appsettings.json", true)
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 
-            if (_hostingEnvironment.IsDevelopment())
+            if (this.hostingEnvironment.IsDevelopment())
             {
                 options.DeveloperMode = true;
             }

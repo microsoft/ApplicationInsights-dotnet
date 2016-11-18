@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.AspNetCore;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
-using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-using Microsoft.ApplicationInsights.Extensibility;
-#if NET451
-using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
-#endif
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
-using Microsoft.Extensions.Options;
-
-namespace Microsoft.Extensions.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.Memory;
+    using Microsoft.Extensions.Options;
+
+#if NET451
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+#endif
+
     public static class ApplicationInsightsExtensions
     {
         private const string VersionKeyFromConfig = "version";
@@ -34,6 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
             return services;
         }
+
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
@@ -120,7 +122,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Read from configuration
         /// Config.json will look like this:
-        ///
+        /// <para>
         ///      "ApplicationInsights": {
         ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
         ///          "TelemetryChannel": {
@@ -128,6 +130,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///              DeveloperMode: true
         ///          }
         ///      }
+        /// </para>
         /// Values can also be read from environment variables to support azure web sites configuration:
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>

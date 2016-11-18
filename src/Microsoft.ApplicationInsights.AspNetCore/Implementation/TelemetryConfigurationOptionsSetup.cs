@@ -1,23 +1,22 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
-#if NET451
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
-#endif
-using Microsoft.Extensions.Options;
-
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility;
+#if NET451
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+#endif
+    using Microsoft.Extensions.Options;
+
     internal class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
     {
-        private readonly ApplicationInsightsServiceOptions _applicationInsightsServiceOptions;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IEnumerable<ITelemetryInitializer> _initializers;
-        private readonly IEnumerable<ITelemetryModule> _modules;
-        private readonly ITelemetryChannel _telemetryChannel;
+        private readonly ApplicationInsightsServiceOptions applicationInsightsServiceOptions;
+        private readonly IEnumerable<ITelemetryInitializer> initializers;
+        private readonly IEnumerable<ITelemetryModule> modules;
+        private readonly ITelemetryChannel telemetryChannel;
 
         public TelemetryConfigurationOptionsSetup(
             IServiceProvider serviceProvider,
@@ -25,38 +24,39 @@ namespace Microsoft.Extensions.DependencyInjection
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules)
         {
-            _applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
-            _serviceProvider = serviceProvider;
-            _initializers = initializers;
-            _modules = modules;
-            _telemetryChannel = _serviceProvider.GetService<ITelemetryChannel>();
+            this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
+            this.initializers = initializers;
+            this.modules = modules;
+            this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
         public void Configure(TelemetryConfiguration options)
         {
-            if (_applicationInsightsServiceOptions.InstrumentationKey != null)
+            if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
             {
-                options.InstrumentationKey = _applicationInsightsServiceOptions.InstrumentationKey;
+                options.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
             }
 
-            AddTelemetryChannelAndProcessorsForFullFramework(options);
+            this.AddTelemetryChannelAndProcessorsForFullFramework(options);
 
-            options.TelemetryChannel = _telemetryChannel ?? options.TelemetryChannel;
+            options.TelemetryChannel = this.telemetryChannel ?? options.TelemetryChannel;
 
-            if (_applicationInsightsServiceOptions.DeveloperMode != null)
+            if (this.applicationInsightsServiceOptions.DeveloperMode != null)
             {
-                options.TelemetryChannel.DeveloperMode = _applicationInsightsServiceOptions.DeveloperMode;
+                options.TelemetryChannel.DeveloperMode = this.applicationInsightsServiceOptions.DeveloperMode;
             }
-            if (_applicationInsightsServiceOptions.EndpointAddress != null)
+
+            if (this.applicationInsightsServiceOptions.EndpointAddress != null)
             {
-                options.TelemetryChannel.EndpointAddress = _applicationInsightsServiceOptions.EndpointAddress;
+                options.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
             }
-            foreach (var initializer in _initializers)
+
+            foreach (var initializer in this.initializers)
             {
                 options.TelemetryInitializers.Add(initializer);
             }
 
-            foreach (var module in _modules)
+            foreach (var module in this.modules)
             {
                 module.Initialize(options);
             }
@@ -67,11 +67,11 @@ namespace Microsoft.Extensions.DependencyInjection
 #if NET451
 
             // Adding Server Telemetry Channel if services doesn't have an existing channel
-            configuration.TelemetryChannel = _telemetryChannel ?? new ServerTelemetryChannel();
+            configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
                 // Enabling Quick Pulse Metric Stream
-                if (_applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
+                if (this.applicationInsightsServiceOptions.EnableQuickPulseMetricStream)
                 {
                     var quickPulseModule = new QuickPulseTelemetryModule();
                     quickPulseModule.Initialize(configuration);
@@ -87,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
                 if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
                 {
-                    if (_applicationInsightsServiceOptions.EnableAdaptiveSampling)
+                    if (this.applicationInsightsServiceOptions.EnableAdaptiveSampling)
                     {
                         configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
                     }

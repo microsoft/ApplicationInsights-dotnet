@@ -1,26 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.AspNetCore.Logging;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
 namespace Microsoft.ApplicationInsights.AspNetCore
 {
-    internal class ApplicationInsightsInitializer: IObserver<DiagnosticListener>, IDisposable
-    {
-        private readonly List<IDisposable> _subscriptions;
-        private readonly IEnumerable<IApplicationInsightDiagnosticListener> _diagnosticListeners;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Logging;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
-        public ApplicationInsightsInitializer(IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners,
+    internal class ApplicationInsightsInitializer : IObserver<DiagnosticListener>, IDisposable
+    {
+        private readonly List<IDisposable> subscriptions;
+        private readonly IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners;
+
+        public ApplicationInsightsInitializer(
+            IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners,
             IOptions<ApplicationInsightsServiceOptions> options,
             TelemetryClient telemetryClient,
             ILoggerFactory loggerFactory)
         {
-            _diagnosticListeners = diagnosticListeners;
-            _subscriptions = new List<IDisposable>();
+            this.diagnosticListeners = diagnosticListeners;
+            this.subscriptions = new List<IDisposable>();
 
             loggerFactory.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClient, options.Value.LoggerMinimumLevel));
         }
@@ -32,11 +33,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore
 
         void IObserver<DiagnosticListener>.OnNext(DiagnosticListener value)
         {
-            foreach (var applicationInsightDiagnosticListener in _diagnosticListeners)
+            foreach (var applicationInsightDiagnosticListener in this.diagnosticListeners)
             {
                 if (applicationInsightDiagnosticListener.ListenerName == value.Name)
                 {
-                    _subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
+                    this.subscriptions.Add(value.SubscribeWithAdapter(applicationInsightDiagnosticListener));
                 }
             }
         }
@@ -49,20 +50,20 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         {
         }
 
+        public void Dispose()
+        {
+            this.Dispose(true);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                foreach (var subscription in _subscriptions)
+                foreach (var subscription in this.subscriptions)
                 {
                     subscription.Dispose();
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }

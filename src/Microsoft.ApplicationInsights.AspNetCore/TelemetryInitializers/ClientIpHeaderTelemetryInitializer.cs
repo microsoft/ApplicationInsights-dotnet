@@ -7,21 +7,18 @@
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Features;
-
 
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
     /// </summary>
     public class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
-        private readonly char[] HeaderValuesSeparatorDefault = { ',' };
         private const string HeaderNameDefault = "X-Forwarded-For";
+        private readonly char[] headerValuesSeparatorDefault = { ',' };
 
         private char[] headerValueSeparators;
-
 
         public ClientIpHeaderTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
@@ -29,11 +26,11 @@
             this.HeaderNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);
             this.UseFirstIp = true;
-            this.headerValueSeparators = HeaderValuesSeparatorDefault;
+            this.headerValueSeparators = this.headerValuesSeparatorDefault;
         }
 
         /// <summary>
-        /// Gets or sets comma separated list of request header names that is used to check client id.
+        /// Gets comma separated list of request header names that is used to check client id.
         /// </summary>
         public ICollection<string> HeaderNames { get; }
 
@@ -92,12 +89,6 @@
             return false;
         }
 
-        private string GetIpFromHeader(string clientIpsFromHeader)
-        {
-            var ips = clientIpsFromHeader.Split(this.headerValueSeparators, StringSplitOptions.RemoveEmptyEntries);
-            return this.UseFirstIp ? ips[0].Trim() : ips[ips.Length - 1].Trim();
-        }
-
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
         {
             if (!string.IsNullOrEmpty(telemetry.Context.Location.Ip))
@@ -118,7 +109,7 @@
                         string headerValue = platformContext.Request.Headers[name];
                         if (!string.IsNullOrEmpty(headerValue))
                         {
-                            var ip = GetIpFromHeader(headerValue);
+                            var ip = this.GetIpFromHeader(headerValue);
                             ip = CutPort(ip);
                             if (IsCorrectIpAddress(ip))
                             {
@@ -143,6 +134,12 @@
             }
 
             telemetry.Context.Location.Ip = requestTelemetry.Context.Location.Ip;
+        }
+
+        private string GetIpFromHeader(string clientIpsFromHeader)
+        {
+            var ips = clientIpsFromHeader.Split(this.headerValueSeparators, StringSplitOptions.RemoveEmptyEntries);
+            return this.UseFirstIp ? ips[0].Trim() : ips[ips.Length - 1].Trim();
         }
     }
 }
