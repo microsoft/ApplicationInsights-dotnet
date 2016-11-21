@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.2.0-beta5
+- Moved from PCL dotnet5.4 to .NET Core NetStandard1.5.
+- Updated dependency versions.
+
 ## Version 2.2.0-beta4
 - Payload sanitization for RichPayloadEventSource.
 - Fix to fallback to an environment variable for instrumentation key when not specified when initializing TelemetryConfiguration.
