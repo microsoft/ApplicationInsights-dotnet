@@ -208,7 +208,6 @@
         /// Send a <see cref="MetricTelemetry"/> for representing aggregated metric data.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
