@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.AspNetCore.Hosting
 {
+    using System.Diagnostics;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@
                 .AddEnvironmentVariables();
             ApplicationInsightsExtensions.AddTelemetryConfiguration(configBuilder.Build(), options);
 
-            if (this.hostingEnvironment.IsDevelopment())
+            if (Debugger.IsAttached)
             {
                 options.DeveloperMode = true;
             }
