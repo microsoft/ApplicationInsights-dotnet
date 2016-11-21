@@ -28,34 +28,34 @@
       <group targetFramework="wp8">
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
       </group>
-      <group targetFramework="dotnet5.4">
-        <dependency id="System.Collections" version="4.0.10" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
-        <dependency id="System.Diagnostics.Tools" version="4.0.0" />
-        <dependency id="System.Diagnostics.Tracing" version="4.0.20" />
-        <dependency id="System.Globalization" version="4.0.10" />
-        <dependency id="System.IO" version="4.0.10" />
-        <dependency id="System.IO.Compression" version="4.0.0" />
-        <dependency id="System.Linq" version="4.0.0" />
-        <dependency id="System.Net.Http" version="4.0.0" />
-        <dependency id="System.Reflection" version="4.0.10" />
-        <dependency id="System.Reflection.Extensions" version="4.0.0" />
-        <dependency id="System.Runtime" version="4.0.20" />
-        <dependency id="System.Runtime.Extensions" version="4.0.10" />
-        <dependency id="System.Text.Encoding" version="4.0.10" />
-        <dependency id="System.Text.Encoding.Extensions" version="4.0.10" />
-        <dependency id="System.Text.RegularExpressions" version="4.0.10" />
-        <dependency id="System.Threading" version="4.0.10" />
-        <dependency id="System.Threading.Tasks" version="4.0.10" />
-        <dependency id="System.Xml.XDocument" version="4.0.10" />
+      <group targetFramework="netstandard1.5">
+        <dependency id="System.Collections" version="4.3.0" />
+        <dependency id="System.Diagnostics.Debug" version="4.3.0" />
+        <dependency id="System.Diagnostics.Tools" version="4.3.0" />
+        <dependency id="System.Diagnostics.Tracing" version="4.3.0" />
+        <dependency id="System.Globalization" version="4.3.0" />
+        <dependency id="System.IO" version="4.3.0" />
+        <dependency id="System.IO.Compression" version="4.3.0" />
+        <dependency id="System.Linq" version="4.3.0" />
+        <dependency id="System.Net.Http" version="4.3.0" />
+        <dependency id="System.Reflection" version="4.3.0" />
+        <dependency id="System.Reflection.Extensions" version="4.3.0" />
+        <dependency id="System.Runtime" version="4.3.0" />
+        <dependency id="System.Runtime.Extensions" version="4.3.0" />
+        <dependency id="System.Text.Encoding" version="4.3.0" />
+        <dependency id="System.Text.Encoding.Extensions" version="4.3.0" />
+        <dependency id="System.Text.RegularExpressions" version="4.3.0" />
+        <dependency id="System.Threading" version="4.3.0" />
+        <dependency id="System.Threading.Tasks" version="4.3.0" />
+        <dependency id="System.Xml.XDocument" version="4.3.0" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <!-- Binaries for .NET PCL -->
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.dll" target="lib\dotnet5.4" />
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.pdb" target="lib\dotnet5.4" />
-    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.xml" target="lib\dotnet5.4" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.dll" target="lib\netstandard1.5" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.pdb" target="lib\netstandard1.5" />
+    <file src="$configuration$\Core\Managed\PCL\Microsoft.ApplicationInsights.xml" target="lib\netstandard1.5" />
 
     <!-- Binaries for .NET 4.0 projects -->
     <file src="$configuration$\Core\Managed\Net40\Microsoft.ApplicationInsights.dll" target="lib\net40" />
@@ -77,8 +77,8 @@
 
     <!-- portable-win81+wpa81: Windows Runtime projects (Phone & Store, Managed)-->
     <file src="$configuration$\Core\Managed\DummyCore\Portable81Files\Microsoft.ApplicationInsights.dll" target="lib\portable-win81+wpa81" />
-	
-	<!-- UWP-->
+
+    <!-- UWP-->
     <file src="$configuration$\Core\Managed\DummyCore\Portable81Files\Microsoft.ApplicationInsights.dll" target="lib\uap10.0" />
   </files>
 </package>
