@@ -19,8 +19,7 @@
     "buildOptions": {
         "keyFile": "../../keys/35MSSharedLib1024.snk",
         "delaySign": true,
-        "xmlDoc": true,
-        "nowarn": [ "CS0618", "CS1591" ]
+        "xmlDoc": true
     },
     "dependencies": {
         "Desktop.Analyzers": {

@@ -30,42 +30,41 @@ namespace Microsoft.Extensions.DependencyInjection
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
-        public void Configure(TelemetryConfiguration options)
+        public void Configure(TelemetryConfiguration configuration)
         {
             if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
             {
-                options.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
+                configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
             }
 
-            this.AddTelemetryChannelAndProcessorsForFullFramework(options);
+            this.AddTelemetryChannelAndProcessorsForFullFramework(configuration);
 
-            options.TelemetryChannel = this.telemetryChannel ?? options.TelemetryChannel;
+            configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
 
             if (this.applicationInsightsServiceOptions.DeveloperMode != null)
             {
-                options.TelemetryChannel.DeveloperMode = this.applicationInsightsServiceOptions.DeveloperMode;
+                configuration.TelemetryChannel.DeveloperMode = this.applicationInsightsServiceOptions.DeveloperMode;
             }
 
             if (this.applicationInsightsServiceOptions.EndpointAddress != null)
             {
-                options.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
+                configuration.TelemetryChannel.EndpointAddress = this.applicationInsightsServiceOptions.EndpointAddress;
             }
 
-            foreach (var initializer in this.initializers)
+            foreach (ITelemetryInitializer initializer in this.initializers)
             {
-                options.TelemetryInitializers.Add(initializer);
+                configuration.TelemetryInitializers.Add(initializer);
             }
 
-            foreach (var module in this.modules)
+            foreach (ITelemetryModule module in this.modules)
             {
-                module.Initialize(options);
+                module.Initialize(configuration);
             }
         }
 
         private void AddTelemetryChannelAndProcessorsForFullFramework(TelemetryConfiguration configuration)
         {
 #if NET451
-
             // Adding Server Telemetry Channel if services doesn't have an existing channel
             configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
             if (configuration.TelemetryChannel is ServerTelemetryChannel)

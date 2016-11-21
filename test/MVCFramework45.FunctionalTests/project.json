@@ -14,8 +14,7 @@
         "wwwroot",
         "Views"
       ]
-    },
-    "nowarn": [ "CS0618" ]
+    }
   },
 
   "dependencies": {

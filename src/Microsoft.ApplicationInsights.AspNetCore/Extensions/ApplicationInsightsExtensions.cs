@@ -67,6 +67,21 @@
         /// </returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, Action<ApplicationInsightsServiceOptions> options)
         {
+            services.AddApplicationInsightsTelemetry();
+            services.Configure(options);
+            return services;
+        }
+
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="options">The action used to configure the options.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
+        {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
@@ -102,11 +117,6 @@
             services.AddOptions();
             services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
             services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
-            if (options != null)
-            {
-                services.Configure<ApplicationInsightsServiceOptions>(options);
-            }
-
             return services;
         }
 

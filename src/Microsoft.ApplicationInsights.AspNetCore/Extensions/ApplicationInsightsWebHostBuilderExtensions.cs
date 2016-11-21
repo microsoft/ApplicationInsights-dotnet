@@ -19,7 +19,7 @@
         {
             webHostBuilder.ConfigureServices(collection =>
             {
-                collection.AddApplicationInsightsTelemetry((Action<ApplicationInsightsServiceOptions>)null);
+                collection.AddApplicationInsightsTelemetry();
                 collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
             });
             return webHostBuilder;

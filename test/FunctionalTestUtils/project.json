@@ -3,8 +3,7 @@
   "buildOptions": {
     "keyFile": "../../keys/35MSSharedLib1024.snk",
     "delaySign": true,
-    "preserveCompilationContext": true,
-    "nowarn": [ "CS0618" ]
+    "preserveCompilationContext": true
   },
   "dependencies": {
     "Microsoft.ApplicationInsights.AspNetCore": {
