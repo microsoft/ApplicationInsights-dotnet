@@ -190,7 +190,7 @@
 
 #pragma warning disable CS0618
         [TestMethod]
-        public void SerializeReplacesNaNValueOn0()
+        public void SanitizeReplacesNaNValueOn0()
         {
             MetricTelemetry original = new MetricTelemetry("test", double.NaN);
             ((ITelemetry)original).Sanitize();
@@ -200,7 +200,7 @@
 #pragma warning restore CS0618
 
         [TestMethod]
-        public void SerializeReplacesNaNMinOn0()
+        public void SanitizeReplacesNaNMinOn0()
         {
             MetricTelemetry original = new MetricTelemetry { Min = double.NaN };
             ((ITelemetry)original).Sanitize();
@@ -209,7 +209,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesNaNMaxOn0()
+        public void SanitizeReplacesNaNMaxOn0()
         {
             MetricTelemetry original = new MetricTelemetry { Max = double.NaN };
             ((ITelemetry)original).Sanitize();
@@ -218,7 +218,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesNaNStandardDeviationOn0()
+        public void SanitizeReplacesNaNStandardDeviationOn0()
         {
             MetricTelemetry original = new MetricTelemetry { StandardDeviation = double.NaN };
             ((ITelemetry)original).Sanitize();
@@ -227,7 +227,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesNaNSumOn0()
+        public void SanitizeReplacesNaNSumOn0()
         {
             MetricTelemetry original = new MetricTelemetry();
             original.Name = "Test";
@@ -239,7 +239,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesNegativeCountOn1()
+        public void SanitizeReplacesNegativeCountOn1()
         {
             MetricTelemetry original = new MetricTelemetry();
             original.Name = "Test";
@@ -251,7 +251,7 @@
         }
 
         [TestMethod]
-        public void SerializeReplacesZeroCountOn1()
+        public void SanitizeReplacesZeroCountOn1()
         {
             MetricTelemetry original = new MetricTelemetry();
             original.Name = "Test";

@@ -10,7 +10,6 @@
     /// <summary>
     /// Telemetry type used to track metrics.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties
     {
         internal const string TelemetryName = "Metric";
