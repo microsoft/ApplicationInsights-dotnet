@@ -28,7 +28,7 @@
         /// <summary>
         /// Reporting frequency.
         /// </summary>
-        private static TimeSpan snapshotFrequency = TimeSpan.FromMinutes(1);
+        private static TimeSpan aggregationPeriod = TimeSpan.FromMinutes(1);
 
         /// <summary>
         /// Telemetry client used to track resulting aggregated metrics.
@@ -44,11 +44,6 @@
         /// Last time snapshot was initiated.
         /// </summary>
         private DateTimeOffset lastSnapshotStartDateTime;
-
-        /// <summary>
-        /// Indicates whether the object was disposed.
-        /// </summary>
-        private bool disposed;
 
         /// <summary>
         /// A dictionary of all metrics instantiated via this manager.
@@ -100,11 +95,6 @@
         /// <returns>Metric instance.</returns>
         public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
             return new Metric(this, name, dimensions);
         }
 
@@ -113,12 +103,15 @@
         /// </summary>
         public void Flush()
         {
-            if (this.disposed)
+            try
             {
-                throw new ObjectDisposedException(nameof(MetricManager));
+                this.Snapshot();
+                this.telemetryClient.Flush();
             }
-
-            this.Flush(false);
+            catch (Exception ex)
+            {
+                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -126,24 +119,17 @@
         /// </summary>
         public void Dispose()
         {
-            this.disposed = true;
-
             if (this.snapshotTimer != null)
             {
                 this.snapshotTimer.Dispose();
                 this.snapshotTimer = null;
             }
 
-            this.Flush(true);
+            this.Flush();
         }
 
         internal SimpleMetricStatisticsAggregator GetStatisticsAggregator(Metric metric)
         {
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
             return this.metricDictionary.GetOrAdd(metric, (m) => { return new SimpleMetricStatisticsAggregator(); });
         }
 
@@ -161,13 +147,13 @@
             // to make perceived system latency look smaller
             var nextWakeTime = DateTimeOffset.MinValue
                 .AddMinutes((long)minutesFromZero)
-                .Add(snapshotFrequency)
+                .Add(aggregationPeriod)
                 .AddSeconds(1);
 
             TimeSpan sleepTime = nextWakeTime - DateTimeOffset.UtcNow;
 
             // adjust wait time to a bit longer than a minute if the wake up time is within few seconds from now
-            return sleepTime < TimeSpan.FromSeconds(3) ? sleepTime.Add(snapshotFrequency) : sleepTime;
+            return sleepTime < TimeSpan.FromSeconds(3) ? sleepTime.Add(aggregationPeriod) : sleepTime;
         }
 
         /// <summary>
@@ -176,9 +162,9 @@
         /// <param name="metric">Metric definition.</param>
         /// <param name="statistics">Metric aggregator statistics calculated for a period of time.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static AggregatedMetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
+        private static MetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
         {
-            var telemetry = new AggregatedMetricTelemetry(
+            var telemetry = new MetricTelemetry(
                 metric.Name,
                 statistics.Count,
                 statistics.Sum,
@@ -195,24 +181,6 @@
             }
 
             return telemetry;
-        }
-
-        private void Flush(bool disposing)
-        {
-            if ((!disposing) && this.disposed)
-            {
-                throw new ObjectDisposedException(nameof(MetricManager));
-            }
-
-            try
-            {
-                this.Snapshot();
-                this.telemetryClient.Flush();
-            }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
-            }
         }
 
         /// <summary>
@@ -259,22 +227,25 @@
             }
 
             // adjust interval duration to exactly snapshot frequency if it is close (within 1%)
-            double difference = Math.Abs(aggregationIntervalDuation.TotalMilliseconds - snapshotFrequency.TotalMilliseconds);
+            double difference = Math.Abs(aggregationIntervalDuation.TotalMilliseconds - aggregationPeriod.TotalMilliseconds);
 
-            if (difference <= snapshotFrequency.TotalMilliseconds / 100)
+            if (difference <= aggregationPeriod.TotalMilliseconds / 100)
             {
-                aggregationIntervalDuation = snapshotFrequency;
+                aggregationIntervalDuation = aggregationPeriod;
             }
 
             if (aggregatorSnapshot.Count > 0)
             {
                 foreach (KeyValuePair<Metric, SimpleMetricStatisticsAggregator> aggregatorWithStats in aggregatorSnapshot)
                 {
-                    AggregatedMetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
+                    if (aggregatorWithStats.Value.Count > 0)
+                    { 
+                        MetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
 
-                    if (aggergatedMetricTelemetry.Count > 0)
-                    {
                         aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
+
+                        // set the timestamp back by aggregation period
+                        aggergatedMetricTelemetry.Timestamp = DateTimeOffset.Now - aggregationPeriod;
 
                         this.telemetryClient.Track(aggergatedMetricTelemetry);
                     }

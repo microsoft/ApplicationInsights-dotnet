@@ -96,7 +96,7 @@
                 return false;
             }
 
-            return string.Compare(this.aggregatorId, other.aggregatorId, StringComparison.Ordinal) == 0;
+            return this.aggregatorId.Equals(other.aggregatorId, StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@
         /// <returns>Aggregator id that can be used to get aggregator.</returns>
         private static string GetAggregatorId(string name, IDictionary<string, string> dimensions = null)
         {
-            StringBuilder aggregatorIdBuilder = new StringBuilder(name ?? string.Empty);
+            StringBuilder aggregatorIdBuilder = new StringBuilder(name ?? "n/a");
 
             if (dimensions != null)
             {
@@ -154,8 +154,12 @@
 
             if (metricProcessors != null)
             {
-                foreach (IMetricProcessor processor in metricProcessors)
+                int processorCount = metricProcessors.Count;
+
+                for (int i = 0; i < processorCount; i++)
                 {
+                    IMetricProcessor processor = metricProcessors[i];
+
                     try
                     {
                         processor.Track(this, value);

@@ -28,7 +28,7 @@
             }
 
             // Assert (single metric aggregation exists in the output)
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
 
@@ -55,7 +55,7 @@
             }
 
             // Assert
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
 
@@ -87,7 +87,7 @@
             }
 
             // Assert
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
 
@@ -117,7 +117,7 @@
             }
 
             // Assert
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
 
@@ -143,7 +143,7 @@
             }
 
             // Assert
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal("Test Metric", aggregatedMetric.Name);
 
@@ -194,43 +194,10 @@
             // Assert
             Assert.Equal(1, sentTelemetry.Count);
 
-            var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+            var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
             Assert.Equal(2, aggregatedMetric.Count);
             Assert.Equal(15, aggregatedMetric.Sum);
-        }
-
-        [TestMethod]
-        public void CannotCreateMetricUsingDisposedMetricManager()
-        {
-            MetricManager manager = null;
-
-            using (manager = new MetricManager()) { }
-
-            Assert.Throws<ObjectDisposedException>(() => { var metric = manager.CreateMetric("My Metric"); });
-        }
-
-        [TestMethod]
-        public void CannotFlushUsingDisposedMetricManager()
-        {
-            MetricManager manager = null;
-
-            using (manager = new MetricManager()) { }
-
-            Assert.Throws<ObjectDisposedException>(() => { manager.Flush(); });
-        }
-
-        [TestMethod]
-        public void CannotTrackValueOnMetricCreatedViaNowDisposedMetricManager()
-        {
-            Metric metric = null;
-
-            using (MetricManager manager = new MetricManager())
-            {
-                metric = manager.CreateMetric("My metric");
-            }
-
-            Assert.Throws<ObjectDisposedException>(() => { metric.Track(42); });
         }
 
         [TestMethod]
@@ -262,7 +229,7 @@
                 // Assert
                 Assert.Equal(1, sentTelemetry.Count);
 
-                var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+                var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
                 Assert.NotNull(aggregatedMetric);
             }
         }
@@ -286,7 +253,7 @@
                 // Assert
                 Assert.Equal(1, sentTelemetry.Count);
 
-                var aggregatedMetric = (AggregatedMetricTelemetry)sentTelemetry.Single();
+                var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
                 Assert.NotNull(aggregatedMetric);
             }
         }
