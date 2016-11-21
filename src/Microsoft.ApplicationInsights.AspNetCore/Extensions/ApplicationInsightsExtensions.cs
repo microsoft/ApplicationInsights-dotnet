@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using AspNetCore.Builder;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
@@ -32,6 +33,18 @@
         private const string InstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
+
+        [Obsolete]
+        public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
+        {
+            return app;
+        }
+
+        [Obsolete]
+        public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware<ExceptionTrackingMiddleware>();
+        }
 
         /// <summary>
         /// Adds Application Insights services into service collection.
