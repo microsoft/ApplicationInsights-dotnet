@@ -106,11 +106,12 @@ namespace FuncTest.Helpers
                 this.ExternalCall = string.Format("http://localhost:{0}/ExternalCalls.aspx", this.Port);
                 this.IsFirstTest = true;
                 if (Directory.Exists(this.AppFolder))
-                    ACLTools.GetEveryoneAccessToPath(this.AppFolder);
+                    ACLTools.GetEveryoneAccessToPath(this.AppFolder);                
             }
             catch (Exception ex)
             {
-                Trace.TraceError("Exception occured while attempting to deploy application {0}: {1}.", this.AppName, ex);
+                Trace.TraceError("Exception occured while attempting to deploy application {0}: {1}. Tests wont continue as they are guaranteed to fail.", this.AppName, ex);
+                 throw ex;
             }
         }
 
