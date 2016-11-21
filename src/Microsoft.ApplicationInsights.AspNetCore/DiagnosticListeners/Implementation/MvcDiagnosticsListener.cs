@@ -9,11 +9,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
-        internal const string BeforeActionNotificationName = "Microsoft.AspNetCore.Mvc.BeforeAction";
-
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
-        [DiagnosticName(BeforeActionNotificationName)]
+        [DiagnosticName("Microsoft.AspNetCore.Mvc.BeforeAction")]
         public void OnBeforeAction(HttpContext httpContext, IRouteData routeData)
         {
             var telemetry = httpContext.Features.Get<RequestTelemetry>();
