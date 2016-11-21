@@ -244,6 +244,9 @@
 
                         aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
+                        // set the timestamp back by aggregation period
+                        aggergatedMetricTelemetry.Timestamp = DateTimeOffset.Now - aggregationPeriod;
+
                         this.telemetryClient.Track(aggergatedMetricTelemetry);
                     }
                 }
