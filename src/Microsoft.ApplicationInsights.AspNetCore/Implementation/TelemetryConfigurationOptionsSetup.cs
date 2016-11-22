@@ -11,6 +11,10 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
     using Microsoft.Extensions.Options;
 
+    /// <summary>
+    /// Initializes TelemetryConfiguration base on values in <see cref="ApplicationInsightsServiceOptions"/>
+    /// and registered <see cref="ITelemetryInitializer"/> and <see cref="ITelemetryModule"/>.
+    /// </summary>
     internal class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
     {
         private readonly ApplicationInsightsServiceOptions applicationInsightsServiceOptions;

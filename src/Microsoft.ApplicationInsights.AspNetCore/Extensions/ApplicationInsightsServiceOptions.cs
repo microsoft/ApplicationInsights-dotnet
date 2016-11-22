@@ -16,7 +16,6 @@
         {
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
-            this.LoggerMinimumLevel = LogLevel.Information;
             this.ApplicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
 
@@ -51,10 +50,5 @@
         /// Gets or sets the endpoint address of the channel.
         /// </summary>
         public string EndpointAddress { get; set; }
-
-        /// <summary>
-        /// Gets or sets the minimum<see cref= "T:Microsoft.Extensions.Logging.LogLevel" /> to be logged by ApplicationInsights logger.
-        /// </summary>
-        public LogLevel LoggerMinimumLevel { get; set; }
     }
 }

@@ -22,6 +22,7 @@
                 collection.AddApplicationInsightsTelemetry();
                 collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
             });
+
             return webHostBuilder;
         }
 

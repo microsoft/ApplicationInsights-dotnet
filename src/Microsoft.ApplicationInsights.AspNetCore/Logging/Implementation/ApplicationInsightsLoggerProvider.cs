@@ -1,21 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
+    using System;
     using Microsoft.Extensions.Logging;
 
     internal class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
         private readonly TelemetryClient telemetryClient;
-        private readonly LogLevel minimumLevel;
+        private readonly Func<string, LogLevel, bool> filter;
 
-        public ApplicationInsightsLoggerProvider(TelemetryClient telemetryClient, LogLevel minimumLevel)
+        public ApplicationInsightsLoggerProvider(TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
         {
             this.telemetryClient = telemetryClient;
-            this.minimumLevel = minimumLevel;
+            this.filter = filter;
         }
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new ApplicationInsightsLogger(categoryName, this.telemetryClient, this.minimumLevel);
+            return new ApplicationInsightsLogger(categoryName, this.telemetryClient, filter);
         }
 
         public void Dispose()

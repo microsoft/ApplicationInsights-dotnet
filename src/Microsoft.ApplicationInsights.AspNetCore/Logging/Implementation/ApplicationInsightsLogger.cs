@@ -9,13 +9,13 @@
     {
         private readonly string categoryName;
         private readonly TelemetryClient telemetryClient;
-        private readonly LogLevel minimumLevel;
+        private readonly Func<string, LogLevel, bool> filter;
 
-        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, LogLevel minimumLevel)
+        public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
         {
             this.categoryName = name;
             this.telemetryClient = telemetryClient;
-            this.minimumLevel = minimumLevel;
+            this.filter = filter;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -25,7 +25,7 @@
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel >= this.minimumLevel && this.telemetryClient.IsEnabled();
+            return this.filter(categoryName, logLevel) && this.telemetryClient.IsEnabled();
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
