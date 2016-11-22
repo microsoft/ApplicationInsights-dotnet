@@ -1,10 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Extensions
 {
     using System.Reflection;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of featuers obtained from Application Insights.
+    /// Application Insights service options defines the custom behavior of the features to add, as opposed to the default selection of features obtained from Application Insights.
     /// </summary>
     public class ApplicationInsightsServiceOptions
     {
@@ -16,18 +15,19 @@
         {
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
+            this.EnableDebugLogger = true;
             this.ApplicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether QuickPulseTelemetryModule and QuickPulseTelemetryProcessor are registered with the configuration.
-        /// Setting EnableQuickPulseMetricStream to false, will disable the default quick pulse metric stream. Defaults to <code>true</code>.
+        /// Setting EnableQuickPulseMetricStream to <c>false</c>, will disable the default quick pulse metric stream. Defaults to <code>true</code>.
         /// </summary>
         public bool EnableQuickPulseMetricStream { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether telemetry processor that controls sampling is added to the service.
-        /// Setting EnableAdaptiveSampling to false, will disable the default adaptive sampling feature. Defaults to <code>true</code>.
+        /// Setting EnableAdaptiveSampling to <c>false</c>, will disable the default adaptive sampling feature. Defaults to <code>true</code>.
         /// </summary>
         public bool EnableAdaptiveSampling { get; set; }
 
@@ -50,5 +50,10 @@
         /// Gets or sets the endpoint address of the channel.
         /// </summary>
         public string EndpointAddress { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
+        /// </summary>
+        public bool EnableDebugLogger { get; set; }
     }
 }

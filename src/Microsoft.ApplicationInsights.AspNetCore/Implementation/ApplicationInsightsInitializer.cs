@@ -3,8 +3,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
 
     internal class ApplicationInsightsInitializer : IObserver<DiagnosticListener>, IDisposable
     {
@@ -12,6 +14,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         private readonly IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners;
 
         public ApplicationInsightsInitializer(
+            IOptions<ApplicationInsightsServiceOptions> options,
             IEnumerable<IApplicationInsightDiagnosticListener> diagnosticListeners,
             TelemetryClient telemetryClient,
             ILoggerFactory loggerFactory)
@@ -20,7 +23,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             this.subscriptions = new List<IDisposable>();
 
             // Add default logger factory for debug mode
-            loggerFactory.AddAplicationInsights(telemetryClient, (s, level) => Debugger.IsAttached);
+            if (options.Value.EnableDebugLogger)
+            {
+                loggerFactory.AddAplicationInsights(telemetryClient, (s, level) => Debugger.IsAttached);
+            }
         }
 
         public void Start()
