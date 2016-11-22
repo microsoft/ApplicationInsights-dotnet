@@ -362,7 +362,7 @@
         /// <param name="pc">PerformanceCounterData for which we are generating the telemetry.</param>
         /// <param name="value">The metric value for the respective performance counter data.</param>
         /// <returns>Metric telemetry object associated with the specific counter.</returns>
-        private AggregatedMetricTelemetry CreateTelemetry(PerformanceCounterData pc, double value)
+        private MetricTelemetry CreateTelemetry(PerformanceCounterData pc, double value)
         {
             var metricName = !string.IsNullOrWhiteSpace(pc.ReportAs)
                                  ? pc.ReportAs
@@ -372,7 +372,7 @@
                                      pc.CategoryName,
                                      pc.CounterName);
 
-            var metricTelemetry = new AggregatedMetricTelemetry()
+            var metricTelemetry = new MetricTelemetry()
             {
                 Name = metricName,
                 Count = 1,
