@@ -517,6 +517,7 @@
 
                     jsonWriter.WriteProperty("ver", requestTelemetry.Data.ver);
                     jsonWriter.WriteProperty("id", requestTelemetry.Data.id);
+                    jsonWriter.WriteProperty("source", requestTelemetry.Data.source);
                     jsonWriter.WriteProperty("name", requestTelemetry.Data.name);
                     jsonWriter.WriteProperty("duration", requestTelemetry.Duration);
                     jsonWriter.WriteProperty("success", requestTelemetry.Data.success);
