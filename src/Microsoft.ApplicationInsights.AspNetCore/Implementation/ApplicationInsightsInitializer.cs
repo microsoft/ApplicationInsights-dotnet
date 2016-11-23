@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
             // Add default logger factory for debug mode
             if (options.Value.EnableDebugLogger)
             {
-                loggerFactory.AddAplicationInsights(telemetryClient, (s, level) => Debugger.IsAttached);
+                loggerFactory.AddApplicationInsights(telemetryClient, (s, level) => Debugger.IsAttached);
             }
         }
 

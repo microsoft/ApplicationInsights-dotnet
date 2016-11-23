@@ -6,12 +6,20 @@
 #else
     using System.Threading;
 #endif
-
+    /// <summary>
+    /// Represents ambient data that is local to a given asynchronous control flow, such as an asynchronous method.
+    /// </summary>
+    /// <typeparam name="T">The type of the ambient data. </typeparam>
     internal class ContextData<T>
     {
 #if NET451
-        private static string Key = typeof(ContextData<T>).FullName;
+        private static readonly string Key = typeof(ContextData<T>).FullName;
 
+
+        /// <summary>
+        /// Gets or sets the value of the ambient data.
+        /// </summary>
+        /// <returns>The value of the ambient data. </returns>
         public T Value
         {
             get
@@ -27,6 +35,10 @@
 #else
         private readonly AsyncLocal<T> storage = new AsyncLocal<T>();
 
+        /// <summary>
+        /// Gets or sets the value of the ambient data.
+        /// </summary>
+        /// <returns>The value of the ambient data. </returns>
         public T Value
         {
             get { return this.storage.Value; }

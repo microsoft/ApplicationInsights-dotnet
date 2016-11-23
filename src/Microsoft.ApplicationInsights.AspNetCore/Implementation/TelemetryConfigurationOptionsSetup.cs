@@ -12,8 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.Options;
 
     /// <summary>
-    /// Initializes TelemetryConfiguration base on values in <see cref="ApplicationInsightsServiceOptions"/>
-    /// and registered <see cref="ITelemetryInitializer"/> and <see cref="ITelemetryModule"/>.
+    /// Initializes TelemetryConfiguration based on values in <see cref="ApplicationInsightsServiceOptions"/>
+    /// and registered <see cref="ITelemetryInitializer"/>s and <see cref="ITelemetryModule"/>s.
     /// </summary>
     internal class TelemetryConfigurationOptionsSetup : IConfigureOptions<TelemetryConfiguration>
     {
@@ -22,6 +22,9 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
+        /// </summary>
         public TelemetryConfigurationOptionsSetup(
             IServiceProvider serviceProvider,
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
@@ -34,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
+        /// <inheritdoc />
         public void Configure(TelemetryConfiguration configuration)
         {
             if (this.applicationInsightsServiceOptions.InstrumentationKey != null)

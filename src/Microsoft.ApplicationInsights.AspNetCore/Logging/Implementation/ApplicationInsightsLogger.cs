@@ -5,12 +5,18 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.Extensions.Logging;
 
+    /// <summary>
+    /// <see cref="ILogger"/> implementation that forwards log messages as Application Insight trace events.
+    /// </summary>
     internal class ApplicationInsightsLogger : ILogger
     {
         private readonly string categoryName;
         private readonly TelemetryClient telemetryClient;
         private readonly Func<string, LogLevel, bool> filter;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ApplicationInsightsLogger"/>
+        /// </summary>
         public ApplicationInsightsLogger(string name, TelemetryClient telemetryClient, Func<string, LogLevel, bool> filter)
         {
             this.categoryName = name;
@@ -18,16 +24,19 @@
             this.filter = filter;
         }
 
+        /// <inheritdoc />
         public IDisposable BeginScope<TState>(TState state)
         {
             return null;
         }
 
+        /// <inheritdoc />
         public bool IsEnabled(LogLevel logLevel)
         {
             return this.filter(categoryName, logLevel) && this.telemetryClient.IsEnabled();
         }
 
+        /// <inheritdoc />
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (this.IsEnabled(logLevel))

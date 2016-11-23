@@ -7,10 +7,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
 
+    /// <summary>
+    /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for evens specific to AspNetCore Mvc layer
+    /// </summary>
     public class MvcDiagnosticsListener : IApplicationInsightDiagnosticListener
     {
+        /// <inheritdoc />
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
+        /// <summary>
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Mvc.BeforeAction' event
+        /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Mvc.BeforeAction")]
         public void OnBeforeAction(HttpContext httpContext, IRouteData routeData)
         {
@@ -76,8 +83,14 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             return name;
         }
 
+        /// <summary>
+        /// Proxy interface for <c>RouteData</c> class from Microsoft.AspNetCore.Routing.Abstractions
+        /// </summary>
         public interface IRouteData
         {
+            /// <summary>
+            /// Gets the set of values produced by routes on the current routing path.
+            /// </summary>
             IDictionary<string, object> Values { get; }
         }
     }

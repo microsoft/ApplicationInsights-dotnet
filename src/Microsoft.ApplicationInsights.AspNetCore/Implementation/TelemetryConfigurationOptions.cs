@@ -17,6 +17,7 @@
             }
         }
 
+        /// <inheritdoc />
         public TelemetryConfiguration Value => TelemetryConfiguration.Active;
     }
 }
