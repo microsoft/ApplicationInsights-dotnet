@@ -35,7 +35,6 @@ namespace FunctionalTestUtils
                 task = httpClient.GetAsync(server.BaseHost + requestPath);
                 task.Wait(TestTimeoutMs);
             }
-            var result = task.Result;
 
             timer.Stop();
             server.Dispose();
