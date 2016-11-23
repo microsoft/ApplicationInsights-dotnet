@@ -16,8 +16,8 @@
         /// <summary>Azure Web App name corresponding to the resource name.</summary>
         private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";
 
-        /// <summary>Azure Web App host that contains site name and slot: site-slot.</summary>
-        private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
+        /// <summary>Azure Web App Instance Id representing the VM. Each instance will have different id.</summary>
+        private const string WebAppInstanceNameEnvironmentVariable = "WEBSITE_INSTANCE_ID";
 
         private string roleInstanceName;
         private string roleName;
@@ -62,7 +62,7 @@
 
         private string GetRoleInstanceName()
         {
-            return Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable) ?? string.Empty;
+            return Environment.GetEnvironmentVariable(WebAppInstanceNameEnvironmentVariable) ?? string.Empty;
         }
     }
 }
