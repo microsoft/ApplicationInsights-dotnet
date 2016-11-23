@@ -8,7 +8,7 @@
     using Microsoft.Extensions.DiagnosticAdapter;
 
     /// <summary>
-    /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for evens specific to AspNetCore hosting layer
+    /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore hosting layer.
     /// </summary>
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
@@ -30,7 +30,7 @@
         public string ListenerName { get; } = "Microsoft.AspNetCore";
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.BeginRequest' event.
         /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Hosting.BeginRequest")]
         public void OnBeginRequest(HttpContext httpContext, long timestamp)
@@ -45,7 +45,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.EndRequest' event.
         /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Hosting.EndRequest")]
         public void OnEndRequest(HttpContext httpContext, long timestamp)
@@ -81,7 +81,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
         /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Hosting.UnhandledException")]
         public void OnHostingException(HttpContext httpContext, Exception exception)
@@ -90,7 +90,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.HandledException' event.
         /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Diagnostics.HandledException")]
         public void OnDiagnosticsHandledException(HttpContext httpContext, Exception exception)
@@ -99,7 +99,7 @@
         }
 
         /// <summary>
-        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event
+        /// Diagnostic event handler method for 'Microsoft.AspNetCore.Hosting.UnhandledException' event.
         /// </summary>
         [DiagnosticName("Microsoft.AspNetCore.Diagnostics.UnhandledException")]
         public void OnDiagnosticsUnhandledException(HttpContext httpContext, Exception exception)
