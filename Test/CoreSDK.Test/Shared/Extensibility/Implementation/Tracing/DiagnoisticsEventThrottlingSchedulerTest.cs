@@ -5,17 +5,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public sealed class DiagnoisticsEventThrottlingSchedulerTest : IDisposable
+    public sealed class DiagnoisticsEventThrottlingSchedulerTest
     {
         private const int SchedulingRoutineRunInterval = 10;
         private const int ExecuteTimes = 3;
 
         private readonly DiagnoisticsEventThrottlingScheduler scheduler = new DiagnoisticsEventThrottlingScheduler();
-
-        public void Dispose()
-        {
-            this.scheduler.Dispose();
-        }
 
         [TestMethod]
         public void TestStateAfterInitialization()

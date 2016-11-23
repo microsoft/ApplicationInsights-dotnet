@@ -158,8 +158,6 @@
             if (managed && !this.disposed)
             {
                 this.EventListener.Dispose();
-                (this.throttlingScheduler as IDisposable).Dispose();
-
                 GC.SuppressFinalize(this);
             }
 

@@ -12,7 +12,7 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class BackoffLogicManager : IDisposable
+    internal class BackoffLogicManager
     {
         private const int SlotDelayInSeconds = 10;
         private const int MaxDelayInSeconds = 3600;
@@ -156,11 +156,6 @@
             }
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         // Calculates the time to wait before retrying in case of an error based on
         // http://en.wikipedia.org/wiki/Exponential_backoff
@@ -217,18 +212,6 @@
             TelemetryChannelEventSource.Log.TransmissionPolicyRetryAfterParseFailedWarning(retryAfter);
 
             return false;
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.pauseTimer != null)
-                {
-                    this.pauseTimer.Dispose();
-                    this.pauseTimer = null;
-                }
-            }
         }
     }
 }

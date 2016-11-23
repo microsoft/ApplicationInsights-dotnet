@@ -119,12 +119,6 @@
         /// </summary>
         public void Dispose()
         {
-            if (this.snapshotTimer != null)
-            {
-                this.snapshotTimer.Dispose();
-                this.snapshotTimer = null;
-            }
-
             this.Flush();
         }
 
