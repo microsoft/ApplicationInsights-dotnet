@@ -16,7 +16,7 @@
         /// <summary>Azure Web App name corresponding to the resource name.</summary>
         private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";
 
-        /// <summary>Azure Web App Instance Id representing the VM. Each instance will have different id.</summary>
+        /// <summary>Azure Web App Instance Id representing the VM. Each instance will have a different id.</summary>
         private const string WebAppInstanceNameEnvironmentVariable = "WEBSITE_INSTANCE_ID";
 
         private string roleInstanceName;
