@@ -22,7 +22,7 @@
         /// <summary>
         /// Valid SQL Query.
         /// </summary> 
-        private const string ValidSqlQueryToApmDatabase = "select top 2 * from dbo.Messages";
+        private const string ValidSqlQueryToApmDatabase = "select * from dbo.Messages";
 
         /// <summary>
         /// Valid SQL Query to get count.
