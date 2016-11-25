@@ -59,7 +59,7 @@
 
             if (!double.TryParse(valueString.ToString(), out value))
             {
-                throw new System.InvalidCastException("The value of the counter cannot be converted to double type. value:"+ valueString);
+                throw new System.InvalidCastException("The value of the counter cannot be converted to double type. Value:" + valueString);
             }
 
             return value;
