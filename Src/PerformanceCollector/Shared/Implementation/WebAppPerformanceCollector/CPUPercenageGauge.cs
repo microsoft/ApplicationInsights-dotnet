@@ -48,7 +48,18 @@
                 var baseValue = this.lastCollectedTime.Ticks - previouslyCollectedTime.Ticks;
                 baseValue = baseValue != 0 ? baseValue : 1;
 
-                value = (float)((this.lastCollectedValue - previouslyCollectedValue) / baseValue * 100.0);
+                var diff = this.lastCollectedValue - previouslyCollectedValue;
+
+                if (diff < 0)
+                {
+                    PerformanceCollectorEventSource.Log.WebAppCPUUsedNegativeValue(
+                    this.lastCollectedValue,
+                    previouslyCollectedValue);                    
+                }
+                else
+                {
+                    value = (double)(diff * 100.0 / baseValue);
+                }
             }
 
             return value;
