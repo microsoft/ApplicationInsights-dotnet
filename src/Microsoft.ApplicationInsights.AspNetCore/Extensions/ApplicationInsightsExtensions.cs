@@ -96,7 +96,7 @@
         /// </returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
         {
-            services.TryAddSingleton(typeof(IHttpContextAccessor), typeof(HttpContextAccessor));
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();

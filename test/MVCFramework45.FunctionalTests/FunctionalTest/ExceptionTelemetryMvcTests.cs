@@ -15,7 +15,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 const string RequestPath = "/Home/Exception";
 
@@ -33,7 +33,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicExceptionPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
                 expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;

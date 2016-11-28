@@ -11,13 +11,13 @@
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
-            this.ValidateBasicDependency(assemblyName, "/Home/About/5");
+            this.ValidateBasicDependency(assemblyName, "/Home/About/5", InProcessServer.UseApplicationInsights);
         }
 
         [Fact]
         public void TestIfPerformanceCountersAreCollected()
         {
-            ValidatePerformanceCountersAreCollected(assemblyName);
+            ValidatePerformanceCountersAreCollected(assemblyName, InProcessServer.UseApplicationInsights);
         }
 #endif
     }

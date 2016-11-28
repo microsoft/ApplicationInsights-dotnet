@@ -5,13 +5,16 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Configuration;
 
     // a variant of aspnet/Hosting/test/Microsoft.AspNetCore.Hosting.Tests/HostingEngineTests.cs
     public class InProcessServer : IDisposable
     {
         private static Random random = new Random();
 
+        public static Func<IWebHostBuilder, IWebHostBuilder> UseApplicationInsights =
+            builder => builder.UseApplicationInsights();
+
+        private readonly Func<IWebHostBuilder, IWebHostBuilder> configureHost;
         private IWebHost hostingEngine;
         private string url;
 
@@ -25,8 +28,9 @@
             }
         }
 
-        public InProcessServer(string assemblyName)
+        public InProcessServer(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
+            this.configureHost = configureHost;
             this.url = "http://localhost:" + random.Next(5000, 14000).ToString();
             this.backChannel = this.Start(assemblyName);
         }
@@ -43,13 +47,17 @@
 
         private BackTelemetryChannel Start(string assemblyName)
         {
-            this.hostingEngine = CreateBuilder()
-                 .UseContentRoot(Directory.GetCurrentDirectory())
+            var builder = new WebHostBuilder()
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(this.BaseHost)
                 .UseKestrel()
                 .UseStartup(assemblyName)
-                .UseEnvironment("Production")
-                .Build();
+                .UseEnvironment("Production");
+            if (configureHost != null)
+            {
+                builder = configureHost(builder);
+            }
+            this.hostingEngine = builder.Build();
 
             this.hostingEngine.Start();
 
@@ -63,16 +71,6 @@
             {
                 this.hostingEngine.Dispose();
             }
-        }
-
-        private WebHostBuilder CreateBuilder()
-        {
-            var config = new ConfigurationBuilder()
-                .Build();
-
-            var hostBuilder = new WebHostBuilder();
-            hostBuilder.UseConfiguration(config);
-            return hostBuilder;
         }
     }
 }

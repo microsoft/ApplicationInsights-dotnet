@@ -9,6 +9,7 @@ namespace FunctionalTestUtils
     using System.Reflection;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 #if NET451
@@ -74,7 +75,7 @@ namespace FunctionalTestUtils
         }
 
 #if NET451
-        public void ValidateBasicDependency(string assemblyName, string requestPath)
+        public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             DependencyTelemetry expected = new DependencyTelemetry();
             expected.ResultCode = "200";
@@ -82,7 +83,7 @@ namespace FunctionalTestUtils
             expected.Name = requestPath;
 
             InProcessServer server;
-            using (server = new InProcessServer(assemblyName))
+            using (server = new InProcessServer(assemblyName, configureHost))
             {
                 expected.Data = server.BaseHost + requestPath;
 
@@ -105,9 +106,9 @@ namespace FunctionalTestUtils
                 );
         }
 
-        public void ValidatePerformanceCountersAreCollected(string assemblyName)
+        public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, configureHost))
             {
                 // Reconfigure the PerformanceCollectorModule timer.
                 Type perfModuleType = typeof(PerformanceCollectorModule);

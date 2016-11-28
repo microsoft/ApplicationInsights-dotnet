@@ -16,7 +16,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingHomeController()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 const string RequestPath = "/";
 
@@ -34,7 +34,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingActionWithParameter()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 const string RequestPath = "/Home/About/5";
 
@@ -52,7 +52,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingNotExistingController()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 const string RequestPath = "/not/existing/controller";
 
@@ -71,7 +71,7 @@ namespace SampleWebAppIntegration.FunctionalTest
         public void TestMixedTelemetryItemsReceived()
         {
             InProcessServer server;
-            using (server = new InProcessServer(assemblyName))
+            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 using (var httpClient = new HttpClient())
                 {
