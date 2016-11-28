@@ -11,6 +11,6 @@
         /// <param name="name"> Name of the counter.</param>
         /// <param name="environmentVariable"> Identifier of the corresponding environment variable.</param>
         /// <returns> Counter value.</returns>
-        double GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable);
+        long GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable);
     }
 }
