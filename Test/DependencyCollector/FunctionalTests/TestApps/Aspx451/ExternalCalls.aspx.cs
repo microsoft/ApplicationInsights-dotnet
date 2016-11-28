@@ -22,7 +22,7 @@
         /// <summary>
         /// Valid SQL Query.
         /// </summary> 
-        private const string ValidSqlQueryToApmDatabase = "select top 2 * from dbo.Messages";
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:001'; select * from dbo.Messages";
 
         /// <summary>
         /// Valid SQL Query to get count.
