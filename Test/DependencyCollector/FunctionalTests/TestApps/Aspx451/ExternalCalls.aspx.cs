@@ -20,9 +20,9 @@
         private const string ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
 
         /// <summary>
-        /// Valid SQL Query.
+        /// Valid SQL Query. The wait for delay of 6msec is used to prevent access time of less than 1msec. SQL is not accurate below 3, so used 6 msec delay.
         /// </summary> 
-        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:001'; select * from dbo.Messages";
+        private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
 
         /// <summary>
         /// Valid SQL Query to get count.
