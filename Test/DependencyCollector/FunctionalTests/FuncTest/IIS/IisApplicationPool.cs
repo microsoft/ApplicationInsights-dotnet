@@ -96,6 +96,7 @@ namespace FuncTest.IIS
             catch (Exception ex)
             {
                 Trace.TraceError("Exception occured while creating IIS Application Pool: {0}. The exception thrown was {1}", poolName, ex.Message);
+                throw ex;
             }
         }
 
