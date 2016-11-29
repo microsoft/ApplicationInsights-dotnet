@@ -56,7 +56,7 @@ AS
 BEGIN
 
 SET NOCOUNT ON;
-
+WAITFOR DELAY '00:00:00:006';
 SELECT TOP 10 ID, MessageText, EventTime from Messages
 
 END
