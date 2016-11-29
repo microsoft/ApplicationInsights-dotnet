@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.2.0-beta6
+- Added serialization of the "source" property.
+- Downgraded package dependencies to Microsoft.NETCore.App 1.0.1 level.
+
 ## Version 2.2.0-beta5
 - Moved from PCL dotnet5.4 to .NET Core NetStandard1.5.
 - Updated dependency versions.
