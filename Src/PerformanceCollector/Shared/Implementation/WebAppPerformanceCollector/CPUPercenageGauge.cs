@@ -53,9 +53,10 @@
 
                 if (diff < 0)
                 {
-                    PerformanceCollectorEventSource.Log.WebAppCPUUsedNegativeValue(
+                    PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
                     this.lastCollectedValue.ToString(CultureInfo.InvariantCulture),
-                    previouslyCollectedValue.ToString(CultureInfo.InvariantCulture));                    
+                    previouslyCollectedValue.ToString(CultureInfo.InvariantCulture),
+                    this.name);                    
                 }
                 else
                 {
