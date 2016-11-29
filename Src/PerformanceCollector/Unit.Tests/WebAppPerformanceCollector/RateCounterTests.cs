@@ -2,7 +2,7 @@
 {
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class RateCounterTests
