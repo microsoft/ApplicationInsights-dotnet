@@ -177,9 +177,9 @@
         }
 
         [Event(19, Level = EventLevel.Error, Message = @"Web App CPU Usage has unexpected (negative) value. Last Collected Value:{0} Previous Value:{1}. To avoid negative CPU percentage, this will be reported as zero instead.")]
-        public void WebAppCPUUsedNegativeValue(double lastCollectedValue, double previouslyCollectedValue, string applicationName = "dummy")
+        public void WebAppCPUUsedNegativeValue(string lastCollectedValue, string previouslyCollectedValue, string applicationName = "dummy")
         {
-            this.WriteEvent(19, lastCollectedValue.ToString(), previouslyCollectedValue.ToString(), this.ApplicationName);
+            this.WriteEvent(19, lastCollectedValue, previouslyCollectedValue, this.ApplicationName);
         }
 
         #endregion
