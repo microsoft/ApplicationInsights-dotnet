@@ -177,7 +177,7 @@
         }
 
         [Event(19, Level = EventLevel.Error, Message = @"CounterName:{2} has unexpected (negative) value. Last Collected Value:{0} Previous Value:{1}. To avoid negative value, this will be reported as zero instead.")]
-        public void WebAppCounterNegativeValue(string lastCollectedValue, string previouslyCollectedValue, string counterName, string applicationName = "dummy")
+        public void WebAppCounterNegativeValue(double lastCollectedValue, double previouslyCollectedValue, string counterName, string applicationName = "dummy")
         {
             this.WriteEvent(19, lastCollectedValue, previouslyCollectedValue, counterName, this.ApplicationName);
         }

@@ -89,13 +89,13 @@
                 if (diff < 0)
                 {
                     PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
-                    this.lastValue.ToString(CultureInfo.InvariantCulture),
-                    previouslyCollectedValue.ToString(CultureInfo.InvariantCulture),
+                    this.lastValue,
+                    previouslyCollectedValue,
                     this.name);
                 }
                 else
-                {                    
-                    value = timeDifferenceInSeconds != 0 ? (double)(diff * 100.0 / timeDifferenceInSeconds) : 0;
+                {
+                    value = timeDifferenceInSeconds != 0 ? (double)(diff / timeDifferenceInSeconds) : 0;
                 }
             }
 

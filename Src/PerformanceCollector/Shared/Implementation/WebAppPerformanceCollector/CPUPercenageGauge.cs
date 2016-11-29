@@ -54,8 +54,8 @@
                 if (diff < 0)
                 {
                     PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
-                    this.lastCollectedValue.ToString(CultureInfo.InvariantCulture),
-                    previouslyCollectedValue.ToString(CultureInfo.InvariantCulture),
+                    this.lastCollectedValue,
+                    previouslyCollectedValue,
                     this.name);                    
                 }
                 else
