@@ -325,7 +325,6 @@
                     // send out the unified error message
                     PerformanceCollectorEventSource.Log.CounterCheckConfigurationEvent(
                         errors.Count.ToString(CultureInfo.InvariantCulture),
-                        this.Counters.Count.ToString(CultureInfo.InvariantCulture),
                         string.Join(Environment.NewLine, errors));
                 }
             }

@@ -71,15 +71,14 @@
         }
 
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
-            Message = @"Error collecting {0} out of {1} configured performance counters. Please check the configuration.
+            Message = @"Error collecting {0} of the configured performance counters. Please check the configuration.
 {2}")]
         public void CounterCheckConfigurationEvent(
             string misconfiguredCountersCount,
-            string overallConfiguredCountersCount,
             string e,
             string applicationName = "dummy")
         {
-            this.WriteEvent(8, misconfiguredCountersCount, overallConfiguredCountersCount, e, this.ApplicationName);
+            this.WriteEvent(8, misconfiguredCountersCount, e, this.ApplicationName);
         }
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
