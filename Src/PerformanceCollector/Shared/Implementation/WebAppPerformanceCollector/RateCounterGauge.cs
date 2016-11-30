@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
+    using System.Globalization;
 
     /// <summary>
     /// Struct for metrics dependant on time.
@@ -24,14 +25,17 @@
 
         private ICounterValue counter;
 
-        private double? lastValue;
+        /// <summary>
+        /// To keep track of the value read last time this metric was retrieved.
+        /// </summary>
+        private double lastValue;
 
         private ICachedEnvironmentVariableAccess cacheHelper;
 
         /// <summary>
         /// DateTime object to keep track of the last time this metric was retrieved.
         /// </summary>
-        private DateTimeOffset dateTime;
+        private DateTimeOffset lastCollectedTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RateCounterGauge"/> class.
@@ -69,39 +73,31 @@
         /// <returns>The value of the target metric.</returns>
         public double GetValueAndReset()
         {
-            DateTimeOffset currentTime = System.DateTimeOffset.Now;
+            double previouslyCollectedValue = this.lastValue;
+            this.lastValue = (this.counter == null) ? this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable) : this.counter.GetValueAndReset();
 
-            var timeDifferenceInSeconds = currentTime.Subtract(this.dateTime).Seconds;
+            var previouslyCollectedTime = this.lastCollectedTime;
+            this.lastCollectedTime = DateTimeOffset.UtcNow;
+
             double value = 0;
-
-            if (this.lastValue == null)
+            if (previouslyCollectedTime != DateTimeOffset.MinValue)
             {
-                if (this.counter == null)
+                var timeDifferenceInSeconds = this.lastCollectedTime.Subtract(previouslyCollectedTime).Seconds;                
+
+                var diff = this.lastValue - previouslyCollectedValue;
+
+                if (diff < 0)
                 {
-                    this.lastValue = this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable);
+                    PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
+                    this.lastValue,
+                    previouslyCollectedValue,
+                    this.name);
                 }
                 else
                 {
-                    this.lastValue = this.counter.GetValueAndReset();
+                    value = timeDifferenceInSeconds != 0 ? (double)(diff / timeDifferenceInSeconds) : 0;
                 }
-
-                this.dateTime = currentTime;
-
-                return value;
             }
-
-            if (this.counter == null)
-            {
-                value = (timeDifferenceInSeconds != 0) ? (this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable) - (float)this.lastValue) / timeDifferenceInSeconds : 0;
-                this.lastValue = this.cacheHelper.GetCounterValue(this.jsonId, this.environmentVariable);
-            }
-            else
-            {
-                value = (timeDifferenceInSeconds != 0) ? (this.counter.GetValueAndReset() - (float)this.lastValue) / timeDifferenceInSeconds : 0;
-                this.lastValue = this.counter.GetValueAndReset();
-            }
-
-            this.dateTime = currentTime;
 
             return value;
         }

@@ -114,7 +114,7 @@
     "readIoBytes": 11764011,
     "writeIoBytes": 10951999,
     "otherIoBytes": 1450405,
-    "privateBytes": 5943296,
+    "privateBytes": 100000,
     "handles": 691,
     "contextSwitches": 1079139
   },
