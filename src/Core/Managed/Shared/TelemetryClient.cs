@@ -379,11 +379,12 @@
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                
-                if (string.IsNullOrEmpty(instrumentationKey))
+                // If no configuration override was passed to the constructor then the default configuration instance will have been used.
+                // If no iKey was present in the config then the environment variable will have been loaded into the default instance.
+                instrumentationKey = this.configuration.InstrumentationKey;
+                if (string.IsNullOrEmpty(instrumentationKey) && this.configuration != TelemetryConfiguration.Active)
                 {
-                    instrumentationKey = this.configuration.InstrumentationKey;
+                    instrumentationKey = TelemetryConfiguration.Active.InstrumentationKey;
                 }
             }
 
