@@ -250,7 +250,7 @@
         [Event(
             20,
             Keywords = Keywords.UserActionable,
-            Message = "ApplicationInsights configuration file loading failed. Exception: '{0}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Message = "ApplicationInsights configuration file loading failed. Exception: '{0}'. Monitoring will continue if you set InstrumentationKey programmatically.",
             Level = EventLevel.Error)]
         public void ConfigurationFileCouldNotBeParsedError(string error, string appDomainName = "Incorrect")
         {
@@ -263,7 +263,7 @@
         [Event(
             21,
             Keywords = Keywords.UserActionable,
-            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be create. Error: '{1}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be create. Error: '{1}'. Monitoring will continue if you set InstrumentationKey programmatically.",
             Level = EventLevel.Error)]
         public void MissingMethodExceptionConfigurationError(string type, string error, string appDomainName = "Incorrect")
         {
@@ -277,7 +277,7 @@
         [Event(
             22,
             Keywords = Keywords.UserActionable,
-            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be initialized. Error: '{1}'. Monitoring will continue if you set InsrumentationKey programmatically.",
+            Message = "ApplicationInsights configuration file loading failed. Type '{0}' will not be initialized. Error: '{1}'. Monitoring will continue if you set InstrumentationKey programmatically.",
             Level = EventLevel.Error)]
         public void ComponentInitializationConfigurationError(string type, string error, string appDomainName = "Incorrect")
         {
