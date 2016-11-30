@@ -71,15 +71,14 @@
         }
 
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
-            Message = @"Error collecting {0} out of {1} configured performance counters. Please check the configuration.
+            Message = @"Error collecting {0} of the configured performance counters. Please check the configuration.
 {2}")]
         public void CounterCheckConfigurationEvent(
             string misconfiguredCountersCount,
-            string overallConfiguredCountersCount,
             string e,
             string applicationName = "dummy")
         {
-            this.WriteEvent(8, misconfiguredCountersCount, overallConfiguredCountersCount, e, this.ApplicationName);
+            this.WriteEvent(8, misconfiguredCountersCount, e, this.ApplicationName);
         }
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
@@ -174,6 +173,12 @@
         public void WebAppCounterRegistrationFailedEvent(string e, string counter, string applicationName = "dummy")
         {
             this.WriteEvent(18, e, counter, this.ApplicationName);
+        }
+
+        [Event(19, Level = EventLevel.Error, Message = @"CounterName:{2} has unexpected (negative) value. Last Collected Value:{0} Previous Value:{1}. To avoid negative value, this will be reported as zero instead.")]
+        public void WebAppCounterNegativeValue(double lastCollectedValue, double previouslyCollectedValue, string counterName, string applicationName = "dummy")
+        {
+            this.WriteEvent(19, lastCollectedValue, previouslyCollectedValue, counterName, this.ApplicationName);
         }
 
         #endregion

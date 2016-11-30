@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="name"> Name of the counter to be selected from JSON.</param>
         /// <returns> Value of the counter.</returns>
-        public int GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
+        public long GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
         {
             if (this.returnJsonOne)
             {
