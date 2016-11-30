@@ -496,7 +496,32 @@
         }
 
         [TestMethod]
-        public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
+        public void TrackUsesInstrumentationKeyFromClientContextIfSetInCodeFirst()
+        {
+            ClearActiveTelemetryConfiguration();
+            PlatformSingleton.Current = new StubPlatform();
+            string message = "Test Message";
+
+            ITelemetry sentTelemetry = null;
+            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
+            var client = new TelemetryClient(configuration);
+
+            string environmentKey = Guid.NewGuid().ToString();
+            string expectedKey = Guid.NewGuid().ToString();
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
+
+            client.Context.InstrumentationKey = expectedKey;
+            Assert.DoesNotThrow(() => client.TrackTrace(message));
+            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
+
+            PlatformSingleton.Current = null;
+        }
+
+        [TestMethod]
+        public void TrackUsesInstrumentationKeyFromDefaultConfigInstanceIfSetInCodeFirst()
         {
             ClearActiveTelemetryConfiguration();
             PlatformSingleton.Current = new StubPlatform();
@@ -512,14 +537,6 @@
             string expectedKey = Guid.NewGuid().ToString();
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
 
-            // Set in code method one.
-            client.Context.InstrumentationKey = expectedKey;
-            Assert.DoesNotThrow(() => client.TrackTrace(message));
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            // Set in code method two.
-            sentTelemetry = null; // Make sure we got a new instance.
-            client.Context.InstrumentationKey = string.Empty; // Clear method one value.
             TelemetryConfiguration.Active.InstrumentationKey = expectedKey; // Set in code method two, default config.
             Assert.DoesNotThrow(() => client.TrackTrace(message));
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
