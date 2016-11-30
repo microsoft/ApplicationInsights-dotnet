@@ -5,6 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.2.0-beta6
 - Added serialization of the "source" property.
 - Downgraded package dependencies to Microsoft.NETCore.App 1.0.1 level.
+- [Fixed the priority of getting an iKey from an environment variable](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/236)
 
 ## Version 2.2.0-beta5
 - Moved from PCL dotnet5.4 to .NET Core NetStandard1.5.
