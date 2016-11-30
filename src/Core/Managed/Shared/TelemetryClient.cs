@@ -20,8 +20,6 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
-        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
-
         private readonly TelemetryConfiguration configuration;
         private TelemetryContext context;
         private string sdkVersion;
@@ -379,13 +377,7 @@
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                // If no configuration override was passed to the constructor then the default configuration instance will have been used.
-                // If no iKey was present in the config then the environment variable will have been loaded into the default instance.
                 instrumentationKey = this.configuration.InstrumentationKey;
-                if (string.IsNullOrEmpty(instrumentationKey) && this.configuration != TelemetryConfiguration.Active)
-                {
-                    instrumentationKey = TelemetryConfiguration.Active.InstrumentationKey;
-                }
             }
 
             var telemetryWithProperties = telemetry as ISupportProperties;

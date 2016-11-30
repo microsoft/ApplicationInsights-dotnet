@@ -521,55 +521,6 @@
         }
 
         [TestMethod]
-        public void TrackUsesInstrumentationKeyFromDefaultConfigInstanceIfSetInCodeFirst()
-        {
-            ClearActiveTelemetryConfiguration();
-            PlatformSingleton.Current = new StubPlatform();
-            string message = "Test Message";
-
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
-            var client = new TelemetryClient(configuration);
-
-            string oldActiveKey = TelemetryConfiguration.Active.InstrumentationKey;
-            string environmentKey = Guid.NewGuid().ToString();
-            string expectedKey = Guid.NewGuid().ToString();
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
-
-            TelemetryConfiguration.Active.InstrumentationKey = expectedKey; // Set in code method two, default config.
-            Assert.DoesNotThrow(() => client.TrackTrace(message));
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
-            TelemetryConfiguration.Active.InstrumentationKey = oldActiveKey; // Restore state to not impact other tests.
-
-            PlatformSingleton.Current = null;
-        }
-
-        [TestMethod]
-        public void TrackUsesInstrumentationKeyFromEnvironmentIfEmptyInCode()
-        {
-            ClearActiveTelemetryConfiguration();
-            PlatformSingleton.Current = new StubPlatform();
-
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
-            var client = new TelemetryClient(configuration);
-
-            string expectedKey = Guid.NewGuid().ToString();
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
-
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
-
-            PlatformSingleton.Current = null;
-        }
-
-        [TestMethod]
         public void TrackUsesInstrumentationKeyFromConfigIfEnvironmentVariableIsEmpty()
         {
             PlatformSingleton.Current = new StubPlatform();
