@@ -20,8 +20,6 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
-        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
-
         private readonly TelemetryConfiguration configuration;
         private TelemetryContext context;
         private string sdkVersion;
@@ -379,12 +377,7 @@
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
+                instrumentationKey = this.configuration.InstrumentationKey;
             }
 
             var telemetryWithProperties = telemetry as ISupportProperties;

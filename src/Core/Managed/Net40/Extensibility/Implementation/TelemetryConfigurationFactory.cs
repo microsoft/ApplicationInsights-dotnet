@@ -73,11 +73,11 @@
                 }
             }
 
-            // If no instrumentation key is found, try to fall back to an environment variable (for blackfield scenario)
-            if (string.IsNullOrEmpty(configuration.InstrumentationKey))
+            // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
+            string environmentIKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+            if (!string.IsNullOrEmpty(environmentIKey))
             {
-                configuration.InstrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable)
-                                                   ?? string.Empty;
+                configuration.InstrumentationKey = environmentIKey;
             }
 
             // Creating the default channel if no channel configuration supplied
