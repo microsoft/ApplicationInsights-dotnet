@@ -5,6 +5,7 @@
 - [Fixed issue reporting CPU Metric](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/225)
 - [Fixed source of web app instance identification](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/226)
 - Updated package references.
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.6 for net46.
 
 ## Version 2.2.0-beta4
 - ```DomainNameRoleInstanceTelemetryInitializer``` is obsolete. Role instance is still populated with machine name as it was before.
