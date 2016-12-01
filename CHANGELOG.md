@@ -5,13 +5,12 @@
 - [Fixed issue reporting CPU Metric](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/225)
 - [Fixed source of web app instance identification](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/226)
 - Updated package references.
-- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.6 for net46.
+- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.6.
 
 ## Version 2.2.0-beta4
 - ```DomainNameRoleInstanceTelemetryInitializer``` is obsolete. Role instance is still populated with machine name as it was before.
 - New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
 - Support of performance collection and live metrics for Azure Web Apps is enabled.
-- DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.5 for net46 and reverted to 2.0.1 for net40 and net45.
 
 ## Version 2.2.0-beta3
 - New property `DefaultCounters` in `PerformanceCollectorModule` to control the list of standard counters that will be collected
