@@ -22,6 +22,5 @@
             ValidatePerformanceCountersAreCollected(assemblyName);
 #endif
         }
-
     }
 }

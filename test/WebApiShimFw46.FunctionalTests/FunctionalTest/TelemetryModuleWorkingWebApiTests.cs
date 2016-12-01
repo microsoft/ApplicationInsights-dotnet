@@ -24,6 +24,5 @@ namespace SampleWebAppIntegration.FunctionalTest
             ValidatePerformanceCountersAreCollected(assemblyName);
 #endif
         }
-
     }
 }
