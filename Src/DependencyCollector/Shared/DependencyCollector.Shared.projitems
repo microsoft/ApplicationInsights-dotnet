@@ -12,6 +12,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentCorrelation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
@@ -36,6 +37,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
   </ItemGroup>
 </Project>

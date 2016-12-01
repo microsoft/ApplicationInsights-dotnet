@@ -24,11 +24,23 @@
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
+        private ComponentCorrelation componentCorrelation = new ComponentCorrelation();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
         /// </summary>
         public bool DisableRuntimeInstrumentation { get; set; }
+
+        /// <summary>
+        /// Gets the component correlation configuration.
+        /// </summary>
+        public ComponentCorrelation ComponentCorrelation
+        {
+            get
+            {
+                return this.componentCorrelation;
+            }
+        }
 
         /// <summary>
         /// IDisposable implementation.
@@ -85,7 +97,7 @@
             var agentVersion = Decorator.GetAgentVersion();
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
-            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder);
+            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.componentCorrelation);
             this.sqlProcessing = new ProfilerSqlProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
             ProfilerRuntimeInstrumentation.DecorateProfilerForHttp(ref this.httpProcessing);

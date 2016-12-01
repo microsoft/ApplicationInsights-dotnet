@@ -23,11 +23,12 @@
         internal ObjectInstanceBasedOperationHolder TelemetryTable;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private TelemetryClient telemetryClient;
+        private ComponentCorrelation componentCorrelationConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
         /// </summary>
-        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
+        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, ComponentCorrelation correlationConfig)
         {
             if (configuration == null)
             {
@@ -39,9 +40,15 @@
                 throw new ArgumentNullException("telemetryTupleHolder");
             }
 
+            if (correlationConfig == null)
+            {
+                throw new ArgumentNullException("correlationConfig");
+            }
+
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.TelemetryTable = telemetryTupleHolder;
             this.telemetryClient = new TelemetryClient(configuration);
+            this.componentCorrelationConfiguration = correlationConfig;
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
             // For directly using TrackDependency(), version will be simply what is set by core
@@ -271,8 +278,11 @@
                     this.telemetryClient.Initialize(telemetry);
                 }
 
-                // Add the source instrumentation key header if one doesn't already exist
-                if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
+                // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
+                if (this.componentCorrelationConfiguration.CollectionEnabled
+                    && !this.componentCorrelationConfiguration.ExcludedDomains.Contains(url.Host)
+                    && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
+                    && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
                 {
                     webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
                 }
