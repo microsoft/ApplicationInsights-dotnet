@@ -7,19 +7,20 @@
     {
         private const string assemblyName = "EmptyApp.FunctionalTests";
 
-#if NET451
-
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
+#if NET451
             this.ValidateBasicDependency(assemblyName, "/");
+#endif
         }
 
         [Fact]
         public void TestIfPerformanceCountersAreCollected()
         {
+#if NET451
             ValidatePerformanceCountersAreCollected(assemblyName);
-        }
 #endif
+        }
     }
 }

@@ -4,25 +4,26 @@
 namespace SampleWebAppIntegration.FunctionalTest
 {
     using FunctionalTestUtils;
-    using Microsoft.ApplicationInsights.DataContracts;
 
     public class TelemetryModuleWorkingWebApiTests : TelemetryTestsBase
     {
         private const string assemblyName = "WebApiShimFw46.FunctionalTests";
 
-#if NET451
-
         [Fact]
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
+#if NET451
             this.ValidateBasicDependency(assemblyName, "/api/values");
+#endif
         }
 
         [Fact]
         public void TestIfPerformanceCountersAreCollected()
         {
+#if NET451
             ValidatePerformanceCountersAreCollected(assemblyName);
-        }
 #endif
+        }
+
     }
 }
