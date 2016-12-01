@@ -20,8 +20,6 @@ namespace SampleWebAppIntegration.FunctionalTest
                 const string RequestPath = "/Home/Exception";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
-
                 expectedRequestTelemetry.Name = "GET Home/Exception";
                 expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
@@ -36,7 +34,6 @@ namespace SampleWebAppIntegration.FunctionalTest
             using (var server = new InProcessServer(assemblyName))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
-                expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
                 expectedExceptionTelemetry.Exception = new InvalidOperationException();
 
                 this.ValidateBasicException(server, "/Home/Exception", expectedExceptionTelemetry);

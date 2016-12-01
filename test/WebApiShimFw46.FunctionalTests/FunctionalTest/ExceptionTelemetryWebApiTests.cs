@@ -17,7 +17,6 @@
                 const string RequestPath = "/api/exception";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET Exception/Get";
                 //TODO: default template of Web API applicaiton doesn't have error handling middleware 
                 //that will set appropriate status code
@@ -35,7 +34,6 @@
             using (var server = new InProcessServer(assemblyName))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
-                expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
                 expectedExceptionTelemetry.Exception = new InvalidOperationException();
 
                 this.ValidateBasicException(server, "/api/exception", expectedExceptionTelemetry);

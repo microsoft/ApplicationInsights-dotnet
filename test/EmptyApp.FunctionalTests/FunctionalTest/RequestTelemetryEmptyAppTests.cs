@@ -18,7 +18,6 @@
                 const string RequestPath = "/";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET /";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;
@@ -36,7 +35,6 @@
                 const string RequestPath = "/not/existing/controller";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET /not/existing/controller";
                 expectedRequestTelemetry.ResponseCode = "404";
                 expectedRequestTelemetry.Success = false;
