@@ -4,6 +4,7 @@
 - [Fixed redundant dependency items issue](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/196)
 - [Fixed issue reporting CPU Metric](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/225)
 - [Fixed source of web app instance identification](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/226)
+- Updated package references.
 
 ## Version 2.2.0-beta4
 - ```DomainNameRoleInstanceTelemetryInitializer``` is obsolete. Role instance is still populated with machine name as it was before.
