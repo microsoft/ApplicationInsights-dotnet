@@ -38,7 +38,7 @@
         /// <param name="performanceCounterName"> The name of the performance counter.</param>
         /// <param name="json"> String containing the JSON.</param>
         /// <returns> Value of the performance counter.</returns>
-        public int PerformanceCounterValue(string performanceCounterName, string json)
+        public long PerformanceCounterValue(string performanceCounterName, string json)
         {
             if (json.IndexOf(performanceCounterName, StringComparison.OrdinalIgnoreCase) == -1)
             {
@@ -48,7 +48,7 @@
             string jsonSubstring = json.Substring(json.IndexOf(performanceCounterName, StringComparison.OrdinalIgnoreCase), json.Length - json.IndexOf(performanceCounterName, StringComparison.OrdinalIgnoreCase));
 
             int startingIndex = jsonSubstring.IndexOf(" ", StringComparison.Ordinal) + 1;
-            int value;
+            long value;
             StringBuilder valueString = new StringBuilder();
 
             while (char.IsDigit(jsonSubstring[startingIndex]))
@@ -57,9 +57,9 @@
                 startingIndex++;
             }
 
-            if (!int.TryParse(valueString.ToString(), out value))
+            if (!long.TryParse(valueString.ToString(), out value))
             {
-                throw new System.InvalidCastException("The value of the counter cannot be converted to integer type.");
+                throw new System.InvalidCastException("The value of the counter cannot be converted to long type. Value:" + valueString);
             }
 
             return value;
@@ -74,7 +74,7 @@
         /// <param name="name">Cache key and name of the counter to be selected from JSON.</param>
         /// <param name="environmentVariable">Identifier of the environment variable.</param>
         /// <returns>Value from cache.</returns>
-        public int GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
+        public long GetCounterValue(string name, AzureWebApEnvironmentVariables environmentVariable)
         {
             if (!CacheHelper.Instance.IsInCache(name))
             {
@@ -90,7 +90,7 @@
             }
 
             string json = this.GetFromCache(name).ToString();
-            int value = this.PerformanceCounterValue(name, json);
+            long value = this.PerformanceCounterValue(name, json);
 
             return value;
         }
