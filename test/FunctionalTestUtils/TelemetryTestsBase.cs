@@ -6,7 +6,9 @@
     using System.Net.Http;
     using System.Reflection;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 #if NET451
@@ -27,19 +29,23 @@
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
-            var result = task.Result;
+            Task<HttpResponseMessage> task;
+            using (var httpClient = new HttpClient(httpClientHandler, true))
+            {
+                task = httpClient.GetAsync(server.BaseHost + requestPath);
+                task.Wait(TestTimeoutMs);
+            }
+
+            timer.Stop();
+            server.Dispose();
 
             var actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
 
-            timer.Stop();
             Assert.Equal(expected.ResponseCode, actual.ResponseCode);
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Url, actual.Url);
-            Assert.InRange<DateTimeOffset>(actual.Timestamp, testStart, DateTimeOffset.Now);
+            Assert.InRange(actual.Timestamp, testStart, DateTimeOffset.Now);
             Assert.True(actual.Duration < timer.Elapsed, "duration");
         }
 
@@ -49,11 +55,14 @@
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
+            Task<HttpResponseMessage> task;
+            using (var httpClient = new HttpClient(httpClientHandler, true))
+            {
+                task = httpClient.GetAsync(server.BaseHost + requestPath);
+                task.Wait(TestTimeoutMs);
+            }
             var result = task.Result;
-
+            server.Dispose();
             var actual = server.BackChannel.Buffer.OfType<ExceptionTelemetry>().Single();
 
             Assert.Equal(expected.Exception.GetType(), actual.Exception.GetType());
@@ -63,34 +72,40 @@
         }
 
 #if NET451
-        public void ValidateBasicDependency(string assemblyName, string requestPath)
+        public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
-            using (InProcessServer server = new InProcessServer(assemblyName))
+            DependencyTelemetry expected = new DependencyTelemetry();
+            expected.ResultCode = "200";
+            expected.Success = true;
+            expected.Name = requestPath;
+
+            InProcessServer server;
+            using (server = new InProcessServer(assemblyName, configureHost))
             {
-                DependencyTelemetry expected = new DependencyTelemetry();
-                expected.Name = requestPath;
-                expected.ResultCode = "200";
-                expected.Success = true;
+                expected.Data = server.BaseHost + requestPath;
 
-                DateTimeOffset testStart = DateTimeOffset.Now;
                 var timer = Stopwatch.StartNew();
-                var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + requestPath);
-                task.Wait(TestTimeoutMs);
+                Task<HttpResponseMessage> task;
+                using (var httpClient = new HttpClient())
+                {
+                    task = httpClient.GetAsync(server.BaseHost + requestPath);
+                    task.Wait(TestTimeoutMs);
+                }
                 var result = task.Result;
-
-                var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
                 timer.Stop();
-
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Success, actual.Success);
-                Assert.Equal(expected.ResultCode, actual.ResultCode);
             }
+
+            Assert.Contains(server.BackChannel.Buffer.OfType<DependencyTelemetry>(),
+                d => d.Name == expected.Name
+                  && d.Data == expected.Data
+                  && d.Success == expected.Success
+                  && d.ResultCode == expected.ResultCode
+                );
         }
 
-        public void ValidatePerformanceCountersAreCollected(string assemblyName)
+        public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, configureHost))
             {
                 // Reconfigure the PerformanceCollectorModule timer.
                 Type perfModuleType = typeof(PerformanceCollectorModule);

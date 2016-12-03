@@ -29,7 +29,7 @@
 
             if (requestTelemetry != null)
             {
-                services.AddSingleton<RequestTelemetry>(requestTelemetry);
+                request.HttpContext.Features.Set(requestTelemetry);
             }
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();

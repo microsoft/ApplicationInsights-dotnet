@@ -9,6 +9,7 @@
     /// <summary>
     /// Sends telemetry about exceptions thrown by the application to the Microsoft Application Insights service.
     /// </summary>
+    [Obsolete]
     public sealed class ExceptionTrackingMiddleware
     {
         private readonly RequestDelegate next;

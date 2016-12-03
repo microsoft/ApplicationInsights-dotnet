@@ -1,14 +1,14 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
+﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.Extensions.Options;
+
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
-    using System;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.Extensions.Configuration;
     using Xunit;
 
     public class ComponentVersionTelemetryInitializerTests
     {
-        private const string VersionKey = "version";
 
         [Fact]
         public void InitializeDoesNotThrowIfHttpContextIsUnavailable()
@@ -36,7 +36,6 @@
         [Fact]
         public void InitializeDoesNotOverrideExistingVersion()
         {
-            
             var initializer = new ComponentVersionTelemetryInitializer(this.BuildConfigurationWithVersion());
             var telemetry = new RequestTelemetry();
             telemetry.Context.Component.Version = "TestVersion";
@@ -48,19 +47,17 @@
         [Fact]
         public void InitializeDoesNotThrowIfVersionDoesNotExist()
         {
-            var config = new ConfigurationBuilder()
-                .Build();
-            var initializer = new ComponentVersionTelemetryInitializer(config);
+            var initializer = new ComponentVersionTelemetryInitializer(this.BuildConfigurationWithVersion(null));
             var telemetry = new RequestTelemetry();
             initializer.Initialize(telemetry);
         }
 
-        private IConfigurationRoot BuildConfigurationWithVersion()
+        private IOptions<ApplicationInsightsServiceOptions> BuildConfigurationWithVersion(string versions = "1.0.0")
         {
-            Environment.SetEnvironmentVariable(VersionKey, "1.0.0");
-            return new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-                .Build();
+            return new OptionsWrapper<ApplicationInsightsServiceOptions>(new ApplicationInsightsServiceOptions()
+            {
+                ApplicationVersion = versions
+            });
         }
     }
 }

@@ -1,36 +1,29 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
-    using Channel;
-    using Microsoft.Extensions.Configuration;
     using ApplicationInsights.Extensibility;
+    using Channel;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// A telemetry initializer that populates telemetry.Context.Component.Version to the value read from configuration
     /// </summary>
     public class ComponentVersionTelemetryInitializer : ITelemetryInitializer
     {
-        private const string _versionConfigurationOption = "version";
-        private IConfiguration _configuration;
+        private readonly string version;
 
-        public ComponentVersionTelemetryInitializer(IConfiguration configuration)
+        public ComponentVersionTelemetryInitializer(IOptions<ApplicationInsightsServiceOptions> options)
         {
-            if (configuration != null)
-            {
-                this._configuration = configuration;
-            }
+             this.version = options.Value.ApplicationVersion;
         }
 
         public void Initialize(ITelemetry telemetry)
         {
             if (string.IsNullOrEmpty(telemetry.Context.Component.Version))
             {
-                if (this._configuration != null)
+                if (!string.IsNullOrEmpty(this.version))
                 {
-                    string version = this._configuration[_versionConfigurationOption];
-                    if (!string.IsNullOrEmpty(version))
-                    {
-                        telemetry.Context.Component.Version = version;
-                    }
+                    telemetry.Context.Component.Version = this.version;
                 }
             }
         }
