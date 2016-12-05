@@ -8,12 +8,12 @@
     using Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.AspNetCore.Http;    
+    using Microsoft.AspNetCore.Http;
 
     /// <summary>
     /// A telemetry initializer that populates cloud context role instance.
     /// </summary>
-    public class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
+    internal class DomainNameRoleInstanceTelemetryInitializer : TelemetryInitializerBase
     {
         private string roleInstanceName;
 

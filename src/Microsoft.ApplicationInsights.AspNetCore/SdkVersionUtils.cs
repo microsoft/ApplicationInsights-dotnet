@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore
-{ 
+{
     using System.Linq;
     using System.Reflection;
 

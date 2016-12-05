@@ -2,28 +2,31 @@
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using AspNetCore.Builder;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+    using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Configuration.Memory;
-    using AspNetCore.Http;
-    using AspNetCore.Mvc.Infrastructure;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Options;
 
 #if NET451
-    using ApplicationInsights.DependencyCollector;
-    using ApplicationInsights.Extensibility.PerfCounterCollector;
-    using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
+    /// <summary>
+    /// Extension methods for <see cref="IServiceCollection"/> that allow adding Application Insights services to application.
+    /// </summary>
     public static class ApplicationInsightsExtensions
     {
+        private const string VersionKeyFromConfig = "version";
         private const string InstrumentationKeyFromConfig = "ApplicationInsights:InstrumentationKey";
         private const string DeveloperModeFromConfig = "ApplicationInsights:TelemetryChannel:DeveloperMode";
         private const string EndpointAddressFromConfig = "ApplicationInsights:TelemetryChannel:EndpointAddress";
@@ -32,29 +35,72 @@
         private const string DeveloperModeForWebSites = "APPINSIGHTS_DEVELOPER_MODE";
         private const string EndpointAddressForWebSites = "APPINSIGHTS_ENDPOINTADDRESS";
 
+        [Obsolete]
         public static IApplicationBuilder UseApplicationInsightsRequestTelemetry(this IApplicationBuilder app)
         {
-            return app.UseMiddleware<RequestTrackingMiddleware>();
+            return app;
         }
 
+        [Obsolete]
         public static IApplicationBuilder UseApplicationInsightsExceptionTelemetry(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionTrackingMiddleware>();
         }
 
-        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration config, ApplicationInsightsServiceOptions serviceOptions = null)
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, string instrumentationKey)
         {
-            var options = serviceOptions ?? new ApplicationInsightsServiceOptions();
+            services.AddApplicationInsightsTelemetry(options => options.InstrumentationKey = instrumentationKey);
+            return services;
+        }
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="configuration">Configuration to use for sending telemetry.</param>
+        /// <returns>The <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
+            return services;
+        }
+
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="options">The action used to configure the options.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, Action<ApplicationInsightsServiceOptions> options)
+        {
+            services.AddApplicationInsightsTelemetry();
+            services.Configure(options);
+            return services;
+        }
+
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="options">The action used to configure the options.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<ITelemetryInitializer, AzureWebAppRoleEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>(serviceProvider =>
-            {
-                return new ComponentVersionTelemetryInitializer(config);
-            });
+            services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
@@ -67,29 +113,35 @@
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
-
-            services.AddSingleton<TelemetryConfiguration>(serviceProvider =>
-            {
-                var telemetryConfiguration = TelemetryConfiguration.Active;
-                AddTelemetryChannelAndProcessorsForFullFramework(serviceProvider, telemetryConfiguration, options);
-                telemetryConfiguration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? telemetryConfiguration.TelemetryChannel;
-                AddTelemetryConfiguration(config, telemetryConfiguration);
-                AddServicesToCollection(serviceProvider, telemetryConfiguration.TelemetryInitializers);
-                InitializeModulesWithConfiguration(serviceProvider, telemetryConfiguration);
-                return telemetryConfiguration;
-            });
+            services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
             services.AddSingleton<TelemetryClient>();
 
-            services.AddScoped<RequestTelemetry>((svcs) => {
-                // Default constructor need to be used
-                var rt = new RequestTelemetry();
-                return rt;
-            });
-            
+            services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
+            services.AddSingleton<IApplicationInsightDiagnosticListener, MvcDiagnosticsListener>();
+
+            // Using startup filter instead of starting DiagnosticListeners directly because
+            // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
+            // that requires IOptions infrastructure to run and initialize
+            services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
+
+            services.AddSingleton<JavaScriptSnippet>();
+
+            services.AddOptions();
+            services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
+            services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
             return services;
         }
 
+        /// <summary>
+        /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>
+        /// </summary>
+        /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
+        /// <param name="developerMode">Enables or disables developer mode</param>
+        /// <param name="endpointAddress">Sets telemetry endpoint address</param>
+        /// <param name="instrumentationKey">Sets instrumentation key</param>
+        /// <returns>The <see cref="IConfigurationBuilder"/></returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
@@ -97,15 +149,15 @@
             string instrumentationKey = null)
         {
             var telemetryConfigValues = new List<KeyValuePair<string, string>>();
-            
+
             bool wasAnythingSet = false;
 
             if (developerMode != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(DeveloperModeForWebSites, developerMode.Value.ToString()));
                 wasAnythingSet = true;
-            } 
-  
+            }
+
             if (instrumentationKey != null)
             {
                 telemetryConfigValues.Add(new KeyValuePair<string, string>(InstrumentationKeyForWebSites, instrumentationKey));
@@ -129,7 +181,7 @@
         /// <summary>
         /// Read from configuration
         /// Config.json will look like this:
-        ///
+        /// <para>
         ///      "ApplicationInsights": {
         ///          "InstrumentationKey": "11111111-2222-3333-4444-555555555555"
         ///          "TelemetryChannel": {
@@ -137,11 +189,12 @@
         ///              DeveloperMode: true
         ///          }
         ///      }
+        /// </para>
         /// Values can also be read from environment variables to support azure web sites configuration:
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
-        /// <param name="telemetryConfiguration">Telemetry configuration to populate</param>
-        private static void AddTelemetryConfiguration(IConfiguration config, TelemetryConfiguration telemetryConfiguration)
+        /// <param name="serviceOptions">Telemetry configuration to populate</param>
+        internal static void AddTelemetryConfiguration(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions)
         {
             string instrumentationKey = config[InstrumentationKeyForWebSites];
             if (string.IsNullOrWhiteSpace(instrumentationKey))
@@ -151,7 +204,7 @@
 
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
-                telemetryConfiguration.InstrumentationKey = instrumentationKey;
+                serviceOptions.InstrumentationKey = instrumentationKey;
             }
 
             string developerModeValue = config[DeveloperModeForWebSites];
@@ -165,7 +218,7 @@
                 bool developerMode = false;
                 if (bool.TryParse(developerModeValue, out developerMode))
                 {
-                    telemetryConfiguration.TelemetryChannel.DeveloperMode = developerMode;
+                    serviceOptions.DeveloperMode = developerMode;
                 }
             }
 
@@ -177,64 +230,14 @@
 
             if (!string.IsNullOrWhiteSpace(endpointAddress))
             {
-                telemetryConfiguration.TelemetryChannel.EndpointAddress = endpointAddress;
+                serviceOptions.EndpointAddress = endpointAddress;
             }
-        }
 
-        private static void AddServicesToCollection<T>(IServiceProvider serviceProvider, ICollection<T> collection)
-        {
-            var services = serviceProvider.GetService<IEnumerable<T>>();
-            foreach (T service in services)
+            var version = config[VersionKeyFromConfig];
+            if (!string.IsNullOrWhiteSpace(version))
             {
-                collection.Add(service);
+                serviceOptions.ApplicationVersion = version;
             }
-        }
-
-        private static void InitializeModulesWithConfiguration(IServiceProvider serviceProvider, TelemetryConfiguration configuration)
-        {
-            var services = serviceProvider.GetService<IEnumerable<ITelemetryModule>>();
-            foreach (ITelemetryModule service in services)
-            {
-                service.Initialize(configuration);
-            }
-        }
-
-
-        private static void AddTelemetryChannelAndProcessorsForFullFramework(IServiceProvider serviceProvider, TelemetryConfiguration configuration, ApplicationInsightsServiceOptions serviceOptions)
-        {
-#if NET451
-            // Adding Server Telemetry Channel if services doesn't have an existing channel
-            configuration.TelemetryChannel = serviceProvider.GetService<ITelemetryChannel>() ?? new ServerTelemetryChannel();
-
-            if (configuration.TelemetryChannel is ServerTelemetryChannel)
-            {
-                // Enabling Quick Pulse Metric Stream 
-                if (serviceOptions.EnableQuickPulseMetricStream)
-                {
-                    var quickPulseModule = new QuickPulseTelemetryModule();
-                    quickPulseModule.Initialize(configuration);
-
-                    QuickPulseTelemetryProcessor processor = null;
-                    configuration.TelemetryProcessorChainBuilder.Use((next) => {
-                        processor = new QuickPulseTelemetryProcessor(next);
-                        quickPulseModule.RegisterTelemetryProcessor(processor);
-                        return processor;
-                    });
-                }
-
-                // Enabling Adaptive Sampling and initializing server telemetry channel with configuration
-                if (configuration.TelemetryChannel.GetType() == typeof(ServerTelemetryChannel))
-                {
-                    if (serviceOptions.EnableAdaptiveSampling)
-                    {
-                        configuration.TelemetryProcessorChainBuilder.UseAdaptiveSampling();
-                    }
-                    (configuration.TelemetryChannel as ServerTelemetryChannel).Initialize(configuration);
-                }
-
-                configuration.TelemetryProcessorChainBuilder.Build();
-            }
-#endif
         }
     }
 }

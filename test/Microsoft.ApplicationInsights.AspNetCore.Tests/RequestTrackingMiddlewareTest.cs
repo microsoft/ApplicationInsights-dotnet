@@ -1,4 +1,7 @@
-﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests
+﻿using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
+using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+
+namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 {
     using System;
     using System.Globalization;
@@ -16,38 +19,32 @@
         private readonly HostString httpRequestHost = new HostString("testHost");
         private readonly PathString httpRequestPath = new PathString("/path/path");
         private readonly QueryString httpRequestQueryString = new QueryString("?query=1");
-        
+
         private ITelemetry sentTelemetry;
 
-        private readonly RequestDelegate nextMiddleware = async httpContext => {
-            httpContext.Response.StatusCode = 200;
-            await httpContext.Response.Body.WriteAsync(new byte[0], 0, 0);
-        };
-
-        private readonly RequestTrackingMiddleware middleware;
+        private readonly HostingDiagnosticListener middleware;
 
         public RequestTrackingMiddlewareTest()
         {
-            this.middleware = new RequestTrackingMiddleware(
-                this.nextMiddleware,
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
+            this.middleware = new HostingDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
         }
 
         [Fact]
-        public async Task TestSdkVersionIsPopulatedByMiddleware()
+        public void TestSdkVersionIsPopulatedByMiddleware()
         {
             var context = new DefaultHttpContext();
             context.Request.Scheme = HttpRequestScheme;
             context.Request.Host = this.httpRequestHost;
 
-            await middleware.Invoke(context, new RequestTelemetry());
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
 
             Assert.NotEmpty(this.sentTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, this.sentTelemetry.Context.GetInternalContext().SdkVersion);
         }
 
         [Fact]
-        public async Task TestRequestUriIsPopulatedByMiddleware()
+        public void TestRequestUriIsPopulatedByMiddleware()
         {
             var context = new DefaultHttpContext();
             context.Request.Scheme = HttpRequestScheme;
@@ -55,30 +52,63 @@
             context.Request.Path = this.httpRequestPath;
             context.Request.QueryString = this.httpRequestQueryString;
 
-            var telemetry = new RequestTelemetry();
-            await middleware.Invoke(context, telemetry);
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
 
+            var telemetry = (RequestTelemetry)sentTelemetry;
             Assert.NotNull(telemetry.Url);
 
             Assert.Equal(
-                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)), 
+                new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)),
                 telemetry.Url);
         }
 
         [Fact]
-        public async Task RequestWillBeMarkedAsFailedForRunawayException()
+        public void RequestWillBeMarkedAsFailedForRunawayException()
         {
             var context = new DefaultHttpContext();
             context.Request.Scheme = HttpRequestScheme;
             context.Request.Host = this.httpRequestHost;
 
-            var requestMiddleware = new RequestTrackingMiddleware(
-                httpContext => { throw new InvalidOperationException(); },
-                CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
-
-            await Assert.ThrowsAnyAsync<InvalidOperationException>(async () => { await requestMiddleware.Invoke(context, new RequestTelemetry()); } );
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnDiagnosticsUnhandledException(context, null);
+            middleware.OnEndRequest(context, 0);
 
             Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
+        }
+
+        [Fact]
+        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Method = "POST";
+            context.Request.Host = this.httpRequestHost;
+            context.Request.Path = "/Test";
+
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
+
+            var telemetry = (RequestTelemetry)sentTelemetry;
+
+            Assert.Equal("POST /Test", telemetry.Name);
+        }
+
+        [Fact]
+        public void OnEndRequestSetsRequestNameToMethodAndPath()
+        {
+            var context = new DefaultHttpContext();
+            context.Request.Scheme = HttpRequestScheme;
+            context.Request.Method = "GET";
+            context.Request.Host = this.httpRequestHost;
+            context.Request.Path = "/Test";
+
+            middleware.OnBeginRequest(context, 0);
+            middleware.OnEndRequest(context, 0);
+
+            var telemetry = (RequestTelemetry)sentTelemetry;
+
+            Assert.Equal("GET /Test", telemetry.Name);
         }
     }
 }

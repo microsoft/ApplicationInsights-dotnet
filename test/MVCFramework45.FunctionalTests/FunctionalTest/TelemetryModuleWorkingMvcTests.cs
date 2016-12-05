@@ -13,7 +13,7 @@
         public void TestBasicDependencyPropertiesAfterRequestingBasicPage()
         {
 #if NET451
-            this.ValidateBasicDependency(assemblyName, "/Home/About/5");
+            this.ValidateBasicDependency(assemblyName, "/Home/About/5", InProcessServer.UseApplicationInsights);
 #endif
         }
 
@@ -21,7 +21,7 @@
         public void TestIfPerformanceCountersAreCollected()
         {
 #if NET451
-            ValidatePerformanceCountersAreCollected(assemblyName);
+            ValidatePerformanceCountersAreCollected(assemblyName, InProcessServer.UseApplicationInsights);
 #endif
         }
     }

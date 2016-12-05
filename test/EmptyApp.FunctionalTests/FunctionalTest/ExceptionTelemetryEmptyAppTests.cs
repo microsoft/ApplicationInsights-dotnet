@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Diagnostics;
+using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace EmptyApp.FunctionalTests.FunctionalTest
