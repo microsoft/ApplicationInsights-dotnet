@@ -23,7 +23,7 @@
 
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
         {
-            DateTimeOffset testStart = DateTimeOffset.Now;
+            DateTimeOffset testStart = new DateTimeOffset(Stopwatch.GetTimestamp(), TimeSpan.Zero);
             var timer = Stopwatch.StartNew();
 
             var httpClientHandler = new HttpClientHandler();
@@ -45,7 +45,7 @@
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Success, actual.Success);
             Assert.Equal(expected.Url, actual.Url);
-            Assert.InRange(actual.Timestamp, testStart, DateTimeOffset.Now);
+            InRange(actual.Timestamp, testStart, new DateTimeOffset(Stopwatch.GetTimestamp(), TimeSpan.Zero));
             Assert.True(actual.Duration < timer.Elapsed, "duration");
         }
 
@@ -126,5 +126,17 @@
             }
         }
 #endif
+
+        /// <summary>
+        /// Tests if a DateTimeOffset is in a specified range and prints a more detailed error message if it is not.
+        /// </summary>
+        /// <param name="actual">The actual value to test.</param>
+        /// <param name="low">The minimum of the range.</param>
+        /// <param name="high">The maximum of the range.</param>
+        private void InRange(DateTimeOffset actual, DateTimeOffset low, DateTimeOffset high)
+        {
+            string dateFormat = "yyyy-MM-dd HH:mm:ss.ffffzzz";
+            Assert.True(low <= actual && actual <= high, $"Range: ({low.ToString(dateFormat)} - {high.ToString(dateFormat)})\nActual: {actual.ToString(dateFormat)}");
+        }
     }
 }
