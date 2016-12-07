@@ -9,7 +9,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TestFramework;
     using Assert = Xunit.Assert;
-
+    
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
@@ -90,9 +90,88 @@
                 }
                 catch (Exception exc)
                 {
-                    Assert.NotNull(exc);
+                    Assert.Equal("test", exc.Message);
                 }
             }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuraiton.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuraiton);
+
+                try
+                {
+                    throw new Exception("test");
+                }
+                catch (Exception exc)
+                {
+                    Assert.Equal("test", exc.Message);
+                }
+            }
+
+            Assert.Equal(1, metrics.Count);
+            Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
+
+            var dims = metrics[0].Key.Dimensions;
+            Assert.Equal(2, dims.Count);
+
+            Assert.True(dims.Contains(new KeyValuePair<string, string>("type", typeof(Exception).FullName)));
+            Assert.True(dims.Contains(new KeyValuePair<string, string>("method", typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + ".FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException")));
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuraiton.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            this.configuraiton.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName";
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuraiton);
+
+                try
+                {
+                    throw new Exception("test");
+                }
+                catch (Exception exc)
+                {
+                    Assert.Equal("test", exc.Message);
+                }
+            }
+
+            Assert.Equal(1, metrics.Count);
+            Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
+
+            var dims = metrics[0].Key.Dimensions;
+            Assert.Equal(3, dims.Count);
+
+            Assert.True(dims.Contains(new KeyValuePair<string, string>("operation", "operationName")));
         }
 
         [TestMethod]

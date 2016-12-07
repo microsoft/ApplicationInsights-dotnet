@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.ExceptionServices;
     using Extensibility.Implementation.Tracing;
@@ -16,6 +18,7 @@
     public sealed class FirstChanceExceptionStatisticsTelemetryModule : ITelemetryModule, IDisposable
     {
         private const int LOCKED = 1;
+        private const int UNLOCKED = 0;
 
         /// <summary>
         /// This object prevents double entry into the exception callback.
@@ -28,8 +31,14 @@
         private readonly object lockObject = new object();
 
         private TelemetryClient telemetryClient;
+        private MetricManager metricManager;
 
         private bool isInitialized = false;
+
+        // cheap dimentions capping
+        private ConcurrentBag<string> operationValues = new ConcurrentBag<string>();
+        private ConcurrentBag<string> methodValues = new ConcurrentBag<string>();
+        private ConcurrentBag<string> typeValues = new ConcurrentBag<string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FirstChanceExceptionStatisticsTelemetryModule" /> class.
@@ -64,7 +73,9 @@
                         this.isInitialized = true;
 
                         this.telemetryClient = new TelemetryClient(configuration);
-                        this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("stat:");
+                        this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
+
+                        this.metricManager = new MetricManager(this.telemetryClient);
 
                         this.registerAction(this.CalculateStatistics);
                     }
@@ -77,7 +88,21 @@
         /// </summary>
         public void Dispose()
         {
-            this.unregisterAction(this.CalculateStatistics);
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        /// <param name="disposing">The method has been called directly or indirectly by a user's code.</param>
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.unregisterAction(this.CalculateStatistics);
+                this.metricManager.Dispose();
+            }
         }
 
         private void CalculateStatistics(object sender, FirstChanceExceptionEventArgs firstChanceExceptionArgs)
@@ -129,21 +154,35 @@
             }
             finally
             {
-                executionSyncObject = LOCKED;
+                executionSyncObject = UNLOCKED;
             }
         }
 
         private void TrackStatistcis(string type, string operation, string method)
         {
-            var metricTelemetry = new MetricTelemetry();
+            var dimensions = new Dictionary<string, string>();
+            dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
+            dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
 
-            metricTelemetry.Value = 1;
+            if (!string.IsNullOrEmpty(operation))
+            {
+                dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
+            }
 
-            metricTelemetry.Properties["type"] = type;
-            metricTelemetry.Properties["operation"] = operation;
-            metricTelemetry.Properties["method"] = method;
+            var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
 
-            this.telemetryClient.TrackMetric(metricTelemetry);
+            metric.Track(1);
+        }
+
+        private string GetDimCappedString(string value, ConcurrentBag<string> capValues)
+        {
+            if (capValues.Count > 100)
+            {
+                return "OtherValue";
+            }
+
+            capValues.Add(value);
+            return value;
         }
     }
 }
