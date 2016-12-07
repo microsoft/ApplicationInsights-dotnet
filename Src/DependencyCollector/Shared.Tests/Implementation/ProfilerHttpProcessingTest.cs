@@ -137,6 +137,29 @@
         }
 
         /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not added when the config commands as such")]
+        public void RddTestHttpProcessingProfilerOnBeginSkipsAddingSourceHeaderPerConfig()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), new ComponentCorrelation() { CollectionEnabled = false });
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            var componentCorrelationConfig = new ComponentCorrelation() { CollectionEnabled = true };
+            componentCorrelationConfig.ExcludedDomains.Add(this.testUrl.ToString());
+
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), componentCorrelationConfig);
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+        }
+
+        /// <summary>
         /// Ensures that the source request header is not overwritten if already provided by the user.
         /// </summary>
         [TestMethod]

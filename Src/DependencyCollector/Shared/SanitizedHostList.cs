@@ -37,24 +37,24 @@
         {
             if (string.IsNullOrEmpty(item))
             {
-                throw new ArgumentNullException("item");
+                // Since this is called in the context of the config. If there is an empty <Add /> element, we wil just ignore and move on.
+                return;
             }
 
             Uri uriResult;
             if (Uri.TryCreate(item, UriKind.Absolute, out uriResult))
             {
-                this.hostList.Add(uriResult.Host);
+                this.AddIfNotExist(uriResult.Host);
                 return;
             }
             else if (Uri.TryCreate("http://" + item, UriKind.Absolute, out uriResult))
             {
                 // If the user specified something that doesn't start with http - Let's append and try get host value that way
-                this.hostList.Add(uriResult.Host);
+                this.AddIfNotExist(uriResult.Host);
                 return;
             }
 
-            // todo(nizarq): Do we need to move this to a resource.
-            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not add the provided item '{0}' to the list as it does not look like a URI", item));
+            // If the provided string is not a valid url - don't add it to the collection, i.e., do nothing here.
         }
 
         public void Clear()
@@ -87,5 +87,18 @@
             return this.hostList.GetEnumerator();
         }
         #endregion
+
+        private void AddIfNotExist(string hostName)
+        {
+            if (string.IsNullOrEmpty(hostName))
+            {
+                throw new ArgumentNullException("hostName");
+            }
+
+            if (!this.Contains(hostName))
+            {
+                this.hostList.Add(hostName);
+            }
+        }
     }
 }
