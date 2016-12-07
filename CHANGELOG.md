@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.2.0
+- Includes all changes since 2.1.0 stable release.
+- [Fixed issue with identifying which environment generated an event](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/248)
+
 ## Version 2.2.0-beta6
 - [Fixed redundant dependency items issue](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/196)
 - [Fixed issue reporting CPU Metric](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/225)

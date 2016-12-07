@@ -21,24 +21,23 @@
             var telemetryItem = new EventTelemetry();
 
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "TestRoleName");
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", "TestRoleInstanceName");
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "TestRoleInstanceName");
 
             var initializer = new AzureWebAppRoleEnvironmentTelemetryInitializer();
             initializer.Initialize(telemetryItem);
 
-            Assert.Equal("TestRoleName", telemetryItem.Context.Cloud.RoleName);
-            Assert.Equal("TestRoleInstanceName", telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Equal("TestRoleName", telemetryItem.Context.Cloud.RoleName);            
             Assert.Equal("TestRoleInstanceName", telemetryItem.Context.GetInternalContext().NodeName);
 
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", null);
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
         }
 
         [TestMethod]
         public void AzureWebAppRoleEnvironmentTelemetryInitializerDoesNotOverrideRoleName()
         {
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "TestRoleName");
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", "TestRoleInstanceName");
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "TestRoleInstanceName");
 
             var telemetryItem = new EventTelemetry();
             telemetryItem.Context.Cloud.RoleName = "Test";
@@ -46,19 +45,18 @@
             var initializer = new AzureWebAppRoleEnvironmentTelemetryInitializer();
             initializer.Initialize(telemetryItem);
 
-            Assert.Equal("Test", telemetryItem.Context.Cloud.RoleName);
-            Assert.Equal("TestRoleInstanceName", telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Equal("Test", telemetryItem.Context.Cloud.RoleName);            
             Assert.Equal("TestRoleInstanceName", telemetryItem.Context.GetInternalContext().NodeName);
 
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", null);
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
         }
 
         [TestMethod]
         public void AzureWebAppRoleEnvironmentTelemetryInitializerDoesNotOverrideRoleInstance()
         {
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "TestRoleName");
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", "TestRoleInstanceName");
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", "TestRoleInstanceName");
 
             var telemetryItem = new EventTelemetry();
             telemetryItem.Context.Cloud.RoleInstance = "Test";
@@ -71,27 +69,24 @@
             Assert.Equal("TestRoleInstanceName", telemetryItem.Context.GetInternalContext().NodeName);
 
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", null);
+            Environment.SetEnvironmentVariable("WEBSITE_HOSTNAME", null);
         }
 
         [TestMethod]
         public void AzureWebAppRoleEnvironmentTelemetryInitializerDoesNotOverrideNodeName()
         {
             Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", "TestRoleName");
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", "TestRoleInstanceName");
-
+            
             var telemetryItem = new EventTelemetry();
             telemetryItem.Context.GetInternalContext().NodeName = "Test";
 
             var initializer = new AzureWebAppRoleEnvironmentTelemetryInitializer();
             initializer.Initialize(telemetryItem);
 
-            Assert.Equal("TestRoleName", telemetryItem.Context.Cloud.RoleName);
-            Assert.Equal("TestRoleInstanceName", telemetryItem.Context.Cloud.RoleInstance);
+            Assert.Equal("TestRoleName", telemetryItem.Context.Cloud.RoleName);            
             Assert.Equal("Test", telemetryItem.Context.GetInternalContext().NodeName);
 
-            Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);
-            Environment.SetEnvironmentVariable("WEBSITE_INSTANCE_ID", null);
+            Environment.SetEnvironmentVariable("WEBSITE_SITE_NAME", null);            
         }
 
         [TestMethod]
