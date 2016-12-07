@@ -445,7 +445,6 @@ adapterComponentIdSnippet +
             Assert.IsTrue(properties.ContainsKey("MethodName"));
             Assert.IsTrue(properties.ContainsKey("LineNumber"));
             Assert.IsTrue(properties.ContainsKey("Domain"));
-            Assert.IsTrue(properties.ContainsKey("Identity"));
         }
 
         private class AppendableLogger : IDisposable

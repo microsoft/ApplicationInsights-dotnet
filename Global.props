@@ -87,7 +87,7 @@
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
         
-        <CoreSdkVersion>2.1.0</CoreSdkVersion>                
+        <CoreSdkVersion>2.2.0</CoreSdkVersion>                
     </PropertyGroup>
    
     <PropertyGroup>
