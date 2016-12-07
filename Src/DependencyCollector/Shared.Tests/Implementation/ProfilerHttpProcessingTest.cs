@@ -46,6 +46,7 @@
         public void TestInitialize()
         {
             this.configuration = new TelemetryConfiguration();
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
@@ -136,6 +137,43 @@
             Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
         }
 
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsRootIdHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
+                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.AreEqual(request.Headers[RequestResponseHeaders.StandardRootIdHeader], op.Telemetry.Context.Operation.Id);
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsParentIdHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
+                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.AreNotEqual(request.Headers[RequestResponseHeaders.StandardParentIdHeader], op.Telemetry.Context.Operation.Id);
+            }
+        }
         /// <summary>
         /// Ensures that the source request header is not overwritten if already provided by the user.
         /// </summary>
