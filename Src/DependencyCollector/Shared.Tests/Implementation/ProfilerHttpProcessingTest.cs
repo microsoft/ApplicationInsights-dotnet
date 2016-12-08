@@ -50,7 +50,7 @@
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>());
             this.ex = new Exception();
         }
 
@@ -157,7 +157,7 @@
         }
 
         /// <summary>
-        /// Ensures that the source request header is added when request is sent.
+        /// Ensures that the parent id header is added when request is sent.
         /// </summary>
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginAddsParentIdHeader()
@@ -175,6 +175,26 @@
             }
         }
         
+        /// <summary>
+        /// Ensures that the source request header is not added when request is sent as per the config.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not added when the config commands as such")]
+        public void RddTestHttpProcessingProfilerOnBeginSkipsAddingSourceHeaderPerConfig()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string> { this.testUrl.Host });
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+        }
+
         /// <summary>
         /// Ensures that the source request header is not overwritten if already provided by the user.
         /// </summary>
