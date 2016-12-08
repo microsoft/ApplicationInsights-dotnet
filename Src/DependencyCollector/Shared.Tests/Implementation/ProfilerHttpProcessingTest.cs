@@ -157,7 +157,7 @@
         }
 
         /// <summary>
-        /// Ensures that the source request header is added when request is sent.
+        /// Ensures that the parent id header is added when request is sent.
         /// </summary>
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginAddsParentIdHeader()
@@ -176,7 +176,7 @@
         }
         
         /// <summary>
-        /// Ensures that the source request header is added when request is sent.
+        /// Ensures that the source request header is not added when request is sent as per the config.
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not added when the config commands as such")]
@@ -190,7 +190,7 @@
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
 
-            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), true, new List<string> { this.testUrl.ToString() });
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string> { this.testUrl.Host });
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
         }
