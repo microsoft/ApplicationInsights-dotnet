@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.3.0-beta1
+- Added metric aggregation functionality via MetricManager and Metric classes.
+
 ## Version 2.2.0-beta4
 - Payload sanitization for RichPayloadEventSource.
 - Fix to fallback to an environment variable for instrumentation key when not specified when initializing TelemetryConfiguration.
