@@ -6,7 +6,7 @@
     "delaySign": true,
     "preserveCompilationContext": true,
     "copyToOutput": {
-      "includeFiles": [ "config.json" ]
+      "includeFiles": [ "config.json", "xunit.runner.json" ]
     }
   },
   "testRunner": "xunit",
