@@ -78,6 +78,8 @@
                 SeverityLevel = SeverityLevel.Critical,
             };
 
+            // TODO: what if TrackException will throw another UnobservedTaskException?
+            // Either put a comment here why it will never ever happen or include a protection logic
             this.telemetryClient.TrackException(exp);
         }
     }
