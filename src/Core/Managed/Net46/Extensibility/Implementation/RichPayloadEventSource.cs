@@ -53,6 +53,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as RequestTelemetry;
                 this.WriteEvent(
                     RequestTelemetry.TelemetryName,
@@ -68,6 +69,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as TraceTelemetry;
                 this.WriteEvent(
                     TraceTelemetry.TelemetryName,
@@ -83,6 +85,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as EventTelemetry;
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
@@ -98,6 +101,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as DependencyTelemetry;
                 this.WriteEvent(
                     DependencyTelemetry.TelemetryName,
@@ -113,6 +117,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as MetricTelemetry;
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
@@ -128,6 +133,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as ExceptionTelemetry;
                 this.WriteEvent(
                     ExceptionTelemetry.TelemetryName,
@@ -144,6 +150,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = (item as PerformanceCounterTelemetry).Data;
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
@@ -160,6 +167,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as PageViewTelemetry;
                 this.WriteEvent(
                     PageViewTelemetry.TelemetryName,
@@ -176,6 +184,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = (item as SessionStateTelemetry).Data;
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
@@ -191,6 +200,7 @@
                     return;
                 }
 
+                item.Sanitize();
                 var telemetryItem = item as AvailabilityTelemetry;
                 this.WriteEvent(
                     AvailabilityTelemetry.TelemetryName,
