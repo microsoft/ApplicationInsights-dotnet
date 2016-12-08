@@ -359,8 +359,7 @@
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if !CORE_PCL
-                // logs rich payload ETW event for any partners to process it
-                telemetry.Sanitize();
+                // logs rich payload ETW event for any partners to process it                
                 RichPayloadEventSource.Log.Process(telemetry);
 #endif
             }
