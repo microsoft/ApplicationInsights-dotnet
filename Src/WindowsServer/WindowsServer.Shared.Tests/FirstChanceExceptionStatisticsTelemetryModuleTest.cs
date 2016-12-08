@@ -13,7 +13,7 @@
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
-        private TelemetryConfiguration configuraiton;
+        private TelemetryConfiguration configuration;
         private IList<ITelemetry> items;
 
         [TestInitialize]
@@ -21,20 +21,20 @@
         {
             this.items = new List<ITelemetry>();
 
-            this.configuraiton = new TelemetryConfiguration();
+            this.configuration = new TelemetryConfiguration();
 
-            this.configuraiton.TelemetryChannel = new StubTelemetryChannel
+            this.configuration.TelemetryChannel = new StubTelemetryChannel
             {
                 OnSend = telemetry => this.items.Add(telemetry),
                 EndpointAddress = "http://test.com"
             };
-            this.configuraiton.InstrumentationKey = "MyKey";
+            this.configuration.InstrumentationKey = "MyKey";
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            this.configuraiton = null;
+            this.configuration = null;
             this.items.Clear();
         }
 
@@ -46,33 +46,15 @@
                 h => handler = h,
                 _ => { }))
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
                 handler.Invoke(null, new FirstChanceExceptionEventArgs(null));
-            }
-        }
-
-        [TestMethod]
-        public void FirstChanceExceptionStatisticsTelemetryModuleRecievesFirstChance()
-        {
-            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
-            {
-                module.Initialize(this.configuraiton);
-
-                try
-                {
-                    throw new Exception("test");
-                }
-                catch (Exception exc)
-                {
-                    Assert.NotNull(exc);
-                }
             }
         }
 
         [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleDoNotCauseStackOverflow()
         {
-            this.configuraiton.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
                 OnInitialize = (item) =>
                 {
@@ -82,7 +64,7 @@
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
 
                 try
                 {
@@ -99,7 +81,7 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuraiton.MetricProcessors.Add(new StubMetricProcessor()
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
@@ -109,7 +91,7 @@
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
 
                 try
                 {
@@ -135,7 +117,7 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuraiton.MetricProcessors.Add(new StubMetricProcessor()
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
@@ -143,7 +125,7 @@
                 }
             });
 
-            this.configuraiton.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
                 OnInitialize = (item) =>
                 {
@@ -153,7 +135,7 @@
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
 
                 try
                 {
@@ -182,7 +164,7 @@
                 h => handler = h,
                 _ => { }))
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
             }
 
             Assert.NotNull(handler);
@@ -196,7 +178,7 @@
                 _ => { },
                 h => handler = h))
             {
-                module.Initialize(this.configuraiton);
+                module.Initialize(this.configuration);
             }
 
             Assert.NotNull(handler);
@@ -212,9 +194,9 @@
         {
             if (disposing)
             {
-                if (this.configuraiton != null)
+                if (this.configuration != null)
                 {
-                    this.configuraiton.Dispose();
+                    this.configuration.Dispose();
                 }
             }
         }

@@ -84,7 +84,8 @@
         }
 
         /// <summary>
-        /// Disposing TaskSchedulerOnUnobservedTaskException instance.
+        /// Disposing TaskSchedulerOnUnobservedTaskException instance. This class doesn't have the finalize method as we expect it 
+        /// live for a duration of the process and be disposed by AI infrastructure.
         /// </summary>
         public void Dispose()
         {
@@ -136,9 +137,9 @@
 
                 // obtaining failing method name by walking 1 frame up the stack
                 var failingMethod = new StackFrame(1).GetMethod();
-                var method = failingMethod.DeclaringType.FullName + "." + failingMethod.Name;
+                var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
 
-                this.TrackStatistcis(type, operation, method);
+                this.TrackStatistics(type, operation, method);
             }
             catch (Exception exc)
             {
@@ -158,7 +159,7 @@
             }
         }
 
-        private void TrackStatistcis(string type, string operation, string method)
+        private void TrackStatistics(string type, string operation, string method)
         {
             var dimensions = new Dictionary<string, string>();
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
