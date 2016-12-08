@@ -428,7 +428,7 @@
             // Currenly backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
-                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetSdkVersion);
+                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));
                 telemetry.Context.Internal.SdkVersion = version;
             }
 
@@ -501,24 +501,6 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
-        }
-
-        private string GetSdkVersion()
-        {
-#if !CORE_PCL
-            string versionStr = typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            
-#else
-            string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-#endif
-
-            Version version = new Version(versionStr);
-            return VersionPrefix + version.ToString(3) + "-" + version.Revision;
         }
     }
 }

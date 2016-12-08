@@ -26,6 +26,11 @@
         private static string intervalDurationPropertyName = "IntervalDurationMs";
 
         /// <summary>
+        /// Value of the property indicating 'app insights version' allowing to tell metric was built using metric manager.
+        /// </summary>
+        private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("m-agg:");
+
+        /// <summary>
         /// Reporting frequency.
         /// </summary>
         private static TimeSpan aggregationPeriod = TimeSpan.FromMinutes(1);
@@ -65,6 +70,7 @@
         public MetricManager(TelemetryClient client)
         {
             this.telemetryClient = client ?? new TelemetryClient();
+
             this.metricDictionary = new ConcurrentDictionary<Metric, SimpleMetricStatisticsAggregator>();
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
@@ -175,6 +181,10 @@
                 }
             }
 
+            // add a header allowing to distinguish metrics
+            // built using metric manager from other metrics
+            telemetry.Context.GetInternalContext().SdkVersion = sdkVersionPropertyValue;
+            
             return telemetry;
         }
 
