@@ -93,10 +93,13 @@
 
                 this.TraceCallback("OnBegin", httpApplication);
 
-                this.HookOnSendRequestHeaders(httpApplication);
-
                 if (this.requestModule != null)
                 {
+                    if (this.requestModule.SetComponentCorrelationHttpHeaders)
+                    {
+                        this.AddCorreleationHeaderOnSendRequestHeaders(httpApplication);
+                    }
+
                     this.requestModule.OnBeginRequest(httpApplication.Context);
                 }
 
@@ -109,7 +112,7 @@
         /// When sending the response headers, allow request module to add the IKey's target hash.
         /// </summary>
         /// <param name="httpApplication">HttpApplication instance.</param>
-        private void HookOnSendRequestHeaders(HttpApplication httpApplication)
+        private void AddCorreleationHeaderOnSendRequestHeaders(HttpApplication httpApplication)
         {
             try
             {

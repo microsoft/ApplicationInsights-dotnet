@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -24,7 +25,8 @@
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
-        private ComponentCorrelation componentCorrelation = new ComponentCorrelation();
+        private bool correlationHeadersEnabled = true;
+        private ICollection<string> excludedCorrelationDomains = new SanitizedHostList();
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
@@ -34,11 +36,27 @@
         /// <summary>
         /// Gets the component correlation configuration.
         /// </summary>
-        public ComponentCorrelation ComponentCorrelation
+        public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains
         {
             get
             {
-                return this.componentCorrelation;
+                return this.excludedCorrelationDomains;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the correlation headers would be set on outgoing http requests.
+        /// </summary>
+        public bool SetComponentCorrelationHttpHeaders
+        {
+            get
+            {
+                return this.correlationHeadersEnabled;
+            }
+
+            set
+            {
+                this.correlationHeadersEnabled = value;
             }
         }
 
@@ -97,7 +115,7 @@
             var agentVersion = Decorator.GetAgentVersion();
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
-            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.componentCorrelation);
+            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains);
             this.sqlProcessing = new ProfilerSqlProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
             ProfilerRuntimeInstrumentation.DecorateProfilerForHttp(ref this.httpProcessing);

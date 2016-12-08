@@ -17,7 +17,7 @@
     {
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
-        private ComponentCorrelation componentCorrelation = new ComponentCorrelation();
+        private bool correlationHeadersEnabled = true;
 
         /// <summary>
         /// Gets the list of handler types for which requests telemetry will not be collected
@@ -32,13 +32,18 @@
         }
 
         /// <summary>
-        /// Gets the component correlation configuration.
+        /// Gets or sets a value indicating whether the component correlation headers would be set on http responses.
         /// </summary>
-        public ComponentCorrelation ComponentCorrelation
+        public bool SetComponentCorrelationHttpHeaders
         {
             get
             {
-                return this.componentCorrelation;
+                return this.correlationHeadersEnabled;
+            }
+
+            set
+            {
+                this.correlationHeadersEnabled = value;
             }
         } 
 
@@ -130,8 +135,7 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            if (ComponentCorrelation.CollectionEnabled
-                && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
+            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
                 && context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] == null)
             {
                 context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
