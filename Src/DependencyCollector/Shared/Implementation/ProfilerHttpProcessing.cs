@@ -276,6 +276,20 @@
                 {
                     webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
                 }
+
+                // Add the root ID
+                var rootId = telemetry.Context.Operation.Id;
+                if (!string.IsNullOrEmpty(rootId) && webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
+                }
+
+                // Add the parent ID
+                var parentId = telemetry.Id;
+                if (!string.IsNullOrEmpty(parentId) && webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                }
             }
             catch (Exception exception)
             {
