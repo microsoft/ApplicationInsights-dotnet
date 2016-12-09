@@ -1,7 +1,7 @@
 # Changelog
 
 ## Version 2.3.0-beta1
-- Added the ability to correlate http request made between different components represented by different application insights resources. This feeds into the impoved [application map experience](http://aka.ms/AiAppMapPreview).
+- Added the ability to correlate http request made between different components represented by different application insights resources. This feeds into the improved [application map experience](http://aka.ms/AiAppMapPreview).
 
 ## Version 2.2.0
 - Includes all changes since 2.1.0 stable release.
