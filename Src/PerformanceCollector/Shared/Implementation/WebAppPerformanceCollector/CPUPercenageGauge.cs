@@ -1,7 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
-    using DataContracts;
+    using System.Globalization;
+    using DataContracts;    
 
     /// <summary>
     /// Gauge that computes the CPU percentage utilized by a process by utilizing the last computed time.
@@ -48,7 +49,19 @@
                 var baseValue = this.lastCollectedTime.Ticks - previouslyCollectedTime.Ticks;
                 baseValue = baseValue != 0 ? baseValue : 1;
 
-                value = (float)((this.lastCollectedValue - previouslyCollectedValue) / baseValue * 100.0);
+                var diff = this.lastCollectedValue - previouslyCollectedValue;
+
+                if (diff < 0)
+                {
+                    PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
+                    this.lastCollectedValue,
+                    previouslyCollectedValue,
+                    this.name);                    
+                }
+                else
+                {
+                    value = (double)(diff * 100.0 / baseValue);
+                }
             }
 
             return value;

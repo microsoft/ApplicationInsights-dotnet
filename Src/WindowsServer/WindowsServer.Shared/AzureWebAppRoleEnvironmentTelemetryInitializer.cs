@@ -16,7 +16,7 @@
         /// <summary>Azure Web App name corresponding to the resource name.</summary>
         private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";
 
-        /// <summary>Azure Web App host that contains site name and slot: site-slot.</summary>
+        /// <summary>Azure Web App Hostname. This will include the deployment slot, but will be same across instances of same slot.</summary>
         private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
 
         private string roleInstanceName;
@@ -42,15 +42,9 @@
                 telemetry.Context.Cloud.RoleName = name;
             }
 
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleInstance))
-            {
-                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
-                telemetry.Context.Cloud.RoleInstance = name;
-            }
-
             if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
             {
-                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetRoleInstanceName);
+                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetNodeName);
                 telemetry.Context.GetInternalContext().NodeName = name;
             }
         }
@@ -60,7 +54,7 @@
             return Environment.GetEnvironmentVariable(WebAppNameEnvironmentVariable) ?? string.Empty;
         }
 
-        private string GetRoleInstanceName()
+        private string GetNodeName()
         {
             return Environment.GetEnvironmentVariable(WebAppHostNameEnvironmentVariable) ?? string.Empty;
         }

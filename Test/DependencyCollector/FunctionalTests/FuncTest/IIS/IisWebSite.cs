@@ -98,6 +98,7 @@ namespace FuncTest.IIS
             catch (Exception ex)
             {
                 Trace.TraceError("Exception occured while deploying IIS Website: {0}. The exception thrown was {1}", siteName, ex.Message);
+                throw;
             }
         }
 

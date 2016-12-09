@@ -18,7 +18,7 @@
             PerformanceCollectorEventSource.Log.CountersRefreshedEvent("10", "values");
             PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent("Test exception", "counter");
             PerformanceCollectorEventSource.Log.CounterParsingFailedEvent("Test exception", "counter");
-            PerformanceCollectorEventSource.Log.CounterCheckConfigurationEvent("1", "2", "Test message");
+            PerformanceCollectorEventSource.Log.CounterCheckConfigurationEvent("1", "Test message");
             PerformanceCollectorEventSource.Log.RunningUnderIisExpress();
             PerformanceCollectorEventSource.Log.CounterCollectionAttemptEvent();
             PerformanceCollectorEventSource.Log.CounterCollectionSuccessEvent(0, 0);
