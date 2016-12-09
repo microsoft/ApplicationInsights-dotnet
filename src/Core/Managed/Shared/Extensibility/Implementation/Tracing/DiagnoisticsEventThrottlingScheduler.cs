@@ -14,15 +14,9 @@
 #endif
 
     internal class DiagnoisticsEventThrottlingScheduler 
-        : IDiagnoisticsEventThrottlingScheduler, IDisposable
+        : IDiagnoisticsEventThrottlingScheduler
     {
         private readonly IList<TaskTimer> timers = new List<TaskTimer>();
-        private volatile bool disposed = false;
-
-        ~DiagnoisticsEventThrottlingScheduler()
-        {
-            this.Dispose(false);
-        }
 
         public ICollection<object> Tokens
         {
@@ -69,28 +63,10 @@
 
             if (this.timers.Remove(timer))
             {
-                DisposeTimer(timer);
-
                 CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerTimerWasRemoved();
             }
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-        }
-
-        private static void DisposeTimer(IDisposable timer)
-        {
-            try
-            {
-                timer.Dispose();
-            }
-            catch (Exception exc)
-            {
-                CoreEventSource.Log.DiagnoisticsEventThrottlingSchedulerDisposeTimerFailure(exc.ToInvariantString());
-            }
-        }
 
         private static TaskTimer InternalCreateAndStartTimer(
             int intervalInMilliseconds,
@@ -113,28 +89,6 @@
             timer.Start(task);
 
             return timer;
-        }
-
-        private void Dispose(bool managed)
-        {
-            if (managed && !this.disposed)
-            {
-                this.DisposeAllTimers();
-
-                GC.SuppressFinalize(this);
-            }
-
-            this.disposed = true;
-        }
-
-        private void DisposeAllTimers()
-        {
-            foreach (var timer in this.timers)
-            {
-                DisposeTimer(timer);
-            }
-
-            this.timers.Clear();
         }
     }
 }

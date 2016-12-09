@@ -14,7 +14,7 @@
     /// <summary>
     /// Accumulates <see cref="ITelemetry"/> items for efficient transmission.
     /// </summary>
-    internal class TelemetryBuffer : IEnumerable<ITelemetry>, ITelemetryProcessor, IDisposable
+    internal class TelemetryBuffer : IEnumerable<ITelemetry>, ITelemetryProcessor
     {
         private static readonly TimeSpan DefaultFlushDelay = TimeSpan.FromSeconds(30);
 
@@ -76,14 +76,6 @@
             set { this.flushTimer.Delay = value; }
         }
 
-        /// <summary>
-        /// Releases resources used by this <see cref="TelemetryBuffer"/> instance.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         
         /// <summary>
         /// Processes the specified <paramref name="item"/> item.
@@ -154,14 +146,6 @@
         private void HandleApplicationStoppingEvent(object sender, ApplicationStoppingEventArgs e)
         {
             e.Run(this.FlushAsync);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                this.flushTimer.Dispose();
-            }
         }
     }
 }

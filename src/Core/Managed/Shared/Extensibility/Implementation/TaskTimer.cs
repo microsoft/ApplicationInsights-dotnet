@@ -17,15 +17,22 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     /// <summary>
     /// Runs a task after a certain delay and log any error.
     /// </summary>
-    public class TaskTimer : IDisposable
+    public class TaskTimer
     {
+        private class DelayedWork
+        {
+            public DelayedWork(Func<Task> runWhenElapsedFunc) { this.RunWhenElapsedFunc = runWhenElapsedFunc; this.IsCancellationRequested = false; }
+            public Func<Task> RunWhenElapsedFunc { get; private set; }
+            public bool IsCancellationRequested { get; set; }
+        }
+
         /// <summary>
         /// Represents an infinite time span.
         /// </summary>
         public static readonly TimeSpan InfiniteTimeSpan = new TimeSpan(0, 0, 0, 0, Timeout.Infinite);
 
         private TimeSpan delay = TimeSpan.FromMinutes(1);
-        private CancellationTokenSource tokenSource;
+        private DelayedWork latestWork = null;
 
         /// <summary>
         /// Gets or sets the delay before the task starts. 
@@ -53,7 +60,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// </summary>
         public bool IsStarted
         {
-            get { return this.tokenSource != null; }
+            get
+            {
+                return (this.latestWork != null);
+            }
         }
 
         /// <summary>
@@ -62,34 +72,49 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="elapsed">The task to run.</param>
         public void Start(Func<Task> elapsed)
         {
-            var newTokenSource = new CancellationTokenSource();
+            DelayedWork delayedWork = new DelayedWork(elapsed);
+            DelayedWork previousWork = Interlocked.Exchange(ref this.latestWork, delayedWork);
 
-            TaskEx.Delay(this.Delay, newTokenSource.Token)
-                .ContinueWith(
+            if (previousWork != null)
+            {
+                previousWork.IsCancellationRequested = true;
+            }
+
 #if !NET40
-                async previousTask =>
+            Task delayTask = Task.Delay(this.Delay);
 #else
-                    previousTask =>
+            Task delayTask = TaskEx.Delay(this.Delay);
 #endif
+            delayTask.ContinueWith(
+                    (dlyTask) =>
                     {
-                        CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
+                        Interlocked.CompareExchange(ref this.latestWork, null, delayedWork);
+                        if (delayedWork.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
                         try
                         {
-                            Task task = elapsed();
+                            // If the delegate parameter was null, we will now throw and log.
+                            // Note, ask may (or may not) be executed syncronously.
+                            Task task = delayedWork.RunWhenElapsedFunc();
 
-                            // Task may be executed syncronously
-                            // It should return Task.FromResult but just in case we check for null if someone returned null
-                            if (task != null)
+                            // Just in case we check for null if someone returned null
+                            if (task == null)
                             {
-#if !NET40
-                                await task.ConfigureAwait(false);
-#else
-                                task.ContinueWith(
-                                    userTask =>
+                                return;
+                            }
+
+                            task.ContinueWith(
+                                    (userTask) =>
                                     {
                                         try
                                         {
-                                            userTask.RethrowIfFaulted();
+                                            if (task.IsFaulted)
+                                            {
+                                                throw new AggregateException(task.Exception).Flatten();
+                                            }
                                         }
                                         catch (Exception exception)
                                         {
@@ -98,9 +123,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                     },
                                     CancellationToken.None,
                                     TaskContinuationOptions.ExecuteSynchronously,
-                                    TaskScheduler.Default);
-#endif
-                            }
+                                    TaskScheduler.Default
+                                );
                         }
                         catch (Exception exception)
                         {
@@ -110,8 +134,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     CancellationToken.None,
                     TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);
-
-            CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }
 
         /// <summary>
@@ -119,17 +141,22 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// </summary>
         public void Cancel()
         {
-            CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, null));
+            DelayedWork currentWork = this.latestWork;
+            if (currentWork != null)
+            {
+                currentWork.IsCancellationRequested = true;
+            }
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
+        /// 
         /// </summary>
+        [Obsolete("This class does no longer implement IDisposable. Dispose() is deprecated. Use Cancel() instead.", error: false)] 
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            Cancel();
         }
+
 
         /// <summary>
         /// Log exception thrown by outer code.
@@ -148,23 +175,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             CoreEventSource.Log.LogError(exception.ToInvariantString());
-        }
-
-        private static void CancelAndDispose(CancellationTokenSource tokenSource)
-        {
-            if (tokenSource != null)
-            {
-                tokenSource.Cancel();
-                tokenSource.Dispose();
-            }
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                this.Cancel();
-            }
         }
     }
 }
