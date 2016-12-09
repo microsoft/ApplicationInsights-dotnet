@@ -207,7 +207,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// Gets or sets the dependency kind, like SQL, HTTP, Azure, etc.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use DependencyTypeName")]
+        [Obsolete("Use Type")]
         public string DependencyKind
         {
             get

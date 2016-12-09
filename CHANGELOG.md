@@ -4,6 +4,19 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.3.0-beta1
 - Added metric aggregation functionality via MetricManager and Metric classes.
+- Added the ability to correlate http request made between different components represented by different application insights resources.
+
+## Version 2.2.0
+- Includes all changes since 2.1.0 stable release.
+
+## Version 2.2.0-beta6
+- Added serialization of the "source" property.
+- Downgraded package dependencies to Microsoft.NETCore.App 1.0.1 level.
+- [Fixed the priority of getting an iKey from an environment variable](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/236)
+
+## Version 2.2.0-beta5
+- Moved from PCL dotnet5.4 to .NET Core NetStandard1.5.
+- Updated dependency versions.
 
 ## Version 2.2.0-beta4
 - Payload sanitization for RichPayloadEventSource.
