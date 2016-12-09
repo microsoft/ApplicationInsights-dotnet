@@ -79,6 +79,10 @@
             Assert.Equal("yoyo", eventTelemetry.Properties["blah"]);
         }
 
+        #endregion
+
+        #region Initialize
+
         [TestMethod]
         public void InitializeSetsDateTime()
         {
@@ -543,43 +547,23 @@
         }
 
         [TestMethod]
-        public void TrackUsesInstrumentationKeyIfSetInCodeFirst()
+        public void TrackUsesInstrumentationKeyFromClientContextIfSetInCodeFirst()
         {
+            ClearActiveTelemetryConfiguration();
             PlatformSingleton.Current = new StubPlatform();
+            string message = "Test Message";
 
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
             var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
             var client = new TelemetryClient(configuration);
 
+            string environmentKey = Guid.NewGuid().ToString();
             string expectedKey = Guid.NewGuid().ToString();
-            client.Context.InstrumentationKey = expectedKey; // Set in code
-            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
 
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
-
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
-
-            PlatformSingleton.Current = null;
-        }
-
-        [TestMethod]
-        public void TrackUsesInstrumentationKeyFromEnvironmentIfEmptyInCode()
-        {
-            PlatformSingleton.Current = new StubPlatform();
-
-            ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration { TelemetryChannel = channel };
-            var client = new TelemetryClient(configuration);
-
-            string expectedKey = Guid.NewGuid().ToString();
-            configuration.InstrumentationKey = Guid.NewGuid().ToString(); // Set in config
-            Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", expectedKey); // Set via env. variable
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
-
+            client.Context.InstrumentationKey = expectedKey;
+            Assert.DoesNotThrow(() => client.TrackTrace(message));
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
@@ -804,6 +788,7 @@
         [TestMethod]
         public void TrackWritesTelemetryToDebugOutputIfIKeyEmpty()
         {
+            ClearActiveTelemetryConfiguration();
             string actualMessage = null;
             var debugOutput = new StubDebugOutput
             {
@@ -861,6 +846,7 @@
         [TestMethod]
         public void TrackDoesNotWriteTelemetryToDebugOutputIfNotInDeveloperMode()
         {
+            ClearActiveTelemetryConfiguration();
             string actualMessage = null;
             var debugOutput = new StubDebugOutput { OnWriteLine = message => actualMessage = message };
             PlatformSingleton.Current = new StubPlatform { OnGetDebugOutput = () => debugOutput };
@@ -1074,6 +1060,14 @@
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString(), TelemetryChannel = channel};
             var client = new TelemetryClient(telemetryConfiguration);
             return client;
+        }
+
+        /// <summary>
+        /// Resets the TelemetryConfiguration.Active default instance to null so that the iKey auto population paths can be followed for testing.
+        /// </summary>
+        private void ClearActiveTelemetryConfiguration()
+        {
+            TelemetryConfiguration.Active = null;
         }
     }
 }

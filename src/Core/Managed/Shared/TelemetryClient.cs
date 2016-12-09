@@ -20,8 +20,6 @@
     public sealed class TelemetryClient
     {
         private const string VersionPrefix = "dotnet:";
-        private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
-
         private readonly TelemetryConfiguration configuration;
         private TelemetryContext context;
         private string sdkVersion;
@@ -363,8 +361,7 @@
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if !CORE_PCL
-                // logs rich payload ETW event for any partners to process it
-                telemetry.Sanitize();
+                // logs rich payload ETW event for any partners to process it                
                 RichPayloadEventSource.Log.Process(telemetry);
 #endif
             }
@@ -381,12 +378,7 @@
 
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                instrumentationKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-                
-                if (string.IsNullOrEmpty(instrumentationKey))
-                {
-                    instrumentationKey = this.configuration.InstrumentationKey;
-                }
+                instrumentationKey = this.configuration.InstrumentationKey;
             }
 
             var telemetryWithProperties = telemetry as ISupportProperties;

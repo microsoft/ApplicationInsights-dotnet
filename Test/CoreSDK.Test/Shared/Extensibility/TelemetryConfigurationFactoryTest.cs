@@ -139,21 +139,20 @@
         }
 
         [TestMethod]
-        public void InitializeDoesNotReadInstrumentationKeyFromEnvironmentVariableIfSpecifiedInConfig()
+        public void InitializeReadsInstrumentationKeyFromEnvironmentVariableEvenIfSpecifiedInConfig()
         {
             // ARRANGE
             var ikeyConfig = Guid.NewGuid().ToString();
             var ikeyEnvironmentVariable = Guid.NewGuid().ToString();
 
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnvironmentVariable);
-
             TelemetryConfiguration configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
 
             // ASSERT
-            Assert.Equal(ikeyConfig, configuration.InstrumentationKey);
+            Assert.Equal(ikeyEnvironmentVariable, configuration.InstrumentationKey);
         }
 
         [TestMethod]
