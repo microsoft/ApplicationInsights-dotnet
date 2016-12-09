@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.3.0-beta1
+- Added metric aggregation functionality via MetricManager and Metric classes.
+- Added the ability to correlate http request made between different components represented by different application insights resources.
+
 ## Version 2.2.0
 - Includes all changes since 2.1.0 stable release.
 

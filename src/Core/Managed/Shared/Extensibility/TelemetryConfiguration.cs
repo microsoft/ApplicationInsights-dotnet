@@ -26,6 +26,7 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
+        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
 
         /// <summary>
         /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
@@ -130,6 +131,15 @@
         public IList<ITelemetryInitializer> TelemetryInitializers
         {
             get { return this.telemetryInitializers; }
+        }
+
+        /// <summary>
+        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing
+        /// before client-side metric aggregation process.
+        /// </summary>
+        public IList<IMetricProcessor> MetricProcessors
+        { 
+            get { return this.metricProcessors; }
         }
 
         /// <summary>
