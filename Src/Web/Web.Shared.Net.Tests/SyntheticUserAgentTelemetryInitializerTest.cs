@@ -15,8 +15,8 @@
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
-            metricTelemetry.Context.Operation.SyntheticSource = "SOURCE";
+            var eventTelemetry = new EventTelemetry("name");
+            eventTelemetry.Context.Operation.SyntheticSource = "SOURCE";
             var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "User-Agent", "YandexBot" }
@@ -24,15 +24,15 @@
 
             source.Filters = this.botSubstrings;
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("SOURCE", metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.AreEqual("SOURCE", eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void SyntheticSourceIsNotSetIfNoMatch()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "User-Agent", "Yan23232dexBooot" }
@@ -40,22 +40,22 @@
 
             source.Filters = this.botSubstrings;
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.IsNull(eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
         public void SyntheticSourceIsNotSetIfContextIsNull()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new SyntheticUserAgentTelemetryInitializer();
 
             source.Filters = this.botSubstrings;
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.IsNull(metricTelemetry.Context.Operation.SyntheticSource);
+            Assert.IsNull(eventTelemetry.Context.Operation.SyntheticSource);
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@
 
         private void AssertSyntheticSourceIsSet(string userAgent)
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
                 {
                     { "User-Agent", userAgent }
@@ -102,9 +102,9 @@
 
             source.Filters = this.botSubstrings;
 
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("Bot", metricTelemetry.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
+            Assert.AreEqual("Bot", eventTelemetry.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
         }
 
         private class TestableSyntheticUserAgentTelemetryInitializer : SyntheticUserAgentTelemetryInitializer

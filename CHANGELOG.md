@@ -23,6 +23,7 @@
 - DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.5.
 - The list of userAgent substrings that indicate that traffic is from a synthetic source was minimized for performance reasons. If you want to include more substrings please add them under SyntheticUserAgentTelemetryInitializer/Filters. (List of filters that were used before is saved as a comment in the configuration file)
 - Added HTTP dependencies parsing support for Azure tables, queues, and services (.svc & .asmx).
+- Added automatic collection of source component correlation id (instrumenation key hash) for incoming requests and target component correlation id for dependencies.
 
 ## Version 2.2.0-beta2
 

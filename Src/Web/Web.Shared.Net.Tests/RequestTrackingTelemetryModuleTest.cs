@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Web;
 
+    using Common;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -270,6 +271,24 @@
             module.OnEndRequest(context);
 
             Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
+        }
+
+        [TestMethod]
+        public void OnEndAddsSourceFieldForRequestWithSourceIkey()
+        {
+            string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = new RequestTrackingTelemetryModule();
+            module.Initialize(TelemetryConfiguration.CreateDefault());
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Equal(hashedIkey, context.GetRequestTelemetry().Source);
         }
 
         internal class FakeHttpHandler : IHttpHandler
