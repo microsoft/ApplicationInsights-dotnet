@@ -21,8 +21,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     {
         private class DelayedWork
         {
-            public DelayedWork(Func<Task> runFunc) { this.RunFunc = runFunc; this.IsCancellationRequested = false; }
-            public Func<Task> RunFunc { get; private set; }
+            public DelayedWork(Func<Task> runWhenElapsedFunc) { this.RunWhenElapsedFunc = runWhenElapsedFunc; this.IsCancellationRequested = false; }
+            public Func<Task> RunWhenElapsedFunc { get; private set; }
             public bool IsCancellationRequested { get; set; }
         }
 
@@ -96,10 +96,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                         try
                         {
-                            // Task may (or may not) be executed syncronously
-                            Task task = (delayedWork.RunFunc == null)
-                                                ? null
-                                                : delayedWork.RunFunc();
+                            // If the delegate parameter was null, we will now throw and log.
+                            // Note, ask may (or may not) be executed syncronously.
+                            Task task = delayedWork.RunWhenElapsedFunc();
 
                             // Just in case we check for null if someone returned null
                             if (task == null)
@@ -147,6 +146,15 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             {
                 currentWork.IsCancellationRequested = true;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Obsolete("This class does no longer implement IDisposable. Dispose() is deprecated. Use Cancel() instead.", error: false)] 
+        public void Dispose()
+        {
+            Cancel();
         }
 
 
