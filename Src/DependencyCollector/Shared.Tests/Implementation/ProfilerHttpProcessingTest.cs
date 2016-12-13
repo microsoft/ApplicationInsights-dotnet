@@ -33,7 +33,7 @@
         #region Fields
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private TelemetryConfiguration configuration;
-        private Uri testUrl = new Uri("http://www.microsoft.com/");        
+        private Uri testUrl = new Uri("http://www.microsoft.com/");
         private List<ITelemetry> sendItems;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private Exception ex;
