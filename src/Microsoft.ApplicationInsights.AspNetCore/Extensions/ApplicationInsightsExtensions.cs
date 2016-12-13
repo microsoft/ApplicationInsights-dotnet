@@ -90,6 +90,30 @@
         /// Adds Application Insights services into service collection.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="options">The options instance used to configure with.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, ApplicationInsightsServiceOptions options)
+        {
+            services.AddApplicationInsightsTelemetry();
+            services.Configure((ApplicationInsightsServiceOptions o) =>
+            {
+                o.ApplicationVersion = options.ApplicationVersion;
+                o.DeveloperMode = options.DeveloperMode;
+                o.EnableAdaptiveSampling = options.EnableAdaptiveSampling;
+                o.EnableDebugLogger = options.EnableDebugLogger;
+                o.EnableQuickPulseMetricStream = options.EnableQuickPulseMetricStream;
+                o.EndpointAddress = options.EndpointAddress;
+                o.InstrumentationKey = options.InstrumentationKey;
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds Application Insights services into service collection.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
         /// <param name="options">The action used to configure the options.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
