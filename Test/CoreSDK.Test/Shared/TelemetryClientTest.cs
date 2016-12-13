@@ -483,6 +483,7 @@
 
             Assert.Equal("test name", availability.Name);
             Assert.Equal("test location", availability.RunLocation);
+            Assert.Equal(timestamp, availability.Timestamp);
             Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);
             Assert.Equal(true, availability.Success);
         }
