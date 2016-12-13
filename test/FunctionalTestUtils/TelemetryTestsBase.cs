@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Net.Http;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -20,38 +21,45 @@
     public abstract class TelemetryTestsBase
     {
         protected const int TestTimeoutMs = 10000;
+        private object noParallelism = new object();
 
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
         {
-            DateTimeOffset testStart = new DateTimeOffset(Stopwatch.GetTimestamp(), TimeSpan.Zero);
-            var timer = Stopwatch.StartNew();
-
-            var httpClientHandler = new HttpClientHandler();
-            httpClientHandler.UseDefaultCredentials = true;
-
-            Task<HttpResponseMessage> task;
-            using (var httpClient = new HttpClient(httpClientHandler, true))
+            lock (noParallelism)
             {
-                task = httpClient.GetAsync(server.BaseHost + requestPath);
-                task.Wait(TestTimeoutMs);
+                // Subtract 50 milliseconds to hack around strange behavior on build server where the RequestTelemetry.Timestamp is somehow sometimes earlier than now by a few milliseconds.
+                expected.Timestamp = DateTimeOffset.Now.Subtract(TimeSpan.FromMilliseconds(50));
+                server.BackChannel.Buffer.Clear();
+                Stopwatch timer = Stopwatch.StartNew();
+
+                var httpClientHandler = new HttpClientHandler();
+                httpClientHandler.UseDefaultCredentials = true;
+
+                Task<HttpResponseMessage> task;
+                using (HttpClient httpClient = new HttpClient(httpClientHandler, true))
+                {
+                    task = httpClient.GetAsync(server.BaseHost + requestPath);
+                    task.Wait(TestTimeoutMs);
+                }
+
+                timer.Stop();
+                server.Dispose();
+
+                RequestTelemetry actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Where(t => t.Name == expected.Name).Single();
+                server.BackChannel.Buffer.Clear();
+
+                Assert.Equal(expected.ResponseCode, actual.ResponseCode);
+                Assert.Equal(expected.Name, actual.Name);
+                Assert.Equal(expected.Success, actual.Success);
+                Assert.Equal(expected.Url, actual.Url);
+                InRange(actual.Timestamp, expected.Timestamp, DateTimeOffset.Now);
+                Assert.True(actual.Duration < timer.Elapsed, "duration");
             }
-
-            timer.Stop();
-            server.Dispose();
-
-            var actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
-
-            Assert.Equal(expected.ResponseCode, actual.ResponseCode);
-            Assert.Equal(expected.Name, actual.Name);
-            Assert.Equal(expected.Success, actual.Success);
-            Assert.Equal(expected.Url, actual.Url);
-            InRange(actual.Timestamp, testStart, new DateTimeOffset(Stopwatch.GetTimestamp(), TimeSpan.Zero));
-            Assert.True(actual.Duration < timer.Elapsed, "duration");
         }
 
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
         {
-            DateTimeOffset testStart = DateTimeOffset.Now;
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
