@@ -64,7 +64,12 @@
 
         public bool Contains(string item)
         {
-            return this.hostList.Contains(item);
+            // Exclude every call to Azure storage, which has host name storageaccountname.<table/blob/queue>.core.windows.net
+            if(item.Contains("core.windows.net"))
+            {
+                return true;
+            }
+            else return this.hostList.Contains(item);
         }
 
         public void CopyTo(string[] array, int arrayIndex)

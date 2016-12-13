@@ -33,7 +33,7 @@
         #region Fields
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private TelemetryConfiguration configuration;
-        private Uri testUrl = new Uri("http://www.microsoft.com/");
+        private Uri testUrl = new Uri("http://www.microsoft.com/");        
         private List<ITelemetry> sendItems;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private Exception ex;
@@ -193,6 +193,29 @@
             httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string> { this.testUrl.Host });
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is not added when the target host is any of azure storage.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not added when the target host is any of azure storage")]
+        public void RddTestHttpProcessingProfilerOnBeginSkipsAddingSourceHeaderForAzureStorageCalls()
+        {
+            // Use empty exclusion list as azure storage calls is excluded always.
+            ICollection<string> emptyExclusionList = new SanitizedHostList();
+            string[] azureStorageHosts = new string[] { "http://aisdktest.table.core.windows.net", "http://aisdktest.queue.core.windows.net", "http://aisdktest.blob.core.windows.net", "http://aisdktest.file.core.windows.net" };
+            Uri testUrlAzureStorage;
+            WebRequest request;
+            foreach (string azureStorageHost in azureStorageHosts)
+            {
+                testUrlAzureStorage = new Uri(azureStorageHost);
+                request = WebRequest.Create(testUrlAzureStorage);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+                var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, emptyExclusionList);
+                httpProcessingProfiler.OnBeginForGetResponse(request);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader], "Url tested: "+ azureStorageHost);
+            }
         }
 
         /// <summary>
