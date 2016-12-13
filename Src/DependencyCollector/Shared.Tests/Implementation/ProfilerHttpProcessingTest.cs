@@ -182,7 +182,9 @@
         [Description("Ensures that the source request header is not added when the config commands as such")]
         public void RddTestHttpProcessingProfilerOnBeginSkipsAddingSourceHeaderPerConfig()
         {
-            var request = WebRequest.Create(this.testUrl);
+            string hostnamepart = "partofhostname";
+            string url = string.Format(CultureInfo.InvariantCulture, "http://hostnamestart{0}hostnameend.com/path/to/something?param=1", hostnamepart);
+            var request = WebRequest.Create(new Uri(url));
 
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
 
@@ -190,7 +192,8 @@
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
 
-            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string> { this.testUrl.Host });
+            ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
         }

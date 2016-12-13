@@ -63,8 +63,16 @@
         }
 
         public bool Contains(string item)
-        {
-            return this.hostList.Contains(item);
+        {            
+            foreach (string hostName in this.hostList)
+            {
+                if (item.Contains(hostName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void CopyTo(string[] array, int arrayIndex)
