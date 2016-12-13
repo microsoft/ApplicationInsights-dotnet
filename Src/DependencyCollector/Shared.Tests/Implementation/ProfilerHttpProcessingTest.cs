@@ -214,7 +214,7 @@
                 Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
                 var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, emptyExclusionList);
                 httpProcessingProfiler.OnBeginForGetResponse(request);
-                Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader], "Url tested: "+ azureStorageHost);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader], "Url tested: " + azureStorageHost);
             }
         }
 
