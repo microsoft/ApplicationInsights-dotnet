@@ -14,6 +14,7 @@
     using System.Web;
 #endif
 
+    using Common;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
@@ -25,6 +26,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
@@ -44,10 +46,11 @@
         public void TestInitialize()
         {
             this.configuration = new TelemetryConfiguration();
+            this.configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>());
             this.ex = new Exception();
         }
 
@@ -93,6 +96,125 @@
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned from OnEndForGetResponse processor is not the same as expected return object");
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+        }
+
+        /// <summary>
+        /// Validates if DependencyTelemetry sent contains the cross component instrumentation key hash.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates if DependencyTelemetry sent contains the cross component IKey hash.")]
+        public void RddTestHttpProcessingProfilerOnEndAddsIkeyToTargetField()
+        {
+            string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
+
+            var request = WebRequest.Create(this.testUrl);
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, hashedIkey);
+
+            var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
+            returnObjectPassed.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = hashedIkey;
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            Assert.AreEqual(this.testUrl.Host + " | " + hashedIkey, ((DependencyTelemetry)this.sendItems[0]).Target);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is added when request is sent.")]
+        public void RddTestHttpProcessingProfilerOnBeginAddsSourceHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsRootIdHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
+                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.AreEqual(request.Headers[RequestResponseHeaders.StandardRootIdHeader], op.Telemetry.Context.Operation.Id);
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the parent id header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsParentIdHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+
+            var client = new TelemetryClient(this.configuration);
+            using (var op = client.StartOperation<RequestTelemetry>("request"))
+            {
+                this.httpProcessingProfiler.OnBeginForGetResponse(request);
+                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.AreNotEqual(request.Headers[RequestResponseHeaders.StandardParentIdHeader], op.Telemetry.Context.Operation.Id);
+            }
+        }
+        
+        /// <summary>
+        /// Ensures that the source request header is not added when request is sent as per the config.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not added when the config commands as such")]
+        public void RddTestHttpProcessingProfilerOnBeginSkipsAddingSourceHeaderPerConfig()
+        {
+            string hostnamepart = "partofhostname";
+            string url = string.Format(CultureInfo.InvariantCulture, "http://hostnamestart{0}hostnameend.com/path/to/something?param=1", hostnamepart);
+            var request = WebRequest.Create(new Uri(url));
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+
+            ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
+            httpProcessingProfiler.OnBeginForGetResponse(request);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+        }
+
+        /// <summary>
+        /// Ensures that the source request header is not overwritten if already provided by the user.
+        /// </summary>
+        [TestMethod]
+        [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
+        public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSourceHeader()
+        {
+            string sampleHeaderValue = "helloWorld";
+            var request = WebRequest.Create(this.testUrl);
+
+            request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, sampleHeaderValue);
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            var actualHeaderValue = request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+
+            Assert.IsNotNull(actualHeaderValue);
+            Assert.AreEqual(sampleHeaderValue, actualHeaderValue);
         }
 
         /// <summary>

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.3.0-beta1
+- Added the ability to correlate http request made between different components represented by different application insights resources. This feeds into the improved [application map experience](http://aka.ms/AiAppMapPreview).
+
 ## Version 2.2.0
 - Includes all changes since 2.1.0 stable release.
 - [Fixed issue with identifying which environment generated an event](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/248)
@@ -23,6 +26,7 @@
 - DependencyCollection nuget package was updated to Agent.Intercept nuget version 2.0.5.
 - The list of userAgent substrings that indicate that traffic is from a synthetic source was minimized for performance reasons. If you want to include more substrings please add them under SyntheticUserAgentTelemetryInitializer/Filters. (List of filters that were used before is saved as a comment in the configuration file)
 - Added HTTP dependencies parsing support for Azure tables, queues, and services (.svc & .asmx).
+- Added automatic collection of source component correlation id (instrumenation key hash) for incoming requests and target component correlation id for dependencies.
 
 ## Version 2.2.0-beta2
 

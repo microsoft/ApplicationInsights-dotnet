@@ -21,28 +21,28 @@
         [TestMethod]
         public void InitializeSetsIdForTelemetryUsingIdFromRequestTelemetry()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableUserTelemetryInitializer();
             var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
 
             requestTelemetry.Context.User.Id = "1";
-            source.Initialize(metricTelemetry);
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("1", metricTelemetry.Context.User.Id);
+            Assert.AreEqual("1", eventTelemetry.Context.User.Id);
         }
 
         [TestMethod]
         public void InitializeDoesNotSetIdIfTelemetryHasIt()
         {
-            var metricTelemetry = new MetricTelemetry("name", 0);
+            var eventTelemetry = new EventTelemetry("name");
             var source = new TestableUserTelemetryInitializer();
             var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
 
             requestTelemetry.Context.User.Id = "1";
-            metricTelemetry.Context.User.Id = "2";
-            source.Initialize(metricTelemetry);
+            eventTelemetry.Context.User.Id = "2";
+            source.Initialize(eventTelemetry);
 
-            Assert.AreEqual("2", metricTelemetry.Context.User.Id);
+            Assert.AreEqual("2", eventTelemetry.Context.User.Id);
         }
 
         [TestMethod]

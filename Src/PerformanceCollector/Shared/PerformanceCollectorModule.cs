@@ -371,7 +371,15 @@
                                      pc.CategoryName,
                                      pc.CounterName);
 
-            var metricTelemetry = new MetricTelemetry(metricName, value);
+            var metricTelemetry = new MetricTelemetry()
+            {
+                Name = metricName,
+                Count = 1,
+                Sum = value,
+                Min = value,
+                Max = value,
+                StandardDeviation = 0
+            };
 
             metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
             metricTelemetry.Properties.Add("CustomPerfCounter", "true");

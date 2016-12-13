@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
   </ItemGroup>
 </Project>

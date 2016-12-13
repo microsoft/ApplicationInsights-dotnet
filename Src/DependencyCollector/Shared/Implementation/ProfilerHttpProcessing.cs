@@ -1,17 +1,20 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Net;
 #if !NET40
     using System.Web;
 #endif
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
-
+    
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs
     /// received from Profiler instrumentation for HTTP .   
@@ -21,11 +24,13 @@
         internal ObjectInstanceBasedOperationHolder TelemetryTable;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private TelemetryClient telemetryClient;
+        private ICollection<string> correlationDomainExclusionList;
+        private bool setCorrelationHeaders;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
         /// </summary>
-        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
+        public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList)
         {
             if (configuration == null)
             {
@@ -37,9 +42,16 @@
                 throw new ArgumentNullException("telemetryTupleHolder");
             }
 
+            if (correlationDomainExclusionList == null)
+            {
+                throw new ArgumentNullException("correlationDomainExclusionList");
+            }
+
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.TelemetryTable = telemetryTupleHolder;
             this.telemetryClient = new TelemetryClient(configuration);
+            this.correlationDomainExclusionList = correlationDomainExclusionList;
+            this.setCorrelationHeaders = setCorrelationHeaders;
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
             // For directly using TrackDependency(), version will be simply what is set by core
@@ -239,7 +251,7 @@
                     return null;
                 }
 
-                // If the object already exists, dont add again. This happens because either GetResponse or GetRequestStream could
+                // If the object already exists, don't add again. This happens because either GetResponse or GetRequestStream could
                 // be the starting point for the outbound call.
                 var telemetryTuple = this.TelemetryTable.Get(thisObj);
                 if (telemetryTuple != null)
@@ -261,6 +273,36 @@
                 telemetry.Data = url.OriginalString;
 
                 this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
+
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+                {
+                    // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
+                    // and get they instrumentation key from all possible sources in the process. Let's do that now.
+                    this.telemetryClient.Initialize(telemetry);
+                }
+
+                // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
+                if (this.setCorrelationHeaders
+                    && !this.correlationDomainExclusionList.Contains(url.Host)
+                    && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
+                    && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                }
+
+                // Add the root ID
+                var rootId = telemetry.Context.Operation.Id;
+                if (!string.IsNullOrEmpty(rootId) && webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
+                }
+
+                // Add the parent ID
+                var parentId = telemetry.Id;
+                if (!string.IsNullOrEmpty(parentId) && webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                {
+                    webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                }
             }
             catch (Exception exception)
             {
@@ -302,6 +344,7 @@
                     return;
                 }
 
+                // Not custom created
                 if (!telemetryTuple.Item2)
                 {
                     this.TelemetryTable.Remove(thisObj);
@@ -337,6 +380,16 @@
                         try
                         {
                             statusCode = (int)responseObj.StatusCode;
+
+                            if (responseObj.Headers != null)
+                            {
+                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader];
+                                if (!string.IsNullOrEmpty(targetIkeyHash))
+                                {
+                                    telemetry.Type = RemoteDependencyConstants.AI;
+                                    telemetry.Target += " | " + targetIkeyHash;
+                                }
+                            }
                         }
                         catch (ObjectDisposedException)
                         {

@@ -1,6 +1,7 @@
 ﻿namespace Wa40Aspx
 {
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using System;
 
@@ -9,7 +10,7 @@
         protected void Page_Load(object sender, EventArgs e)
         {
             var telemetry = new TelemetryClient(TelemetryConfiguration.Active);
-            telemetry.TrackMetric("MetricTracker", 0.01);
+            telemetry.TrackMetric(new MetricTelemetry() { Name = "MetricTracker", Count = 1, Sum = 0.01 });
         }
     }
 }

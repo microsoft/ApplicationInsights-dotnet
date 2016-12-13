@@ -1,8 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Reflection;
     using System.Web;
-    
+
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -94,11 +95,60 @@
 
                 if (this.requestModule != null)
                 {
+                    if (this.requestModule.SetComponentCorrelationHttpHeaders)
+                    {
+                        this.AddCorreleationHeaderOnSendRequestHeaders(httpApplication);
+                    }
+
                     this.requestModule.OnBeginRequest(httpApplication.Context);
                 }
 
                 // Kept for backcompat. Should be removed in 2.3 SDK
-                WebEventsPublisher.Log.OnBegin();    
+                WebEventsPublisher.Log.OnBegin();
+            }
+        }
+
+        /// <summary>
+        /// When sending the response headers, allow request module to add the IKey's target hash.
+        /// </summary>
+        /// <param name="httpApplication">HttpApplication instance.</param>
+        private void AddCorreleationHeaderOnSendRequestHeaders(HttpApplication httpApplication)
+        {
+            try
+            {
+                if (httpApplication != null && httpApplication.Response != null)
+                {
+                    // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
+                    // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
+                    MethodInfo addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
+
+                    if (addOnSendingHeadersMethod != null)
+                    {
+                        var parameters = new object[]
+                        {
+                            new Action<HttpContext>((httpContext) =>
+                            {
+                                try
+                                {
+                                    if (this.requestModule != null)
+                                    {
+                                        this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
+                                }
+                            })
+                        };
+
+                        addOnSendingHeadersMethod.Invoke(httpApplication.Response, parameters);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WebEventSource.Log.HookAddOnSendingHeadersFailedWarning(ex.ToInvariantString());
             }
         }
 
