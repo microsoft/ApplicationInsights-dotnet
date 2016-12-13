@@ -189,6 +189,8 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
+        [Obsolete("This method is obsolete. Use TrackMetric(metricTelemetry) method to send pre-aggregated metric data or MetricManager class to create metrics.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
             var telemetry = new MetricTelemetry(name, value);
@@ -201,7 +203,7 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
+        /// Send a <see cref="MetricTelemetry"/> for representing aggregated metric data.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
         /// </summary>
         public void TrackMetric(MetricTelemetry telemetry)
@@ -359,8 +361,7 @@
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
 #if !CORE_PCL
-                // logs rich payload ETW event for any partners to process it
-                telemetry.Sanitize();
+                // logs rich payload ETW event for any partners to process it                
                 RichPayloadEventSource.Log.Process(telemetry);
 #endif
             }

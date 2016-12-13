@@ -257,7 +257,7 @@
                 var telemetryItems = new List<ITelemetry>();
                 for (var i=0; i<sender.ThrottleLimit + 10; i++)
                 {
-                    telemetryItems.Add(new DataContracts.MetricTelemetry());
+                    telemetryItems.Add(new DataContracts.EventTelemetry());
                 }
 
                 var wrapper = new HttpWebResponseWrapper();
@@ -295,7 +295,7 @@
                 var telemetryItems = new List<ITelemetry>();
                 for (var i = 0; i < sender.ThrottleLimit + 10; i++)
                 {
-                    telemetryItems.Add(new DataContracts.MetricTelemetry());
+                    telemetryItems.Add(new DataContracts.EventTelemetry());
                 }
 
                 var wrapper = new HttpWebResponseWrapper();

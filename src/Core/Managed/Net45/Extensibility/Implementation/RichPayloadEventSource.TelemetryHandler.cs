@@ -117,6 +117,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as RequestTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -171,6 +172,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as TraceTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -219,6 +221,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as EventTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -274,6 +277,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as DependencyTelemetry;
                     var data = telemetryItem.InternalData;
                     var extendedData = new
@@ -342,6 +346,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as MetricTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -426,6 +431,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as ExceptionTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -505,6 +511,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
 #pragma warning disable 618
                     var telemetryItem = (item as PerformanceCounterTelemetry).Data;
 #pragma warning restore 618
@@ -565,6 +572,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
                     var telemetryItem = item as PageViewTelemetry;
                     var data = telemetryItem.Data;
                     var extendedData = new
@@ -615,6 +623,7 @@
             {
                 if (this.EventSourceInternal.IsEnabled(EventLevel.Verbose, keywords))
                 {
+                    item.Sanitize();
 #pragma warning disable 618
                     var telemetryItem = (item as SessionStateTelemetry).Data;
 #pragma warning restore 618

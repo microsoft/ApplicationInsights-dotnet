@@ -95,17 +95,17 @@
         {
             TelemetryTypeSupportsSampling(telemetryProcessors => telemetryProcessors.Process(new ExceptionTelemetry(new Exception("exception"))));
         }
-        
+
         [TestMethod]
         public void MetricTelemetryIsNotSubjectToSampling()
         {
             TelemetryTypeDoesNotSupportSampling(telemetryProcessors =>
             {
-                telemetryProcessors.Process(new MetricTelemetry("metric", 1.0));
+                telemetryProcessors.Process(new MetricTelemetry() { Count = 1, Sum = 1.0 } );
                 return 1;
             });
         }
-        
+
         [TestMethod]
         public void PageViewTelemetryIsSubjectToSampling()
         {
