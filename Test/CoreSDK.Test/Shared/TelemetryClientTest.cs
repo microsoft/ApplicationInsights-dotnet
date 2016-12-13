@@ -489,6 +489,47 @@
         }
 
         [TestMethod]
+        public void TrackAvailabilityTracksCustomDimensions()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+
+            var timestamp = DateTimeOffset.Now;
+            var customDimensions = new Dictionary<string,string>()
+                {
+                    ["Blah"] = "yoyo"
+                };
+            
+            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true, properties: customDimensions);
+
+            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
+
+            Assert.Equal("yoyo", availability.Properties["Blah"]);
+            Assert.Equal(0, availability.Metrics.Count);
+        }
+
+        [TestMethod]
+        public void TrackAvailabilityTracksCustomMetrics()
+        {
+            var sentTelemetry = new List<ITelemetry>();
+            TelemetryClient client = this.InitializeTelemetryClient(sentTelemetry);
+
+            var timestamp = DateTimeOffset.Now;
+
+            var customMetrics = new Dictionary<string, double>()
+            {
+                ["QueueLength"] = 10
+            };
+
+            client.TrackAvailability("test name", timestamp, TimeSpan.FromSeconds(42), "test location", true, metrics: customMetrics);
+
+            var availability = (AvailabilityTelemetry)sentTelemetry.Single();
+
+            Assert.Equal(0, availability.Properties.Count);
+            Assert.Equal(10, availability.Metrics["QueueLength"]);
+        }
+
+        [TestMethod]
         public void TrackAvailabilitySendsGivenAvailabilityTelemetryToTelemetryChannel()
         {
             var sentTelemetry = new List<ITelemetry>();
