@@ -157,6 +157,90 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapOperationName()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            int operationId = 0;
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName " + (operationId++);
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            Assert.Equal(200, metrics.Count);
+            Assert.Equal(102, this.items.Count);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWillNotDimCapTheSameOperationName()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName";
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            Assert.Equal(200, metrics.Count);
+            Assert.Equal(1, this.items.Count);
+        }
+
+        [TestMethod]
         public void ModuleConstructorCallsRegister()
         {
             EventHandler<FirstChanceExceptionEventArgs> handler = null;

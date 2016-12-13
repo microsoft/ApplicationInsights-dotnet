@@ -36,9 +36,9 @@
         private bool isInitialized = false;
 
         // cheap dimentions capping
-        private ConcurrentBag<string> operationValues = new ConcurrentBag<string>();
-        private ConcurrentBag<string> methodValues = new ConcurrentBag<string>();
-        private ConcurrentBag<string> typeValues = new ConcurrentBag<string>();
+        private ConcurrentDictionary<string, int> operationValues = new ConcurrentDictionary<string, int>();
+        private ConcurrentDictionary<string, int> methodValues = new ConcurrentDictionary<string, int>();
+        private ConcurrentDictionary<string, int> typeValues = new ConcurrentDictionary<string, int>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FirstChanceExceptionStatisticsTelemetryModule" /> class.
@@ -175,14 +175,14 @@
             metric.Track(1);
         }
 
-        private string GetDimCappedString(string value, ConcurrentBag<string> capValues)
+        private string GetDimCappedString(string value, ConcurrentDictionary<string, int> capValues)
         {
             if (capValues.Count > 100)
             {
                 return "OtherValue";
             }
 
-            capValues.Add(value);
+            capValues.TryAdd(value, 0);
             return value;
         }
     }
