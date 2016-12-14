@@ -241,6 +241,129 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                try
+                {
+                    try
+                    {
+                        throw new Exception("test");
+                    }
+                    catch (Exception ex)
+                    {
+                        Assert.Equal("test", ex.Message);
+                        throw;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    Assert.Equal("test", exc.Message);
+                }
+            }
+
+            Assert.Equal(2, metrics.Count);
+            Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
+
+            Assert.Equal(1, metrics[0].Value, 15);
+            Assert.Equal(0, metrics[1].Value, 15);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForTheSameException()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForInnerException()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var wrapper = new Exception("wrapper", exception);
+
+                Assert.True(module.WasExceptionTracked(wrapper));
+                Assert.True(module.WasExceptionTracked(wrapper));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsFalseForInnerExceptionTwoLevelsUp()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var wrapper1 = new Exception("wrapper 1", exception);
+                var wrapper2 = new Exception("wrapper 2", wrapper1);
+
+                Assert.False(module.WasExceptionTracked(wrapper2));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForAggExc()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var aggExc = new AggregateException(exception);
+                Assert.True(module.WasExceptionTracked(aggExc));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsFalseForAggExcWithNotTrackedInnerExceptions()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                var aggExc = new AggregateException(exception);
+                Assert.False(module.WasExceptionTracked(aggExc));
+            }
+        }
+
+        [TestMethod]
         public void ModuleConstructorCallsRegister()
         {
             EventHandler<FirstChanceExceptionEventArgs> handler = null;
