@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
     using Extensibility.Implementation.Tracing;
     using Implementation;
@@ -29,6 +30,8 @@
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction;
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
+
+        private ConditionalWeakTable<Exception, object> exceptionIsTracked = new ConditionalWeakTable<Exception, object>();
 
         private TelemetryClient telemetryClient;
         private MetricManager metricManager;
@@ -93,6 +96,36 @@
             GC.SuppressFinalize(this);
         }
 
+        internal bool WasExceptionTracked(Exception exception)
+        {
+            object tmp;
+            bool wasTracked = this.exceptionIsTracked.TryGetValue(exception, out tmp);
+
+            if (!wasTracked)
+            {
+                var innerException = exception.InnerException;
+                if (innerException != null)
+                {
+                    wasTracked = this.exceptionIsTracked.TryGetValue(innerException, out tmp);
+                }
+            }
+
+            if (!wasTracked && exception is AggregateException)
+            {
+                foreach (var innerException in ((AggregateException)exception).InnerExceptions)
+                {
+                    if (innerException != null)
+                    {
+                        wasTracked = this.exceptionIsTracked.TryGetValue(innerException, out tmp);
+                    }
+                }
+            }
+
+            // mark exception as tracked
+            this.exceptionIsTracked.GetOrCreateValue(exception);
+            return wasTracked;
+        }
+
         /// <summary>
         /// IDisposable implementation.
         /// </summary>
@@ -108,6 +141,7 @@
 
         private void CalculateStatistics(object sender, FirstChanceExceptionEventArgs firstChanceExceptionArgs)
         {
+            // this is thread local variable. No need to lock
             if (executionSyncObject == LOCKED)
             {
                 return;
@@ -139,7 +173,9 @@
                 var failingMethod = new StackFrame(1).GetMethod();
                 var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
 
-                this.TrackStatistics(type, operation, method);
+                bool wasTracked = this.WasExceptionTracked(exception);
+
+                this.TrackStatistics(type, operation, method, wasTracked);
             }
             catch (Exception exc)
             {
@@ -159,7 +195,7 @@
             }
         }
 
-        private void TrackStatistics(string type, string operation, string method)
+        private void TrackStatistics(string type, string operation, string method, bool wasTracked)
         {
             var dimensions = new Dictionary<string, string>();
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
@@ -172,7 +208,14 @@
 
             var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
 
-            metric.Track(1);
+            if (wasTracked)
+            {
+                metric.Track(0);
+            }
+            else
+            {
+                metric.Track(1);
+            }
         }
 
         private string GetDimCappedString(string value, ConcurrentDictionary<string, int> capValues)
