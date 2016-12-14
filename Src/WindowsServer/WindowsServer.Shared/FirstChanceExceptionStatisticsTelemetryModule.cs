@@ -141,6 +141,7 @@
 
         private void CalculateStatistics(object sender, FirstChanceExceptionEventArgs firstChanceExceptionArgs)
         {
+            // this is thread local variable. No need to lock
             if (executionSyncObject == LOCKED)
             {
                 return;

@@ -3,13 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
+    using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TestFramework;
     using Assert = Xunit.Assert;
-    
+
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
@@ -58,7 +59,7 @@
             {
                 OnInitialize = (item) =>
                 {
-                    throw new Exception("this exception may cause stack overflow");
+                    throw new Exception("this exception may cause stack overflow as will be thrown during the processing of another exception");
                 }
             });
 
@@ -68,10 +69,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // make sure it is the same exception as was initially thrown
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -95,10 +98,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // code to prevent compiler optimizations
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -139,10 +144,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // code to prevent profiler optimizations
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -186,10 +193,12 @@
                 {
                     try
                     {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                         throw new Exception("test");
                     }
                     catch (Exception exc)
                     {
+                        // code to prevent profiler optimizations
                         Assert.Equal("test", exc.Message);
                     }
                 }
@@ -227,10 +236,12 @@
                 {
                     try
                     {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                         throw new Exception("test");
                     }
                     catch (Exception exc)
                     {
+                        // code to prevent profiler optimizations
                         Assert.Equal("test", exc.Message);
                     }
                 }
@@ -260,10 +271,12 @@
                 {
                     try
                     {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                         throw new Exception("test");
                     }
                     catch (Exception ex)
                     {
+                        // this assert is neede to avoid code optimization
                         Assert.Equal("test", ex.Message);
                         throw;
                     }
@@ -279,6 +292,11 @@
 
             Assert.Equal(1, metrics[0].Value, 15);
             Assert.Equal(0, metrics[1].Value, 15);
+
+            Assert.Equal(1, this.items.Count);
+
+            Assert.Equal(2, ((MetricTelemetry)this.items[0]).Count);
+            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Sum, 15);
         }
 
         [TestMethod]
