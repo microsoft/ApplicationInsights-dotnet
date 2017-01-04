@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.0.0-beta1
+
+- This release contains a rewrite of the SDK internals for better .NET Core integration and initialization.
+- The methods UseApplicationInsightsRequestTelemetry and UseApplicationInsightsExceptionTelemetry are obsolete, the work those methods did is handled automatically internally now.  You can just delete any existing references to them from Startup.cs.
+- The MVC dependency for the JavaScript snippet has been removed so in order to include the JavaScript snippet now you need to insert the following lines at the very top of the _Layout.cshtml file:
+```cshtml
+    @using Microsoft.ApplicationInsights.AspNetCore
+    @inject JavaScriptSnippet snippet
+```
+- and insert the following line before the closing `</head>` tag:
+```cshtml
+    @Html.Raw(snippet.FullScript)
+```
+
 ## Version 1.0.3-beta1
 
 - New ```AzureWebAppRoleEnvironmentTelemetryInitializer``` telemetry initializer that populates role name and role instance name for Azure Web Apps.
