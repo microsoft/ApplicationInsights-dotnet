@@ -8,6 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Reflection;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
@@ -254,6 +255,38 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
             }
 
+            [Fact]
+            public static void AppApplicationInsightsTelemetryFromApplicationInsightsServiceOptionsCopiesAllSettings()
+            {
+                ServiceCollection services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                ApplicationInsightsServiceOptions options = new ApplicationInsightsServiceOptions()
+                {
+                    ApplicationVersion = "test",
+                    DeveloperMode = true,
+                    EnableAdaptiveSampling = false,
+                    EnableDebugLogger = true,
+                    EnableQuickPulseMetricStream = false,
+                    EndpointAddress = "http://test",
+                    InstrumentationKey = "test"
+                };
+                services.AddApplicationInsightsTelemetry(options);
+                ApplicationInsightsServiceOptions servicesOptions = null;
+                services.Configure((ApplicationInsightsServiceOptions o) =>
+                {
+                    servicesOptions = o;
+                });
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                TelemetryConfiguration telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+
+                Type optionsType = typeof(ApplicationInsightsServiceOptions);
+                PropertyInfo[] properties = optionsType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                Assert.True(properties.Length > 0);
+                foreach (PropertyInfo property in properties)
+                {
+                    Assert.Equal(property.GetValue(options).ToString(), property.GetValue(servicesOptions).ToString());
+                }
+            }
 
 #if NET451
             [Fact]
