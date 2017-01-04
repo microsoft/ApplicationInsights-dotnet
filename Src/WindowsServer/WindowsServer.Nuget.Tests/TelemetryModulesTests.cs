@@ -65,7 +65,6 @@
         }
 
         [TestMethod]
-        [Ignore]
         public void InstallAddsFirstChanceExceptionTelemetryModule()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();

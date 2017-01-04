@@ -220,13 +220,22 @@
 
         private string GetDimCappedString(string value, ConcurrentDictionary<string, int> capValues)
         {
-            if (capValues.Count > 100)
+            int tmp;
+            var result = capValues.TryGetValue(value, out tmp);
+
+            if (result)
+            {
+                return value;
+            }
+            else if (capValues.Count > 100)
             {
                 return "OtherValue";
             }
-
-            capValues.TryAdd(value, 0);
-            return value;
+            else
+            {
+                capValues.TryAdd(value, 0);
+                return value;
+            }
         }
     }
 }
