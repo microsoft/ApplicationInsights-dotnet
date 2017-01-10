@@ -12,7 +12,7 @@
         {
             using (var cacheProvider = new CacheProvider<string>((int)TimeSpan.FromSeconds(60).TotalMilliseconds))
             {
-                const int Key = 123;
+                const string Key = "123";
                 cacheProvider.Set(Key, "aValue1");
                 Assert.IsTrue(cacheProvider.Contains(Key));
                 cacheProvider.Set(Key, "aKey2");
@@ -25,7 +25,7 @@
         {
             using (var cacheProvider = new CacheProvider<string>((int)TimeSpan.FromSeconds(60).TotalMilliseconds))
             {
-                const int Key = 123;
+                const string Key = "123";
                 cacheProvider.Set(Key, "aValue1");
                 cacheProvider.Set(Key, "aKey2");
                 Assert.IsTrue(cacheProvider.Contains(Key));
@@ -37,7 +37,7 @@
         {
             using (var cacheProvider = new CacheProvider<string>((int)TimeSpan.FromSeconds(60).TotalMilliseconds))
             {
-                const int Key = 123;
+                const string Key = "123";
                 const string ExpectedValue = "aValue1";
                 cacheProvider.Set(Key, ExpectedValue);
                 var value = cacheProvider.Get(Key);
@@ -50,7 +50,7 @@
         {
             using (var cacheProvider = new CacheProvider<string>((int)TimeSpan.FromMilliseconds(200).TotalMilliseconds))
             {
-                const int Key = 123;
+                const string Key = "123";
                 cacheProvider.Set(Key, "value");
                 Thread.Sleep(2000);
                 var value = cacheProvider.Get(Key);
@@ -63,7 +63,7 @@
         {
             using (var cacheProvider = new CacheProvider<string>((int)TimeSpan.FromSeconds(60).TotalMilliseconds))
             {
-                const int Key = 123;
+                const string Key = "123";
                 const string ExpectedValue = "aValue1";
                 cacheProvider.Set(Key, ExpectedValue);
                 cacheProvider.Remove(Key);
