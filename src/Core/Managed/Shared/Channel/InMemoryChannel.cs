@@ -10,9 +10,14 @@
     public class InMemoryChannel : ITelemetryChannel
     {
         private readonly TelemetryBuffer buffer;
-        private readonly InMemoryTransmitter transmitter;
+        private InMemoryTransmitter transmitter;
         private bool? developerMode = false;
         private int bufferSize;
+
+        /// <summary>
+        /// Indicates if this instance has been disposed of.
+        /// </summary>
+        private bool isDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryChannel" /> class.
@@ -109,6 +114,11 @@
                 throw new ArgumentNullException("item");
             }
 
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("InMemoryChannel", "The telemetry channel has been disposed.");
+            }
+
             try
             {
                 this.buffer.Enqueue(item);
@@ -133,7 +143,14 @@
         /// <param name="timeout">Timeout interval to abort sending.</param>
         public void Flush(TimeSpan timeout)
         {
-            this.transmitter.Flush(timeout);
+            if (!isDisposed)
+            {
+                this.transmitter.Flush(timeout);
+            }
+            else
+            {
+                throw new ObjectDisposedException("InMemoryChannel", "The telemetry channel has been disposed.");
+            }
         }
 
         /// <summary>
@@ -147,12 +164,15 @@
 
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && !isDisposed)
             {
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();
+                    this.transmitter = null;
                 }
+
+                isDisposed = true;
             }
         }
     }

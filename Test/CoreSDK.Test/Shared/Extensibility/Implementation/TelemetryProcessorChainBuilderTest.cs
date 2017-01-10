@@ -84,7 +84,7 @@
         [TestMethod]
         public void BuildOrdersTelemetryChannelsInOrderOfUseCalls()
         {
-           var config = new TelemetryConfiguration() {TelemetryChannel = new StubTelemetryChannel()};
+           var config = new TelemetryConfiguration(new StubTelemetryChannel());
            StringBuilder outputCollector = new StringBuilder();
            var builder = new TelemetryProcessorChainBuilder(config);
            builder.Use((next) => new StubTelemetryProcessor(next) { OnProcess = (item) => { outputCollector.Append("processor1"); } });

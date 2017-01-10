@@ -237,13 +237,6 @@
         #region TelemetryChannel
 
         [TestMethod]
-        public void TelemetryChannelIsNullByDefaultToAvoidLockEscalation()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Null(configuration.TelemetryChannel);
-        }
-
-        [TestMethod]
         public void TelemetryChannelCanBeSetByUserToReplaceDefaultChannelForTesting()
         {
             var configuration = new TelemetryConfiguration();
