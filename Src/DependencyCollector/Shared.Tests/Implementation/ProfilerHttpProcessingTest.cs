@@ -194,15 +194,18 @@
             var request = WebRequest.Create(new Uri(url));
 
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
             httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
             httpProcessingProfiler.OnBeginForGetResponse(request);
             Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
         }
 
         /// <summary>
