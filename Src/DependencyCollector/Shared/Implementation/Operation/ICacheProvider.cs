@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an object cache and provides the base methods and properties for accessing the object cache.
     /// </summary>
-    internal interface ICacheProvider<TValue> : System.IDisposable
+    internal interface ICacheProvider<TValue>
     {
         /// <summary>
         /// Checks whether the cache entry already exists in the cache.

@@ -79,13 +79,5 @@
         {
             return this.memoryCache.Remove(key) != null;
         }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            // nothing to dispose.            
-        }
     }              
 }
