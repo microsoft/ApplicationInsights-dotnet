@@ -17,7 +17,7 @@
         /// The memory cache instance used to hold items. MemoryCache.Default is not used as it is shared 
         /// across application and can potentially collide with customer application.
         /// </summary>
-        private readonly ObjectCache memoryCache = new MemoryCache("aidependencymodule");
+        private readonly MemoryCache memoryCache = new MemoryCache("aidependencymodule");
 
         /// <summary>
         /// The cache item policy which identifies the expiration time.
@@ -85,7 +85,7 @@
         /// </summary>
         public void Dispose()
         {
-            // nothing to dispose.            
+            this.memoryCache.Dispose();
         }
     }              
 }
