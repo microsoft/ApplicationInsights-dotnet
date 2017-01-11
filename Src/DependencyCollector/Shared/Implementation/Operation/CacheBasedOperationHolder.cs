@@ -4,7 +4,7 @@
     using System.Globalization;
     using Microsoft.ApplicationInsights.DataContracts;
 
-    internal sealed class CacheBasedOperationHolder
+    internal sealed class CacheBasedOperationHolder : IDisposable
     {
         private readonly CacheProvider<Tuple<DependencyTelemetry, bool>> rddCallCache = new CacheProvider<Tuple<DependencyTelemetry, bool>>(100 * 1000);        
 
@@ -28,6 +28,11 @@
 
             // it might be possible to optimize by preventing the long to string conversion
             this.rddCallCache.Set(id.ToString(CultureInfo.InvariantCulture), telemetryTuple);
-        }       
+        }
+
+        public void Dispose()
+        {
+            this.rddCallCache.Dispose();
+        }
     }
 }
