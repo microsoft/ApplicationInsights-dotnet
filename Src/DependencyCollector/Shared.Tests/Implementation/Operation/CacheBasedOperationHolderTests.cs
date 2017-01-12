@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Threading;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     /// <summary>
     /// Shared WebRequestDependencyTrackingHelpers class tests.
@@ -103,7 +103,7 @@
             this.cacheBasedOperationHolder.Store(id, this.telemetryTuple);
             Assert.AreEqual(this.telemetryTuple, this.cacheBasedOperationHolder.Get(id));
 
-            //Sleep for 2 secs which is more than the cache expiration time.
+            // Sleep for 2 secs which is more than the cache expiration time.
             Thread.Sleep(2000);
             var value = this.cacheBasedOperationHolder.Get(id);
             Assert.IsNull(value, "item must be expired and removed from the cache");         
