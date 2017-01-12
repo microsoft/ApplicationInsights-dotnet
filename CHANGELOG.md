@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 2.3.0-beta2
+- Automatic collection of first chance exceptions statistics. Use a query like this in Application Analytics to query for this statistics:
+  ```
+  customMetrics
+  | where timestamp > ago(5d)
+  | where name == "Exceptions Thrown" 
+  | extend type = tostring(customDimensions.type), method = tostring(customDimensions.method), operation = tostring(customDimensions.operation) 
+  | summarize sum(value), sum(valueCount) by type, method, operation 
+  ```
+
 ## Version 2.3.0-beta1
 - Added the ability to correlate http request made between different components represented by different application insights resources. This feeds into the improved [application map experience](http://aka.ms/AiAppMapPreview).
 

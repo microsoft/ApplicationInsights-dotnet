@@ -218,15 +218,22 @@
             }
         }
 
-        private string GetDimCappedString(string value, ConcurrentDictionary<string, int> capValues)
+        private string GetDimCappedString(string dimensionValue, ConcurrentDictionary<string, int> capValues)
         {
-            if (capValues.Count > 100)
+            int temp;
+            if (capValues.TryGetValue(dimensionValue, out temp))
+            {
+                return dimensionValue;
+            }
+            else if (capValues.Count > 100)
             {
                 return "OtherValue";
             }
-
-            capValues.TryAdd(value, 0);
-            return value;
+            else
+            {
+                capValues.TryAdd(dimensionValue, 0);
+                return dimensionValue;
+            }
         }
     }
 }
