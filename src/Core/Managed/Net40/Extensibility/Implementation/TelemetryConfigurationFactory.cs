@@ -330,6 +330,14 @@
                 {
                     instance = TimeSpan.Parse(valueString, CultureInfo.InvariantCulture);
                 }
+#if NET40 || NET45 || NET46
+                else if (expectedType.IsEnum)
+#else
+                else if (expectedType.GetTypeInfo().IsEnum)
+#endif
+                {
+                    instance = Enum.Parse(expectedType, valueString);
+                }
                 else
                 {
                     instance = Convert.ChangeType(valueString, expectedType, CultureInfo.InvariantCulture);
