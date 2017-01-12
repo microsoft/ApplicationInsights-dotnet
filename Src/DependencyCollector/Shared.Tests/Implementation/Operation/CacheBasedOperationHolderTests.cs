@@ -4,6 +4,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Threading;
 
     /// <summary>
     /// Shared WebRequestDependencyTrackingHelpers class tests.
@@ -18,7 +19,7 @@
         public void TestInitialize()
         {
             this.telemetryTuple = new Tuple<DependencyTelemetry, bool>(new DependencyTelemetry(), true);
-            this.cacheBasedOperationHolder = new CacheBasedOperationHolder();
+            this.cacheBasedOperationHolder = new CacheBasedOperationHolder("testcache", 100);
         }
 
         /// <summary>
@@ -93,6 +94,19 @@
             long id = 12345;
             this.cacheBasedOperationHolder.Store(id, this.telemetryTuple);
             Assert.AreEqual(this.telemetryTuple, this.cacheBasedOperationHolder.Get(id));
+        }
+
+        [TestMethod]
+        public void TestItemExpiration()
+        {
+            long id = 911911;
+            this.cacheBasedOperationHolder.Store(id, this.telemetryTuple);
+            Assert.AreEqual(this.telemetryTuple, this.cacheBasedOperationHolder.Get(id));
+
+            //Sleep for 2 secs which is more than the cache expiration time.
+            Thread.Sleep(2000);
+            var value = this.cacheBasedOperationHolder.Get(id);
+            Assert.IsNull(value, "item must be expired and removed from the cache");         
         }
 
         /// <summary>
