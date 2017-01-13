@@ -21,11 +21,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ICacheProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\SortedList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerRuntimeInstrumentation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlEventListener.cs" />

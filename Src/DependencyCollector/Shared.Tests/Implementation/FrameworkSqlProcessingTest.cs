@@ -36,7 +36,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.sendItems = new List<ITelemetry>(); 
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.sqlProcessingFramework = new FrameworkSqlProcessing(this.configuration, new CacheBasedOperationHolder());
+            this.sqlProcessingFramework = new FrameworkSqlProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000));
         }
 
         [TestCleanup]
@@ -162,8 +162,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         #region Disposable
         public void Dispose()
         {
-            this.configuration.Dispose();
-            this.sqlProcessingFramework.Dispose();
+            this.configuration.Dispose();            
             GC.SuppressFinalize(this);
         }
         #endregion Disposable

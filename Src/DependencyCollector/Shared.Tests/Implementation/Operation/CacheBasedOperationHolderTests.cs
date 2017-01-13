@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
+    using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     /// <summary>
     /// Shared WebRequestDependencyTrackingHelpers class tests.
@@ -18,7 +19,7 @@
         public void TestInitialize()
         {
             this.telemetryTuple = new Tuple<DependencyTelemetry, bool>(new DependencyTelemetry(), true);
-            this.cacheBasedOperationHolder = new CacheBasedOperationHolder();
+            this.cacheBasedOperationHolder = new CacheBasedOperationHolder("testcache", 100);
         }
 
         /// <summary>
@@ -95,6 +96,22 @@
             Assert.AreEqual(this.telemetryTuple, this.cacheBasedOperationHolder.Get(id));
         }
 
+        [TestMethod]
+        public void TestItemExpiration()
+        {
+            long id = 911911;
+            using (var cacheInstance = new CacheBasedOperationHolder("testcache", 100))
+            {
+                cacheInstance.Store(id, this.telemetryTuple);
+                Assert.AreEqual(this.telemetryTuple, cacheInstance.Get(id));
+
+                // Sleep for 1 secs which is more than the cache expiration time of 100 set above.
+                Thread.Sleep(1000);
+                var value = cacheInstance.Get(id);
+                Assert.IsNull(value, "item must be expired and removed from the cache");
+            }            
+        }
+
         /// <summary>
         /// Tests the scenario if Get returns null for a non existing item in the table.
         /// </summary>
@@ -102,6 +119,12 @@
         public void GetReturnsNullIfIdDoesNotExist()
         {
             Assert.IsNull(this.cacheBasedOperationHolder.Get(555555));
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            this.Dispose(true);
         }
 
         public void Dispose()

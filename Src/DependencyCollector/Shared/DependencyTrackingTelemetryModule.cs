@@ -150,7 +150,7 @@
                     }
 #endif
                 }
-
+                
                 this.disposed = true;
             }
         }
@@ -163,12 +163,12 @@
 #if !NET40
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(
-                config => new FrameworkHttpEventListener(config),
+                config => new FrameworkHttpEventListener(config, DependencyTableStore.Instance.WebRequestCacheHolder),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
 
             this.sqlEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkSqlEventListener>(
-                config => new FrameworkSqlEventListener(config),
+                config => new FrameworkSqlEventListener(config, DependencyTableStore.Instance.SqlRequestCacheHolder),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
 #endif
