@@ -579,6 +579,9 @@
                         TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
                         Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
+                        string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
+                        Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+
                         var url = httpItem.data.baseData.data;
                         if (url.Contains(expectedUrl))
                         {
