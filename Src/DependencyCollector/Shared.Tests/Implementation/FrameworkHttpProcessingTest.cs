@@ -236,8 +236,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                
         #region Disposable
         public void Dispose()
-        {
-            this.httpProcessingFramework.Dispose();
+        {            
             this.configuration.Dispose();
             GC.SuppressFinalize(this);
         }

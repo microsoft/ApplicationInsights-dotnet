@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
-    internal sealed class FrameworkSqlProcessing : IDisposable
+    internal sealed class FrameworkSqlProcessing
     {
         internal CacheBasedOperationHolder TelemetryTable;
         private TelemetryClient telemetryClient;
@@ -110,12 +110,7 @@
         }
 
         #endregion
-
-        public void Dispose()
-        {
-            this.TelemetryTable.Dispose();
-        }
-
+        
         /// <summary>
         /// Gets SQL command resource name.
         /// </summary>
