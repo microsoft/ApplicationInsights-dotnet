@@ -16,7 +16,8 @@
             this.EnableQuickPulseMetricStream = true;
             this.EnableAdaptiveSampling = true;
             this.EnableDebugLogger = true;
-            this.ApplicationVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            this.EnableAuthenticationTrackingJavaScript = false;
+            this.ApplicationVersion = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
         /// <summary>
@@ -55,5 +56,11 @@
         /// Gets or sets a value indicating whether a logger would be registered automatically in debug mode.
         /// </summary>
         public bool EnableDebugLogger { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a JavaScript snippet to track the current authenticated user should
+        /// be printed along with the main ApplicationInsights tracking script.
+        /// </summary>
+        public bool EnableAuthenticationTrackingJavaScript { get; set; }
     }
 }

@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Hosting;
@@ -132,6 +133,7 @@
             services.AddSingleton<ITelemetryInitializer, UserAgentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
 
 #if NET451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
@@ -151,6 +153,7 @@
             services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
             services.AddSingleton<JavaScriptSnippet>();
+            services.AddSingleton<DebugLoggerControl>();
 
             services.AddOptions();
             services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();

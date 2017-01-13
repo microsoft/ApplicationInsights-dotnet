@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Xunit;
+﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Microsoft.Extensions.DependencyInjection.Test
@@ -15,10 +14,13 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.Extensions.Configuration;
-    using Xunit;
+    using Microsoft.Extensions.Options;
+
 #if NET451
     using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -37,6 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             var services = new ServiceCollection();
             IHttpContextAccessor contextAccessor = new HttpContextAccessor();
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
+            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment());
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("TestListener"));
             return services;
         }
