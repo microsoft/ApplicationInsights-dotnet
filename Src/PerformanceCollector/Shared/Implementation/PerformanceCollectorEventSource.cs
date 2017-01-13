@@ -72,7 +72,7 @@
 
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
             Message = @"Error collecting {0} of the configured performance counters. Please check the configuration.
-{2}")]
+{1}")]
         public void CounterCheckConfigurationEvent(
             string misconfiguredCountersCount,
             string e,
