@@ -150,7 +150,7 @@
                     }
 #endif
                 }
-
+                DependencyTableStore.Instance.Dispose();
                 this.disposed = true;
             }
         }

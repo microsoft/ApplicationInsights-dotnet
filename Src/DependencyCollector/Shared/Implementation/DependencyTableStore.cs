@@ -35,6 +35,7 @@
 
         public void Dispose()
         {
+            instance = null;
             this.WebRequestCacheHolder.Dispose();
             this.SqlRequestCacheHolder.Dispose();
             GC.SuppressFinalize(this);
