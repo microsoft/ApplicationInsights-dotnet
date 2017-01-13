@@ -100,13 +100,16 @@
         public void TestItemExpiration()
         {
             long id = 911911;
-            this.cacheBasedOperationHolder.Store(id, this.telemetryTuple);
-            Assert.AreEqual(this.telemetryTuple, this.cacheBasedOperationHolder.Get(id));
+            using (var cacheInstance = new CacheBasedOperationHolder("testcache", 100))
+            {
+                cacheInstance.Store(id, this.telemetryTuple);
+                Assert.AreEqual(this.telemetryTuple, cacheInstance.Get(id));
 
-            // Sleep for 2 secs which is more than the cache expiration time.
-            Thread.Sleep(2000);
-            var value = this.cacheBasedOperationHolder.Get(id);
-            Assert.IsNull(value, "item must be expired and removed from the cache");         
+                // Sleep for 1 secs which is more than the cache expiration time of 100 set above.
+                Thread.Sleep(1000);
+                var value = cacheInstance.Get(id);
+                Assert.IsNull(value, "item must be expired and removed from the cache");
+            }            
         }
 
         /// <summary>
@@ -116,6 +119,12 @@
         public void GetReturnsNullIfIdDoesNotExist()
         {
             Assert.IsNull(this.cacheBasedOperationHolder.Get(555555));
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            this.Dispose(true);
         }
 
         public void Dispose()

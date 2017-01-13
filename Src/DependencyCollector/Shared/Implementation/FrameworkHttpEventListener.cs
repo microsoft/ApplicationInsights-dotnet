@@ -48,14 +48,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {           
-            base.Dispose();
-        }
-
-        /// <summary>
         /// Enables HTTP event source when EventSource is created. Called for all existing 
         /// event sources when the event listener is created and when a new event source is attached to the listener.
         /// </summary>
