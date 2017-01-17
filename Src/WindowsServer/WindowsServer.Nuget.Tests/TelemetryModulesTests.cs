@@ -11,7 +11,6 @@
     {
         private const string DiagnosticsModuleName = "Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights";
 
-
         [TestMethod]
         public void InstallAddsDeveloperModeWithDebuggerAttachedTelemetryModule()
         {
