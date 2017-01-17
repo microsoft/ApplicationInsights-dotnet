@@ -11,28 +11,6 @@
     {
         private const string DiagnosticsModuleName = "Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights";
 
-        /// <summary>
-        /// Before version 2.0.0-beta4 Diagnostics module was added by default to the configuration file.
-        /// So now it should be removed during installation.
-        /// </summary>
-        [TestMethod]
-        public void InstallRemovesDiagnosticsTelemetryModule()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument tempTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            // Add DiagnosticsModule by replacing exsiting one
-            string customConfig = tempTransform.ToString().Replace(
-                ConfigurationHelpers.GetPartialTypeName(typeof(DeveloperModeWithDebuggerAttachedTelemetryModule)),
-                DiagnosticsModuleName);
-
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(customConfig);
-
-            var nodes = ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().ToList();
-            var node = nodes.FirstOrDefault(element => element.Attribute("Type").Value == DiagnosticsModuleName);
-
-            Assert.IsNull(node);
-        }
 
         [TestMethod]
         public void InstallAddsDeveloperModeWithDebuggerAttachedTelemetryModule()
