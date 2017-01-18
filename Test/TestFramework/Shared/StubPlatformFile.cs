@@ -6,6 +6,7 @@
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
+    using ApplicationInsights.TestFramework;
 #endif
 
     internal class StubPlatformFile : IPlatformFile

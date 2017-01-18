@@ -79,7 +79,7 @@
       <Project>{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}</Project>
       <Name>Core.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net40\TestFramework.Net40.csproj">
+    <ProjectReference Include="..\..\TestFramework\Net40\TestFramework.Net40.csproj">
       <Project>{63e687d2-97ab-4d64-a92d-31b305d5f1b9}</Project>
       <Name>TestFramework.Net40</Name>
     </ProjectReference>

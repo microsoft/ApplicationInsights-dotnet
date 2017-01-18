@@ -65,7 +65,7 @@
       <Project>{412659ca-49b0-4834-bfbf-8183055083c8}</Project>
       <Name>Core.Net45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net45\TestFramework.Net45.csproj">
+    <ProjectReference Include="..\..\TestFramework\Net45\TestFramework.Net45.csproj">
       <Project>{1be54ee7-6627-4206-86dd-3d2c709a1500}</Project>
       <Name>TestFramework.Net45</Name>
     </ProjectReference>
