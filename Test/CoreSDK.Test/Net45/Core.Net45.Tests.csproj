@@ -57,7 +57,7 @@
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
       <Name>ApplicationInsightsTypes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net45\TestFramework.Net45.csproj">
+    <ProjectReference Include="..\..\TestFramework\Net45\TestFramework.Net45.csproj">
       <Name>TestFramework.Net45</Name>
     </ProjectReference>
   </ItemGroup>
