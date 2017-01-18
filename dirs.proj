@@ -7,7 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
      <Solution Include="Microsoft.ApplicationInsights.sln" />    
-     <Solution Include="Microsoft.ApplicationInsights.Channels.sln" />        
   </ItemGroup>
   <Target Name="Build">
     <!-- Generate build version -->
