@@ -3,7 +3,7 @@
     "summary": "Application Insights for ASP.NET Core web applications.",
     "description": "Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/en-us/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156",
     "authors": [ "Microsoft" ],
-    "version": "2.0.0-beta2",
+    "version": "2.0.0",
     "copyright": "Copyright © Microsoft. All Rights Reserved.",
     "packOptions": {
         "projectUrl": "http://go.microsoft.com/fwlink/?LinkId=392727",

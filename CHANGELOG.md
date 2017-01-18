@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 2.0.0
+
+- Added a configuration overload for AddApplicationInsightsTelemetry.
+- Updated test projects to reference .NET Core 1.1.0.
+- [Fixed debug trace logging issue](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/315)
+- [Stopped logging extra debug traces to AI](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/314)
+- [JS snippet is empty if telemetry is disabled](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/313)
+- [Added an initializer to provide the environment name as a custom property](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/312)
+- [Added an option to emit JS to track authenticated users](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/311)
+- Minor bug fixes and cleanup.
+
 ## Version 2.0.0-beta1
 
 - This release contains a rewrite of the SDK internals for better .NET Core integration and initialization.
