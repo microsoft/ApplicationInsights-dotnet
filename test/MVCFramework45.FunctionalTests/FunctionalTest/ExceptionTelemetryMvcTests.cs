@@ -15,13 +15,11 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicRequestPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 const string RequestPath = "/Home/Exception";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
-
                 expectedRequestTelemetry.Name = "GET Home/Exception";
                 expectedRequestTelemetry.ResponseCode = "500";
                 expectedRequestTelemetry.Success = false;
@@ -33,10 +31,9 @@ namespace SampleWebAppIntegration.FunctionalTest
         [Fact]
         public void TestBasicExceptionPropertiesAfterRequestingControllerThatThrows()
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 var expectedExceptionTelemetry = new ExceptionTelemetry();
-                expectedExceptionTelemetry.HandledAt = ExceptionHandledAt.Platform;
                 expectedExceptionTelemetry.Exception = new InvalidOperationException();
 
                 this.ValidateBasicException(server, "/Home/Exception", expectedExceptionTelemetry);

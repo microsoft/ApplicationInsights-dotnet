@@ -13,7 +13,6 @@
         <!--<Solution Include="src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.xproj" />-->
         <!-- Tests -->
         <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\Microsoft.ApplicationInsights.AspNetCore.Tests\ " />
-        <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\FunctionalTestUtils\ " />
         <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\WebApiShimFw46.FunctionalTests\ " />
         <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\EmptyApp.FunctionalTests\ " />
         <TestProject Condition="$(RunTests) != '' And $(RunTests)" Include="test\MVCFramework45.FunctionalTests\ " />

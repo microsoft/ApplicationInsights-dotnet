@@ -13,7 +13,7 @@
     /// <summary>
     /// This will allow to mark synthetic traffic from availability tests
     /// </summary>
-    public class SyntheticTelemetryInitializer : TelemetryInitializerBase
+    internal class SyntheticTelemetryInitializer : TelemetryInitializerBase
     {
         private const string SyntheticTestRunId = "SyntheticTest-RunId";
         private const string SyntheticTestLocation = "SyntheticTest-Location";
@@ -23,7 +23,6 @@
         public SyntheticTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
-
         }
 
         protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)

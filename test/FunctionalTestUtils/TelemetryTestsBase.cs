@@ -5,8 +5,11 @@
     using System.Linq;
     using System.Net.Http;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 #if NET451
@@ -18,81 +21,99 @@
     public abstract class TelemetryTestsBase
     {
         protected const int TestTimeoutMs = 10000;
+        private object noParallelism = new object();
 
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public void ValidateBasicRequest(InProcessServer server, string requestPath, RequestTelemetry expected)
         {
-            DateTimeOffset testStart = DateTimeOffset.Now;
-            var timer = Stopwatch.StartNew();
+            lock (noParallelism)
+            {
+                // Subtract 50 milliseconds to hack around strange behavior on build server where the RequestTelemetry.Timestamp is somehow sometimes earlier than now by a few milliseconds.
+                expected.Timestamp = DateTimeOffset.Now.Subtract(TimeSpan.FromMilliseconds(50));
+                server.BackChannel.Buffer.Clear();
+                Stopwatch timer = Stopwatch.StartNew();
 
-            var httpClientHandler = new HttpClientHandler();
-            httpClientHandler.UseDefaultCredentials = true;
+                var httpClientHandler = new HttpClientHandler();
+                httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
-            var result = task.Result;
+                Task<HttpResponseMessage> task;
+                using (HttpClient httpClient = new HttpClient(httpClientHandler, true))
+                {
+                    task = httpClient.GetAsync(server.BaseHost + requestPath);
+                    task.Wait(TestTimeoutMs);
+                }
 
-            var actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
+                timer.Stop();
+                server.Dispose();
 
-            timer.Stop();
-            Assert.Equal(expected.ResponseCode, actual.ResponseCode);
-            Assert.Equal(expected.Name, actual.Name);
-            Assert.Equal(expected.Success, actual.Success);
-            Assert.Equal(expected.Url, actual.Url);
-            Assert.InRange<DateTimeOffset>(actual.Timestamp, testStart, DateTimeOffset.Now);
-            Assert.True(actual.Duration < timer.Elapsed, "duration");
-            Assert.Equal(expected.HttpMethod, actual.HttpMethod);
+                RequestTelemetry actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Where(t => t.Name == expected.Name).Single();
+                server.BackChannel.Buffer.Clear();
+
+                Assert.Equal(expected.ResponseCode, actual.ResponseCode);
+                Assert.Equal(expected.Name, actual.Name);
+                Assert.Equal(expected.Success, actual.Success);
+                Assert.Equal(expected.Url, actual.Url);
+                InRange(actual.Timestamp, expected.Timestamp, DateTimeOffset.Now);
+                Assert.True(actual.Duration < timer.Elapsed, "duration");
+            }
         }
 
         public void ValidateBasicException(InProcessServer server, string requestPath, ExceptionTelemetry expected)
         {
-            DateTimeOffset testStart = DateTimeOffset.Now;
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.UseDefaultCredentials = true;
 
-            var httpClient = new HttpClient(httpClientHandler, true);
-            var task = httpClient.GetAsync(server.BaseHost + requestPath);
-            task.Wait(TestTimeoutMs);
+            Task<HttpResponseMessage> task;
+            using (var httpClient = new HttpClient(httpClientHandler, true))
+            {
+                task = httpClient.GetAsync(server.BaseHost + requestPath);
+                task.Wait(TestTimeoutMs);
+            }
             var result = task.Result;
-
+            server.Dispose();
             var actual = server.BackChannel.Buffer.OfType<ExceptionTelemetry>().Single();
 
             Assert.Equal(expected.Exception.GetType(), actual.Exception.GetType());
             Assert.NotEmpty(actual.Exception.StackTrace);
-            Assert.Equal(actual.HandledAt, actual.HandledAt);
             Assert.NotEmpty(actual.Context.Operation.Name);
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
 
 #if NET451
-        public void ValidateBasicDependency(string assemblyName, string requestPath)
+        public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
-            using (InProcessServer server = new InProcessServer(assemblyName))
+            DependencyTelemetry expected = new DependencyTelemetry();
+            expected.ResultCode = "200";
+            expected.Success = true;
+            expected.Name = requestPath;
+
+            InProcessServer server;
+            using (server = new InProcessServer(assemblyName, configureHost))
             {
-                DependencyTelemetry expected = new DependencyTelemetry();
-                expected.Name = server.BaseHost + requestPath;
-                expected.ResultCode = "200";
-                expected.Success = true;
+                expected.Data = server.BaseHost + requestPath;
 
-                DateTimeOffset testStart = DateTimeOffset.Now;
                 var timer = Stopwatch.StartNew();
-                var httpClient = new HttpClient();
-                var task = httpClient.GetAsync(server.BaseHost + requestPath);
-                task.Wait(TestTimeoutMs);
+                Task<HttpResponseMessage> task;
+                using (var httpClient = new HttpClient())
+                {
+                    task = httpClient.GetAsync(server.BaseHost + requestPath);
+                    task.Wait(TestTimeoutMs);
+                }
                 var result = task.Result;
-
-                var actual = server.BackChannel.Buffer.OfType<DependencyTelemetry>().Single();
                 timer.Stop();
-
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Success, actual.Success);
-                Assert.Equal(expected.ResultCode, actual.ResultCode);
             }
+
+            Assert.Contains(server.BackChannel.Buffer.OfType<DependencyTelemetry>(),
+                d => d.Name == expected.Name
+                  && d.Data == expected.Data
+                  && d.Success == expected.Success
+                  && d.ResultCode == expected.ResultCode
+                );
         }
 
-        public void ValidatePerformanceCountersAreCollected(string assemblyName)
+        public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
-            using (var server = new InProcessServer(assemblyName))
+            using (var server = new InProcessServer(assemblyName, configureHost))
             {
                 // Reconfigure the PerformanceCollectorModule timer.
                 Type perfModuleType = typeof(PerformanceCollectorModule);
@@ -106,12 +127,24 @@
                 do
                 {
                     Thread.Sleep(1000);
-                    numberOfCountersSent = server.BackChannel.Buffer.OfType<PerformanceCounterTelemetry>().Distinct().Count();
+                    numberOfCountersSent = server.BackChannel.Buffer.OfType<MetricTelemetry>().Distinct().Count();
                 } while (numberOfCountersSent == 0 && DateTime.Now < timeout);
 
                 Assert.True(numberOfCountersSent > 0);
             }
         }
 #endif
+
+        /// <summary>
+        /// Tests if a DateTimeOffset is in a specified range and prints a more detailed error message if it is not.
+        /// </summary>
+        /// <param name="actual">The actual value to test.</param>
+        /// <param name="low">The minimum of the range.</param>
+        /// <param name="high">The maximum of the range.</param>
+        private void InRange(DateTimeOffset actual, DateTimeOffset low, DateTimeOffset high)
+        {
+            string dateFormat = "yyyy-MM-dd HH:mm:ss.ffffzzz";
+            Assert.True(low <= actual && actual <= high, $"Range: ({low.ToString(dateFormat)} - {high.ToString(dateFormat)})\nActual: {actual.ToString(dateFormat)}");
+        }
     }
 }

@@ -60,6 +60,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to appInsights.setAuthenticatedUserContext(&quot;{0}&quot;);.
+        /// </summary>
+        public static string JavaScriptAuthSnippet {
+            get {
+                return ResourceManager.GetString("JavaScriptAuthSnippet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to      &lt;script type=&quot;text/javascript&quot;&gt;
         ///        var appInsights=window.appInsights||function(config){{
         ///            function i(config){{t[config]=function(){{var i=arguments;t.queue.push(function(){{t[config].apply(t,i)}})}}}}var t={{config:config}},u=document,e=window,o=&quot;script&quot;,s=&quot;AuthenticatedUserContext&quot;,h=&quot;start&quot;,c=&quot;stop&quot;,l=&quot;Track&quot;,a=l+&quot;Event&quot;,v=l+&quot;Page&quot;,y=u.createElement(o),r,f;y.src=config.url||&quot;https://az416426.vo.msecnd.net/scripts/a/ai.0.js&quot;;u.getElementsByTagName(o)[0].parentNode.appendChild(y);try{ [rest of string was truncated]&quot;;.

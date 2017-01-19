@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
 
-    public abstract class TelemetryInitializerBase : ITelemetryInitializer
+    internal abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
         private IHttpContextAccessor httpContextAccessor;
 
@@ -29,17 +29,7 @@
             {
                 var context = this.httpContextAccessor.HttpContext;
 
-                if (context == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
-                    return;
-                }
-
-                if (context.RequestServices == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
-                    return;
-                }
+            var request = context.Features.Get<RequestTelemetry>();
 
                 var request = context.RequestServices.GetService<RequestTelemetry>();
 
