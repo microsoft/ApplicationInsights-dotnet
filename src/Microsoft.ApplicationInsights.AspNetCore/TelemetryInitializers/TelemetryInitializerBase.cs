@@ -25,27 +25,23 @@
 
         public void Initialize(ITelemetry telemetry)
         {
-            try
+            var context = this.httpContextAccessor.HttpContext;
+
+            if (context == null)
             {
-                var context = this.httpContextAccessor.HttpContext;
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
+                return;
+            }
 
             var request = context.Features.Get<RequestTelemetry>();
 
-                var request = context.RequestServices.GetService<RequestTelemetry>();
-
-                if (request == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
-                    return;
-                }
-
-                this.OnInitializeTelemetry(context, request, telemetry);
-            }
-            catch (Exception exp)
+            if (request == null)
             {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
-                Debug.WriteLine(exp);
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
+                return;
             }
+
+            this.OnInitializeTelemetry(context, request, telemetry);
         }
 
         protected abstract void OnInitializeTelemetry(

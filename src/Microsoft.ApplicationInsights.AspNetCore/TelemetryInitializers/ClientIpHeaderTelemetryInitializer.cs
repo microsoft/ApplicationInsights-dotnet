@@ -12,7 +12,6 @@
 
     /// <summary>
     /// This telemetry initializer extracts client IP address and populates telemetry.Context.Location.Ip property.
-    /// Lot's of code reuse from Microsoft.ApplicationInsights.Extensibility.Web.TelemetryInitializers.ClientIpHeaderTelemetryInitializer
     /// </summary>
     internal class ClientIpHeaderTelemetryInitializer : TelemetryInitializerBase
     {
@@ -24,7 +23,7 @@
         public ClientIpHeaderTelemetryInitializer(IHttpContextAccessor httpContextAccessor)
              : base(httpContextAccessor)
         {
-            this.headerNames = new List<string>();
+            this.HeaderNames = new List<string>();
             this.HeaderNames.Add(HeaderNameDefault);
             this.UseFirstIp = true;
             this.headerValueSeparators = this.headerValuesSeparatorDefault;
@@ -33,13 +32,7 @@
         /// <summary>
         /// Gets comma separated list of request header names that is used to check client id.
         /// </summary>
-        public ICollection<string> HeaderNames
-        {
-            get
-            {
-                return this.headerNames;
-            }
-        }
+        public ICollection<string> HeaderNames { get; }
 
         /// <summary>
         /// Gets or sets a header values separator.
@@ -77,14 +70,13 @@
             if (string.IsNullOrEmpty(requestTelemetry.Context.Location.Ip))
             {
                 string resultIp = null;
-                foreach (var name in this.HeaderNames)
+
+                if (platformContext.Request?.Headers != null)
                 {
-                    var headerValue = platformContext.Request.Headers[name];
-                    if (!string.IsNullOrEmpty(headerValue))
+                    foreach (var name in this.HeaderNames)
                     {
-                        var ip = GetIpFromHeader(headerValue);
-                        ip = CutPort(ip);
-                        if (IsCorrectIpAddress(ip))
+                        string headerValue = platformContext.Request.Headers[name];
+                        if (!string.IsNullOrEmpty(headerValue))
                         {
                             var ip = this.GetIpFromHeader(headerValue);
                             ip = CutPort(ip);
@@ -101,7 +93,7 @@
                 {
                     var connectionFeature = platformContext.Features.Get<IHttpConnectionFeature>();
 
-                    if (connectionFeature != null)
+                    if (connectionFeature?.RemoteIpAddress != null)
                     {
                         resultIp = connectionFeature.RemoteIpAddress.ToString();
                     }
