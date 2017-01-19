@@ -27,12 +27,6 @@ namespace MVCFramework45.FunctionalTests
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
-            if (env.IsDevelopment())
-            {
-                // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                builder.AddApplicationInsightsSettings(developerMode: true);
-            }
-
             Configuration = builder.Build();
         }
 
@@ -42,7 +36,6 @@ namespace MVCFramework45.FunctionalTests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<ITelemetryChannel>(new BackTelemetryChannel());
-            services.AddApplicationInsightsTelemetry(Configuration);
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -64,7 +57,6 @@ namespace MVCFramework45.FunctionalTests
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -87,7 +79,6 @@ namespace MVCFramework45.FunctionalTests
                 catch { }
             }
 
-            app.UseApplicationInsightsExceptionTelemetry();
             app.UseStaticFiles();
 
             app.UseIdentity();

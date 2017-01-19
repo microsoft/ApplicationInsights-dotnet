@@ -16,7 +16,6 @@
                 const string RequestPath = "/api/values";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET Values/Get";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;
@@ -34,7 +33,6 @@
                 const string RequestPath = "/api/notexistingcontroller";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET /api/notexistingcontroller";
                 expectedRequestTelemetry.ResponseCode = "404";
                 expectedRequestTelemetry.Success = false;
@@ -52,7 +50,6 @@
                 const string RequestPath = "/api/values/1";
 
                 var expectedRequestTelemetry = new RequestTelemetry();
-                expectedRequestTelemetry.HttpMethod = "GET";
                 expectedRequestTelemetry.Name = "GET Values/Get [id]";
                 expectedRequestTelemetry.ResponseCode = "200";
                 expectedRequestTelemetry.Success = true;

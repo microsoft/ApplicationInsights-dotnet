@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
 
-    public abstract class TelemetryInitializerBase : ITelemetryInitializer
+    internal abstract class TelemetryInitializerBase : ITelemetryInitializer
     {
         private IHttpContextAccessor httpContextAccessor;
 
@@ -25,37 +25,23 @@
 
         public void Initialize(ITelemetry telemetry)
         {
-            try
+            var context = this.httpContextAccessor.HttpContext;
+
+            if (context == null)
             {
-                var context = this.httpContextAccessor.HttpContext;
-
-                if (context == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
-                    return;
-                }
-
-                if (context.RequestServices == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestServicesNull();
-                    return;
-                }
-
-                var request = context.RequestServices.GetService<RequestTelemetry>();
-
-                if (request == null)
-                {
-                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
-                    return;
-                }
-
-                this.OnInitializeTelemetry(context, request, telemetry);
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeContextNull();
+                return;
             }
-            catch (Exception exp)
+
+            var request = context.Features.Get<RequestTelemetry>();
+
+            if (request == null)
             {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeException(exp.ToString());
-                Debug.WriteLine(exp);
+                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
+                return;
             }
+
+            this.OnInitializeTelemetry(context, request, telemetry);
         }
 
         protected abstract void OnInitializeTelemetry(

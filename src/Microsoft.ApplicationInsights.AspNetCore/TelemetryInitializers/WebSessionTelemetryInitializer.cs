@@ -5,7 +5,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
 
-    public class WebSessionTelemetryInitializer : TelemetryInitializerBase
+    internal class WebSessionTelemetryInitializer : TelemetryInitializerBase
     {
         private const string WebSessionCookieName = "ai_session";
 
@@ -43,7 +43,7 @@
                     var sessionCookieParts = ((string)sessionCookieValue).Split('|');
                     if (sessionCookieParts.Length > 0)
                     {
-                        // Currently SessionContext takes in only SessionId. 
+                        // Currently SessionContext takes in only SessionId.
                         // The cookies has SessionAcquisitionDate and SessionRenewDate as well that we are not picking for now.
                         requestTelemetry.Context.Session.Id = sessionCookieParts[0];
                     }

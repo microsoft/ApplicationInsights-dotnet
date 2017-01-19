@@ -5,11 +5,12 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using Helpers;
-    using Microsoft.ApplicationInsights.AspNetCore.ContextInitializers;
+    using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Http;
     using Xunit;
-
+    
     public class DomainNameRoleInstanceTelemetryInitializerTests
     {
         private const string TestListenerName = "TestListener";
@@ -62,6 +63,7 @@
 #endif
 
             Assert.Equal(hostName, requestTelemetry.Context.Cloud.RoleInstance);
+            Assert.Equal(hostName, requestTelemetry.Context.GetInternalContext().NodeName);
         }
 
         [Fact]
@@ -71,10 +73,12 @@
             var source = new DomainNameRoleInstanceTelemetryInitializer(contextAccessor);
             var requestTelemetry = new RequestTelemetry();
             requestTelemetry.Context.Cloud.RoleInstance = "Test";
+            requestTelemetry.Context.GetInternalContext().NodeName = "Test1";
 
             source.Initialize(requestTelemetry);
 
             Assert.Equal("Test", requestTelemetry.Context.Cloud.RoleInstance);
+            Assert.Equal("Test1", requestTelemetry.Context.GetInternalContext().NodeName);
         }
     }
 }
