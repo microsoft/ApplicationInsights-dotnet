@@ -274,6 +274,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                     ApplicationVersion = "test",
                     DeveloperMode = true,
                     EnableAdaptiveSampling = false,
+                    EnableAuthenticationTrackingJavaScript = false,
                     EnableDebugLogger = true,
                     EnableQuickPulseMetricStream = false,
                     EndpointAddress = "http://test",
