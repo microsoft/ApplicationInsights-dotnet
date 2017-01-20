@@ -462,6 +462,16 @@
                 this.ApplicationName);
         }
 
+        [Event(65, Message = "The backlog of unsent items has reached maximum size of {0}. Items will be dropped until the backlog is cleared.",
+        Level = EventLevel.Error)]
+        public void ItemDroppedAsMaximumUnsentBacklogSizeReached(int maxBacklogSize, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                65,
+                maxBacklogSize,
+                this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;

@@ -15,14 +15,16 @@
         public Action OnFull;
 
         private const int DefaultCapacity = 500;
+        private const int DefaultMaximumUnsentBacklogSize = 1000000;
         private readonly object lockObj = new object();
         private int capacity = DefaultCapacity;
+        private int maximumUnsentBacklogSize = DefaultMaximumUnsentBacklogSize;
         private List<ITelemetry> items;
-        private bool bufferFullMessageLogged = false;
+        private bool itemDroppedMessageLogged = false;
 
         internal TelemetryBuffer()
-        {
-            this.items = new List<ITelemetry>();
+        {            
+            this.items = new List<ITelemetry>(this.Capacity);
         }
 
         /// <summary>
@@ -46,7 +48,30 @@
                 this.capacity = value;
             }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
+        /// once this limit is hit.
+        /// </summary>        
+        public int MaximumUnsentBacklogSize
+        {
+            get
+            {
+                return this.maximumUnsentBacklogSize;
+            }
+
+            set
+            {
+                if (value < 1)
+                {
+                    this.maximumUnsentBacklogSize = DefaultMaximumUnsentBacklogSize;
+                    return;
+                }
+
+                this.maximumUnsentBacklogSize = value;
+            }
+        }
+
         public void Enqueue(ITelemetry item)
         {
             if (item == null)
@@ -57,15 +82,17 @@
 
             lock (this.lockObj)
             {
-                if (this.items.Count >= this.Capacity)
+                if (this.items.Count >= this.MaximumUnsentBacklogSize)
                 {
-                    if(!bufferFullMessageLogged)
+                    if (!this.itemDroppedMessageLogged)
                     {
-                        CoreEventSource.Log.LogError("InMemory buffer has reached max capacity and items will be dropped until already buffered items are sent.");
-                        this.bufferFullMessageLogged = true;
+                        CoreEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumUnsentBacklogSize);
+                        this.itemDroppedMessageLogged = true;
                     }
+
                     return;
                 }
+
                 this.items.Add(item);
                 if (this.items.Count >= this.Capacity)
                 {
@@ -89,8 +116,8 @@
                     if (this.items.Count > 0)
                     {
                         telemetryToFlush = this.items;
-                        this.items = new List<ITelemetry>();
-                        this.bufferFullMessageLogged = false;
+                        this.items = new List<ITelemetry>(this.Capacity);
+                        this.itemDroppedMessageLogged = false;
                     }
                 }
             }

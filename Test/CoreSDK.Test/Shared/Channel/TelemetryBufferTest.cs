@@ -26,6 +26,7 @@
         {
             var buffer = new TelemetryBuffer();
             Assert.Equal(500, buffer.Capacity);
+            Assert.Equal(100000, buffer.MaximumUnsentBacklogSize);
         }
 
         [TestMethod]
@@ -33,7 +34,9 @@
         {
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 42;
+            buffer.MaximumUnsentBacklogSize = 9999;
             Assert.Equal(42, buffer.Capacity);
+            Assert.Equal(9999, buffer.MaximumUnsentBacklogSize);
         }
 
         [TestMethod]
@@ -41,8 +44,10 @@
         {
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 0;
+            buffer.MaximumUnsentBacklogSize = 0;
 
             Assert.Equal(buffer.Capacity, 500);
+            Assert.Equal(buffer.MaximumUnsentBacklogSize, 1000000);
         }
 
         [TestMethod]
@@ -60,21 +65,25 @@
         }
 
         [TestMethod]
-        public void TelemetryBufferDropsItemWhenBufferCapacityReached()
-        {
-            IEnumerable<ITelemetry> items = null;
-            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2 };
+        public void TelemetryBufferDoNotGrowBeyondMaxBacklogSize()
+        {            
+            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumUnsentBacklogSize= 5};
             buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
                                     //is not emptied.
                                   };
 
+            // Add more items to buffer than the max backlog size
             buffer.Enqueue(new EventTelemetry("Event1"));
             buffer.Enqueue(new EventTelemetry("Event2"));
             buffer.Enqueue(new EventTelemetry("Event3"));
             buffer.Enqueue(new EventTelemetry("Event4"));
+            buffer.Enqueue(new EventTelemetry("Event5"));
+            buffer.Enqueue(new EventTelemetry("Event6"));
 
+            // validate that items are not added after maxunsentbacklogsize is reached.
+            // this also validate that items can still be added after Capacity is reached as it is only a soft limit.
             int bufferItemCount = buffer.Dequeue().Count();
-            Assert.Equal(2, bufferItemCount);
+            Assert.Equal(5, bufferItemCount);
 
         }
     }

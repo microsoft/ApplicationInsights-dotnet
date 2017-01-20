@@ -22,6 +22,8 @@
         private readonly TelemetrySerializer serializer;
 
         private int capacity = 500;
+        private int maximumUnsentBacklogSize = 1000000;
+        private bool itemDroppedMessageLogged = false;
         private List<ITelemetry> transmissionBuffer;
 
         public TelemetryBuffer(TelemetrySerializer serializer, IApplicationLifecycle applicationLifecycle)
@@ -70,6 +72,29 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
+        /// once this limit is hit.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        public int MaximumUnsentBacklogSize
+        {
+            get
+            {
+                return this.maximumUnsentBacklogSize;
+            }
+
+            set
+            {
+                if (value < 1)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                this.maximumUnsentBacklogSize = value;
+            }
+        }
+
         public TimeSpan MaxTransmissionDelay 
         {
             get { return this.flushTimer.Delay; }
@@ -103,6 +128,17 @@
 
             lock (this)
             {
+                if (this.transmissionBuffer.Count >= this.MaximumUnsentBacklogSize)
+                {
+                    if (!this.itemDroppedMessageLogged)
+                    {
+                        TelemetryChannelEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumUnsentBacklogSize);
+                        this.itemDroppedMessageLogged = true;
+                    }
+
+                    return;
+                }
+
                 this.transmissionBuffer.Add(item);
                 if (this.transmissionBuffer.Count >= this.Capacity)
                 {
