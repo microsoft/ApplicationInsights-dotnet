@@ -58,5 +58,24 @@
             Assert.NotNull(items);
             Assert.Equal(2, items.Count());
         }
+
+        [TestMethod]
+        public void TelemetryBufferDropsItemWhenBufferCapacityReached()
+        {
+            IEnumerable<ITelemetry> items = null;
+            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2 };
+            buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
+                                    //is not emptied.
+                                  };
+
+            buffer.Enqueue(new EventTelemetry("Event1"));
+            buffer.Enqueue(new EventTelemetry("Event2"));
+            buffer.Enqueue(new EventTelemetry("Event3"));
+            buffer.Enqueue(new EventTelemetry("Event4"));
+
+            int bufferItemCount = buffer.Dequeue().Count();
+            Assert.Equal(2, bufferItemCount);
+
+        }
     }
 }
