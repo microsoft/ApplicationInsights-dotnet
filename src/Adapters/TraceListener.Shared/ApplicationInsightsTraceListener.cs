@@ -32,8 +32,8 @@ namespace Microsoft.ApplicationInsights.TraceListener
         }
 
         /// <summary>
-        /// Initializes a new instance of the ApplicationInsightsTraceListener class
-        /// If empty or null instrumentation key is passed, it will fall back to the one specified in ApplicationInsights.config file
+        /// Initializes a new instance of the ApplicationInsightsTraceListener class.
+        /// If empty or null instrumentation key is passed, it will fall back to the one specified in ApplicationInsights.config file.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key of your application.</param>
         public ApplicationInsightsTraceListener(string instrumentationKey)
