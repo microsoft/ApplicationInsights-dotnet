@@ -26,7 +26,7 @@
         {
             var buffer = new TelemetryBuffer();
             Assert.Equal(500, buffer.Capacity);
-            Assert.Equal(100000, buffer.MaximumUnsentBacklogSize);
+            Assert.Equal(1000000, buffer.MaximumUnsentBacklogSize);
         }
 
         [TestMethod]
