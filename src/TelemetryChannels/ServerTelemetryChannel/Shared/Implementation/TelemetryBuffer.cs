@@ -162,6 +162,7 @@
                         this.flushTimer.Cancel();
                         telemetryToFlush = this.transmissionBuffer;
                         this.transmissionBuffer = new List<ITelemetry>(this.Capacity);
+                        this.itemDroppedMessageLogged = false;
                     }
                 }
             }

@@ -23,7 +23,7 @@
         private bool itemDroppedMessageLogged = false;
 
         internal TelemetryBuffer()
-        {            
+        {
             this.items = new List<ITelemetry>(this.Capacity);
         }
 
