@@ -25,7 +25,7 @@ namespace Microsoft.ApplicationInsights.TraceListener
     {
         /// <summary>
         /// Initializes a new instance of the ApplicationInsightsTraceListener class, without specifying
-        /// an instrumentation key
+        /// an instrumentation key.
         /// </summary>
         public ApplicationInsightsTraceListener() : this(string.Empty)
         {
