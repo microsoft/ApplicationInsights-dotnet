@@ -106,8 +106,8 @@
         /// </summary>
         public int MaxBacklogSize
         {
-            get { return this.buffer.MaximumUnsentBacklogSize; }
-            set { this.buffer.MaximumUnsentBacklogSize = value; }
+            get { return this.buffer.MaximumBacklogSize; }
+            set { this.buffer.MaximumBacklogSize = value; }
         }
 
         /// <summary>

@@ -71,7 +71,7 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 Assert.Equal(500, buffer.Capacity);
-                Assert.Equal(1000000, buffer.MaximumUnsentBacklogSize);
+                Assert.Equal(1000000, buffer.MaximumBacklogSize);
             }
 
             [TestMethod]
@@ -79,17 +79,18 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 42;
-                buffer.MaximumUnsentBacklogSize = 3900;
+                buffer.MaximumBacklogSize = 3900;
                 Assert.Equal(42, buffer.Capacity);
-                Assert.Equal(3900, buffer.MaximumUnsentBacklogSize);
+                Assert.Equal(3900, buffer.MaximumBacklogSize);
             }
 
             [TestMethod]
-            public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsLessThanOne()
+            public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsLessThanMinimum()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumUnsentBacklogSize = 0);
+                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 0);
+                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 1000); // 1001 is minimum anything low would throw.
             }
         }
 
@@ -118,26 +119,23 @@
             [TestMethod]
             public void TelemetryBufferDoNotGrowBeyondMaxBacklogSize()
             {
-                //StubTelemetryBuffer does not flush items on buffer full,to test ItemDrop scenario.
-                var buffer = new StubTelemetryBuffer( new StubTelemetrySerializer(), new StubApplicationLifecycle() );
+                //TelemetryBufferWhichDoesNothingOnFlush does not flush items on buffer full,to test ItemDrop scenario.
+                var buffer = new TelemetryBufferWhichDoesNothingOnFlush( new StubTelemetrySerializer(), new StubApplicationLifecycle() );
                 buffer.Capacity = 2;
-                buffer.MaximumUnsentBacklogSize = 5;
+                buffer.MaximumBacklogSize = 1002;
 
                 buffer.Process(new StubTelemetry());
 
-                // Add more items (7) to buffer than the max backlog size(5)
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-                buffer.Process(new StubTelemetry());
-
+                // Add more items (1005) to buffer than the max backlog size(1002)
+                for (int i = 0; i < 1005; i++)
+                {
+                    buffer.Process(new StubTelemetry());
+                }
+                                
                 // validate that items are not added after maxunsentbacklogsize is reached.
                 // this also validate that items can still be added after Capacity is reached as it is only a soft limit.
                 int bufferItemCount = buffer.Count();
-                Assert.Equal(5, bufferItemCount);
+                Assert.Equal(1002, bufferItemCount);
             }
 
             [TestMethod]

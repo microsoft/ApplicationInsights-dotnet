@@ -15,10 +15,10 @@
         public Action OnFull;
 
         private const int DefaultCapacity = 500;
-        private const int DefaultMaximumUnsentBacklogSize = 1000000;
+        private const int DefaultMaximumUnsentBacklogSize = 1000000;        
         private readonly object lockObj = new object();
         private int capacity = DefaultCapacity;
-        private int maximumUnsentBacklogSize = DefaultMaximumUnsentBacklogSize;
+        private int maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
         private List<ITelemetry> items;
         private bool itemDroppedMessageLogged = false;
 
@@ -53,22 +53,22 @@
         /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
         /// once this limit is hit.
         /// </summary>        
-        public int MaximumUnsentBacklogSize
+        public int MaximumBacklogSize
         {
             get
             {
-                return this.maximumUnsentBacklogSize;
+                return this.maximumBacklogSize;
             }
 
             set
             {
-                if (value < 1)
+                if (value < 1001)
                 {
-                    this.maximumUnsentBacklogSize = DefaultMaximumUnsentBacklogSize;
+                    this.maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
                     return;
                 }
 
-                this.maximumUnsentBacklogSize = value;
+                this.maximumBacklogSize = value;
             }
         }
 
@@ -82,11 +82,11 @@
 
             lock (this.lockObj)
             {
-                if (this.items.Count >= this.MaximumUnsentBacklogSize)
+                if (this.items.Count >= this.MaximumBacklogSize)
                 {
                     if (!this.itemDroppedMessageLogged)
                     {
-                        CoreEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumUnsentBacklogSize);
+                        CoreEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumBacklogSize);
                         this.itemDroppedMessageLogged = true;
                     }
 

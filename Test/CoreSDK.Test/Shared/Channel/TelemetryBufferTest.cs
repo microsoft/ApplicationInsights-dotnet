@@ -40,11 +40,11 @@
         }
 
         [TestMethod]
-        public void WhenNewValueIsLessThanOneSetToDefault()
+        public void WhenNewValueIsLessThanMinimumSetToDefault()
         {
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 0;
-            buffer.MaximumUnsentBacklogSize = 0;
+            buffer.MaximumUnsentBacklogSize = 1000; //1001 is the minimum, setting to anything low should be overruled with Default
 
             Assert.Equal(buffer.Capacity, 500);
             Assert.Equal(buffer.MaximumUnsentBacklogSize, 1000000);
@@ -67,23 +67,23 @@
         [TestMethod]
         public void TelemetryBufferDoNotGrowBeyondMaxBacklogSize()
         {            
-            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumUnsentBacklogSize= 5};
+            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumUnsentBacklogSize= 1002};
             buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
                                     //is not emptied.
                                   };
 
             // Add more items to buffer than the max backlog size
-            buffer.Enqueue(new EventTelemetry("Event1"));
-            buffer.Enqueue(new EventTelemetry("Event2"));
-            buffer.Enqueue(new EventTelemetry("Event3"));
-            buffer.Enqueue(new EventTelemetry("Event4"));
-            buffer.Enqueue(new EventTelemetry("Event5"));
-            buffer.Enqueue(new EventTelemetry("Event6"));
+            for(int i = 0; i < 1005; i++)
+            {
+                buffer.Enqueue(new EventTelemetry("Event" + i));
+            }
+            
+            
 
             // validate that items are not added after maxunsentbacklogsize is reached.
             // this also validate that items can still be added after Capacity is reached as it is only a soft limit.
             int bufferItemCount = buffer.Dequeue().Count();
-            Assert.Equal(5, bufferItemCount);
+            Assert.Equal(1002, bufferItemCount);
 
         }
     }

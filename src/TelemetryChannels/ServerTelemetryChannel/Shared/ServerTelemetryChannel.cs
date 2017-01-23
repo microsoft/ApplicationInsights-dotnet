@@ -139,8 +139,8 @@
         /// </summary>
         public int MaxBacklogSize
         {
-            get { return this.TelemetryBuffer.MaximumUnsentBacklogSize; }
-            set { this.TelemetryBuffer.MaximumUnsentBacklogSize = value; }
+            get { return this.TelemetryBuffer.MaximumBacklogSize; }
+            set { this.TelemetryBuffer.MaximumBacklogSize = value; }
         }
 
         /// <summary>

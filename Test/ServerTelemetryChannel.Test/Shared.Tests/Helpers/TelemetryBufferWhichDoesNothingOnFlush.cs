@@ -6,11 +6,11 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using System.Threading.Tasks;
 
-    internal class StubTelemetryBuffer : Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer
+    internal class TelemetryBufferWhichDoesNothingOnFlush : Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation.TelemetryBuffer
     {
         public Action<IEnumerable<ITelemetry>> OnSerialize = _ => { };
 
-        public StubTelemetryBuffer(TelemetrySerializer serializer, IApplicationLifecycle applicationLifecycle) : base(serializer, applicationLifecycle)
+        public TelemetryBufferWhichDoesNothingOnFlush(TelemetrySerializer serializer, IApplicationLifecycle applicationLifecycle) : base(serializer, applicationLifecycle)
         {            
 
         }

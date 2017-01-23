@@ -14,7 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\BackendResponseHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\DirectoryAccessDenier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\FileAccessDenier.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetryBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\TelemetryBufferWhichDoesNothingOnFlush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetrySerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionBuffer.cs" />
