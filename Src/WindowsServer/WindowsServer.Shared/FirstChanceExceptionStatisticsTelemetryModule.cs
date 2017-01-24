@@ -31,7 +31,11 @@
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
 
-        private ConditionalWeakTable<Exception, object> exceptionIsTracked = new ConditionalWeakTable<Exception, object>();
+        /// <summary>
+        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
+        /// used to indicate that the exception is being tracked.
+        /// </summary>
+        private static readonly object exceptionIsTracked = new object();
 
         private TelemetryClient telemetryClient;
         private MetricManager metricManager;
@@ -96,17 +100,21 @@
             GC.SuppressFinalize(this);
         }
 
+        private static bool IsTracked(Exception exception)
+        {
+            return exception.Data.Contains(exceptionIsTracked);
+        }
+
         internal bool WasExceptionTracked(Exception exception)
         {
-            object tmp;
-            bool wasTracked = this.exceptionIsTracked.TryGetValue(exception, out tmp);
+            bool wasTracked = IsTracked(exception);
 
             if (!wasTracked)
             {
                 var innerException = exception.InnerException;
                 if (innerException != null)
                 {
-                    wasTracked = this.exceptionIsTracked.TryGetValue(innerException, out tmp);
+                    wasTracked = IsTracked(innerException);
                 }
             }
 
@@ -116,13 +124,13 @@
                 {
                     if (innerException != null)
                     {
-                        wasTracked = this.exceptionIsTracked.TryGetValue(innerException, out tmp);
+                        wasTracked = IsTracked(innerException);
                     }
                 }
             }
 
             // mark exception as tracked
-            this.exceptionIsTracked.GetOrCreateValue(exception);
+            exception.Data[exceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
             return wasTracked;
         }
 
