@@ -43,5 +43,15 @@ namespace Microsoft.ApplicationInsights
         public void Dispose()
         {
         }
+
+        public CustomTelemetryChannel Reset()
+        {
+            lock(this)
+            {
+                this.SentItems = new ITelemetry[0];
+            }
+
+            return this;
+        }
     }
 }

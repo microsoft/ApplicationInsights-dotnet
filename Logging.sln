@@ -86,6 +86,10 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\Adapter
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "src\Adapters.Tests\CommonTestShared\CommonTestShared.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46", "src\Adapters\EventSource.Net46\EventSource.Net46.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46.Tests", "src\Adapters.Tests\EventSource.Net46.Tests\EventSource.Net46.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Adapters\CommonShared\CommonShared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
@@ -100,9 +104,12 @@ Global
 		src\Adapters\CommonShared\CommonShared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
 		src\Adapters\NLogTarget.Shared\NLogTarget.Shared.projitems*{6c581dda-88af-4a64-984d-e275f2f21100}*SharedItemsImports = 4
 		src\Adapters.Tests\NLogTarget.Tests.Shared\NLogTarget.Net40.Tests.SharedProject.projitems*{6dd6f1c7-636d-41b5-8ac4-517c68f74d18}*SharedItemsImports = 13
+		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{7030cac6-4b94-4735-b146-c0fc3097aca6}*SharedItemsImports = 4
+		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{7030cac6-4b94-4735-b146-c0fc3097aca6}*SharedItemsImports = 4
 		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{a539bb1d-29ff-48e8-8d6e-dfcc543dc2b4}*SharedItemsImports = 4
 		src\Adapters\CommonShared\CommonShared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
 		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
 		src\Adapters\CommonShared\CommonShared.projitems*{b6dcd83b-f8fb-4171-8996-7a402dca9fe3}*SharedItemsImports = 4
@@ -197,6 +204,14 @@ Global
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -227,5 +242,7 @@ Global
 		{17EE52DA-5460-4BD2-A70F-529D2A94C938} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{587B624B-8C64-498E-93D7-A2D2ABC17EAB} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{7030CAC6-4B94-4735-B146-C0FC3097ACA6} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 	EndGlobalSection
 EndGlobal
