@@ -92,11 +92,14 @@
 
     "frameworks": {
         "net451": {
-            "dependencies": {
-                "Microsoft.ApplicationInsights.DependencyCollector": "2.2.0",
-                "Microsoft.ApplicationInsights.PerfCounterCollector": "2.2.0",
-                "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.2.0"
-            }
+          "dependencies": {
+            "Microsoft.ApplicationInsights.DependencyCollector": "2.2.0",
+            "Microsoft.ApplicationInsights.PerfCounterCollector": "2.2.0",
+            "Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel": "2.2.0"
+          },
+          "frameworkAssemblies": {
+            "System.Net.Http": "4.0.0.0"
+          }
         },
         "netstandard1.6": {
             "dependencies": {
