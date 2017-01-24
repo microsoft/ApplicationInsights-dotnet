@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("Microsoft.ApplicationInsights.EventSourceListener")]
 [assembly: AssemblyDescription("EventSourceListener is an Application Insights telemetry module that collects data from EventSource class instances.")]
-[assembly: AssemblyCopyright("Copyright © Microsoft Corporation. All rights reserved. 2017")]
 
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
 

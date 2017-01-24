@@ -6,6 +6,7 @@
 
 namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
 {
+    using System;
     using System.Diagnostics.Tracing;
 
     /// <summary>
@@ -18,11 +19,35 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         public static readonly EventSourceListenerEventSource Log = new EventSourceListenerEventSource();
 
         private const int NoEventSourcesConfiguredEventId = 1;
-        [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration,
-                Message = "No EventSources configured for the EventSourceListenerModule")]
-        public void NoEventSourcesConfigured()
+
+        private EventSourceListenerEventSource()
         {
-            this.WriteEvent(NoEventSourcesConfiguredEventId);
+            this.ApplicationName = this.GetApplicationName();
+        }
+
+        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
+
+        [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration,
+        Message = "No EventSources configured for the EventSourceListenerModule")]
+        public void NoEventSourcesConfigured(string applicationName = null)
+        {
+            this.WriteEvent(NoEventSourcesConfiguredEventId, applicationName ?? this.ApplicationName);
+        }
+
+        [NonEvent]
+        private string GetApplicationName()
+        {
+            string name;
+            try
+            {
+                name = AppDomain.CurrentDomain.FriendlyName;
+            }
+            catch
+            {
+                name = "(unknown)";
+            }
+
+            return name;
         }
 
         public sealed class Keywords
