@@ -234,6 +234,14 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             Assert.AreEqual(guidString, activityPath);
         }
 
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void ActivityPathDecoderHandlesEmptyActivityId()
+        {
+            string activityPath = ActivityPathDecoder.GetActivityPathString(Guid.Empty);
+            Assert.AreEqual(Guid.Empty.ToString(), activityPath);
+        }
+
         private TelemetryConfiguration GetTestTelemetryConfiguration(bool resetChannel = true)
         {
             var configuration = new TelemetryConfiguration();
