@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
     using Extensibility.Implementation.Tracing;
     using Implementation;
@@ -22,6 +21,12 @@
         private const int UNLOCKED = 0;
 
         /// <summary>
+        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
+        /// used to indicate that the exception is being tracked.
+        /// </summary>
+        private static readonly object ExceptionIsTracked = new object();
+
+        /// <summary>
         /// This object prevents double entry into the exception callback.
         /// </summary>
         [ThreadStatic]
@@ -30,12 +35,6 @@
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction;
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
-
-        /// <summary>
-        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
-        /// used to indicate that the exception is being tracked.
-        /// </summary>
-        private static readonly object exceptionIsTracked = new object();
 
         private TelemetryClient telemetryClient;
         private MetricManager metricManager;
@@ -100,11 +99,6 @@
             GC.SuppressFinalize(this);
         }
 
-        private static bool IsTracked(Exception exception)
-        {
-            return exception.Data.Contains(exceptionIsTracked);
-        }
-
         internal bool WasExceptionTracked(Exception exception)
         {
             bool wasTracked = IsTracked(exception);
@@ -130,8 +124,13 @@
             }
 
             // mark exception as tracked
-            exception.Data[exceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
+            exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
             return wasTracked;
+        }
+
+        private static bool IsTracked(Exception exception)
+        {
+            return exception.Data.Contains(ExceptionIsTracked);
         }
 
         /// <summary>
