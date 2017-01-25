@@ -38,7 +38,9 @@
         {
             if (this.client.IsEnabled())
             {
-                httpContext.Features.Set(new RequestTelemetry());
+                RequestTelemetry requestTelemetry = new RequestTelemetry();
+                
+                httpContext.Features.Set(requestTelemetry);
 
                 this.beginRequestTimestamp.Value = timestamp;
                 this.client.Context.Operation.Id = httpContext.TraceIdentifier;
@@ -84,9 +86,9 @@
 
         private void EndRequest(HttpContext httpContext, long timestamp)
         {
-            if (this.client.IsEnabled())
+            if (this.client.IsEnabled() && httpContext != null)
             {
-                var telemetry = httpContext?.Features.Get<RequestTelemetry>();
+                var telemetry = httpContext.Features.Get<RequestTelemetry>();
 
                 if (telemetry == null)
                 {
@@ -110,6 +112,25 @@
                 if (string.IsNullOrEmpty(telemetry.Name))
                 {
                     telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
+                }
+
+                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+                {
+                    this.client.Initialize(telemetry);
+                }
+
+                IHeaderDictionary requestHeaders = httpContext.Request?.Headers;
+                if (requestHeaders != null)
+                {
+                    string sourceIkey = requestHeaders[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+
+                    // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
+                    if (!string.IsNullOrEmpty(sourceIkey)
+                        && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
+                        && sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey))
+                    {
+                        telemetry.Source = sourceIkey;
+                    }
                 }
 
                 telemetry.HttpMethod = httpContext.Request.Method;

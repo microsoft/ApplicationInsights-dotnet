@@ -35,16 +35,16 @@
 
         private static void AssertRequest(HttpRequestMessage request)
         {
-            Assert.True(request.Headers.Contains(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader));
-            string sourceInstrumentationKeyHeaderValue = request.Headers.GetValues(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader).Single();
+            Assert.True(request.Headers.Contains(RequestResponseHeaders.SourceInstrumentationKeyHeader));
+            string sourceInstrumentationKeyHeaderValue = request.Headers.GetValues(RequestResponseHeaders.SourceInstrumentationKeyHeader).Single();
             Assert.Equal("0KNjBVW77H/AWpjTEcI7AP0atNgpasSkEll22AtqaVk=", sourceInstrumentationKeyHeaderValue);
 
-            Assert.False(request.Headers.Contains(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader));
+            Assert.False(request.Headers.Contains(RequestResponseHeaders.TargetInstrumentationKeyHeader));
 
             // We can't check this header value because it changes every time the test is run.
-            Assert.True(request.Headers.Contains(DependencyCollectorDiagnosticListener.StandardParentIdHeader));
+            Assert.True(request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader));
 
-            Assert.False(request.Headers.Contains(DependencyCollectorDiagnosticListener.StandardRootIdHeader));
+            Assert.False(request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader));
         }
 
         private static void AssertTelemetry(ITelemetry telemetry, Uri requestUri, string expectedTarget = null, string expectedType = null, bool? expectedSuccess = null, string expectedResultCode = null)
@@ -111,7 +111,7 @@
             AssertRequest(request);
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Headers.Add(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader, request.Headers.GetValues(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader).Single());
+            response.Headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, request.Headers.GetValues(RequestResponseHeaders.SourceInstrumentationKeyHeader).Single());
             listener.OnResponseReceived(response, loggingId, 1);
 
             AssertTelemetry(this.sentTelemetry, requestUri);
@@ -131,7 +131,7 @@
             AssertRequest(request);
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Headers.Add(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader, "DIFFERENT_IKEY_HASH");
+            response.Headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, "DIFFERENT_IKEY_HASH");
             listener.OnResponseReceived(response, loggingId, 1);
 
             AssertTelemetry(this.sentTelemetry, requestUri, expectedTarget: requestUri.Host + " | DIFFERENT_IKEY_HASH", expectedType: "Application Insights");

@@ -13,26 +13,6 @@
     /// </summary>
     internal class DependencyCollectorDiagnosticListener : IApplicationInsightDiagnosticListener
     {
-        /// <summary>
-        /// Source instrumentation header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
-        /// </summary>
-        public const string SourceInstrumentationKeyHeader = "x-ms-request-source-ikey";
-
-        /// <summary>
-        /// Target instrumentation header that is added to the response and retrieved by the calling application when processing incoming responses.
-        /// </summary>
-        public const string TargetInstrumentationKeyHeader = "x-ms-request-target-ikey";
-
-        /// <summary>
-        /// Standard parent Id header.
-        /// </summary>
-        public const string StandardParentIdHeader = "x-ms-request-id";
-
-        /// <summary>
-        /// Standard root id header.
-        /// </summary>
-        public const string StandardRootIdHeader = "x-ms-request-root-id";
-
         private readonly TelemetryClient client;
         private readonly ConcurrentDictionary<Guid, DependencyTelemetry> requestTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
 
@@ -68,23 +48,23 @@
             telemetry.Data = requestUri.OriginalString;
 
             // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
-            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !request.Headers.Contains(SourceInstrumentationKeyHeader))
+            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !request.Headers.Contains(RequestResponseHeaders.SourceInstrumentationKeyHeader))
             {
-                request.Headers.Add(SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
             }
 
             // Add the root ID
             string rootId = telemetry.Context.Operation.Id;
-            if (!string.IsNullOrEmpty(rootId) && !request.Headers.Contains(StandardRootIdHeader))
+            if (!string.IsNullOrEmpty(rootId) && !request.Headers.Contains(RequestResponseHeaders.StandardRootIdHeader))
             {
-                request.Headers.Add(StandardRootIdHeader, rootId);
+                request.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
             }
 
             // Add the parent ID
             string parentId = telemetry.Id;
-            if (!string.IsNullOrEmpty(parentId) && !request.Headers.Contains(StandardParentIdHeader))
+            if (!string.IsNullOrEmpty(parentId) && !request.Headers.Contains(RequestResponseHeaders.StandardParentIdHeader))
             {
-                request.Headers.Add(StandardParentIdHeader, parentId);
+                request.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
             }
 
             this.requestTelemetry.TryAdd(loggingRequestId, telemetry);
@@ -99,9 +79,9 @@
             DependencyTelemetry telemetry;
             if (this.requestTelemetry.TryRemove(loggingRequestId, out telemetry))
             {
-                if (response.Headers.Contains(TargetInstrumentationKeyHeader))
+                if (response.Headers.Contains(RequestResponseHeaders.TargetInstrumentationKeyHeader))
                 {
-                    string targetInstrumentationKeyHash = response.Headers.GetValues(TargetInstrumentationKeyHeader).SingleOrDefault();
+                    string targetInstrumentationKeyHash = response.Headers.GetValues(RequestResponseHeaders.TargetInstrumentationKeyHeader).SingleOrDefault();
 
                     // We only add the cross component correlation key if the key does not remain the current component.
                     if (!string.IsNullOrEmpty(targetInstrumentationKeyHash) && targetInstrumentationKeyHash != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey))
