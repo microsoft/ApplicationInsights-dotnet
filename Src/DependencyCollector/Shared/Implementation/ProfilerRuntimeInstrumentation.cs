@@ -67,7 +67,7 @@
                 isStatic: false);
         }
 
-        internal static void DecorateProfilerForSql(ref ProfilerSqlProcessing sqlCallbacks)
+        internal static void DecorateProfilerForSqlCommand(ref ProfilerSqlCommandProcessing sqlCallbacks)
         {
             //// ___ ExecuteNonQuery ___ ////
 
@@ -123,7 +123,7 @@
             ////    null,
             ////    isStatic: false);
             //// Instead of Decorating public methods we have to use private one that may change signature from one framework to the other: 
-             
+
             // Read comment above. Decorate BeginExecuteNonQueryAsync, 2 param (+this)
             Functions.Decorate(
                 "System.Data",
@@ -312,6 +312,31 @@
                 null,
                 sqlCallbacks.OnEndForTwoParameters,
                 sqlCallbacks.OnExceptionForTwoParameters,
+                isStatic: false);
+        }
+
+        internal static void DecorateProfilerForSqlConnection(ref ProfilerSqlConnectionProcessing sqlCallbacks)
+        {
+            // Decorates SqlConnection.Open, 0 params(+this)
+            // Tracks dependency call only in case of failure
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlConnection.Open",
+                sqlCallbacks.OnBeginForOneParameter,
+                null,
+                sqlCallbacks.OnExceptionForOneParameter,
+                isStatic: false);
+
+            // Decorates SqlConnection.OpenAsync, 1 param(+this)
+            // Tracks dependency call only in case of failure
+            Functions.Decorate(
+                "System.Data",
+                "System.Data.dll",
+                "System.Data.SqlClient.SqlConnection.OpenAsync",
+                sqlCallbacks.OnBeginForTwoParameters,
+                sqlCallbacks.OnEndExceptionAsyncForTwoParameters,
+                null,
                 isStatic: false);
         }
     }

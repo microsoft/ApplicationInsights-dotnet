@@ -20,6 +20,11 @@
         private const string ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
 
         /// <summary>
+        /// Invalid connection string to database.
+        /// </summary> 
+        private const string InvalidConnectionString = @"Data Source=invalid\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
+
+        /// <summary>
         /// Valid SQL Query. The wait for delay of 6msec is used to prevent access time of less than 1msec. SQL is not accurate below 3, so used 6 msec delay.
         /// </summary> 
         private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
@@ -189,6 +194,18 @@
                     case "SqlCommandExecuteXmlReader":
                         sqlQueryTouse += " FOR XML AUTO";
                         SqlCommandHelper.ExecuteXmlReader(ConnectionString, sqlQueryTouse);
+                        break;
+                    case "SqlConnectionOpen":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnection(success ? ConnectionString : InvalidConnectionString);
+                        break;
+                    case "SqlConnectionOpenAsync":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnectionAsync(success ? ConnectionString : InvalidConnectionString);
+                        break;
+                    case "SqlConnectionOpenAsyncAwait":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnectionAsyncAwait(success ? ConnectionString : InvalidConnectionString);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException("Request Parameter type is not mapped to an action: " + type);

@@ -1,28 +1,28 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
-    using System.Data;
     using System.Data.SqlClient;
     using System.Globalization;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;
+    using Microsoft.ApplicationInsights.Web.Implementation;    
 
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs
     /// received from Profiler instrumentation for SQL.    
     /// </summary>
-    internal sealed class ProfilerSqlProcessing
+    internal abstract class ProfilerSqlProcessingBase
     {
         internal ObjectInstanceBasedOperationHolder TelemetryTable;
         private readonly TelemetryClient telemetryClient;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfilerSqlProcessing"/> class.
+        /// Initializes a new instance of the <see cref="ProfilerSqlProcessingBase"/> class.
         /// </summary>
-        internal ProfilerSqlProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
+        internal ProfilerSqlProcessingBase(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder)
         {
             if (configuration == null)
             {
@@ -92,11 +92,47 @@
         }
 
         /// <summary>
+        /// On end async callback for methods with 1 parameter.
+        /// </summary>
+        public object OnEndAsyncForOneParameter(object context, object returnValue, object thisObj)
+        {
+            this.OnEndAsync(returnValue, thisObj);
+            return returnValue;
+        }
+
+        /// <summary>
+        /// On end async callback for methods with 1 parameter.
+        /// </summary>
+        public object OnEndExceptionAsyncForOneParameter(object context, object returnValue, object thisObj)
+        {
+            this.OnEndExceptionAsync(returnValue, thisObj);
+            return returnValue;
+        }
+
+        /// <summary>
         /// On end callback for methods with 2 parameter.
         /// </summary>
         public object OnEndForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
         {
             this.OnEnd(null, thisObj);
+            return returnValue;
+        }
+
+        /// <summary>
+        /// On end async callback for methods with 2 parameter.
+        /// </summary>
+        public object OnEndAsyncForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
+        {
+            this.OnEndAsync(returnValue, thisObj);
+            return returnValue;
+        }
+
+        /// <summary>
+        /// On end async callback for methods with 2 parameter.
+        /// </summary>
+        public object OnEndExceptionAsyncForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
+        {
+            this.OnEndExceptionAsync(returnValue, thisObj);
             return returnValue;
         }
 
@@ -136,63 +172,25 @@
         #endregion //Sql callbacks
 
         /// <summary>
-        /// Gets SQL command resource name.
+        /// Gets SQL resource name.
         /// </summary>
-        /// <param name="thisObj">The SQL command.</param>
-        /// <remarks>Before we have clarity with SQL team around EventSource instrumentation, providing name as a concatenation of parameters.</remarks>
+        /// <param name="thisObj">The SQL object.</param>
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        internal string GetResourceName(object thisObj)
-        {
-            SqlCommand command = thisObj as SqlCommand;
-            string resource = string.Empty;
-            if (command != null)
-            {
-                if (command.Connection != null)
-                {
-                    string commandName = command.CommandType == CommandType.StoredProcedure
-                        ? command.CommandText
-                        : string.Empty;
-
-                    resource = string.IsNullOrEmpty(commandName)
-                        ? string.Join(" | ", command.Connection.DataSource, command.Connection.Database)
-                        : string.Join(" | ", command.Connection.DataSource, command.Connection.Database, commandName);
-                }
-            }
-
-            return resource;
-        }
-
-        internal string GetResourceTarget(object thisObj)
-        {
-            SqlCommand command = thisObj as SqlCommand;
-            string result = string.Empty;
-            if (command != null)
-            {
-                if (command.Connection != null)
-                {
-                    result = string.Join(" | ", command.Connection.DataSource, command.Connection.Database);
-                }
-            }
-
-            return result;
-        }
+        internal abstract string GetResourceName(object thisObj);
 
         /// <summary>
-        /// Return CommandTest for SQL resource.
+        /// Gets SQL resource target name.
         /// </summary>
-        /// <param name="thisObj">The SQL command.</param>
+        /// <param name="thisObj">The SQL object.</param>
+        /// <returns>The resource target name if possible otherwise empty string.</returns>
+        internal abstract string GetResourceTarget(object thisObj);
+
+        /// <summary>
+        /// Gets SQL resource command text.
+        /// </summary>
+        /// <param name="thisObj">The SQL object.</param>
         /// <returns>Returns the command text or empty.</returns>
-        internal string GetCommandName(object thisObj)
-        {
-            SqlCommand command = thisObj as SqlCommand;
-
-            if (command != null)
-            {
-                return command.CommandText ?? string.Empty;
-            }
-
-            return string.Empty;
-        }
+        internal abstract string GetCommandName(object thisObj);
      
         /// <summary>
         ///  Common helper for all Begin Callbacks.
@@ -250,6 +248,80 @@
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///  Common helper for all EndAsync Callbacks.
+        /// </summary>
+        /// <param name="taskObj">Returned task by the async method.</param>
+        /// <param name="thisObj">This object.</param>
+        private void OnEndAsync(object taskObj, object thisObj)
+        {
+            try
+            {
+                Task task = taskObj as Task;
+                if (task == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndAsyncSql", "task == null");
+                    return;
+                }
+
+                DependencyCollectorEventSource.Log.EndAsyncCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
+
+                task.ContinueWith(t =>
+                {
+                    Exception exceptionObj = null;
+                    if (t.IsFaulted)
+                    {
+                        exceptionObj = t.Exception != null && t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                    }
+
+                    this.OnEnd(exceptionObj, thisObj);
+                });
+            }            
+            catch (Exception ex)
+            {
+                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndAsyncSql", ex);
+            }
+        }
+
+        /// <summary>
+        ///  Common helper for all EndAsync Callbacks that should send data only in the case of exception happened.
+        /// </summary>
+        /// <param name="taskObj">Returned task by the async method.</param>
+        /// <param name="thisObj">This object.</param>
+        private void OnEndExceptionAsync(object taskObj, object thisObj)
+        {
+            try
+            {
+                Task task = taskObj as Task;
+                if (task == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndExceptionAsync", "task == null");
+                    return;
+                }
+
+                DependencyCollectorEventSource.Log.EndAsyncExceptionCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
+
+                task.ContinueWith(t =>
+                {
+                    Exception exceptionObj = null;
+                    if (t.IsFaulted)
+                    {
+                        // track item only in case of failure
+                        exceptionObj = t.Exception != null && t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                        this.OnEnd(exceptionObj, thisObj);
+                    }
+                    else
+                    {
+                        this.TelemetryTable.Remove(thisObj);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndExceptionAsync", ex);
+            }
         }
 
         /// <summary>

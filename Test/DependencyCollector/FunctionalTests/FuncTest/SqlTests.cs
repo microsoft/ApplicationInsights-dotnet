@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
 
     using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +22,11 @@
         /// Resource Name for dev database.
         /// </summary>
         private const string ResourceNameSQLToDevApm = @".\SQLEXPRESS | RDDTestDatabase";
+
+        /// <summary>
+        /// Resource Name for wrong database.
+        /// </summary>
+        private const string ResourceNameSQLToWrongDatabase = @"invalid\SQLEXPRESS | RDDTestDatabase";
 
         /// <summary>
         /// Invalid SQL query only needed here because the test web app we use to run queries will throw a 500 and we can't get back the invalid query from it.
@@ -335,6 +341,110 @@
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
         #endregion
+
+        #region SqlConnection.Open
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenSuccess()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpen", true, false);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpen", false, false);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncSuccess()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", true, true);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", false, true);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncAwaitSuccess()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", true, false);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncAwaitException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", false, false);
+            }
+        }
+
+        #endregion
+
+        private void TestSqlConnectionExecute(string type, bool success, bool async)
+        {
+            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
+                 application =>
+                 {
+                     string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&success=" + success);
+
+                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
+                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
+
+                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(
+                         async ? DeploymentAndValidationTools.SleepTimeForSdkToSendAsyncEvents : DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
+                     var sqlItems = allItems.Where(i => i.data.baseData.type == "SQL").ToArray();
+                     if (success)
+                     {
+                         // no items should be sent in case of success connection to database
+                         Assert.AreEqual(0, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
+                     }
+                     else
+                     { 
+                         Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
+
+                         this.Validate(
+                             sqlItems[0],
+                             ResourceNameSQLToWrongDatabase,
+                             "Open",
+                             TimeSpan.FromSeconds(20),
+                             successFlagExpected: success,
+                             sqlErrorCodeExpected: "-1",
+                             sqlErrorMessageExpected: "A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SQL Network Interfaces, error: 26 - Error Locating Server/Instance Specified)");
+                     }
+                 });
+        }
 
         private void TestSqlCommandExecute(string type, string errorNumber, string errorMessage, string extraClauseForFailureCase = null)
         {
