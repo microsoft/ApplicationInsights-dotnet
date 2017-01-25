@@ -23,65 +23,144 @@
             this.listener = new DependencyCollectorDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
         }
 
-        [Fact]
-        public void OnRequestSentShouldNotSendTelemetry()
+        private static void AssertDependencyTelemetry(ITelemetry telemetry, Uri requestUri)
         {
-            listener.OnRequestSent(new HttpRequestMessage(HttpMethod.Get, "http://www.microsoft.com/test/path.html"), new Guid(), 0);
-            Assert.Null(this.sentTelemetry); // Telemetry shouldn't be logged until OnResponseReceived().
+            
+        }
+
+        private static void AssertRequestHeaderValue(HttpRequestMessage request, string headerName)
+        {
+            Assert.False(request.Headers.Contains(headerName));
+        }
+
+        private static void AssertRequest(HttpRequestMessage request)
+        {
+            Assert.True(request.Headers.Contains(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader));
+            string sourceInstrumentationKeyHeaderValue = request.Headers.GetValues(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader).Single();
+            Assert.Equal("0KNjBVW77H/AWpjTEcI7AP0atNgpasSkEll22AtqaVk=", sourceInstrumentationKeyHeaderValue);
+
+            Assert.False(request.Headers.Contains(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader));
+
+            // We can't check this header value because it changes every time the test is run.
+            Assert.True(request.Headers.Contains(DependencyCollectorDiagnosticListener.StandardParentIdHeader));
+
+            Assert.False(request.Headers.Contains(DependencyCollectorDiagnosticListener.StandardRootIdHeader));
+        }
+
+        private static void AssertTelemetry(ITelemetry telemetry, Uri requestUri, string expectedTarget = null, string expectedType = null, bool? expectedSuccess = null, string expectedResultCode = null)
+        {
+            if (expectedTarget == null)
+            {
+                expectedTarget = requestUri.Host;
+            }
+
+            if (expectedType == null)
+            {
+                expectedType = "Http";
+            }
+
+            if (expectedSuccess == null)
+            {
+                expectedSuccess = true;
+            }
+
+            if (expectedResultCode == null)
+            {
+                expectedResultCode = "200";
+            }
+
+            Assert.NotNull(telemetry);
+            Assert.IsType<DependencyTelemetry>(telemetry);
+            DependencyTelemetry dependencyTelemetry = telemetry as DependencyTelemetry;
+            Assert.Equal("GET " + requestUri.AbsolutePath, dependencyTelemetry.Name);
+            Assert.Equal(expectedTarget, dependencyTelemetry.Target);
+            Assert.Equal(requestUri.OriginalString, dependencyTelemetry.Data);
+            Assert.Equal(expectedType, dependencyTelemetry.Type);
+            Assert.Equal(expectedSuccess.Value, dependencyTelemetry.Success);
+            Assert.Equal(expectedResultCode, dependencyTelemetry.ResultCode);
+            Assert.Equal("dotnet:2.2.0-54036", dependencyTelemetry.Context.GetInternalContext().SdkVersion);
         }
 
         [Fact]
-        public void OnResponseReceivedWithAssociatedRequest()
+        public void OnRequestSentAndResponseReceived()
         {
             Guid loggingId = new Guid();
             Uri requestUri = new Uri("http://www.microsoft.com/test/path.html");
-            listener.OnRequestSent(new HttpRequestMessage(HttpMethod.Get, requestUri.ToString()), loggingId, 0);
-            listener.OnResponseReceived(new HttpResponseMessage(HttpStatusCode.OK), loggingId, 1);
 
-            Assert.NotNull(this.sentTelemetry);
-            Assert.IsType<DependencyTelemetry>(this.sentTelemetry);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            listener.OnRequestSent(request, loggingId, 0);
 
-            DependencyTelemetry dependencyTelemetry = this.sentTelemetry as DependencyTelemetry;
-            Assert.Equal("GET " + uri.AbsolutePath, dependencyTelemetry.Name);
-            Assert.Equal(uri.Host, dependencyTelemetry.Target);
-            Assert.Equal(uri.OriginalString, dependencyTelemetry.Data);
-            Assert.Equal(type.ToString(), dependencyTelemetry.Type);
-            Assert.Equal(success, dependencyTelemetry.Success);
-            Assert.Equal(resultCode, dependencyTelemetry.ResultCode);
+            Assert.Null(this.sentTelemetry); // Telemetry shouldn't be logged until OnResponseReceived().
+            AssertRequest(request);
 
-            int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            listener.OnResponseReceived(response, loggingId, 1);
 
-            double valueMinRelaxed = expectedValue - TimeAccuracyMilliseconds;
-            Assert.True(
-                dependencyTelemetry.Duration >= TimeSpan.FromMilliseconds(valueMinRelaxed),
-                string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should be equal or more than the time duration between start and end", dependencyTelemetry.Duration));
-
-            double valueMax = expectedValue + TimeAccuracyMilliseconds;
-            Assert.True(
-                dependencyTelemetry.Duration <= TimeSpan.FromMilliseconds(valueMax),
-                string.Format(CultureInfo.InvariantCulture, "Value (dependency duration = {0}) in the sent telemetry should not be significantly bigger than the time duration between start and end", dependencyTelemetry.Duration));
-
-            string expectedVersion = GetExpectedSdkVersion(typeof(DependencyCollectorDiagnosticListenerTest), prefix: "rddp:");
-            Assert.Equal(expectedVersion, dependencyTelemetry.Context.GetInternalContext().SdkVersion);
-            ValidateDependencyTelemetry(this.sentTelemetry as DependencyTelemetry, new Uri("http://www.microsoft.com/test/path.html"), "Http", true, 0, "MOCKRESULT");
+            AssertTelemetry(this.sentTelemetry, requestUri);
         }
 
         [Fact]
-        public void OnResponseReceivedWithNoAssociatedRequest()
+        public void OnRequestSentAndResponseReceivedWhereTargetInstrumentationKeyIsSameAsSource()
+        {
+            Guid loggingId = new Guid();
+            Uri requestUri = new Uri("http://www.microsoft.com/test/path.html");
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            listener.OnRequestSent(request, loggingId, 0);
+
+            AssertRequest(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Headers.Add(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader, request.Headers.GetValues(DependencyCollectorDiagnosticListener.SourceInstrumentationKeyHeader).Single());
+            listener.OnResponseReceived(response, loggingId, 1);
+
+            AssertTelemetry(this.sentTelemetry, requestUri);
+        }
+
+        [Fact]
+        public void OnRequestSentAndResponseReceivedWhereTargetInstrumentationKeyIsNotSameAsSource()
+        {
+            Guid loggingId = new Guid();
+            Uri requestUri = new Uri("http://www.microsoft.com/test/path.html");
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            listener.OnRequestSent(request, loggingId, 0);
+
+            Assert.Null(this.sentTelemetry); // Telemetry shouldn't be logged until OnResponseReceived().
+
+            AssertRequest(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Headers.Add(DependencyCollectorDiagnosticListener.TargetInstrumentationKeyHeader, "DIFFERENT_IKEY_HASH");
+            listener.OnResponseReceived(response, loggingId, 1);
+
+            AssertTelemetry(this.sentTelemetry, requestUri, expectedTarget: requestUri.Host + " | DIFFERENT_IKEY_HASH", expectedType: "Application Insights");
+        }
+
+        [Fact]
+        public void OnRequestSentAndResponseReceivedWith500StatusCode()
+        {
+            Guid loggingId = new Guid();
+            Uri requestUri = new Uri("http://www.microsoft.com/test/path.html");
+
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            listener.OnRequestSent(request, loggingId, 0);
+
+            Assert.Null(this.sentTelemetry); // Telemetry shouldn't be logged until OnResponseReceived().
+
+            AssertRequest(request);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            listener.OnResponseReceived(response, loggingId, 1);
+
+            AssertTelemetry(this.sentTelemetry, requestUri, expectedSuccess: false, expectedResultCode: "500");
+        }
+
+        [Fact]
+        public void OnResponseReceivedWithNoRequestSent()
         {
             listener.OnResponseReceived(new HttpResponseMessage(HttpStatusCode.OK), new Guid(), 1);
             Assert.Null(this.sentTelemetry); // If there wasn't an associated request sent, then OnResponseReceived() shouldn't do anything.
-        }
-
-        private static string GetExpectedSdkVersion(Type assemblyType, string prefix)
-        {
-            string versionString = Assembly.GetEntryAssembly().GetCustomAttributes()
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            string[] versionParts = new Version(versionString).ToString().Split('.');
-
-            return prefix + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
         }
 
         //[Fact]

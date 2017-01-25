@@ -16,22 +16,22 @@
         /// <summary>
         /// Source instrumentation header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
         /// </summary>
-        private const string SourceInstrumentationKeyHeader = "x-ms-request-source-ikey";
+        public const string SourceInstrumentationKeyHeader = "x-ms-request-source-ikey";
 
         /// <summary>
         /// Target instrumentation header that is added to the response and retrieved by the calling application when processing incoming responses.
         /// </summary>
-        private const string TargetInstrumentationKeyHeader = "x-ms-request-target-ikey";
+        public const string TargetInstrumentationKeyHeader = "x-ms-request-target-ikey";
 
         /// <summary>
         /// Standard parent Id header.
         /// </summary>
-        private const string StandardParentIdHeader = "x-ms-request-id";
+        public const string StandardParentIdHeader = "x-ms-request-id";
 
         /// <summary>
         /// Standard root id header.
         /// </summary>
-        private const string StandardRootIdHeader = "x-ms-request-root-id";
+        public const string StandardRootIdHeader = "x-ms-request-root-id";
 
         private readonly TelemetryClient client;
         private readonly ConcurrentDictionary<Guid, DependencyTelemetry> requestTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
