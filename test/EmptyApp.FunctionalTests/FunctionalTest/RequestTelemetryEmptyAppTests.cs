@@ -5,6 +5,8 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Channel;
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {
@@ -70,6 +72,43 @@
 
             Assert.Contains(telemetries.OfType<TraceTelemetry>(),
                 t => t.Message == "Fetched contact details." && t.SeverityLevel == SeverityLevel.Information);
+        }
+
+        [Fact]
+        public void TestDependencyTelemetryItemsReceived()
+        {
+            InProcessServer server;
+            using (server = new InProcessServer(assemblyName))
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    var task = httpClient.GetAsync(server.BaseHost + "/Dependency");
+                    task.Wait(TestTimeoutMs);
+                }
+            }
+
+            IList<ITelemetry> telemetries = server.BackChannel.Buffer;
+#if NET451
+            Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "/Dependency");
+#endif
+
+            Assert.True(telemetries.Count >= 3);
+            Assert.Contains(telemetries.OfType<RequestTelemetry>(), t => t.Name == "GET /Dependency");
+
+            DependencyTelemetry[] dependencyTelemetries = telemetries.OfType<DependencyTelemetry>().ToArray();
+            Assert.Equal("GET /", dependencyTelemetries[0].Name);
+            Assert.Equal("Foo", dependencyTelemetries[0].Context.InstrumentationKey);
+            Assert.Equal("www.microsoft.com", dependencyTelemetries[0].Target);
+            Assert.Equal("200", dependencyTelemetries[0].ResultCode);
+            Assert.Equal("Http", dependencyTelemetries[0].Type);
+            Assert.True(dependencyTelemetries[0].Success);
+
+            Assert.Equal("GET /Dependency", dependencyTelemetries[1].Name);
+            Assert.Equal("Foo", dependencyTelemetries[1].Context.InstrumentationKey);
+            Assert.Equal("localhost", dependencyTelemetries[1].Target);
+            Assert.Equal("200", dependencyTelemetries[1].ResultCode);
+            Assert.Equal("Http", dependencyTelemetries[1].Type);
+            Assert.True(dependencyTelemetries[1].Success);
         }
     }
 }

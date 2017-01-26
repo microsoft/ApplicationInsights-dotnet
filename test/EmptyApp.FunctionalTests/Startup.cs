@@ -10,6 +10,7 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DataContracts;
+    using System.Net.Http;
 
     public class Startup
     {
@@ -45,6 +46,14 @@
                         telemetryClient.TrackMetric("ContactFile", 1);
                         telemetryClient.TrackTrace("Fetched contact details.", SeverityLevel.Information);
                         await context.Response.WriteAsync("Hello!");
+                    }
+                    else if (context.Request.GetUri().ToString().Contains("Dependency"))
+                    {
+                        using (HttpClient client = new HttpClient())
+                        {
+                            await client.GetAsync("https://www.microsoft.com/");
+                        }
+                        await context.Response.WriteAsync("Hello Dependency");
                     }
                     else
                     {

@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
+    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore hosting layer.
@@ -39,11 +40,23 @@
             if (this.client.IsEnabled())
             {
                 RequestTelemetry requestTelemetry = new RequestTelemetry();
-                
+                if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+                {
+                    this.client.Initialize(requestTelemetry);
+                }
+
                 httpContext.Features.Set(requestTelemetry);
 
                 this.beginRequestTimestamp.Value = timestamp;
                 this.client.Context.Operation.Id = httpContext.TraceIdentifier;
+                requestTelemetry.Id = httpContext.TraceIdentifier;
+
+                IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
+                    && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
+                {
+                    responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)));
+                }
             }
         }
 

@@ -6,6 +6,7 @@
 
     public static class CommonMocks
     {
+        public const string InstrumentationKey = "REQUIRED";
         public const string InstrumentationKeyHash = "0KNjBVW77H/AWpjTEcI7AP0atNgpasSkEll22AtqaVk=";
 
         public static TelemetryClient MockTelemetryClient(Action<ITelemetry> onSendCallback)
@@ -13,7 +14,7 @@
             var telemetryChannel = new FakeTelemetryChannel { OnSend = onSendCallback };
 
             var telemetryConfiguration = new TelemetryConfiguration();
-            telemetryConfiguration.InstrumentationKey = "REQUIRED";
+            telemetryConfiguration.InstrumentationKey = InstrumentationKey;
             telemetryConfiguration.TelemetryChannel = telemetryChannel;
 
             return new TelemetryClient(telemetryConfiguration);
