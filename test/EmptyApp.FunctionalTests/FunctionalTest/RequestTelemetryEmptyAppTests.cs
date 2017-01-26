@@ -1,12 +1,12 @@
 ﻿namespace EmptyApp.FunctionalTests.FunctionalTest
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using FunctionalTestUtils;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Channel;
 
     public class RequestTelemetryEmptyAppTests : TelemetryTestsBase
     {

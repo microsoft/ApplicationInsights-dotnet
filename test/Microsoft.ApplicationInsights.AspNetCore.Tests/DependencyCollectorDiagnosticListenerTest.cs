@@ -23,16 +23,6 @@
             this.listener = new DependencyCollectorDiagnosticListener(CommonMocks.MockTelemetryClient(telemetry => this.sentTelemetry = telemetry));
         }
 
-        private static void AssertDependencyTelemetry(ITelemetry telemetry, Uri requestUri)
-        {
-            
-        }
-
-        private static void AssertRequestHeaderValue(HttpRequestMessage request, string headerName)
-        {
-            Assert.False(request.Headers.Contains(headerName));
-        }
-
         private static void AssertRequest(HttpRequestMessage request)
         {
             Assert.True(request.Headers.Contains(RequestResponseHeaders.SourceInstrumentationKeyHeader));
@@ -162,73 +152,5 @@
             listener.OnResponseReceived(new HttpResponseMessage(HttpStatusCode.OK), new Guid(), 1);
             Assert.Null(this.sentTelemetry); // If there wasn't an associated request sent, then OnResponseReceived() shouldn't do anything.
         }
-
-        //[Fact]
-        //public void TestRequestUriIsPopulatedByMiddleware()
-        //{
-        //    var context = new DefaultHttpContext();
-        //    context.Request.Scheme = HttpRequestScheme;
-        //    context.Request.Host = this.httpRequestHost;
-        //    context.Request.Path = this.httpRequestPath;
-        //    context.Request.QueryString = this.httpRequestQueryString;
-
-        //    middleware.OnBeginRequest(context, 0);
-        //    middleware.OnEndRequest(context, 0);
-
-        //    var telemetry = (RequestTelemetry)sentTelemetry;
-        //    Assert.NotNull(telemetry.Url);
-
-        //    Assert.Equal(
-        //        new Uri(string.Format(CultureInfo.InvariantCulture, "{0}://{1}{2}{3}", HttpRequestScheme, httpRequestHost.Value, httpRequestPath.Value, httpRequestQueryString.Value)),
-        //        telemetry.Url);
-        //}
-
-        //[Fact]
-        //public void RequestWillBeMarkedAsFailedForRunawayException()
-        //{
-        //    var context = new DefaultHttpContext();
-        //    context.Request.Scheme = HttpRequestScheme;
-        //    context.Request.Host = this.httpRequestHost;
-
-        //    middleware.OnBeginRequest(context, 0);
-        //    middleware.OnDiagnosticsUnhandledException(context, null);
-        //    middleware.OnEndRequest(context, 0);
-
-        //    Assert.False(((RequestTelemetry)this.sentTelemetry).Success);
-        //}
-
-        //[Fact]
-        //public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest()
-        //{
-        //    var context = new DefaultHttpContext();
-        //    context.Request.Scheme = HttpRequestScheme;
-        //    context.Request.Method = "POST";
-        //    context.Request.Host = this.httpRequestHost;
-        //    context.Request.Path = "/Test";
-
-        //    middleware.OnBeginRequest(context, 0);
-        //    middleware.OnEndRequest(context, 0);
-
-        //    var telemetry = (RequestTelemetry)sentTelemetry;
-
-        //    Assert.Equal("POST /Test", telemetry.Name);
-        //}
-
-        //[Fact]
-        //public void OnEndRequestSetsRequestNameToMethodAndPath()
-        //{
-        //    var context = new DefaultHttpContext();
-        //    context.Request.Scheme = HttpRequestScheme;
-        //    context.Request.Method = "GET";
-        //    context.Request.Host = this.httpRequestHost;
-        //    context.Request.Path = "/Test";
-
-        //    middleware.OnBeginRequest(context, 0);
-        //    middleware.OnEndRequest(context, 0);
-
-        //    var telemetry = (RequestTelemetry)sentTelemetry;
-
-        //    Assert.Equal("GET /Test", telemetry.Name);
-        //}
     }
 }
