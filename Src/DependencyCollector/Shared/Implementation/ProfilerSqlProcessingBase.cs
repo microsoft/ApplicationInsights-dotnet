@@ -8,11 +8,10 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;    
+    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
-    /// Concrete class with all processing logic to generate RDD data from the calls backs
-    /// received from Profiler instrumentation for SQL.    
+    /// Base class with all processing logic to generate dependencies from the callbacks received from Profiler instrumentation for SQL.    
     /// </summary>
     internal abstract class ProfilerSqlProcessingBase
     {
@@ -36,9 +35,9 @@
 
             this.TelemetryTable = telemetryTupleHolder;
             this.telemetryClient = new TelemetryClient(configuration);
-           
-            // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
-           
+
+            // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether dependency was collected by profiler/framework
+
             // For directly using TrackDependency(), version will be simply what is set by core
             string prefix = "rdd" + RddSource.Profiler + ":";
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(prefix);
@@ -176,14 +175,14 @@
         /// </summary>
         /// <param name="thisObj">The SQL object.</param>
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        internal abstract string GetResourceName(object thisObj);
+        internal abstract string GetDependencyName(object thisObj);
 
         /// <summary>
         /// Gets SQL resource target name.
         /// </summary>
         /// <param name="thisObj">The SQL object.</param>
         /// <returns>The resource target name if possible otherwise empty string.</returns>
-        internal abstract string GetResourceTarget(object thisObj);
+        internal abstract string GetDependencyTarget(object thisObj);
 
         /// <summary>
         /// Gets SQL resource command text.
@@ -207,7 +206,7 @@
                     return null;
                 }
 
-                string resourceName = this.GetResourceName(thisObj);
+                string resourceName = this.GetDependencyName(thisObj);
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
 
                 if (string.IsNullOrEmpty(resourceName))
@@ -235,7 +234,7 @@
 
                 telemetry.Name = resourceName;
                 telemetry.Type = RemoteDependencyConstants.SQL;
-                telemetry.Target = this.GetResourceTarget(thisObj);
+                telemetry.Target = this.GetDependencyTarget(thisObj);
                 telemetry.Data = commandText;
 
                 // We use weaktables to store the thisObj for correlating begin with end call.
@@ -259,6 +258,12 @@
         {
             try
             {
+                if (thisObj == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndAsyncSql", "thisObj == null");
+                    return;
+                }
+
                 Task task = taskObj as Task;
                 if (task == null)
                 {
@@ -273,7 +278,7 @@
                     Exception exceptionObj = null;
                     if (t.IsFaulted)
                     {
-                        exceptionObj = t.Exception != null && t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                        exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
                     }
 
                     this.OnEnd(exceptionObj, thisObj);
@@ -294,10 +299,16 @@
         {
             try
             {
+                if (thisObj == null)
+                {
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndExceptionAsyncSql", "thisObj == null");
+                    return;
+                }
+
                 Task task = taskObj as Task;
                 if (task == null)
                 {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndExceptionAsync", "task == null");
+                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndExceptionAsyncSql", "task == null");
                     return;
                 }
 
@@ -309,7 +320,7 @@
                     if (t.IsFaulted)
                     {
                         // track item only in case of failure
-                        exceptionObj = t.Exception != null && t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                        exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
                         this.OnEnd(exceptionObj, thisObj);
                     }
                     else
@@ -320,7 +331,7 @@
             }
             catch (Exception ex)
             {
-                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndExceptionAsync", ex);
+                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndExceptionAsyncSql", ex);
             }
         }
 

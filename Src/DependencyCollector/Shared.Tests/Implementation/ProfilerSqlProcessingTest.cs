@@ -37,6 +37,7 @@
         private static readonly string ExpectedResourceName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
         private static readonly string ExpectedData = MyStoredProcName;
         private static readonly string ExpectedTarget = DatabaseServer + " | " + DataBaseName;
+        private static readonly string ExpectedConnectionName = DatabaseServer + " | " + DataBaseName + " | Open";
         private static readonly string ExpectedType = RemoteDependencyConstants.SQL;
         private static readonly string ExpectedCommandTextForSqlConnection = "Open";
 
@@ -263,7 +264,7 @@
         public void ResourceNameForNonStoredProcIsCollectedCorrectly()
         {
             SqlCommand command = GetSqlCommandTestForQuery();
-            string actualResourceName = this.sqlCommandProcessingProfiler.GetResourceName(command);
+            string actualResourceName = this.sqlCommandProcessingProfiler.GetDependencyName(command);
             Assert.AreEqual(ExpectedTarget, actualResourceName);
         }
 
@@ -370,10 +371,10 @@
         public void FieldsForSqlConnectionAreCollectedCorrectly()
         {
             SqlConnection connection = GetSqlConnectionTest();
-            string actualResourceName = this.sqlConnectionProcessingProfiler.GetResourceName(connection);
-            Assert.AreEqual(ExpectedTarget, actualResourceName);
+            string actualResourceName = this.sqlConnectionProcessingProfiler.GetDependencyName(connection);
+            Assert.AreEqual(ExpectedConnectionName, actualResourceName);
 
-            string actualTargetName = this.sqlConnectionProcessingProfiler.GetResourceTarget(connection);
+            string actualTargetName = this.sqlConnectionProcessingProfiler.GetDependencyTarget(connection);
             Assert.AreEqual(ExpectedTarget, actualTargetName);
 
             string actualCommandText = this.sqlConnectionProcessingProfiler.GetCommandName(connection);
@@ -388,7 +389,7 @@
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            var returnTaskPassed = Task.Factory.StartNew(() => { });
+            var returnTaskPassed = Task.Factory.StartNew(() => { });            
 
             var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
             var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(context, returnTaskPassed, command);
@@ -406,7 +407,8 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: true,
                 expectedResultCode: "0",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
         }
 
         [TestMethod]
@@ -464,7 +466,8 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
         }
 
         [TestMethod]
@@ -493,7 +496,8 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
         }
 
         [TestMethod]
@@ -518,7 +522,7 @@
         }
 
         [TestMethod]
-        public void OnEndExceptionAsyncNotSendsTelemetryIfSuccess_1ArgumentOverride()
+        public void OnEndExceptionAsyncDoesNotSendTelemetryIfSuccess_1ArgumentOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
 
@@ -540,7 +544,7 @@
         }
 
         [TestMethod]
-        public void OnEndExceptionAsyncNotSendsTelemetryIfSuccess_2ArgumentsOverride()
+        public void OnEndExceptionAsyncDoesNotSendTelemetryIfSuccess_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
 
@@ -587,7 +591,8 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
         }
 
         [TestMethod]
@@ -616,7 +621,8 @@
                 expectedName: GetResourceNameForStoredProcedure(command),
                 expectedSuccess: false,
                 expectedResultCode: "10",
-                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
         }
 
         [TestMethod]
@@ -645,14 +651,15 @@
             string expectedName, 
             bool expectedSuccess,
             string expectedResultCode,
-            double timeBetweenBeginEndInMs)
+            double timeBetweenBeginEndInMs,
+            bool async = false)
         {            
             Assert.AreEqual(expectedName, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(ExpectedType, remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(expectedSuccess, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(expectedResultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
-            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + 1, "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + (async ? 2 : 1), "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
             Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds >= 0);
 
             string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");

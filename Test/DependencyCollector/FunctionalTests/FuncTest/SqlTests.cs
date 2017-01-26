@@ -1,6 +1,7 @@
 ﻿namespace FuncTest
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
 
@@ -10,6 +11,7 @@
     using FuncTest.Helpers;
     using FuncTest.Serialization;
     
+
     [TestClass]
     public class SqlTests
     {
@@ -351,18 +353,29 @@
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpen", true, false);
+                this.TestSqlConnectionExecute("SqlConnectionOpen", true, "", false);
             }
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestSqlConnectionOpenException()
+        public void TestSqlConnectionOpenAccountException()
         {
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpen", false, false);
+                this.TestSqlConnectionExecute("SqlConnectionOpen", false, "account", false);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenServerException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpen", false, "server", false);
             }
         }
 
@@ -373,18 +386,29 @@
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", true, true);
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", true, "", true);
             }
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestSqlConnectionOpenAsyncException()
+        public void TestSqlConnectionOpenAsyncAccountException()
         {
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", false, true);
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", false, "account", true);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncServerException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsync", false, "server", true);
             }
         }
 
@@ -395,29 +419,40 @@
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", true, false);
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", true, "", false);
             }
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
-        public void TestSqlConnectionOpenAsyncAwaitException()
+        public void TestSqlConnectionOpenAsyncAwaitAccountException()
         {
             // instrumentation works only in case of profiler
             if (RegistryCheck.IsStatusMonitorInstalled)
             {
-                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", false, false);
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", false, "account", false);
+            }
+        }
+
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestMethod]
+        public void TestSqlConnectionOpenAsyncAwaitServerException()
+        {
+            // instrumentation works only in case of profiler
+            if (RegistryCheck.IsStatusMonitorInstalled)
+            {
+                this.TestSqlConnectionExecute("SqlConnectionOpenAsyncAwait", false, "server", false);
             }
         }
 
         #endregion
 
-        private void TestSqlConnectionExecute(string type, bool success, bool async)
+        private void TestSqlConnectionExecute(string type, bool success, string exceptionType, bool async)
         {
             DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
                  application =>
                  {
-                     string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&success=" + success);
+                     string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&success=" + success + "&exceptionType=" + exceptionType);
 
                      //// The above request would have trigged RDD module to monitor and create RDD telemetry
                      //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
@@ -434,14 +469,17 @@
                      { 
                          Assert.AreEqual(1, sqlItems.Length, "Total Count of Remote Dependency items for SQL collected is wrong.");
 
+                         bool isAccountException = exceptionType.Equals("account", StringComparison.OrdinalIgnoreCase);
                          this.Validate(
                              sqlItems[0],
-                             ResourceNameSQLToWrongDatabase,
+                             isAccountException ? ResourceNameSQLToDevApm : ResourceNameSQLToWrongDatabase,
                              "Open",
                              TimeSpan.FromSeconds(20),
                              successFlagExpected: success,
-                             sqlErrorCodeExpected: "-1",
-                             sqlErrorMessageExpected: "A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SQL Network Interfaces, error: 26 - Error Locating Server/Instance Specified)");
+                             sqlErrorCodesExpected: isAccountException ? new List<string> { "233", "18456" } : new List<string> { "-1" },
+                             sqlErrorMessagesExpected: isAccountException
+                                ? new List<string> { "A connection was successfully established with the server, but then an error occurred during the login process.", "Login failed for user 'AiUser'." }
+                                : new List<string> { "A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible." });
                      }
                  });
         }
@@ -542,6 +580,54 @@
                 if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
                 {
                     Assert.AreEqual(sqlErrorMessageExpected, itemToValidate.data.baseData.properties["ErrorMessage"]);
+                }
+
+                if (string.IsNullOrEmpty(commandNameExpected))
+                {
+                    Assert.IsNull(itemToValidate.data.baseData.data);
+                }
+                else
+                {
+                    Assert.IsTrue(itemToValidate.data.baseData.data.Equals(commandNameExpected), "The command name is incorrect");
+                }
+            }
+
+            DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
+        }
+
+        private void Validate(TelemetryItem<RemoteDependencyData> itemToValidate,
+           string targetExpected,
+           string commandNameExpected,
+           TimeSpan accessTimeMax,
+           bool successFlagExpected,
+           List<string> sqlErrorCodesExpected,
+           List<string> sqlErrorMessagesExpected)
+        {
+            // For http name is validated in test itself
+            Assert.IsTrue(itemToValidate.data.baseData.target.Contains(targetExpected),
+                "The remote dependancy target is incorrect. Expected: " + targetExpected +
+                ". Collected: " + itemToValidate.data.baseData.target);
+
+            Assert.IsTrue(sqlErrorCodesExpected.Contains(itemToValidate.data.baseData.resultCode));
+
+            //If the command name is expected to be empty, the deserializer will make the CommandName null
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
+            {
+                // Additional checks for profiler collection
+                if (sqlErrorMessagesExpected != null)
+                {
+                    bool found = false;
+                    var errorMessage = itemToValidate.data.baseData.properties["ErrorMessage"];
+                    foreach (var message in sqlErrorMessagesExpected)
+                    {
+                        if (errorMessage.Contains(message))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    Assert.IsTrue(found, "The error message is incorrect");
                 }
 
                 if (string.IsNullOrEmpty(commandNameExpected))

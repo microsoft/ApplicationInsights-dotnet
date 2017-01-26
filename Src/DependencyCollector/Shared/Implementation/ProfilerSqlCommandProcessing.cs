@@ -6,8 +6,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
-    /// Concrete class with all processing logic to generate RDD data from the calls backs
-    /// received from Profiler instrumentation for SQL Command.    
+    /// Concrete class with all processing logic to generate dependencies from the callbacks received from Profiler instrumentation for SQL command.    
     /// </summary>
     internal sealed class ProfilerSqlCommandProcessing : ProfilerSqlProcessingBase
     {
@@ -23,9 +22,8 @@
         /// Gets SQL command resource name.
         /// </summary>
         /// <param name="thisObj">The SQL command.</param>
-        /// <remarks>Before we have clarity with SQL team around EventSource instrumentation, providing name as a concatenation of parameters.</remarks>
         /// <returns>The resource name if possible otherwise empty string.</returns>
-        internal override string GetResourceName(object thisObj)
+        internal override string GetDependencyName(object thisObj)
         {
             SqlCommand command = thisObj as SqlCommand;
             string resource = string.Empty;
@@ -51,7 +49,7 @@
         /// </summary>
         /// <param name="thisObj">The SQL command.</param>
         /// <returns>The resource target name if possible otherwise empty string.</returns>
-        internal override string GetResourceTarget(object thisObj)
+        internal override string GetDependencyTarget(object thisObj)
         {
             SqlCommand command = thisObj as SqlCommand;
             string result = string.Empty;
