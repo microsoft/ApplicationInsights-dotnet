@@ -295,6 +295,32 @@
         }
 
         [TestMethod]
+        public void LoadInstanceHandlesEnumPropertiesWithNumericValue()
+        {
+            var definition = new XElement(
+                "Definition",
+                new XElement("EnumProperty", "3"));
+
+            var original = new StubClassWithProperties();
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
+
+            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Warning, original.EnumProperty);
+        }
+
+        [TestMethod]
+        public void LoadInstanceHandlesEnumPropertiesWithEnumerationValueName()
+        {
+            var definition = new XElement(
+                "Definition",
+                new XElement("EnumProperty", "Informational"));
+
+            var original = new StubClassWithProperties();
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
+
+            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Informational, original.EnumProperty);
+        }
+
+        [TestMethod]
         public void LoadInstanceConvertsValueToExpectedTypeGivenXmlDefinitionWithNoChildElements()
         {
             var definition = new XElement("Definition", "42");
@@ -923,6 +949,8 @@
             public TimeSpan TimeSpanProperty { get; set; }
 
             public StubClassWithProperties ChildProperty { get; set; }
+
+            public System.Diagnostics.Tracing.EventLevel EnumProperty { get; set; }
         }
 
         private class StubConfigurable : ITelemetryModule

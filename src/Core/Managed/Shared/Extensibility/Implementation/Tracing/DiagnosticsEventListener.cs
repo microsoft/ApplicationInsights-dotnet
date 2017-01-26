@@ -23,8 +23,13 @@
 
         protected override void OnEventWritten(EventWrittenEventArgs eventSourceEvent)
         {
-            var metadata = new EventMetaData
+            if (eventSourceEvent == null)
             {
+                return;
+            }
+
+            var metadata = new EventMetaData
+            {                
                 Keywords = (long)eventSourceEvent.Keywords,
                 MessageFormat = eventSourceEvent.Message,
                 EventId = eventSourceEvent.EventId,

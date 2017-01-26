@@ -20,7 +20,7 @@ We recommend consuming the library as a NuGet package. Make sure to look for the
 
 ### Initialize a TelemetryClient
 
-The `TelemetryClient` object is the primary root object for the library. Almost all functionality around telemetry sending is located on this object. You must intiialize an instance of this object and populate it with your Instrumentation Key to identify your data.
+The `TelemetryClient` object is the primary root object for the library. Almost all functionality around telemetry sending is located on this object. You must initialize an instance of this object and populate it with your Instrumentation Key to identify your data.
 
 ```C#
 using Microsoft.ApplicationInsights;
@@ -62,7 +62,7 @@ Read about [how to use the API and see the results in the portal][api-overview].
 ## Branches
 
 - [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
-- [development][develop] contains the code for the *next* release. 
+- [develop][develop] contains the code for the *next* release. 
 
 ## Contributing
 
