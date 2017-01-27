@@ -100,7 +100,7 @@
         }
 
         /// <summary>
-        /// On end async callback for methods with 1 parameter.
+        /// On end async callback for methods with 1 parameter. Sends data only if returned task (returnValue) is faulted.
         /// </summary>
         public object OnEndExceptionAsyncForOneParameter(object context, object returnValue, object thisObj)
         {
@@ -127,7 +127,7 @@
         }
 
         /// <summary>
-        /// On end async callback for methods with 2 parameter.
+        /// On end async callback for methods with 2 parameter. Sends data only if returned task (returnValue) is faulted.
         /// </summary>
         public object OnEndExceptionAsyncForTwoParameters(object context, object returnValue, object thisObj, object parameter1)
         {
