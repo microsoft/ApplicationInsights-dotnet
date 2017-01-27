@@ -275,13 +275,20 @@
 
                 task.ContinueWith(t =>
                 {
-                    Exception exceptionObj = null;
-                    if (t.IsFaulted)
+                    try
                     {
-                        exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
-                    }
+                        Exception exceptionObj = null;
+                        if (t.IsFaulted)
+                        {
+                            exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                        }
 
-                    this.OnEnd(exceptionObj, thisObj);
+                        this.OnEndInternal(exceptionObj, thisObj);
+                    }
+                    catch (Exception ex)
+                    {
+                        DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndAsyncSql", ex);
+                    }
                 });
             }            
             catch (Exception ex)
@@ -316,16 +323,23 @@
 
                 task.ContinueWith(t =>
                 {
-                    Exception exceptionObj = null;
-                    if (t.IsFaulted)
+                    try
                     {
-                        // track item only in case of failure
-                        exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
-                        this.OnEnd(exceptionObj, thisObj);
+                        Exception exceptionObj = null;
+                        if (t.IsFaulted)
+                        {
+                            // track item only in case of failure
+                            exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
+                            this.OnEndInternal(exceptionObj, thisObj);
+                        }
+                        else
+                        {
+                            this.TelemetryTable.Remove(thisObj);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        this.TelemetryTable.Remove(thisObj);
+                        DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndExceptionAsyncSql", ex);
                     }
                 });
             }
@@ -344,56 +358,66 @@
         {
             try
             {
-                if (thisObj == null)
-                {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndSql", "thisObj == null");
-                    return;
-                }
-
-                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
-
-                DependencyTelemetry telemetry = null;
-                Tuple<DependencyTelemetry, bool> telemetryTuple = null;
-                bool isCustomGenerated = false;
-
-                telemetryTuple = this.TelemetryTable.Get(thisObj);
-                if (telemetryTuple != null)
-                {
-                    telemetry = telemetryTuple.Item1;
-                    isCustomGenerated = telemetryTuple.Item2;
-                }
-
-                if (telemetry == null)
-                {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
-                    return;
-                }
-
-                if (!isCustomGenerated)
-                {
-                    this.TelemetryTable.Remove(thisObj);
-
-                    var exception = exceptionObj as Exception;
-                    if (exception != null)
-                    {
-                        telemetry.Success = false;
-                        telemetry.Properties.Add("ErrorMessage", exception.Message);
-
-                        var sqlEx = exception as SqlException;
-                        telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
-                    }
-                    else
-                    {
-                        telemetry.Success = true;
-                        telemetry.ResultCode = "0";
-                    }
-
-                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
-                }               
+                this.OnEndInternal(exceptionObj, thisObj);            
             }
             catch (Exception ex)
             {
                 DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnEndSql", ex);
+            }
+        }
+
+        /// <summary>
+        ///  Common helper for all End Callbacks.
+        /// </summary>
+        /// <param name="exceptionObj">The exception object if any.</param>
+        /// <param name="thisObj">This object.</param>
+        private void OnEndInternal(object exceptionObj, object thisObj)
+        {
+            if (thisObj == null)
+            {
+                DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnEndSql", "thisObj == null");
+                return;
+            }
+
+            DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
+
+            DependencyTelemetry telemetry = null;
+            Tuple<DependencyTelemetry, bool> telemetryTuple = null;
+            bool isCustomGenerated = false;
+
+            telemetryTuple = this.TelemetryTable.Get(thisObj);
+            if (telemetryTuple != null)
+            {
+                telemetry = telemetryTuple.Item1;
+                isCustomGenerated = telemetryTuple.Item2;
+            }
+
+            if (telemetry == null)
+            {
+                DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
+                return;
+            }
+
+            if (!isCustomGenerated)
+            {
+                this.TelemetryTable.Remove(thisObj);
+
+                var exception = exceptionObj as Exception;
+                if (exception != null)
+                {
+                    telemetry.Success = false;
+                    telemetry.Properties.Add("ErrorMessage", exception.Message);
+
+                    var sqlEx = exception as SqlException;
+                    telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
+                }
+                else
+                {
+                    telemetry.Success = true;
+                    telemetry.ResultCode = "0";
+                }
+
+                ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
             }
         }
     }
