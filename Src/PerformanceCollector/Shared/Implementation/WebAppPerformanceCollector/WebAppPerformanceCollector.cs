@@ -86,28 +86,21 @@
             bool isCustomCounter,
             out string error,
             bool blockCounterWithInstancePlaceHolder)
-        {
-            error = null;
-
+        {            
             try
             {
-                bool useInstancePlaceHolder = false;
-                string parsingError = null;
-                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, out useInstancePlaceHolder, out parsingError);
-
-                if (!string.IsNullOrEmpty(parsingError))
-                {
-                    error = parsingError;
-                }
-
+                bool useInstancePlaceHolder = false;                
+                var pc = PerformanceCounterUtility.CreateAndValidateCounter(perfCounter, null, null, out useInstancePlaceHolder, out error);
+                
                 if (pc != null)
                 {
                     this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), pc.CategoryName, pc.CounterName, pc.InstanceName, useInstancePlaceHolder, false);
                 }
                 else
                 {
+                    // Even if validation failed, we might still be able to collect perf counter in WebApp.
                     this.RegisterPerformanceCounter(perfCounter, this.GetCounterReportAsName(perfCounter, reportAs), string.Empty, perfCounter, string.Empty, useInstancePlaceHolder, false);
-                }
+                }                
             }
             catch (Exception e)
             {
