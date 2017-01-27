@@ -163,6 +163,8 @@ namespace Microsoft.ApplicationInsights.Channel
                     // call Set to to prevent waiting for the next interval. 
                     this.startRunnerEvent.Set();
                 }
+
+                this.Flush(default(TimeSpan));
             }
         }
     }

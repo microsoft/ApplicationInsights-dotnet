@@ -20,6 +20,42 @@
             Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().IsPublic);
         }
 
+        [TestMethod]
+        public void NewTelemetryConfigurationWithChannelUsesSpecifiedChannel()
+        {
+            StubTelemetryChannel stubChannel = new StubTelemetryChannel();
+            TelemetryConfiguration config = new TelemetryConfiguration(stubChannel);
+            Assert.Same(stubChannel, config.TelemetryChannel);
+        }
+
+        [TestMethod]
+        public void NewTelemetryConfigurationWithoutChannelCreatesDefaultInMemoryChannel()
+        {
+            TelemetryConfiguration config = new TelemetryConfiguration();
+            Assert.NotNull(config.TelemetryChannel);
+            Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
+        }
+
+        [TestMethod]
+        public void NewTelemetryConfigurationWithInstrumentationKeyAndChannelUsesSpecifiedKeyAndChannel()
+        {
+            string expectedKey = "expected";
+            StubTelemetryChannel stubChannel = new StubTelemetryChannel();
+            TelemetryConfiguration config = new TelemetryConfiguration(expectedKey, stubChannel);
+            Assert.Equal(expectedKey, config.InstrumentationKey);
+            Assert.Same(stubChannel, config.TelemetryChannel);
+        }
+
+        [TestMethod]
+        public void NewTelemetryConfigurationWithInstrumentationKeyButNoChannelCreatesDefaultInMemoryChannel()
+        {
+            string expectedKey = "expected";
+            TelemetryConfiguration config = new TelemetryConfiguration(expectedKey);
+            Assert.Equal(expectedKey, config.InstrumentationKey);
+            Assert.NotNull(config.TelemetryChannel);
+            Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
+        }
+
         #region Active
 
         [TestMethod]

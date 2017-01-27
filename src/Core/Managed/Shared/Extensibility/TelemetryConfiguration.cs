@@ -85,16 +85,6 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the TelemetryConfiguration class.
-        /// Frees resources when a TelemetryConfiguration instance is garbage collected if it was not properly disposed of.
-        /// </summary>
-        ~TelemetryConfiguration()
-        {
-            // Cleanup managed resources if the instance was not properly disposed of.
-            this.Dispose(true);
-        }
-
-        /// <summary>
         /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
         /// If the configuration file does not exist, the active configuration instance is initialized with minimum defaults 
         /// needed to send telemetry to Application Insights.
@@ -336,17 +326,16 @@
                 this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
 
-                ITelemetryChannel telemetryChannel = this.TelemetryChannel;
-                if (telemetryChannel != null)
+                if (this.telemetryChannel != null)
                 {
-                    telemetryChannel.Dispose();
-                    telemetryChannel = null;
+                    this.telemetryChannel.Dispose();
+                    this.telemetryChannel = null;
                 }
 
-                TelemetryProcessorChain processorChain = this.telemetryProcessorChain;
-                if (processorChain != null)
+                if (this.telemetryProcessorChain != null)
                 {
-                    processorChain.Dispose();
+                    // Not setting this.telemetryProcessorChain to null because calls to the property getter would reinitialize it.
+                    this.telemetryProcessorChain.Dispose();
                 }
             }
         }
