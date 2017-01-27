@@ -20,6 +20,16 @@
         private const string ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
 
         /// <summary>
+        /// Invalid connection string to database.
+        /// </summary> 
+        private const string InvalidConnectionString = @"Data Source=invalid\SQLEXPRESS;Initial Catalog=RDDTestDatabase;Integrated Security=True";
+
+        /// <summary>
+        /// Connection string to database with invalid account.
+        /// </summary> 
+        private const string InvalidAccountConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;User ID = AiUser;Password=Some";        
+
+        /// <summary>
         /// Valid SQL Query. The wait for delay of 6msec is used to prevent access time of less than 1msec. SQL is not accurate below 3, so used 6 msec delay.
         /// </summary> 
         private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
@@ -190,6 +200,18 @@
                         sqlQueryTouse += " FOR XML AUTO";
                         SqlCommandHelper.ExecuteXmlReader(ConnectionString, sqlQueryTouse);
                         break;
+                    case "SqlConnectionOpen":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnection(this.GetConnectionString(success, Request.QueryString["exceptionType"]));
+                        break;
+                    case "SqlConnectionOpenAsync":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnectionAsync(this.GetConnectionString(success, Request.QueryString["exceptionType"]));
+                        break;
+                    case "SqlConnectionOpenAsyncAwait":
+                        sqlQueryTouse = "Open";
+                        SqlCommandHelper.OpenConnectionAsyncAwait(this.GetConnectionString(success, Request.QueryString["exceptionType"]));
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException("Request Parameter type is not mapped to an action: " + type);
                 }
@@ -202,6 +224,17 @@
                 Response.Write(QueryToExecuteLabel + sqlQueryTouse);
                 this.lblResult.Text = "The following error occured while attempting to perform requested action" + ex;
             }
+        }
+
+        private string GetConnectionString(bool success, string exceptionType)
+        {
+            string result = ConnectionString;
+            if (!success)
+            {
+                result = exceptionType.Equals("account", StringComparison.OrdinalIgnoreCase) ? InvalidAccountConnectionString : InvalidConnectionString;
+            }
+
+            return result;
         }
 
         /// <summary>

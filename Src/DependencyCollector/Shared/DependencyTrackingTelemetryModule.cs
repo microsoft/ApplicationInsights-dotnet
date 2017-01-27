@@ -20,7 +20,8 @@
         private FrameworkSqlEventListener sqlEventListener;
 #endif
 
-        private ProfilerSqlProcessing sqlProcessing;
+        private ProfilerSqlCommandProcessing sqlCommandProcessing;
+        private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;        
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
@@ -116,10 +117,12 @@
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
             this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains);
-            this.sqlProcessing = new ProfilerSqlProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
+            this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
+            this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
             ProfilerRuntimeInstrumentation.DecorateProfilerForHttp(ref this.httpProcessing);
-            ProfilerRuntimeInstrumentation.DecorateProfilerForSql(ref this.sqlProcessing);
+            ProfilerRuntimeInstrumentation.DecorateProfilerForSqlCommand(ref this.sqlCommandProcessing);
+            ProfilerRuntimeInstrumentation.DecorateProfilerForSqlConnection(ref this.sqlConnectionProcessing);
         }
 
         internal virtual bool IsProfilerAvailable()
