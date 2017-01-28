@@ -659,7 +659,11 @@
             Assert.AreEqual(expectedSuccess, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(expectedResultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
-            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + (async ? 2 : 1), "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            if (!async)
+            {
+                Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + 1, "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            }
+
             Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds >= 0);
 
             string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
