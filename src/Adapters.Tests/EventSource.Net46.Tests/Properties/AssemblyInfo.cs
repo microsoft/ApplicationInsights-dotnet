@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="AssemblyInfo.cs" company="Microsoft">
 // Copyright (c) Microsoft Corporation. 
-// All rights reserved.  2013
+// All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
