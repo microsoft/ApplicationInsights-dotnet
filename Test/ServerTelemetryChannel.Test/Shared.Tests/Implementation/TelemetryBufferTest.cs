@@ -91,6 +91,18 @@
                 Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
                 Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 0);
                 Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 1000); // 1001 is minimum anything low would throw.
+
+                bool exceptionThrown = false;
+                try
+                {
+                    buffer.MaximumBacklogSize = 1001; // 1001 is valid and should not throw.
+                }
+                catch(Exception)
+                {
+                    exceptionThrown = true;
+                }
+
+                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlogsize to 1001");                
             }
         }
 
@@ -117,7 +129,7 @@
             }
 
             [TestMethod]
-            public void TelemetryBufferDoNotGrowBeyondMaxBacklogSize()
+            public void TelemetryBufferDoesNotGrowBeyondMaxBacklogSize()
             {
                 //TelemetryBufferWhichDoesNothingOnFlush does not flush items on buffer full,to test ItemDrop scenario.
                 var buffer = new TelemetryBufferWhichDoesNothingOnFlush( new StubTelemetrySerializer(), new StubApplicationLifecycle() );

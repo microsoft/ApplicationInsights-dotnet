@@ -65,7 +65,7 @@
         }
 
         [TestMethod]
-        public void TelemetryBufferDoNotGrowBeyondMaxBacklogSize()
+        public void TelemetryBufferDoesNotGrowBeyondMaxBacklogSize()
         {            
             TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumUnsentBacklogSize= 1002};
             buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
