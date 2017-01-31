@@ -24,7 +24,7 @@
         public void NewTelemetryConfigurationWithChannelUsesSpecifiedChannel()
         {
             StubTelemetryChannel stubChannel = new StubTelemetryChannel();
-            TelemetryConfiguration config = new TelemetryConfiguration(stubChannel);
+            TelemetryConfiguration config = new TelemetryConfiguration(string.Empty, stubChannel);
             Assert.Same(stubChannel, config.TelemetryChannel);
         }
 

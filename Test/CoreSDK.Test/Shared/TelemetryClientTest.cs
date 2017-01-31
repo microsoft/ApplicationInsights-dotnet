@@ -583,7 +583,7 @@
 
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration(channel);
+            var configuration = new TelemetryConfiguration(string.Empty, channel);
             var client = new TelemetryClient(configuration);
 
             string environmentKey = Guid.NewGuid().ToString();
@@ -606,7 +606,7 @@
 
             ITelemetry sentTelemetry = null;
             var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
-            var configuration = new TelemetryConfiguration(channel);
+            var configuration = new TelemetryConfiguration(string.Empty, channel);
             var client = new TelemetryClient(configuration);
 
             string expectedKey = Guid.NewGuid().ToString();
@@ -637,7 +637,7 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration(channel) { DisableTelemetry = true };
+            var configuration = new TelemetryConfiguration(string.Empty, channel) { DisableTelemetry = true };
 
             var client = new TelemetryClient(configuration) {};
 
@@ -653,7 +653,7 @@
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
             // No instrumentation key set here.
-            var configuration = new TelemetryConfiguration(channel);
+            var configuration = new TelemetryConfiguration(string.Empty, channel);
 
             var initializedTelemetry = new List<ITelemetry>();
             var telemetryInitializer = new StubTelemetryInitializer();
@@ -677,7 +677,7 @@
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
             // No instrumentation key set here.
-            var configuration = new TelemetryConfiguration(channel);
+            var configuration = new TelemetryConfiguration(string.Empty, channel);
 
             var initializedTelemetry = new List<ITelemetry>();
             var telemetryInitializer = new StubTelemetryInitializer();
@@ -861,7 +861,7 @@
         [TestMethod]
         public void TrackCopiesPropertiesFromClientToTelemetry()
         {
-            var configuration = new TelemetryConfiguration(new StubTelemetryChannel());
+            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
             var client = new TelemetryClient(configuration);
             client.Context.Properties["TestProperty"] = "TestValue";
             client.Context.InstrumentationKey = "Test Key";
@@ -875,7 +875,7 @@
         [TestMethod]
         public void TrackDoesNotOverwriteTelemetryPropertiesWithClientPropertiesBecauseExplicitlySetValuesTakePrecedence()
         {
-            var configuration = new TelemetryConfiguration(new StubTelemetryChannel());
+            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel());
             var client = new TelemetryClient(configuration);
             client.Context.Properties["TestProperty"] = "ClientValue";
             client.Context.InstrumentationKey = "Test Key";
@@ -895,7 +895,7 @@
             var initializer = new StubTelemetryInitializer();
             initializer.OnInitialize = telemetry => valueInInitializer = ((ISupportProperties)telemetry).Properties[PropertyName];
 
-            var configuration = new TelemetryConfiguration(new StubTelemetryChannel()) { TelemetryInitializers = { initializer } };
+            var configuration = new TelemetryConfiguration(string.Empty, new StubTelemetryChannel()) { TelemetryInitializers = { initializer } };
 
             var client = new TelemetryClient(configuration);
             client.Context.Properties[PropertyName] = "ClientValue";

@@ -8,6 +8,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using System.ComponentModel;
 
     /// <summary>
     /// Encapsulates the global telemetry configuration typically loaded from the ApplicationInsights.config file.
@@ -35,10 +36,17 @@
         private bool isDisposed = false;
 
         /// <summary>
+        /// Indicates if we created the telemetry channel and should therefore dispose of it.
+        /// </summary>
+        private bool shouldDisposeChannel = false;
+
+        /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
-        public TelemetryConfiguration() : this(new InMemoryChannel())
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TelemetryConfiguration() : this(string.Empty, new InMemoryChannel())
         {
+            this.shouldDisposeChannel = true;
         }
 
         /// <summary>
@@ -47,20 +55,6 @@
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, new InMemoryChannel())
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the TelemetryConfiguration class.
-        /// </summary>
-        /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
-        public TelemetryConfiguration(ITelemetryChannel channel)
-        {
-            if (channel == null)
-            {
-                throw new ArgumentNullException("channel");
-            }
-
-            this.telemetryChannel = channel;
         }
 
         /// <summary>
@@ -241,11 +235,12 @@
                 ITelemetryChannel oldChannel = this.telemetryChannel;
                 this.telemetryChannel = value;
 
-                // If we have a previously assigned channel which is not the same one as the "new" value
-                // passed in then we need to dispose of the old channel to keep from leaking resources.
-                if (oldChannel != null && oldChannel != value)
+                // If we have a previously assigned channel which was created by us and is not the same one as the
+                // "new" value passed in then we need to dispose of the old channel to keep from leaking resources.
+                if (oldChannel != null && oldChannel != value && this.shouldDisposeChannel)
                 {
                     oldChannel.Dispose();
+                    this.shouldDisposeChannel = false; // The new onw wasn't created by us so it should be managed by whoever created it.
                 }
             }
         }
@@ -326,7 +321,7 @@
                 this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
 
-                if (this.telemetryChannel != null)
+                if (this.shouldDisposeChannel && this.telemetryChannel != null)
                 {
                     this.telemetryChannel.Dispose();
                     this.telemetryChannel = null;
