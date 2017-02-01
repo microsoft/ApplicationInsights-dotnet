@@ -126,6 +126,15 @@
             this.WriteEvent(12, exception, this.ApplicationName);
         }
 
+        [Event(
+            13,
+            Message = "[UnobservedTaskException threw another exception:  {0}.]",
+            Level = EventLevel.Error)]
+        public void UnobservedTaskExceptionThrewUnhandledException(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(13, exception, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
