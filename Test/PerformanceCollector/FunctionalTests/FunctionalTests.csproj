@@ -85,6 +85,9 @@
     <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs">
       <Link>Serialization\QuickPulse\MonitoringDataPoint.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\ProcessCpuData.cs">
+      <Link>Serialization\QuickPulse\ProcessCpuData.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Shared\Implementation\QuickPulse\Service contract\RequestTelemetryDocument.cs">
       <Link>Serialization\QuickPulse\RequestTelemetryDocument.cs</Link>
     </Compile>

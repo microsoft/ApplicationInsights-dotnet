@@ -13,38 +13,41 @@
     {
         private IDictionary<string, Tuple<PerformanceCounterData, double>> dummyDictionary;
 
+        private IEnumerable<Tuple<string, int>> dummyTopCpu;
+
         [TestInitialize]
         public void TestInitialize()
         {
             this.dummyDictionary = new Dictionary<string, Tuple<PerformanceCounterData, double>>();
+            this.dummyTopCpu = Enumerable.Empty<Tuple<string, int>>();
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorIsNull()
         {
-            new QuickPulseDataSample(null, this.dummyDictionary);
+            new QuickPulseDataSample(null, this.dummyDictionary, this.dummyTopCpu, false);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenPerfDataIsNull()
         {
-            new QuickPulseDataSample(new QuickPulseDataAccumulator(), null);
+            new QuickPulseDataSample(new QuickPulseDataAccumulator(), null, null, false);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorStartTimestampIsNull()
         {
-            new QuickPulseDataSample(new QuickPulseDataAccumulator() { EndTimestamp = DateTimeOffset.UtcNow }, this.dummyDictionary);
+            new QuickPulseDataSample(new QuickPulseDataAccumulator() { EndTimestamp = DateTimeOffset.UtcNow }, this.dummyDictionary, this.dummyTopCpu, false);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void QuickPulseDataSampleThrowsWhenAccumulatorEndTimestampIsNull()
         {
-            new QuickPulseDataSample(new QuickPulseDataAccumulator() { StartTimestamp = DateTimeOffset.UtcNow }, this.dummyDictionary);
+            new QuickPulseDataSample(new QuickPulseDataAccumulator() { StartTimestamp = DateTimeOffset.UtcNow }, this.dummyDictionary, this.dummyTopCpu, false);
         }
 
         [TestMethod]
@@ -53,7 +56,9 @@
         {
             new QuickPulseDataSample(
                 new QuickPulseDataAccumulator() { StartTimestamp = DateTimeOffset.UtcNow, EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(-1) },
-                this.dummyDictionary);
+                this.dummyDictionary,
+                this.dummyTopCpu,
+                false);
         }
 
         [TestMethod]
@@ -65,7 +70,7 @@
             var accumulator = new QuickPulseDataAccumulator { StartTimestamp = timestampStart, EndTimestamp = timestampEnd };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(timestampStart, dataSample.StartTimestamp);
@@ -88,7 +93,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsPerSecond);
@@ -107,7 +112,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(TimeSpan.FromSeconds(5).TotalMilliseconds / 10.0, dataSample.AIRequestDurationAveInMs);
@@ -125,7 +130,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsFailedPerSecond);
@@ -143,7 +148,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIRequestsSucceededPerSecond);
@@ -166,7 +171,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsPerSecond);
@@ -185,7 +190,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(TimeSpan.FromSeconds(5).TotalMilliseconds / 10.0, dataSample.AIDependencyCallDurationAveInMs);
@@ -203,7 +208,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsFailedPerSecond);
@@ -221,7 +226,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(10.0 / 2, dataSample.AIDependencyCallsSucceededPerSecond);
@@ -240,7 +245,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(0.0, dataSample.AIRequestDurationAveInMs);
@@ -259,7 +264,7 @@
                                   };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(0.0, dataSample.AIDependencyCallDurationAveInMs);
@@ -280,7 +285,7 @@
             };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.AreEqual(3.0 / 2, dataSample.AIExceptionsPerSecond);
@@ -302,10 +307,52 @@
             };
 
             // ACT
-            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary);
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
 
             // ASSERT
             Assert.IsFalse(dataSample.PerfCountersLookup.Any());
+        }
+        #endregion
+
+        #region Top CPU calculation checks
+
+        [TestMethod]
+        public void QuickPulseDataSampleStoresTopCpuData()
+        {
+            // ARRANGE
+            var accumulator = new QuickPulseDataAccumulator
+                                  {
+                                      StartTimestamp = DateTimeOffset.UtcNow,
+                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2)
+                                  };
+
+            // ACT
+            var dataSample = new QuickPulseDataSample(
+                accumulator,
+                this.dummyDictionary,
+                new List<Tuple<string, int>>() { Tuple.Create("Process1", 25) },
+                false);
+
+            // ASSERT
+            Assert.AreEqual("Process1", dataSample.TopCpuData.Single().Item1);
+            Assert.AreEqual(25, dataSample.TopCpuData.Single().Item2);
+        }
+
+        [TestMethod]
+        public void QuickPulseDataSampleHandlesAbsentTopCpuData()
+        {
+            // ARRANGE
+            var accumulator = new QuickPulseDataAccumulator
+            {
+                StartTimestamp = DateTimeOffset.UtcNow,
+                EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2)
+            };
+
+            // ACT
+            var dataSample = new QuickPulseDataSample(accumulator, this.dummyDictionary, this.dummyTopCpu, false);
+
+            // ASSERT
+            Assert.IsFalse(dataSample.TopCpuData.Any());
         }
         #endregion
     }

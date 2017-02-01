@@ -31,12 +31,14 @@
 
         #region Infra init - success
 
-        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. {0}")]
+        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}', DisableTopCpuProcesses: '{2}' ")]
         public void ModuleIsBeingInitializedEvent(
-            string message,
+            string serviceEndpoint,
+            bool disableFullTelemetryItems,
+            bool disableTopCpuProcesses,
             string applicationName = "dummy")
         {
-            this.WriteEvent(1, message ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(1, serviceEndpoint ?? string.Empty, disableFullTelemetryItems, disableTopCpuProcesses, this.ApplicationName);
         }
 
         [Event(3, Level = EventLevel.Informational, Message = @"Performance counter {0} has been successfully registered with QuickPulse performance collector.")]
@@ -69,6 +71,12 @@
         public void CounterReadingFailedEvent(string e, string counter, string applicationName = "dummy")
         {
             this.WriteEvent(11, e ?? string.Empty, counter ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(20, Level = EventLevel.Verbose, Message = @"QuickPulse has failed to read process information. Error message: {0}")]
+        public void ProcessesReadingFailedEvent(string e, string applicationName = "dummy")
+        {
+            this.WriteEvent(20, e ?? string.Empty, this.ApplicationName);
         }
         #endregion
 

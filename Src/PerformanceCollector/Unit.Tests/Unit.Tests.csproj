@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
@@ -73,6 +73,15 @@
   <ItemGroup>
     <Compile Include="Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="PerformanceCollectorTestBase.cs" />
+    <Compile Include="QuickPulse\Mocks\CategorySampleMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseProcessProviderMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulsePerfLibMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseTopCpuCollectorMock.cs" />
+    <Compile Include="QuickPulse\PerfLib\CategorySampleTests.cs" />
+    <Compile Include="QuickPulse\PerfLib\CounterDefinitionSampleTests.cs" />
+    <Compile Include="QuickPulse\PerfLib\PerformanceMonitorTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseProcessProviderTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseTopCpuCollectorTests.cs" />
     <Compile Include="WebAppPerformanceCollectorTests.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />
     <Compile Include="PerformanceCollectorModuleTests.cs" />
@@ -126,6 +135,9 @@
       <Project>{61fc6e01-b40d-4db2-9dab-b27b82f02244}</Project>
       <Name>Perf.Net40</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="QuickPulse\PerfLib\PerfData.data" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

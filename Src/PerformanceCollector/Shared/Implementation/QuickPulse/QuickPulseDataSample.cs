@@ -11,8 +11,9 @@
     /// </summary>
     internal class QuickPulseDataSample
     {
-        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, double>> perfData)
+        public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, double>> perfData, IEnumerable<Tuple<string, int>> topCpuData, bool topCpuDataAccessDenied)
         {
+            // NOTE: it is crucial not to keep any heap references on input parameters, new objects with separate roots must be created!
             if (accumulator == null)
             {
                 throw new ArgumentNullException(nameof(accumulator));
@@ -69,7 +70,11 @@
                 p => (QuickPulseDefaults.CounterOriginalStringMapping.ContainsKey(p.Value.Item1.OriginalString) ? QuickPulseDefaults.CounterOriginalStringMapping[p.Value.Item1.OriginalString] : p.Value.Item1.OriginalString), 
                 p => p.Value.Item2);
 
+            this.TopCpuData = topCpuData.ToArray();
+
             this.TelemetryDocuments = accumulator.TelemetryDocuments.ToArray();
+
+            this.TopCpuDataAccessDenied = topCpuDataAccessDenied;
         }
         
         public DateTimeOffset StartTimestamp { get; }
@@ -102,7 +107,11 @@
         #endregion
 
         public IDictionary<string, double> PerfCountersLookup { get; private set; }
-        
-        public ITelemetryDocument[] TelemetryDocuments { get; set; }
+
+        public IEnumerable<Tuple<string, int>> TopCpuData { get; private set; }
+            
+        public ITelemetryDocument[] TelemetryDocuments { get; private set; }
+
+        public bool TopCpuDataAccessDenied { get; private set; }
     }
 }

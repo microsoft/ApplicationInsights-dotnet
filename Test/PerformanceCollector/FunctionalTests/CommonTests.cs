@@ -125,6 +125,19 @@
                         && ((DependencyTelemetryDocument)d).Name.Contains("Success"))));
         }
 
+        internal static void QuickPulseTopCpuProcesses(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
+        {
+            test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+
+            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.Documents.Any()).ToList();
+
+            Assert.IsTrue(samples.Count > 0);
+
+            Assert.IsTrue(samples.Any(s => s.TopCpuProcesses.Length > 0));
+            Assert.IsFalse(
+                samples.Any(s => s.TopCpuProcesses.Any(p => string.IsNullOrWhiteSpace(p.ProcessName) || p.CpuPercentage < 0 || p.CpuPercentage > 100)));
+        }
+
         private static void AssertSingleSampleWithNonZeroMetric(List<MonitoringDataPoint> samples, string metricName)
         {
             Assert.IsNotNull(samples.SingleOrDefault(item => item.Metrics.Any(m => m.Name == metricName && m.Value > 0)));
