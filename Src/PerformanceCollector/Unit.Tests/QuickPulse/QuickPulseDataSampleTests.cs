@@ -11,10 +11,12 @@
     [TestClass]
     public class QuickPulseDataSampleTests
     {
+        private readonly DateTimeOffset now = new DateTimeOffset(2017, 1, 1, 0, 0, 0, 0, TimeSpan.Zero);
+
         private IDictionary<string, Tuple<PerformanceCounterData, double>> dummyDictionary;
 
         private IEnumerable<Tuple<string, int>> dummyTopCpu;
-
+        
         [TestInitialize]
         public void TestInitialize()
         {
@@ -65,8 +67,8 @@
         public void QuickPulseDataSampleTimestampsItselfCorrectly()
         {
             // ARRANGE
-            var timestampStart = DateTimeOffset.UtcNow;
-            var timestampEnd = DateTimeOffset.UtcNow.AddSeconds(3);
+            var timestampStart = this.now;
+            var timestampEnd = this.now.AddSeconds(3);
             var accumulator = new QuickPulseDataAccumulator { StartTimestamp = timestampStart, EndTimestamp = timestampEnd };
 
             // ACT
@@ -87,8 +89,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIRequestCountAndDurationInTicks = QuickPulseDataAccumulator.EncodeCountAndDuration(10, 0)
                                   };
 
@@ -105,8 +107,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIRequestCountAndDurationInTicks =
                                           QuickPulseDataAccumulator.EncodeCountAndDuration(10, TimeSpan.FromSeconds(5).Ticks)
                                   };
@@ -124,8 +126,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIRequestFailureCount = 10
                                   };
 
@@ -142,8 +144,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIRequestSuccessCount = 10
                                   };
 
@@ -164,8 +166,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIDependencyCallCountAndDurationInTicks =
                                           QuickPulseDataAccumulator.EncodeCountAndDuration(10, 0)
                                   };
@@ -183,8 +185,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIDependencyCallCountAndDurationInTicks =
                                           QuickPulseDataAccumulator.EncodeCountAndDuration(10, TimeSpan.FromSeconds(5).Ticks)
                                   };
@@ -202,8 +204,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIDependencyCallFailureCount = 10
                                   };
 
@@ -220,8 +222,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIDependencyCallSuccessCount = 10
                                   };
 
@@ -238,8 +240,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIRequestCountAndDurationInTicks =
                                           QuickPulseDataAccumulator.EncodeCountAndDuration(0, TimeSpan.FromSeconds(5).Ticks)
                                   };
@@ -257,8 +259,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
                                   {
-                                      StartTimestamp = DateTimeOffset.UtcNow,
-                                      EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                                      StartTimestamp = this.now,
+                                      EndTimestamp = this.now.AddSeconds(2),
                                       AIDependencyCallCountAndDurationInTicks =
                                           QuickPulseDataAccumulator.EncodeCountAndDuration(0, TimeSpan.FromSeconds(5).Ticks)
                                   };
@@ -279,8 +281,8 @@
             // ARRANGE
             var accumulator = new QuickPulseDataAccumulator
             {
-                StartTimestamp = DateTimeOffset.UtcNow,
-                EndTimestamp = DateTimeOffset.UtcNow.AddSeconds(2),
+                StartTimestamp = this.now,
+                EndTimestamp = this.now.AddSeconds(2),
                 AIExceptionCount = 3
             };
 
