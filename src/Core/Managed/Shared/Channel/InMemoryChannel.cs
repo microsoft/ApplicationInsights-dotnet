@@ -10,7 +10,7 @@
     public class InMemoryChannel : ITelemetryChannel
     {
         private readonly TelemetryBuffer buffer;
-        private InMemoryTransmitter transmitter;
+        private readonly InMemoryTransmitter transmitter;
         private bool? developerMode = false;
         private int bufferSize;
 
