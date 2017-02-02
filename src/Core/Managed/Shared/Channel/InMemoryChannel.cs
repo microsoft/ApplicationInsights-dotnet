@@ -116,7 +116,8 @@
 
             if (isDisposed)
             {
-                throw new ObjectDisposedException("InMemoryChannel", "The telemetry channel has been disposed.");
+                CoreEventSource.Log.InMemoryChannelSendCalledAfterBeingDisposed();
+                return;
             }
 
             try
@@ -143,13 +144,10 @@
         /// <param name="timeout">Timeout interval to abort sending.</param>
         public void Flush(TimeSpan timeout)
         {
-            if (!isDisposed)
+            this.transmitter.Flush(timeout);
+            if (isDisposed)
             {
-                this.transmitter.Flush(timeout);
-            }
-            else
-            {
-                throw new ObjectDisposedException("InMemoryChannel", "The telemetry channel has been disposed.");
+                CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
             }
         }
 
@@ -169,7 +167,6 @@
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();
-                    this.transmitter = null;
                 }
 
                 isDisposed = true;

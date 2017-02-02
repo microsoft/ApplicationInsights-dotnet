@@ -361,6 +361,24 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            29,
+            Message = "Flush was called on the telemetry channel (InMemoryChannel) after it was disposed.",
+            Level = EventLevel.Warning)]
+        public void InMemoryChannelFlushedAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(29, this.nameProvider.Name);
+        }
+
+        [Event(
+            30,
+            Message = "Send was called on the telemetry channel (InMemoryChannel) after it was disposed, the telemetry data was dropped.",
+            Level = EventLevel.Warning)]
+        public void InMemoryChannelSendCalledAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(30, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
