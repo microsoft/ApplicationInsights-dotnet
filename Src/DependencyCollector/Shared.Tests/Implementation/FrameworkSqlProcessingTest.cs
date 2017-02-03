@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
@@ -19,7 +20,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+    
     [TestClass]
     public sealed class FrameworkSqlProcessingTest : IDisposable
     {
@@ -53,6 +54,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQuerySucess()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();            
+
             this.sqlProcessingFramework.OnBeginExecuteCallback(
                 id: 1111, 
                 database: "mydatabase",
@@ -61,6 +64,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, synchronous: true, sqlExceptionNumber: 0);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
@@ -69,7 +73,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyConstants.SQL,
                 true,
-                SleepTimeMsecBetweenBeginAndEnd,
+                stopwatch.Elapsed.TotalMilliseconds,
                 "0");
         }
 
@@ -80,6 +84,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQueryAsync()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.sqlProcessingFramework.OnBeginExecuteCallback(
                 id: 1111,
                 database: "mydatabase",
@@ -88,6 +93,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: true, synchronous: false, sqlExceptionNumber: 0);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
@@ -96,7 +102,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyConstants.SQL,
                 true,
-                SleepTimeMsecBetweenBeginAndEnd,
+                stopwatch.Elapsed.TotalMilliseconds,
                 "0");
         }
 
@@ -107,6 +113,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates sqlProcessingFramework sends correct telemetry for non stored procedure in failed call.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetrySqlQueryFailed()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.sqlProcessingFramework.OnBeginExecuteCallback(
                 id: 1111,
                 database: "mydatabase",
@@ -115,6 +122,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Thread.Sleep(SleepTimeMsecBetweenBeginAndEnd);
 
             this.sqlProcessingFramework.OnEndExecuteCallback(id: 1111, success: false, synchronous: true, sqlExceptionNumber: 1);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
@@ -123,7 +131,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 "ourdatabase.database.windows.net | mydatabase",
                 RemoteDependencyConstants.SQL,
                 false,
-                SleepTimeMsecBetweenBeginAndEnd,
+                stopwatch.Elapsed.TotalMilliseconds,
                 "1");
         }
 
@@ -134,6 +142,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates SQLProcessingFramework sends correct telemetry for stored procedure.")]
         public void RddTestSqlProcessingFrameworkSendsCorrectTelemetryStoredProc()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.sqlProcessingFramework.OnBeginExecuteCallback(
                 id: 1111, 
                 dataSource: "ourdatabase.database.windows.net", 
@@ -147,6 +156,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 synchronous: true, 
                 sqlExceptionNumber: 0);
 
+            stopwatch.Stop();
+
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacket(
                 this.sendItems[0] as DependencyTelemetry,
@@ -154,7 +165,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 "apm.MyFavouriteStoredProcedure",
                 RemoteDependencyConstants.SQL,
                 true,
-                SleepTimeMsecBetweenBeginAndEnd, 
+                stopwatch.Elapsed.TotalMilliseconds, 
                 "0");
         }
         #endregion

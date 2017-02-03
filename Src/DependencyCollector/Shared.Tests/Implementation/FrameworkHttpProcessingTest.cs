@@ -3,9 +3,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
+    using System.Diagnostics;
+    using System.Globalization;        
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -76,14 +75,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates HttpProcessingFramework sends correct telemetry on calling OnEndHttpCallback for success.")]
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackSucess()
         {
-            var id = 100;            
+            var id = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.httpProcessingFramework.OnBeginHttpCallback(id, TestUrl);  
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id, true, false, 200);  
-            
+            this.httpProcessingFramework.OnEndHttpCallback(id, true, false, 200);
+            stopwatch.Stop();
+
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
         }
 
         /// <summary>
@@ -94,13 +95,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         public void RddTestHttpProcessingFrameworkOnEndHttpCallbackFailure()
         {
             var id = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.httpProcessingFramework.OnBeginHttpCallback(id, TestUrl);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             this.httpProcessingFramework.OnEndHttpCallback(id, false, false, 500);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, false, this.sleepTimeMsecBetweenBeginAndEnd, "500");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "500");
         }
 
         [TestMethod]
@@ -220,16 +223,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [Description("Validates HttpProcessingFramework calculates startTime from the start of very first BeginGetRequestStream if any")]
         public void RddTestHttpProcessingFrameworkStartTimeFromGetRequestStreamAsync()
         {
-            var id1 = 100;            
+            var id1 = 100;
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.httpProcessingFramework.OnBeginHttpCallback(id1, TestUrl);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             this.httpProcessingFramework.OnBeginHttpCallback(id1, TestUrl);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnEndHttpCallback(id1, true, false, 200);                        
+            this.httpProcessingFramework.OnEndHttpCallback(id1, true, false, 200);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, 2 * this.sleepTimeMsecBetweenBeginAndEnd, "200");
+            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, new Uri(TestUrl), RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
         }        
 
         #endregion AsyncScenarios
