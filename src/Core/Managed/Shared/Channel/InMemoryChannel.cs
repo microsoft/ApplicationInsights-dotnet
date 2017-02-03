@@ -114,7 +114,7 @@
                 throw new ArgumentNullException("item");
             }
 
-            if (isDisposed)
+            if (this.isDisposed)
             {
                 CoreEventSource.Log.InMemoryChannelSendCalledAfterBeingDisposed();
                 return;
@@ -145,7 +145,7 @@
         public void Flush(TimeSpan timeout)
         {
             this.transmitter.Flush(timeout);
-            if (isDisposed)
+            if (this.isDisposed)
             {
                 CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
             }
@@ -162,14 +162,14 @@
 
         private void Dispose(bool disposing)
         {
-            if (disposing && !isDisposed)
+            if (disposing && !this.isDisposed)
             {
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();
                 }
 
-                isDisposed = true;
+                this.isDisposed = true;
             }
         }
     }
