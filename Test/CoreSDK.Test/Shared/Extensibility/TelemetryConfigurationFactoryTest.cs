@@ -127,7 +127,7 @@
         public void InitializeReadsInstrumentationKeyFromEnvironmentVariableIfNotSpecifiedInConfig()
         {
             // ARRANGE
-            var ikey = Guid.NewGuid().ToString();
+            string ikey = Guid.NewGuid().ToString();
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikey);
             TelemetryConfiguration configuration = new TelemetryConfiguration();
 
@@ -142,11 +142,11 @@
         public void InitializeReadsInstrumentationKeyFromEnvironmentVariableEvenIfSpecifiedInConfig()
         {
             // ARRANGE
-            var ikeyConfig = Guid.NewGuid().ToString();
-            var ikeyEnvironmentVariable = Guid.NewGuid().ToString();
+            string ikeyConfig = Guid.NewGuid().ToString();
+            string ikeyEnvironmentVariable = Guid.NewGuid().ToString();
 
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnvironmentVariable);
-            TelemetryConfiguration configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
+            TelemetryConfiguration configuration = new TelemetryConfiguration(ikeyConfig);
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);
@@ -292,6 +292,32 @@
             object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
 
             Assert.Equal("TestValue", original.StringProperty);
+        }
+
+        [TestMethod]
+        public void LoadInstanceHandlesEnumPropertiesWithNumericValue()
+        {
+            var definition = new XElement(
+                "Definition",
+                new XElement("EnumProperty", "3"));
+
+            var original = new StubClassWithProperties();
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
+
+            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Warning, original.EnumProperty);
+        }
+
+        [TestMethod]
+        public void LoadInstanceHandlesEnumPropertiesWithEnumerationValueName()
+        {
+            var definition = new XElement(
+                "Definition",
+                new XElement("EnumProperty", "Informational"));
+
+            var original = new StubClassWithProperties();
+            object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
+
+            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Informational, original.EnumProperty);
         }
 
         [TestMethod]
@@ -923,6 +949,8 @@
             public TimeSpan TimeSpanProperty { get; set; }
 
             public StubClassWithProperties ChildProperty { get; set; }
+
+            public System.Diagnostics.Tracing.EventLevel EnumProperty { get; set; }
         }
 
         private class StubConfigurable : ITelemetryModule

@@ -31,11 +31,7 @@
         public PortalDiagnosticsSenderTest()
         {
             var configuration =
-                new TelemetryConfiguration
-                {
-                    TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) },
-                    InstrumentationKey = Guid.NewGuid().ToString()
-                };
+                new TelemetryConfiguration(Guid.NewGuid().ToString(), new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) });
 
             this.nonThrottlingPortalSender = new PortalDiagnosticsSender(
                 configuration, 

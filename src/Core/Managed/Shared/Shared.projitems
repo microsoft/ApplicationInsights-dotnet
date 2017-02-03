@@ -59,6 +59,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\SeverityLevel_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\StackFrame_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\HttpWebResponseWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryDebugWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />

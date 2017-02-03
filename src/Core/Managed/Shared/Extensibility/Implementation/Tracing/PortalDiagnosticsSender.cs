@@ -24,7 +24,7 @@
         
         private readonly TelemetryClient telemetryClient;
         private readonly IDiagnoisticsEventThrottlingManager throttlingManager;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PortalDiagnosticsSender"/> class. 
         /// </summary>

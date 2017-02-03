@@ -124,11 +124,23 @@
         /// <summary>
         /// Gets or sets the maximum number of telemetry items will accumulate in a memory before 
         /// the <see cref="TelemetryChannel"/> serializing them for transmission to Application Insights.
+        /// This is not a hard limit on how many unsent items can be in the buffer.
         /// </summary>
         public int MaxTelemetryBufferCapacity 
         {
             get { return this.TelemetryBuffer.Capacity; }
             set { this.TelemetryBuffer.Capacity = value; } 
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. This is a hard limit
+        /// and Items will be dropped by the <see cref="ServerTelemetryChannel"/> once this limit is hit until items
+        /// are drained from the buffer.
+        /// </summary>
+        public int MaxBacklogSize
+        {
+            get { return this.TelemetryBuffer.BacklogSize; }
+            set { this.TelemetryBuffer.BacklogSize = value; }
         }
 
         /// <summary>

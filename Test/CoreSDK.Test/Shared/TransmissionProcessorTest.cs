@@ -28,8 +28,7 @@
         {
             var sentTelemetry = new List<ITelemetry>();
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = channel };
-
+            var configuration = new TelemetryConfiguration("Test key", channel);
             var client = new TelemetryClient(configuration);
 
             var transmissionProcessor = new TransmissionProcessor(configuration);
@@ -69,10 +68,8 @@
                      ((ITelemetry)t).Sanitize();
                  }).Start()
             };
-            var configuration = new TelemetryConfiguration { InstrumentationKey = "Test key", TelemetryChannel = channel };
-
+            var configuration = new TelemetryConfiguration("Test key", channel);
             var client = new TelemetryClient(configuration);
-
             var transmissionProcessor = new TransmissionProcessor(configuration);
 
             const int ItemsToGenerate = 100;

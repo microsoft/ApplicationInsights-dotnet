@@ -40,7 +40,8 @@
             this.Data.duration = duration.ToString(string.Empty, CultureInfo.InvariantCulture);
             this.Data.success = success;
             this.Data.runLocation = runLocation;
-            this.Data.message = message;            
+            this.Data.message = message;
+            this.Timestamp = timeStamp;
         }
 
         /// <summary>

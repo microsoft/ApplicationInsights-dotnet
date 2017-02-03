@@ -15,6 +15,11 @@
         private int bufferSize;
 
         /// <summary>
+        /// Indicates if this instance has been disposed of.
+        /// </summary>
+        private bool isDisposed = false;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryChannel" /> class.
         /// </summary>
         public InMemoryChannel()
@@ -92,11 +97,22 @@
         /// <summary>
         /// Gets or sets the maximum number of telemetry items will accumulate in a memory before 
         /// the <see cref="InMemoryChannel"/> serializing them for transmission to Application Insights.
+        /// This is not a hard limit on how many unsent items can be in the buffer.
         /// </summary>
         public int MaxTelemetryBufferCapacity
         {
             get { return this.buffer.Capacity; }
             set { this.buffer.Capacity = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. This is a hard limit
+        /// and Items will be dropped by the <see cref="InMemoryChannel"/> once this limit is hit until items are drained from the buffer.
+        /// </summary>
+        public int BacklogSize
+        {
+            get { return this.buffer.BacklogSize; }
+            set { this.buffer.BacklogSize = value; }
         }
 
         /// <summary>
@@ -107,6 +123,12 @@
             if (item == null)
             {
                 throw new ArgumentNullException("item");
+            }
+
+            if (this.isDisposed)
+            {
+                CoreEventSource.Log.InMemoryChannelSendCalledAfterBeingDisposed();
+                return;
             }
 
             try
@@ -134,6 +156,10 @@
         public void Flush(TimeSpan timeout)
         {
             this.transmitter.Flush(timeout);
+            if (this.isDisposed)
+            {
+                CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
+            }
         }
 
         /// <summary>
@@ -147,8 +173,9 @@
 
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && !this.isDisposed)
             {
+                this.isDisposed = true;
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();

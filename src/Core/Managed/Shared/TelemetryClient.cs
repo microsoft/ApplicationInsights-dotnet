@@ -35,6 +35,7 @@
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException">The <paramref name="configuration"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="configuration"/> does not contain a telemetry channel.</exception>
         public TelemetryClient(TelemetryConfiguration configuration)
         {
             if (configuration == null)
@@ -44,6 +45,11 @@
             }
 
             this.configuration = configuration;
+
+            if (this.configuration.TelemetryChannel == null)
+            {
+                throw new ArgumentException("The specified configuration does not have a telemetry channel.", "configuration");
+            }
         }
 
         /// <summary>
@@ -78,8 +84,8 @@
         public bool IsEnabled()
         {
             return !this.configuration.DisableTelemetry;
-        }        
-                
+        }
+
         /// <summary>
         /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
         /// </summary>
@@ -310,12 +316,26 @@
         /// <param name="name">Availability test name.</param>
         /// <param name="timeStamp">The time when the availability was captured.</param>
         /// <param name="duration">The time taken for the availability test to run.</param>
-        /// <param name="runLocation">Name of the location the availability test was run from.</param>        
+        /// <param name="runLocation">Name of the location the availability test was run from.</param>
         /// <param name="success">True if the availability test ran successfully.</param>
         /// <param name="message">Error message on availability test run failure.</param>
-        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null)
+        /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
+        /// <param name="metrics">Additional values associated with this availability telemetry.</param>
+        public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            this.TrackAvailability(new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message));
+            var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
+
+            if (properties != null && properties.Count > 0)
+            {
+                Utils.CopyDictionary(properties, availabilityTelemetry.Context.Properties);
+            }
+
+            if (metrics != null && metrics.Count > 0)
+            {
+                Utils.CopyDictionary(metrics, availabilityTelemetry.Metrics);
+            }
+
+            this.TrackAvailability(availabilityTelemetry);
         }
 
         /// <summary>
@@ -349,12 +369,6 @@
                 {
                     TelemetryDebugWriter.WriteTelemetry(telemetry);
                     return;
-                }
-
-                // If someone created configuration from scratch and forgot to initialize channel - use default
-                if (this.configuration.TelemetryChannel == null)
-                {
-                    this.configuration.TelemetryChannel = new InMemoryChannel();
                 }
 
                 // invokes the Process in the first processor in the chain
@@ -420,7 +434,7 @@
             // Currenly backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
-                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, this.GetSdkVersion);
+                var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));
                 telemetry.Context.Internal.SdkVersion = version;
             }
 
@@ -493,24 +507,6 @@
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();
-        }
-
-        private string GetSdkVersion()
-        {
-#if !CORE_PCL
-            string versionStr = typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            
-#else
-            string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-#endif
-
-            Version version = new Version(versionStr);
-            return VersionPrefix + version.ToString(3) + "-" + version.Revision;
         }
     }
 }

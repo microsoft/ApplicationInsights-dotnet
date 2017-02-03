@@ -361,6 +361,45 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            29,
+            Message = "The backlog of unsent items has reached maximum size of {0}. Items will be dropped until the backlog is cleared.",
+            Level = EventLevel.Error)]
+        public void ItemDroppedAsMaximumUnsentBacklogSizeReached(int maxBacklogSize, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                29,
+                maxBacklogSize,               
+                this.nameProvider.Name);
+        }
+
+        [Event(
+            30,
+            Message = "Flush was called on the telemetry channel (InMemoryChannel) after it was disposed.",
+            Level = EventLevel.Warning)]
+        public void InMemoryChannelFlushedAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(30, this.nameProvider.Name);
+        }
+
+        [Event(
+            31,
+            Message = "Send was called on the telemetry channel (InMemoryChannel) after it was disposed, the telemetry data was dropped.",
+            Level = EventLevel.Warning)]
+        public void InMemoryChannelSendCalledAfterBeingDisposed(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(31, this.nameProvider.Name);
+        }
+
+        [Event(
+            32,
+            Message = "Failed to get environment variables due to security exception; code is likely running in partial trust. Exception: {0}.",
+            Level = EventLevel.Warning)]
+        public void FailedToLoadEnvironmentVariables(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(32, ex, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
