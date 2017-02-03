@@ -16,7 +16,7 @@
         public class Class : TransmissionBufferTest
         {
             [TestMethod]
-            [Timeout(10000)]
+            [Timeout(15000)]
             public void EnqueueAndDequeueMethodsAreThreadSafe()
             {
                 var buffer = new TransmissionBuffer();
