@@ -26,6 +26,8 @@
             StubTelemetryChannel stubChannel = new StubTelemetryChannel();
             TelemetryConfiguration config = new TelemetryConfiguration(string.Empty, stubChannel);
             Assert.Same(stubChannel, config.TelemetryChannel);
+            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+            Assert.False((bool)shouldDisposeChannelField.GetValue(config));
         }
 
         [TestMethod]
@@ -34,6 +36,8 @@
             TelemetryConfiguration config = new TelemetryConfiguration();
             Assert.NotNull(config.TelemetryChannel);
             Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
+            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+            Assert.True((bool)shouldDisposeChannelField.GetValue(config));
         }
 
         [TestMethod]
@@ -44,6 +48,8 @@
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey, stubChannel);
             Assert.Equal(expectedKey, config.InstrumentationKey);
             Assert.Same(stubChannel, config.TelemetryChannel);
+            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+            Assert.False((bool)shouldDisposeChannelField.GetValue(config));
         }
 
         [TestMethod]
@@ -54,6 +60,8 @@
             Assert.Equal(expectedKey, config.InstrumentationKey);
             Assert.NotNull(config.TelemetryChannel);
             Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
+            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+            Assert.True((bool)shouldDisposeChannelField.GetValue(config));
         }
 
         #region Active

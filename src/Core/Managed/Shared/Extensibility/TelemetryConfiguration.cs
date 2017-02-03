@@ -55,6 +55,7 @@
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
         public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, new InMemoryChannel())
         {
+            this.shouldDisposeChannel = true;
         }
 
         /// <summary>
@@ -240,7 +241,7 @@
                 if (oldChannel != null && oldChannel != value && this.shouldDisposeChannel)
                 {
                     oldChannel.Dispose();
-                    this.shouldDisposeChannel = false; // The new onw wasn't created by us so it should be managed by whoever created it.
+                    this.shouldDisposeChannel = false; // The new one wasn't created by us so it should be managed by whoever created it.
                 }
             }
         }

@@ -175,12 +175,11 @@
         {
             if (disposing && !this.isDisposed)
             {
+                this.isDisposed = true;
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();
                 }
-
-                this.isDisposed = true;
             }
         }
     }

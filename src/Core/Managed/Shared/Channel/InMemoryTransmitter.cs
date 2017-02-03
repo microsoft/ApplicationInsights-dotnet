@@ -40,6 +40,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
+            this.startRunnerEvent = new AutoResetEvent(false);
             this.buffer = buffer;
             this.buffer.OnFull = this.OnBufferFull;
 
@@ -89,16 +90,13 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-            using (this.startRunnerEvent = new AutoResetEvent(false))
+            while (this.enabled)
             {
-                while (this.enabled)
-                {
-                    // Pulling all items from the buffer and sending as one transmissiton.
-                    this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
+                // Pulling all items from the buffer and sending as one transmissiton.
+                this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
-                    // Waiting for the flush delay to elapse
-                    this.startRunnerEvent.WaitOne(this.sendingInterval);
-                }
+                // Waiting for the flush delay to elapse
+                this.startRunnerEvent.WaitOne(this.sendingInterval);
             }
         }
 
@@ -156,13 +154,14 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             if (Interlocked.Increment(ref this.disposeCount) == 1)
             {
-                // Stops the runner.
+                // Stops the runner loop.
                 this.enabled = false;
 
                 if (this.startRunnerEvent != null)
                 {
-                    // call Set to to prevent waiting for the next interval. 
+                    // Call Set to prevent waiting for the next interval in the runner, and then Dispose to prevent a race condition with dispose vs. the wait timeout.
                     this.startRunnerEvent.Set();
+                    this.startRunnerEvent.Dispose();
                 }
 
                 this.Flush(default(TimeSpan));
