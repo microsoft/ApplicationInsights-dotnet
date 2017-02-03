@@ -361,6 +361,15 @@
                 this.nameProvider.Name);
         }
 
+        [Event(
+            31,
+            Message = "Failed to get environment variables due to security exception; code is likely running in partial trust. Exception: {0}.",
+            Level = EventLevel.Warning)]
+        public void FailedToLoadEnvironmentVariables(string ex, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(31, ex, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

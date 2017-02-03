@@ -18,10 +18,25 @@
     /// </summary>
     internal class PlatformImplementation : IPlatform
     {
-        private readonly IDictionary environmentVariables = Environment.GetEnvironmentVariables();
+        private readonly IDictionary environmentVariables;
 
         private IDebugOutput debugOutput = null;
         private string hostName;
+
+        /// <summary>
+        /// Initializes a new instance of the PlatformImplementation class.
+        /// </summary>
+        public PlatformImplementation()
+        {
+            try
+            {
+                this.environmentVariables = Environment.GetEnvironmentVariables();
+            }
+            catch (SecurityException e)
+            {
+                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
+            }
+        }
 
         /// <summary>
         /// Returns contents of the ApplicationInsights.config file in the application directory.
@@ -81,7 +96,7 @@
                 throw new ArgumentNullException();
             }
 
-            object resultObj = this.environmentVariables[name];
+            object resultObj = this.environmentVariables?[name];
             return resultObj != null ? resultObj.ToString() : null;
         }
 
