@@ -22,6 +22,9 @@
         private readonly TelemetrySerializer serializer;
 
         private int capacity = 500;
+        private int backlogSize = 1000000;
+        private int minimumBacklogSize = 1001;
+        private bool itemDroppedMessageLogged = false;
         private List<ITelemetry> transmissionBuffer;
 
         public TelemetryBuffer(TelemetrySerializer serializer, IApplicationLifecycle applicationLifecycle)
@@ -52,6 +55,7 @@
         /// Gets or sets the maximum number of telemetry items that can be buffered before transmission.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        /// <exception cref="ArgumentException">The value is greater than the MaximumBacklogSize.</exception>
         public int Capacity
         {
             get
@@ -66,7 +70,41 @@
                     throw new ArgumentOutOfRangeException("value");
                 }
 
+                if (value > this.backlogSize)
+                {
+                    throw new ArgumentException("Capacity cannot be greater than MaximumBacklogSize", "Capacity");
+                }
+
                 this.capacity = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
+        /// once this limit is hit.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        /// <exception cref="ArgumentException">The value is less than the Capacity.</exception>
+        public int BacklogSize
+        {
+            get
+            {
+                return this.backlogSize;
+            }
+
+            set
+            {
+                if (value < this.minimumBacklogSize)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+
+                if (value < this.capacity)
+                {
+                    throw new ArgumentException("MaximumBacklogSize cannot be lower than capacity", "MaximumBacklogSize");
+                }
+
+                this.backlogSize = value;
             }
         }
 
@@ -103,6 +141,17 @@
 
             lock (this)
             {
+                if (this.transmissionBuffer.Count >= this.BacklogSize)
+                {
+                    if (!this.itemDroppedMessageLogged)
+                    {
+                        TelemetryChannelEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.BacklogSize);
+                        this.itemDroppedMessageLogged = true;
+                    }
+
+                    return;
+                }
+
                 this.transmissionBuffer.Add(item);
                 if (this.transmissionBuffer.Count >= this.Capacity)
                 {
@@ -126,6 +175,7 @@
                         this.flushTimer.Cancel();
                         telemetryToFlush = this.transmissionBuffer;
                         this.transmissionBuffer = new List<ITelemetry>(this.Capacity);
+                        this.itemDroppedMessageLogged = false;
                     }
                 }
             }
