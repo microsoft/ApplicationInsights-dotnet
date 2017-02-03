@@ -5,7 +5,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.3.0-beta2
 - Added constructor overloads for TelemetryConfiguration and added creation of a default InMemoryChannel when no channel is specified for a new instance.
   TelemetryClient will no longer create an InMemoryChannel on the configuration instance if TelemetryChannel is null, instead the configuration instances will always have a channel when created.
-- Added an explicit finalizer to TelemetryConfiguration so that hopefully garbage collection will eventually clean up abondoned ITelemetryChannels which developers did not properly dispose of.
+- TelemetryConfiguration will no longer dispose of user provided ITelemetryChannel instances.  Users must properly dispose of any channel instances which they create, the configuration will only auto-dispose of default channel instances it creates when none are specified by the user.
 
 ## Version 2.3.0-beta1
 - Added metric aggregation functionality via MetricManager and Metric classes.
