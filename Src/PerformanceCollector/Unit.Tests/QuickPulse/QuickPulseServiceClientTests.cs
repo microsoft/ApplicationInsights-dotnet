@@ -23,7 +23,7 @@
 
         private readonly List<Tuple<DateTimeOffset, MonitoringDataPoint>> samples = new List<Tuple<DateTimeOffset, MonitoringDataPoint>>();
 
-        private readonly List<Tuple<DateTimeOffset, MonitoringDataPoint>> pings = new List<Tuple<DateTimeOffset, MonitoringDataPoint>>();
+        private readonly List<Tuple<PingHeaders, MonitoringDataPoint>> pings = new List<Tuple<PingHeaders, MonitoringDataPoint>>();
 
         private Action<HttpListenerResponse> pingResponse;
 
@@ -486,6 +486,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.pings.Count);
+            Assert.AreEqual(instanceName, this.pings[0].Item1.InstanceName);
             Assert.AreEqual(instanceName, this.pings[0].Item2.Instance);
         }
 
@@ -526,6 +527,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.pings.Count);
+            Assert.AreEqual(streamId, this.pings[0].Item1.StreamId);
             Assert.AreEqual(streamId, this.pings[0].Item2.StreamId);
         }
         
@@ -566,6 +568,7 @@
             this.listener.Stop();
 
             Assert.AreEqual(1, this.pings.Count);
+            Assert.AreEqual(machineName, this.pings[0].Item1.MachineName);
             Assert.AreEqual(machineName, this.pings[0].Item2.MachineName);
         }
 
@@ -590,6 +593,45 @@
 
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(machineName, this.samples[0].Item2.MachineName);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientSubmitsTransmissionTimeToServiceWithPing()
+        {
+            // ARRANGE
+            var timeProvider = new ClockMock();
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, timeProvider, false);
+
+            // ACT
+            serviceClient.Ping(Guid.NewGuid().ToString(), timeProvider.UtcNow);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(1, this.pings.Count);
+            Assert.AreEqual(timeProvider.UtcNow.Ticks, this.pings[0].Item1.TransmissionTime.Ticks);
+        }
+
+        [TestMethod]
+        public void QuickPulseServiceClientSubmitsTransmissionTimeToServiceWithSubmitSamples()
+        {
+            // ARRANGE
+            var timeProvider = new ClockMock();
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, string.Empty, string.Empty, string.Empty, string.Empty, timeProvider, false);
+            var sample = new QuickPulseDataSample(
+                new QuickPulseDataAccumulator { StartTimestamp = timeProvider.UtcNow, EndTimestamp = timeProvider.UtcNow.AddSeconds(1) },
+                new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
+                Enumerable.Empty<Tuple<string, int>>(),
+                false);
+
+            // ACT
+            serviceClient.SubmitSamples(new[] { sample }, string.Empty);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(1, this.samples.Count);
+            Assert.AreEqual(timeProvider.UtcNow.Ticks, this.samples[0].Item1.Ticks);
         }
 
         [TestMethod]
@@ -656,7 +698,7 @@
             Assert.AreEqual(1, this.samples.Count);
             Assert.AreEqual(ikey, this.samples[0].Item2.InstrumentationKey);
         }
-
+        
         [TestMethod]
         public void QuickPulseServiceClientSubmitsIsWebAppToService()
         {
@@ -758,8 +800,20 @@
 
                     var dataPoint = (MonitoringDataPoint)serializerDataPoint.ReadObject(context.Request.InputStream);
                     var transmissionTime = long.Parse(context.Request.Headers[QuickPulseConstants.XMsQpsTransmissionTimeHeaderName], CultureInfo.InvariantCulture);
+                    var instanceName = context.Request.Headers[QuickPulseConstants.XMsQpsInstanceNameHeaderName];
+                    var machineName = context.Request.Headers[QuickPulseConstants.XMsQpsMachineNameHeaderName];
+                    var streamId = context.Request.Headers[QuickPulseConstants.XMsQpsStreamIdHeaderName];
 
-                    this.pings.Add(Tuple.Create(new DateTimeOffset(transmissionTime, TimeSpan.Zero), dataPoint));
+                    this.pings.Add(
+                        Tuple.Create(
+                            new PingHeaders()
+                                {
+                                    TransmissionTime = new DateTimeOffset(transmissionTime, TimeSpan.Zero),
+                                    InstanceName = instanceName,
+                                    MachineName = machineName,
+                                    StreamId = streamId
+                                },
+                            dataPoint));
 
                     this.lastPingTimestamp = dataPoint.Timestamp;
                     this.lastPingInstance = dataPoint.Instance;
@@ -785,5 +839,16 @@
         }
 
         #endregion
+
+        private class PingHeaders
+        {
+            public DateTimeOffset TransmissionTime { get; set; }
+
+            public string InstanceName { get; set; }
+
+            public string MachineName { get; set; }
+
+            public string StreamId { get; set; }
+        }
     }
 }

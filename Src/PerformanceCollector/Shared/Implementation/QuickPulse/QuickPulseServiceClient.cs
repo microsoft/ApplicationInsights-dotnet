@@ -51,7 +51,7 @@
         public bool? Ping(string instrumentationKey, DateTimeOffset timestamp)
         {
             var path = string.Format(CultureInfo.InvariantCulture, "ping?ikey={0}", Uri.EscapeUriString(instrumentationKey));
-            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, stream => this.WritePingData(timestamp, stream));
+            HttpWebResponse response = this.SendRequest(WebRequestMethods.Http.Post, path, true, stream => this.WritePingData(timestamp, stream));
 
             if (response == null)
             {
@@ -67,6 +67,7 @@
             HttpWebResponse response = this.SendRequest(
                 WebRequestMethods.Http.Post,
                 path,
+                false,
                 stream => this.WriteSamples(samples, instrumentationKey, stream));
 
             if (response == null)
@@ -204,7 +205,7 @@
             this.serializerDataPointArray.WriteObject(stream, monitoringPoints.ToArray());
         }
 
-        private HttpWebResponse SendRequest(string httpVerb, string path, Action<Stream> onWriteBody)
+        private HttpWebResponse SendRequest(string httpVerb, string path, bool includeHeaders, Action<Stream> onWriteBody)
         {
             var requestUri = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.ServiceUri.AbsoluteUri.TrimEnd('/'), path.TrimStart('/'));
 
@@ -214,6 +215,13 @@
                 request.Method = httpVerb;
                 request.Timeout = (int)this.timeout.TotalMilliseconds;
                 request.Headers.Add(QuickPulseConstants.XMsQpsTransmissionTimeHeaderName, this.timeProvider.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture));
+
+                if (includeHeaders)
+                {
+                    request.Headers.Add(QuickPulseConstants.XMsQpsInstanceNameHeaderName, this.instanceName);
+                    request.Headers.Add(QuickPulseConstants.XMsQpsStreamIdHeaderName, this.streamId);
+                    request.Headers.Add(QuickPulseConstants.XMsQpsMachineNameHeaderName, this.machineName);
+                }
 
                 onWriteBody?.Invoke(request.GetRequestStream());
 
