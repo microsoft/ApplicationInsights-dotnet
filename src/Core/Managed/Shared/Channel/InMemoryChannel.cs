@@ -15,6 +15,11 @@
         private int bufferSize;
 
         /// <summary>
+        /// Indicates if this instance has been disposed of.
+        /// </summary>
+        private bool isDisposed = false;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryChannel" /> class.
         /// </summary>
         public InMemoryChannel()
@@ -120,6 +125,12 @@
                 throw new ArgumentNullException("item");
             }
 
+            if (this.isDisposed)
+            {
+                CoreEventSource.Log.InMemoryChannelSendCalledAfterBeingDisposed();
+                return;
+            }
+
             try
             {
                 this.buffer.Enqueue(item);
@@ -145,6 +156,10 @@
         public void Flush(TimeSpan timeout)
         {
             this.transmitter.Flush(timeout);
+            if (this.isDisposed)
+            {
+                CoreEventSource.Log.InMemoryChannelFlushedAfterBeingDisposed();
+            }
         }
 
         /// <summary>
@@ -158,8 +173,9 @@
 
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && !this.isDisposed)
             {
+                this.isDisposed = true;
                 if (this.transmitter != null)
                 {
                     this.transmitter.Dispose();

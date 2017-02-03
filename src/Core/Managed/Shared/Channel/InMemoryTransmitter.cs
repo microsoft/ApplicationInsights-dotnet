@@ -156,14 +156,24 @@ namespace Microsoft.ApplicationInsights.Channel
         {
             if (Interlocked.Increment(ref this.disposeCount) == 1)
             {
-                // Stops the runner.
+                // Stops the runner loop.
                 this.enabled = false;
 
                 if (this.startRunnerEvent != null)
                 {
-                    // call Set to to prevent waiting for the next interval. 
-                    this.startRunnerEvent.Set();
+                    // Call Set to prevent waiting for the next interval in the runner.
+                    try
+                    {
+                        this.startRunnerEvent.Set();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // We need to try catch the Set call in case the auto-reset event wait interval occurs between setting enabled
+                        // to false and the call to Set then the auto-reset event will have already been disposed by the runner thread.
+                    }
                 }
+
+                this.Flush(default(TimeSpan));
             }
         }
     }

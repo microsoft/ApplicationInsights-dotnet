@@ -153,7 +153,7 @@
             }
 
             [TestMethod]
-            [Timeout(1000)]
+            [Timeout(1500)]
             public void HandlesAsyncExceptionThrownByTheDelegate()
             {
                 TaskTimer timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
@@ -169,7 +169,7 @@
             }
 
             [TestMethod]
-            [Timeout(1000)]
+            [Timeout(1500)]
             public void HandlesSyncExceptionThrownByTheDelegate()
             {
                 TaskTimer timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
