@@ -108,6 +108,7 @@ namespace Microsoft.ApplicationInsights.Channel
         private void OnBufferFull()
         {
             this.startRunnerEvent.Set();
+            CoreEventSource.Log.LogVerbose("StartRunnerEvent set as Buffer is full.");
         }
 
         /// <summary>
