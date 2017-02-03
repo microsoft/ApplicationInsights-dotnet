@@ -84,7 +84,7 @@
 
         public void Stop()
         {
-            const int processExitWaitTimeout = 5000;
+            const int processExitWaitTimeout = 10000;
 
             Trace.TraceInformation("Stopping iisexpress.exe: pid={0}", this.hostProcess.Id);
 
@@ -97,6 +97,7 @@
                 try
                 {
                     this.hostProcess.Kill();
+                    Trace.TraceWarning("Successfully terminated IISProcess with Kill call.");
                 }
                 catch (Win32Exception e)
                 {
