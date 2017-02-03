@@ -50,11 +50,17 @@
         public void FailureToReadEnvironmentVariablesDoesNotThrowExceptions()
         {
             EnvironmentPermission permission = new EnvironmentPermission(EnvironmentPermissionAccess.NoAccess, "PATH");
-            permission.PermitOnly();
-            PlatformImplementation platform = new PlatformImplementation();
-            Assert.IsNull(platform.GetEnvironmentVariable("PATH"));
-            permission = null;
-            EnvironmentPermission.RevertAll();
+            try
+            {
+                permission.PermitOnly();
+                PlatformImplementation platform = new PlatformImplementation();
+                Assert.IsNull(platform.GetEnvironmentVariable("PATH"));
+                permission = null;
+            }
+            finally
+            {
+                EnvironmentPermission.RevertAll();
+            }
         }
 
         protected virtual void Dispose(bool disposing)
