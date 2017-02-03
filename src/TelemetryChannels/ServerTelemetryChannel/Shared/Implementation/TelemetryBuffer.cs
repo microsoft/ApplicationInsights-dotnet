@@ -22,7 +22,7 @@
         private readonly TelemetrySerializer serializer;
 
         private int capacity = 500;
-        private int maximumBacklogSize = 1000000;
+        private int backlogSize = 1000000;
         private int minimumBacklogSize = 1001;
         private bool itemDroppedMessageLogged = false;
         private List<ITelemetry> transmissionBuffer;
@@ -70,7 +70,7 @@
                     throw new ArgumentOutOfRangeException("value");
                 }
 
-                if (value > this.maximumBacklogSize)
+                if (value > this.backlogSize)
                 {
                     throw new ArgumentException("Capacity cannot be greater than MaximumBacklogSize", "Capacity");
                 }
@@ -85,11 +85,11 @@
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
         /// <exception cref="ArgumentException">The value is less than the Capacity.</exception>
-        public int MaximumBacklogSize
+        public int BacklogSize
         {
             get
             {
-                return this.maximumBacklogSize;
+                return this.backlogSize;
             }
 
             set
@@ -104,7 +104,7 @@
                     throw new ArgumentException("MaximumBacklogSize cannot be lower than capacity", "MaximumBacklogSize");
                 }
 
-                this.maximumBacklogSize = value;
+                this.backlogSize = value;
             }
         }
 
@@ -141,11 +141,11 @@
 
             lock (this)
             {
-                if (this.transmissionBuffer.Count >= this.MaximumBacklogSize)
+                if (this.transmissionBuffer.Count >= this.BacklogSize)
                 {
                     if (!this.itemDroppedMessageLogged)
                     {
-                        TelemetryChannelEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumBacklogSize);
+                        TelemetryChannelEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.BacklogSize);
                         this.itemDroppedMessageLogged = true;
                     }
 

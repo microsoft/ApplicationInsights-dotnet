@@ -104,10 +104,10 @@
         /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. This is a hard limit
         /// and Items will be dropped by the <see cref="InMemoryChannel"/> once this limit is hit until items are drained from the buffer.
         /// </summary>
-        public int MaxBacklogSize
+        public int BacklogSize
         {
-            get { return this.buffer.MaximumBacklogSize; }
-            set { this.buffer.MaximumBacklogSize = value; }
+            get { return this.buffer.BacklogSize; }
+            set { this.buffer.BacklogSize = value; }
         }
 
         /// <summary>

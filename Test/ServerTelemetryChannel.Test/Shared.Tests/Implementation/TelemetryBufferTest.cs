@@ -71,7 +71,7 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 Assert.Equal(500, buffer.Capacity);
-                Assert.Equal(1000000, buffer.MaximumBacklogSize);
+                Assert.Equal(1000000, buffer.BacklogSize);
             }
 
             [TestMethod]
@@ -79,9 +79,9 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 42;
-                buffer.MaximumBacklogSize = 3900;
+                buffer.BacklogSize = 3900;
                 Assert.Equal(42, buffer.Capacity);
-                Assert.Equal(3900, buffer.MaximumBacklogSize);
+                Assert.Equal(3900, buffer.BacklogSize);
             }
 
             [TestMethod]
@@ -89,9 +89,9 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 1111;
-                Assert.Throws<ArgumentException>(() => buffer.MaximumBacklogSize = 1110);
+                Assert.Throws<ArgumentException>(() => buffer.BacklogSize = 1110);
 
-                buffer.MaximumBacklogSize = 8000;
+                buffer.BacklogSize = 8000;
                 Assert.Throws<ArgumentException>(() => buffer.Capacity = 8001);
 
             }
@@ -101,13 +101,13 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.MaximumBacklogSize = 1000); // 1001 is minimum anything low would throw.
+                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 0);
+                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 1000); // 1001 is minimum anything low would throw.
 
                 bool exceptionThrown = false;
                 try
                 {
-                    buffer.MaximumBacklogSize = 1001; // 1001 is valid and should not throw.
+                    buffer.BacklogSize = 1001; // 1001 is valid and should not throw.
                 }
                 catch(Exception)
                 {
@@ -146,7 +146,7 @@
                 //TelemetryBufferWhichDoesNothingOnFlush does not flush items on buffer full,to test ItemDrop scenario.
                 var buffer = new TelemetryBufferWhichDoesNothingOnFlush( new StubTelemetrySerializer(), new StubApplicationLifecycle() );
                 buffer.Capacity = 2;
-                buffer.MaximumBacklogSize = 1002;
+                buffer.BacklogSize = 1002;
 
                 buffer.Process(new StubTelemetry());
 

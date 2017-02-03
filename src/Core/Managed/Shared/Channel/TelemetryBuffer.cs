@@ -15,10 +15,10 @@
         public Action OnFull;
 
         private const int DefaultCapacity = 500;
-        private const int DefaultMaximumUnsentBacklogSize = 1000000;        
+        private const int DefaultBacklogSize = 1000000;        
         private readonly object lockObj = new object();
         private int capacity = DefaultCapacity;
-        private int maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
+        private int backlogSize = DefaultBacklogSize;
         private int minimumBacklogSize = 1001;
         private List<ITelemetry> items;
         private bool itemDroppedMessageLogged = false;
@@ -46,9 +46,9 @@
                     return;
                 }
 
-                if (value > this.maximumBacklogSize)
+                if (value > this.backlogSize)
                 {
-                    this.capacity = maximumBacklogSize;
+                    this.capacity = this.backlogSize;
                     return;
                 }
 
@@ -60,28 +60,28 @@
         /// Gets or sets the maximum number of telemetry items that can be in the backlog to send. Items will be dropped
         /// once this limit is hit.
         /// </summary>        
-        public int MaximumBacklogSize
+        public int BacklogSize
         {
             get
             {
-                return this.maximumBacklogSize;
+                return this.backlogSize;
             }
 
             set
             {
                 if (value < this.minimumBacklogSize)
                 {
-                    this.maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
+                    this.backlogSize = this.minimumBacklogSize;
                     return;
                 }
 
                 if (value < this.capacity)
                 {
-                    this.maximumBacklogSize = this.capacity;
+                    this.backlogSize = this.capacity;
                     return;
                 }
 
-                this.maximumBacklogSize = value;
+                this.backlogSize = value;
             }
         }
 
@@ -95,11 +95,11 @@
 
             lock (this.lockObj)
             {
-                if (this.items.Count >= this.MaximumBacklogSize)
+                if (this.items.Count >= this.BacklogSize)
                 {
                     if (!this.itemDroppedMessageLogged)
                     {
-                        CoreEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.MaximumBacklogSize);
+                        CoreEventSource.Log.ItemDroppedAsMaximumUnsentBacklogSizeReached(this.BacklogSize);
                         this.itemDroppedMessageLogged = true;
                     }
 
