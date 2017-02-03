@@ -40,7 +40,6 @@ namespace Microsoft.ApplicationInsights.Channel
                 
         internal InMemoryTransmitter(TelemetryBuffer buffer)
         {
-            this.startRunnerEvent = new AutoResetEvent(false);
             this.buffer = buffer;
             this.buffer.OnFull = this.OnBufferFull;
 
@@ -90,13 +89,16 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-            while (this.enabled)
+            using (this.startRunnerEvent = new AutoResetEvent(false))
             {
-                // Pulling all items from the buffer and sending as one transmissiton.
-                this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
+                while (this.enabled)
+                {
+                    // Pulling all items from the buffer and sending as one transmissiton.
+                    this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
-                // Waiting for the flush delay to elapse
-                this.startRunnerEvent.WaitOne(this.sendingInterval);
+                    // Waiting for the flush delay to elapse
+                    this.startRunnerEvent.WaitOne(this.sendingInterval);
+                }
             }
         }
 
@@ -159,9 +161,16 @@ namespace Microsoft.ApplicationInsights.Channel
 
                 if (this.startRunnerEvent != null)
                 {
-                    // Call Set to prevent waiting for the next interval in the runner, and then Dispose to prevent a race condition with dispose vs. the wait timeout.
-                    this.startRunnerEvent.Set();
-                    this.startRunnerEvent.Dispose();
+                    // Call Set to prevent waiting for the next interval in the runner.
+                    try
+                    {
+                        this.startRunnerEvent.Set();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // We need to try catch the Set call in case the auto-reset event wait interval occurs between setting enabled
+                        // to false and the call to Set then the auto-reset event will have already been disposed by the runner thread.
+                    }
                 }
 
                 this.Flush(default(TimeSpan));
