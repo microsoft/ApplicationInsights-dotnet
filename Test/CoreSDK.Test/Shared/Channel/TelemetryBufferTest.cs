@@ -26,7 +26,7 @@
         {
             var buffer = new TelemetryBuffer();
             Assert.Equal(500, buffer.Capacity);
-            Assert.Equal(1000000, buffer.MaximumUnsentBacklogSize);
+            Assert.Equal(1000000, buffer.MaximumBacklogSize);
         }
 
         [TestMethod]
@@ -34,9 +34,9 @@
         {
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 42;
-            buffer.MaximumUnsentBacklogSize = 9999;
+            buffer.MaximumBacklogSize = 9999;
             Assert.Equal(42, buffer.Capacity);
-            Assert.Equal(9999, buffer.MaximumUnsentBacklogSize);
+            Assert.Equal(9999, buffer.MaximumBacklogSize);
         }
 
         [TestMethod]
@@ -44,10 +44,36 @@
         {
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 0;
-            buffer.MaximumUnsentBacklogSize = 1000; //1001 is the minimum, setting to anything low should be overruled with Default
+            buffer.MaximumBacklogSize = 1000; //1001 is the minimum, setting to anything low should be overruled with Default
 
-            Assert.Equal(buffer.Capacity, 500);
-            Assert.Equal(buffer.MaximumUnsentBacklogSize, 1000000);
+            Assert.Equal(500,buffer.Capacity);
+            Assert.Equal(1000000, buffer.MaximumBacklogSize);
+        }
+
+        [TestMethod]
+        public void MaxBacklogCannotBeBelowCapacity()
+        {     
+            var buffer = new TelemetryBuffer();
+            buffer.Capacity = 9999; // a value greater than the minimum allowed for MaxBacklogSize            
+
+            //Attempt to set MaxBacklogSize below Capacity
+            buffer.MaximumBacklogSize = buffer.Capacity - 1;
+
+            // Validate that MaximumBacklogSize will be set to Capacity
+            Assert.Equal(buffer.Capacity, buffer.MaximumBacklogSize);
+        }
+
+        [TestMethod]
+        public void CapacityCannotBeAboveBacklogSize()
+        {
+
+            var buffer = new TelemetryBuffer();            
+
+            //Attempt to set Capacity above MaxBacklogSize
+            buffer.Capacity = buffer.MaximumBacklogSize + 1;
+
+            // Validate that Capacity will be set to MaxBacklogSize
+            Assert.Equal(buffer.Capacity, buffer.MaximumBacklogSize);
         }
 
         [TestMethod]
@@ -67,7 +93,7 @@
         [TestMethod]
         public void TelemetryBufferDoesNotGrowBeyondMaxBacklogSize()
         {            
-            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumUnsentBacklogSize= 1002};
+            TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, MaximumBacklogSize = 1002};
             buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
                                     //is not emptied.
                                   };

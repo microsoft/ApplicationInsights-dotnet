@@ -19,6 +19,7 @@
         private readonly object lockObj = new object();
         private int capacity = DefaultCapacity;
         private int maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
+        private int minimumBacklogSize = 1001;
         private List<ITelemetry> items;
         private bool itemDroppedMessageLogged = false;
 
@@ -45,6 +46,12 @@
                     return;
                 }
 
+                if (value > this.maximumBacklogSize)
+                {
+                    this.capacity = maximumBacklogSize;
+                    return;
+                }
+
                 this.capacity = value;
             }
         }
@@ -62,9 +69,15 @@
 
             set
             {
-                if (value < 1001)
+                if (value < this.minimumBacklogSize)
                 {
                     this.maximumBacklogSize = DefaultMaximumUnsentBacklogSize;
+                    return;
+                }
+
+                if (value < this.capacity)
+                {
+                    this.maximumBacklogSize = this.capacity;
                     return;
                 }
 

@@ -85,6 +85,18 @@
             }
 
             [TestMethod]
+            public void ThrowsArgumentExceptionWhenBacklogSizeIsLowerThanCapacity()
+            {
+                var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
+                buffer.Capacity = 1111;
+                Assert.Throws<ArgumentException>(() => buffer.MaximumBacklogSize = 1110);
+
+                buffer.MaximumBacklogSize = 8000;
+                Assert.Throws<ArgumentException>(() => buffer.Capacity = 8001);
+
+            }
+
+            [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsLessThanMinimum()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());

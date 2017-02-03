@@ -23,6 +23,7 @@
 
         private int capacity = 500;
         private int maximumBacklogSize = 1000000;
+        private int minimumBacklogSize = 1001;
         private bool itemDroppedMessageLogged = false;
         private List<ITelemetry> transmissionBuffer;
 
@@ -54,6 +55,7 @@
         /// Gets or sets the maximum number of telemetry items that can be buffered before transmission.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        /// <exception cref="ArgumentException">The value is greater than the MaximumBacklogSize.</exception>
         public int Capacity
         {
             get
@@ -68,6 +70,11 @@
                     throw new ArgumentOutOfRangeException("value");
                 }
 
+                if (value > this.maximumBacklogSize)
+                {
+                    throw new ArgumentException("Capacity cannot be greater than MaximumBacklogSize", "Capacity");
+                }
+
                 this.capacity = value;
             }
         }
@@ -77,6 +84,7 @@
         /// once this limit is hit.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The value is zero or less.</exception>
+        /// <exception cref="ArgumentException">The value is less than the Capacity.</exception>
         public int MaximumBacklogSize
         {
             get
@@ -86,9 +94,14 @@
 
             set
             {
-                if (value < 1001)
+                if (value < this.minimumBacklogSize)
                 {
                     throw new ArgumentOutOfRangeException("value");
+                }
+
+                if (value < this.capacity)
+                {
+                    throw new ArgumentException("MaximumBacklogSize cannot be lower than capacity", "MaximumBacklogSize");
                 }
 
                 this.maximumBacklogSize = value;
