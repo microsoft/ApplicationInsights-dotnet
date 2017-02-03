@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Security.Permissions;
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,6 +44,17 @@
             string configuration = platform.ReadConfigurationXml();
             
             Assert.AreEqual(0, configuration.Length);
+        }
+
+        [TestMethod]
+        public void FailureToReadEnvironmentVariablesDoesNotThrowExceptions()
+        {
+            EnvironmentPermission permission = new EnvironmentPermission(EnvironmentPermissionAccess.NoAccess, "PATH");
+            permission.PermitOnly();
+            PlatformImplementation platform = new PlatformImplementation();
+            Assert.IsNull(platform.GetEnvironmentVariable("PATH"));
+            permission = null;
+            EnvironmentPermission.RevertAll();
         }
 
         protected virtual void Dispose(bool disposing)
