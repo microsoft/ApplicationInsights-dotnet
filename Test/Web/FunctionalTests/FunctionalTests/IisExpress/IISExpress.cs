@@ -94,7 +94,14 @@
             if (false == this.hostProcess.WaitForExit(processExitWaitTimeout))
             {
                 Trace.TraceWarning("iisexpress.exe process hasn't exited during expected time, terminating!");
-                this.hostProcess.Kill();
+                try
+                {
+                    this.hostProcess.Kill();
+                }
+                catch (Win32Exception e)
+                {
+                    Trace.TraceWarning("failed to kill iisexpress.exe: " + e.GetType().FullName + ": " + e.Message);
+                }
             }
             else
             {
