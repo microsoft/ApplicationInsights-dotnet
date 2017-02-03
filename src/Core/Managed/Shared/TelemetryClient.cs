@@ -35,6 +35,7 @@
         /// Initializes a new instance of the <see cref="TelemetryClient" /> class. Send telemetry with the specified <paramref name="configuration"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException">The <paramref name="configuration"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="configuration"/> does not contain a telemetry channel.</exception>
         public TelemetryClient(TelemetryConfiguration configuration)
         {
             if (configuration == null)
@@ -44,6 +45,11 @@
             }
 
             this.configuration = configuration;
+
+            if (this.configuration.TelemetryChannel == null)
+            {
+                throw new ArgumentException("The specified configuration does not have a telemetry channel.", "configuration");
+            }
         }
 
         /// <summary>
@@ -78,8 +84,8 @@
         public bool IsEnabled()
         {
             return !this.configuration.DisableTelemetry;
-        }        
-                
+        }
+
         /// <summary>
         /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
         /// </summary>
@@ -363,12 +369,6 @@
                 {
                     TelemetryDebugWriter.WriteTelemetry(telemetry);
                     return;
-                }
-
-                // If someone created configuration from scratch and forgot to initialize channel - use default
-                if (this.configuration.TelemetryChannel == null)
-                {
-                    this.configuration.TelemetryChannel = new InMemoryChannel();
                 }
 
                 // invokes the Process in the first processor in the chain

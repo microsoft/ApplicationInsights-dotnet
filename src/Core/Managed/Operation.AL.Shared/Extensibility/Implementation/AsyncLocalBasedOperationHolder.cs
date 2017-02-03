@@ -15,6 +15,10 @@
 
         private TelemetryClient telemetryClient;
         private T telemetry;
+
+        /// <summary>
+        /// Indicates if this instance has been disposed of.
+        /// </summary>
         private bool isDisposed = false;
 
         /// <summary>

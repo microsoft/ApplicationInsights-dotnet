@@ -153,12 +153,20 @@
             this.Dispose(true);
         }
 
+        /// <summary>
+        /// Disposes of resources.
+        /// </summary>
+        /// <param name="managed">Indicates if managed code is being disposed.</param>
         private void Dispose(bool managed)
         {
             if (managed && !this.disposed)
             {
                 this.EventListener.Dispose();
                 (this.throttlingScheduler as IDisposable).Dispose();
+                foreach (var disposableSender in this.Senders.OfType<IDisposable>())
+                {
+                    disposableSender.Dispose();
+                }
 
                 GC.SuppressFinalize(this);
             }

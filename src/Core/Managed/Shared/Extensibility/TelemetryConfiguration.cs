@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -22,11 +23,61 @@
         private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
+        private ITelemetryChannel telemetryChannel = null;
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
         private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
+
+        /// <summary>
+        /// Indicates if this instance has been disposed of.
+        /// </summary>
+        private bool isDisposed = false;
+
+        /// <summary>
+        /// Indicates if we created the telemetry channel and should therefore dispose of it.
+        /// </summary>
+        private bool shouldDisposeChannel = false;
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TelemetryConfiguration() : this(string.Empty, new InMemoryChannel())
+        {
+            this.shouldDisposeChannel = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
+        public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, new InMemoryChannel())
+        {
+            this.shouldDisposeChannel = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TelemetryConfiguration class.
+        /// </summary>
+        /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
+        /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
+        public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
+        {
+            if (channel == null)
+            {
+                throw new ArgumentNullException("channel");
+            }
+
+            if (instrumentationKey == null)
+            {
+                throw new ArgumentNullException("instrumentationKey");
+            }
+
+            this.instrumentationKey = instrumentationKey;
+            this.telemetryChannel = channel;
+        }
 
         /// <summary>
         /// Gets the active <see cref="TelemetryConfiguration"/> instance loaded from the ApplicationInsights.config file. 
@@ -173,7 +224,27 @@
         /// <summary>
         /// Gets or sets the telemetry channel.
         /// </summary>
-        public ITelemetryChannel TelemetryChannel { get; set; }
+        public ITelemetryChannel TelemetryChannel
+        {
+            get
+            {
+                return this.telemetryChannel;
+            }
+
+            set
+            {
+                ITelemetryChannel oldChannel = this.telemetryChannel;
+                this.telemetryChannel = value;
+
+                // If we have a previously assigned channel which was created by us and is not the same one as the
+                // "new" value passed in then we need to dispose of the old channel to keep from leaking resources.
+                if (oldChannel != null && oldChannel != value && this.shouldDisposeChannel)
+                {
+                    oldChannel.Dispose();
+                    this.shouldDisposeChannel = false; // The new one wasn't created by us so it should be managed by whoever created it.
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the chain of processors.
@@ -240,22 +311,27 @@
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Disposes of resources.
+        /// </summary>
+        /// <param name="disposing">Indicates if managed code is being disposed.</param>
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!this.isDisposed && disposing)
             {
+                this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
 
-                ITelemetryChannel telemetryChannel = this.TelemetryChannel;
-                if (telemetryChannel != null)
+                if (this.shouldDisposeChannel && this.telemetryChannel != null)
                 {
-                    telemetryChannel.Dispose();
+                    this.telemetryChannel.Dispose();
+                    this.telemetryChannel = null;
                 }
 
-                TelemetryProcessorChain processorChain = this.telemetryProcessorChain;
-                if (processorChain != null)
+                if (this.telemetryProcessorChain != null)
                 {
-                    processorChain.Dispose();
+                    // Not setting this.telemetryProcessorChain to null because calls to the property getter would reinitialize it.
+                    this.telemetryProcessorChain.Dispose();
                 }
             }
         }

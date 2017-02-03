@@ -127,7 +127,7 @@
         public void InitializeReadsInstrumentationKeyFromEnvironmentVariableIfNotSpecifiedInConfig()
         {
             // ARRANGE
-            var ikey = Guid.NewGuid().ToString();
+            string ikey = Guid.NewGuid().ToString();
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikey);
             TelemetryConfiguration configuration = new TelemetryConfiguration();
 
@@ -142,11 +142,11 @@
         public void InitializeReadsInstrumentationKeyFromEnvironmentVariableEvenIfSpecifiedInConfig()
         {
             // ARRANGE
-            var ikeyConfig = Guid.NewGuid().ToString();
-            var ikeyEnvironmentVariable = Guid.NewGuid().ToString();
+            string ikeyConfig = Guid.NewGuid().ToString();
+            string ikeyEnvironmentVariable = Guid.NewGuid().ToString();
 
             Environment.SetEnvironmentVariable(EnvironmentVariableName, ikeyEnvironmentVariable);
-            TelemetryConfiguration configuration = new TelemetryConfiguration() { InstrumentationKey = ikeyConfig };
+            TelemetryConfiguration configuration = new TelemetryConfiguration(ikeyConfig);
 
             // ACT
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null);

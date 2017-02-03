@@ -409,7 +409,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
         {
             var channel = new StubTelemetryChannel { OnSend = t => sentTelemetry.Add(t) };
 
-            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = Guid.NewGuid().ToString(), TelemetryChannel = channel };
+            var telemetryConfiguration = new TelemetryConfiguration(Guid.NewGuid().ToString(), channel);
             telemetryConfiguration.MetricProcessors.Add(new StubMetricProcessor(sentSamples));
 
             var client = new TelemetryClient(telemetryConfiguration);
