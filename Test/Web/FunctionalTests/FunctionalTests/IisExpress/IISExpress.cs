@@ -91,7 +91,7 @@
             this.hostProcess.Kill();
 
             Trace.TraceInformation("Kill invoked. Waiting for exit of iisexpress.exe: pid={0}", this.hostProcess.Id);
-            if (false == this.hostProcess.WaitForExit(processStopWaitTimeout))
+            if (false == this.hostProcess.WaitForExit(processExitWaitTimeout))
             {
                 Trace.TraceWarning("iisexpress.exe process hasn't exited during expected time, terminating!");
                 throw new Exception("IISExpress.exe process has not exited!");
