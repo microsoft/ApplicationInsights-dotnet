@@ -86,23 +86,15 @@
         {
             const int processExitWaitTimeout = 10000;
 
-            Trace.TraceInformation("Stopping iisexpress.exe: pid={0}", this.hostProcess.Id);
+            Trace.TraceInformation("Killing iisexpress.exe: pid={0}", this.hostProcess.Id);
 
-            SendStopMessageToProcess(this.hostProcess.Id);
+            this.hostProcess.Kill();
 
-            Trace.TraceInformation("Waiting for exit of iisexpress.exe: pid={0}", this.hostProcess.Id);
-            if (false == this.hostProcess.WaitForExit(processExitWaitTimeout))
+            Trace.TraceInformation("Kill invoked. Waiting for exit of iisexpress.exe: pid={0}", this.hostProcess.Id);
+            if (false == this.hostProcess.WaitForExit(processStopWaitTimeout))
             {
                 Trace.TraceWarning("iisexpress.exe process hasn't exited during expected time, terminating!");
-                try
-                {
-                    this.hostProcess.Kill();
-                    Trace.TraceWarning("Successfully terminated IISProcess with Kill call.");
-                }
-                catch (Win32Exception e)
-                {
-                    Trace.TraceWarning("failed to kill iisexpress.exe: " + e.GetType().FullName + ": " + e.Message);
-                }
+                throw new Exception("IISExpress.exe process has not exited!");
             }
             else
             {
