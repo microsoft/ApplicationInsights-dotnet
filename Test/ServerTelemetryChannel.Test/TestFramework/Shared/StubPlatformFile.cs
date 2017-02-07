@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
+﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.IO;

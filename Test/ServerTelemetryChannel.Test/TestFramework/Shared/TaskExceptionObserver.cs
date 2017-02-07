@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
+﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,9 @@
     /// </summary>
     internal sealed class TaskExceptionObserver : IDisposable
     {
+#if NET40 || NET45
         private static readonly MethodInfo GetScheduledTasksMethod = typeof(TaskScheduler).GetMethod("GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic);
+#endif
         private List<AggregateException> unobservedExceptions = new List<AggregateException>();
 
         public TaskExceptionObserver()
@@ -35,6 +37,7 @@
 
         private static void WaitForCurrentTasksToFinish()
         {
+#if NET40 || NET45
             IEnumerable<Task> scheduledTasks;
             do
             {
@@ -42,6 +45,7 @@
                 Task.WaitAll(scheduledTasks.ToArray());
             }
             while (scheduledTasks.Any());
+#endif
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.GC.Collect", Justification = "This is forcing a test scenario")]

@@ -20,7 +20,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
     using Assert = Xunit.Assert;

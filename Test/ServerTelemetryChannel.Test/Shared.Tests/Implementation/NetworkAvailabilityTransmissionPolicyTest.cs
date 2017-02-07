@@ -6,7 +6,7 @@
 #endif
     using System.Linq;
     using System.Net.Sockets;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 
 #if NET40

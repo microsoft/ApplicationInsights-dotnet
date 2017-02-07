@@ -1,10 +1,10 @@
 ﻿#define DEBUG
 
-namespace Microsoft.ApplicationInsights.Web.TestFramework
+namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if NET45
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
@@ -26,7 +26,7 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
 
         private static void VerifyMethodImplementation(EventSource eventSource, MethodInfo eventMethod)
         {
-            using (var listener = new TestEventListener())
+            using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
             {
                 const long AllKeywords = -1;
                 listener.EnableEvents(eventSource, EventLevel.Verbose, (EventKeywords)AllKeywords);
@@ -125,6 +125,7 @@ namespace Microsoft.ApplicationInsights.Web.TestFramework
         private static IEnumerable<MethodInfo> GetEventMethods(EventSource eventSource)
         {
             MethodInfo[] methods = eventSource.GetType().GetMethods();
+
             return methods.Where(m => m.GetCustomAttributes(typeof(EventAttribute), false).Any());
         }
     }
