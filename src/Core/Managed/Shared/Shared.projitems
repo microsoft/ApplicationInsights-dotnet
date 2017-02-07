@@ -25,6 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ExceptionTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\IJsonWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\InnerExceptionCountExceededException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportMetrics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\ISupportSampling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\MetricTelemetry.cs" />
