@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-#if NET45
+#if NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -32,7 +32,6 @@
         {
         }
 
-#if NET45
         public Task SaveAsync(Stream stream)
         {
             return TaskEx.Run(() => this.OnSave(stream));
@@ -42,7 +41,6 @@
         {
             return TaskEx.Run(this.OnSend);
         }
-#endif
 
         public override Tuple<Transmission, Transmission> Split(Func<int, int> calculateLength)
         {

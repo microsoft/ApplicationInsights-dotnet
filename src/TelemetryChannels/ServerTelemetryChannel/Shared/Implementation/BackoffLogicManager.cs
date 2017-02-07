@@ -8,10 +8,6 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
-#if CORE_PCL || NET45 || NET46
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
-
     internal class BackoffLogicManager : IDisposable
     {
         private const int SlotDelayInSeconds = 10;

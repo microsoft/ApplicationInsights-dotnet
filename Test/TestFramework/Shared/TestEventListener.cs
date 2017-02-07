@@ -16,10 +16,13 @@
         private readonly ConcurrentQueue<EventWrittenEventArgs> events;
         private readonly AutoResetEvent eventWritten;
 
-        public TestEventListener()
+        private readonly bool waitForDelayedEvents;
+
+        public TestEventListener(bool waitForDelayedEvents = true)
         {
             this.events = new ConcurrentQueue<EventWrittenEventArgs>();
             this.eventWritten = new AutoResetEvent(false);
+            this.waitForDelayedEvents = waitForDelayedEvents;
             this.OnOnEventWritten = e =>
             {
                 this.events.Enqueue(e);
@@ -35,7 +38,7 @@
         {
             get 
             {
-                if (this.events.Count == 0)
+                if (this.events.Count == 0 && this.waitForDelayedEvents)
                 {
                     this.eventWritten.WaitOne(TimeSpan.FromSeconds(5));
                 }

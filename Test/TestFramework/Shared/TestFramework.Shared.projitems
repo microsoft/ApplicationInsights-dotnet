@@ -23,7 +23,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)StubWebResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StubTransmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TaskExceptionObserver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TaskExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryAction.cs" />
