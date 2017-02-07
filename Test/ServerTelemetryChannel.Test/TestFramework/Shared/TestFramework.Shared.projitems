@@ -9,7 +9,6 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.TestFramework</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubApplicationLifecycle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubNetwork.cs" />

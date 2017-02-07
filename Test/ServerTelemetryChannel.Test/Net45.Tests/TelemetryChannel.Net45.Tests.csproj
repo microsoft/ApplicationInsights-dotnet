@@ -65,16 +65,13 @@
       <Project>{412659ca-49b0-4834-bfbf-8183055083c8}</Project>
       <Name>Core.Net45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net45\TestFramework.Net45.csproj">
-      <Project>{1be54ee7-6627-4206-86dd-3d2c709a1500}</Project>
-      <Name>TestFramework.Net45</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\TelemetryChannels\ServerTelemetryChannel\Net45\TelemetryChannel.Net45.csproj">
       <Project>{18CE7397-7566-46D6-A52D-3B441363B326}</Project>
       <Name>TelemetryChannel.Net45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
+  <Import Project="..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
