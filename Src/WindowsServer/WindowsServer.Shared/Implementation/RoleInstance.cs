@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Reflection;
 
     /// <summary>
     /// Represents an instance of a role. 
@@ -12,8 +13,9 @@
         /// Initializes a new instance of the <see cref="RoleInstance"/> class.
         /// </summary>
         /// <param name="targetObject">The target object.</param>
-        public RoleInstance(object targetObject)
-            : base(TypeHelpers.GetLoadedType("Microsoft.WindowsAzure.ServiceRuntime.RoleInstance", "Microsoft.WindowsAzure.ServiceRuntime"), targetObject)
+        /// <param name="loadedAssembly">The loaded assembly.</param>
+        public RoleInstance(object targetObject, Assembly loadedAssembly)
+            : base(loadedAssembly.GetType("Microsoft.WindowsAzure.ServiceRuntime.RoleInstance", false), loadedAssembly, targetObject)
         {
         }
 
@@ -46,7 +48,7 @@
                 }
 
                 object role = this.GetProperty("Role");
-                return new Role(role);
+                return new Role(role, this.LoadedAssembly);
             }
         }
 

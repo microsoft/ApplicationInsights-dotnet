@@ -135,6 +135,90 @@
             this.WriteEvent(13, exception, this.ApplicationName);
         }
 
+        [Event(14, Message = "Unknown error occured in {0}. Exception: {0}", Level = EventLevel.Error)]
+        public void UnknownErrorOccured(string source, string exception, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(14, source, exception, this.ApplicationName);
+        }
+
+        [Event(15, Level = EventLevel.Warning, Message = @"Accessing environment variable - {0} failed with exception: {1}.")]
+        public void AccessingEnvironmentVariableFailedWarning(
+            string environmentVariable,
+            string exceptionMessage,
+            string applicationName = "Incorrect")
+        {
+            this.WriteEvent(15, environmentVariable, exceptionMessage, this.ApplicationName);
+        }
+
+        [Event(16, Message = "AzureRoleEnvironmentTelemetryInitializer will not be initialized as application is determined to be running in Azure WebApps.", Level = EventLevel.Informational)]
+        public void AzureRoleEnvironmentTelemetryInitializerNotInitializedInWebApp(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(16, this.ApplicationName);
+        }
+
+        [Event(
+            17,
+            Message = "Successfully loaded assembly {0} from location {1} into AppDomain {2}.",
+            Level = EventLevel.Informational)]
+        public void AssemblyLoadSuccess(string assembly, string location, string appDomain, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(17, assembly, location, appDomain, this.ApplicationName);
+        }
+
+        [Event(
+           18,
+           Message = "Failed loading assembly {0} with exception: {1}",
+           Level = EventLevel.Informational)]
+        public void AssemblyLoadAttemptFailed(string assembly, string exceptionMessage, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(18, assembly, exceptionMessage, this.ApplicationName);
+        }
+
+        [Event(
+           19,
+           Message = "Failed loading any version of assembly {0}",
+           Level = EventLevel.Informational)]
+        public void AssemblyLoadFailedAllVersion(string assembly, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(19, assembly, this.ApplicationName);
+        }
+
+        [Event(
+           20,
+           Message = "AzureRoleEnvironmentContextReader initialize successfully completed reading context.",
+           Level = EventLevel.Informational)]
+        public void AzureRoleEnvironmentContextReaderInitializedSuccess(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(20, this.ApplicationName);
+        }
+
+        [Event(
+           21,
+           Message = "AzureRoleEnvironmentContextReader failed to populate context. Application is assumed not be running in Azure Cloud service.",
+           Level = EventLevel.Informational)]
+        public void AzureRoleEnvironmentContextReaderInitializationFailed(string applicationName = "Incorrect")
+        {
+            this.WriteEvent(21, this.ApplicationName);
+        }
+
+        [Event(
+           22,
+           Message = "AppDomain {0}, Message {1}",
+           Level = EventLevel.Informational)]
+        public void AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(string domainName, string msg, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(22, domainName, msg, this.ApplicationName);
+        }
+
+        [Event(
+           23,
+           Message = "AzureRoleEnvironmentContextReader initialization took {0} msec.",
+           Level = EventLevel.Informational)]
+        public void AzureRoleEnvironmentContextReaderInitializationDuration(long durationMsec, string applicationName = "Incorrect")
+        {
+            this.WriteEvent(23, durationMsec, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

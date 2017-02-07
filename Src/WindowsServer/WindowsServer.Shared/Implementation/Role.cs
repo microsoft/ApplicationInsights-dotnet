@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Reflection;
 
     /// <summary>
     /// Represents a role that is defined as part of a hosted service. 
@@ -12,8 +13,9 @@
         /// Initializes a new instance of the <see cref="Role"/> class.
         /// </summary>
         /// <param name="targetObject">The target object.</param>
-        public Role(object targetObject)
-            : base(TypeHelpers.GetLoadedType("Microsoft.WindowsAzure.ServiceRuntime.Role", "Microsoft.WindowsAzure.ServiceRuntime"), targetObject)
+        /// <param name="loadedAssembly">The loaded assembly.</param>
+        public Role(object targetObject, Assembly loadedAssembly)
+            : base(loadedAssembly.GetType("Microsoft.WindowsAzure.ServiceRuntime.Role", false), loadedAssembly, targetObject)
         {
         }
 

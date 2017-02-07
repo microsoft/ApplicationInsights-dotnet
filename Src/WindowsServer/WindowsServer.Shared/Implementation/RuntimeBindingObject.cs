@@ -21,15 +21,22 @@
         private object targetObject;
 
         /// <summary>
+        /// The assembly which is loaded reflectively.
+        /// </summary>
+        private Assembly loadedAssembly;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RuntimeBindingObject"/> class.
         /// </summary>
         /// <param name="targetType">Type of the target.</param>
+        /// <param name="loadedAssembly">The loaded assembly.</param>
         /// <param name="activationArgs">The activation arguments.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors", Justification = "Safe to override")]
-        protected RuntimeBindingObject(Type targetType, params object[] activationArgs)
+        protected RuntimeBindingObject(Type targetType, Assembly loadedAssembly, params object[] activationArgs)
         {
             this.targetType = targetType;
             this.targetObject = this.GetTargetObjectInstance(targetType, activationArgs);
+            this.loadedAssembly = loadedAssembly;
         }
         
         /// <summary>
@@ -48,6 +55,15 @@
         {
             get { return this.targetObject; }
             set { this.targetObject = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the loaded assembly.
+        /// </summary>
+        protected internal Assembly LoadedAssembly
+        {
+            get { return this.loadedAssembly; }
+            set { this.loadedAssembly = value; }
         }
 
         /// <summary>
