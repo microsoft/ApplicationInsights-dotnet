@@ -185,11 +185,11 @@
 
         [Event(
            20,
-           Message = "AzureRoleEnvironmentContextReader initialize successfully completed reading context.",
+           Message = "AzureRoleEnvironmentContextReader initialize successfully completed reading context. RoleName: {0}, RoleInstanceName: {1}",
            Level = EventLevel.Informational)]
-        public void AzureRoleEnvironmentContextReaderInitializedSuccess(string applicationName = "Incorrect")
+        public void AzureRoleEnvironmentContextReaderInitializedSuccess(string roleName, string roleInstanceName, string applicationName = "Incorrect")
         {
-            this.WriteEvent(20, this.ApplicationName);
+            this.WriteEvent(20, roleName, roleInstanceName, this.ApplicationName);
         }
 
         [Event(

@@ -43,11 +43,6 @@
                     return AzureRoleEnvironmentContextReader.instance;
                 }
 
-                if (string.IsNullOrEmpty(AzureRoleEnvironmentContextReader.BaseDirectory) == true)
-                {
-                    AzureRoleEnvironmentContextReader.BaseDirectory = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "bin");
-                }
-
                 // Allows replacement for test purposes to load a different AssemblyLoaderType.
                 if (AzureRoleEnvironmentContextReader.AssemblyLoaderType == null)
                 {
@@ -65,12 +60,7 @@
                 AzureRoleEnvironmentContextReader.instance = value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the base directly where hunting for application DLLs is to start.
-        /// </summary>
-        internal static string BaseDirectory { get; set; }        
-
+        
         internal static Type AssemblyLoaderType { get; set; }        
 
         /// <summary>
@@ -89,22 +79,24 @@
             // and without interfering with any customer code which could be loading same/different version of Microsoft.WindowsAzure.ServiceRuntime.dll.
             try
             {
-                AppDomainSetup domaininfo = new AppDomainSetup();            
-                domaininfo.ApplicationBase = AzureRoleEnvironmentContextReader.BaseDirectory;                
+                AppDomainSetup domaininfo = new AppDomainSetup();
+                domaininfo.ApplicationBase = Path.GetDirectoryName(AzureRoleEnvironmentContextReader.AssemblyLoaderType.Assembly.Location);
 
                 // Create a new AppDomain
                 tempDomainToLoadAssembly = AppDomain.CreateDomain(tempDomainName, null, domaininfo);
+                WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, " Successfully  created with ApplicationBase: " + domaininfo.ApplicationBase);
 
                 // Load the RemoteWorker assembly to the new domain            
                 tempDomainToLoadAssembly.Load(typeof(AzureServiceRuntimeAssemblyLoader).Assembly.FullName);
-                
+                WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, " Successfully loaded assembly: " + typeof(AzureServiceRuntimeAssemblyLoader).Assembly.FullName);
+
                 // Any method invoked on this object will be executed in the newly created AppDomain.
                 AzureServiceRuntimeAssemblyLoader remoteWorker = (AzureServiceRuntimeAssemblyLoader)tempDomainToLoadAssembly.CreateInstanceAndUnwrap(AzureRoleEnvironmentContextReader.AssemblyLoaderType.Assembly.FullName, AzureRoleEnvironmentContextReader.AssemblyLoaderType.FullName);
 
                 bool success = remoteWorker.ReadAndPopulateContextInformation(out this.roleName, out this.roleInstanceName);
                 if (success)
                 {
-                    WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderInitializedSuccess();
+                    WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderInitializedSuccess(this.roleName, this.roleInstanceName);
                 }
                 else
                 {                    

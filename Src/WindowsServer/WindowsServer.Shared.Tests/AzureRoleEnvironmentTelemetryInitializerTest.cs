@@ -111,19 +111,18 @@
                 new System.EnterpriseServices.Internal.Publish().GacInstall(dllPath);
 
                 // Validate that the dll is not loaded to test AppDomaion to begin with.
-                var retrievedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => string.Equals(item.GetName().Name, "Newtonsoft.Json", StringComparison.OrdinalIgnoreCase));
+                var retrievedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => string.Equals(item.GetName().Name, "Microsoft.ApplicationInsights.Log4NetAppender", StringComparison.OrdinalIgnoreCase));
                 Assert.Null(retrievedAssembly);
-
-                // Create initializer - this will internally create separate appdomain and load assembly into it.
-                AzureRoleEnvironmentContextReader.BaseDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-
-                // TestAssemblyLoader will load a random assembly (newtonsoft.json.dll) and populate TestRoleName, TestRoleInstanceId into the fields.
+                
+                // TestAssemblyLoader will load a random assembly (Microsoft.ApplicationInsights.Log4NetAppender.dll) and populate TestRoleName, TestRoleInstanceId into the fields.
                 AzureRoleEnvironmentContextReader.AssemblyLoaderType = typeof(TestAzureServiceRuntimeAssemblyLoader);
                 AzureRoleEnvironmentContextReader.Instance = null;
+
+                // Create initializer - this will internally create separate appdomain and load assembly into it.
                 AzureRoleEnvironmentTelemetryInitializer initializer = new AzureRoleEnvironmentTelemetryInitializer();
 
                 // Validate that the dll is still not loaded to current appdomain.
-                retrievedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => string.Equals(item.GetName().Name, "Newtonsoft.Json", StringComparison.OrdinalIgnoreCase));
+                retrievedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(item => string.Equals(item.GetName().Name, "Microsoft.ApplicationInsights.Log4NetAppender", StringComparison.OrdinalIgnoreCase));
                 Assert.Null(retrievedAssembly);
 
                 // Validate that initializer has populated expected context properties. (set by TestAssemblyLoader)
