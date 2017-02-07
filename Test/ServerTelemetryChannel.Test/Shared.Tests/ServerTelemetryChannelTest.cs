@@ -12,7 +12,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Assert = Xunit.Assert;
-    
+    using Helpers;
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif

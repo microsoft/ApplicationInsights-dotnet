@@ -10,6 +10,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
+    using Channel.Helpers;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;

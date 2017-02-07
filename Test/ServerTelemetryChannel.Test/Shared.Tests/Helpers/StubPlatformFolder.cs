@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
 {
     using System;
     using System.Collections.Generic;
