@@ -5,7 +5,6 @@
     <HasSharedItems>true</HasSharedItems>
     <SharedGUID>f76c6cbd-29b0-4564-bdcb-c969f8fec136</SharedGUID>
     <RootNamespace>Microsoft.ApplicationInsights.TestFramework</RootNamespace>
-    <AssemblyName>$(RootNamespace)</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Microsoft.ApplicationInsights.TestFramework</Import_RootNamespace>
