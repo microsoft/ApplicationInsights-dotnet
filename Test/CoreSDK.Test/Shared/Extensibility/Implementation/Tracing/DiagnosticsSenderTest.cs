@@ -15,7 +15,7 @@
         [TestMethod]
         public void TestLogMessage()
         {
-            var senderMock = new F5DiagnosticsSenderMock();
+            var senderMock = new DiagnosticsSenderMock();
             var evt = new TraceEvent
             {
                 MetaData = new EventMetaData
@@ -36,7 +36,7 @@
         [TestMethod]
         public void TestLogMessageWithEmptyPayload()
         {
-            var senderMock = new F5DiagnosticsSenderMock();
+            var senderMock = new DiagnosticsSenderMock();
             var evt = new TraceEvent
             {
                 MetaData = new EventMetaData

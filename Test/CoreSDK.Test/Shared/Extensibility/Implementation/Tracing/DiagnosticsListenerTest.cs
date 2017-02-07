@@ -36,7 +36,7 @@
         [TestMethod]
         public void TestEventSending()
         {
-            var senderMock = new F5DiagnosticsSenderMock();
+            var senderMock = new DiagnosticsSenderMock();
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {
@@ -51,7 +51,7 @@
         [TestMethod]
         public void TestListenerWithDifferentSeverity()
         {
-            var senderMock = new F5DiagnosticsSenderMock();
+            var senderMock = new DiagnosticsSenderMock();
             var senders = new List<IDiagnosticsSender> { senderMock };
             using (var listener = new DiagnosticsListener(senders))
             {

@@ -101,7 +101,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\EventMetaData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\EventSourceKeywords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\Extensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\F5DiagnosticsSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottlingManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\IDiagnoisticsEventThrottlingScheduler.cs" />
