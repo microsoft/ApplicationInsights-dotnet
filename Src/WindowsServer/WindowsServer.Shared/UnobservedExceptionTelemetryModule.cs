@@ -78,9 +78,27 @@
                 SeverityLevel = SeverityLevel.Critical,
             };
 
-            // TODO: what if TrackException will throw another UnobservedTaskException?
-            // Either put a comment here why it will never ever happen or include a protection logic
-            this.telemetryClient.TrackException(exp);
+            // It is theoretically possible for TrackException to throw another UnobservedTaskException but in practice
+            // it won't, and even if it did, it would not cause an out of memory exception nor would it cause a stack
+            // overflow exception.  The existing channels InMemoryChannel and ServerTelemetryChannel both have try
+            // catches to make sure they don't throw unhandled exceptions.  In the event of complete failure they write
+            // to the event source and do not throw.  If someone were to write their own channel which was not well
+            // behaved, or someone were to break one of our channels so that it threw an exception, then we still would
+            // not get a stack overflow because the unhandled exception would occur on another thread.  When calls are
+            // made to TelemetryClient.Track they simply queue an item in the channel's buffer.  When the channel tries
+            // to actually send the data in the buffer that occurs later on another thread.  So if the sending of the
+            // data had an unhandled exception then the worst thing that would happen is that a single new telemetry
+            // item would be queued in the buffer for the unhandled exception.  Since the buffer holds 500 items by
+            // default we would at most get 1 extra item for every 499 regular items.  With our channels we currently
+            // do not have such a bug.
+            try
+            {
+                this.telemetryClient.TrackException(exp);
+            }
+            catch (Exception e)
+            {
+                WindowsServerEventSource.Log.UnobservedTaskExceptionThrewUnhandledException(e.ToString());
+            }
         }
     }
 }

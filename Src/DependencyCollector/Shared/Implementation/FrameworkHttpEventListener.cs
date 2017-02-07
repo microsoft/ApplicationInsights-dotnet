@@ -5,6 +5,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Operation;
 
     /// <summary>
     /// Provides methods for listening to events from FrameworkEventSource for HTTP.
@@ -41,22 +42,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         private const int EndGetRequestStreamEventId = 143;
 
-        internal FrameworkHttpEventListener(TelemetryConfiguration configuration)
+        internal FrameworkHttpEventListener(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder)
         {
-            this.HttpProcessingFramework = new FrameworkHttpProcessing(configuration, DependencyTableStore.Instance.WebRequestCacheHolder);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            if (this.HttpProcessingFramework != null)
-            {
-                this.HttpProcessingFramework.Dispose();
-            }
-
-            base.Dispose();
+            this.HttpProcessingFramework = new FrameworkHttpProcessing(configuration, telemetryTupleHolder);
         }
 
         /// <summary>

@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.3.0-beta1\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.3.0-beta2\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -73,6 +73,15 @@
   <ItemGroup>
     <Compile Include="Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="PerformanceCollectorTestBase.cs" />
+    <Compile Include="QuickPulse\Mocks\CategorySampleMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseProcessProviderMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulsePerfLibMock.cs" />
+    <Compile Include="QuickPulse\Mocks\QuickPulseTopCpuCollectorMock.cs" />
+    <Compile Include="QuickPulse\PerfLib\CategorySampleTests.cs" />
+    <Compile Include="QuickPulse\PerfLib\CounterDefinitionSampleTests.cs" />
+    <Compile Include="QuickPulse\PerfLib\PerformanceMonitorTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseProcessProviderTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseTopCpuCollectorTests.cs" />
     <Compile Include="WebAppPerformanceCollectorTests.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />
     <Compile Include="PerformanceCollectorModuleTests.cs" />
@@ -126,6 +135,9 @@
       <Project>{61fc6e01-b40d-4db2-9dab-b27b82f02244}</Project>
       <Name>Perf.Net40</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="QuickPulse\PerfLib\PerfData.data" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,6 +10,8 @@
 #endif
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -35,12 +37,15 @@
         private static readonly string ExpectedResourceName = DatabaseServer + " | " + DataBaseName + " | " + MyStoredProcName;
         private static readonly string ExpectedData = MyStoredProcName;
         private static readonly string ExpectedTarget = DatabaseServer + " | " + DataBaseName;
+        private static readonly string ExpectedConnectionName = DatabaseServer + " | " + DataBaseName + " | Open";
         private static readonly string ExpectedType = RemoteDependencyConstants.SQL;
+        private static readonly string ExpectedCommandTextForSqlConnection = "Open";
 
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
-        private ProfilerSqlProcessing sqlProcessingProfiler;        
-        
+        private ProfilerSqlCommandProcessing sqlCommandProcessingProfiler;
+        private ProfilerSqlConnectionProcessing sqlConnectionProcessingProfiler;
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -48,7 +53,8 @@
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.sqlProcessingProfiler = new ProfilerSqlProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.sqlCommandProcessingProfiler = new ProfilerSqlCommandProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
+            this.sqlConnectionProcessingProfiler = new ProfilerSqlConnectionProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder());
         }
 
         [TestCleanup]
@@ -61,8 +67,8 @@
         public void OnBeginSavesTelemetryInWeakTable_1ArgumentOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForOneParameter(command);
-            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+            this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            DependencyTelemetry operationReturned = this.sqlCommandProcessingProfiler.TelemetryTable.Get(command).Item1;
 
             Assert.IsNotNull(operationReturned);
             Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
@@ -75,8 +81,8 @@
         public void OnBeginSavesTelemetryInWeakTable_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
-            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+            this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            DependencyTelemetry operationReturned = this.sqlCommandProcessingProfiler.TelemetryTable.Get(command).Item1;
 
             Assert.IsNotNull(operationReturned);
             Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
@@ -89,8 +95,8 @@
         public void OnBeginSavesTelemetryInWeakTable_3ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForThreeParameters(command, null, null);
-            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+            this.sqlCommandProcessingProfiler.OnBeginForThreeParameters(command, null, null);
+            DependencyTelemetry operationReturned = this.sqlCommandProcessingProfiler.TelemetryTable.Get(command).Item1;
 
             Assert.IsNotNull(operationReturned);
             Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
@@ -103,8 +109,8 @@
         public void OnBeginSavesTelemetryInWeakTable_4ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();
-            this.sqlProcessingProfiler.OnBeginForFourParameters(command, null, null, null);
-            DependencyTelemetry operationReturned = this.sqlProcessingProfiler.TelemetryTable.Get(command).Item1;
+            this.sqlCommandProcessingProfiler.OnBeginForFourParameters(command, null, null, null);
+            DependencyTelemetry operationReturned = this.sqlCommandProcessingProfiler.TelemetryTable.Get(command).Item1;
 
             Assert.IsNotNull(operationReturned);
             Assert.AreEqual(ExpectedResourceName, operationReturned.Name, true, CultureInfo.InvariantCulture);
@@ -121,8 +127,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForOneParameter(context, returnObjectPassed, command);
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndForOneParameter(context, returnObjectPassed, command);
             stopwatch.Stop();
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
@@ -144,8 +150,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForTwoParameters(context, returnObjectPassed, command, null);
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndForTwoParameters(context, returnObjectPassed, command, null);
             stopwatch.Stop();
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
@@ -167,8 +173,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForThreeParameters(command, null, null);
-            var objectReturned = this.sqlProcessingProfiler.OnEndForThreeParameters(context, returnObjectPassed, command, null, null);
+            var context = this.sqlCommandProcessingProfiler.OnBeginForThreeParameters(command, null, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndForThreeParameters(context, returnObjectPassed, command, null, null);
             stopwatch.Stop();
 
             Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
@@ -189,8 +195,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
-            this.sqlProcessingProfiler.OnExceptionForOneParameter(
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            this.sqlCommandProcessingProfiler.OnExceptionForOneParameter(
                 context, 
                 TestUtils.GenerateSqlException(10), 
                 command);
@@ -212,8 +218,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForTwoParameters(command, null);
-            this.sqlProcessingProfiler.OnExceptionForTwoParameters(
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            this.sqlCommandProcessingProfiler.OnExceptionForTwoParameters(
                 context,
                 TestUtils.GenerateSqlException(10),
                 command,
@@ -236,8 +242,8 @@
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var context = this.sqlProcessingProfiler.OnBeginForOneParameter(command);
-            this.sqlProcessingProfiler.OnExceptionForThreeParameters(
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            this.sqlCommandProcessingProfiler.OnExceptionForThreeParameters(
                 context,
                 TestUtils.GenerateSqlException(10),
                 command,
@@ -258,7 +264,7 @@
         public void ResourceNameForNonStoredProcIsCollectedCorrectly()
         {
             SqlCommand command = GetSqlCommandTestForQuery();
-            string actualResourceName = this.sqlProcessingProfiler.GetResourceName(command);
+            string actualResourceName = this.sqlCommandProcessingProfiler.GetDependencyName(command);
             Assert.AreEqual(ExpectedTarget, actualResourceName);
         }
 
@@ -266,16 +272,16 @@
         public void CommandNameForNonStoredProcIsCollectedCorrectly()
         {
             SqlCommand command = GetMoreComplexSqlCommandTestForQuery();
-            string actualCommandName = this.sqlProcessingProfiler.GetCommandName(command);
+            string actualCommandName = this.sqlCommandProcessingProfiler.GetCommandName(command);
             Assert.AreEqual(command.CommandText, actualCommandName);
         }
 
         [TestMethod]
         public void GetCommandNameReturnsEmptyStringForNullSqlCommand()
         {
-            var actualCommandName = this.sqlProcessingProfiler.GetCommandName(null);
+            var actualCommandName = this.sqlCommandProcessingProfiler.GetCommandName(null);
             Assert.AreEqual(string.Empty, actualCommandName);
-        }
+        }        
 
         [TestMethod]
         public void OnBeginLogsWarningWhenFailed()
@@ -286,7 +292,7 @@
                 listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
                 try
                 {
-                    this.sqlProcessingProfiler.OnBeginForOneParameter(null);
+                    this.sqlCommandProcessingProfiler.OnBeginForOneParameter(null);
                 }
                 catch (Exception)
                 {
@@ -307,7 +313,7 @@
                 try
                 {
                     SqlCommand command = new SqlCommand();
-                    this.sqlProcessingProfiler.OnBeginForOneParameter(command);
+                    this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
                 }
                 catch (Exception)
                 {
@@ -328,7 +334,7 @@
                 listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
                 try
                 {                    
-                    this.sqlProcessingProfiler.OnEndForOneParameter(new object(), new object(), null);
+                    this.sqlCommandProcessingProfiler.OnEndForOneParameter(new object(), new object(), null);
                 }
                 catch (Exception)
                 {
@@ -349,7 +355,7 @@
                 listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
                 try
                 {
-                    this.sqlProcessingProfiler.OnEndForOneParameter(new object(), new object(), new SqlCommand());
+                    this.sqlCommandProcessingProfiler.OnEndForOneParameter(new object(), new object(), new SqlCommand());
                 }
                 catch (Exception)
                 {
@@ -361,24 +367,308 @@
             }
         }
 
+        [TestMethod]
+        public void FieldsForSqlConnectionAreCollectedCorrectly()
+        {
+            SqlConnection connection = GetSqlConnectionTest();
+            string actualResourceName = this.sqlConnectionProcessingProfiler.GetDependencyName(connection);
+            Assert.AreEqual(ExpectedConnectionName, actualResourceName);
+
+            string actualTargetName = this.sqlConnectionProcessingProfiler.GetDependencyTarget(connection);
+            Assert.AreEqual(ExpectedTarget, actualTargetName);
+
+            string actualCommandText = this.sqlConnectionProcessingProfiler.GetCommandName(connection);
+            Assert.AreEqual(ExpectedCommandTextForSqlConnection, actualCommandText);
+        }
+
+        [TestMethod]
+        public void OnEndAsyncSendsCorrectTelemetry_1ArgumentOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { });            
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(context, returnTaskPassed, command);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: true,
+                expectedResultCode: "0",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
+        }
+
+        [TestMethod]
+        public void OnEndAsyncSendsCorrectTelemetry_2ArgumentsOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForTwoParameters(context, returnTaskPassed, command, null);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: true,
+                expectedResultCode: "0",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds);
+        }
+
+        [TestMethod]
+        public void OnEndAsyncSendsCorrectTelemetry_Exception_1ArgumentOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(context, returnTaskPassed, command);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
+        }
+
+        [TestMethod]
+        public void OnEndAsyncSendsCorrectTelemetry_Exception_2ArgumentsOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
+            
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndAsyncForTwoParameters(context, returnTaskPassed, command, null);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
+        }
+
+        [TestMethod]
+        public void OnEndAsyncLogsWarningWhenNullTaskPassedToEndMethods()
+        {
+            using (var listener = new TestEventListener())
+            {
+                const long AllKeyword = -1;
+                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
+                try
+                {
+                    this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(new object(), null, null);
+                }
+                catch (Exception)
+                {
+                    Assert.Fail("Should not be throwing unhandled exceptions.");
+                }
+
+                var message = listener.Messages.First(item => item.EventId == 14);
+                Assert.IsNotNull(message);
+            }
+        }
+
+        [TestMethod]
+        public void OnEndExceptionAsyncDoesNotSendTelemetryIfSuccess_1ArgumentOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndExceptionAsyncForOneParameter(context, returnTaskPassed, command);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry items should be sent");
+        }
+
+        [TestMethod]
+        public void OnEndExceptionAsyncDoesNotSendTelemetryIfSuccess_2ArgumentsOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndExceptionAsyncForTwoParameters(context, returnTaskPassed, command, null);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry items should be sent");
+        }
+
+        [TestMethod]
+        public void OnEndExceptionAsyncSendsCorrectTelemetryIfException_1ArgumentOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndExceptionAsyncForOneParameter(context, returnTaskPassed, command);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
+        }
+
+        [TestMethod]
+        public void OnEndExceptionAsyncSendsCorrectTelemetryIfException_2ArgumentsOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var returnTaskPassed = Task.Factory.StartNew(() => { throw TestUtils.GenerateSqlException(10); });
+
+            var context = this.sqlCommandProcessingProfiler.OnBeginForTwoParameters(command, null);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndExceptionAsyncForTwoParameters(context, returnTaskPassed, command, null);
+
+            stopwatch.Stop();
+
+            // wait for OnEnd async completion
+            Thread.Sleep(50);
+
+            Assert.AreSame(returnTaskPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+
+            ValidateTelemetryPacket(
+                this.sendItems[0] as DependencyTelemetry,
+                expectedName: GetResourceNameForStoredProcedure(command),
+                expectedSuccess: false,
+                expectedResultCode: "10",
+                timeBetweenBeginEndInMs: stopwatch.Elapsed.TotalMilliseconds,
+                async: true);
+        }
+
+        [TestMethod]
+        public void OnEndExceptionAsyncLogsWarningWhenNullTaskPassedToEndMethods()
+        {
+            using (var listener = new TestEventListener())
+            {
+                const long AllKeyword = -1;
+                listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Warning, (EventKeywords)AllKeyword);
+                try
+                {
+                    this.sqlCommandProcessingProfiler.OnEndAsyncForOneParameter(new object(), null, null);
+                }
+                catch (Exception)
+                {
+                    Assert.Fail("Should not be throwing unhandled exceptions.");
+                }
+
+                var message = listener.Messages.First(item => item.EventId == 14);
+                Assert.IsNotNull(message);
+            }
+        }
+
         private static void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual, 
             string expectedName, 
             bool expectedSuccess,
             string expectedResultCode,
-            double timeBetweenBeginEndInMs)
+            double timeBetweenBeginEndInMs,
+            bool async = false)
         {            
             Assert.AreEqual(expectedName, remoteDependencyTelemetryActual.Name, true, "Resource name in the sent telemetry is wrong");
             Assert.AreEqual(ExpectedType, remoteDependencyTelemetryActual.Type, "DependencyKind in the sent telemetry is wrong");
             Assert.AreEqual(expectedSuccess, remoteDependencyTelemetryActual.Success, "Success in the sent telemetry is wrong");
             Assert.AreEqual(expectedResultCode, remoteDependencyTelemetryActual.ResultCode, "ResultCode in the sent telemetry is wrong");
 
-            Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + 1, "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            if (!async)
+            {
+                Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds <= timeBetweenBeginEndInMs + 1, "Incorrect duration. Collected " + remoteDependencyTelemetryActual.Duration.TotalMilliseconds + " should be less than max " + timeBetweenBeginEndInMs);
+            }
+
             Assert.IsTrue(remoteDependencyTelemetryActual.Duration.TotalMilliseconds >= 0);
 
             string expectedVersion = SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModuleTest), prefix: "rddp:");
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
-        }
+        }       
 
         private static SqlCommand GetSqlCommandTestForQuery()
         {
@@ -403,6 +693,11 @@
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = MyStoredProcName;
             return command;
+        }
+
+        private static SqlConnection GetSqlConnectionTest()
+        {
+            return new SqlConnection(ConnectionString);
         }
 
         private static string GetResourceNameForStoredProcedure(SqlCommand command)

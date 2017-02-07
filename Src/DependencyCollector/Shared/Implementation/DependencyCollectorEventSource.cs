@@ -228,6 +228,26 @@
             this.WriteEvent(20, expectedType ?? string.Empty, this.ApplicationName);
         }
 
+        [Event(
+            21,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "End async callback called for id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void EndAsyncCallbackCalled(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(21, id, this.ApplicationName);
+        }
+
+        [Event(
+           22,
+           Keywords = Keywords.RddEventKeywords,
+           Message = "End async exception callback called for id = '{0}'",
+           Level = EventLevel.Verbose)]
+        public void EndAsyncExceptionCallbackCalled(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(22, id, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

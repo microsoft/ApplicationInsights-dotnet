@@ -84,7 +84,7 @@
 
         public void Stop()
         {
-            const int processExitWaitTimeout = 5000;
+            const int processExitWaitTimeout = 15000;
 
             Trace.TraceInformation("Stopping iisexpress.exe: pid={0}", this.hostProcess.Id);
 

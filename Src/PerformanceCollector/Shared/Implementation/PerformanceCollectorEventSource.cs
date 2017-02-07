@@ -72,7 +72,7 @@
 
         [Event(8, Keywords = Keywords.UserActionable, Level = EventLevel.Error,
             Message = @"Error collecting {0} of the configured performance counters. Please check the configuration.
-{2}")]
+{1}")]
         public void CounterCheckConfigurationEvent(
             string misconfiguredCountersCount,
             string e,
@@ -161,12 +161,13 @@
             this.WriteEvent(16, counterName, this.ApplicationName);
         }
 
-        [Event(17, Level = EventLevel.Warning, Message = @"Accessing environment variable - {0} failed.")]
+        [Event(17, Level = EventLevel.Warning, Message = @"Accessing environment variable - {0} failed with exception: {1}.")]
         public void AccessingEnvironmentVariableFailedWarning(
             string environmentVariable,
+            string exceptionMessage,
             string applicationName = "dummy")
         {
-            this.WriteEvent(17, environmentVariable, this.ApplicationName);
+            this.WriteEvent(17, environmentVariable, exceptionMessage, this.ApplicationName);
         }
 
         [Event(18, Keywords = Keywords.UserActionable, Level = EventLevel.Warning, Message = @"Web App Performance counter {1} has failed to register with performance collector. Please make sure it exists. Technical details: {0}")]

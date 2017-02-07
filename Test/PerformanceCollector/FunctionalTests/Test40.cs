@@ -106,5 +106,13 @@
         {
             CommonTests.QuickPulseDocuments(this.QuickPulseListener, this);
         }
+
+        [TestMethod]
+        [Owner("alkaplan")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void QuickPulseTopCpuProcesses()
+        {
+            CommonTests.QuickPulseTopCpuProcesses(this.QuickPulseListener, this);
+        }
     }
 }

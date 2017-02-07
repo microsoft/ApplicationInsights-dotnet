@@ -448,7 +448,9 @@
                                                 StartTimestamp = now,
                                                 EndTimestamp = now.AddSeconds(1)
                                             },
-                                        new Dictionary<string, Tuple<PerformanceCounterData, double>>())
+                                        new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
+                                        Enumerable.Empty<Tuple<string, int>>(),
+                                        false)
                                 }.ToList();
                     },
                 samples =>

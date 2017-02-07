@@ -20,7 +20,8 @@
         private FrameworkSqlEventListener sqlEventListener;
 #endif
 
-        private ProfilerSqlProcessing sqlProcessing;
+        private ProfilerSqlCommandProcessing sqlCommandProcessing;
+        private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;        
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
@@ -116,10 +117,12 @@
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
             this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains);
-            this.sqlProcessing = new ProfilerSqlProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
+            this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
+            this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
             ProfilerRuntimeInstrumentation.DecorateProfilerForHttp(ref this.httpProcessing);
-            ProfilerRuntimeInstrumentation.DecorateProfilerForSql(ref this.sqlProcessing);
+            ProfilerRuntimeInstrumentation.DecorateProfilerForSqlCommand(ref this.sqlCommandProcessing);
+            ProfilerRuntimeInstrumentation.DecorateProfilerForSqlConnection(ref this.sqlConnectionProcessing);
         }
 
         internal virtual bool IsProfilerAvailable()
@@ -150,7 +153,7 @@
                     }
 #endif
                 }
-
+                
                 this.disposed = true;
             }
         }
@@ -163,12 +166,12 @@
 #if !NET40
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(
-                config => new FrameworkHttpEventListener(config),
+                config => new FrameworkHttpEventListener(config, DependencyTableStore.Instance.WebRequestCacheHolder),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
 
             this.sqlEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkSqlEventListener>(
-                config => new FrameworkSqlEventListener(config),
+                config => new FrameworkSqlEventListener(config, DependencyTableStore.Instance.SqlRequestCacheHolder),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
 #endif

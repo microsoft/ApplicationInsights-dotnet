@@ -3,13 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
+    using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TestFramework;
     using Assert = Xunit.Assert;
-    
+
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
@@ -58,7 +59,7 @@
             {
                 OnInitialize = (item) =>
                 {
-                    throw new Exception("this exception may cause stack overflow");
+                    throw new Exception("this exception may cause stack overflow as will be thrown during the processing of another exception");
                 }
             });
 
@@ -68,10 +69,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // make sure it is the same exception as was initially thrown
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -95,10 +98,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // code to prevent compiler optimizations
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -139,10 +144,12 @@
 
                 try
                 {
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
                     throw new Exception("test");
                 }
                 catch (Exception exc)
                 {
+                    // code to prevent profiler optimizations
                     Assert.Equal("test", exc.Message);
                 }
             }
@@ -154,6 +161,224 @@
             Assert.Equal(3, dims.Count);
 
             Assert.True(dims.Contains(new KeyValuePair<string, string>("operation", "operationName")));
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapOperationName()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            int operationId = 0;
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName " + (operationId++);
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            Assert.Equal(200, metrics.Count);
+            Assert.Equal(102, this.items.Count);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWillNotDimCapTheSameOperationName()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName";
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            Assert.Equal(200, metrics.Count);
+            Assert.Equal(1, this.items.Count);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                try
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception ex)
+                    {
+                        // this assert is neede to avoid code optimization
+                        Assert.Equal("test", ex.Message);
+                        throw;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    Assert.Equal("test", exc.Message);
+                }
+            }
+
+            Assert.Equal(2, metrics.Count);
+            Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
+
+            Assert.Equal(1, metrics[0].Value, 15);
+            Assert.Equal(0, metrics[1].Value, 15);
+
+            Assert.Equal(1, this.items.Count);
+
+            Assert.Equal(2, ((MetricTelemetry)this.items[0]).Count);
+            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Sum, 15);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForTheSameException()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+                Assert.True(module.WasExceptionTracked(exception));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForInnerException()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var wrapper = new Exception("wrapper", exception);
+
+                Assert.True(module.WasExceptionTracked(wrapper));
+                Assert.True(module.WasExceptionTracked(wrapper));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsFalseForInnerExceptionTwoLevelsUp()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var wrapper1 = new Exception("wrapper 1", exception);
+                var wrapper2 = new Exception("wrapper 2", wrapper1);
+
+                Assert.False(module.WasExceptionTracked(wrapper2));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsTrueForAggExc()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                Assert.False(module.WasExceptionTracked(exception));
+
+                var aggExc = new AggregateException(exception);
+                Assert.True(module.WasExceptionTracked(aggExc));
+            }
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWasTrackedReturnsFalseForAggExcWithNotTrackedInnerExceptions()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                var exception = new Exception();
+
+                var aggExc = new AggregateException(exception);
+                Assert.False(module.WasExceptionTracked(aggExc));
+            }
         }
 
         [TestMethod]

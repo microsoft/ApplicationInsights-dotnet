@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Reflection;
 
     /// <summary>
     /// Provides information about the configuration, endpoints, and status of running role instances. 
@@ -10,9 +11,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="RoleEnvironment"/> class.
         /// </summary>
-        public RoleEnvironment()
-            : base(TypeHelpers.GetLoadedType("Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment", "Microsoft.WindowsAzure.ServiceRuntime"))
-        {
+        public RoleEnvironment(Assembly loadedAssembly)
+            : base(loadedAssembly.GetType("Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment", false), loadedAssembly)
+        {            
         }
 
         /// <summary>
@@ -67,7 +68,7 @@
                 }
 
                 object currentRoleInstance = this.GetProperty("CurrentRoleInstance");
-                return new RoleInstance(currentRoleInstance);
+                return new RoleInstance(currentRoleInstance, this.LoadedAssembly);
             }
         }
 

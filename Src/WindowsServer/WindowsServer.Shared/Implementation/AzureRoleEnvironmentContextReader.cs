@@ -1,7 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Implementation
 {
     using System;
+    using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
+    using System.Reflection;
     using System.Threading;
 
     internal class AzureRoleEnvironmentContextReader : IAzureRoleEnvironmentContextReader
@@ -40,9 +43,10 @@
                     return AzureRoleEnvironmentContextReader.instance;
                 }
 
-                if (string.IsNullOrEmpty(AzureRoleEnvironmentContextReader.BaseDirectory) == true)
+                // Allows replacement for test purposes to load a different AssemblyLoaderType.
+                if (AzureRoleEnvironmentContextReader.AssemblyLoaderType == null)
                 {
-                    AzureRoleEnvironmentContextReader.BaseDirectory = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "bin");
+                    AzureRoleEnvironmentContextReader.AssemblyLoaderType = typeof(AzureServiceRuntimeAssemblyLoader);
                 }
 
                 Interlocked.CompareExchange(ref AzureRoleEnvironmentContextReader.instance, new AzureRoleEnvironmentContextReader(), null);
@@ -56,31 +60,67 @@
                 AzureRoleEnvironmentContextReader.instance = value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the base directly where hunting for application DLLs is to start.
-        /// </summary>
-        internal static string BaseDirectory { get; set; }
+        
+        internal static Type AssemblyLoaderType { get; set; }        
 
         /// <summary>
         /// Initializes the current reader with respect to its environment.
         /// </summary>
         public void Initialize()
         {
-            ServiceRuntime serviceRuntime = new ServiceRuntime();
-            RoleEnvironment roleEnvironment = serviceRuntime.GetRoleEnvironment(AzureRoleEnvironmentContextReader.BaseDirectory);
+            AppDomain tempDomainToLoadAssembly = null;
+            string tempDomainName = "AppInsightsDomain-" + Guid.NewGuid().ToString();
+            Stopwatch sw = Stopwatch.StartNew();
 
-            if (roleEnvironment.IsAvailable == true)
+            // The following approach is used to load Microsoft.WindowsAzure.ServiceRuntime assembly and read the required information.
+            // Create a new AppDomain and try to load the ServiceRuntime dll into it.
+            // Then using reflection, read and save all the properties we care about and unload the new AppDomain.            
+            // This approach ensures that if the app is running in Azure Cloud Service, we read the necessary information deterministically
+            // and without interfering with any customer code which could be loading same/different version of Microsoft.WindowsAzure.ServiceRuntime.dll.
+            try
             {
-                RoleInstance roleInstance = roleEnvironment.CurrentRoleInstance;
-                if (roleInstance != null)
+                AppDomainSetup domaininfo = new AppDomainSetup();
+                domaininfo.ApplicationBase = Path.GetDirectoryName(AzureRoleEnvironmentContextReader.AssemblyLoaderType.Assembly.Location);
+
+                // Create a new AppDomain
+                tempDomainToLoadAssembly = AppDomain.CreateDomain(tempDomainName, null, domaininfo);
+                WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, " Successfully  created with ApplicationBase: " + domaininfo.ApplicationBase);
+
+                // Load the RemoteWorker assembly to the new domain            
+                tempDomainToLoadAssembly.Load(typeof(AzureServiceRuntimeAssemblyLoader).Assembly.FullName);
+                WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, " Successfully loaded assembly: " + typeof(AzureServiceRuntimeAssemblyLoader).Assembly.FullName);
+
+                // Any method invoked on this object will be executed in the newly created AppDomain.
+                AzureServiceRuntimeAssemblyLoader remoteWorker = (AzureServiceRuntimeAssemblyLoader)tempDomainToLoadAssembly.CreateInstanceAndUnwrap(AzureRoleEnvironmentContextReader.AssemblyLoaderType.Assembly.FullName, AzureRoleEnvironmentContextReader.AssemblyLoaderType.FullName);
+
+                bool success = remoteWorker.ReadAndPopulateContextInformation(out this.roleName, out this.roleInstanceName);
+                if (success)
                 {
-                    this.roleInstanceName = roleEnvironment.CurrentRoleInstance.Id;
-                    Role role = roleInstance.Role;
-                    if (role != null)
+                    WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderInitializedSuccess(this.roleName, this.roleInstanceName);
+                }
+                else
+                {                    
+                    WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderInitializationFailed();
+                }
+            }
+            catch (Exception ex)
+            {
+                WindowsServerEventSource.Log.UnknownErrorOccured("AzureRoleEnvironmentContextReader Initialize", ex.ToString());
+            }
+            finally
+            {                
+                try
+                {
+                    if (tempDomainToLoadAssembly != null)
                     {
-                        this.roleName = role.Name;
-                    }
+                        AppDomain.Unload(tempDomainToLoadAssembly);                                                
+                        WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, " Successfully  Unloaded.");
+                        WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderInitializationDuration(sw.ElapsedMilliseconds);                        
+                    }                    
+                }
+                catch (Exception ex)
+                {
+                    WindowsServerEventSource.Log.AzureRoleEnvironmentContextReaderAppDomainTroubleshoot(tempDomainName, "AppDomain  unload failed with exception: " + ex.ToString());
                 }
             }
         }
@@ -102,5 +142,5 @@
         {
             return this.roleInstanceName;
         }
-    }
+    }    
 }

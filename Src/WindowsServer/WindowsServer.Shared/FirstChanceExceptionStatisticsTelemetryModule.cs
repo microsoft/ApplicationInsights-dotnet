@@ -21,6 +21,12 @@
         private const int UNLOCKED = 0;
 
         /// <summary>
+        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
+        /// used to indicate that the exception is being tracked.
+        /// </summary>
+        private static readonly object ExceptionIsTracked = new object();
+
+        /// <summary>
         /// This object prevents double entry into the exception callback.
         /// </summary>
         [ThreadStatic]
@@ -36,9 +42,9 @@
         private bool isInitialized = false;
 
         // cheap dimentions capping
-        private ConcurrentBag<string> operationValues = new ConcurrentBag<string>();
-        private ConcurrentBag<string> methodValues = new ConcurrentBag<string>();
-        private ConcurrentBag<string> typeValues = new ConcurrentBag<string>();
+        private ConcurrentDictionary<string, int> operationValues = new ConcurrentDictionary<string, int>();
+        private ConcurrentDictionary<string, int> methodValues = new ConcurrentDictionary<string, int>();
+        private ConcurrentDictionary<string, int> typeValues = new ConcurrentDictionary<string, int>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FirstChanceExceptionStatisticsTelemetryModule" /> class.
@@ -93,6 +99,40 @@
             GC.SuppressFinalize(this);
         }
 
+        internal bool WasExceptionTracked(Exception exception)
+        {
+            bool wasTracked = IsTracked(exception);
+
+            if (!wasTracked)
+            {
+                var innerException = exception.InnerException;
+                if (innerException != null)
+                {
+                    wasTracked = IsTracked(innerException);
+                }
+            }
+
+            if (!wasTracked && exception is AggregateException)
+            {
+                foreach (var innerException in ((AggregateException)exception).InnerExceptions)
+                {
+                    if (innerException != null)
+                    {
+                        wasTracked = IsTracked(innerException);
+                    }
+                }
+            }
+
+            // mark exception as tracked
+            exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
+            return wasTracked;
+        }
+
+        private static bool IsTracked(Exception exception)
+        {
+            return exception.Data.Contains(ExceptionIsTracked);
+        }
+
         /// <summary>
         /// IDisposable implementation.
         /// </summary>
@@ -108,6 +148,7 @@
 
         private void CalculateStatistics(object sender, FirstChanceExceptionEventArgs firstChanceExceptionArgs)
         {
+            // this is thread local variable. No need to lock
             if (executionSyncObject == LOCKED)
             {
                 return;
@@ -139,7 +180,9 @@
                 var failingMethod = new StackFrame(1).GetMethod();
                 var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
 
-                this.TrackStatistics(type, operation, method);
+                bool wasTracked = this.WasExceptionTracked(exception);
+
+                this.TrackStatistics(type, operation, method, wasTracked);
             }
             catch (Exception exc)
             {
@@ -159,7 +202,7 @@
             }
         }
 
-        private void TrackStatistics(string type, string operation, string method)
+        private void TrackStatistics(string type, string operation, string method, bool wasTracked)
         {
             var dimensions = new Dictionary<string, string>();
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
@@ -172,18 +215,32 @@
 
             var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
 
-            metric.Track(1);
+            if (wasTracked)
+            {
+                metric.Track(0);
+            }
+            else
+            {
+                metric.Track(1);
+            }
         }
 
-        private string GetDimCappedString(string value, ConcurrentBag<string> capValues)
+        private string GetDimCappedString(string dimensionValue, ConcurrentDictionary<string, int> capValues)
         {
-            if (capValues.Count > 100)
+            int temp;
+            if (capValues.TryGetValue(dimensionValue, out temp))
+            {
+                return dimensionValue;
+            }
+            else if (capValues.Count > 100)
             {
                 return "OtherValue";
             }
-
-            capValues.Add(value);
-            return value;
+            else
+            {
+                capValues.TryAdd(dimensionValue, 0);
+                return dimensionValue;
+            }
         }
     }
 }

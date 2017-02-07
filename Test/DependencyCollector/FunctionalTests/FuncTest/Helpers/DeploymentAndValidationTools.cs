@@ -30,6 +30,11 @@ namespace FuncTest.Helpers
         public const int SleepTimeForSdkToSendEvents = 10 * 1000;
 
         /// <summary>
+        /// Sleep time to give SDK some time to process async events.
+        /// </summary>
+        public const int SleepTimeForSdkToSendAsyncEvents = 30 * 1000;
+
+        /// <summary>
         /// The fake endpoint to which SDK tries to sent Events for the test app ASPX 4.5.1. This should match the one used in
         /// ApplicationInsights.config for the test app being tested.
         /// </summary>

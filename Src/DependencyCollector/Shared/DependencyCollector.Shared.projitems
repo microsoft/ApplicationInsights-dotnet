@@ -14,6 +14,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlCommandProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
@@ -21,16 +23,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ICacheProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\ObjectInstanceBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\OperationWatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\SortedList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationInsightsUrlFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerRuntimeInstrumentation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlEventListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTableStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RDDSource.cs" />

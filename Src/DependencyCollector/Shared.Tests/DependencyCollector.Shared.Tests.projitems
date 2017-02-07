@@ -22,8 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerHttpProcessingTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheProviderTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\SortedListTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkSqlProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlProcessingTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RetryPolicyTest.cs" />

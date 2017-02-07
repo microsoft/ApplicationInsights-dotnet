@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.3.0-beta2
+- Automatic collection of first chance exceptions statistics. Use a query like this in Application Analytics to query for this statistics:
+  ```
+  customMetrics
+  | where timestamp > ago(5d)
+  | where name == "Exceptions Thrown" 
+  | extend type = tostring(customDimensions.type), method = tostring(customDimensions.method), operation = tostring(customDimensions.operation) 
+  | summarize sum(value), sum(valueCount) by type, method, operation 
+  ```
+- Add dependency collection for System.Data.SqlClient.SqlConnection.Open and System.Data.SqlClient.SqlConnection.OpenAsync by Profiler instrumentation. Dependencies are sent only for failed connections.
+- Top 5 CPU reporting for Live Metrics Stream (aka QuickPulse). QuickPulseTelemetryModule now reports the names and CPU consumption values of top 5 CPU consuming processes.
+
 ## Version 2.3.0-beta1
 - Added the ability to correlate http request made between different components represented by different application insights resources. This feeds into the improved [application map experience](http://aka.ms/AiAppMapPreview).
 

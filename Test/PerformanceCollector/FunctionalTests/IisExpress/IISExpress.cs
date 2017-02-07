@@ -97,6 +97,7 @@
                 try
                 {
                     this.hostProcess.Kill();
+                    Trace.TraceWarning("Successfully terminated IISProcess with Kill call.");
                 }
                 catch (Win32Exception e)
                 {

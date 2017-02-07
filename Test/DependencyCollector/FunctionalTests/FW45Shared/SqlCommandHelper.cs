@@ -9,8 +9,34 @@
 
     public class SqlCommandHelper
     {
+        #region SqlConnection
+
+        public static void OpenConnection(string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+            }
+        }
+
+        public static void OpenConnectionAsync(string connectionString)
+        {
+            var connection = new SqlConnection(connectionString);
+            connection.OpenAsync();
+        }
+
+        public static async void OpenConnectionAsyncAwait(string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+            }
+        }
+
+        #endregion
+
         #region ExecuteReader
-        
+
         public static async void ExecuteReaderAsync(string connectionString, string commandText, CommandType commandType = CommandType.Text)
         {
             await ExecuteReaderAsyncInternal(connectionString, commandText, commandType);

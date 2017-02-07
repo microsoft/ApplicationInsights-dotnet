@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
-    internal sealed class FrameworkHttpProcessing : IDisposable
+    internal sealed class FrameworkHttpProcessing
     {
         internal CacheBasedOperationHolder TelemetryTable;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
@@ -142,13 +142,5 @@
                 }
             }
         }   
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.TelemetryTable.Dispose();
-        }
     }
 }

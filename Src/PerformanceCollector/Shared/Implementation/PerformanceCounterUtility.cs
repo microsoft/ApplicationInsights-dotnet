@@ -60,9 +60,9 @@
                 {
                     isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
                 } 
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(WebSiteEnvironmentVariable);
+                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(WebSiteEnvironmentVariable, ex.ToString());
                     return false;
                 }
             }

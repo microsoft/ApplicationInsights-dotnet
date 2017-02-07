@@ -5,7 +5,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility;
-    
+    using Operation;
+
     /// <summary>
     /// Provides methods for listening to events from FrameworkEventSource for SQL.
     /// </summary>
@@ -31,9 +32,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         private const int EndExecuteEventId = 2;
 
-        internal FrameworkSqlEventListener(TelemetryConfiguration configuration)
+        internal FrameworkSqlEventListener(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder)
         {
-            this.SqlProcessingFramework = new FrameworkSqlProcessing(configuration, DependencyTableStore.Instance.SqlRequestCacheHolder);
+            this.SqlProcessingFramework = new FrameworkSqlProcessing(configuration, telemetryTupleHolder);
         }
 
         private enum CompositeState
@@ -41,15 +42,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Success = 1,
             IsSqlException = 2,
             Synchronous = 4
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            this.SqlProcessingFramework.Dispose();
-            base.Dispose();
         }
 
         /// <summary>

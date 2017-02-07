@@ -11,29 +11,6 @@
     {
         private const string DiagnosticsModuleName = "Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing.DiagnosticsTelemetryModule, Microsoft.ApplicationInsights";
 
-        /// <summary>
-        /// Before version 2.0.0-beta4 Diagnostics module was added by default to the configuration file.
-        /// So now it should be removed during installation.
-        /// </summary>
-        [TestMethod]
-        public void InstallRemovesDiagnosticsTelemetryModule()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument tempTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            // Add DiagnosticsModule by replacing exsiting one
-            string customConfig = tempTransform.ToString().Replace(
-                ConfigurationHelpers.GetPartialTypeName(typeof(DeveloperModeWithDebuggerAttachedTelemetryModule)),
-                DiagnosticsModuleName);
-
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(customConfig);
-
-            var nodes = ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().ToList();
-            var node = nodes.FirstOrDefault(element => element.Attribute("Type").Value == DiagnosticsModuleName);
-
-            Assert.IsNull(node);
-        }
-
         [TestMethod]
         public void InstallAddsDeveloperModeWithDebuggerAttachedTelemetryModule()
         {
@@ -65,7 +42,6 @@
         }
 
         [TestMethod]
-        [Ignore]
         public void InstallAddsFirstChanceExceptionTelemetryModule()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
@@ -88,10 +64,7 @@
 
             Type typeToFind = typeof(FirstChanceExceptionStatisticsTelemetryModule);
 
-            ////Assert.AreEqual(4, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
-
-            // change to 4 after re-enabling first chance exceptions
-            Assert.AreEqual(3, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
+            Assert.AreEqual(4, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
         }
 
         [TestMethod]

@@ -14,6 +14,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AzureWebAppRoleEnvironmentTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AzureRoleEnvironmentTelemetryInitializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestAzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRole.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\Emulation\TestRoleInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Azure\ServiceRuntimeHelper.cs" />
@@ -21,10 +22,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)DeveloperModeWithDebuggerAttachedTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeviceTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ServiceRuntimeTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TypeHelpersTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSourceTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModuleTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModuleTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Microsoft.ApplicationInsights.Log4NetAppender.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
