@@ -18,7 +18,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Assert = Xunit.Assert;
-    
+    using DataContracts;
+
     [TestClass]
     public class InMemoryChannelTest
     {
@@ -45,10 +46,10 @@
                 SendingInterval = TimeSpan.FromDays(1),
                 EndpointAddress = "http://localhost/bad"
             };
-            channel.Send(new StubTelemetry()); // Send telemetry so that it sets next send intreval and does not interfere with Flush
+            channel.Send(new TraceTelemetry("test")); // Send telemetry so that it sets next send intreval and does not interfere with Flush
             channel.Flush();
 
-            var transmission = new StubTelemetry();
+            var transmission = new TraceTelemetry("test");
             channel.Send(transmission);
 
             using (TestEventListener listener = new TestEventListener())
