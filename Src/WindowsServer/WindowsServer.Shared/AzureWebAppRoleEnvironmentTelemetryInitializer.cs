@@ -13,13 +13,13 @@
     /// </summary>
     public class AzureWebAppRoleEnvironmentTelemetryInitializer : ITelemetryInitializer
     {
-        /// <summary>Azure Web App name corresponding to the resource name.</summary>
-        private const string WebAppNameEnvironmentVariable = "WEBSITE_SITE_NAME";
-
         /// <summary>Azure Web App Hostname. This will include the deployment slot, but will be same across instances of same slot.</summary>
         private const string WebAppHostNameEnvironmentVariable = "WEBSITE_HOSTNAME";
 
-        private string roleInstanceName;
+        /// <summary>Predefined suffix for Azure Web App Hostname.</summary>
+        private const string WebAppSuffix = ".azurewebsites.net";
+
+        private string nodeName;
         private string roleName;
 
         /// <summary>
@@ -44,14 +44,20 @@
 
             if (string.IsNullOrEmpty(telemetry.Context.GetInternalContext().NodeName))
             {
-                string name = LazyInitializer.EnsureInitialized(ref this.roleInstanceName, this.GetNodeName);
+                string name = LazyInitializer.EnsureInitialized(ref this.nodeName, this.GetNodeName);                
                 telemetry.Context.GetInternalContext().NodeName = name;
             }
         }
 
         private string GetRoleName()
         {
-            return Environment.GetEnvironmentVariable(WebAppNameEnvironmentVariable) ?? string.Empty;
+            var result = this.GetNodeName();
+            if (result.ToLowerInvariant().EndsWith(WebAppSuffix))
+            {
+                result = result.Substring(0, result.Length - WebAppSuffix.Length);
+            }
+
+            return result;
         }
 
         private string GetNodeName()
