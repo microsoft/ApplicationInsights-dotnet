@@ -15,6 +15,8 @@
         public StubTelemetryChannel()
         {
             this.OnSend = telemetry => { };
+            this.OnFlush = () => { };
+            this.OnDispose = () => { };
         }
 
         /// <summary>
@@ -35,7 +37,11 @@
         /// <summary>
         /// Gets or sets the callback invoked by the <see cref="Send"/> method.
         /// </summary>
-        public TelemetryAction OnSend { get; set; }
+        public Action<ITelemetry> OnSend { get; set; }
+
+        public Action OnFlush { get; set; }
+
+        public Action OnDispose { get; set; }
 
         /// <summary>
         /// Implements the <see cref="ITelemetryChannel.Send"/> method by invoking the <see cref="OnSend"/> callback.
@@ -55,13 +61,15 @@
         /// </summary>
         public void Dispose()
         {
+            this.OnDispose();
         }
 
         /// <summary>
-        /// Mock for the Flush method in <see cref="ITelemetryChannel"/>.
+        /// Implements  the <see cref="ITelemetryChannel.Flush" /> method.
         /// </summary>
         public void Flush()
-        {   
+        {
+            this.OnFlush();
         }
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
+﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-
-#if NET45
+#if CORE_PCL || NET45 || NET46
     using System.Diagnostics.Tracing;
 #endif
-
+    using System.Threading;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
@@ -15,14 +14,19 @@
     internal class TestEventListener : EventListener
     {
         private readonly ConcurrentQueue<EventWrittenEventArgs> events;
-        
-        public TestEventListener()
+        private readonly AutoResetEvent eventWritten;
+
+        private readonly bool waitForDelayedEvents;
+
+        public TestEventListener(bool waitForDelayedEvents = true)
         {
             this.events = new ConcurrentQueue<EventWrittenEventArgs>();
-
+            this.eventWritten = new AutoResetEvent(false);
+            this.waitForDelayedEvents = waitForDelayedEvents;
             this.OnOnEventWritten = e =>
             {
                 this.events.Enqueue(e);
+                this.eventWritten.Set();
             };
         }
 
@@ -32,7 +36,26 @@
 
         public IEnumerable<EventWrittenEventArgs> Messages
         {
-            get { return this.events; }
+            get 
+            {
+                if (this.events.Count == 0 && this.waitForDelayedEvents)
+                {
+                    this.eventWritten.WaitOne(TimeSpan.FromSeconds(5));
+                }
+
+                while (this.events.Count != 0)
+                {
+                    EventWrittenEventArgs nextEvent;
+                    if (this.events.TryDequeue(out nextEvent))
+                    {
+                        yield return nextEvent;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+            }
         }
         
         protected override void OnEventWritten(EventWrittenEventArgs eventData)

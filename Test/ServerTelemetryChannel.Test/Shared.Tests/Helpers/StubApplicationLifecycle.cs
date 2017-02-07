@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Web.TestFramework
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers
 {
     using System;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;

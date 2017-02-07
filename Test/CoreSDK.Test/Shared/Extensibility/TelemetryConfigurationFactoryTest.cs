@@ -451,11 +451,9 @@
         public void InitializeTelemetryProcessorFromConfigurationFile()
         {
             string configFileContents = Configuration(
-                @"                  
-                  <TelemetryProcessors>
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
-                  </TelemetryProcessors>"
-                );
+                @"<TelemetryProcessors>
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                </TelemetryProcessors>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
             new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
@@ -492,8 +490,8 @@
             string configFileContents = Configuration(
                 @"                  
                   <!--<TelemetryProcessors>
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />
-                  <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor2, Microsoft.ApplicationInsights.TestFramework"" />
+                  <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                  <Add Type=""" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
                   </TelemetryProcessors>-->"
                 );
 
@@ -512,7 +510,7 @@
             string configFileContents = Configuration(
                 @"
                   <TelemetryInitializers>
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                    <Add Type=""" + typeof(StubTelemetryInitializer).AssemblyQualifiedName + @""" />
                   </TelemetryInitializers>
                   <TelemetryProcessors>                  
                   </TelemetryProcessors>"
@@ -532,7 +530,7 @@
             string configFileContents = Configuration(
                 @"                  
                   <TelemetryProcessors>
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />                  
                   </TelemetryProcessors>"
                 );
 
@@ -551,7 +549,7 @@
             string configFileContents = Configuration(
                 @"                  
                   <TelemetryProcessors>
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />                  
                   </TelemetryProcessors>"
                 );
 
@@ -572,7 +570,7 @@
             string configFileContents = Configuration(
                 @"                  
                   <TelemetryProcessors>
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryProcessor, Microsoft.ApplicationInsights.TestFramework"" />                  
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />                  
                   </TelemetryProcessors>"
                 );
 
@@ -673,7 +671,7 @@
             string configFileContents = Configuration(
                 @"<TelemetryInitializers>
                     <Add Type=""Invalid, Invalid"" />
-                    <Add Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryInitializer, Microsoft.ApplicationInsights.TestFramework"" />
+                    <Add Type=""" + typeof(StubTelemetryInitializer).AssemblyQualifiedName + @""" />
                   </TelemetryInitializers>"
                 );
 
@@ -889,7 +887,7 @@
         private static TelemetryConfiguration CreateTelemetryConfigurationWithDeveloperModeValue(string developerModeValue)
         {
             XElement definition = XDocument.Parse(Configuration(
-    @"<TelemetryChannel Type=""Microsoft.ApplicationInsights.TestFramework.StubTelemetryChannel, Microsoft.ApplicationInsights.TestFramework"">
+                @"<TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""">
                     <DeveloperMode>" + developerModeValue + @"</DeveloperMode>
                  </TelemetryChannel>")).Root;
 

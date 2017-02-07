@@ -4,7 +4,7 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-#if NET45 || NET46
+#if CORE_PCL || NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

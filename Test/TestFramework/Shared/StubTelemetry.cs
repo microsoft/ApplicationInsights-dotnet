@@ -8,6 +8,10 @@
 
     internal sealed class StubTelemetry : ITelemetry, ISupportProperties
     {
+        public Action<IJsonWriter> OnSerialize = jsonWriter => { };
+
+        public Action<object> OnSendEvent = eventSourceWriter => { };
+
         public StubTelemetry()
         {
             this.Context = new TelemetryContext();
@@ -22,8 +26,18 @@
 
         public IDictionary<string, string> Properties { get; set; }
 
+        public void Serialize(IJsonWriter writer)
+        {
+            this.OnSerialize(writer);
+        }
+
         public void Sanitize()
         {
+        }
+
+        public void SendEvent(object writer)
+        {
+            this.OnSendEvent(writer);
         }
     }
 }

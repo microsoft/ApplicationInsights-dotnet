@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.TestFramework
 {
+    using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -19,7 +20,7 @@
         /// <summary>
         /// Gets or sets the callback invoked by the <see cref="Initialize"/> method.
         /// </summary>
-        public TelemetryAction OnInitialize { get; set; }
+        public Action<ITelemetry> OnInitialize = item => { };
 
         /// <summary>
         /// Implements the <see cref="ITelemetryInitializer.Initialize"/> method by invoking the <see cref="OnInitialize"/> callback.

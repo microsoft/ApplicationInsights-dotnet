@@ -5,14 +5,15 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Assert = Xunit.Assert;
-    
+    using Helpers;
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif

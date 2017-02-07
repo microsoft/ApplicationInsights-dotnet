@@ -6,7 +6,7 @@
 #endif
     using System.Linq;
     using System.Net.Sockets;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 
 #if NET40
@@ -14,6 +14,7 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using Channel.Helpers;
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif

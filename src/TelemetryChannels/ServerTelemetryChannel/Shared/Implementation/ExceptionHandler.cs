@@ -13,9 +13,13 @@
             try
             {
                 // Do not use await here because ASP.NET does not allow that and throws
-                asyncMethod().ContinueWith(
-                    task => TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(task.Exception.ToString()),
-                    TaskContinuationOptions.OnlyOnFaulted);
+                var asyncTask = asyncMethod();
+                if (asyncTask != null)
+                {
+                    asyncTask.ContinueWith(
+                        task => TelemetryChannelEventSource.Log.ExceptionHandlerStartExceptionWarning(task.Exception.ToString()),
+                        TaskContinuationOptions.OnlyOnFaulted);
+                }
             }
             catch (Exception exp)
             {

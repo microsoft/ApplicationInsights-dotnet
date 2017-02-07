@@ -2,23 +2,7 @@
 // Copyright © Microsoft. All Rights Reserved.
 // </copyright>
 
-//------------------------------------------------------------------------------
-//
-//     This code was updated from a master copy in the DataCollectionSchemas repo.
-// 
-//     Repo     : DataCollectionSchemas
-//     File     : Tags.cs
-//
-//     Changes to this file may cause incorrect behavior and will be lost when
-//     the code is updated.
-//
-//------------------------------------------------------------------------------
-
-#if DATAPLATFORM
-namespace Microsoft.Developer.Analytics.DataCollection.Model.v2
-#else
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
-#endif
 {
     using System;
     using System.Collections.Generic;

@@ -136,7 +136,14 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private Task Send(IEnumerable<ITelemetry> telemetryItems, TimeSpan timeout)
         {
-            if (telemetryItems == null || !telemetryItems.Any())
+            byte[] data = null;
+
+            if (telemetryItems != null)
+            {
+                data = JsonSerializer.Serialize(telemetryItems);
+            }
+
+            if (data == null || data.Length == 0)
             {
                 CoreEventSource.Log.LogVerbose("No Telemetry Items passed to Enqueue");
 #if NET40
@@ -146,7 +153,6 @@ namespace Microsoft.ApplicationInsights.Channel
 #endif
             }
 
-            byte[] data = JsonSerializer.Serialize(telemetryItems);
             var transmission = new Transmission(this.endpointAddress, data, JsonSerializer.ContentType, JsonSerializer.CompressionType, timeout);
 
             return transmission.SendAsync();

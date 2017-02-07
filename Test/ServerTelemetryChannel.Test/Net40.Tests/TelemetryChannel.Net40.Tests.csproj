@@ -79,16 +79,13 @@
       <Project>{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}</Project>
       <Name>Core.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net40\TestFramework.Net40.csproj">
-      <Project>{63e687d2-97ab-4d64-a92d-31b305d5f1b9}</Project>
-      <Name>TestFramework.Net40</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\TelemetryChannels\ServerTelemetryChannel\Net40\TelemetryChannel.Net40.csproj">
       <Project>{1ac957c0-e9a7-42bb-8820-ce2f6e5c937f}</Project>
       <Name>TelemetryChannel.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
+  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.24\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" />
@@ -99,7 +96,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets'))" />
+    <Error Condition="!Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets'))" />
   </Target>
-  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.54.0\build\StyleCop.MSBuild.Targets')" />
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" />
 </Project>

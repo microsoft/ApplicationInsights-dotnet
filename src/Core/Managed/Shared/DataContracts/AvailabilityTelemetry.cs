@@ -11,7 +11,7 @@
     /// Telemetry type used for availability test results.
     /// Contains a time and message and optionally some additional metadata.
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
     {
         internal const string TelemetryName = "Availability";
 

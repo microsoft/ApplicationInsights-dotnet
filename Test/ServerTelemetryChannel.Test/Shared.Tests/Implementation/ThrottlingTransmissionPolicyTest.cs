@@ -8,7 +8,7 @@
     using System.Linq;
     using System.Net;
     using System.Threading;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
     using Microsoft.Diagnostics.Tracing;

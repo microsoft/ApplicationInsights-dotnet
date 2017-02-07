@@ -15,7 +15,7 @@
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
         internal const string TelemetryName = "Request";
 
@@ -166,7 +166,7 @@
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
         /// </summary>
-        public IDictionary<string, double> Metrics
+        public override IDictionary<string, double> Metrics
         {
             get { return this.Data.measurements; }
         }
