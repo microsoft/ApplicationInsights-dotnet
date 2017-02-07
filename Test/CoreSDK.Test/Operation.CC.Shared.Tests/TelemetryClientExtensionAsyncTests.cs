@@ -102,7 +102,7 @@
 
                         this.telemetryClient.StopOperation(op);
 
-                        (r.AsyncState as HttpWebRequest).EndGetResponse(r);
+                        request.EndGetResponse(r);
                     },
                 null);
 
