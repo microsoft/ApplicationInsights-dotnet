@@ -122,6 +122,7 @@ Global
 		Test\ServerTelemetryChannel.Test\TestFramework\Shared\TestFramework.Shared.projitems*{9718f051-147f-4f5f-9ff3-c926430efcf7}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
 		Test\ServerTelemetryChannel.Test\TestFramework\Shared\TestFramework.Shared.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
+		Test\TestFramework\Shared\TestFramework.Shared.projitems*{a7ccc704-cca9-492a-bb8a-3de5ee9aeac8}*SharedItemsImports = 4
 		src\Core\Managed\Shared\Shared.projitems*{c1aaa703-5e32-45c0-a69d-f46d1c659ae4}*SharedItemsImports = 13
 		Test\CoreSDK.Test\Shared\Core.Shared.Tests.projitems*{c4a0db5b-0988-4e04-b9b8-bcf3b0842000}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{c5a3f18f-1426-4941-9d81-d21062a2b8f2}*SharedItemsImports = 13
@@ -130,6 +131,7 @@ Global
 		src\TelemetryChannels\ServerTelemetryChannel\Shared\Shared.projitems*{d03ac224-d6c9-4c64-9b82-619e28ff9ac6}*SharedItemsImports = 13
 		Test\ServerTelemetryChannel.Test\Shared.Tests\Shared.Tests.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4
 		Test\ServerTelemetryChannel.Test\TestFramework\Shared\TestFramework.Shared.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4
+		Test\TestFramework\Shared\TestFramework.Shared.projitems*{dd9659be-7c0f-4298-82b2-5e957f95977a}*SharedItemsImports = 4
 		Test\TestFramework\Shared\TestFramework.Shared.projitems*{f76c6cbd-29b0-4564-bdcb-c969f8fec136}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

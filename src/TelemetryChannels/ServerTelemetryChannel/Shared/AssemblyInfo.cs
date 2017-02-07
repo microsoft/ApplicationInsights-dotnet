@@ -1,14 +1,21 @@
-﻿// <copyright file="AssemblyInfo.cs" company="Microsoft">
-// Copyright © Microsoft. All Rights Reserved.
-// </copyright>
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCopyright("Copyright © Microsoft. All Rights Reserved.")]
+
+[assembly: ComVisible(false)]
+
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Net40.Tests" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Net45.Tests" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Core.Net46.Tests" + AssemblyInfo.PublicKey)]
+
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TestFramework" + AssemblyInfo.PublicKey)]
+
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net40.Tests" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests" + AssemblyInfo.PublicKey)]
-                               
+
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TestFramework.Net40" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.TestFramework.Net45" + AssemblyInfo.PublicKey)]
 
