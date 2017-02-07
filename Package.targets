@@ -48,7 +48,6 @@
 </Target>
   <Target Name="Gitlink" AfterTargets="Build" BeforeTargets="BuildNugetPackage">
     <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Microsoft.ApplicationInsights.sln" -u https://github.com/Microsoft/ApplicationInsights-dotnet -c "$(Configuration)" -p "$(Platform)"' IgnoreExitCode='true' />
-    <Exec Command='$(PackagesDir)\gitlink.2.2.0\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f "Microsoft.ApplicationInsights.Channels.sln" -u https://github.com/Microsoft/ApplicationInsights-dotnet -c "$(Configuration)" -p "$(Platform)"' IgnoreExitCode='true' />
   </Target>
   <UsingTask TaskName="GetFileVersionInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildFrameworkToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
