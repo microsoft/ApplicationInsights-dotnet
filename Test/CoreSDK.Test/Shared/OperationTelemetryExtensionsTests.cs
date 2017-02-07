@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -61,6 +62,36 @@
             telemetry.Stop();
             Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
             Assert.Equal(telemetry.Duration, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Tests the scenario if Stop computes the duration of the telemetry when timestamps are supplied to Start and Stop.
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryStopWithTimestampComputesDurationAfterStartWithTimestamp()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            long startTime = 123456789012345L;
+            long ticksInOneSecond = Stopwatch.Frequency;
+            long stopTime = startTime + ticksInOneSecond;
+
+            telemetry.Start(timestamp: startTime);
+            telemetry.Stop(timestamp: stopTime);
+
+            Assert.Equal(TimeSpan.FromSeconds(1), telemetry.Duration);
+        }
+
+        /// <summary>
+        /// Tests the sceanrio if Stop assigns the duration to zero when a timestamp is supplied by Start is not called.
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryStopWithTimestampAssignsDurationZeroWithoutStart()
+        {
+            var telemetry = new DependencyTelemetry();
+            telemetry.Stop(timestamp: 123456789012345L); // timestamp is ignored because Start was not called
+
+            Assert.Equal(TimeSpan.Zero, telemetry.Duration);
         }
     }
 }
