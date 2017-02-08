@@ -7,7 +7,7 @@
       <ExcludeComponentCorrelationHttpHeadersOnDomains>
         <!-- 
         Requests to the following hostnames will not be modified by adding correlation headers. 
-        This is only applicable if Profiler is installed - StatusMonitor or Azure Extension.
+        This is only applicable if Profiler is installed via either StatusMonitor or Azure Extension.
         Add entries here to exclude additional hostnames.
         NOTE: this configuration will be lost upon NuGet upgrade.
         -->
