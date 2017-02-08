@@ -72,7 +72,7 @@
         /// </summary>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="operation">Operation object to compute duration and track.</param>
-        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation)
+        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation) where T : OperationTelemetry
         {
             if (telemetryClient == null)
             {

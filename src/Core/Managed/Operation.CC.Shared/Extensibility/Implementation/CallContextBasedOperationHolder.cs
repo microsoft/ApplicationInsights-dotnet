@@ -6,7 +6,7 @@
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
     /// </summary>
-    internal class CallContextBasedOperationHolder<T> : IOperationHolder<T>
+    internal class CallContextBasedOperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
         /// <summary>
         /// Parent context store that is used to restore call context.
