@@ -93,5 +93,30 @@
 
             Assert.Equal(TimeSpan.Zero, telemetry.Duration);
         }
+
+        /// <summary>
+        /// Tests the sceanrio if durations can be recorded more precisely than 1ms
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryCanRecordPreciseDurations()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            long startTime = Stopwatch.GetTimestamp();
+            telemetry.Start(timestamp: startTime);
+
+            // Note: Do not use TimeSpan.FromSeconds because it rounds to the nearest millisecond.
+            var expectedDuration = TimeSpan.Parse("00:00:00.1234560");
+
+            // Ensure we choose a time that has a fractional (non-integral) number of milliseconds
+            Assert.NotEqual(Math.Round(expectedDuration.TotalMilliseconds), expectedDuration.TotalMilliseconds);
+
+            double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
+
+            long stopTime = (long)(startTime + durationInStopwatchTicks);
+            telemetry.Stop(timestamp: stopTime);
+
+            Assert.Equal(expectedDuration, telemetry.Duration);
+        }
     }
 }
