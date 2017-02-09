@@ -457,7 +457,8 @@
 
                     foreach (var httpItem in httpItems)
                     {
-                        this.Validate(httpItem, resourceNameExpected, accessTimeMax, successFlagExpected: false, verb: "GET");
+                        // This is a call to google.com/404 which will fail but typically takes longer time. So accesstime can more than normal.
+                        this.Validate(httpItem, resourceNameExpected, accessTimeMax.Add(TimeSpan.FromSeconds(15)), successFlagExpected: false, verb: "GET");
                     }
                 });
         }
