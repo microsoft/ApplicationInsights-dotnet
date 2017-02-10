@@ -44,8 +44,28 @@
         /// </remarks>
         public static TelemetryConfigurationFactory Instance
         {
-            get { return instance ?? (instance = new TelemetryConfigurationFactory()); }
-            set { instance = value; }
+            // Both get and set should write something to CoreEventSource so as to initialize it. This is a fix for below deadlock issue   
+            // https://github.com/Microsoft/ApplicationInsights-dotnet/issues/428            
+                 
+            get
+            {
+                if (instance != null)
+                {
+                    return instance;
+                }
+                else
+                {
+                    instance = new TelemetryConfigurationFactory();                    
+                    CoreEventSource.Log.LogVerbose("TelemetryConfigurationFactory singleton instantiated.");
+                    return instance;
+                }
+            }
+
+            set
+            {
+                instance = value;                
+                CoreEventSource.Log.LogVerbose("TelemetryConfigurationFactory singleton set to given instance.");
+            }
         }
 
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string serializedConfiguration)
