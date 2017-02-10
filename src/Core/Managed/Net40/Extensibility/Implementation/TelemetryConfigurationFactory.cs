@@ -45,8 +45,7 @@
         public static TelemetryConfigurationFactory Instance
         {
             // Both get and set should write something to CoreEventSource so as to initialize it. This is a fix for below deadlock issue   
-            // https://github.com/Microsoft/ApplicationInsights-dotnet/issues/428            
-                 
+            // https://github.com/Microsoft/ApplicationInsights-dotnet/issues/428                             
             get
             {
                 if (instance != null)
