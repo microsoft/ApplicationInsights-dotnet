@@ -32,6 +32,9 @@
         /// <summary>A dictionary mapping each telemetry item type to its handler.</summary>
         private readonly Dictionary<Type, Action<ITelemetry>> telemetryHandlers;
 
+        /// <summary>Handler for <see cref="OperationTelemetry"/> start/stop operations.</summary>
+        private readonly Action<OperationTelemetry, EventOpcode> operationStartStopHandler;
+
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
         /// </summary>
@@ -49,6 +52,8 @@
 
                     // CreateTelemetryHandlers is defined in RichPayloadEventSource.TelemetryHandler.cs
                     this.telemetryHandlers = this.CreateTelemetryHandlers(this.EventSourceInternal);
+
+                    this.operationStartStopHandler = this.CreateOperationStartStopHandler(this.EventSourceInternal);
                 }
             }
         }
@@ -75,6 +80,40 @@
             }
 
             handler(item);
+        }
+
+        /// <summary>
+        /// Record an operation start.
+        /// </summary>
+        /// <param name="operation">The opeation which is about to start.</param>
+        public void ProcessOperationStart(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal == null)
+            {
+                return;
+            }
+
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                operationStartStopHandler(operation, EventOpcode.Start);
+            }
+        }
+
+        /// <summary>
+        /// Record an operation stop.
+        /// </summary>
+        /// <param name="operation">The operation which has just stopped.</param>
+        public void ProcessOperationStop(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal == null)
+            {
+                return;
+            }
+
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                operationStartStopHandler(operation, EventOpcode.Stop);
+            }
         }
 
         /// <summary>
@@ -145,6 +184,11 @@
             /// Keyword for performance counters.
             /// </summary>
             public const EventKeywords PerformanceCounters = (EventKeywords)0x80;
+
+            /// <summary>
+            /// Keyword for operations (Start/Stop)
+            /// </summary>
+            public const EventKeywords Operations = (EventKeywords)0x80;
 
             /// <summary>
             /// Keyword for session state.

@@ -10,6 +10,8 @@
     /// </summary>
     public abstract class OperationTelemetry : ITelemetry, ISupportMetrics, ISupportProperties
     {
+        internal const string TelemetryName = "Operation";
+
         /// <summary>
         /// Gets or sets the start time of the operation.
         /// </summary>

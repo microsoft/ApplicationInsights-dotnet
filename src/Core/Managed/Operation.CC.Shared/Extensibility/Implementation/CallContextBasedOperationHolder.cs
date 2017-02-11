@@ -84,6 +84,7 @@
                         }
 
                         operationTelemetry.Stop();
+                        RichPayloadEventSource.Log.ProcessOperationStop(operationTelemetry);
                         CallContextHelpers.RestoreOperationContext(this.ParentContext);
                         this.telemetryClient.Track(operationTelemetry);
                     }

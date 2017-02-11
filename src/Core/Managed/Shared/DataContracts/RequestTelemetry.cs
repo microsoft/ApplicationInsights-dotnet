@@ -17,7 +17,7 @@
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
-        internal const string TelemetryName = "Request";
+        internal new const string TelemetryName = "Request";
 
         internal readonly string BaseType = typeof(RequestData).Name;
         internal readonly RequestData Data;

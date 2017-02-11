@@ -217,6 +217,30 @@
         }
 
         /// <summary>
+        /// Record an operation start.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        public void ProcessOperationStart(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                WriteEvent(operation, EventOpcode.Start);
+            }
+        }
+
+        /// <summary>
+        /// Record an operation stop.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        public void ProcessOperationStop(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                WriteEvent(operation, EventOpcode.Stop);
+            }
+        }
+
+        /// <summary>
         /// Disposes the object.
         /// </summary>
         public void Dispose()
@@ -246,6 +270,14 @@
                 eventName,
                 new EventSourceOptions() { Keywords = keywords },
                 new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
+        }
+
+        private void WriteEvent(OperationTelemetry item, EventOpcode opCode)
+        {
+            this.EventSourceInternal.Write(
+                OperationTelemetry.TelemetryName,
+                new EventSourceOptions { Keywords = Keywords.Operations, Opcode = opCode, Level = EventLevel.Informational },
+                new { IKey = item.Context.InstrumentationKey, Id = item.Id, Name = item.Name, RootId = item.Context.Operation.Id });
         }
 
         /// <summary>
@@ -287,6 +319,11 @@
             /// Keyword for page views.
             /// </summary>
             public const EventKeywords PageViews = (EventKeywords)0x40;
+
+            /// <summary>
+            /// Keyword for operations (Start/Stop)
+            /// </summary>
+            public const EventKeywords Operations = (EventKeywords)0x80;
 
             /// <summary>
             /// Keyword for availability.

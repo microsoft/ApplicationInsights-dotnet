@@ -12,7 +12,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// </summary>
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
-        internal const string TelemetryName = "RemoteDependency";
+        internal new const string TelemetryName = "RemoteDependency";
 
         internal readonly string BaseType = typeof(RemoteDependencyData).Name;
 

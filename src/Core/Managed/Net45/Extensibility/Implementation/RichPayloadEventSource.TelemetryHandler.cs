@@ -85,6 +85,88 @@
         }
 
         /// <summary>
+        /// Create a handler for <see cref="ProcessOperationStart(OperationTelemetry)"/> and <see cref="ProcessOperationStop(OperationTelemetry)"/>
+        /// </summary>
+        private Action<OperationTelemetry, EventOpcode> CreateOperationStartStopHandler(EventSource eventSource)
+        {
+            var eventSourceType = eventSource.GetType();
+
+            // EventSource.Write<T> (String, EventSourceOptions, T)
+            var writeGenericMethod = eventSourceType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(m => m.Name == "Write" && m.IsGenericMethod == true)
+                .Select(m => new { Method = m, Parameters = m.GetParameters() })
+                .Where(m => m.Parameters.Length == 3
+                            && m.Parameters[0].ParameterType.FullName == "System.String"
+                            && m.Parameters[1].ParameterType.FullName == "System.Diagnostics.Tracing.EventSourceOptions"
+                            && m.Parameters[2].ParameterType.FullName == null && m.Parameters[2].ParameterType.IsByRef == false)
+                .Select(m => m.Method)
+                .SingleOrDefault();
+
+            if (writeGenericMethod == null)
+            {
+                return null;
+            }
+
+            var eventSourceOptionsType = eventSourceType.Assembly.GetType("System.Diagnostics.Tracing.EventSourceOptions");
+            var eventSourceOptionsKeywordsProperty = eventSourceOptionsType.GetProperty("Keywords", BindingFlags.Public | BindingFlags.Instance);
+            var eventSourceOptionsOpcodeProperty = eventSourceOptionsType.GetProperty("Opcode", BindingFlags.Public | BindingFlags.Instance);
+            var eventSourceOptionsLevelProperty = eventSourceOptionsType.GetProperty("Level", BindingFlags.Public | BindingFlags.Instance);
+
+            var eventSourceOptionsStart = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStart, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStart, EventOpcode.Start);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStart, EventLevel.Informational);
+
+            var eventSourceOptionsStop = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStop, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStop, EventOpcode.Stop);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStop, EventLevel.Informational);
+
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                IKey = (string)null,
+                Id = (string)null,
+                Name = (string)null,
+                RootId = (string)null
+            }.GetType());
+
+            return (item, opCode) =>
+            {
+                object eventSourceOptionsObject;
+                switch (opCode)
+                {
+                    case EventOpcode.Start:
+                        eventSourceOptionsObject = eventSourceOptionsStart;
+                        break;
+
+                    case EventOpcode.Stop:
+                        eventSourceOptionsObject = eventSourceOptionsStop;
+                        break;
+
+                    default:
+                        throw new ArgumentException(nameof(opCode));
+                }
+
+                var extendedData = new
+                {
+                    IKey = item.Context.InstrumentationKey,
+                    Id = item.Id,
+                    Name = item.Name,
+                    RootId = item.Context.Operation.Id
+                };
+
+                writeMethod.Invoke(
+                    this.EventSourceInternal,
+                    new object[]
+                    {
+                        OperationTelemetry.TelemetryName,
+                        eventSourceOptionsObject,
+                        extendedData
+                    });
+            };
+        }
+
+        /// <summary>
         /// Create handler for request telemetry.
         /// </summary>
         private Action<ITelemetry> CreateHandlerForRequestTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)

@@ -132,9 +132,9 @@
 #pragma warning restore 618
         }
 
-            /// <summary>
-            /// Tests tracking session state telemetry.
-            /// </summary>
+        /// <summary>
+        /// Tests tracking session state telemetry.
+        /// </summary>
         [TestMethod]
         public void RichPayloadEventSourceSessionPerformanceCounterTest()
         {
@@ -145,6 +145,44 @@
                 typeof(External.MetricData),
                 (client, item) => { client.Track((PerformanceCounterTelemetry)item); });
 #pragma warning restore 618
+        }
+
+        /// <summary>
+        /// Tests start/stop events for Operations.
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceOperationStartStopTest()
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var client = CreateTelemetryClient();
+
+                using (var listener = new TestFramework.TestEventListener())
+                {
+                    listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Informational, RichPayloadEventSource.Keywords.Operations);
+
+                    // Simulate a Start/Stop request operation
+                    RequestTelemetry requestTelemetry;
+                    using (var operationHolder = client.StartOperation<RequestTelemetry>("Request"))
+                    {
+                        requestTelemetry = operationHolder.Telemetry;
+                    }
+
+                    // Expect exactly two events (start and stop)
+                    var actualEvents = listener.Messages.Take(2).ToArray();
+
+                    Assert.AreEqual(EventOpcode.Start, actualEvents[0].Opcode);
+                    VerifyOperationPayload(requestTelemetry, actualEvents[0].Payload);
+
+                    Assert.AreEqual(EventOpcode.Stop, actualEvents[1].Opcode);
+                    VerifyOperationPayload(requestTelemetry, actualEvents[1].Payload);
+                }
+            }
+            else
+            {
+                // 4.5 doesn't have RichPayload events
+                Assert.IsNull(RichPayloadEventSource.Log.EventSourceInternal);
+            }
         }
 
 
@@ -182,6 +220,16 @@
         }
 
 
+        private TelemetryClient CreateTelemetryClient()
+        {
+            // The default InMemoryChannel creates a worker thread which, if left running, causes
+            // System.AppDomainUnloadedException from the test runner.
+            var channel = new TestFramework.StubTelemetryChannel();
+            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString(), channel);
+            var client = new TelemetryClient() { InstrumentationKey = configuration.InstrumentationKey };
+            return client;
+        }
+
         /// <summary>
         /// Helper method to setup shared context and call the desired tracking for testing.
         /// </summary>
@@ -192,8 +240,7 @@
         {
             if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
             {
-                var client = new TelemetryClient();
-                client.InstrumentationKey = Guid.NewGuid().ToString();
+                var client = CreateTelemetryClient();
 
                 using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
                 {
@@ -283,6 +330,16 @@
                 }
 
             }
+        }
+
+        private static void VerifyOperationPayload(OperationTelemetry expected, IReadOnlyList<object> actualPayload)
+        {
+            Assert.IsNotNull(actualPayload);
+            Assert.AreEqual(4, actualPayload.Count);
+            Assert.AreEqual(expected.Context.InstrumentationKey, actualPayload[0]);
+            Assert.AreEqual(expected.Id, actualPayload[1]);
+            Assert.AreEqual(expected.Name, actualPayload[2]);
+            Assert.AreEqual(expected.Context.Operation.Id, actualPayload[3]);
         }
 
         private static Type GetEnumerableType(Type type)

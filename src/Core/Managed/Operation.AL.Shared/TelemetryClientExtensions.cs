@@ -57,6 +57,8 @@
                 operation.Telemetry.Context.Operation.Name = operation.Telemetry.Name;
             }
 
+            RichPayloadEventSource.Log.ProcessOperationStart(operation.Telemetry);
+
             // Update the call context to store certain fields that can be used for subsequent operations.
             var operationContext = new OperationContextForAsyncLocal();
             operationContext.ParentOperationId = operation.Telemetry.Id;
