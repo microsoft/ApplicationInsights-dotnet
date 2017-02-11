@@ -40,52 +40,76 @@
                 throw new ArgumentNullException("Telemetry client cannot be null.");
             }
 
-            var operation = new AsyncLocalBasedOperationHolder<T>(telemetryClient, new T());
-            operation.Telemetry.Start();
+            var operationTelemetry = new T();
+
+            if (string.IsNullOrEmpty(operationTelemetry.Name) && !string.IsNullOrEmpty(operationName))
+            {
+                operationTelemetry.Name = operationName;
+            }
+
+            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
+            {
+                operationTelemetry.Context.Operation.Id = operationId;
+            }
+
+            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
+            {
+                operationTelemetry.Context.Operation.ParentId = parentOperationId;
+            }
+
+            return StartOperation(telemetryClient, operationTelemetry);
+        }
+
+        /// <summary>
+        /// Creates an operation object with a given telemetry item. 
+        /// </summary>
+        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <param name="telemetryClient">Telemetry client object.</param>
+        /// <param name="operationTelemetry">Operation to start.</param>
+        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, T operationTelemetry) where T : OperationTelemetry
+        {
+            if (telemetryClient == null)
+            {
+                throw new ArgumentNullException("Telemetry client cannot be null.");
+            }
+
+            if (operationTelemetry == null)
+            {
+                throw new ArgumentNullException("operationTelemetry cannot be null.");
+            }
+
+            var operation = new AsyncLocalBasedOperationHolder<T>(telemetryClient, operationTelemetry);
+            operationTelemetry.Start();
 
             // Parent context store is assigned to operation that is used to restore call context.
             operation.ParentContext = AsyncLocalHelpers.GetCurrentOperationContext();
 
-            if (string.IsNullOrEmpty(operation.Telemetry.Name) && !string.IsNullOrEmpty(operationName))
-            {
-                operation.Telemetry.Name = operationName;
-            }
-
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
-            {
-                operation.Telemetry.Context.Operation.Id = operationId;
-            }
-
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
-            {
-                operation.Telemetry.Context.Operation.ParentId = parentOperationId;
-            }
-
-            telemetryClient.Initialize(operation.Telemetry);
+            telemetryClient.Initialize(operationTelemetry);
 
             // Initialize operation id if it wasn't initialized by telemetry initializers
-            if (string.IsNullOrEmpty(operation.Telemetry.Id))
+            if (string.IsNullOrEmpty(operationTelemetry.Id))
             {
-                operation.Telemetry.GenerateOperationId();
+                operationTelemetry.GenerateOperationId();
             }
 
             // If the operation is not executing in the context of any other operation
             // set its name and id as a context (root) operation name and id
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id))
+            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id))
             {
-                operation.Telemetry.Context.Operation.Id = operation.Telemetry.Id;
+                operationTelemetry.Context.Operation.Id = operationTelemetry.Id;
             }
 
-            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Name))
+            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Name))
             {
-                operation.Telemetry.Context.Operation.Name = operation.Telemetry.Name;
+                operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
             }
 
             // Update the call context to store certain fields that can be used for subsequent operations.
             var operationContext = new OperationContextForAsyncLocal();
-            operationContext.ParentOperationId = operation.Telemetry.Id;
-            operationContext.RootOperationId = operation.Telemetry.Context.Operation.Id;
-            operationContext.RootOperationName = operation.Telemetry.Context.Operation.Name;
+            operationContext.ParentOperationId = operationTelemetry.Id;
+            operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
+            operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
             AsyncLocalHelpers.SaveOperationContext(operationContext);
 
             return operation;

@@ -36,7 +36,7 @@
         [TestMethod]
         public void StartDependencyTrackingReturnsOperationWithSameTelemetryItem()
         {
-            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null);
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(operation);
             Assert.IsNotNull(operation.Telemetry);
 
@@ -63,13 +63,13 @@
         public void StartDependencyTrackingThrowsExceptionWithNullTelemetryClient()
         {
             TelemetryClient tc = null;
-            tc.StartOperation<DependencyTelemetry>(null);
+            tc.StartOperation<DependencyTelemetry>(operationName: null);
         }
 
         [TestMethod]
         public void StartDependencyTrackingCreatesADependencyTelemetryItemWithTimeStamp()
         {
-            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null);
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.AreNotEqual(operation.Telemetry.Timestamp, DateTimeOffset.MinValue);
 
             AsyncLocalHelpers.SaveOperationContext(null);
@@ -79,7 +79,7 @@
         public void StartDependencyTrackingAddsOperationContextStoreToCallContext()
         {
             Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
-            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null);
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(AsyncLocalHelpers.GetCurrentOperationContext());
 
             AsyncLocalHelpers.SaveOperationContext(null);
@@ -90,7 +90,7 @@
         public void UsingSendsTelemetryAndDisposesOperationItem()
         {
             Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
-            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null))
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
             {
             }
 
@@ -103,7 +103,7 @@
         public void UsingWithStopOperationSendsTelemetryAndDisposesOperationItemOnlyOnce()
         {
             Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
-            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(null))
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
             {
                 this.telemetryClient.StopOperation(operation);
             }
@@ -137,8 +137,7 @@
         [TestMethod]
         public void StopOperationDoesNotFailOnNullOperation()
         {
-            TelemetryClient tc = new TelemetryClient();
-            tc.StopOperation<DependencyTelemetry>(null);
+            this.telemetryClient.StopOperation<DependencyTelemetry>(null);
         }
 
         [TestMethod]
@@ -189,9 +188,9 @@
         [TestMethod]
         public void ContextPropagatesThroughNestedOperations()
         {
-            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
+            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
             {
-                using (var operation2 = telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
+                using (var operation2 = this.telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
                 {
                 }
             }
@@ -209,7 +208,7 @@
         [TestMethod]
         public void StartOperationCanOverrideOperationId()
         {
-            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
+            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
             {
             }
 
@@ -223,7 +222,7 @@
         [TestMethod]
         public void StartOperationCanOverrideRootAndParentOperationId()
         {
-            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
+            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
             {
             }
 
@@ -232,6 +231,31 @@
             var requestTelmetry = (RequestTelemetry)this.sendItems[0];
             Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
             Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void StartOperationThrowsOnNullOperationTelemetry()
+        {
+            this.telemetryClient.StartOperation<RequestTelemetry>(operationTelemetry: null);
+        }
+
+        [TestMethod]
+        public void StartOperationWithOperationTelemetrySetsOperationHolderTelemetry()
+        {
+            var requestTelemetry = new RequestTelemetry
+            {
+                Name = "REQUEST",
+                Id = "1"
+            };
+
+            using (var operationHolder = this.telemetryClient.StartOperation<RequestTelemetry>(requestTelemetry))
+            {
+                Assert.AreEqual(requestTelemetry, operationHolder.Telemetry);
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+            Assert.AreEqual(requestTelemetry, this.sendItems[0]);
         }
     }
 }

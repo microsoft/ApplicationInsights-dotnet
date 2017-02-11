@@ -95,16 +95,13 @@
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
 
-            HttpWebRequest request = WebRequest.Create(new Uri("http://bing.com")) as HttpWebRequest;
-            var result = request.BeginGetResponse(
+            var result = Task.Delay(millisecondsDelay: 50).AsAsyncResult(
                 (r) =>
                     {
                         id2 = Thread.CurrentThread.ManagedThreadId;
                         this.telemetryClient.TrackTrace("trace2");
 
                         this.telemetryClient.StopOperation(op);
-
-                        (r.AsyncState as HttpWebRequest).EndGetResponse(r);
                     },
                 null);
 
