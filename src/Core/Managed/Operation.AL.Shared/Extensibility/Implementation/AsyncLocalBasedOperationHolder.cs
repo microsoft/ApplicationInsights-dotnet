@@ -67,7 +67,7 @@
         {
             if (disposing && !this.isDisposed)
             {
-                // We need to compare the operation id and name of telemetry with opeartion id and name of current call context before tracking it 
+                // We need to compare the operation id and name of telemetry with operation id and name of current call context before tracking it 
                 // to make sure that the customer is tracking the right telemetry.
                 lock (this)
                 {
