@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using Extensibility.Implementation;
     using TestFramework;
 
     /// <summary>
@@ -30,13 +31,14 @@
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
+            AsyncLocalHelpers.SaveOperationContext(null);
         }
 
         /// <summary>
         /// Ensure that context being propagated via async/await.
         /// </summary>
         [TestMethod]
-        public void ContextPropogatesThruAsyncAwait()
+        public void ContextPropagatesThruAsyncAwait()
         {
             var task = this.TestAsync();
             task.Wait();
@@ -86,7 +88,7 @@
         /// Ensure that context being propagated via Begin/End.
         /// </summary>
         [TestMethod]
-        public void ContextPropogatesThruBeginEnd()
+        public void ContextPropagatesThruBeginEnd()
         {
             var op = this.telemetryClient.StartOperation<RequestTelemetry>("request");
             var id1 = Thread.CurrentThread.ManagedThreadId;

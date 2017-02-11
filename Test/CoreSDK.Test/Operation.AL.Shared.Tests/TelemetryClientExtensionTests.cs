@@ -22,6 +22,7 @@
             this.sendItems = new List<ITelemetry>();
             configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
+            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
             AsyncLocalHelpers.SaveOperationContext(null);
         }
@@ -116,12 +117,12 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as AsyncLocalBasedOperationHolder<DependencyTelemetry>;
             var parentContextStore = AsyncLocalHelpers.GetCurrentOperationContext();
-            Assert.AreEqual(operation.Telemetry.Context.Operation.Id, parentContextStore.ParentOperationId);
+            Assert.AreEqual(operation.Telemetry.Id, parentContextStore.ParentOperationId);
             Assert.AreEqual(operation.Telemetry.Context.Operation.Name, parentContextStore.RootOperationName);
 
             var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as AsyncLocalBasedOperationHolder<DependencyTelemetry>;
             var childContextStore = AsyncLocalHelpers.GetCurrentOperationContext();
-            Assert.AreEqual(childOperation.Telemetry.Context.Operation.Id, childContextStore.ParentOperationId);
+            Assert.AreEqual(childOperation.Telemetry.Id, childContextStore.ParentOperationId);
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, childContextStore.RootOperationName);
 
             Assert.IsNull(operation.ParentContext);
@@ -183,6 +184,54 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
             Assert.AreEqual("TestOperationName", AsyncLocalHelpers.GetCurrentOperationContext().RootOperationName);
+        }
+
+        [TestMethod]
+        public void ContextPropagatesThroughNestedOperations()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
+            {
+                using (var operation2 = telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
+                {
+                }
+            }
+
+            Assert.AreEqual(2, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[1];
+            var dependentTelmetry = (DependencyTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelmetry.Id, dependentTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelmetry.Context.Operation.Id, dependentTelmetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelmetry.Context.Operation.Name, dependentTelmetry.Context.Operation.Name);
+        }
+
+        [TestMethod]
+        public void StartOperationCanOverrideOperationId()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual("HOME", requestTelmetry.Context.Operation.Id);
+        }
+
+        [TestMethod]
+        public void StartOperationCanOverrideRootAndParentOperationId()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
         }
     }
 }

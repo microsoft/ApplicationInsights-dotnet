@@ -21,6 +21,20 @@
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName) where T : OperationTelemetry, new()
         {
+            return StartOperation<T>(telemetryClient, operationName, operationId: null, parentOperationId: null);
+        }
+
+        /// <summary>
+        /// Start operation creates an operation object with a respective telemetry item. 
+        /// </summary>
+        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <param name="telemetryClient">Telemetry client object.</param>
+        /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
+        /// <param name="operationId">Operation ID to set in the new operation.</param>
+        /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
+        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
+        {
             if (telemetryClient == null)
             {
                 throw new ArgumentNullException("Telemetry client cannot be null.");
@@ -37,6 +51,16 @@
                 operation.Telemetry.Name = operationName;
             }
 
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id) && !string.IsNullOrEmpty(operationId))
+            {
+                operation.Telemetry.Context.Operation.Id = operationId;
+            }
+
+            if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.ParentId) && !string.IsNullOrEmpty(parentOperationId))
+            {
+                operation.Telemetry.Context.Operation.ParentId = parentOperationId;
+            }
+
             telemetryClient.Initialize(operation.Telemetry);
 
             // Initialize operation id if it wasn't initialized by telemetry initializers
@@ -45,8 +69,8 @@
                 operation.Telemetry.GenerateOperationId();
             }
 
-            // If operation do not executes in a context of any other operaiton - 
-            // set it's name and id as a context (root) operation name and id
+            // If the operation is not executing in the context of any other operation
+            // set its name and id as a context (root) operation name and id
             if (string.IsNullOrEmpty(operation.Telemetry.Context.Operation.Id))
             {
                 operation.Telemetry.Context.Operation.Id = operation.Telemetry.Id;
@@ -72,7 +96,7 @@
         /// </summary>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="operation">Operation object to compute duration and track.</param>
-        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation)
+        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation) where T : OperationTelemetry
         {
             if (telemetryClient == null)
             {

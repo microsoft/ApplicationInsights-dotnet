@@ -23,6 +23,7 @@
             this.sendItems = new List<ITelemetry>();
             configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
+            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
             CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
@@ -188,6 +189,54 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
             Assert.AreEqual("TestOperationName", CallContextHelpers.GetCurrentOperationContext().RootOperationName);
+        }
+
+        [TestMethod]
+        public void ContextPropagatesThroughNestedOperations()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
+            {
+                using (var operation2 = telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
+                {
+                }
+            }
+
+            Assert.AreEqual(2, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[1];
+            var dependentTelmetry = (DependencyTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelmetry.Id, dependentTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual(requestTelmetry.Context.Operation.Id, dependentTelmetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelmetry.Context.Operation.Name, dependentTelmetry.Context.Operation.Name);
+        }
+
+        [TestMethod]
+        public void StartOperationCanOverrideOperationId()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            Assert.IsNull(requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual("HOME", requestTelmetry.Context.Operation.Id);
+        }
+
+        [TestMethod]
+        public void StartOperationCanOverrideRootAndParentOperationId()
+        {
+            using (var operation1 = telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
+            {
+            }
+
+            Assert.AreEqual(1, this.sendItems.Count);
+
+            var requestTelmetry = (RequestTelemetry)this.sendItems[0];
+            Assert.AreEqual("PARENT", requestTelmetry.Context.Operation.ParentId);
+            Assert.AreEqual("ROOT", requestTelmetry.Context.Operation.Id);
         }
     }
 }
