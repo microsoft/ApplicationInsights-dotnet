@@ -157,12 +157,7 @@
 
                 writeMethod.Invoke(
                     this.EventSourceInternal,
-                    new object[]
-                    {
-                        OperationTelemetry.TelemetryName,
-                        eventSourceOptionsObject,
-                        extendedData
-                    });
+                    new object[] { OperationTelemetry.TelemetryName, eventSourceOptionsObject, extendedData });
             };
         }
 

@@ -85,7 +85,7 @@
         /// <summary>
         /// Record an operation start.
         /// </summary>
-        /// <param name="operation">The opeation which is about to start.</param>
+        /// <param name="operation">The operation which is about to start.</param>
         public void ProcessOperationStart(OperationTelemetry operation)
         {
             if (this.EventSourceInternal == null)
@@ -95,7 +95,7 @@
 
             if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
             {
-                operationStartStopHandler(operation, EventOpcode.Start);
+                this.operationStartStopHandler(operation, EventOpcode.Start);
             }
         }
 
@@ -112,7 +112,7 @@
 
             if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
             {
-                operationStartStopHandler(operation, EventOpcode.Stop);
+                this.operationStartStopHandler(operation, EventOpcode.Stop);
             }
         }
 
@@ -186,7 +186,7 @@
             public const EventKeywords PerformanceCounters = (EventKeywords)0x80;
 
             /// <summary>
-            /// Keyword for operations (Start/Stop)
+            /// Keyword for operations (Start/Stop).
             /// </summary>
             public const EventKeywords Operations = (EventKeywords)0x80;
 

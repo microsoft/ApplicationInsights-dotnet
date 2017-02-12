@@ -224,7 +224,7 @@
         {
             if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
             {
-                WriteEvent(operation, EventOpcode.Start);
+                this.WriteEvent(operation, EventOpcode.Start);
             }
         }
 
@@ -236,7 +236,7 @@
         {
             if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
             {
-                WriteEvent(operation, EventOpcode.Stop);
+                this.WriteEvent(operation, EventOpcode.Stop);
             }
         }
 
@@ -272,11 +272,11 @@
                 new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
         }
 
-        private void WriteEvent(OperationTelemetry item, EventOpcode opCode)
+        private void WriteEvent(OperationTelemetry item, EventOpcode eventOpCode)
         {
             this.EventSourceInternal.Write(
                 OperationTelemetry.TelemetryName,
-                new EventSourceOptions { Keywords = Keywords.Operations, Opcode = opCode, Level = EventLevel.Informational },
+                new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
                 new { IKey = item.Context.InstrumentationKey, Id = item.Id, Name = item.Name, RootId = item.Context.Operation.Id });
         }
 
@@ -321,7 +321,7 @@
             public const EventKeywords PageViews = (EventKeywords)0x40;
 
             /// <summary>
-            /// Keyword for operations (Start/Stop)
+            /// Keyword for operations (Start/Stop).
             /// </summary>
             public const EventKeywords Operations = (EventKeywords)0x80;
 
