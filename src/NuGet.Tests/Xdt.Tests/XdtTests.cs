@@ -54,6 +54,16 @@ namespace Xdt.Tests
                ".Log4Net.TestDataSet.xml");
         }
 
+        [TestMethod]
+        [TestCategory("XdtTests")]
+        public void EventSourceListenerTest()
+        {
+            this.ValidateTransform(
+               ".EventSourceListener.ApplicationInsights.config.install.xdt",
+               ".EventSourceListener.ApplicationInsights.config.uninstall.xdt",
+               ".EventSourceListener.TestDataSet.xml");
+        }
+
         private static string GetInnerXml(XElement element)
         {
             XmlReader reader = element.CreateReader();

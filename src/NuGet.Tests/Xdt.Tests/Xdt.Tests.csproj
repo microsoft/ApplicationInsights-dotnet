@@ -61,12 +61,19 @@
     <EmbeddedResource Include="..\..\NuGet\NLogTarget\config.uninstall.xdt">
       <Link>Resources\NLog\config.uninstall.xdt</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.install.xdt">
+      <Link>Resources\EventSourceListener\ApplicationInsights.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.uninstall.xdt">
+      <Link>Resources\EventSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Log4Net\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\NLog\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\TraceListener\TestDataSet.xml" />
+    <EmbeddedResource Include="Resources\EventSourceListener\TestDataSet.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
