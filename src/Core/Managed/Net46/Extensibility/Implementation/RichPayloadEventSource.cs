@@ -274,10 +274,22 @@
 
         private void WriteEvent(OperationTelemetry item, EventOpcode eventOpCode)
         {
-            this.EventSourceInternal.Write(
-                OperationTelemetry.TelemetryName,
-                new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
-                new { IKey = item.Context.InstrumentationKey, Id = item.Id, Name = item.Name, RootId = item.Context.Operation.Id });
+            var payload = new { IKey = item.Context.InstrumentationKey, Id = item.Id, Name = item.Name, RootId = item.Context.Operation.Id };
+
+            if (item is RequestTelemetry)
+            {
+                this.EventSourceInternal.Write(
+                    RequestTelemetry.TelemetryName,
+                    new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
+                    payload);
+            }
+            else
+            {
+                this.EventSourceInternal.Write(
+                    OperationTelemetry.TelemetryName,
+                    new EventSourceOptions { ActivityOptions = EventActivityOptions.Recursive, Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
+                    payload);
+            }
         }
 
         /// <summary>

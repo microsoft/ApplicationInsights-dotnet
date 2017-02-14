@@ -169,13 +169,10 @@
                     }
 
                     // Expect exactly two events (start and stop)
-                    var actualEvents = listener.Messages.Take(2).ToArray();
+                    var actualEvents = listener.Messages.Where(m => m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(2).ToArray();
 
-                    Assert.AreEqual(EventOpcode.Start, actualEvents[0].Opcode);
-                    VerifyOperationPayload(requestTelemetry, actualEvents[0].Payload);
-
-                    Assert.AreEqual(EventOpcode.Stop, actualEvents[1].Opcode);
-                    VerifyOperationPayload(requestTelemetry, actualEvents[1].Payload);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[1]);
                 }
             }
             else
@@ -185,6 +182,48 @@
             }
         }
 
+        /// <summary>
+        /// Tests start/stop events for nested operations.
+        /// </summary>
+        [TestMethod]
+        public void RichPayloadEventSourceNestedOperationStartStopTest()
+        {
+            if (IsRunningOnEnvironmentSupportingRichPayloadEventSource())
+            {
+                var client = CreateTelemetryClient();
+
+                using (var listener = new TestFramework.TestEventListener())
+                {
+                    listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Informational, RichPayloadEventSource.Keywords.Operations);
+
+                    // Simulate a Start/Stop request operation
+                    RequestTelemetry requestTelemetry;
+                    DependencyTelemetry nestedOperation;
+                    using (var operationHolder = client.StartOperation<RequestTelemetry>("Request"))
+                    {
+                        requestTelemetry = operationHolder.Telemetry;
+
+                        using (var nestedOperationHolder = client.StartOperation<DependencyTelemetry>("Dependency"))
+                        {
+                            nestedOperation = nestedOperationHolder.Telemetry;
+                        }
+                    }
+
+                    // Expect exactly four events (start, start, stop, stop)
+                    var actualEvents = listener.Messages.Where(m=>m.Keywords.HasFlag(RichPayloadEventSource.Keywords.Operations)).Take(4).ToArray();
+
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Start, actualEvents[0]);
+                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Start, actualEvents[1]);
+                    VerifyOperationEvent(nestedOperation, OperationTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[2]);
+                    VerifyOperationEvent(requestTelemetry, RequestTelemetry.TelemetryName, EventOpcode.Stop, actualEvents[3]);
+                }
+            }
+            else
+            {
+                // 4.5 doesn't have RichPayload events
+                Assert.IsNull(RichPayloadEventSource.Log.EventSourceInternal);
+            }
+        }
 
         /// <summary>
         /// Tests sanitizing telemetry event
@@ -201,8 +240,7 @@
                     ResponseCode = "200"
                 };
 
-                var client = new TelemetryClient();
-                client.InstrumentationKey = Guid.NewGuid().ToString();
+                var client = CreateTelemetryClient();
 
                 using (var listener = new Microsoft.ApplicationInsights.TestFramework.TestEventListener())
                 {
@@ -226,7 +264,7 @@
             // System.AppDomainUnloadedException from the test runner.
             var channel = new TestFramework.StubTelemetryChannel();
             var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString(), channel);
-            var client = new TelemetryClient() { InstrumentationKey = configuration.InstrumentationKey };
+            var client = new TelemetryClient(configuration) { InstrumentationKey = configuration.InstrumentationKey };
             return client;
         }
 
@@ -330,6 +368,15 @@
                 }
 
             }
+        }
+
+        private static void VerifyOperationEvent(OperationTelemetry expectedOperation, string expectedName, EventOpcode expectedOpCode, EventWrittenEventArgs actualEvent)
+        {
+            Assert.AreEqual(expectedOpCode, actualEvent.Opcode);
+#if !NET45
+            Assert.AreEqual(expectedName, actualEvent.EventName);
+#endif
+            VerifyOperationPayload(expectedOperation, actualEvent.Payload);
         }
 
         private static void VerifyOperationPayload(OperationTelemetry expected, IReadOnlyList<object> actualPayload)
