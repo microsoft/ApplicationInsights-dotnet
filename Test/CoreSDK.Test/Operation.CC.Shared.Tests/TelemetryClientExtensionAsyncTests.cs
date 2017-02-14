@@ -38,7 +38,7 @@
         /// Ensure that context being propagated via async/await.
         /// </summary>
         [TestMethod]
-        public void ContextPropagatesThruAsyncAwait()
+        public void ContextPropagatesThroughAsyncAwait()
         {
             var task = this.TestAsync();
             task.Wait();
@@ -87,8 +87,8 @@
         /// <summary>
         /// Ensure that context being propagated via Begin/End.
         /// </summary>
-        [TestMethod]
-        public void ContextPropagatesThruBeginEnd()
+        [TestMethod, Timeout(500)]
+        public void ContextPropagatesThroughBeginEnd()
         {
             var op = this.telemetryClient.StartOperation<RequestTelemetry>("request");
             var id1 = Thread.CurrentThread.ManagedThreadId;
@@ -109,8 +109,6 @@
             {
                 Thread.Sleep(10);
             }
-
-            Thread.Sleep(100);
 
             Assert.NotEqual(id1, id2);
 

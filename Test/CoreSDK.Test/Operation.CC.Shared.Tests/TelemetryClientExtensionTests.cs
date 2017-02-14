@@ -193,9 +193,9 @@
         [TestMethod]
         public void ContextPropagatesThroughNestedOperations()
         {
-            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("OuterRequest"))
             {
-                using (var operation2 = this.telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
+                using (this.telemetryClient.StartOperation<DependencyTelemetry>("DependentCall"))
                 {
                 }
             }
@@ -213,7 +213,7 @@
         [TestMethod]
         public void StartOperationCanOverrideOperationId()
         {
-            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", "HOME"))
             {
             }
 
