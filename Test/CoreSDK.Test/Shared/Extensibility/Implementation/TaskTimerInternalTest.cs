@@ -18,7 +18,7 @@
     using Assert = Xunit.Assert;
 
     [TestClass]
-    public class TaskTimerTest
+    public class TaskTimerInternalTest
     {
         [TestClass]
         public class Delay
