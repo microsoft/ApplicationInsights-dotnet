@@ -95,6 +95,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46", "src\Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46.Tests", "src\Adapters.Tests\EventSource.Net46.Tests\EventSource.Net46.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451", "src\Adapters\Etw.Net451\Etw.Net451.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventSource.Shared", "src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.shproj", "{A964DE6D-9750-4013-8BE2-79C2AFC056E5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Adapters\CommonShared\CommonShared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
@@ -114,7 +118,11 @@ Global
 		src\Adapters.Tests\CommonTestShared\CommonTestShared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\Shared\Adapters.Shared.Tests.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
 		src\Adapters.Tests\TraceListener.Tests.Shared\TraceListener.Net40.Tests.Shared.projitems*{96b3afdb-abc4-4df2-a46d-de4286e4bb1f}*SharedItemsImports = 4
+		src\Adapters\CommonShared\CommonShared.projitems*{9becfb0f-4f6d-4a84-931f-70da3e4e2813}*SharedItemsImports = 4
+		src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{9becfb0f-4f6d-4a84-931f-70da3e4e2813}*SharedItemsImports = 4
 		src\Adapters\CommonShared\CommonShared.projitems*{a539bb1d-29ff-48e8-8d6e-dfcc543dc2b4}*SharedItemsImports = 4
+		src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a539bb1d-29ff-48e8-8d6e-dfcc543dc2b4}*SharedItemsImports = 4
+		src\Adapters\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems*{a964de6d-9750-4013-8be2-79c2afc056e5}*SharedItemsImports = 13
 		src\Adapters\CommonShared\CommonShared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
 		src\Adapters\Log4NetAppender.Shared\Log4NetAppender.Shared.projitems*{ad78c91c-9d4f-4e06-9af7-9a31a5565210}*SharedItemsImports = 4
 		src\Adapters\CommonShared\CommonShared.projitems*{b6dcd83b-f8fb-4171-8996-7a402dca9fe3}*SharedItemsImports = 4
@@ -221,6 +229,10 @@ Global
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,5 +266,7 @@ Global
 		{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
+		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{A964DE6D-9750-4013-8BE2-79C2AFC056E5} = {EE933574-C82B-4E59-A0D1-05328197B937}
 	EndGlobalSection
 EndGlobal

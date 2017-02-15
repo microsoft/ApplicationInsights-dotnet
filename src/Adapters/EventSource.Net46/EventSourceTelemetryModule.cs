@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
+    using EventSource.Shared.Implementations;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -58,7 +59,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
 
             if (this.Sources.Count == 0)
             {
-                EventSourceListenerEventSource.Log.NoEventSourcesConfigured();
+                EventSourceListenerEventSource.Log.NoSourcesConfigured(nameof(EventSourceTelemetryModule));
                 return;
             }
 

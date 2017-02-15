@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
+namespace Microsoft.ApplicationInsights.EventSource.Shared.Implementations
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -19,7 +19,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         public static readonly EventSourceListenerEventSource Log = new EventSourceListenerEventSource();
 
         private const int NoEventSourcesConfiguredEventId = 1;
-
+        private const int FailedToEnableProvidersEventId = 2;
+        private const int ModuleInitializationFailedEventId = 3;
         private EventSourceListenerEventSource()
         {
             this.ApplicationName = this.GetApplicationName();
@@ -28,10 +29,22 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
         public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
 
         [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration,
-        Message = "No EventSources configured for the EventSourceListenerModule")]
-        public void NoEventSourcesConfigured(string applicationName = null)
+        Message = "No Sources configured for the {1}")]
+        public void NoSourcesConfigured(string moduleName, string applicationName = null)
         {
-            this.WriteEvent(NoEventSourcesConfiguredEventId, applicationName ?? this.ApplicationName);
+            this.WriteEvent(NoEventSourcesConfiguredEventId, applicationName ?? this.ApplicationName, moduleName);
+        }
+
+        [Event(FailedToEnableProvidersEventId, Level = EventLevel.Error, Keywords = Keywords.Configuration, Message = "Failed to enable provider {1} for the {0}.")]
+        public void FailedToEnableProviders(string moduleName, string providerName, string details, string applicationName = null)
+        {
+            this.WriteEvent(FailedToEnableProvidersEventId, moduleName, providerName, details, applicationName ?? this.ApplicationName);
+        }
+
+        [Event(ModuleInitializationFailedEventId, Level = EventLevel.Error, Keywords = Keywords.Configuration, Message = "Initialization failed for the {0}.")]
+        public void ModuleInitializationFailed(string moduleName, string details, string applicationName = null)
+        {
+            this.WriteEvent(ModuleInitializationFailedEventId, moduleName, details, applicationName ?? this.ApplicationName);
         }
 
         [NonEvent]
