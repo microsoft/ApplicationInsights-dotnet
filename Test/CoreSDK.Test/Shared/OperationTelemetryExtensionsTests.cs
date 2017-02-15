@@ -113,10 +113,21 @@
 
             double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
 
-            long stopTime = (long)(startTime + durationInStopwatchTicks);
+            long stopTime = (long)Math.Round(startTime + durationInStopwatchTicks);
             telemetry.Stop(timestamp: stopTime);
 
-            Assert.Equal(expectedDuration, telemetry.Duration);
+            if (Stopwatch.Frequency == TimeSpan.TicksPerSecond)
+            {
+                // In this case, the times should match exactly.
+                Assert.Equal(expectedDuration, telemetry.Duration);
+            }
+            else
+            {
+                // There will be a difference, but it should be less than
+                // 1 microsecond (10 ticks)
+                var difference = (telemetry.Duration - expectedDuration).Duration();
+                Assert.True(difference.Ticks < 10);
+            }
         }
     }
 }

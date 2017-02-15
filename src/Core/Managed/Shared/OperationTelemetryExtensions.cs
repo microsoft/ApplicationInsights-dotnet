@@ -93,7 +93,7 @@
         {
             long stopWatchTicksDiff = timestamp - telemetry.BeginTimeInTicks;
             double durationInTicks = stopWatchTicksDiff * StopwatchTicksToTimeSpanTicks;
-            StopImpl(telemetry, TimeSpan.FromTicks((long)durationInTicks));
+            StopImpl(telemetry, TimeSpan.FromTicks((long)Math.Round(durationInTicks)));
         }
 
         /// <summary>
