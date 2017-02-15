@@ -41,15 +41,14 @@
             {
                 RequestTelemetry requestTelemetry = new RequestTelemetry();
                 this.client.Initialize(requestTelemetry);
-                requestTelemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
                 requestTelemetry.Id = httpContext.TraceIdentifier;
                 httpContext.Features.Set(requestTelemetry);
 
                 this.beginRequestTimestamp.Value = timestamp;
                 this.client.Context.Operation.Id = requestTelemetry.Id;
-                
+
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
-                if (responseHeaders != null && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
+                if (responseHeaders != null && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader) && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
                 {
                     responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)));
                 }
@@ -95,9 +94,9 @@
 
         private void EndRequest(HttpContext httpContext, long timestamp)
         {
-            if (this.client.IsEnabled() && httpContext != null)
+            if (this.client.IsEnabled())
             {
-                var telemetry = httpContext.Features.Get<RequestTelemetry>();
+                var telemetry = httpContext?.Features.Get<RequestTelemetry>();
 
                 if (telemetry == null)
                 {
@@ -130,10 +129,14 @@
                     }
                 }
 
+                if (string.IsNullOrEmpty(telemetry.Name))
+                {
+                    telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
+                }
+
                 telemetry.HttpMethod = httpContext.Request.Method;
                 telemetry.Url = httpContext.Request.GetUri();
                 telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
-
                 this.client.TrackRequest(telemetry);
             }
         }
