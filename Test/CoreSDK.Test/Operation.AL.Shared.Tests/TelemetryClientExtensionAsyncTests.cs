@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using Extensibility.Implementation;
     using TestFramework;
 
     /// <summary>
@@ -30,13 +31,14 @@
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
+            AsyncLocalHelpers.SaveOperationContext(null);
         }
 
         /// <summary>
         /// Ensure that context being propagated via async/await.
         /// </summary>
         [TestMethod]
-        public void ContextPropogatesThruAsyncAwait()
+        public void ContextPropagatesThroughAsyncAwait()
         {
             var task = this.TestAsync();
             task.Wait();
@@ -85,24 +87,21 @@
         /// <summary>
         /// Ensure that context being propagated via Begin/End.
         /// </summary>
-        [TestMethod]
-        public void ContextPropogatesThruBeginEnd()
+        [TestMethod, Timeout(500)]
+        public void ContextPropagatesThroughBeginEnd()
         {
             var op = this.telemetryClient.StartOperation<RequestTelemetry>("request");
             var id1 = Thread.CurrentThread.ManagedThreadId;
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
 
-            HttpWebRequest request = WebRequest.Create(new Uri("http://bing.com")) as HttpWebRequest;
-            var result = request.BeginGetResponse(
+            var result = Task.Delay(millisecondsDelay: 50).AsAsyncResult(
                 (r) =>
                     {
                         id2 = Thread.CurrentThread.ManagedThreadId;
                         this.telemetryClient.TrackTrace("trace2");
 
                         this.telemetryClient.StopOperation(op);
-
-                        (r.AsyncState as HttpWebRequest).EndGetResponse(r);
                     },
                 null);
 
@@ -110,8 +109,6 @@
             {
                 Thread.Sleep(10);
             }
-
-            Thread.Sleep(100);
 
             Assert.NotEqual(id1, id2);
 
