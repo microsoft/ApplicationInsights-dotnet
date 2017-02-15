@@ -23,5 +23,15 @@
         /// Operation name that will be assigned to all the child telemetry items.
         /// </summary>
         public string RootOperationName;
+
+        /// <summary>
+        /// User id that will be assigned to all the child telemetry items.
+        /// </summary>
+        public string UserId;
+
+        /// <summary>
+        /// Session id that will be assigned to all the child telemetry items.
+        /// </summary>
+        public string SessionId;
     }
 }

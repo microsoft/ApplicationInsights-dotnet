@@ -15,7 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\OperationCorrelationTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncLocalBasedOperationHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncLocalHelpers.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationContextForAsyncLocal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryClientExtensions.cs" />
   </ItemGroup>
 </Project>

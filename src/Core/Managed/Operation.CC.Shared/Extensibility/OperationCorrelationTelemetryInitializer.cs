@@ -14,29 +14,47 @@
         /// <param name="telemetryItem">Target telemetry item to add operation id.</param>
         public void Initialize(ITelemetry telemetryItem)
         {
-            var itemContext = telemetryItem.Context.Operation;
+            var itemOperationContext = telemetryItem.Context.Operation;
+            var itemContext = telemetryItem.Context;
+            OperationContextForCallContext parentContext;
 
-            if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
+            if (string.IsNullOrEmpty(itemOperationContext.ParentId) 
+                || string.IsNullOrEmpty(itemOperationContext.Id) 
+                || string.IsNullOrEmpty(itemOperationContext.Name)
+                || string.IsNullOrEmpty(itemContext.User.Id)
+                || string.IsNullOrEmpty(itemContext.Session.Id))
             {
-                var parentContext = CallContextHelpers.GetCurrentOperationContext();
+                parentContext = CallContextHelpers.GetCurrentOperationContext();
                 if (parentContext != null)
                 {
-                    if (string.IsNullOrEmpty(itemContext.ParentId)
+                    if (string.IsNullOrEmpty(itemOperationContext.ParentId)
                         && !string.IsNullOrEmpty(parentContext.ParentOperationId))
                     {
-                        itemContext.ParentId = parentContext.ParentOperationId;
+                        itemOperationContext.ParentId = parentContext.ParentOperationId;
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.Id)
+                    if (string.IsNullOrEmpty(itemOperationContext.Id)
                         && !string.IsNullOrEmpty(parentContext.RootOperationId))
                     {
-                        itemContext.Id = parentContext.RootOperationId;
+                        itemOperationContext.Id = parentContext.RootOperationId;
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.Name)
+                    if (string.IsNullOrEmpty(itemOperationContext.Name)
                         && !string.IsNullOrEmpty(parentContext.RootOperationName))
                     {
-                        itemContext.Name = parentContext.RootOperationName;
+                        itemOperationContext.Name = parentContext.RootOperationName;
+                    }
+
+                    if (string.IsNullOrEmpty(itemContext.User.Id)
+                        && !string.IsNullOrEmpty(parentContext.UserId))
+                    {
+                        itemContext.User.Id = parentContext.UserId;
+                    }
+
+                    if (string.IsNullOrEmpty(itemContext.Session.Id)
+                        && !string.IsNullOrEmpty(parentContext.SessionId))
+                    {
+                        itemContext.Session.Id = parentContext.SessionId;
                     }
                 }
             }
