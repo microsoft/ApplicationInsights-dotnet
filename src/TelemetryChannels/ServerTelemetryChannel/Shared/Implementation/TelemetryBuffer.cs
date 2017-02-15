@@ -18,7 +18,7 @@
     {
         private static readonly TimeSpan DefaultFlushDelay = TimeSpan.FromSeconds(30);
 
-        private readonly TaskTimer flushTimer;
+        private readonly TaskTimerInternal flushTimer;
         private readonly TelemetrySerializer serializer;
 
         private int capacity = 500;
@@ -47,7 +47,7 @@
 
         protected TelemetryBuffer()
         {
-            this.flushTimer = new TaskTimer { Delay = DefaultFlushDelay };
+            this.flushTimer = new TaskTimerInternal { Delay = DefaultFlushDelay };
             this.transmissionBuffer = new List<ITelemetry>(this.Capacity);
         }
 

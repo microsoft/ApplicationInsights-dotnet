@@ -62,6 +62,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\HttpWebResponseWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SdkVersionUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryDebugWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\DeviceContext.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SeverityLevelExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingList.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimerInternal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Telemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\ExceptionDetails.cs" />

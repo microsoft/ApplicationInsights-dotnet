@@ -26,14 +26,14 @@
             [TestMethod]
             public void DefaultValueIsOneMinuteBecauseItHasToBeSomethingValid()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 Assert.Equal(TimeSpan.FromMinutes(1), timer.Delay);
             }
 
             [TestMethod]
             public void CanBeChangedByConfigurableChannelComponents()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 timer.Delay = TimeSpan.FromSeconds(42);
                 Assert.Equal(42, timer.Delay.TotalSeconds);
             }
@@ -41,7 +41,7 @@
             [TestMethod]
             public void CanBeSetToInfiniteToPreventTimerFromFiring()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 timer.Delay = new TimeSpan(0, 0, 0, 0, -1);
                 Assert.Equal(new TimeSpan(0, 0, 0, 0, -1), timer.Delay);
             }
@@ -49,14 +49,14 @@
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsZeroOrLess()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.Zero);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsMoreThanMaxIntMilliseconds()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.FromMilliseconds((double)int.MaxValue + 1));
             }
         }
@@ -67,14 +67,14 @@
             [TestMethod]
             public void ReturnsFalseIfTimerWasNeverStarted()
             {
-                var timer = new TaskTimer();
+                var timer = new TaskTimerInternal();
                 Assert.False(timer.IsStarted);
             }
 
             [TestMethod]
             public void ReturnsTrueWhileUntilActionIsInvoked()
             {
-                var timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
                 var actionStarted = new ManualResetEventSlim();
                 var actionCanFinish = new ManualResetEventSlim();
@@ -107,7 +107,7 @@
                 {
                     listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
 
-                    var timer = new TaskTimer {Delay = TimeSpan.FromMilliseconds(1)};
+                    var timer = new TaskTimerInternal {Delay = TimeSpan.FromMilliseconds(1)};
                     var actionInvoked = new ManualResetEventSlim();
 
                     timer.Start(() => { actionInvoked.Set(); return null; });
@@ -123,7 +123,7 @@
             [TestMethod]
             public void InvokesActionAfterDelay()
             {
-                var timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
                 var actionInvoked = new ManualResetEventSlim();
                 timer.Start(() => Task.Factory.StartNew(actionInvoked.Set));
@@ -135,7 +135,7 @@
             [TestMethod]
             public void CancelsPreviousActionWhenStartIsCalledMultipleTimes()
             {
-                var timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
                 int invokationCount = 0;
                 var lastActionInvoked = new ManualResetEventSlim();
@@ -156,7 +156,7 @@
             [Timeout(1500)]
             public void HandlesAsyncExceptionThrownByTheDelegate()
             {
-                TaskTimer timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                TaskTimerInternal timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
                 using (TestEventListener listener = new TestEventListener())
                 {
@@ -172,7 +172,7 @@
             [Timeout(1500)]
             public void HandlesSyncExceptionThrownByTheDelegate()
             {
-                TaskTimer timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                TaskTimerInternal timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
                 using (TestEventListener listener = new TestEventListener())
                 {
@@ -192,7 +192,7 @@
             {
                 AsyncTest.Run(async () =>
                 {
-                    var timer = new TaskTimer { Delay = TimeSpan.FromMilliseconds(1) };
+                    var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
         
                     bool actionInvoked = false;
                     timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
