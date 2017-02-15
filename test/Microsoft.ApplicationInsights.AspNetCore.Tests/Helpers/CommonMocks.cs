@@ -11,17 +11,11 @@
 
         public static TelemetryClient MockTelemetryClient(Action<ITelemetry> onSendCallback)
         {
-            TelemetryClient client = new TelemetryClient(new TelemetryConfiguration()
+            return new TelemetryClient(new TelemetryConfiguration()
             {
                 InstrumentationKey = InstrumentationKey,
                 TelemetryChannel = new FakeTelemetryChannel { OnSend = onSendCallback }
             });
-
-            // You'd think that the constructor would set the instrumentation key is the
-            // configuration had a instrumentation key, but it doesn't, so we have to set it here.
-            client.InstrumentationKey = InstrumentationKey;
-
-            return client;
         }
     }
 }

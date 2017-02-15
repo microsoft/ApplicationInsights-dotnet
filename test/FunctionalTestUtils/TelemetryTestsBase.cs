@@ -46,7 +46,6 @@
                 timer.Stop();
                 server.Dispose();
 
-                RequestTelemetry[] requestTelemetryArray = server.BackChannel.Buffer.OfType<RequestTelemetry>().ToArray();
                 RequestTelemetry actual = server.BackChannel.Buffer.OfType<RequestTelemetry>().Where(t => t.Name == expected.Name).Single();
                 server.BackChannel.Buffer.Clear();
 
