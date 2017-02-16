@@ -17,7 +17,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
     {
         private static Lazy<Random> random = new Lazy<Random>();
 
-        private static SeverityLevel[] traceEventLevelToSeverityLevel = new SeverityLevel[] {
+        private static SeverityLevel[] traceEventLevelToSeverityLevel = new SeverityLevel[]
+        {
             SeverityLevel.Critical,     // TraceEventLevel.Always == 0
             SeverityLevel.Critical,     // TraceEventLevel.Critical == 1
             SeverityLevel.Error,        // TraceEventLevel.Error == 2
@@ -50,7 +51,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             {
                 telemetry.AddProperty(nameof(traceEvent.Task), GetHexRepresentation((int)traceEvent.Task));
             }
-            
+
             // Make this the call after adding traceEvent properties that property name on trace event will take the priority in possible duplicated property scenario.
             traceEvent.ExtractPayloadData(telemetry);
 
@@ -90,7 +91,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
         /// <param name="value">Property value.</param>
         /// <remarks>There is a potential of naming conflicts between standard ETW properties (like Keywords, Channel)
         /// and properties that are part of EventSource event payload. Because both end up in the same ITelemetry.Properties dictionary,
-        /// we need some sort of conflict resolution. When calling into this method, property name will be suffixed with a ramdon number when duplicated name exists.</remarks>
+        /// we need some sort of conflict resolution. When calling into this method, property name will be suffixed with a random number when duplicated name exists.</remarks>
         private static void AddProperty(this TraceTelemetry telemetry, string name, string value)
         {
             Debug.Assert(!string.IsNullOrEmpty(name), "Property name should always be specified");

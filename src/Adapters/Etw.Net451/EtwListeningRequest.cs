@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         public ulong Keywords { get; set; }
 
         /// <summary>
-        /// Validate the currnet etw listening request is valid.
+        /// Verify this request is valid.
         /// </summary>
         /// <exception cref="ArgumentNullException">Throws when the object is not valid.</exception>
         public void Validate()

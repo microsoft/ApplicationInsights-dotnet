@@ -21,6 +21,7 @@ namespace Microsoft.ApplicationInsights.EventSource.Shared.Implementation
         private const int NoEventSourcesConfiguredEventId = 1;
         private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
+
         private EventSourceListenerEventSource()
         {
             this.ApplicationName = this.GetApplicationName();

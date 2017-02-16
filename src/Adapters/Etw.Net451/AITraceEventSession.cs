@@ -9,9 +9,14 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     using System;
     using Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
+
+    /// <summary>
+    /// A wrapper of <see cref="Microsoft.Diagnostics.Tracing.Session.TraceEventSession"/>.
+    /// </summary>
     internal class AITraceEventSession : ITraceEventSession, IDisposable
     {
         private TraceEventSession session;
+
         public AITraceEventSession(TraceEventSession traceEventSession)
         {
             if (traceEventSession == null)
@@ -61,7 +66,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         public bool Stop(bool noThrow = false)
         {
-            return session.Stop();
+            return this.session.Stop();
         }
     }
 }

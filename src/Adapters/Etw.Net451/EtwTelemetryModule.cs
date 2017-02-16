@@ -23,21 +23,16 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     /// </summary>
     public class EtwTelemetryModule : ITelemetryModule, IDisposable
     {
+        private readonly object lockObject;
         private TelemetryClient client;
         private bool isDisposed = false;
         private bool isInitialized = false;
         private ITraceEventSession traceEventSession;
         private List<Guid> enabledProviderIds;
         private List<string> enabledProviderNames;
-        private readonly object lockObject;
 
         /// <summary>
-        /// Gets the list of ETW Provider listening requests (information about which providers should be traced).
-        /// </summary>
-        public IList<EtwListeningRequest> Sources { get; private set; }
-
-        /// <summary>
-        /// EtwTelemetryModule default constructor
+        /// EtwTelemetryModule default constructor.
         /// </summary>
         public EtwTelemetryModule() : this(
             new AITraceEventSession(new TraceEventSession(string.Format(CultureInfo.InvariantCulture, "ApplicationInsights-{0}-{1}", nameof(EtwTelemetryModule), Guid.NewGuid()))),
@@ -55,7 +50,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         {
         }
 
-        internal EtwTelemetryModule(ITraceEventSession traceEventSession,
+        internal EtwTelemetryModule(
+            ITraceEventSession traceEventSession,
             Action<ITraceEventSession, TelemetryClient> startTraceEventSessionAction)
         {
             this.lockObject = new object();
@@ -66,6 +62,11 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             this.traceEventSession = traceEventSession;
             this.StartTraceEventSession = startTraceEventSessionAction;
         }
+
+        /// <summary>
+        /// Gets the list of ETW Provider listening requests (information about which providers should be traced).
+        /// </summary>
+        public IList<EtwListeningRequest> Sources { get; private set; }
 
         private Action<ITraceEventSession, TelemetryClient> StartTraceEventSession
         {
@@ -89,7 +90,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
             if (this.isDisposed)
             {
-                EventSourceListenerEventSource.Log.ModuleInitializationFailed(nameof(EtwTelemetryModule),
+                EventSourceListenerEventSource.Log.ModuleInitializationFailed(
+                    nameof(EtwTelemetryModule),
                     "Can't initialize a module that is disposed. The initialization is terminated.");
                 return;
             }
@@ -97,7 +99,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             bool? isProcessElevated = this.traceEventSession.IsElevated();
             if (!isProcessElevated.HasValue || !isProcessElevated.Value)
             {
-                EventSourceListenerEventSource.Log.ModuleInitializationFailed(nameof(EtwTelemetryModule),
+                EventSourceListenerEventSource.Log.ModuleInitializationFailed(
+                    nameof(EtwTelemetryModule),
                     "The process is required to be elevated to enable ETW providers. The initialization is terminated.");
                 return;
             }
@@ -108,14 +111,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
                 // sdkVersionIdentifier will be used in telemtry entry as a identifier for the sender.
                 // The value will look like: etw:x.x.x-x
-                const string sdkVersionIdentifier = "etw:";
-                this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(sdkVersionIdentifier);
-
+                const string SdkVersionIdentifier = "etw:";
+                this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(SdkVersionIdentifier);
 
                 if (this.isInitialized)
                 {
                     this.isInitialized = false;
-                    DisableProviders();
+                    this.DisableProviders();
                     this.enabledProviderIds.Clear();
                     this.enabledProviderNames.Clear();
                 }
@@ -126,7 +128,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     return;
                 }
 
-                EnableProviders();
+                this.EnableProviders();
                 try
                 {
                     // Start the trace session
@@ -139,11 +141,42 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             }
         }
 
+        /// <summary>
+        /// Disposes the module.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes the module.
+        /// </summary>
+        /// <param name="isDisposing">Indicate if it is called by Dispose().</param>
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            // Mark this object as disposed even when disposing run into exception, which is not expected.
+            this.isDisposed = true;
+            if (isDisposing)
+            {
+                if (this.traceEventSession != null)
+                {
+                    this.traceEventSession.Dispose();
+                }
+            }
+        }
+
         private void EnableProviders()
         {
             foreach (EtwListeningRequest request in this.Sources)
             {
-                EnableProvider(request);
+                this.EnableProvider(request);
             }
         }
 
@@ -155,7 +188,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             }
             catch (Exception ex)
             {
-                EventSourceListenerEventSource.Log.FailedToEnableProviders(nameof(EtwTelemetryModule),
+                EventSourceListenerEventSource.Log.FailedToEnableProviders(
+                    nameof(EtwTelemetryModule),
                     string.IsNullOrEmpty(request.ProviderName) ? request.ProviderGuid.ToString() : request.ProviderName,
                     ex.Message);
             }
@@ -164,16 +198,17 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 if (request.ProviderGuid != Guid.Empty)
                 {
-                    EnableProvider(request.ProviderGuid, request.Level, request.Keywords);
+                    this.EnableProvider(request.ProviderGuid, request.Level, request.Keywords);
                 }
                 else
                 {
-                    EnableProvider(request.ProviderName, request.Level, request.Keywords);
+                    this.EnableProvider(request.ProviderName, request.Level, request.Keywords);
                 }
             }
             catch (Exception ex)
             {
-                EventSourceListenerEventSource.Log.FailedToEnableProviders(nameof(EtwTelemetryModule),
+                EventSourceListenerEventSource.Log.FailedToEnableProviders(
+                    nameof(EtwTelemetryModule),
                     string.IsNullOrEmpty(request.ProviderName) ? request.ProviderGuid.ToString() : request.ProviderName,
                     ex.Message);
             }
@@ -182,52 +217,24 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private void EnableProvider(Guid providerGuid, TraceEventLevel level, ulong keywords)
         {
             this.traceEventSession.EnableProvider(providerGuid, level, keywords);
-            enabledProviderIds.Add(providerGuid);
+            this.enabledProviderIds.Add(providerGuid);
         }
 
         private void EnableProvider(string providerName, TraceEventLevel level, ulong keywords)
         {
             this.traceEventSession.EnableProvider(providerName, level, keywords);
-            enabledProviderNames.Add(providerName);
+            this.enabledProviderNames.Add(providerName);
         }
 
         private void DisableProviders()
         {
-            foreach (Guid id in enabledProviderIds)
+            foreach (Guid id in this.enabledProviderIds)
             {
                 this.traceEventSession.DisableProvider(id);
             }
-            foreach (string providerName in enabledProviderNames)
+            foreach (string providerName in this.enabledProviderNames)
             {
                 this.traceEventSession.DisableProvider(providerName);
-            }
-        }
-
-        /// <summary>
-        /// Disposes the module.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Disposes the module
-        /// </summary>
-        /// <param name="isDisposing"></param>
-        protected virtual void Dispose(bool isDisposing)
-        {
-            if (this.isDisposed) return;
-
-            // Mark this object as disposed even when disposing run into exception, which is not expected.
-            this.isDisposed = true;
-            if (isDisposing)
-            {
-                if (traceEventSession != null)
-                {
-                    traceEventSession.Dispose();
-                }
             }
         }
     }

@@ -59,7 +59,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
 
             if (this.Sources.Count == 0)
             {
-                EventSourceListenerEventSource.Log.NoSourcesConfigured(nameof(EventSourceTelemetryModule));
+                EventSourceListenerEventSource.Log.NoSourcesConfigured(nameof(EventSourceListener.EventSourceTelemetryModule));
                 return;
             }
 

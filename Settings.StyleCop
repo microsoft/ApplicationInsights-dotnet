@@ -5,7 +5,9 @@
     <BooleanProperty Name="WriteCache">False</BooleanProperty>
     <CollectionProperty Name="RecognizedWords">
       <Value>appender</Value>
+      <Value>Etw</Value>
       <Value>json</Value>
+      <Value>logman</Value>
       <Value>stringified</Value>
       <Value>stringifies</Value>
     </CollectionProperty>
