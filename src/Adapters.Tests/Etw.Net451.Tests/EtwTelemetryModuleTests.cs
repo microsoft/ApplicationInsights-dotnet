@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 {
     using System;
@@ -39,6 +40,16 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
             return configuration;
+        }
+
+        [TestMethod]
+        [TestCategory("EtwTelemetryModule")]
+        public void EtwTelemetryModuleDefaultConstructorExists()
+        {
+            using (EtwTelemetryModule module = new EtwTelemetryModule())
+            {
+                Assert.IsNotNull(module, "There has to be a default constructor, which has no parameter.");
+            }
         }
 
         [TestMethod]
