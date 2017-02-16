@@ -48,7 +48,9 @@
     <Compile Include="EtwTelemetryModule.cs" />
     <Compile Include="EtwListeningRequest.cs" />
     <Compile Include="Implemenetations\TraceEventExtensions.cs" />
+    <Compile Include="ITraceEventSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AITraceEventSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

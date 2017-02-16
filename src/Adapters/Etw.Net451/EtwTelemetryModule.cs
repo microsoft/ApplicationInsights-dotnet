@@ -16,21 +16,46 @@
         private TelemetryClient client;
         private bool isDisposed = false;
         private bool isInitialized = false;
-        private TraceEventSession traceEventSession;
+        private ITraceEventSession traceEventSession;
         private List<Guid> enabledProviderIds;
         private List<string> enabledProviderNames;
         private readonly object lockObject;
 
         public IList<EtwListeningRequest> Sources { get; private set; }
 
-        public EtwTelemetryModule()
+        public EtwTelemetryModule() : this(
+            new AITraceEventSession(
+                new TraceEventSession($"ApplicationInsights-{nameof(EtwTelemetryModule)}-{Guid.NewGuid().ToString()}", TraceEventSessionOptions.Create)),
+            new Action<ITraceEventSession, TelemetryClient>((traceSession, client) =>
+            {
+                if (traceSession != null && traceSession.Source != null)
+                {
+                    traceSession.Source.Dynamic.All += traceEvent =>
+                    {
+                        traceEvent.Track(client);
+                    };
+                    traceSession.Source.Process();
+                }
+            }))
+        {
+        }
+
+        internal EtwTelemetryModule(ITraceEventSession traceEventSession,
+            Action<ITraceEventSession, TelemetryClient> startTraceEventSessionAction)
         {
             this.lockObject = new object();
             this.Sources = new List<EtwListeningRequest>();
             this.enabledProviderIds = new List<Guid>();
             this.enabledProviderNames = new List<string>();
 
-            this.traceEventSession = new TraceEventSession($"ApplicationInsights-{nameof(EtwTelemetryModule)}-{Guid.NewGuid().ToString()}", TraceEventSessionOptions.Create);
+            this.traceEventSession = traceEventSession;
+            this.StartTraceEventSession = startTraceEventSessionAction;
+        }
+
+        private Action<ITraceEventSession, TelemetryClient> StartTraceEventSession
+        {
+            get;
+            set;
         }
 
         public void Initialize(TelemetryConfiguration configuration)
@@ -49,7 +74,7 @@
                 return;
             }
 
-            bool? isProcessElevated = TraceEventSession.IsElevated();
+            bool? isProcessElevated = this.traceEventSession.IsElevated();
             if (!isProcessElevated.HasValue || !isProcessElevated.Value)
             {
                 EventSourceListenerEventSource.Log.ModuleInitializationFailed(nameof(EtwTelemetryModule),
@@ -98,22 +123,13 @@
                 try
                 {
                     // Start the trace session
-                    Task.Factory.StartNew(() =>
-                    {
-                        this.traceEventSession.Source.Dynamic.All += OnTraceEvent;
-                        this.traceEventSession.Source.Process();
-                    }, TaskCreationOptions.LongRunning);
+                    Task.Factory.StartNew(() => this.StartTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
                 }
                 finally
                 {
                     this.isInitialized = true;
                 }
             }
-        }
-
-        private void OnTraceEvent(TraceEvent traceEvent)
-        {
-            traceEvent.Track(this.client);
         }
 
         private void EnableProviders()
