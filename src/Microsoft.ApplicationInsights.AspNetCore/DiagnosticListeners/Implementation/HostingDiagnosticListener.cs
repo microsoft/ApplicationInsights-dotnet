@@ -47,7 +47,7 @@
                 httpContext.Features.Set(requestTelemetry);
 
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
-                if (responseHeaders != null && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader) && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+                if (responseHeaders != null && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
                 {
                     responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)));
                 }
