@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.EtwCollector.Implemenetation;
     using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
@@ -17,6 +18,9 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     using Microsoft.Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
 
+    /// <summary>
+    /// A module to trace data submitted via .NET framework <seealso cref="Microsoft.Diagnostics.Tracing.Session" /> class.
+    /// </summary>
     public class EtwTelemetryModule : ITelemetryModule, IDisposable
     {
         private TelemetryClient client;
@@ -27,11 +31,16 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private List<string> enabledProviderNames;
         private readonly object lockObject;
 
+        /// <summary>
+        /// Gets the list of ETW Provider listening requests (information about which providers should be traced).
+        /// </summary>
         public IList<EtwListeningRequest> Sources { get; private set; }
 
+        /// <summary>
+        /// EtwTelemetryModule default constructor
+        /// </summary>
         public EtwTelemetryModule() : this(
-            new AITraceEventSession(
-                new TraceEventSession($"ApplicationInsights-{nameof(EtwTelemetryModule)}-{Guid.NewGuid().ToString()}", TraceEventSessionOptions.Create)),
+            new AITraceEventSession(new TraceEventSession(string.Format(CultureInfo.InvariantCulture, "ApplicationInsights-{0}-{1}", nameof(EtwTelemetryModule), Guid.NewGuid()))),
             new Action<ITraceEventSession, TelemetryClient>((traceSession, client) =>
             {
                 if (traceSession != null && traceSession.Source != null)
@@ -64,12 +73,17 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             set;
         }
 
+        /// <summary>
+        /// Initializes the telemetry module and starts tracing ETW events specified via <see cref="Sources"/> property.
+        /// </summary>
+        /// <param name="configuration">Module configuration.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
             if (configuration == null)
             {
-                EventSourceListenerEventSource.Log.ModuleInitializationFailed(nameof(EtwTelemetryModule),
-                    $"Argument {nameof(configuration)} is required. The initialization is terminated.");
+                EventSourceListenerEventSource.Log.ModuleInitializationFailed(
+                    nameof(EtwTelemetryModule),
+                    string.Format(CultureInfo.InvariantCulture, "Argument {0} is required. The initialization is terminated.", nameof(configuration)));
                 return;
             }
 
@@ -202,13 +216,20 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             }
         }
 
+        /// <summary>
+        /// Disposes the module.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        public virtual void Dispose(bool isDisposing)
+        /// <summary>
+        /// Disposes the module
+        /// </summary>
+        /// <param name="isDisposing"></param>
+        protected virtual void Dispose(bool isDisposing)
         {
             if (this.isDisposed) return;
 
