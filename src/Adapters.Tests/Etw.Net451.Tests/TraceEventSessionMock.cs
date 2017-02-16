@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights
+namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 {
     using System;
     using System.Collections.Generic;
