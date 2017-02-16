@@ -114,20 +114,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
                 if (this.isInitialized)
                 {
-                    try
-                    {
-                        this.traceEventSession?.Stop();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log failed stopping the trace session.
-                        EventSourceListenerEventSource.Log.ModuleInitializationFailed(nameof(EtwTelemetryModule), ex.Message);
-                    }
-                    finally
-                    {
-                        this.isInitialized = false;
-                    }
-
+                    this.isInitialized = false;
                     DisableProviders();
                     this.enabledProviderIds.Clear();
                     this.enabledProviderNames.Clear();
