@@ -365,7 +365,7 @@
 
             return request;
         }
-#endif
+#else
 
         /// <summary>
         /// Creates a post web request.  
@@ -470,5 +470,6 @@
 
             return wrapper;
         }
+#endif
     }
 }
