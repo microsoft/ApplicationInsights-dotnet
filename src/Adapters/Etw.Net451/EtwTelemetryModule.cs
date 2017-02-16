@@ -80,29 +80,35 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// <param name="configuration">Module configuration.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
+            string errorMessage;
             if (configuration == null)
             {
+                errorMessage = string.Format(CultureInfo.InvariantCulture, "Argument {0} is required. The initialization is terminated.", nameof(configuration));
                 EventSourceListenerEventSource.Log.ModuleInitializationFailed(
                     nameof(EtwTelemetryModule),
-                    string.Format(CultureInfo.InvariantCulture, "Argument {0} is required. The initialization is terminated.", nameof(configuration)));
+                    errorMessage);
                 return;
             }
 
             if (this.isDisposed)
             {
+                errorMessage = "Can't initialize a module that is disposed. The initialization is terminated.";
                 EventSourceListenerEventSource.Log.ModuleInitializationFailed(
                     nameof(EtwTelemetryModule),
-                    "Can't initialize a module that is disposed. The initialization is terminated.");
+                    errorMessage);
                 return;
             }
 
             bool? isProcessElevated = this.traceEventSession.IsElevated();
             if (!isProcessElevated.HasValue || !isProcessElevated.Value)
             {
+                errorMessage = "The process is required to be elevated to enable ETW providers. The initialization is terminated.";
                 EventSourceListenerEventSource.Log.ModuleInitializationFailed(
                     nameof(EtwTelemetryModule),
-                    "The process is required to be elevated to enable ETW providers. The initialization is terminated.");
-                return;
+                    errorMessage);
+                
+                // Throws so that user will be able to see the exception message in Output Window for debugging.
+                throw new UnauthorizedAccessException(errorMessage);
             }
 
             lock (this.lockObject)

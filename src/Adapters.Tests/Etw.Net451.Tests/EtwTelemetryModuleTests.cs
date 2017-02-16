@@ -4,12 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 {
     using System;
     using Microsoft.ApplicationInsights.EtwCollector;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Tests;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -90,10 +90,13 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(false))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
-                module.Initialize(GetTestTelemetryConfiguration());
-                Assert.AreEqual(1, listener.EventsReceived.Count);
-                Assert.AreEqual(ModuleInitializationFailedEventId, listener.EventsReceived[0].EventId);
-                Assert.AreEqual("The process is required to be elevated to enable ETW providers. The initialization is terminated.", listener.EventsReceived[0].Payload[1].ToString());
+                ExceptionAssert.Throws<UnauthorizedAccessException>(() =>
+                {
+                    module.Initialize(GetTestTelemetryConfiguration());
+                    Assert.AreEqual(1, listener.EventsReceived.Count);
+                    Assert.AreEqual(ModuleInitializationFailedEventId, listener.EventsReceived[0].EventId);
+                    Assert.AreEqual("The process is required to be elevated to enable ETW providers. The initialization is terminated.", listener.EventsReceived[0].Payload[1].ToString());
+                });
             }
         }
 
