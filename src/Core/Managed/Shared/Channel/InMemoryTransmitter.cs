@@ -6,12 +6,10 @@ namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
-    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using Extensibility.Implementation;
     using Extensibility.Implementation.Tracing;
 
@@ -80,7 +78,19 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         internal void Flush(TimeSpan timeout)
         {
-            this.DequeueAndSend(timeout);
+#if !CORE_PCL
+            SdkInternalOperationsMonitor.Enter();
+            try
+            {
+#endif
+                this.DequeueAndSend(timeout);
+#if !CORE_PCL
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
+#endif
         }
 
         /// <summary>
@@ -89,17 +99,29 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-            using (this.startRunnerEvent = new AutoResetEvent(false))
+#if !CORE_PCL
+            SdkInternalOperationsMonitor.Enter();
+            try
             {
-                while (this.enabled)
+#endif
+                using (this.startRunnerEvent = new AutoResetEvent(false))
                 {
-                    // Pulling all items from the buffer and sending as one transmissiton.
-                    this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
+                    while (this.enabled)
+                    {
+                        // Pulling all items from the buffer and sending as one transmissiton.
+                        this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
-                    // Waiting for the flush delay to elapse
-                    this.startRunnerEvent.WaitOne(this.sendingInterval);
+                        // Waiting for the flush delay to elapse
+                        this.startRunnerEvent.WaitOne(this.sendingInterval);
+                    }
                 }
+#if !CORE_PCL
             }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
+            }
+#endif
         }
 
         /// <summary>

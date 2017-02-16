@@ -1,12 +1,16 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel
 {
     using System;
+    using System.Collections.Generic;
 #if NET40 || NET45 || NET46
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
+    using Extensibility;
+    using System.Net.Http;
+    using System.Threading;
 
     public class InMemoryTransmitterTests
     {
@@ -30,6 +34,65 @@
 
                 Assert.Equal(expectedValue, transmitter.SendingInterval);
             }
+
+#if !CORE_PCL
+            private class TelemetryBufferWithInternalOperationValidation : TelemetryBuffer
+            {
+                public bool WasCalled = false;
+
+                public override IEnumerable<ITelemetry> Dequeue()
+                {
+                    Assert.True(SdkInternalOperationsMonitor.IsEntered());
+                    HttpClient client = new HttpClient();
+                    var task = client.GetStringAsync("http://bing.com").ContinueWith((result) => { Assert.True(SdkInternalOperationsMonitor.IsEntered()); });
+
+                    task.Wait();
+
+                    WasCalled = true;
+                    return base.Dequeue();
+                }
+            }
+
+            [TestMethod]
+            public void SendingLogicMarkedAsInternalSdkOperation()
+            {
+                var buffer = new TelemetryBufferWithInternalOperationValidation();
+                var transmitter = new InMemoryTransmitter(buffer);
+                buffer.OnFull();
+
+                for (int i = 0; i < 10; i++)
+                {
+                    if (buffer.WasCalled)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+
+                Assert.True(buffer.WasCalled);
+            }
+
+            [TestMethod]
+            public void FlushMarkedAsInternalSdkOperation()
+            {
+                var buffer = new TelemetryBufferWithInternalOperationValidation();
+                var transmitter = new InMemoryTransmitter(buffer);
+                transmitter.Flush(TimeSpan.FromSeconds(1));
+
+                for (int i = 0; i < 10; i++)
+                {
+                    if (buffer.WasCalled)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+
+                Assert.True(buffer.WasCalled);
+            }
+#endif
         }
     }
 }
