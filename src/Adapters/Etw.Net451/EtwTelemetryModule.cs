@@ -4,13 +4,13 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
+namespace Microsoft.ApplicationInsights.EtwCollector
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.ApplicationInsights.EventSource.Shared.Implementations;
-    using Microsoft.ApplicationInsights.EventSourceListener.EtwCollector.Implemenetations;
+    using Microsoft.ApplicationInsights.EtwCollector.Implemenetation;
+    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;

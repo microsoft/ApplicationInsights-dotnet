@@ -11,9 +11,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
     using System.Diagnostics.Tracing;
     using System.Linq;
 
-    using EventSource.Shared.Implementations;
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.EventSourceListener;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;

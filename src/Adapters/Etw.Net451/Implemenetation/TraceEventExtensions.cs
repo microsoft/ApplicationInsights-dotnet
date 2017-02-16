@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector.Implemenetations
+namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
 {
     using System;
     using System.Collections.Generic;

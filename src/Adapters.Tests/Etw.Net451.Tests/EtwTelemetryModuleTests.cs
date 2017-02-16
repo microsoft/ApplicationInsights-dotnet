@@ -4,11 +4,10 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 {
     using System;
-    using Microsoft.ApplicationInsights.EventSourceListener.EtwCollector;
+    using Microsoft.ApplicationInsights.EtwCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Tracing.Tests;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
-    using EventSource.Shared.Implementations;
+    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;

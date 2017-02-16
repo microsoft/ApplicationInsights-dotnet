@@ -9,6 +9,6 @@
     <Import_RootNamespace>EventSource.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Implementations\EventSourceListenerEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventSourceListenerEventSource.cs" />
   </ItemGroup>
 </Project>

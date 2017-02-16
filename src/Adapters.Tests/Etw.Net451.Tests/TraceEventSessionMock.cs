@@ -7,10 +7,10 @@
 namespace Microsoft.ApplicationInsights
 {
     using System;
-    using Microsoft.ApplicationInsights.EventSourceListener.EtwCollector;
+    using System.Collections.Generic;
     using Diagnostics.Tracing;
     using Diagnostics.Tracing.Session;
-    using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.EtwCollector;
 
     internal class TraceEventSessionMock : ITraceEventSession
     {

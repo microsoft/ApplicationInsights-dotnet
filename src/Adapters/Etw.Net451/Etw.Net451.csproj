@@ -7,8 +7,8 @@
     <ProjectGuid>{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.EtwCollector</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.EtwCollector</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.EtwCollector</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.EtwCollector</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -47,7 +47,7 @@
   <ItemGroup>
     <Compile Include="EtwTelemetryModule.cs" />
     <Compile Include="EtwListeningRequest.cs" />
-    <Compile Include="Implemenetations\TraceEventExtensions.cs" />
+    <Compile Include="Implemenetation\TraceEventExtensions.cs" />
     <Compile Include="ITraceEventSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AITraceEventSession.cs" />

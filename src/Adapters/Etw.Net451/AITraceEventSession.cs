@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
+namespace Microsoft.ApplicationInsights.EtwCollector
 {
     using System;
     using Diagnostics.Tracing;
