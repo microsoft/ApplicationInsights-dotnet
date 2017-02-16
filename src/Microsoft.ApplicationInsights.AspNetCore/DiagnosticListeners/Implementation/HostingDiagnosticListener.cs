@@ -38,14 +38,14 @@
         {
             if (this.client.IsEnabled())
             {
-                var requestTelemetry = new RequestTelemetry()
+                var requestTelemetry = new RequestTelemetry
                 {
                     Id = httpContext.TraceIdentifier
                 };
+                this.client.Initialize(requestTelemetry);
                 requestTelemetry.Start(/*timestamp*/);
                 httpContext.Features.Set(requestTelemetry);
 
-                this.client.Initialize(requestTelemetry);
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
                 if (responseHeaders != null && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader) && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
                 {
