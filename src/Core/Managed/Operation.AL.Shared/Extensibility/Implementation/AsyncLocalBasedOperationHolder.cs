@@ -6,7 +6,7 @@
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
     /// </summary>
-    internal class AsyncLocalBasedOperationHolder<T> : IOperationHolder<T>
+    internal class AsyncLocalBasedOperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
         /// <summary>
         /// Parent context store that is used to restore call context.
@@ -73,7 +73,7 @@
                 {
                     if (!this.isDisposed)
                     {
-                        var operationTelemetry = this.Telemetry as OperationTelemetry;
+                        var operationTelemetry = this.Telemetry;
 
                         var currentOperationContext = AsyncLocalHelpers.GetCurrentOperationContext();
                         if (operationTelemetry.Id != currentOperationContext.ParentOperationId ||
@@ -84,7 +84,6 @@
                         }
 
                         operationTelemetry.Stop();
-                        RichPayloadEventSource.Log.ProcessOperationStop(operationTelemetry);
                         AsyncLocalHelpers.RestoreOperationContext(this.ParentContext);
                         this.telemetryClient.Track(operationTelemetry);
                     }

@@ -79,8 +79,6 @@
                 throw new ArgumentNullException("operationTelemetry cannot be null.");
             }
 
-            operationTelemetry.Start();
-
             var operationHolder = new AsyncLocalBasedOperationHolder<T>(telemetryClient, operationTelemetry)
             {
                 // Parent context store is assigned to operation that is used to restore call context.
@@ -107,7 +105,7 @@
                 operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
             }
 
-            RichPayloadEventSource.Log.ProcessOperationStart(operationTelemetry);
+            operationTelemetry.Start();
 
             // Update the call context to store certain fields that can be used for subsequent operations.
             var operationContext = new OperationContextForAsyncLocal();

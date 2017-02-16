@@ -162,10 +162,9 @@
                     listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Informational, RichPayloadEventSource.Keywords.Operations);
 
                     // Simulate a Start/Stop request operation
-                    RequestTelemetry requestTelemetry;
-                    using (var operationHolder = client.StartOperation<RequestTelemetry>("Request"))
+                    var requestTelemetry = new RequestTelemetry { Name = "Request" };
+                    using (client.StartOperation(requestTelemetry))
                     {
-                        requestTelemetry = operationHolder.Telemetry;
                     }
 
                     // Expect exactly two events (start and stop)
@@ -197,15 +196,12 @@
                     listener.EnableEvents(RichPayloadEventSource.Log.EventSourceInternal, EventLevel.Informational, RichPayloadEventSource.Keywords.Operations);
 
                     // Simulate a Start/Stop request operation
-                    RequestTelemetry requestTelemetry;
-                    DependencyTelemetry nestedOperation;
-                    using (var operationHolder = client.StartOperation<RequestTelemetry>("Request"))
+                    var requestTelemetry = new RequestTelemetry { Name = "Request" };
+                    var nestedOperation = new DependencyTelemetry { Name = "Dependency" };
+                    using (client.StartOperation(requestTelemetry))
                     {
-                        requestTelemetry = operationHolder.Telemetry;
-
-                        using (var nestedOperationHolder = client.StartOperation<DependencyTelemetry>("Dependency"))
+                        using (client.StartOperation(nestedOperation))
                         {
-                            nestedOperation = nestedOperationHolder.Telemetry;
                         }
                     }
 
