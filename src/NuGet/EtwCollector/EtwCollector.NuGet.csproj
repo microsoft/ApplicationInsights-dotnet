@@ -1,46 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.props'))\Common.props" />
+
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F371663D-99DB-4722-BC38-55EC178A84EB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EtwCollector</RootNamespace>
-    <AssemblyName>EtwCollector</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.EtwCollector.NuGet</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.EtwCollector.NuGet</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <!-- Suppress the "CS2008: No source files specified" warning -->
+    <NoWarn>2008</NoWarn>
+    <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\src\Adapters\Etw.Net451\Microsoft.ApplicationInsights.EtwCollector.dll</PackageVersionFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Package.nuspec" />
+    <None Include="ApplicationInsights.config.uninstall.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ApplicationInsights.config.install.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="build\Microsoft.ApplicationInsights.EtwCollector.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Packages.nuspec" />
-  </ItemGroup>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Package.targets'))\Package.targets" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" />
 </Project>

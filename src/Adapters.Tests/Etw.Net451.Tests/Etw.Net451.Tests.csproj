@@ -21,8 +21,6 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights">
