@@ -14,7 +14,6 @@
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient client;
-        private readonly ContextData<long> beginRequestTimestamp = new ContextData<long>();
         private readonly string sdkVersion;
 
         /// <summary>
@@ -38,10 +37,14 @@
         {
             if (this.client.IsEnabled())
             {
-                httpContext.Features.Set(new RequestTelemetry());
+                var requestTelemetry = new RequestTelemetry
+                {
+                    Id = httpContext.TraceIdentifier
+                };
 
-                this.beginRequestTimestamp.Value = timestamp;
-                this.client.Context.Operation.Id = httpContext.TraceIdentifier;
+                requestTelemetry.Start(/*timestamp*/);
+
+                httpContext.Features.Set(requestTelemetry);
             }
         }
 
@@ -93,8 +96,7 @@
                     return;
                 }
 
-                telemetry.Duration = new TimeSpan(timestamp - this.beginRequestTimestamp.Value);
-                telemetry.Timestamp = DateTime.Now - telemetry.Duration;
+                telemetry.Stop(/*timestamp*/);
                 telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
 
                 var successExitCode = httpContext.Response.StatusCode < 400;
