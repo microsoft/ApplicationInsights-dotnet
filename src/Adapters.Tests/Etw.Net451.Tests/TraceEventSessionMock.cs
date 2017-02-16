@@ -1,4 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights
+﻿//-----------------------------------------------------------------------
+// <copyright file="TraceEventSessionMock.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights
 {
     using System;
     using Microsoft.ApplicationInsights.EventSourceListener.EtwCollector;
@@ -6,7 +12,7 @@
     using Diagnostics.Tracing.Session;
     using System.Collections.Generic;
 
-    internal class TestTraceEventSession : ITraceEventSession
+    internal class TraceEventSessionMock : ITraceEventSession
     {
         private bool? isElevated;
 
@@ -14,12 +20,12 @@
         public List<Guid> EnabledProviderGuids { get; private set; }
 
 
-        public TestTraceEventSession()
+        public TraceEventSessionMock()
             : this(true)
         {
         }
 
-        public TestTraceEventSession(bool? fakeElevatedStatus)
+        public TraceEventSessionMock(bool? fakeElevatedStatus)
         {
             this.EnabledProviderNames = new List<string>();
             this.EnabledProviderGuids = new List<Guid>();

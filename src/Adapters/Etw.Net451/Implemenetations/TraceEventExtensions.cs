@@ -1,4 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector.Implemenetations
+﻿//-----------------------------------------------------------------------
+// <copyright file="TraceEventExtensions.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector.Implemenetations
 {
     using System;
     using System.Collections.Generic;

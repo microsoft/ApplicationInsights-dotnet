@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleInitializeFailedWhenProcessNotElevated()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(false))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(false))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 module.Initialize(GetTestTelemetryConfiguration());
@@ -92,7 +92,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleInitializeFailedWhenSourceIsNotSpecified()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(true))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(true))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 module.Initialize(GetTestTelemetryConfiguration());
@@ -107,7 +107,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleInitializeSucceed()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(true))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(true))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 module.Sources.Add(new EtwListeningRequest()
@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleProviderEnabledByName()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(true))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(true))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 module.Sources.Add(new EtwListeningRequest()
@@ -144,7 +144,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleProviderEnabledByGuid()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(true))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(true))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 Guid guid = Guid.NewGuid();
@@ -164,7 +164,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void EtwTelemetryModuleProviderNotEnabledByEmptyGuid()
         {
             using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
-            using (TestTraceEventSession traceEventSession = new TestTraceEventSession(true))
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(true))
             using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
             {
                 Guid guid = Guid.Empty;

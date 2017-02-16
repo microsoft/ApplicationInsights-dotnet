@@ -1,4 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
+﻿//-----------------------------------------------------------------------
+// <copyright file="AITraceEventSession.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
 {
     using System;
     using Diagnostics.Tracing;

@@ -1,4 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
+﻿//-----------------------------------------------------------------------
+// <copyright file="EtwTelemetryModule.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace Microsoft.ApplicationInsights.EventSourceListener.EtwCollector
 {
     using System;
     using System.Collections.Generic;
