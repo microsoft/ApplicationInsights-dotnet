@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.3.0-beta3
+- [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
+- Fire new ETW events for Operation Start/Stop.
+
 ## Version 2.3.0-beta2
 - Added constructor overloads for TelemetryConfiguration and added creation of a default InMemoryChannel when no channel is specified for a new instance.
   TelemetryClient will no longer create an InMemoryChannel on the configuration instance if TelemetryChannel is null, instead the configuration instances will always have a channel when created.
