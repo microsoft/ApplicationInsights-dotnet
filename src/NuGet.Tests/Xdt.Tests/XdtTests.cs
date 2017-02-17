@@ -64,6 +64,16 @@ namespace Xdt.Tests
                ".EventSourceListener.TestDataSet.xml");
         }
 
+        [TestMethod]
+        [TestCategory("XdtTests")]
+        public void EtwCollectorTest()
+        {
+            this.ValidateTransform(
+               ".EtwCollector.ApplicationInsights.config.install.xdt",
+               ".EtwCollector.ApplicationInsights.config.uninstall.xdt",
+               ".EtwCollector.TestDataSet.xml");
+        }
+
         private static string GetInnerXml(XElement element)
         {
             XmlReader reader = element.CreateReader();

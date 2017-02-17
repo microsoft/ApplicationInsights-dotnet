@@ -67,6 +67,12 @@
     <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.uninstall.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.install.xdt">
+      <Link>Resources\EtwCollector\ApplicationInsights.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\EtwCollector\ApplicationInsights.config.uninstall.xdt">
+      <Link>Resources\EtwCollector\ApplicationInsights.config.uninstall.xdt</Link>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +80,9 @@
     <EmbeddedResource Include="Resources\NLog\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\TraceListener\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\EventSourceListener\TestDataSet.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\EtwCollector\TestDataSet.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
