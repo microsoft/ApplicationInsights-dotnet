@@ -472,6 +472,15 @@
                 this.ApplicationName);
         }
 
+        [Event(66, Message = "[msg=Log Error];[msg={0}]", Level = EventLevel.Error)]
+        public void LogError(string msg, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                66,
+                msg ?? string.Empty,
+                this.ApplicationName);
+        }
+
         private string GetApplicationName()
         {
             string name;

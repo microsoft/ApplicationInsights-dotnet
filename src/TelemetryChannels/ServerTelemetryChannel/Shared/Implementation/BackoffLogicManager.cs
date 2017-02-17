@@ -20,7 +20,7 @@
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
 
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
         private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;

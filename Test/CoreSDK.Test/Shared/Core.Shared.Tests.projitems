@@ -51,7 +51,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingCollectionTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SnapshottingListTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TagsTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimerInternalTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingInitializationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManagerInitializationTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Tracing\DiagnoisticsEventThrottlingManagerTest.cs" />
