@@ -35,6 +35,7 @@
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
+        private Uri testUrlNonStandardPort = new Uri("http://www.microsoft.com:911/");
         private List<ITelemetry> sendItems;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private Exception ex;
@@ -733,6 +734,27 @@
             var expectedName = ub.Uri.ToString();
             var actualResourceName = this.httpProcessingProfiler.GetUrl(request);
             Assert.AreEqual(expectedName, actualResourceName.ToString(), "HttpProcessingProfiler returned incorrect resource name");
+        }
+
+        /// <summary>
+        /// Validates HttpProcessingProfiler determines target correctly for url with non standard port.
+        /// </summary>
+        [TestMethod]
+        [Description("Validates HttpProcessingProfiler determines target correctly for url with non standard port.")]
+        [Owner("cithomas")]
+        [TestCategory("CVT")]
+        public void RddTestHttpProcessingProfilerSetTargetForNonStandardPort()
+        {
+            var request = WebRequest.Create(this.testUrlNonStandardPort);
+            var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
+                        
+            this.httpProcessingProfiler.OnBeginForGetRequestStream(request, null);
+            this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
+                        
+            Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
+            DependencyTelemetry receivedItem = (DependencyTelemetry)this.sendItems[0];
+            string expectedTarget = this.testUrlNonStandardPort.Host + ":" + this.testUrlNonStandardPort.Port;
+            Assert.AreEqual(expectedTarget, receivedItem.Target, "HttpProcessingProfiler returned incorrect target for non standard port.");
         }
 
         #endregion //Misc       

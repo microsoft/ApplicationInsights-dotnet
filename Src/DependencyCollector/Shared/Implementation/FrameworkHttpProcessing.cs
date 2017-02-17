@@ -88,7 +88,7 @@
 
                 telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Name = url.AbsolutePath;
-                telemetry.Target = url.Host;
+                telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(url);
                 telemetry.Data = url.OriginalString;
 
                 this.TelemetryTable.Store(id, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
