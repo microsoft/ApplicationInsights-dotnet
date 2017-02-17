@@ -103,10 +103,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             if (!isProcessElevated.HasValue || !isProcessElevated.Value)
             {
                 errorMessage = "The process is required to be elevated to enable ETW providers. The initialization is terminated.";
-                EventSourceListenerEventSource.Log.ModuleInitializationFailed(
-                    nameof(EtwTelemetryModule),
-                    errorMessage);
-                
+                EventSourceListenerEventSource.Log.RequiresToRunUnderPriviledgedAccount(nameof(EtwTelemetryModule));
+
                 // Throws so that user will be able to see the exception message in Output Window for debugging.
                 throw new UnauthorizedAccessException(errorMessage);
             }
@@ -238,6 +236,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 this.traceEventSession.DisableProvider(id);
             }
+
             foreach (string providerName in this.enabledProviderNames)
             {
                 this.traceEventSession.DisableProvider(providerName);

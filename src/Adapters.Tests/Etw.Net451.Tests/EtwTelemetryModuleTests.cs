@@ -19,6 +19,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         private const int NoEventSourcesConfiguredEventId = 1;
         private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
+        private const int RequiresToRunUnderPriviledgedAccountEventId = 4;
 
         private readonly AdapterHelper adapterHelper = new AdapterHelper();
 
@@ -97,6 +98,29 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     Assert.AreEqual(ModuleInitializationFailedEventId, listener.EventsReceived[0].EventId);
                     Assert.AreEqual("The process is required to be elevated to enable ETW providers. The initialization is terminated.", listener.EventsReceived[0].Payload[1].ToString());
                 });
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EtwTelemetryModule")]
+        public void EtwTelemetryModuleInitializeFailedWithEventWhenProcessNotElevated()
+        {
+            using (EventSourceModuleDiagnosticListener listener = new EventSourceModuleDiagnosticListener())
+            using (TraceEventSessionMock traceEventSession = new TraceEventSessionMock(false))
+            using (EtwTelemetryModule module = new EtwTelemetryModule(traceEventSession, (t, c) => { }))
+            {
+                try
+                {
+                    module.Initialize(GetTestTelemetryConfiguration());
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Slient the expected exception to keep test running.
+                }
+
+                Assert.AreEqual(1, listener.EventsReceived.Count);
+                Assert.AreEqual(RequiresToRunUnderPriviledgedAccountEventId, listener.EventsReceived[0].EventId);
+                Assert.AreEqual(@"Failed to enable provider for the {0}. Run under priviledged account is required.", listener.EventsReceived[0].Message);
             }
         }
 

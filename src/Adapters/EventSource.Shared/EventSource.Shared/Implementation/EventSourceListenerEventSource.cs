@@ -21,6 +21,7 @@ namespace Microsoft.ApplicationInsights.EventSource.Shared.Implementation
         private const int NoEventSourcesConfiguredEventId = 1;
         private const int FailedToEnableProvidersEventId = 2;
         private const int ModuleInitializationFailedEventId = 3;
+        private const int RequiresToRunUnderPriviledgedAccountEventId = 4;
 
         private EventSourceListenerEventSource()
         {
@@ -46,6 +47,12 @@ namespace Microsoft.ApplicationInsights.EventSource.Shared.Implementation
         public void ModuleInitializationFailed(string moduleName, string details, string applicationName = null)
         {
             this.WriteEvent(ModuleInitializationFailedEventId, moduleName, details, applicationName ?? this.ApplicationName);
+        }
+
+        [Event(RequiresToRunUnderPriviledgedAccountEventId, Level = EventLevel.Error, Keywords = Keywords.Configuration, Message = "Failed to enable provider for the {0}. Run under priviledged account is required.")]
+        public void RequiresToRunUnderPriviledgedAccount(string moduleName, string applicationName = null)
+        {
+            this.WriteEvent(RequiresToRunUnderPriviledgedAccountEventId, moduleName, applicationName ?? this.ApplicationName);
         }
 
         [NonEvent]
