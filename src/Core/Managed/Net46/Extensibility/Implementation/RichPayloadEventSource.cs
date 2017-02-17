@@ -19,7 +19,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 #endif
-    internal sealed class RichPayloadEventSource : IDisposable
+    internal sealed partial class RichPayloadEventSource : IDisposable
     {
         /// <summary>RichPayloadEventSource instance.</summary>
         public static readonly RichPayloadEventSource Log = new RichPayloadEventSource();
@@ -217,6 +217,30 @@
         }
 
         /// <summary>
+        /// Record an operation start.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        public void ProcessOperationStart(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                this.WriteEvent(operation, EventOpcode.Start);
+            }
+        }
+
+        /// <summary>
+        /// Record an operation stop.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        public void ProcessOperationStop(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                this.WriteEvent(operation, EventOpcode.Stop);
+            }
+        }
+
+        /// <summary>
         /// Disposes the object.
         /// </summary>
         public void Dispose()
@@ -248,50 +272,24 @@
                 new { PartA_iKey = instrumentationKey, PartA_Tags = tags, _B = data });
         }
 
-        /// <summary>
-        /// Keywords for the RichPayloadEventSource.
-        /// </summary>
-        public sealed class Keywords
+        private void WriteEvent(OperationTelemetry item, EventOpcode eventOpCode)
         {
-            /// <summary>
-            /// Keyword for requests.
-            /// </summary>
-            public const EventKeywords Requests = (EventKeywords)0x1;
+            var payload = new { IKey = item.Context.InstrumentationKey, Id = item.Id, Name = item.Name, RootId = item.Context.Operation.Id };
 
-            /// <summary>
-            /// Keyword for traces.
-            /// </summary>
-            public const EventKeywords Traces = (EventKeywords)0x2;
-
-            /// <summary>
-            /// Keyword for events.
-            /// </summary>
-            public const EventKeywords Events = (EventKeywords)0x4;
-
-            /// <summary>
-            /// Keyword for exceptions.
-            /// </summary>
-            public const EventKeywords Exceptions = (EventKeywords)0x8;
-
-            /// <summary>
-            /// Keyword for dependencies.
-            /// </summary>
-            public const EventKeywords Dependencies = (EventKeywords)0x10;
-
-            /// <summary>
-            /// Keyword for metrics.
-            /// </summary>
-            public const EventKeywords Metrics = (EventKeywords)0x20;
-
-            /// <summary>
-            /// Keyword for page views.
-            /// </summary>
-            public const EventKeywords PageViews = (EventKeywords)0x40;
-
-            /// <summary>
-            /// Keyword for availability.
-            /// </summary>
-            public const EventKeywords Availability = (EventKeywords)0x200;
+            if (item is RequestTelemetry)
+            {
+                this.EventSourceInternal.Write(
+                    RequestTelemetry.TelemetryName,
+                    new EventSourceOptions { Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
+                    payload);
+            }
+            else
+            {
+                this.EventSourceInternal.Write(
+                    OperationTelemetry.TelemetryName,
+                    new EventSourceOptions { ActivityOptions = EventActivityOptions.Recursive, Keywords = Keywords.Operations, Opcode = eventOpCode, Level = EventLevel.Informational },
+                    payload);
+            }
         }
     }
 }

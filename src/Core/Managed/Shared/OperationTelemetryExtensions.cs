@@ -3,7 +3,6 @@
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Globalization;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
@@ -40,6 +39,8 @@
             // and hence is stored using higher precision Clock.
             // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
             telemetry.BeginTimeInTicks = timestamp;
+
+            RichPayloadEventSource.Log.ProcessOperationStart(telemetry);
         }
 
         /// <summary>
@@ -109,6 +110,8 @@
             {
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
+
+            RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
         }
     }
 }
