@@ -109,19 +109,6 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            if (context.Request.Headers != null)
-            {
-                string sourceIkey = context.Request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
-
-                // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
-                if (!string.IsNullOrEmpty(sourceIkey)
-                    && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                    && sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey))
-                {
-                    requestTelemetry.Source = sourceIkey;
-                }
-            }
-
             this.telemetryClient.TrackRequest(requestTelemetry);
         }
 
