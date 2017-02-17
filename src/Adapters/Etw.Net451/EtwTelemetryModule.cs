@@ -160,11 +160,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// <param name="isDisposing">Indicate if it is called by Dispose().</param>
         protected virtual void Dispose(bool isDisposing)
         {
-            if (this.isDisposed)
-            {
-                return;
-            }
-
             // Mark this object as disposed even when disposing run into exception, which is not expected.
             this.isDisposed = true;
             if (isDisposing)
