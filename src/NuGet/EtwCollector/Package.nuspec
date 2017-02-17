@@ -30,7 +30,5 @@
     <!-- XDT transformations -->
     <file src="$configuration$\src\Nuget\EtwCollector\ApplicationInsights.config.install.xdt" target="content"/>
     <file src="$configuration$\src\Nuget\EtwCollector\ApplicationInsights.config.uninstall.xdt" target="content"/>
-    <!-- Custom targets -->
-    <file src="$configuration$\src\Nuget\EtwCollector\build\Microsoft.ApplicationInsights.EtwCollector.targets" target="build"/>
   </files>
 </package>
