@@ -87,17 +87,16 @@
                     telemetry.Context.Operation.Id = parentContext.Id;
                 }
             }
-
-            if (currentRequest.Headers != null)
+            
+            if (string.IsNullOrEmpty(requestTelemetry.Source) && currentRequest.Headers != null)
             {
                 string sourceIkey = currentRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
 
                 // If the source header is present on the incoming request,
                 // and it is an external component (not the same ikey as the one used by the current component),
-                // and Source not already set, populate the source field.
+                // then populate the source field.
                 if (!string.IsNullOrEmpty(sourceIkey)
-                    && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                    && string.IsNullOrEmpty(requestTelemetry.Source)
+                    && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)                    
                     && sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey))
                 {
                     requestTelemetry.Source = sourceIkey;
