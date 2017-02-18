@@ -31,7 +31,7 @@
             ITelemetry telemetry)
         {
             OperationContext parentContext = requestTelemetry.Context.Operation;
-            
+
             // Make sure that RequestTelemetry is initialized.
             if (string.IsNullOrEmpty(parentContext.Id))
             {
@@ -52,14 +52,14 @@
             }
 
             HttpRequest currentRequest = platformContext.Request;
-            if (currentRequest != null && currentRequest.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
+            if (currentRequest?.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
             {
-                string sourceIkey = platformContext.Request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+                string sourceIkey = currentRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
 
                 // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
                 if (!string.IsNullOrEmpty(sourceIkey) &&
-                    string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
-                    sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey))
+                    (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) ||
+                        sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)))
                 {
                     requestTelemetry.Source = sourceIkey;
                 }

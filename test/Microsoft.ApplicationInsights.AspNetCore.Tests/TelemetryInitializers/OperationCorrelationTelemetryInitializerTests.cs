@@ -1,20 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
 {
     using System;
-    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.AspNetCore.Hosting;
-    using Xunit;
-    using Microsoft.AspNetCore.Http.Internal;
     using Microsoft.AspNetCore.Http;
+    using Xunit;
 
     public class OperationCorrelationTelemetryInitializerTests
     {
-        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry)
+        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry, string sourceInstrumentationKey = null)
         {
-            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry));
+            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry, sourceInstrumentationKey: sourceInstrumentationKey));
         }
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(HttpContext httpContext)
@@ -112,6 +109,31 @@
 
             Assert.Equal("ABC", telemetry.Context.Operation.Id);
             Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.ParentId);
+        }
+
+        [Fact]
+        public void InitializeDoesNotOverrideSourceProvidedInline()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            requestTelemetry.Source = "TEST_SOURCE";
+            var initializer = CreateInitializer(requestTelemetry);
+
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("TEST_SOURCE", requestTelemetry.Source);
+        }
+
+        [Fact]
+        public void InitializeDoesntAddSourceIfRequestHeadersDontHaveSource()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            var initializer = CreateInitializer(requestTelemetry, "TEST_SOURCE");
+            
+            var telemetry = new EventTelemetry();
+            initializer.Initialize(telemetry);
+
+            Assert.Equal("TEST_SOURCE", requestTelemetry.Source);
         }
     }
 }
