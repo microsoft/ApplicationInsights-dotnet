@@ -10,11 +10,11 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
-    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
 
     /// <summary>
     /// A module to trace data submitted via .NET framework <seealso cref="System.Diagnostics.Tracing.EventSource" /> class.

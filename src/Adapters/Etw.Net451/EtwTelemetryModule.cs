@@ -11,10 +11,10 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.EtwCollector.Implemenetation;
-    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
     using Microsoft.Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
 

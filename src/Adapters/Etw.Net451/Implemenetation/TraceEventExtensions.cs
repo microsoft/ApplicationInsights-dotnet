@@ -12,6 +12,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
     using System.Globalization;
     using DataContracts;
     using Diagnostics.Tracing;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
     internal static class TraceEventExtensions
     {
@@ -38,7 +39,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
             telemetry.AddProperty(nameof(traceEvent.EventName), traceEvent.EventName);
             if (traceEvent.ActivityID != default(Guid))
             {
-                telemetry.AddProperty(nameof(traceEvent.ActivityID), traceEvent.ActivityID.ToString());
+                telemetry.AddProperty(nameof(traceEvent.ActivityID), ActivityPathDecoder.GetActivityPathString(traceEvent.ActivityID));
             }
             if (traceEvent.RelatedActivityID != default(Guid))
             {

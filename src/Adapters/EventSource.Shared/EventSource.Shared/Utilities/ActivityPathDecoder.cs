@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
+namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
 {
     using System;
     using System.Diagnostics;

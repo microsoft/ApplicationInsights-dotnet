@@ -35,9 +35,7 @@
   <ItemGroup>
     <Compile Include="EventSourceTelemetryModule.cs" />
     <Compile Include="EventSourceListeningRequest.cs" />
-    <Compile Include="Implementation\ActivityPathDecoder.cs" />
     <Compile Include="Implementation\EventDataExtensions.cs" />
-    <Compile Include="Implementation\StringBuilderCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

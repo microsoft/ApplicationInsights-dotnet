@@ -13,13 +13,14 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
 
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.EventSource.Shared.Implementation;
     using Microsoft.ApplicationInsights.EventSourceListener;
-    using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Tests;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
     using Microsoft.ApplicationInsights.Tracing.Tests;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

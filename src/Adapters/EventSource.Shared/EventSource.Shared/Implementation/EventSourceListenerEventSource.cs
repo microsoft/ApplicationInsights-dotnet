@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSource.Shared.Implementation
+namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
 {
     using System;
     using System.Diagnostics.Tracing;

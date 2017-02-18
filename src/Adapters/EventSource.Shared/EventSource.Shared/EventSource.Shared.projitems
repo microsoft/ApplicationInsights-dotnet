@@ -10,5 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\EventSourceListenerEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\ActivityPathDecoder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\StringBuilderCache.cs" />
   </ItemGroup>
 </Project>
