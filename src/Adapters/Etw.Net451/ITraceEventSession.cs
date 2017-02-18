@@ -23,12 +23,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         ETWTraceEventSource Source { get; }
 
         /// <summary>
-        /// Is the current process Elevated (allowed to turn on a ETW provider). This is
-        /// useful because you need to be elevated to enable providers on a TraceEventSession.
-        /// </summary>
-        bool? IsElevated();
-
-        /// <summary>
         /// Enable a NON-KERNEL provider (see also EnableKernelProvider) which has a given
         /// provider name. This API first checks if a published provider exists by that name,
         /// otherwise it assumes it is an EventSource and determines the provider Guid by

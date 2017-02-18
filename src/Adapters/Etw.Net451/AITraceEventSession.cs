@@ -66,7 +66,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         public bool Stop(bool noThrow = false)
         {
-            return this.session.Stop();
+            return this.session.Stop(noThrow);
         }
     }
 }

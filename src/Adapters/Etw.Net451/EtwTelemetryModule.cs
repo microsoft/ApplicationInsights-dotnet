@@ -30,6 +30,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private ITraceEventSession traceEventSession;
         private List<Guid> enabledProviderIds;
         private List<string> enabledProviderNames;
+        private Action<ITraceEventSession, TelemetryClient> startTraceEventSession;
 
         /// <summary>
         /// EtwTelemetryModule default constructor.
@@ -60,19 +61,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             this.enabledProviderNames = new List<string>();
 
             this.traceEventSession = traceEventSession;
-            this.StartTraceEventSession = startTraceEventSessionAction;
+            this.startTraceEventSession = startTraceEventSessionAction;
         }
 
         /// <summary>
         /// Gets the list of ETW Provider listening requests (information about which providers should be traced).
         /// </summary>
         public IList<EtwListeningRequest> Sources { get; private set; }
-
-        private Action<ITraceEventSession, TelemetryClient> StartTraceEventSession
-        {
-            get;
-            set;
-        }
 
         /// <summary>
         /// Initializes the telemetry module and starts tracing ETW events specified via <see cref="Sources"/> property.
@@ -97,16 +92,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     nameof(EtwTelemetryModule),
                     errorMessage);
                 return;
-            }
-
-            bool? isProcessElevated = this.traceEventSession.IsElevated();
-            if (!isProcessElevated.HasValue || !isProcessElevated.Value)
-            {
-                errorMessage = "The process is required to be elevated to enable ETW providers. The initialization is terminated.";
-                EventSourceListenerEventSource.Log.RequiresToRunUnderPriviledgedAccount(nameof(EtwTelemetryModule));
-
-                // Throws so that user will be able to see the exception message in Output Window for debugging.
-                throw new UnauthorizedAccessException(errorMessage);
             }
 
             lock (this.lockObject)
@@ -136,7 +121,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                 try
                 {
                     // Start the trace session
-                    Task.Factory.StartNew(() => this.StartTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
+                    Task.Factory.StartNew(() => this.startTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
                 }
                 finally
                 {
@@ -203,6 +188,10 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                 {
                     this.EnableProvider(request.ProviderName, request.Level, request.Keywords);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                EventSourceListenerEventSource.Log.AccessDenied(nameof(EtwTelemetryModule), ex.Message);
             }
             catch (Exception ex)
             {
