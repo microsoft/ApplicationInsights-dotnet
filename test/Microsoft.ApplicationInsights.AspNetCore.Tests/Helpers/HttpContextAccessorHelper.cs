@@ -1,21 +1,28 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers
 {
-    using System;
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.DependencyInjection;
-    
+    using Microsoft.Extensions.Primitives;
+    using System;
+
     public static class HttpContextAccessorHelper
     {
-        public static HttpContextAccessor CreateHttpContextAccessor(RequestTelemetry requestTelemetry = null, ActionContext actionContext = null)
+        public static HttpContextAccessor CreateHttpContextAccessor(RequestTelemetry requestTelemetry = null, ActionContext actionContext = null, string sourceInstrumentationKey = null)
         {
             var services = new ServiceCollection();
 
             var request = new DefaultHttpContext().Request;
             request.Method = "GET";
             request.Path = new PathString("/Test");
+            if (sourceInstrumentationKey != null)
+            {
+                request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, new StringValues(sourceInstrumentationKey));
+            }
+
             var contextAccessor = new HttpContextAccessor { HttpContext = request.HttpContext };
 
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
