@@ -41,12 +41,15 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// Verify this request is valid.
         /// </summary>
         /// <exception cref="ArgumentNullException">Throws when the object is not valid.</exception>
-        public void Validate()
+        public bool Validate(out string errorMessage)
         {
             if (this.ProviderGuid == Guid.Empty && string.IsNullOrEmpty(this.ProviderName))
             {
-                throw new ArgumentException("ProviderGuid and ProviderName can't be null at the same time.");
+                errorMessage = "ProviderGuid and ProviderName can't be null at the same time.";
+                return false;
             }
+            errorMessage = null;
+            return true;
         }
     }
 }

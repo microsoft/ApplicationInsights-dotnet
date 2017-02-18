@@ -105,7 +105,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
                 if (this.isInitialized)
                 {
-                    this.isInitialized = false;
                     this.DisableProviders();
                     this.enabledProviderIds.Clear();
                     this.enabledProviderNames.Clear();
@@ -114,18 +113,23 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                 if (this.Sources.Count == 0)
                 {
                     EventSourceListenerEventSource.Log.NoSourcesConfigured(moduleName: nameof(EtwTelemetryModule));
+                    this.isInitialized = false;
                     return;
                 }
 
                 this.EnableProviders();
-                try
+
+                if (!this.isInitialized)
                 {
-                    // Start the trace session
-                    Task.Factory.StartNew(() => this.startTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
-                }
-                finally
-                {
-                    this.isInitialized = true;
+                    try
+                    {
+                        // Start the trace session
+                        Task.Factory.StartNew(() => this.startTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
+                    }
+                    finally
+                    {
+                        this.isInitialized = true;
+                    }
                 }
             }
         }
@@ -166,16 +170,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         private void EnableProvider(EtwListeningRequest request)
         {
-            try
-            {
-                request.Validate();
-            }
-            catch (Exception ex)
+            string errorMessage;
+            if (!request.Validate(out errorMessage))
             {
                 EventSourceListenerEventSource.Log.FailedToEnableProviders(
                     nameof(EtwTelemetryModule),
                     string.IsNullOrEmpty(request.ProviderName) ? request.ProviderGuid.ToString() : request.ProviderName,
-                    ex.Message);
+                    errorMessage);
             }
 
             try
