@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
+    using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Http;
-    using ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// A telemetry initializer that will set the correlation context for all telemetry items in web application.
@@ -30,7 +31,7 @@
             ITelemetry telemetry)
         {
             OperationContext parentContext = requestTelemetry.Context.Operation;
-
+            
             // Make sure that RequestTelemetry is initialized.
             if (string.IsNullOrEmpty(parentContext.Id))
             {
@@ -47,6 +48,20 @@
                 if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                 {
                     telemetry.Context.Operation.Id = parentContext.Id;
+                }
+            }
+
+            HttpRequest currentRequest = platformContext.Request;
+            if (currentRequest != null && currentRequest.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
+            {
+                string sourceIkey = platformContext.Request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+
+                // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
+                if (!string.IsNullOrEmpty(sourceIkey) &&
+                    string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
+                    sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey))
+                {
+                    requestTelemetry.Source = sourceIkey;
                 }
             }
         }

@@ -248,7 +248,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.True(requestTelemetry.Duration.TotalMilliseconds >= 0);
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
-            Assert.Equal("DIFFERENT_INSTRUMENTATION_KEY_HASH", requestTelemetry.Source);
+            Assert.Equal("", requestTelemetry.Source);
             Assert.Equal("GET", requestTelemetry.HttpMethod);
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, "/Test"), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);

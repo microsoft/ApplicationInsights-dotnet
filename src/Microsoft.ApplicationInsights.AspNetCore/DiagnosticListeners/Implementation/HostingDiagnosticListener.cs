@@ -115,18 +115,6 @@
                     telemetry.Success &= successExitCode;
                 }
 
-                IHeaderDictionary requestHeaders = httpContext.Request?.Headers;
-                if (requestHeaders != null)
-                {
-                    string sourceIkey = requestHeaders[RequestResponseHeaders.SourceInstrumentationKeyHeader];
-
-                    // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
-                    if (!string.IsNullOrEmpty(sourceIkey) && sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey))
-                    {
-                        telemetry.Source = sourceIkey;
-                    }
-                }
-
                 if (string.IsNullOrEmpty(telemetry.Name))
                 {
                     telemetry.Name = httpContext.Request.Method + " " + httpContext.Request.Path.Value;
