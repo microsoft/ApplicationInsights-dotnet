@@ -12,13 +12,13 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using System.Linq;
-
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
     internal static class EventDataExtensions
     {
         private static Lazy<Random> random = new Lazy<Random>();
-        
+
         private static SeverityLevel[] eventLevelToSeverityLevel = new SeverityLevel[]
         {
             SeverityLevel.Critical,     // EventLevel.LogAlways == 0
@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
                 {
                 }
             }
-            TraceTelemetry telemetry = new TraceTelemetry(formattedMessage, eventLevelToSeverityLevel[(int)eventSourceEvent.Level]);            
+            TraceTelemetry telemetry = new TraceTelemetry(formattedMessage, eventLevelToSeverityLevel[(int)eventSourceEvent.Level]);
 
             eventSourceEvent.ExtractPayloadData(telemetry);
 

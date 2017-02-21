@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Solution Include="Logging.sln" />
-      </ItemGroup>
+  </ItemGroup>
   <Target Name="Build">
     <!-- Generate build version -->
     <WriteLinesToFile File="$(PreReleaseVersionFileName)" Lines="$(PreReleaseVersion)" Overwrite="true" Encoding="Unicode"/>

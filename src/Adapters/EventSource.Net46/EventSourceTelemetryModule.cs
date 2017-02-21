@@ -14,6 +14,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
 
     /// <summary>
     /// A module to trace data submitted via .NET framework <seealso cref="System.Diagnostics.Tracing.EventSource" /> class.
@@ -58,7 +59,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
 
             if (this.Sources.Count == 0)
             {
-                EventSourceListenerEventSource.Log.NoEventSourcesConfigured();
+                EventSourceListenerEventSource.Log.NoSourcesConfigured(nameof(EventSourceListener.EventSourceTelemetryModule));
                 return;
             }
 

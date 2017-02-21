@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
+namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
 {
     using System;
     using System.Diagnostics;
@@ -56,17 +56,17 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
                 return (sum & 0xFFFF0000) == (uintPtr[3] & 0xFFFF0000);
             }
 
-            if ((sum ^ (uint)processID) == uintPtr[3])  
+            if ((sum ^ (uint)processID) == uintPtr[3])
             {
                 // This is the new style 
                 return true;
             }
-            return sum == uintPtr[3];         // THis is old style where we don't make the ID unique machine wide.  
-        }        
+            return sum == uintPtr[3];         // This is old style where we don't make the ID unique machine wide.  
+        }
 
         /// <summary>
-        /// Returns a string representation for the activity path.  If the GUID is not an activity path then it returns
-        /// the normal string representation for a GUID. 
+        /// Returns a string representation for the activity path. If the GUID is not an activity path then it returns
+        /// the normal string representation for a GUID.
         /// </summary>
         public static unsafe string GetActivityPathString(Guid guid)
         {
@@ -115,8 +115,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Implementation
                 }
                 else if (nibble == (uint)NumberListCodes.PrefixCode)
                 {
-                    // This are the prefix codes.   If the next nibble is MultiByte, then this is an overflow ID.  
-                    // we we denote with a $ instead of a / separator.  
+                    // This are the prefix codes. If the next nibble is MultiByte, then this is an overflow ID.
+                    // we we denote with a $ instead of a / separator.
 
                     // Read the next nibble.  
                     if (!secondNibble)

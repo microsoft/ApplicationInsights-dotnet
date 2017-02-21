@@ -10,19 +10,18 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
-    using System.Threading.Tasks;
+
+    using Microsoft.ApplicationInsights.CommonTestShared;
+    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.EventSourceListener;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Tests;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
+    using Microsoft.ApplicationInsights.Tracing.Tests;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.EventSourceListener;
-    using Microsoft.ApplicationInsights.EventSourceListener.Implementation;
-
-    using Microsoft.ApplicationInsights.Tests;
-    using Microsoft.ApplicationInsights.Tracing.Tests;
-    using Microsoft.ApplicationInsights.CommonTestShared;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     [TestClass]
     public sealed class EventSourceTelemetryModuleTests : IDisposable
@@ -56,7 +55,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
             {
                 module.Initialize(GetTestTelemetryConfiguration());
                 Assert.AreEqual(1, eventListener.EventsReceived.Count);
-                Assert.AreEqual(nameof(EventSourceListenerEventSource.NoEventSourcesConfigured), eventListener.EventsReceived[0]);
+                Assert.AreEqual(nameof(EventSourceListenerEventSource.NoSourcesConfigured), eventListener.EventsReceived[0]);
             }
         }
 
