@@ -15,6 +15,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
     using Microsoft.ApplicationInsights.EtwCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Tracing.Tests;
+    using Microsoft.Diagnostics.Tracing.Session;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -361,6 +362,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 // Now request reporting events only with certain keywords
                 listeningRequest.Keywords = (ulong)TestProvider.Keywords.NonRoutine;
                 module.Initialize(GetTestTelemetryConfiguration(resetChannel: false));
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
 
                 TestProvider.Log.Info("Hey again!");
                 TestProvider.Log.Warning(3, 4);
@@ -387,6 +389,23 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     this.adapterHelper.Channel.SentItems.Where(item => !((TraceTelemetry)item).Properties["EventId"].Equals("65534")).ToList(),
                     new TraceTelemetryComparer(),
                     "Reported events are not what was expected");
+            }
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            try
+            {
+                // This clean up is there to clean up possible left over trace event sessions during the Debug of the unit tests.
+                foreach (var name in TraceEventSession.GetActiveSessionNames().Where(n => n.StartsWith("ApplicationInsights-")))
+                {
+                    TraceEventSession.GetActiveSession(name).Stop();
+                }
+            }
+            catch
+            {
+                // This should normally not happen. But if this happens, there's, unfortunately, nothing too much we can do here.
             }
         }
     }
