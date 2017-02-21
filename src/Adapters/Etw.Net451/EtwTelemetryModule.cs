@@ -27,9 +27,9 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private TelemetryClient client;
         private bool isDisposed = false;
         private bool isInitialized = false;
-        private ITraceEventSession traceEventSession;
         private List<Guid> enabledProviderIds;
         private List<string> enabledProviderNames;
+        private ITraceEventSession traceEventSession;
         private Action<ITraceEventSession, TelemetryClient> startTraceEventSession;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     {
                         traceEvent.Track(client);
                     };
-                    traceSession.Source.Process();
+                    Task.Factory.StartNew(() => traceSession.Source.Process(), TaskCreationOptions.LongRunning);
                 }
             }))
         {
@@ -124,7 +124,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     try
                     {
                         // Start the trace session
-                        Task.Factory.StartNew(() => this.startTraceEventSession(this.traceEventSession, this.client), TaskCreationOptions.LongRunning);
+                        this.startTraceEventSession(this.traceEventSession, this.client);
                     }
                     finally
                     {
@@ -205,13 +205,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         private void EnableProvider(Guid providerGuid, TraceEventLevel level, ulong keywords)
         {
-            this.traceEventSession.EnableProvider(providerGuid, level, keywords);
+            bool isRestarted = this.traceEventSession.EnableProvider(providerGuid, level, keywords);
             this.enabledProviderIds.Add(providerGuid);
         }
 
         private void EnableProvider(string providerName, TraceEventLevel level, ulong keywords)
         {
-            this.traceEventSession.EnableProvider(providerName, level, keywords);
+            bool isRestarted = this.traceEventSession.EnableProvider(providerName, level, keywords);
             this.enabledProviderNames.Add(providerName);
         }
 

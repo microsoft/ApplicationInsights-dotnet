@@ -5,7 +5,6 @@
 using System.Linq;
 using System.Threading;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.ApplicationInsights.Tracing.Tests

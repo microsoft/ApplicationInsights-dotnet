@@ -39,7 +39,9 @@
     <Compile Include="EtwTelemetryModuleTests.cs" />
     <Compile Include="EventSourceModuleDiagnosticListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestProvider.cs" />
     <Compile Include="TraceEventSessionMock.cs" />
+    <Compile Include="TraceTelemetryComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
