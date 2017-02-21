@@ -23,15 +23,10 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         ETWTraceEventSource Source { get; }
 
         /// <summary>
-        /// Enable a NON-KERNEL provider (see also EnableKernelProvider) which has a given
-        /// provider name. This API first checks if a published provider exists by that name,
-        /// otherwise it assumes it is an EventSource and determines the provider Guid by
-        /// hashing the name according to a well known algorithm. Thus it will never return
-        /// a failure for a incorrect spelling of the name.
+        /// Enables a provider by its name, level and keywords.
         /// </summary>
         /// <param name="providerName">
-        /// The name of the provider. It must either be registered with the operating system
-        /// (logman query providers returns it) or it must be an EventSource (see GetEventSourceGuidFromName).
+        /// The name of the provider.
         /// </param>
         /// <param name="providerLevel">
         /// The verbosity to turn on.
@@ -48,8 +43,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         bool EnableProvider(string providerName, TraceEventLevel providerLevel = TraceEventLevel.Verbose, ulong matchAnyKeywords = ulong.MaxValue, TraceEventProviderOptions options = null);
 
         /// <summary>
-        /// Enable a NON-KERNEL provider (see also EnableKernelProvider) which has a given
-        /// provider Guid.
+        /// Enable a provider which has a given provider Guid.
         /// </summary>
         /// <param name="providerGuid">The Guid that represents the event provider enable.</param>
         /// <param name="providerLevel">The verbosity to turn on.</param>

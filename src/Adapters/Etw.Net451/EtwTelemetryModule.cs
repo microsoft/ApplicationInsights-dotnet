@@ -205,13 +205,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         private void EnableProvider(Guid providerGuid, TraceEventLevel level, ulong keywords)
         {
-            bool isRestarted = this.traceEventSession.EnableProvider(providerGuid, level, keywords);
+            this.traceEventSession.EnableProvider(providerGuid, level, keywords);
             this.enabledProviderIds.Add(providerGuid);
         }
 
         private void EnableProvider(string providerName, TraceEventLevel level, ulong keywords)
         {
-            bool isRestarted = this.traceEventSession.EnableProvider(providerName, level, keywords);
+            this.traceEventSession.EnableProvider(providerName, level, keywords);
             this.enabledProviderNames.Add(providerName);
         }
 
