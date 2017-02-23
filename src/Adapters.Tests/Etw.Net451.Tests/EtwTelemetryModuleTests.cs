@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
+    using System.Security.Principal;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.EtwCollector;
@@ -27,6 +28,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         private const int AccessDeniedEventId = 4;
 
         private readonly AdapterHelper adapterHelper = new AdapterHelper();
+        private static bool isTestEnvGood;
 
         public void Dispose()
         {
@@ -46,6 +48,40 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 configuration.TelemetryChannel = this.adapterHelper.Channel;
             }
             return configuration;
+        }
+
+        [ClassInitialize]
+        public static void InitializeClass(TestContext testContext)
+        {
+            // Only users with administrative privileges, users in the Performance Log Users group,
+            // and services running as LocalSystem, LocalService, or NetworkService can enable trace providers
+            bool? isElevated = TraceEventSession.IsElevated();
+            if (isElevated.HasValue && isElevated.Value)
+            {
+                EtwTelemetryModuleTests.isTestEnvGood = true;
+                return;
+            }
+
+            foreach (IdentityReference group in WindowsIdentity.GetCurrent().Groups)
+            {
+                string groupName = group.Translate(typeof(NTAccount)).Value;
+                if (groupName.Equals(@"BuiltIn\Performance Log Users", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    EtwTelemetryModuleTests.isTestEnvGood = true;
+                    return;
+                }
+            }
+
+
+        }
+
+        [TestInitialize]
+        public void InitializeTest()
+        {
+            if (!EtwTelemetryModuleTests.isTestEnvGood)
+            {
+                Assert.Inconclusive("Test environment is not fit. Possible not enough permission to enable providers for ETW.");
+            }
         }
 
         [TestMethod]
@@ -390,6 +426,13 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             }
         }
 
+        /// <summary>
+        /// Wait until SendItem is hit for given times or timeout in <see cref="CustomTelemetryChannel" />.
+        /// </summary>
+        /// <param name="channel">Custom telemtry channel.</param>
+        /// <param name="count">Specify times of hit before the task is finished.</param>
+        /// <param name="timeout">Timeout for waiting on each hit.</param>
+        /// <returns>A task, which fulfills when given number of SendItem is called.</returns>
         private Task WaitForEventsArrive(CustomTelemetryChannel channel, int count = 1, TimeSpan? timeout = null)
         {
             // Use 30 seconds by default in case the expected event didn't arrive to avoid hanging on the test execution.
