@@ -5,10 +5,8 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
-
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Implementation.Metrics;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.

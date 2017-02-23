@@ -3,17 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Metrics;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
     /// </summary>
-    public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
+    public sealed class SamplingTelemetryProcessor : ITelemetryProcessor, ITelemetryModule
     {
         private const string DependencyTelemetryName = "Dependency";
         private const string EventTelemetryName = "Event";
@@ -21,6 +22,8 @@
         private const string PageViewTelemetryName = "PageView";
         private const string RequestTelemetryName = "Request";
         private const string TraceTelemetryName = "Trace";
+
+        private const string SamplingRateMetricName = "Sampling Rate (Preview)";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
@@ -30,6 +33,8 @@
 
         private HashSet<Type> includedTypesHashSet;
         private string includedTypesString;
+
+        private Metric samplingRateMetric = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingTelemetryProcessor"/> class.
@@ -139,6 +144,19 @@
         private ITelemetryProcessor Next { get; set; }
 
         /// <summary>
+        /// Initializes this processor using the correct telemetry pipeline configuration.
+        /// </summary>
+        /// <param name="configuration"></param>
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            MetricManager metricManager = (configuration == null)
+                                        ? new MetricManager()
+                                        : new MetricManager(new TelemetryClient(configuration));
+
+            this.samplingRateMetric = metricManager.CreateMetric(SamplingRateMetricName);
+        }
+
+        /// <summary>
         /// Process a collected telemetry item.
         /// </summary>
         /// <param name="item">A collected Telemetry item.</param>
@@ -169,9 +187,14 @@
                     }
                     else if (!samplingSupportingTelemetry.SamplingPercentage.HasValue)
                     {
-                        samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
+                        double samplingPercentage = this.SamplingPercentage;
 
-                        if (!this.IsSampledIn(item))
+                        samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
+
+                        bool isSampledIn = this.IsSampledIn(item);
+                        TrackSamplingRate(samplingPercentage);
+
+                        if (! isSampledIn)
                         {
                             if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
                             {
@@ -186,6 +209,17 @@
             }
 
             this.Next.Process(item);
+        }
+
+        private void TrackSamplingRate(double samplingPercentage)
+        {
+            Metric samplingMetric = this.samplingRateMetric;
+            if (samplingMetric == null)
+            {
+                return;
+            }
+
+            samplingMetric.Track(samplingPercentage);
         }
 
         private bool IsSampledIn(ITelemetry telemetry)

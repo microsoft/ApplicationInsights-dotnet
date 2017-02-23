@@ -6,12 +6,11 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-    using Microsoft.ApplicationInsights.Extensibility.Metrics;
 
     /// <summary>
     /// Telemetry processor for sampling telemetry at a dynamic rate before sending to Application Insights.
     /// </summary>
-    public class AdaptiveSamplingTelemetryProcessor : ITelemetryProcessor, IDisposable
+    public class AdaptiveSamplingTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
         /// <summary>
         /// Fixed-rate sampling telemetry processor.
@@ -220,6 +219,15 @@
             {
                 this.estimatorSettings.MovingAverageRatio = value;
             }
+        }
+
+        /// <summary>
+        /// Initializes this processor using the correct telemetry pipeline configuration.
+        /// </summary>
+        /// <param name="configuration"></param>
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            this.samplingProcessor.Initialize(configuration);
         }
 
         /// <summary>
