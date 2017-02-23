@@ -6,6 +6,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Metrics;
 
     /// <summary>
     /// Telemetry processor for sampling telemetry at a dynamic rate before sending to Application Insights.

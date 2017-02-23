@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +8,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Implementation.Metrics;
 
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.

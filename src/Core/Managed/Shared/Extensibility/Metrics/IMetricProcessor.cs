@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
     /// <summary>
     /// Provides functionality to process metric values prior to aggregation.
