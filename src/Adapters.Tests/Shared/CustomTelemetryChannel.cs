@@ -43,7 +43,13 @@ namespace Microsoft.ApplicationInsights
 
         public Task WaitOneItemAsync(TimeSpan timeout)
         {
-            return Task.Factory.StartNew(() => this.waitHandle.WaitOne(timeout));
+            // Pattern for Wait Handles from: https://msdn.microsoft.com/en-us/library/hh873178%28v=vs.110%29.aspx#WaitHandles
+            var tcs = new TaskCompletionSource<bool>();
+            var rwh = ThreadPool.RegisterWaitForSingleObject(
+                this.waitHandle, delegate { tcs.TrySetResult(true); }, null, -1, true);
+            var t = tcs.Task;
+            t.ContinueWith((antecdent) => rwh.Unregister(null));
+            return t;
         }
 
         public void Flush()

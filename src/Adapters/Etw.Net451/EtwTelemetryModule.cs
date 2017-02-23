@@ -59,11 +59,6 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             this.traceEventSessionFactory = traceEventSessionFactory;
         }
 
-        private void OnEvent(TraceEvent traceEvent)
-        {
-            traceEvent.Track(this.client);
-        }
-
         /// <summary>
         /// Gets the list of ETW Provider listening requests (information about which providers should be traced).
         /// </summary>
@@ -132,12 +127,14 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                         if (this.traceEventSession != null && this.traceEventSession.Source != null && this.traceEventSession.Source.Dynamic != null)
                         {
                             this.traceEventSession.Source.Dynamic.All += this.OnEvent;
-                            Task.Factory.StartNew(() =>
-                            {
-                                this.traceEventSession.Source.Process();
-                                this.traceEventSession.Source.Dynamic.All -= this.OnEvent;
-                                this.isInitialized = false;
-                            }, TaskCreationOptions.LongRunning);
+                            Task.Factory.StartNew(
+                                () =>
+                                {
+                                    this.traceEventSession.Source.Process();
+                                    this.traceEventSession.Source.Dynamic.All -= this.OnEvent;
+                                    this.isInitialized = false;
+                                },
+                                TaskCreationOptions.LongRunning);
                         }
                     }
                     finally
@@ -240,6 +237,11 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 this.traceEventSession.DisableProvider(providerName);
             }
+        }
+
+        private void OnEvent(TraceEvent traceEvent)
+        {
+            traceEvent.Track(this.client);
         }
     }
 }
