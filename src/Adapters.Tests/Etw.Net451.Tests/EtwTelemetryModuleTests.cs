@@ -27,7 +27,6 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         private const int AccessDeniedEventId = 4;
 
         private readonly AdapterHelper adapterHelper = new AdapterHelper();
-        private static readonly TimeSpan channelDelay = TimeSpan.FromMilliseconds(2500);
 
         public void Dispose()
         {
@@ -211,13 +210,13 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     ProviderName = TestProvider.ProviderName
                 });
                 module.Initialize(GetTestTelemetryConfiguration());
-                TestProvider.Log.Info("Hello!");
 
-                // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                TestProvider.Log.Info("Hello!");
+                int expectedEventCount = 2;
+                await WaitForEventsArrive(adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
-                Assert.AreEqual(2, this.adapterHelper.Channel.SentItems.Length);
+                Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
                 Assert.AreEqual("Hello!", telemetry.Message);
             }
@@ -238,12 +237,11 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Info("Hello!");
                 TestProvider.Log.Info("World!");
 
-
-                // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                int expectedEventCount = 3;
+                await WaitForEventsArrive(adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
-                Assert.AreEqual(3, this.adapterHelper.Channel.SentItems.Length);
+                Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry hello = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
                 TraceTelemetry world = (TraceTelemetry)this.adapterHelper.Channel.SentItems[2];
                 Assert.AreEqual("Hello!", hello.Message);
@@ -269,9 +267,10 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Complex(eventId);
 
                 // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                int expectedEventCount = 2;
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
 
-                Assert.AreEqual(2, this.adapterHelper.Channel.SentItems.Length);
+                Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry actual = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
                 TraceTelemetry expected = new TraceTelemetry("Blah blah", SeverityLevel.Verbose);
 
@@ -304,11 +303,11 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Info("Hello!");
                 TestProvider.Log.Warning(1, 2);
 
-                // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                int expectedEventCount = 3;
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
-                Assert.AreEqual(3, this.adapterHelper.Channel.SentItems.Length);
+                Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 Assert.AreEqual(SeverityLevel.Information, ((TraceTelemetry)this.adapterHelper.Channel.SentItems[1]).SeverityLevel);
                 Assert.AreEqual(SeverityLevel.Warning, ((TraceTelemetry)this.adapterHelper.Channel.SentItems[2]).SeverityLevel);
             }
@@ -328,10 +327,10 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Tricky(7, "TrickyEvent", "Actual message");
 
-                // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                int expectedEventCount = 2;
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
 
-                Assert.AreEqual(2, this.adapterHelper.Channel.SentItems.Length);
+                Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
 
                 Assert.AreEqual("Manifest message", telemetry.Message);
@@ -358,17 +357,16 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hey!");
                 TestProvider.Log.Warning(1, 2);
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, 3);
 
                 // Now request reporting events only with certain keywords
                 listeningRequest.Keywords = (ulong)TestProvider.Keywords.NonRoutine;
                 module.Initialize(GetTestTelemetryConfiguration(resetChannel: false));
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await Task.Delay(500);
 
                 TestProvider.Log.Info("Hey again!");
                 TestProvider.Log.Warning(3, 4);
-
-                // There's going to be a delay around 2000ms before the events reaches the channel.
-                await Task.Delay(EtwTelemetryModuleTests.channelDelay);
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, 2);
 
                 List<TraceTelemetry> expectedTelemetry = new List<TraceTelemetry>();
                 TraceTelemetry traceTelemetry = new TraceTelemetry("Hey!", SeverityLevel.Information);
@@ -390,6 +388,18 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     new TraceTelemetryComparer(),
                     "Reported events are not what was expected");
             }
+        }
+
+        private Task WaitForEventsArrive(CustomTelemetryChannel channel, int count = 1, TimeSpan? timeout = null)
+        {
+            // Use 30 seconds by default in case the expected event didn't arrive to avoid hanging on the test execution.
+            timeout = timeout ?? TimeSpan.FromSeconds(30);
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < count; i++)
+            {
+                tasks.Add(channel.WaitOneItemAsync(timeout.Value));
+            }
+            return Task.WhenAll(tasks);
         }
 
         [TestCleanup]
