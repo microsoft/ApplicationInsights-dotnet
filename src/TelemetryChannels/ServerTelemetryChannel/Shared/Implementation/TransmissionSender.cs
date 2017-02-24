@@ -7,6 +7,7 @@
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
@@ -143,46 +144,55 @@
 
         private async Task StartSending(Transmission transmission)
         {
-            Exception exception = null;
-            HttpWebResponseWrapper responseContent = null;
+            SdkInternalOperationsMonitor.Enter();
 
-            // Locally self-throttle this payload before we send it
-            Transmission acceptedTransmission = this.Throttle(transmission);
-
-            // Now that we've self-imposed a throttle, we can try to send the remaining data
             try
             {
-                TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
-                responseContent = await acceptedTransmission.SendAsync().ConfigureAwait(false);          
-            }
-            catch (Exception e)
-            {
-                exception = e;
+                Exception exception = null;
+                HttpWebResponseWrapper responseContent = null;
+
+                // Locally self-throttle this payload before we send it
+                Transmission acceptedTransmission = this.Throttle(transmission);
+
+                // Now that we've self-imposed a throttle, we can try to send the remaining data
+                try
+                {
+                    TelemetryChannelEventSource.Log.TransmissionSendStarted(acceptedTransmission.Id);
+                    responseContent = await acceptedTransmission.SendAsync().ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    exception = e;
+                }
+                finally
+                {
+                    int currentCapacity = Interlocked.Decrement(ref this.transmissionCount);
+                    if (exception == null)
+                    {
+                        TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id, currentCapacity);
+                    }
+                    else
+                    {
+                        TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
+                    }
+
+                    if (responseContent == null && exception is WebException)
+                    {
+                        HttpWebResponse response = (HttpWebResponse)((WebException)exception).Response;
+                        responseContent = new HttpWebResponseWrapper()
+                        {
+                            StatusCode = (int)response.StatusCode,
+                            StatusDescription = response.StatusDescription,
+                            RetryAfterHeader = response.Headers?.Get("Retry-After")
+                        };
+                    }
+
+                    this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
+                }
             }
             finally
             {
-                int currentCapacity = Interlocked.Decrement(ref this.transmissionCount);
-                if (exception == null)
-                {
-                    TelemetryChannelEventSource.Log.TransmissionSentSuccessfully(acceptedTransmission.Id, currentCapacity);
-                }
-                else
-                {
-                    TelemetryChannelEventSource.Log.TransmissionSendingFailedWarning(acceptedTransmission.Id, exception.ToString());
-                }
-
-                if (responseContent == null && exception is WebException)
-                {
-                    HttpWebResponse response = (HttpWebResponse)((WebException)exception).Response;
-                    responseContent = new HttpWebResponseWrapper()
-                    {
-                        StatusCode = (int)response.StatusCode,
-                        StatusDescription = response.StatusDescription,
-                        RetryAfterHeader = response.Headers?.Get("Retry-After")
-                    };
-                }
-
-                this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
+                SdkInternalOperationsMonitor.Exit();
             }
         }
 

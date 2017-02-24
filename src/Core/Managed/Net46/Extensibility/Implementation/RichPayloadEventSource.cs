@@ -19,6 +19,10 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 #endif
+
+    /// <summary>
+    /// Event Source exposes Application Insights telemetry information as ETW events.
+    /// </summary>
     internal sealed partial class RichPayloadEventSource : IDisposable
     {
         /// <summary>RichPayloadEventSource instance.</summary>

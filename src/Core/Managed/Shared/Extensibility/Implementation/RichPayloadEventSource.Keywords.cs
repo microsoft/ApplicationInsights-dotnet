@@ -5,7 +5,10 @@
 #else
     using System.Diagnostics.Tracing;
 #endif
-
+    
+    /// <summary>
+    /// Event Source exposes Application Insights telemetry information as ETW events.
+    /// </summary>
     internal partial class RichPayloadEventSource
     {
         /// <summary>

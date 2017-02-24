@@ -16,7 +16,7 @@
     /// </summary>
     public sealed class ServerTelemetryChannel : ITelemetryChannel, ITelemetryModule
     {
-        internal readonly TelemetrySerializer TelemetrySerializer;
+        internal TelemetrySerializer TelemetrySerializer;
         internal TelemetryBuffer TelemetryBuffer;
         internal Transmitter Transmitter;
 
