@@ -26,7 +26,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             this.session = traceEventSession;
         }
 
-        public ETWTraceEventSource Source
+        public TraceEventDispatcher Source
         {
             get
             {

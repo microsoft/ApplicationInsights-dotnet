@@ -14,7 +14,6 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
     internal class TraceEventSessionMock : ITraceEventSession
     {
-        private bool? isElevated;
         private bool isFakeAccessDenied;
 
         public List<string> EnabledProviderNames { get; private set; }
@@ -22,19 +21,18 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
 
         public TraceEventSessionMock()
-            : this(true, false)
+            : this(false)
         {
         }
 
-        public TraceEventSessionMock(bool? fakeElevatedStatus, bool fakeAccessDeniedOnEnablingProvider)
+        public TraceEventSessionMock(bool fakeAccessDeniedOnEnablingProvider)
         {
             this.EnabledProviderNames = new List<string>();
             this.EnabledProviderGuids = new List<Guid>();
-            this.isElevated = fakeElevatedStatus;
             this.isFakeAccessDenied = fakeAccessDeniedOnEnablingProvider;
         }
 
-        public ETWTraceEventSource Source { get; private set; }
+        public TraceEventDispatcher Source { get; private set; }
 
         public void DisableProvider(Guid providerGuid)
         {
@@ -76,11 +74,6 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             }
             this.EnabledProviderNames.Add(providerName);
             return true;
-        }
-
-        public bool? IsElevated()
-        {
-            return this.isElevated;
         }
 
         public bool Stop(bool noThrow = false)

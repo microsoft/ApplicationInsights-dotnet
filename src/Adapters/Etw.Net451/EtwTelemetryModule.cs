@@ -30,38 +30,33 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private List<Guid> enabledProviderIds;
         private List<string> enabledProviderNames;
         private ITraceEventSession traceEventSession;
-        private Action<ITraceEventSession, TelemetryClient> startTraceEventSession;
+        private Func<ITraceEventSession> traceEventSessionFactory;
 
         /// <summary>
         /// EtwTelemetryModule default constructor.
         /// </summary>
-        public EtwTelemetryModule() : this(
-            new AITraceEventSession(new TraceEventSession(string.Format(CultureInfo.InvariantCulture, "ApplicationInsights-{0}-{1}", nameof(EtwTelemetryModule), Guid.NewGuid()))),
-            new Action<ITraceEventSession, TelemetryClient>((traceSession, client) =>
-            {
-                if (traceSession != null && traceSession.Source != null)
-                {
-                    traceSession.Source.Dynamic.All += traceEvent =>
-                    {
-                        traceEvent.Track(client);
-                    };
-                    Task.Factory.StartNew(() => traceSession.Source.Process(), TaskCreationOptions.LongRunning);
-                }
-            }))
+        public EtwTelemetryModule()
+            : this(() => new AITraceEventSession(new TraceEventSession(
+             string.Format(
+                 CultureInfo.InvariantCulture,
+                 "ApplicationInsights-{0}-{1}",
+                 nameof(EtwTelemetryModule),
+                 Guid.NewGuid()))))
         {
         }
 
-        internal EtwTelemetryModule(
-            ITraceEventSession traceEventSession,
-            Action<ITraceEventSession, TelemetryClient> startTraceEventSessionAction)
+        internal EtwTelemetryModule(Func<ITraceEventSession> traceEventSessionFactory)
         {
             this.lockObject = new object();
             this.Sources = new List<EtwListeningRequest>();
             this.enabledProviderIds = new List<Guid>();
             this.enabledProviderNames = new List<string>();
 
-            this.traceEventSession = traceEventSession;
-            this.startTraceEventSession = startTraceEventSessionAction;
+            if (traceEventSessionFactory == null)
+            {
+                throw new ArgumentNullException(nameof(traceEventSessionFactory));
+            }
+            this.traceEventSessionFactory = traceEventSessionFactory;
         }
 
         /// <summary>
@@ -117,6 +112,11 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     return;
                 }
 
+                if (this.traceEventSession == null)
+                {
+                    this.traceEventSession = this.traceEventSessionFactory();
+                }
+
                 this.EnableProviders();
 
                 if (!this.isInitialized)
@@ -124,7 +124,18 @@ namespace Microsoft.ApplicationInsights.EtwCollector
                     try
                     {
                         // Start the trace session
-                        this.startTraceEventSession(this.traceEventSession, this.client);
+                        if (this.traceEventSession != null && this.traceEventSession.Source != null && this.traceEventSession.Source.Dynamic != null)
+                        {
+                            this.traceEventSession.Source.Dynamic.All += this.OnEvent;
+                            Task.Factory.StartNew(
+                                () =>
+                                {
+                                    this.traceEventSession.Source.Process();
+                                    this.traceEventSession.Source.Dynamic.All -= this.OnEvent;
+                                    this.isInitialized = false;
+                                },
+                                TaskCreationOptions.LongRunning);
+                        }
                     }
                     finally
                     {
@@ -226,6 +237,11 @@ namespace Microsoft.ApplicationInsights.EtwCollector
             {
                 this.traceEventSession.DisableProvider(providerName);
             }
+        }
+
+        private void OnEvent(TraceEvent traceEvent)
+        {
+            traceEvent.Track(this.client);
         }
     }
 }

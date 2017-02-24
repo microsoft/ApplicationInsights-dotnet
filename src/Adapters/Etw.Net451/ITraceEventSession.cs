@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// to start receiving events. Currently does not work on file based sources (we
         /// expect you to wait until the file is complete).
         /// </summary>
-        ETWTraceEventSource Source { get; }
+        TraceEventDispatcher Source { get; }
 
         /// <summary>
         /// Enables a provider by its name, level and keywords.
