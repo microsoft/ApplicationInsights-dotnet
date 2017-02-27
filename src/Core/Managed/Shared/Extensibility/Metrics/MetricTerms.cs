@@ -34,8 +34,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
                 public static class DependencyCalls
                 {
-                    public const string Duration = "Dependency Calls Duration";
-                    public const string Failures = "Dependency Calls Failures";
+                    public const string Duration = "Dependency Calls Duration" + PreviewLabel;
+                    public const string Failures = "Dependency Calls Failures" + PreviewLabel;
                 }
             }
         }
