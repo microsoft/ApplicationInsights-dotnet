@@ -8,8 +8,9 @@
 
     internal class TelemetrySerializer
     {
+        internal readonly Transmitter Transmitter;
+
         private const string DefaultEndpointAddress = "https://dc.services.visualstudio.com/v2/track";
-        private readonly Transmitter transmitter;        
         private Uri endpointAddress = new Uri(DefaultEndpointAddress);
 
         public TelemetrySerializer(Transmitter transmitter)
@@ -19,7 +20,7 @@
                 throw new ArgumentNullException("transmitter");
             }
 
-            this.transmitter = transmitter;
+            this.Transmitter = transmitter;
         }
 
         protected TelemetrySerializer()
@@ -64,7 +65,7 @@
             }
 
             var transmission = new Transmission(this.endpointAddress, items);
-            this.transmitter.Enqueue(transmission);
+            this.Transmitter.Enqueue(transmission);
         }
     }
 }
