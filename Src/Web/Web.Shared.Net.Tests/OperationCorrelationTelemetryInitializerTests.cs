@@ -135,7 +135,7 @@
             string hashedIkey = "o05HMrc4Og8W1Jyy60JPDPxxQy3bOKyuaj6HudZHTjE=";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, hashedIkey);
 
             var source = new TestableOperationCorrelationTelemetryInitializer(headers);
             var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();
@@ -158,7 +158,7 @@
             string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, hashedIkey);
 
             var source = new TestableOperationCorrelationTelemetryInitializer(headers);
             var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();
@@ -200,7 +200,7 @@
             string hashedIkeySetInSource = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO=";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkeyInHeader);
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, hashedIkeyInHeader);
 
             var source = new TestableOperationCorrelationTelemetryInitializer(headers);
             var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();

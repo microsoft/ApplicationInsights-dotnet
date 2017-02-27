@@ -143,10 +143,10 @@
         {
             var request = WebRequest.Create(this.testUrl);
 
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceAppIdHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceAppIdHeader]);
         }
 
         /// <summary>
@@ -198,18 +198,18 @@
             string url = string.Format(CultureInfo.InvariantCulture, "http://hostnamestart{0}hostnameend.com/path/to/something?param=1", hostnamepart);
             var request = WebRequest.Create(new Uri(url));
 
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceAppIdHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
             httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceAppIdHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
             httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
             httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceAppIdHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
         }
 
@@ -223,10 +223,10 @@
             string sampleHeaderValue = "helloWorld";
             var request = WebRequest.Create(this.testUrl);
 
-            request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, sampleHeaderValue);
+            request.Headers.Add(RequestResponseHeaders.SourceAppIdHeader, sampleHeaderValue);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            var actualHeaderValue = request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+            var actualHeaderValue = request.Headers[RequestResponseHeaders.SourceAppIdHeader];
 
             Assert.IsNotNull(actualHeaderValue);
             Assert.AreEqual(sampleHeaderValue, actualHeaderValue);
@@ -825,10 +825,10 @@
             var request = WebRequest.Create(this.testUrl);
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.TargetAppIdHeader, hashedIkey);
 
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
-            returnObjectPassed.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = hashedIkey;
+            returnObjectPassed.Headers[RequestResponseHeaders.TargetAppIdHeader] = hashedIkey;
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
             var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);

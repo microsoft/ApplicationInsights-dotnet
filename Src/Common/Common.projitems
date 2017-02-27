@@ -10,6 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InstrumentationKeyHashLookupHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CorelationIdLookupHelper.cs" />
   </ItemGroup>
 </Project>

@@ -286,9 +286,13 @@
                     && !this.correlationDomainExclusionList.Contains(url.Host))
                 {
                     if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
-                        && webRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader] == null)
+                        && webRequest.Headers[RequestResponseHeaders.SourceAppIdHeader] == null)
                     {
-                        webRequest.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey));
+                        string appId;
+                        if (CorelationIdLookupHelper.TryGetAppId(telemetry.Context.InstrumentationKey, out appId))
+                        {
+                            webRequest.Headers.Add(RequestResponseHeaders.SourceAppIdHeader, appId);
+                        }
                     }
 
                     // Add the root ID
@@ -385,13 +389,17 @@
 
                             if (responseObj.Headers != null)
                             {
-                                var targetIkeyHash = responseObj.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader];
-                                
-                                // We only add the cross component correlation key if the key does not remain the current component.
-                                if (!string.IsNullOrEmpty(targetIkeyHash) && targetIkeyHash != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(telemetry.Context.InstrumentationKey))
+                                var targetAppId = responseObj.Headers[RequestResponseHeaders.TargetAppIdHeader];
+
+                                string myAppId;
+                                if (CorelationIdLookupHelper.TryGetAppId(telemetry.Context.InstrumentationKey, out myAppId))
                                 {
-                                    telemetry.Type = RemoteDependencyConstants.AI;
-                                    telemetry.Target += " | " + targetIkeyHash;
+                                    // We only add the cross component correlation key if the key does not remain the current component.
+                                    if (!string.IsNullOrEmpty(targetAppId) && targetAppId != myAppId)
+                                    {
+                                        telemetry.Type = RemoteDependencyConstants.AI;
+                                        telemetry.Target += " | " + targetAppId;
+                                    }
                                 }
                             }
                         }

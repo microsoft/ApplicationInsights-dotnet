@@ -132,9 +132,14 @@
             }
 
             if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                && context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] == null)
+                && context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] == null)
             {
-                context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
+                string appId;
+
+                if (CorelationIdLookupHelper.TryGetAppId(requestTelemetry.Context.InstrumentationKey, out appId))
+                {
+                    context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] = appId;
+                }
             }
         }
 
