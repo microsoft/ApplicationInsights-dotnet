@@ -40,7 +40,7 @@
             // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
             telemetry.BeginTimeInTicks = timestamp;
 
-            RichPayloadEventSource.Log.ProcessOperationStart(telemetry);
+            // RichPayloadEventSource.Log.ProcessOperationStart(telemetry);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
-            RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
+            // RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
         }
     }
 }

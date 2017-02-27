@@ -10,6 +10,14 @@
   </TelemetryProcessors>
 
   <TelemetryProcessors xdt:Transform="InsertIfMissing">
+    <Add Type="Microsoft.ApplicationInsights.Extensibility.Metrics.RequestMetricExtractor, Microsoft.ApplicationInsights"
+        xdt:Transform="InsertIfMissing"
+        xdt:Locator="Match(Type)">
+    </Add>
+    <Add Type="Microsoft.ApplicationInsights.Extensibility.Metrics.DependencyMetricExtractor, Microsoft.ApplicationInsights"
+        xdt:Transform="InsertIfMissing"
+        xdt:Locator="Match(Type)">
+    </Add>
     <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
         xdt:Transform="InsertIfMissing"
         xdt:Locator="Match(Type)">
