@@ -25,6 +25,10 @@
 
         private const string SamplingRateMetricName = "Sampling Rate (Preview)";
 
+        private static readonly string UniqueProcessorIdMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".UniqueId";
+        private static readonly string IncludedTypesMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".IncludedTypes";
+        private static readonly string ExcludedTypesMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".ExcludedTypes";
+
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
 
@@ -34,6 +38,9 @@
         private HashSet<Type> includedTypesHashSet;
         private string includedTypesString;
 
+        private readonly string uniqueProcessorId = Guid.NewGuid().ToString("D");
+
+        private MetricManager metricManager = null;
         private Metric samplingRateMetric = null;
 
         /// <summary>
@@ -77,6 +84,7 @@
             set
             {
                 this.excludedTypesString = value;
+                this.samplingRateMetric = null;
 
                 HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
                 if (!string.IsNullOrEmpty(value))
@@ -110,6 +118,7 @@
             set
             {
                 this.includedTypesString = value;
+                this.samplingRateMetric = null;
 
                 HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
                 if (!string.IsNullOrEmpty(value))
@@ -149,11 +158,9 @@
         /// <param name="configuration"></param>
         public void Initialize(TelemetryConfiguration configuration)
         {
-            MetricManager metricManager = (configuration == null)
+            this.metricManager = (configuration == null)
                                         ? new MetricManager()
                                         : new MetricManager(new TelemetryClient(configuration));
-
-            this.samplingRateMetric = metricManager.CreateMetric(SamplingRateMetricName);
         }
 
         /// <summary>
@@ -216,7 +223,25 @@
             Metric samplingMetric = this.samplingRateMetric;
             if (samplingMetric == null)
             {
-                return;
+                MetricManager metricManager = this.metricManager;
+                if (metricManager == null)
+                {
+                    return;
+                }
+
+                // There is an edge case where there may be several sampling processors in the pipeline.
+                // To account for that, the aggregated metric documents will be marked with sufficinet info to differentiate the sampling rates.
+                // In general, if the user is only interested in whether the sampling rate is 100% or not 100% across, these properties my be ignored.
+                samplingMetric = metricManager.CreateMetric(SamplingRateMetricName,
+                                                            new Dictionary<string, string>()
+                                                            {
+                                                                [UniqueProcessorIdMetricPropertyName] = this.uniqueProcessorId,
+                                                                [IncludedTypesMetricPropertyName] = this.IncludedTypes,
+                                                                [ExcludedTypesMetricPropertyName] = this.ExcludedTypes,
+                                                            });
+
+                Metric prevSamplingMetric = Interlocked.CompareExchange(ref this.samplingRateMetric, samplingMetric, null);
+                samplingMetric = prevSamplingMetric ?? samplingMetric;
             }
 
             samplingMetric.Track(samplingPercentage);
