@@ -4,23 +4,21 @@
   
   <TelemetryProcessors>
     <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.SamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
-        xdt:Transform="Remove"
-        xdt:Locator="Match(Type)">
+         xdt:Transform="Remove"
+         xdt:Locator="Match(Type)">
     </Add> 
   </TelemetryProcessors>
 
   <TelemetryProcessors xdt:Transform="InsertIfMissing">
     <Add Type="Microsoft.ApplicationInsights.Extensibility.Metrics.RequestMetricExtractor, Microsoft.ApplicationInsights"
-        xdt:Transform="InsertIfMissing"
-        xdt:Locator="Match(Type)">
-    </Add>
+         xdt:Transform="InsertIfMissing"
+         xdt:Locator="Match(Type)"></Add>
     <Add Type="Microsoft.ApplicationInsights.Extensibility.Metrics.DependencyMetricExtractor, Microsoft.ApplicationInsights"
         xdt:Transform="InsertIfMissing"
-        xdt:Locator="Match(Type)">
-    </Add>
+        xdt:Locator="Match(Type)"></Add>
     <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
-        xdt:Transform="InsertIfMissing"
-        xdt:Locator="Match(Type)">
+         xdt:Transform="InsertIfMissing"
+         xdt:Locator="Match(Type)">
       <MaxTelemetryItemsPerSecond>5</MaxTelemetryItemsPerSecond>
     </Add>
   </TelemetryProcessors>
