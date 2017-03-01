@@ -25,7 +25,10 @@
 
         private const string SamplingRateMetricName = "Sampling Rate (Preview)";
 
-        private static readonly string SamplingRateMetricPropertyNamePrefix = typeof(SamplingTelemetryProcessor).Name;
+        private const string MetricAutocollectionMonikerKey = "Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected";
+        private const string MetricAutocollectionMonikerValue = "True";
+
+        private static readonly string SamplingRateMetricPropertyNamePrefix = "Microsoft.ApplicationInsights.Sampling.Processor";
         private static readonly string UniqueProcessorIdMetricPropertyName  = SamplingRateMetricPropertyNamePrefix + ".UniqueId";
         private static readonly string IncludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".IncludedTypes";
         private static readonly string ExcludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".ExcludedTypes";
@@ -270,6 +273,7 @@
                                                                 [UniqueProcessorIdMetricPropertyName] = this.uniqueProcessorId,
                                                                 [IncludedTypesMetricPropertyName] = this.IncludedTypes ?? "null",
                                                                 [ExcludedTypesMetricPropertyName] = this.ExcludedTypes ?? "null",
+                                                                [MetricAutocollectionMonikerKey] = MetricAutocollectionMonikerValue,
                                                             });
 
                 Metric prevSamplingMetric = Interlocked.CompareExchange(ref this.samplingRateMetric, samplingMetric, null);
