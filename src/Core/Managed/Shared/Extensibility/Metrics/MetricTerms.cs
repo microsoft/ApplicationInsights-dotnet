@@ -4,11 +4,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
     internal static class MetricTerms
     {
+        private const string MetricPropertiesNamePrefix = "Microsoft.ApplicationInsights.Metrics";
         public static class Extraction
         {
-            public static class PipelineInfo
+            //Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected
+            public static class ConsideredByProcessors
             {
-                public const string PropertyKey = "MetricsExtraction.PipelineInfo";
+                public static class Moniker
+                {
+                    public const string Key = MetricPropertiesNamePrefix + ".Extraction.ConsideredByProcessors";
+                }
             }
         }
 
@@ -16,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
         {
             public static class Moniker
             {
-                public const string Key = "MetricIsAutocollected";
+                public const string Key = MetricPropertiesNamePrefix + ".MetricIsAutocollected";
                 public const string Value = "True";
 
             }
@@ -39,7 +44,5 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
                 }
             }
         }
-
-
     }
 }

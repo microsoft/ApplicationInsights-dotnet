@@ -114,7 +114,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
                                                      extractorVersion);
 
             string extractionPipelineInfo;
-            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.PipelineInfo.PropertyKey, out extractionPipelineInfo);
+            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ConsideredByProcessors.Moniker.Key, out extractionPipelineInfo);
 
             if (! hasPrevInfo)
             {
@@ -129,7 +129,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             }
 
             extractionPipelineInfo = extractionPipelineInfo + thisExtractorInfo;
-            item.Context.Properties[MetricTerms.Extraction.PipelineInfo.PropertyKey] = extractionPipelineInfo;
+            item.Context.Properties[MetricTerms.Extraction.ConsideredByProcessors.Moniker.Key] = extractionPipelineInfo;
         }
 
         private void InvokeNextProcessor(ITelemetry item)
