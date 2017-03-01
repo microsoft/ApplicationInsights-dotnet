@@ -76,7 +76,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
                 telemetryClient.Context.Properties[MetricTelemetryMarkerKey] = MetricTelemetryMarkerValue;
             }
             
-            _metricManager = new MetricManager(new TelemetryClient(configuration));
+            _metricManager = new MetricManager(telemetryClient);
 
             Initialize(configuration);
         }
