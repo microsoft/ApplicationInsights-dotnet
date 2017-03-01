@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             _requestsMetric.Track(1.0);
 
             bool isFailed = (request.Success != null) && (request.Success == false);
-            _requestsFailutesMetric.Track(isFailed ? 0.0 : 1.0);
+            _requestsFailutesMetric.Track(isFailed ? 1.0 : 0.0);
 
             _responseTimeMetric.Track(request.Duration.TotalMilliseconds);
         }

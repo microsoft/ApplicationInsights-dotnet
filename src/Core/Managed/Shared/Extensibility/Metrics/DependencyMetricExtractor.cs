@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             }
 
             bool isFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
-            _dependencyCallsFailuresMetric.Track(isFailed ? 0.0 : 1.0);
+            _dependencyCallsFailuresMetric.Track(isFailed ? 1.0 : 0.0);
 
             _dependencyCallsDurationMetric.Track(dependencyCall.Duration.TotalMilliseconds);
         }
