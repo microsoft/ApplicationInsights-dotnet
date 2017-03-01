@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -107,7 +108,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             string extractorName = ExtractorName ?? "null";
             string extractorVersion = ExtractorVersion ?? "null";
 
-            string thisExtractorInfo = $"(Name:{extractorName}, Ver:{extractorVersion})";
+            string thisExtractorInfo = String.Format(CultureInfo.InvariantCulture,
+                                                     "(Name:{0}, Ver:{1})",
+                                                     extractorName,
+                                                     extractorVersion);
 
             string extractionPipelineInfo;
             bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.PipelineInfo.PropertyKey, out extractionPipelineInfo);
@@ -137,7 +141,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             }
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             Dispose(true);
         }
@@ -147,6 +151,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             IDisposable metricManager = _metricManager;
             if (metricManager != null)
             {
+                // benign race
                 metricManager.Dispose();
                 _metricManager = null;
             }
