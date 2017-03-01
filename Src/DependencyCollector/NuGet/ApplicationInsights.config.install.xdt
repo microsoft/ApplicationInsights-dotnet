@@ -12,6 +12,9 @@
         NOTE: this configuration will be lost upon NuGet upgrade.
         -->
         <Add>core.windows.net</Add>
+        <Add>core.chinacloudapi.cn</Add>
+        <Add>core.cloudapi.de</Add>
+        <Add>core.usgovcloudapi.net</Add>
       </ExcludeComponentCorrelationHttpHeadersOnDomains>
     </Add>
   </TelemetryModules>
