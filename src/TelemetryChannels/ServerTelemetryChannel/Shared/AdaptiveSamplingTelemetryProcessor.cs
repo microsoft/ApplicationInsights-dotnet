@@ -256,10 +256,18 @@
         {
             if (disposing)
             {
-                if (this.estimatorProcessor != null)
+                IDisposable estimatorProc = this.estimatorProcessor;
+                if (estimatorProc != null)
                 {
-                    this.estimatorProcessor.Dispose();
+                    estimatorProc.Dispose();
                     this.estimatorProcessor = null;
+                }
+
+                IDisposable samplingProc = this.samplingProcessor;
+                if (samplingProc != null)
+                {
+                    samplingProc.Dispose();
+                    // Cannot set samplingProcessor = null, since it is readonly, but multiple Dispose calls must be idempotent.
                 }
             }
         }
