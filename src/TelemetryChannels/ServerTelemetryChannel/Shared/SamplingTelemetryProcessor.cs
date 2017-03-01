@@ -25,9 +25,10 @@
 
         private const string SamplingRateMetricName = "Sampling Rate (Preview)";
 
-        private static readonly string UniqueProcessorIdMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".UniqueId";
-        private static readonly string IncludedTypesMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".IncludedTypes";
-        private static readonly string ExcludedTypesMetricPropertyName = typeof(SamplingTelemetryProcessor) + ".ExcludedTypes";
+        private static readonly string SamplingRateMetricPropertyNamePrefix = typeof(SamplingTelemetryProcessor).Name;
+        private static readonly string UniqueProcessorIdMetricPropertyName  = SamplingRateMetricPropertyNamePrefix + ".UniqueId";
+        private static readonly string IncludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".IncludedTypes";
+        private static readonly string ExcludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".ExcludedTypes";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
@@ -267,8 +268,8 @@
                                                             new Dictionary<string, string>()
                                                             {
                                                                 [UniqueProcessorIdMetricPropertyName] = this.uniqueProcessorId,
-                                                                [IncludedTypesMetricPropertyName] = this.IncludedTypes,
-                                                                [ExcludedTypesMetricPropertyName] = this.ExcludedTypes,
+                                                                [IncludedTypesMetricPropertyName] = this.IncludedTypes ?? "null",
+                                                                [ExcludedTypesMetricPropertyName] = this.ExcludedTypes ?? "null",
                                                             });
 
                 Metric prevSamplingMetric = Interlocked.CompareExchange(ref this.samplingRateMetric, samplingMetric, null);
