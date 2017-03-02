@@ -18,6 +18,7 @@
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
         private bool correlationHeadersEnabled = true;
+        private string telemetryChannelEnpoint;
 
         /// <summary>
         /// Gets the list of handler types for which requests telemetry will not be collected
@@ -45,8 +46,21 @@
             {
                 this.correlationHeadersEnabled = value;
             }
-        } 
+        }
 
+        /// <summary>
+        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.)
+        /// </summary>
+        public string AIProfileQueryEndpoint { get; set; }
+
+        internal string EffectiveProfileQueryEndpoint
+        {
+            get
+            {
+                return string.IsNullOrEmpty(AIProfileQueryEndpoint) ? telemetryChannelEnpoint : AIProfileQueryEndpoint;
+            }
+        }
+        
         /// <summary>
         /// Implements on begin callback of http module.
         /// </summary>
@@ -109,6 +123,28 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
+            if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
+            {
+                string sourceAppId = context.Request.Headers[RequestResponseHeaders.SourceAppIdHeader];
+
+                string myAppId = string.Empty;
+                bool foundMyAppId = false;
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+                {
+                    foundMyAppId = CorelationIdLookupHelper.TryGetXComponentCorelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out myAppId);
+                }
+
+                // If the source header is present on the incoming request,
+                // and it is an external component (not the same ikey as the one used by the current component),
+                // then populate the source field.
+                if (!string.IsNullOrEmpty(sourceAppId)
+                    && foundMyAppId
+                    && sourceAppId != myAppId)
+                {
+                    requestTelemetry.Source = sourceAppId;
+                }
+            }
+
             this.telemetryClient.TrackRequest(requestTelemetry);
         }
 
@@ -136,7 +172,7 @@
             {
                 string appId;
 
-                if (CorelationIdLookupHelper.TryGetAppId(requestTelemetry.Context.InstrumentationKey, out appId))
+                if (CorelationIdLookupHelper.TryGetXComponentCorelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out appId))
                 {
                     context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] = appId;
                 }
@@ -151,6 +187,11 @@
         {
             this.telemetryClient = new TelemetryClient(configuration);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
+
+            if (configuration != null && configuration.TelemetryChannel != null)
+            {
+                this.telemetryChannelEnpoint = configuration.TelemetryChannel.EndpointAddress;
+            }
         }
 
         /// <summary>

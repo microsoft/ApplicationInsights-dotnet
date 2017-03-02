@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Concurrent;
     using System.Globalization;
+    using System.IO;
+    using System.Net;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,70 +13,121 @@
     internal static class CorelationIdLookupHelper
     {
         /// <summary>
-        /// Max number of component hashes to cache.
+        /// Max number of app ids to cache.
         /// </summary>
         private const int MAXSIZE = 100;
 
-        private const string CorrelationIdFormat = "aid-v1:{0}";
+        private const int GET_APP_ID_TIMEOUT = 2000; // milliseconds
 
-        private static ConcurrentDictionary<string, string> knownAppIds = new ConcurrentDictionary<string, string>();
+        private const string CORELATION_ID_FORMAT = "aid-v1:{0}";
+
+        private static ConcurrentDictionary<string, string> knownCorelationIds = new ConcurrentDictionary<string, string>();
+
+        private static Func<string, string, Task<string>> appIdProvider = FetchAppIdFromService;
 
         /// <summary>
-        /// Retrieves the hash for a given instrumentation key.
+        /// This is a test hook. Use this to provide your own test implementation for fetching the appId.
+        /// </summary>
+        /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
+        public static void OverrideAppIdProvider(Func<string, string, Task<string>> appIdProviderMethod)
+        {
+            appIdProvider = appIdProviderMethod;
+        }
+
+        /// <summary>
+        /// Retrieves the corelation id corresponding to a given instrumentation key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation key string.</param>
-        /// <param name="correlationId">AppId corresponding to the provided instrumentation key</param>
+        /// <param name="breezeEndpointAddress">Breeze endpoint to query against.</param>
+        /// <param name="corelationId">AppId corresponding to the provided instrumentation key</param>
         /// <returns>true if correlationId was successfully retrieved; false otherwise.</returns>
-        public static bool TryGetAppId(string instrumentationKey, out string correlationId)
+        public static bool TryGetXComponentCorelationId(string instrumentationKey, string breezeEndpointAddress, out string corelationId)
         {
             if (string.IsNullOrEmpty(instrumentationKey))
             {
                 throw new ArgumentNullException("instrumentationKey");
             }
 
-            var found = knownAppIds.TryGetValue(instrumentationKey, out correlationId);
+            var found = knownCorelationIds.TryGetValue(instrumentationKey, out corelationId);
 
-            if (!found)
+            if (found)
             {
-                // Simplistic cleanup to guard against this becoming a memory hog.
-                if (knownAppIds.Keys.Count >= MAXSIZE)
+                return true;
+            }
+            else
+            {
+
+                if (breezeEndpointAddress == null)
                 {
-                    knownAppIds.Clear();
+                    throw new ArgumentNullException("breezeEndpointAddress");
                 }
 
-                string appId;
+                // Simplistic cleanup to guard against this becoming a memory hog.
+                if (knownCorelationIds.Keys.Count >= MAXSIZE)
+                {
+                    knownCorelationIds.Clear();
+                }
+
                 try
                 {
-                    // Ideally, we wouldn't do .Result and keep propogating the task up.
-                    // But in this case - it is useless, because we are eventually getting called by things like profiler callbacks which are not async;
-                    // If we don't block now, at some point up the call stack where we are hooking into an outgoing request / response, we will have to. Might as well do it here.
-                    appId = FetchAppIdFromService(instrumentationKey.ToLowerInvariant()).Result;
+                    // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the corelation id.
+                    // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
+                    Task<string> getAppIdTask = appIdProvider(breezeEndpointAddress, instrumentationKey.ToLowerInvariant());
+                    if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
+                    {
+                        GenerateCorelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                        corelationId = knownCorelationIds[instrumentationKey];
+                        return true;
+                    }
+                    else
+                    {
+                        getAppIdTask.ContinueWith((appId) =>
+                        {
+                            try
+                            {
+                                GenerateCorelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                            }
+                            catch
+                            {
+                                // Todo: log exception
+                            }
+                        });
+
+                        return false;
+                    }
                 }
                 catch(AggregateException)
                 {
-                    correlationId = string.Empty;
+                    corelationId = string.Empty;
                     // Todo: log aggregate exception
                     return false;
                 }
-
-                correlationId = string.Format(CorrelationIdFormat, appId, CultureInfo.InvariantCulture);
-                knownAppIds[instrumentationKey] = correlationId;
             }
-            return true;
+        }
+
+        private static void GenerateCorelationIdAndAddToDictionary(string ikey, string appId)
+        {
+            knownCorelationIds[ikey] = string.Format(CORELATION_ID_FORMAT, appId, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
-        /// Computes the SHA256 hash for a given value and returns it in the form of a base64 encoded string.
+        /// Retrieves the app id given the instrumentation key
         /// </summary>
-        /// <param name="value">Value for which the hash is to be computed.</param>
-        /// <returns>Base64 encoded hash string.</returns>
-        private static async Task<string> FetchAppIdFromService(string value)
+        /// <param name="breezeEndpoint">Endpoint to fetch the app Id from.</param>
+        /// <param name="instrumentationKey">Instrumentation key for which app id is to be retrieved.</param>
+        /// <returns>App id</returns>
+        private static async Task<string> FetchAppIdFromService(string breezeEndpoint, string instrumentationKey)
         {
-            // Stub - needs to be replaced once the actual service is available.
-            TaskCompletionSource<string> mockAsyncTask = new TaskCompletionSource<string>();
-            mockAsyncTask.SetResult("mockAppId");
+            WebRequest request = WebRequest.Create(breezeEndpoint);
+            request.Method = "GET";
 
-            return await mockAsyncTask.Task;
+            using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
+            {
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                {
+                    return await reader.ReadToEndAsync();
+                }
+            }
         }
     }
 }

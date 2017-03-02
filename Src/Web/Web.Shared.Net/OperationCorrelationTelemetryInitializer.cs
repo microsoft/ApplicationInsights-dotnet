@@ -87,28 +87,6 @@
                     telemetry.Context.Operation.Id = parentContext.Id;
                 }
             }
-            
-            if (string.IsNullOrEmpty(requestTelemetry.Source) && currentRequest.Headers != null)
-            {
-                string sourceAppId = currentRequest.Headers[RequestResponseHeaders.SourceAppIdHeader];
-
-                string myAppId = string.Empty;
-                bool foundMyAppId = false;
-                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
-                {
-                    foundMyAppId = CorelationIdLookupHelper.TryGetAppId(requestTelemetry.Context.InstrumentationKey, out myAppId);
-                }
-
-                // If the source header is present on the incoming request,
-                // and it is an external component (not the same ikey as the one used by the current component),
-                // then populate the source field.
-                if (!string.IsNullOrEmpty(sourceAppId)
-                    && foundMyAppId                   
-                    && sourceAppId != myAppId)
-                {
-                    requestTelemetry.Source = sourceAppId;
-                }
-            }
         }
     }
 }

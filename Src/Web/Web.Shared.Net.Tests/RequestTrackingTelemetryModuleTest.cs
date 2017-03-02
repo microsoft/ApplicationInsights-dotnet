@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.Threading.Tasks;
     using System.Web;
 
     using Common;
@@ -19,6 +21,18 @@
     [TestClass]
     public class RequestTrackingTelemetryModuleTest
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            CorelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
+
+                // Pretend App Id is the same as Ikey
+                var tcs = new TaskCompletionSource<string>();
+                tcs.SetResult(ikey);
+                return tcs.Task;
+            });
+        }
+
         [TestMethod]
         public void OnBeginRequestDoesNotSetTimeIfItWasAssignedBefore()
         {
@@ -271,7 +285,109 @@
             module.OnEndRequest(context);
 
             Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
-        }       
+        }
+
+        [TestMethod]
+        public void OnEndDoesNotAddSourceFieldForRequestForSameComponent()
+        {
+            // ARRANGE
+            string ikey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string appIdHeader = GetCorelationIdHeaderValue(ikey); // since per our mock appId = ikey
+
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, appIdHeader);
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = new RequestTrackingTelemetryModule();
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = ikey;
+
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.True(string.IsNullOrEmpty(context.GetRequestTelemetry().Source), "RequestTrackingTelemetryModule should not set source for same ikey as itself.");
+        }
+
+        [TestMethod]
+        public void OnEndAddsSourceFieldForRequestWithSourceIkey()
+        {
+            // ARRANGE                       
+            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, GetCorelationIdHeaderValue(appId));
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = new RequestTrackingTelemetryModule();
+            var config = TelemetryConfiguration.CreateDefault();
+
+            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.Equal(GetCorelationIdHeaderValue(appId), context.GetRequestTelemetry().Source);
+        }
+
+        [TestMethod]
+        public void OnEndDoesNotAddSourceFieldForRequestWithOutSourceIkeyHeader()
+        {
+            // ARRANGE                                   
+            // do not add any sourceikey header.
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = new RequestTrackingTelemetryModule();
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.True(string.IsNullOrEmpty(context.GetRequestTelemetry().Source), "RequestTrackingTelemetryModule should not set source if not sourceikey found in header");
+        }
+
+        [TestMethod]
+        public void OnEndDoesNotOverrideSourceField()
+        {
+            // ARRANGE                       
+            string appIdInHeader = GetCorelationIdHeaderValue("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
+            string appIdInSourceField = "9AB8EDCB-21D2-44BB-A64A-C33BB4515F20";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, appIdInHeader);
+
+            
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = new RequestTrackingTelemetryModule();
+            var config = TelemetryConfiguration.CreateDefault();
+            config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            context.GetRequestTelemetry().Source = appIdInSourceField;
+
+            // ACT
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.Equal(appIdInSourceField, context.GetRequestTelemetry().Source);
+        }
 
         internal class FakeHttpHandler : IHttpHandler
         {
@@ -284,5 +400,11 @@
             {
             }
         }
+
+        private string GetCorelationIdHeaderValue(string appId)
+        {
+            return string.Format("aid-v1:{0}", appId, CultureInfo.InvariantCulture);
+        }
+
     }
 }
