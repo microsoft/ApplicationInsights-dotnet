@@ -21,6 +21,8 @@
 
         private const string CORELATION_ID_FORMAT = "aid-v1:{0}";
 
+        private const string APPID_QUERY_API_RELATIVE_URI_FORMAT = "api/profiles/{0}/appId";
+
         private static ConcurrentDictionary<string, string> knownCorelationIds = new ConcurrentDictionary<string, string>();
 
         private static Func<string, string, Task<string>> appIdProvider = FetchAppIdFromService;
@@ -118,7 +120,9 @@
         /// <returns>App id</returns>
         private static async Task<string> FetchAppIdFromService(string breezeEndpoint, string instrumentationKey)
         {
-            WebRequest request = WebRequest.Create(breezeEndpoint);
+            Uri getAppIdEndpoint = new Uri(new Uri(breezeEndpoint), string.Format(APPID_QUERY_API_RELATIVE_URI_FORMAT, instrumentationKey, CultureInfo.InvariantCulture));
+
+            WebRequest request = WebRequest.Create(getAppIdEndpoint);
             request.Method = "GET";
 
             using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
