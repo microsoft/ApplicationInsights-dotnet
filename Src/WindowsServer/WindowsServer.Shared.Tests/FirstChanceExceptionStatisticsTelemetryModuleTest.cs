@@ -117,7 +117,7 @@
 
             Assert.True(dims.Contains(new KeyValuePair<string, string>("type", typeof(Exception).FullName)));
             string value;
-            Assert.True(dims.TryGetValue("Failed method", out value));
+            Assert.True(dims.TryGetValue("method", out value));
             Assert.True(value.StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
         }
 

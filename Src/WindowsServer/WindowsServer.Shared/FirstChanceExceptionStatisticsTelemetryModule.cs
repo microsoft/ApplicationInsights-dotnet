@@ -214,7 +214,7 @@
         {
             var dimensions = new Dictionary<string, string>();
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
-            dimensions.Add("Failed method", this.GetDimCappedString(method, this.methodValues));
+            dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
