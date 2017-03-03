@@ -118,7 +118,7 @@
             }
         }
 
-        public IEnumerable<ITelemetry> Dequeue()
+        public virtual IEnumerable<ITelemetry> Dequeue()
         {
             List<ITelemetry> telemetryToFlush = null;
 

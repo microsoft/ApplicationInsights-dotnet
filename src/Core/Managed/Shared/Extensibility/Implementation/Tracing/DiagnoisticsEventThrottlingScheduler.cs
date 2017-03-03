@@ -16,7 +16,7 @@
     internal class DiagnoisticsEventThrottlingScheduler 
         : IDiagnoisticsEventThrottlingScheduler, IDisposable
     {
-        private readonly IList<TaskTimer> timers = new List<TaskTimer>();
+        private readonly IList<TaskTimerInternal> timers = new List<TaskTimerInternal>();
         private volatile bool disposed = false;
 
         ~DiagnoisticsEventThrottlingScheduler()
@@ -61,7 +61,7 @@
                 throw new ArgumentNullException("token");
             }
 
-            var timer = token as TaskTimer;
+            var timer = token as TaskTimerInternal;
             if (timer == null)
             {
                 throw new ArgumentException("token");
@@ -92,11 +92,11 @@
             }
         }
 
-        private static TaskTimer InternalCreateAndStartTimer(
+        private static TaskTimerInternal InternalCreateAndStartTimer(
             int intervalInMilliseconds,
             Action action)
         {
-            var timer = new TaskTimer
+            var timer = new TaskTimerInternal
             {
                 Delay = TimeSpan.FromMilliseconds(intervalInMilliseconds)
             };

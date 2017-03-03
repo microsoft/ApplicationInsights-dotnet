@@ -8,8 +8,10 @@
     /// <summary>
     /// Base class for telemetry types representing duration in time.
     /// </summary>
-    public abstract class OperationTelemetry : ITelemetry, ISupportProperties
+    public abstract class OperationTelemetry : ITelemetry, ISupportMetrics, ISupportProperties
     {
+        internal const string TelemetryName = "Operation";
+
         /// <summary>
         /// Gets or sets the start time of the operation.
         /// </summary>
@@ -46,6 +48,11 @@
         /// Gets or sets the duration of the operation.
         /// </summary>
         public abstract TimeSpan Duration { get; set;  }
+
+        /// <summary>
+        /// Gets the custom metrics collection.
+        /// </summary>
+        public abstract IDictionary<string, double> Metrics { get; }
 
         /// <summary>
         /// Gets the custom properties collection.

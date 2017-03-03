@@ -5,14 +5,17 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Assert = Xunit.Assert;
-    
+    using Helpers;
+    using System.Collections.Generic;
+    using Extensibility.Implementation;
+
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -347,5 +350,56 @@
                 Assert.Equal(telemetry, sentTelemetry);
             }
         }
+
+        [TestClass]
+        public class InternalOperation : ServerTelemetryChannelTest
+        {
+            class TransmissionStubChecksInternalOperation : Transmission
+            {
+                public Action<bool> WasCalled;
+
+                public override Task<HttpWebResponseWrapper> SendAsync()
+                {
+                    Assert.True(SdkInternalOperationsMonitor.IsEntered());
+                    this.WasCalled(true);
+                    return base.SendAsync();
+                }
+            }
+
+            class TelemetrySerializerStub : TelemetrySerializer
+            {
+                public Action<bool> WasCalled;
+
+                public TelemetrySerializerStub(Transmitter t) : base(t)
+                {
+                }
+
+                public override void Serialize(ICollection<ITelemetry> items)
+                {
+                    var transmission = new TransmissionStubChecksInternalOperation();
+                    transmission.WasCalled = this.WasCalled;
+                    base.Transmitter.Enqueue(transmission);
+                }
+            }
+
+            [TestMethod]
+            public void SendWillBeMarkedAsInternalOperation()
+            {
+                bool wasCalled = false;
+                var channel = new ServerTelemetryChannel();
+                channel.TelemetrySerializer = new TelemetrySerializerStub(channel.Transmitter) { WasCalled = (called) => { wasCalled = called; } };
+                channel.TelemetryBuffer = new TelemetryChannel.Implementation.TelemetryBuffer(channel.TelemetrySerializer, new WebApplicationLifecycle());
+                channel.TelemetryProcessor = channel.TelemetryBuffer;
+                channel.MaxTelemetryBufferCapacity = 1;
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
+
+                var telemetry = new StubTelemetry();
+                channel.Send(telemetry);
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+
+                Assert.True(wasCalled);
+            }
+        }
+
     }
 }

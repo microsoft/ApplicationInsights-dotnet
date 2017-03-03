@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 

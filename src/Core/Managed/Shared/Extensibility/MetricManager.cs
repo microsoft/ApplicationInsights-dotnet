@@ -43,7 +43,7 @@
         /// <summary>
         /// Metric aggregation snapshot task.
         /// </summary>
-        private TaskTimer snapshotTimer;
+        private TaskTimerInternal snapshotTimer;
 
         /// <summary>
         /// Last time snapshot was initiated.
@@ -75,7 +75,7 @@
 
             this.lastSnapshotStartDateTime = DateTimeOffset.UtcNow;
 
-            this.snapshotTimer = new TaskTimer() { Delay = GetWaitTime() };
+            this.snapshotTimer = new TaskTimerInternal() { Delay = GetWaitTime() };
             this.snapshotTimer.Start(this.SnapshotAndReschedule);
         }
 

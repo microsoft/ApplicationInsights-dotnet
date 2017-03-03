@@ -85,6 +85,106 @@
         }
 
         /// <summary>
+        /// Create a handler for <see cref="ProcessOperationStart(OperationTelemetry)"/> and <see cref="ProcessOperationStop(OperationTelemetry)"/>
+        /// </summary>
+        private Action<OperationTelemetry, EventOpcode> CreateOperationStartStopHandler(EventSource eventSource)
+        {
+            var eventSourceType = eventSource.GetType();
+
+            // EventSource.Write<T> (String, EventSourceOptions, T)
+            var writeGenericMethod = eventSourceType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(m => m.Name == "Write" && m.IsGenericMethod == true)
+                .Select(m => new { Method = m, Parameters = m.GetParameters() })
+                .Where(m => m.Parameters.Length == 3
+                            && m.Parameters[0].ParameterType.FullName == "System.String"
+                            && m.Parameters[1].ParameterType.FullName == "System.Diagnostics.Tracing.EventSourceOptions"
+                            && m.Parameters[2].ParameterType.FullName == null && m.Parameters[2].ParameterType.IsByRef == false)
+                .Select(m => m.Method)
+                .SingleOrDefault();
+
+            if (writeGenericMethod == null)
+            {
+                return null;
+            }
+
+            var eventSourceOptionsType = eventSourceType.Assembly.GetType("System.Diagnostics.Tracing.EventSourceOptions");
+            var eventSourceOptionsActivityOptionsProperty = eventSourceOptionsType.GetProperty("ActivityOptions", BindingFlags.Public | BindingFlags.Instance);
+            var eventSourceOptionsKeywordsProperty = eventSourceOptionsType.GetProperty("Keywords", BindingFlags.Public | BindingFlags.Instance);
+            var eventSourceOptionsOpcodeProperty = eventSourceOptionsType.GetProperty("Opcode", BindingFlags.Public | BindingFlags.Instance);
+            var eventSourceOptionsLevelProperty = eventSourceOptionsType.GetProperty("Level", BindingFlags.Public | BindingFlags.Instance);
+
+            var eventActivityOptionsType = eventSourceType.Assembly.GetType("System.Diagnostics.Tracing.EventActivityOptions");
+            var eventActivityOptionsRecursive = Enum.Parse(eventActivityOptionsType, "Recursive");
+
+            var eventSourceOptionsStart = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStart, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStart, EventOpcode.Start);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStart, EventLevel.Informational);
+
+            var eventSourceOptionsStop = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStop, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStop, EventOpcode.Stop);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStop, EventLevel.Informational);
+
+            var eventSourceOptionsStartRecursive = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsActivityOptionsProperty.SetValue(eventSourceOptionsStartRecursive, eventActivityOptionsRecursive);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStartRecursive, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStartRecursive, EventOpcode.Start);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStartRecursive, EventLevel.Informational);
+
+            var eventSourceOptionsStopRecursive = Activator.CreateInstance(eventSourceOptionsType);
+            eventSourceOptionsActivityOptionsProperty.SetValue(eventSourceOptionsStartRecursive, eventActivityOptionsRecursive);
+            eventSourceOptionsKeywordsProperty.SetValue(eventSourceOptionsStopRecursive, Keywords.Operations);
+            eventSourceOptionsOpcodeProperty.SetValue(eventSourceOptionsStopRecursive, EventOpcode.Stop);
+            eventSourceOptionsLevelProperty.SetValue(eventSourceOptionsStopRecursive, EventLevel.Informational);
+
+            var writeMethod = writeGenericMethod.MakeGenericMethod(new
+            {
+                IKey = (string)null,
+                Id = (string)null,
+                Name = (string)null,
+                RootId = (string)null
+            }.GetType());
+
+            return (item, opCode) =>
+            {
+                bool isRequest = item is RequestTelemetry;
+
+                object eventSourceOptionsObject;
+                switch (opCode)
+                {
+                    case EventOpcode.Start:
+                        eventSourceOptionsObject = isRequest ? eventSourceOptionsStart : eventSourceOptionsStartRecursive;
+                        break;
+
+                    case EventOpcode.Stop:
+                        eventSourceOptionsObject = isRequest ? eventSourceOptionsStop : eventSourceOptionsStopRecursive;
+                        break;
+
+                    default:
+                        throw new ArgumentException(nameof(opCode));
+                }
+
+                var extendedData = new
+                {
+                    IKey = item.Context.InstrumentationKey,
+                    Id = item.Id,
+                    Name = item.Name,
+                    RootId = item.Context.Operation.Id
+                };
+
+                var parameters = new object[]
+                {
+                    isRequest ? RequestTelemetry.TelemetryName : OperationTelemetry.TelemetryName,
+                    eventSourceOptionsObject,
+                    extendedData
+                };
+
+                writeMethod.Invoke(this.EventSourceInternal, parameters);
+            };
+        }
+
+        /// <summary>
         /// Create handler for request telemetry.
         /// </summary>
         private Action<ITelemetry> CreateHandlerForRequestTelemetry(EventSource eventSource, MethodInfo writeGenericMethod, Type eventSourceOptionsType, PropertyInfo eventSourceOptionsKeywordsProperty)

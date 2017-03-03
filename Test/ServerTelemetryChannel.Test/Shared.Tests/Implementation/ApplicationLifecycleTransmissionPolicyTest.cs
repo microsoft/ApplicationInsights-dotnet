@@ -2,10 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using Channel.Helpers;
 
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;

@@ -1,8 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
-    using System;
-    using System.Collections.Generic;
-
     /// <summary>
     /// Provides functionality to process metric values prior to aggregation.
     /// </summary>

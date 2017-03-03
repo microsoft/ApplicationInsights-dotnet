@@ -32,6 +32,9 @@
         /// <summary>A dictionary mapping each telemetry item type to its handler.</summary>
         private readonly Dictionary<Type, Action<ITelemetry>> telemetryHandlers;
 
+        /// <summary>Handler for <see cref="OperationTelemetry"/> start/stop operations.</summary>
+        private readonly Action<OperationTelemetry, EventOpcode> operationStartStopHandler;
+
         /// <summary>
         /// Initializes a new instance of the RichPayloadEventSource class.
         /// </summary>
@@ -49,6 +52,8 @@
 
                     // CreateTelemetryHandlers is defined in RichPayloadEventSource.TelemetryHandler.cs
                     this.telemetryHandlers = this.CreateTelemetryHandlers(this.EventSourceInternal);
+
+                    this.operationStartStopHandler = this.CreateOperationStartStopHandler(this.EventSourceInternal);
                 }
             }
         }
@@ -78,6 +83,40 @@
         }
 
         /// <summary>
+        /// Record an operation start.
+        /// </summary>
+        /// <param name="operation">The operation which is about to start.</param>
+        public void ProcessOperationStart(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal == null)
+            {
+                return;
+            }
+
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                this.operationStartStopHandler(operation, EventOpcode.Start);
+            }
+        }
+
+        /// <summary>
+        /// Record an operation stop.
+        /// </summary>
+        /// <param name="operation">The operation which has just stopped.</param>
+        public void ProcessOperationStop(OperationTelemetry operation)
+        {
+            if (this.EventSourceInternal == null)
+            {
+                return;
+            }
+
+            if (this.EventSourceInternal.IsEnabled(EventLevel.Informational, Keywords.Operations))
+            {
+                this.operationStartStopHandler(operation, EventOpcode.Stop);
+            }
+        }
+
+        /// <summary>
         /// Disposes the object.
         /// </summary>
         public void Dispose()
@@ -99,57 +138,6 @@
                     this.EventSourceInternal.Dispose();
                 }
             }
-        }
-
-        /// <summary>
-        /// Keywords for the RichPayloadEventSource.
-        /// </summary>
-        public sealed class Keywords
-        {
-            /// <summary>
-            /// Keyword for requests.
-            /// </summary>
-            public const EventKeywords Requests = (EventKeywords)0x1;
-
-            /// <summary>
-            /// Keyword for traces.
-            /// </summary>
-            public const EventKeywords Traces = (EventKeywords)0x2;
-
-            /// <summary>
-            /// Keyword for events.
-            /// </summary>
-            public const EventKeywords Events = (EventKeywords)0x4;
-
-            /// <summary>
-            /// Keyword for exceptions.
-            /// </summary>
-            public const EventKeywords Exceptions = (EventKeywords)0x8;
-
-            /// <summary>
-            /// Keyword for dependencies.
-            /// </summary>
-            public const EventKeywords Dependencies = (EventKeywords)0x10;
-
-            /// <summary>
-            /// Keyword for metrics.
-            /// </summary>
-            public const EventKeywords Metrics = (EventKeywords)0x20;
-
-            /// <summary>
-            /// Keyword for page views.
-            /// </summary>
-            public const EventKeywords PageViews = (EventKeywords)0x40;
-
-            /// <summary>
-            /// Keyword for performance counters.
-            /// </summary>
-            public const EventKeywords PerformanceCounters = (EventKeywords)0x80;
-
-            /// <summary>
-            /// Keyword for session state.
-            /// </summary>
-            public const EventKeywords SessionState = (EventKeywords)0x100;
         }
     }
 }

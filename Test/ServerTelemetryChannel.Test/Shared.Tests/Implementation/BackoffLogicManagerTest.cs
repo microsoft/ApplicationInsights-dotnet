@@ -20,7 +20,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Microsoft.ApplicationInsights.Channel.Implementation;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     
     using Assert = Xunit.Assert;
@@ -185,7 +185,8 @@
             [TestMethod]
             public void ReportBackoffWriteDoesNotLogMessagesBeforeIntervalPasses()
             {
-                using (var listener = new TestEventListener())
+                // this test fails when run in parrallel with other tests
+                using (var listener = new TestEventListener(waitForDelayedEvents: false))
                 {
                     const long AllKeywords = -1;
                     listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Error, (EventKeywords)AllKeywords);
@@ -252,7 +253,8 @@
             [TestMethod]
             public void DisableDoesNotLogMessageIfEnabledWasNotCalled()
             {
-                using (var listener = new TestEventListener())
+                // this test may fail when other tests running in parrallel
+                using (var listener = new TestEventListener(waitForDelayedEvents: false))
                 {
                     const long AllKeywords = -1;
                     listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Error, (EventKeywords)AllKeywords);

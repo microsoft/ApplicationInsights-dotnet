@@ -14,8 +14,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\BackendResponseHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\DirectoryAccessDenier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\FileAccessDenier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubApplicationFolderProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubApplicationLifecycle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubPlatformFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubPlatformFolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmission.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\TelemetryBufferWhichDoesNothingOnFlush.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetrySerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionPolicy.cs" />

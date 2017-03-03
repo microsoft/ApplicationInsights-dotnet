@@ -37,7 +37,6 @@
             // Adding a dummy queue sender to keep the data to be sent to the portal before the initialize method is called
             this.Senders.Add(new PortalDiagnosticsQueueSender());
 
-            this.Senders.Add(new F5DiagnosticsSender());
             this.EventListener = new DiagnosticsListener(this.Senders);
         }
 

@@ -10,9 +10,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// <summary>
     /// The class that represents information about the collected dependency.
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
-        internal const string TelemetryName = "RemoteDependency";
+        internal new const string TelemetryName = "RemoteDependency";
 
         internal readonly string BaseType = typeof(RemoteDependencyData).Name;
 
@@ -198,7 +198,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         /// <summary>
         /// Gets a dictionary of application-defined event metrics.
         /// </summary>
-        public IDictionary<string, double> Metrics
+        public override IDictionary<string, double> Metrics
         {
             get { return this.InternalData.measurements; }
         }

@@ -223,7 +223,7 @@
             Assert.AreEqual(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Value, rulesCollection[0].IdentityReference.Value);
 
             Assert.IsFalse(rulesCollection[1].IsInherited);
-            Assert.AreEqual(WindowsIdentity.GetCurrent().Owner.Value, rulesCollection[1].IdentityReference.Value);
+            Assert.AreEqual(WindowsIdentity.GetCurrent().User.Value, rulesCollection[1].IdentityReference.Value);
 
             localAppData.Delete(true);
         }
@@ -252,7 +252,7 @@
             Assert.AreEqual(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Value, rulesCollection[0].IdentityReference.Value);
 
             Assert.IsFalse(rulesCollection[1].IsInherited);
-            Assert.AreEqual(WindowsIdentity.GetCurrent().Owner.Value, rulesCollection[1].IdentityReference.Value);
+            Assert.AreEqual(WindowsIdentity.GetCurrent().User.Value, rulesCollection[1].IdentityReference.Value);
 
             localAppData.Delete(true);
         }

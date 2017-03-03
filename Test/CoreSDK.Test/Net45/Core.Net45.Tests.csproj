@@ -57,9 +57,6 @@
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
       <Name>ApplicationInsightsTypes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestFramework\Net45\TestFramework.Net45.csproj">
-      <Name>TestFramework.Net45</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -68,6 +65,7 @@
     <Folder Include="Extensibility\Implementation\Tracing\" />
   </ItemGroup>
   <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Shared" />
+  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   <Import Project="..\Operation.CC.Shared.Tests\Operation.CC.Tests.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

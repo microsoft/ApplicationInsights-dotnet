@@ -8,10 +8,6 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
-#if CORE_PCL || NET45 || NET46
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
-
     internal class BackoffLogicManager : IDisposable
     {
         private const int SlotDelayInSeconds = 10;
@@ -24,7 +20,7 @@
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
 
-        private TaskTimer pauseTimer = new TaskTimer { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
         private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;

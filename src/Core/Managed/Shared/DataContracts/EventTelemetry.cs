@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry type used to track events.
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "Event";
          

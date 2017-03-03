@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -61,6 +62,72 @@
             telemetry.Stop();
             Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
             Assert.Equal(telemetry.Duration, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Tests the scenario if Stop computes the duration of the telemetry when timestamps are supplied to Start and Stop.
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryStopWithTimestampComputesDurationAfterStartWithTimestamp()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            long startTime = 123456789012345L;
+            long ticksInOneSecond = Stopwatch.Frequency;
+            long stopTime = startTime + ticksInOneSecond;
+
+            telemetry.Start(timestamp: startTime);
+            telemetry.Stop(timestamp: stopTime);
+
+            Assert.Equal(TimeSpan.FromSeconds(1), telemetry.Duration);
+        }
+
+        /// <summary>
+        /// Tests the sceanrio if Stop assigns the duration to zero when a timestamp is supplied by Start is not called.
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryStopWithTimestampAssignsDurationZeroWithoutStart()
+        {
+            var telemetry = new DependencyTelemetry();
+            telemetry.Stop(timestamp: 123456789012345L); // timestamp is ignored because Start was not called
+
+            Assert.Equal(TimeSpan.Zero, telemetry.Duration);
+        }
+
+        /// <summary>
+        /// Tests the sceanrio if durations can be recorded more precisely than 1ms
+        /// </summary>
+        [TestMethod]
+        public void OperationTelemetryCanRecordPreciseDurations()
+        {
+            var telemetry = new DependencyTelemetry();
+
+            long startTime = Stopwatch.GetTimestamp();
+            telemetry.Start(timestamp: startTime);
+
+            // Note: Do not use TimeSpan.FromSeconds because it rounds to the nearest millisecond.
+            var expectedDuration = TimeSpan.Parse("00:00:00.1234560");
+
+            // Ensure we choose a time that has a fractional (non-integral) number of milliseconds
+            Assert.NotEqual(Math.Round(expectedDuration.TotalMilliseconds), expectedDuration.TotalMilliseconds);
+
+            double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
+
+            long stopTime = (long)Math.Round(startTime + durationInStopwatchTicks);
+            telemetry.Stop(timestamp: stopTime);
+
+            if (Stopwatch.Frequency == TimeSpan.TicksPerSecond)
+            {
+                // In this case, the times should match exactly.
+                Assert.Equal(expectedDuration, telemetry.Duration);
+            }
+            else
+            {
+                // There will be a difference, but it should be less than
+                // 1 microsecond (10 ticks)
+                var difference = (telemetry.Duration - expectedDuration).Duration();
+                Assert.True(difference.Ticks < 10);
+            }
         }
     }
 }

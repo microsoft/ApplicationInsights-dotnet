@@ -6,7 +6,7 @@
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
     /// </summary>
-    internal class AsyncLocalBasedOperationHolder<T> : IOperationHolder<T>
+    internal class AsyncLocalBasedOperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
         /// <summary>
         /// Parent context store that is used to restore call context.
@@ -67,13 +67,13 @@
         {
             if (disposing && !this.isDisposed)
             {
-                // We need to compare the operation id and name of telemetry with opeartion id and name of current call context before tracking it 
+                // We need to compare the operation id and name of telemetry with operation id and name of current call context before tracking it 
                 // to make sure that the customer is tracking the right telemetry.
                 lock (this)
                 {
                     if (!this.isDisposed)
                     {
-                        var operationTelemetry = this.Telemetry as OperationTelemetry;
+                        var operationTelemetry = this.Telemetry;
 
                         var currentOperationContext = AsyncLocalHelpers.GetCurrentOperationContext();
                         if (operationTelemetry.Id != currentOperationContext.ParentOperationId ||
