@@ -8,6 +8,7 @@
 
 namespace FW45Shared
 {
+    using FW40Shared;
     using System;
     using System.IO;
     using System.Net;
@@ -51,7 +52,7 @@ namespace FW45Shared
         {
             for (int i = 0; i < count; i++)
             {
-                Uri ourUri = new Uri("http://www.zzkaodkoakdahdjghejajdnad.com");
+                Uri ourUri = new Uri(HttpHelper40.UrlWhichThrowException);
                 WebRequest wr = WebRequest.Create(ourUri);
                 var response = await wr.GetResponseAsync();
                 using (var stm = response.GetResponseStream())

@@ -89,6 +89,9 @@
                     case "failedhttp":
                         HttpHelper40.MakeHttpCallSyncFailed(count);
                         break;
+                    case "failedhttpinvaliddns":
+                        HttpHelper40.MakeHttpCallSyncFailed(count, true);
+                        break;
                     case "httpasync1":
                         HttpHelper40.MakeHttpCallAsync1(count, "bing");
                         break;
