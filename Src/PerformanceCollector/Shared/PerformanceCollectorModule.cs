@@ -232,6 +232,8 @@
         {
             try
             {
+                SdkInternalOperationsMonitor.Enter();
+
                 PerformanceCollectorEventSource.Log.CounterCollectionAttemptEvent();
 
                 var stopwatch = new Stopwatch();
@@ -274,6 +276,8 @@
                 {
                     this.timer.ScheduleNextTick(this.collectionPeriod);
                 }
+
+                SdkInternalOperationsMonitor.Exit();
             }
         }
 
