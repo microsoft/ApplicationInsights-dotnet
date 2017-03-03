@@ -64,13 +64,13 @@
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.)
         /// </summary>
-        public string AIProfileQueryEndpoint { get; set; }
+        public string ProfileQueryEndpoint { get; set; }
 
         internal string EffectiveProfileQueryEndpoint
         {
             get
             {
-                return string.IsNullOrEmpty(AIProfileQueryEndpoint) ? telemetryConfiguration.TelemetryChannel.EndpointAddress : AIProfileQueryEndpoint;
+                return string.IsNullOrEmpty(ProfileQueryEndpoint) ? telemetryConfiguration.TelemetryChannel.EndpointAddress : ProfileQueryEndpoint;
             }
         }
 

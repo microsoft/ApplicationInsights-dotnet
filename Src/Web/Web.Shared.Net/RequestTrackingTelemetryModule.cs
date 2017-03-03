@@ -51,13 +51,13 @@
         /// <summary>
         /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.)
         /// </summary>
-        public string AIProfileQueryEndpoint { get; set; }
+        public string ProfileQueryEndpoint { get; set; }
 
         internal string EffectiveProfileQueryEndpoint
         {
             get
             {
-                return string.IsNullOrEmpty(AIProfileQueryEndpoint) ? telemetryChannelEnpoint : AIProfileQueryEndpoint;
+                return string.IsNullOrEmpty(ProfileQueryEndpoint) ? telemetryChannelEnpoint : ProfileQueryEndpoint;
             }
         }
         

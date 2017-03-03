@@ -25,7 +25,7 @@
 
         private static ConcurrentDictionary<string, string> knownCorelationIds = new ConcurrentDictionary<string, string>();
 
-        private static Func<string, string, Task<string>> appIdProvider = FetchAppIdFromService;
+        private static Func<string, string, Task<string>> provideAppId = FetchAppIdFromService;
 
         /// <summary>
         /// This is a test hook. Use this to provide your own test implementation for fetching the appId.
@@ -33,7 +33,7 @@
         /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
         public static void OverrideAppIdProvider(Func<string, string, Task<string>> appIdProviderMethod)
         {
-            appIdProvider = appIdProviderMethod;
+            provideAppId = appIdProviderMethod;
         }
 
         /// <summary>
@@ -72,9 +72,13 @@
 
                 try
                 {
+                    // Todo: When this fails, say in the vortex endpoint case, ProfileQueryEndpont is not provided, it may perpetually keep failing.
+                    // We can possibly make it more robust by having an exponential backoff on making a call to prod endpoint. Or store failure and never query again.
+                    // Is that worth the effort?
+                    
                     // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the corelation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = appIdProvider(breezeEndpointAddress, instrumentationKey.ToLowerInvariant());
+                    Task<string> getAppIdTask = provideAppId(breezeEndpointAddress, instrumentationKey.ToLowerInvariant());
                     if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
                     {
                         GenerateCorelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
@@ -89,19 +93,20 @@
                             {
                                 GenerateCorelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch
+                            catch (AggregateException ae)
                             {
-                                // Todo: log exception
+                                CommonEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToString());
                             }
                         });
 
                         return false;
                     }
                 }
-                catch(AggregateException)
+                catch(AggregateException ae)
                 {
+                    CommonEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToString());
+
                     corelationId = string.Empty;
-                    // Todo: log aggregate exception
                     return false;
                 }
             }
@@ -120,18 +125,34 @@
         /// <returns>App id</returns>
         private static async Task<string> FetchAppIdFromService(string breezeEndpoint, string instrumentationKey)
         {
-            Uri getAppIdEndpoint = new Uri(new Uri(breezeEndpoint), string.Format(APPID_QUERY_API_RELATIVE_URI_FORMAT, instrumentationKey, CultureInfo.InvariantCulture));
+            Uri appIdEndpoint = GetAppIdEndPointUri(breezeEndpoint, instrumentationKey);
 
-            WebRequest request = WebRequest.Create(getAppIdEndpoint);
+            WebRequest request = WebRequest.Create(appIdEndpoint);
             request.Method = "GET";
 
-            using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
+            using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync().ConfigureAwait(false))
             {
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
                     return await reader.ReadToEndAsync();
                 }
             }
+        }
+
+        /// <summary>
+        /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the app id uri.
+        /// </summary>
+        /// <param name="breezeEndpoint">breeze / overridden endpoint uri</param>
+        /// <param name="instrumentationKey">AI resoure's instrumentation key</param>
+        /// <returns>Computed Uri</returns>
+        private static Uri GetAppIdEndPointUri(string breezeEndpoint, string instrumentationKey)
+        {
+            Uri endpointUri = new Uri(breezeEndpoint);
+
+            // Get the base URI, so that we can append the known relative segments to it.
+            breezeEndpoint = endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length);
+
+            return new Uri(new Uri(breezeEndpoint), string.Format(APPID_QUERY_API_RELATIVE_URI_FORMAT, instrumentationKey, CultureInfo.InvariantCulture));
         }
     }
 }
