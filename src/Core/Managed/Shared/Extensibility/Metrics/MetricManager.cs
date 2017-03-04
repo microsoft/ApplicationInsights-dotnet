@@ -164,7 +164,7 @@
         /// <param name="metric">Metric definition.</param>
         /// <param name="statistics">Metric aggregator statistics calculated for a period of time.</param>
         /// <returns>Metric telemetry object resulting from aggregation.</returns>
-        private static MetricTelemetry CreateAggergatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
+        private static MetricTelemetry CreateAggregatedMetricTelemetry(Metric metric, SimpleMetricStatisticsAggregator statistics)
         {
             var telemetry = new MetricTelemetry(
                 metric.Name,
@@ -246,14 +246,14 @@
                 {
                     if (aggregatorWithStats.Value.Count > 0)
                     { 
-                        MetricTelemetry aggergatedMetricTelemetry = CreateAggergatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
+                        MetricTelemetry aggregatedMetricTelemetry = CreateAggregatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
 
-                        aggergatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
+                        aggregatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
                         // set the timestamp back by aggregation period
-                        aggergatedMetricTelemetry.Timestamp = DateTimeOffset.Now - aggregationPeriod;
+                        aggregatedMetricTelemetry.Timestamp = DateTimeOffset.Now - aggregationPeriod;
 
-                        this.telemetryClient.Track(aggergatedMetricTelemetry);
+                        this.telemetryClient.Track(aggregatedMetricTelemetry);
                     }
                 }
             }
