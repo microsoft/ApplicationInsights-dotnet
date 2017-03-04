@@ -271,50 +271,7 @@
             module.OnEndRequest(context);
 
             Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
-        }
-
-        [TestMethod]
-        public void OnEndDoesNotAddSourceFieldForRequestForSameComponent()
-        {
-            string instrumentationKey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
-
-            // Here is the equivalent generated IKey Hash
-            string hashedIkey = "o05HMrc4Og8W1Jyy60JPDPxxQy3bOKyuaj6HudZHTjE=";
-
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-
-            var module = new RequestTrackingTelemetryModule();
-            var config = TelemetryConfiguration.CreateDefault();
-            config.InstrumentationKey = instrumentationKey;
-            module.Initialize(config);
-            module.OnBeginRequest(context);
-            module.OnEndRequest(context);
-
-            Assert.True(string.IsNullOrEmpty(context.GetRequestTelemetry().Source));
-        }
-
-        [TestMethod]
-        public void OnEndAddsSourceFieldForRequestWithSourceIkey()
-        {
-            string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
-
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, hashedIkey);
-
-            var context = HttpModuleHelper.GetFakeHttpContext(headers);
-
-            var module = new RequestTrackingTelemetryModule();
-            var config = TelemetryConfiguration.CreateDefault();
-            config.InstrumentationKey = Guid.NewGuid().ToString();
-            module.Initialize(config);
-            module.OnBeginRequest(context);
-            module.OnEndRequest(context);
-
-            Assert.Equal(hashedIkey, context.GetRequestTelemetry().Source);
-        }
+        }       
 
         internal class FakeHttpHandler : IHttpHandler
         {

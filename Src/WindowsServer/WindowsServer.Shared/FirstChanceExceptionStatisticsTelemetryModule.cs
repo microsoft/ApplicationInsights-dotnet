@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Runtime.ExceptionServices;
     using Extensibility.Implementation.Tracing;
     using Implementation;
@@ -177,8 +178,15 @@
                 var operation = fakeTelemetry.Context.Operation.Name;
 
                 // obtaining failing method name by walking 1 frame up the stack
-                var failingMethod = new StackFrame(1).GetMethod();
+                var frame = new StackFrame(1);
+                var failingMethod = frame.GetMethod();
                 var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
+
+                var offset = frame.GetILOffset();
+                if (offset != StackFrame.OFFSET_UNKNOWN)
+                {
+                    method += ": " + offset.ToString(CultureInfo.InvariantCulture);
+                }
 
                 bool wasTracked = this.WasExceptionTracked(exception);
 
@@ -208,7 +216,11 @@
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
             dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
 
-            if (!string.IsNullOrEmpty(operation))
+            if (SdkInternalOperationsMonitor.IsEntered())
+            {
+                dimensions.Add("operation", "AI (Internal)");
+            }
+            else if (!string.IsNullOrEmpty(operation))
             {
                 dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
             }

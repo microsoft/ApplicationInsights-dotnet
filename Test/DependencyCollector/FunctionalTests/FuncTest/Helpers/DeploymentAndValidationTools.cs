@@ -197,10 +197,16 @@ namespace FuncTest.Helpers
         public static void Validate(
             TelemetryItem<RemoteDependencyData> itemToValidate,
             TimeSpan accessTimeMax,
-            bool successFlagExpected)
+            bool successFlagExpected,
+            string resultCodeExpected = "DontCheck")
         {
             string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+
+            if (!resultCodeExpected.Equals("DontCheck"))
+            {
+                Assert.AreEqual(resultCodeExpected, itemToValidate.data.baseData.resultCode);
+            }
 
             // Validate is within expected limits
             var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration);

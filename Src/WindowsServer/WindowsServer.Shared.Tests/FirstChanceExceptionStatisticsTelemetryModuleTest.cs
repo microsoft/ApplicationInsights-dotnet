@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Runtime.ExceptionServices;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
@@ -115,7 +116,9 @@
             Assert.Equal(2, dims.Count);
 
             Assert.True(dims.Contains(new KeyValuePair<string, string>("type", typeof(Exception).FullName)));
-            Assert.True(dims.Contains(new KeyValuePair<string, string>("method", typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + ".FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException")));
+            string value;
+            Assert.True(dims.TryGetValue("method", out value));
+            Assert.True(value.StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
         }
 
         [TestMethod]
@@ -161,6 +164,51 @@
             Assert.Equal(3, dims.Count);
 
             Assert.True(dims.Contains(new KeyValuePair<string, string>("operation", "operationName")));
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleMarksOperationAsInternal()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                try
+                {
+                    SdkInternalOperationsMonitor.Enter();
+
+                    // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                    throw new Exception("test");
+                }
+                catch (Exception exc)
+                {
+                    // code to prevent profiler optimizations
+                    Assert.Equal("test", exc.Message);
+                }
+                finally
+                {
+                    SdkInternalOperationsMonitor.Exit();
+                }
+            }
+
+            Assert.Equal(1, metrics.Count);
+            Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
+
+            var dims = metrics[0].Key.Dimensions;
+            Assert.Equal(3, dims.Count);
+
+            string operationName;
+            Assert.True(dims.TryGetValue("operation", out operationName));
+            Assert.Equal("AI (Internal)", operationName);
         }
 
         [TestMethod]
@@ -293,10 +341,14 @@
             Assert.Equal(1, metrics[0].Value, 15);
             Assert.Equal(0, metrics[1].Value, 15);
 
-            Assert.Equal(1, this.items.Count);
+            Assert.Equal(2, this.items.Count);
 
-            Assert.Equal(2, ((MetricTelemetry)this.items[0]).Count);
-            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Sum, 15);
+            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Count);
+            Assert.Equal(1, ((MetricTelemetry)this.items[1]).Count);
+
+            // One of them should be 0 as re-thorwn, another - one
+            Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+            Assert.Equal(1, Math.Max(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
         }
 
         [TestMethod]

@@ -268,7 +268,7 @@
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
 
                 telemetry.Name = resourceName;
-                telemetry.Target = url.Host;
+                telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(url);
                 telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Data = url.OriginalString;
 

@@ -23,6 +23,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     {
         #region Fields
         private const string TestUrl = "http://www.microsoft.com/";
+        private const string TestUrlNonStandardPort = "http://www.microsoft.com:911/";
         private const int TimeAccuracyMilliseconds = 50;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;       
         private TelemetryConfiguration configuration;
@@ -205,6 +206,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var actual = this.sendItems[0] as DependencyTelemetry;
 
             Assert.IsFalse(actual.Success.Value);
+        }
+
+        [TestMethod]
+        public void HttpProcessorSetsTargetForNonStandardPort()
+        {
+            Uri testUrl = new Uri(TestUrlNonStandardPort);
+            this.httpProcessingFramework.OnBeginHttpCallback(100, TestUrlNonStandardPort);
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, 500);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Exactly one telemetry item should be sent");
+            DependencyTelemetry receivedItem = (DependencyTelemetry)this.sendItems[0];
+            string expectedTarget = testUrl.Host + ":" + testUrl.Port;
+            Assert.AreEqual(expectedTarget, receivedItem.Target, "HttpProcessingFramework returned incorrect target for non standard port.");
         }
 
         #endregion //BeginEndCallBacks

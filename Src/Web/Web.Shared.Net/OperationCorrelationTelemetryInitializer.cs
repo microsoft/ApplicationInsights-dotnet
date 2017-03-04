@@ -43,13 +43,14 @@
             ITelemetry telemetry)
         {
             OperationContext parentContext = requestTelemetry.Context.Operation;
+            HttpRequest currentRequest = platformContext.Request;
 
             // Make sure that RequestTelemetry is initialized.
             if (string.IsNullOrEmpty(parentContext.ParentId))
             {
                 if (!string.IsNullOrWhiteSpace(this.ParentOperationIdHeaderName))
                 {
-                    var parentId = platformContext.Request.UnvalidatedGetHeader(this.ParentOperationIdHeaderName);
+                    var parentId = currentRequest.UnvalidatedGetHeader(this.ParentOperationIdHeaderName);
                     if (!string.IsNullOrEmpty(parentId))
                     {
                         parentContext.ParentId = parentId;
@@ -61,7 +62,7 @@
             {
                 if (!string.IsNullOrWhiteSpace(this.RootOperationIdHeaderName))
                 {
-                    var rootId = platformContext.Request.UnvalidatedGetHeader(this.RootOperationIdHeaderName);
+                    var rootId = currentRequest.UnvalidatedGetHeader(this.RootOperationIdHeaderName);
                     if (!string.IsNullOrEmpty(rootId))
                     {
                         parentContext.Id = rootId;
@@ -84,6 +85,21 @@
                 if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
                 {
                     telemetry.Context.Operation.Id = parentContext.Id;
+                }
+            }
+            
+            if (string.IsNullOrEmpty(requestTelemetry.Source) && currentRequest.Headers != null)
+            {
+                string sourceIkey = currentRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+
+                // If the source header is present on the incoming request,
+                // and it is an external component (not the same ikey as the one used by the current component),
+                // then populate the source field.
+                if (!string.IsNullOrEmpty(sourceIkey)
+                    && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)                    
+                    && sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey))
+                {
+                    requestTelemetry.Source = sourceIkey;
                 }
             }
         }
