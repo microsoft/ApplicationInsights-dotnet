@@ -2,6 +2,7 @@
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Collections.Generic;
 
 namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
@@ -9,9 +10,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
     {
         private const string Version = "1.0";
 
-        private Metric _requestsMetric;
-        private Metric _requestsFailutesMetric;
-        private Metric _responseTimeMetric;
+        private Metric responseSuccessTimeMetric;
+        private Metric responseFailureTimeMetric;
 
         public RequestMetricExtractor(ITelemetryProcessor nextProcessorInPipeline)
             :base(nextProcessorInPipeline, MetricTerms.Autocollection.Moniker.Key, MetricTerms.Autocollection.Moniker.Value)
@@ -20,27 +20,42 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
         protected override string ExtractorVersion { get { return Version; } }
 
-        public override void Initialize(TelemetryConfiguration configuration)
+        public override void InitializeExtractor(TelemetryConfiguration configuration)
         {
-            _requestsMetric         = MetricManager.CreateMetric(MetricTerms.Autocollection.MetricNames.Requests.Count);
-            _requestsFailutesMetric = MetricManager.CreateMetric(MetricTerms.Autocollection.MetricNames.Requests.Failures);
-            _responseTimeMetric     = MetricManager.CreateMetric(MetricTerms.Autocollection.MetricNames.Requests.ResponseTime);
+            this.responseSuccessTimeMetric = MetricManager.CreateMetric(MetricTerms.Autocollection.MetricNames.Request.Duration,
+                                                                        new Dictionary<string, string>() {
+                                                                            [MetricTerms.Autocollection.Request.PropertyName.Success] = Boolean.TrueString,
+                                                                        });
+
+            this.responseFailureTimeMetric = MetricManager.CreateMetric(MetricTerms.Autocollection.MetricNames.Request.Duration,
+                                                                        new Dictionary<string, string>() {
+                                                                            [MetricTerms.Autocollection.Request.PropertyName.Success] = Boolean.FalseString,
+                                                                        });
         }
 
-        public override void Process(ITelemetry item)
+        public override void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)
         {
-            RequestTelemetry request = item as RequestTelemetry;
+            RequestTelemetry request = fromItem as RequestTelemetry;
             if (request == null)
             {
+                isItemProcessed = false;
                 return;
             }
 
-            _requestsMetric.Track(1.0);
-
             bool isFailed = (request.Success != null) && (request.Success == false);
-            _requestsFailutesMetric.Track(isFailed ? 1.0 : 0.0);
+            Metric metric = isFailed
+                                ? this.responseFailureTimeMetric
+                                : this.responseSuccessTimeMetric;
 
-            _responseTimeMetric.Track(request.Duration.TotalMilliseconds);
+            if (metric != null)
+            {
+                isItemProcessed = true;
+                metric.Track(request.Duration.TotalMilliseconds);
+            }
+            else
+            {
+                isItemProcessed = false;
+            }
         }
     }
 }

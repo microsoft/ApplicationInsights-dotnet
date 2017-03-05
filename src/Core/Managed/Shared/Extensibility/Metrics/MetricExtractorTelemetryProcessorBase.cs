@@ -66,7 +66,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             }
         }
 
-        void ITelemetryModule.Initialize(TelemetryConfiguration configuration)
+        public void Initialize(TelemetryConfiguration configuration)
         {
             TelemetryClient telemetryClient = (configuration == null)
                                                     ? new TelemetryClient()
@@ -78,10 +78,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             
             _metricManager = new MetricManager(telemetryClient);
 
-            Initialize(configuration);
+            InitializeExtractor(configuration);
         }
 
-        void ITelemetryProcessor.Process(ITelemetry item)
+        public void Process(ITelemetry item)
         {
             if (item == null)
             {
@@ -91,12 +91,16 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
             try
             {
-                Process(item);
-                AddExtractorInfo(item);
+                bool isItemProcessed;
+                ExtractMetrics(item, out isItemProcessed);
+
+                if (isItemProcessed)
+                {
+                    AddExtractorInfo(item);
+                }
             }
             catch(Exception ex)
             {
-                // Is this te right way to log erroes here?
                 CoreEventSource.Log.LogError("Error in Metric Extractor: " + ex.ToString());
             }
 
@@ -158,7 +162,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
         }
 
         protected abstract string ExtractorVersion { get; }
-        public abstract void Initialize(TelemetryConfiguration configuration);
-        public abstract void Process(ITelemetry item);
+        public abstract void InitializeExtractor(TelemetryConfiguration configuration);
+        public abstract void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed);
     }
 }

@@ -7,7 +7,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
         private const string MetricPropertiesNamePrefix = "Microsoft.ApplicationInsights.Metrics";
         public static class Extraction
         {
-            //Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected
             public static class ConsideredByProcessors
             {
                 public static class Moniker
@@ -28,19 +27,36 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
             public static class MetricNames
             {
-                private const string PreviewLabel = " (Preview)";
-
-                public static class Requests
+                public static class Request
                 {
-                    public const string Count = "Requests" + PreviewLabel;
-                    public const string Failures = "Request Failures" + PreviewLabel;
-                    public const string ResponseTime = "Response Time" + PreviewLabel;
+                    public const string Duration = "Server response time";
                 }
 
-                public static class DependencyCalls
+                public static class DependencyCall
                 {
-                    public const string Duration = "Dependency Calls Duration" + PreviewLabel;
-                    public const string Failures = "Dependency Calls Failures" + PreviewLabel;
+                    public const string Duration = "Dependency duration";
+                }
+            }
+
+            public static class Request
+            {
+                public static class PropertyName
+                {
+                    public const string Success = "Success";
+                }
+            }
+
+            public static class DependencyCall
+            {
+                public static class PropertyName
+                {
+                    public const string Success = "Success";
+                    public const string TypeName = "Type";
+                }
+
+                public static class TypeName
+                {
+                    public const string Other = "Other";
                 }
             }
         }
