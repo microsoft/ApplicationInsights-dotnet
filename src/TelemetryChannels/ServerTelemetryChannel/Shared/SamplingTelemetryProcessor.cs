@@ -23,7 +23,7 @@
         private const string RequestTelemetryName = "Request";
         private const string TraceTelemetryName = "Trace";
 
-        private const string SamplingRateMetricName = "Sampling Rate (Preview)";
+        private const string SamplingRateMetricName = "Sampling rate";
 
         private const string MetricAutocollectionMonikerKey = "Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected";
         private const string MetricAutocollectionMonikerValue = "True";
@@ -195,7 +195,7 @@
             }
 
             // If telemetry was excuded by type, do nothing (logging sampling rate does not apply):
-            if (IsSamplingApplicable(item.GetType()))
+            if (! IsSamplingApplicable(item.GetType()))
             {
                 if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
                 {
