@@ -21,17 +21,13 @@
     [TestClass]
     public class RequestTrackingTelemetryModuleTest
     {
-        [TestInitialize]
-        public void TestInitialize()
+        private CorrelationIdLookupHelper correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
         {
-            CorrelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
-
-                // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
-            });
-        }
+            // Pretend App Id is the same as Ikey
+            var tcs = new TaskCompletionSource<string>();
+            tcs.SetResult(ikey);
+            return tcs.Task;
+        });
 
         [TestMethod]
         public void OnBeginRequestDoesNotSetTimeIfItWasAssignedBefore()
@@ -42,7 +38,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Timestamp = startTime;
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
 
@@ -56,7 +52,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Timestamp = default(DateTimeOffset);
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
 
@@ -69,7 +65,7 @@
             var context = HttpModuleHelper.GetFakeHttpContext();
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
 
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
@@ -82,7 +78,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
             
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
             module.OnEndRequest(context);
@@ -95,7 +91,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnEndRequest(context);
 
@@ -107,7 +103,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnEndRequest(context);
 
@@ -120,7 +116,7 @@
             var context = HttpModuleHelper.GetFakeHttpContext();
             context.Response.StatusCode = 300;
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
 
             module.OnBeginRequest(context);
@@ -137,7 +133,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
             var requestTelemetry = context.GetRequestTelemetry();
@@ -154,7 +150,7 @@
             var context = HttpModuleHelper.GetFakeHttpContext();
             context.Response.StatusCode = 401;
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
             module.OnEndRequest(context);
@@ -167,7 +163,7 @@
         {
             var context = HttpModuleHelper.GetFakeHttpContext();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
             module.OnEndRequest(context);
@@ -175,6 +171,7 @@
             Assert.Equal(context.Request.Url, context.GetRequestTelemetry().Url);
         }
 
+        [TestMethod]
         public void OnEndTracksRequest()
         {
             var sendItems = new List<ITelemetry>();
@@ -185,7 +182,7 @@
                 TelemetryChannel = stubTelemetryChannel
             };
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(configuration);
             module.OnBeginRequest(null);
             module.OnEndRequest(null);
@@ -203,7 +200,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Start();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Handlers.Add("System.Web.Handlers.AssemblyResourceLoader");
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
@@ -221,7 +218,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Start();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
 
@@ -238,7 +235,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Start();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Handlers.Add("Microsoft.ApplicationInsights.Web.RequestTrackingTelemetryModuleTest+FakeHttpHandler");
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
@@ -256,7 +253,7 @@
             var requestTelemetry = context.CreateRequestTelemetryPrivate();
             requestTelemetry.Start();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var configuration = TelemetryConfiguration.CreateDefault();
             module.Initialize(configuration);
 
@@ -266,7 +263,7 @@
         [TestMethod]
         public void NeedProcessRequestReturnsFalseOnNullHttpContext()
         {
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             {
                 Assert.False(module.NeedProcessRequest(null));
             }
@@ -279,7 +276,7 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext();
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             module.Initialize(TelemetryConfiguration.CreateDefault());
             module.OnBeginRequest(context);
             module.OnEndRequest(context);
@@ -300,7 +297,7 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var config = TelemetryConfiguration.CreateDefault();
             config.InstrumentationKey = ikey;
 
@@ -324,7 +321,7 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var config = TelemetryConfiguration.CreateDefault();
 
             // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
@@ -348,7 +345,7 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var config = TelemetryConfiguration.CreateDefault();
             config.InstrumentationKey = Guid.NewGuid().ToString();
 
@@ -374,7 +371,7 @@
             
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = new RequestTrackingTelemetryModule();
+            var module = RequestTrackingTelemetryModuleFactory();
             var config = TelemetryConfiguration.CreateDefault();
             config.InstrumentationKey = Guid.NewGuid().ToString();
 
@@ -387,6 +384,14 @@
 
             // VALIDATE
             Assert.Equal(appIdInSourceField, context.GetRequestTelemetry().Source);
+        }
+
+        private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory()
+        {
+            var module = RequestTrackingTelemetryModuleFactory();
+            module.OverrideCorrelationIdLookupHelper(this.correlationIdLookupHelper);
+
+            return module;
         }
 
         internal class FakeHttpHandler : IHttpHandler

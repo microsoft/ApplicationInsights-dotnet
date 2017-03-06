@@ -26,7 +26,7 @@
         private TelemetryClient telemetryClient;
         private ICollection<string> correlationDomainExclusionList;
         private bool setCorrelationHeaders;
-        private string appIdEndpoint;
+        CorrelationIdLookupHelper correlationIdLookupHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
@@ -53,7 +53,7 @@
             this.telemetryClient = new TelemetryClient(configuration);
             this.correlationDomainExclusionList = correlationDomainExclusionList;
             this.setCorrelationHeaders = setCorrelationHeaders;
-            this.appIdEndpoint = appIdEndpoint;
+            this.correlationIdLookupHelper = new CorrelationIdLookupHelper(appIdEndpoint);
 
             // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
             // For directly using TrackDependency(), version will be simply what is set by core
@@ -63,6 +63,15 @@
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
             }
+        }
+
+        /// <summary>
+        /// Simple test hook, that allows for using a stub rather than the implemenation that calls the original service.
+        /// </summary>
+        /// <param name="correlationIdLookupHelper"></param>
+        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
+        {
+            this.correlationIdLookupHelper = correlationIdLookupHelper;
         }
 
 #region Http callbacks
@@ -291,7 +300,7 @@
                         && webRequest.Headers[RequestResponseHeaders.SourceAppIdHeader] == null)
                     {
                         string appId;
-                        if (CorrelationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, appIdEndpoint, out appId))
+                        if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.SourceAppIdHeader, appId);
                         }
@@ -394,7 +403,7 @@
                                 var targetAppId = responseObj.Headers[RequestResponseHeaders.TargetAppIdHeader];
 
                                 string myAppId;
-                                if (CorrelationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, this.appIdEndpoint, out myAppId))
+                                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out myAppId))
                                 {
                                     // We only add the cross component correlation key if the key does not remain the current component.
                                     if (!string.IsNullOrEmpty(targetAppId) && targetAppId != myAppId)

@@ -50,13 +50,6 @@
         public void TestInitialize()
         {
             this.Initialize(Guid.NewGuid().ToString());
-            CorrelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
-
-                // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
-            });
         }
 
         [TestCleanup]
@@ -860,6 +853,16 @@
                 true /*setCorrelationHeaders*/,
                 new List<string>(),
                 RANDOM_APP_ID_ENDPOINT);
+
+            var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
+            {
+                // Pretend App Id is the same as Ikey
+                var tcs = new TaskCompletionSource<string>();
+                tcs.SetResult(ikey);
+                return tcs.Task;
+            });
+
+            this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
             this.ex = new Exception();
         }
         #endregion Helpers

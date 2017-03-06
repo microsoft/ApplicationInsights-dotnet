@@ -6,11 +6,11 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
-
+    using Extensibility.Implementation.Tracing;
     /// <summary>
     /// A store for instrumentation App Ids. This makes sure we don't query the public endpoint to find an app Id for the same Ikey more than once.
     /// </summary>
-    internal static class CorrelationIdLookupHelper
+    internal class CorrelationIdLookupHelper
     {
         /// <summary>
         /// Max number of app ids to cache.
@@ -23,31 +23,58 @@
 
         private const string APPID_QUERY_API_RELATIVE_URI_FORMAT = "api/profiles/{0}/appId";
 
-        private static ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+        private Uri endpointAddress;
 
-        private static Func<string, string, Task<string>> provideAppId = FetchAppIdFromService;
+        private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+
+        private Func<string, Task<string>> provideAppId;
 
         /// <summary>
-        /// This is a test hook. Use this to provide your own test implementation for fetching the appId.
+        /// This constructor is mostly used by the test classes to provide an override for fetching appId logic
         /// </summary>
         /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
-        public static void OverrideAppIdProvider(Func<string, string, Task<string>> appIdProviderMethod)
+        public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod)
         {
-            provideAppId = appIdProviderMethod;
+            if (appIdProviderMethod == null)
+            {
+                throw new ArgumentNullException(nameof(appIdProviderMethod));
+            }
+
+            this.provideAppId = appIdProviderMethod;
+        }
+
+        /// <summary>
+        /// The constructor
+        /// </summary>
+        /// <param name="endpointAddress">Endpoint that is to be used to fetch appId</param>
+        public CorrelationIdLookupHelper(string endpointAddress)
+        {
+            if (string.IsNullOrEmpty(endpointAddress))
+            {
+                throw new ArgumentNullException(nameof(endpointAddress));
+            }
+
+            Uri endpointUri = new Uri(endpointAddress);
+
+            // Get the base URI, so that we can append the known relative segments to it.
+            this.endpointAddress = new Uri (endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
+
+            this.provideAppId = FetchAppIdFromService;
         }
 
         /// <summary>
         /// Retrieves the correlation id corresponding to a given instrumentation key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation key string.</param>
-        /// <param name="breezeEndpointAddress">Breeze endpoint to query against.</param>
         /// <param name="correlationId">AppId corresponding to the provided instrumentation key</param>
         /// <returns>true if correlationId was successfully retrieved; false otherwise.</returns>
-        public static bool TryGetXComponentCorrelationId(string instrumentationKey, string breezeEndpointAddress, out string correlationId)
+        public bool TryGetXComponentCorrelationId(string instrumentationKey, out string correlationId)
         {
             if (string.IsNullOrEmpty(instrumentationKey))
             {
-                throw new ArgumentNullException("instrumentationKey");
+                // This method cannot throw - it's a Try... method. We cannot proceed any further.
+                correlationId = string.Empty;
+                return false;
             }
 
             var found = knownCorrelationIds.TryGetValue(instrumentationKey, out correlationId);
@@ -58,11 +85,6 @@
             }
             else
             {
-
-                if (breezeEndpointAddress == null)
-                {
-                    throw new ArgumentNullException("breezeEndpointAddress");
-                }
 
                 // Simplistic cleanup to guard against this becoming a memory hog.
                 if (knownCorrelationIds.Keys.Count >= MAXSIZE)
@@ -78,7 +100,7 @@
                     
                     // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = provideAppId(breezeEndpointAddress, instrumentationKey.ToLowerInvariant());
+                    Task<string> getAppIdTask = provideAppId(instrumentationKey.ToLowerInvariant());
                     if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
                     {
                         GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
@@ -95,7 +117,7 @@
                             }
                             catch (AggregateException ae)
                             {
-                                CommonEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToString());
+                                CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToInvariantString());
                             }
                         });
 
@@ -104,7 +126,7 @@
                 }
                 catch(AggregateException ae)
                 {
-                    CommonEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToString());
+                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToInvariantString());
 
                     correlationId = string.Empty;
                     return false;
@@ -112,7 +134,7 @@
             }
         }
 
-        private static void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
+        private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
             knownCorrelationIds[ikey] = string.Format(CORRELATION_ID_FORMAT, appId, CultureInfo.InvariantCulture);
         }
@@ -120,12 +142,11 @@
         /// <summary>
         /// Retrieves the app id given the instrumentation key
         /// </summary>
-        /// <param name="breezeEndpoint">Endpoint to fetch the app Id from.</param>
         /// <param name="instrumentationKey">Instrumentation key for which app id is to be retrieved.</param>
         /// <returns>App id</returns>
-        private static async Task<string> FetchAppIdFromService(string breezeEndpoint, string instrumentationKey)
+        private async Task<string> FetchAppIdFromService(string instrumentationKey)
         {
-            Uri appIdEndpoint = GetAppIdEndPointUri(breezeEndpoint, instrumentationKey);
+            Uri appIdEndpoint = GetAppIdEndPointUri(instrumentationKey);
 
             WebRequest request = WebRequest.Create(appIdEndpoint);
             request.Method = "GET";
@@ -142,17 +163,11 @@
         /// <summary>
         /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the app id uri.
         /// </summary>
-        /// <param name="breezeEndpoint">breeze / overridden endpoint uri</param>
         /// <param name="instrumentationKey">AI resoure's instrumentation key</param>
         /// <returns>Computed Uri</returns>
-        private static Uri GetAppIdEndPointUri(string breezeEndpoint, string instrumentationKey)
+        private Uri GetAppIdEndPointUri(string instrumentationKey)
         {
-            Uri endpointUri = new Uri(breezeEndpoint);
-
-            // Get the base URI, so that we can append the known relative segments to it.
-            breezeEndpoint = endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length);
-
-            return new Uri(new Uri(breezeEndpoint), string.Format(APPID_QUERY_API_RELATIVE_URI_FORMAT, instrumentationKey, CultureInfo.InvariantCulture));
+            return new Uri(this.endpointAddress, string.Format(APPID_QUERY_API_RELATIVE_URI_FORMAT, instrumentationKey, CultureInfo.InvariantCulture));
         }
     }
 }

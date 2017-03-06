@@ -14,11 +14,11 @@
     /// ETW EventSource tracing class.
     /// </summary>
     [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Common")]
-    internal sealed class CommonEventSource : EventSource
+    internal sealed class CrossComponentCorrelationEventSource : EventSource
     {
-        public static readonly CommonEventSource Log = new CommonEventSource();
+        public static readonly CrossComponentCorrelationEventSource Log = new CrossComponentCorrelationEventSource();
 
-        private CommonEventSource()
+        private CrossComponentCorrelationEventSource()
         {
             this.ApplicationName = this.GetApplicationName();
         }
@@ -52,7 +52,7 @@
         }
 
         /// <summary>
-        /// Keywords for the <see cref="CommonEventSource"/>.
+        /// Keywords for the <see cref="CrossComponentCorrelationEventSource"/>.
         /// </summary>
         public sealed class Keywords
         {
