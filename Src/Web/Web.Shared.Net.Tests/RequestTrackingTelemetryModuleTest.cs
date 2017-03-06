@@ -24,7 +24,7 @@
         [TestInitialize]
         public void TestInitialize()
         {
-            CorelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
+            CorrelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
 
                 // Pretend App Id is the same as Ikey
                 var tcs = new TaskCompletionSource<string>();
@@ -292,7 +292,7 @@
         {
             // ARRANGE
             string ikey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
-            string appIdHeader = GetCorelationIdHeaderValue(ikey); // since per our mock appId = ikey
+            string appIdHeader = GetCorrelationIdHeaderValue(ikey); // since per our mock appId = ikey
 
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
@@ -320,7 +320,7 @@
             string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.SourceAppIdHeader, GetCorelationIdHeaderValue(appId));
+            headers.Add(RequestResponseHeaders.SourceAppIdHeader, GetCorrelationIdHeaderValue(appId));
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
@@ -336,7 +336,7 @@
             module.OnEndRequest(context);
 
             // VALIDATE
-            Assert.Equal(GetCorelationIdHeaderValue(appId), context.GetRequestTelemetry().Source);
+            Assert.Equal(GetCorrelationIdHeaderValue(appId), context.GetRequestTelemetry().Source);
         }
 
         [TestMethod]
@@ -365,7 +365,7 @@
         public void OnEndDoesNotOverrideSourceField()
         {
             // ARRANGE                       
-            string appIdInHeader = GetCorelationIdHeaderValue("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
+            string appIdInHeader = GetCorrelationIdHeaderValue("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
             string appIdInSourceField = "9AB8EDCB-21D2-44BB-A64A-C33BB4515F20";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
@@ -401,7 +401,7 @@
             }
         }
 
-        private string GetCorelationIdHeaderValue(string appId)
+        private string GetCorrelationIdHeaderValue(string appId)
         {
             return string.Format("aid-v1:{0}", appId, CultureInfo.InvariantCulture);
         }

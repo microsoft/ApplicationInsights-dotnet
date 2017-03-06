@@ -50,7 +50,7 @@
         public void TestInitialize()
         {
             this.Initialize(Guid.NewGuid().ToString());
-            CorelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
+            CorrelationIdLookupHelper.OverrideAppIdProvider((string endpoint, string ikey) => {
 
                 // Pretend App Id is the same as Ikey
                 var tcs = new TaskCompletionSource<string>();
@@ -107,10 +107,10 @@
         }
 
         /// <summary>
-        /// Validates if DependencyTelemetry sent contains the cross component corelation ID.
+        /// Validates if DependencyTelemetry sent contains the cross component correlation ID.
         /// </summary>
         [TestMethod]
-        [Description("Validates if DependencyTelemetry sent contains the cross component corelation ID.")]
+        [Description("Validates if DependencyTelemetry sent contains the cross component correlation ID.")]
         public void RddTestHttpProcessingProfilerOnEndAddsAppIdToTargetField()
         {
             // Here is a sample App ID, since the test initialize method adds a random ikey and our mock getAppId method pretends that the appId for a given ikey is the same as the ikey.
@@ -120,14 +120,14 @@
             this.SimulateWebRequestResponseWithAppId(appId);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            Assert.AreEqual(this.testUrl.Host + " | " + GetCorelationIdHeaderValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
+            Assert.AreEqual(this.testUrl.Host + " | " + GetCorrelationIdHeaderValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
         /// <summary>
-        /// Validates that DependencyTelemetry sent does not contains the cross component corelation id when the caller and callee are the same component.
+        /// Validates that DependencyTelemetry sent does not contains the cross component correlation id when the caller and callee are the same component.
         /// </summary>
         [TestMethod]
-        [Description("Validates DependencyTelemetry does not send corelation ID if the IKey is from the same component")]
+        [Description("Validates DependencyTelemetry does not send correlation ID if the IKey is from the same component")]
         public void RddTestHttpProcessingProfilerOnEndDoesNotAddAppIdToTargetFieldForInternalComponents()
         {
             string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
@@ -139,7 +139,7 @@
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
 
-            // As opposed to this.testUrl.Host + " | " + corelationId
+            // As opposed to this.testUrl.Host + " | " + correlationId
             Assert.AreEqual(this.testUrl.Host, ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
@@ -834,7 +834,7 @@
             var request = WebRequest.Create(this.testUrl);
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.TargetAppIdHeader, GetCorelationIdHeaderValue(appId));
+            headers.Add(RequestResponseHeaders.TargetAppIdHeader, GetCorrelationIdHeaderValue(appId));
 
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
 
@@ -842,7 +842,7 @@
             var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
         }
 
-        private string GetCorelationIdHeaderValue(string appId)
+        private string GetCorrelationIdHeaderValue(string appId)
         {
             return string.Format("aid-v1:{0}", appId, CultureInfo.InvariantCulture);
         }

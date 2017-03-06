@@ -11,6 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CommonEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CorelationIdLookupHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelper.cs" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@
     /// <summary>
     /// A store for instrumentation App Ids. This makes sure we don't query the public endpoint to find an app Id for the same Ikey more than once.
     /// </summary>
-    internal static class CorelationIdLookupHelper
+    internal static class CorrelationIdLookupHelper
     {
         /// <summary>
         /// Max number of app ids to cache.
@@ -19,11 +19,11 @@
 
         private const int GET_APP_ID_TIMEOUT = 2000; // milliseconds
 
-        private const string CORELATION_ID_FORMAT = "aid-v1:{0}";
+        private const string CORRELATION_ID_FORMAT = "aid-v1:{0}";
 
         private const string APPID_QUERY_API_RELATIVE_URI_FORMAT = "api/profiles/{0}/appId";
 
-        private static ConcurrentDictionary<string, string> knownCorelationIds = new ConcurrentDictionary<string, string>();
+        private static ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
 
         private static Func<string, string, Task<string>> provideAppId = FetchAppIdFromService;
 
@@ -37,20 +37,20 @@
         }
 
         /// <summary>
-        /// Retrieves the corelation id corresponding to a given instrumentation key.
+        /// Retrieves the correlation id corresponding to a given instrumentation key.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation key string.</param>
         /// <param name="breezeEndpointAddress">Breeze endpoint to query against.</param>
-        /// <param name="corelationId">AppId corresponding to the provided instrumentation key</param>
+        /// <param name="correlationId">AppId corresponding to the provided instrumentation key</param>
         /// <returns>true if correlationId was successfully retrieved; false otherwise.</returns>
-        public static bool TryGetXComponentCorelationId(string instrumentationKey, string breezeEndpointAddress, out string corelationId)
+        public static bool TryGetXComponentCorrelationId(string instrumentationKey, string breezeEndpointAddress, out string correlationId)
         {
             if (string.IsNullOrEmpty(instrumentationKey))
             {
                 throw new ArgumentNullException("instrumentationKey");
             }
 
-            var found = knownCorelationIds.TryGetValue(instrumentationKey, out corelationId);
+            var found = knownCorrelationIds.TryGetValue(instrumentationKey, out correlationId);
 
             if (found)
             {
@@ -65,9 +65,9 @@
                 }
 
                 // Simplistic cleanup to guard against this becoming a memory hog.
-                if (knownCorelationIds.Keys.Count >= MAXSIZE)
+                if (knownCorrelationIds.Keys.Count >= MAXSIZE)
                 {
-                    knownCorelationIds.Clear();
+                    knownCorrelationIds.Clear();
                 }
 
                 try
@@ -76,13 +76,13 @@
                     // We can possibly make it more robust by having an exponential backoff on making a call to prod endpoint. Or store failure and never query again.
                     // Is that worth the effort?
                     
-                    // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the corelation id.
+                    // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
                     Task<string> getAppIdTask = provideAppId(breezeEndpointAddress, instrumentationKey.ToLowerInvariant());
                     if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
                     {
-                        GenerateCorelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
-                        corelationId = knownCorelationIds[instrumentationKey];
+                        GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                        correlationId = knownCorrelationIds[instrumentationKey];
                         return true;
                     }
                     else
@@ -91,7 +91,7 @@
                         {
                             try
                             {
-                                GenerateCorelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                                GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
                             catch (AggregateException ae)
                             {
@@ -106,15 +106,15 @@
                 {
                     CommonEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToString());
 
-                    corelationId = string.Empty;
+                    correlationId = string.Empty;
                     return false;
                 }
             }
         }
 
-        private static void GenerateCorelationIdAndAddToDictionary(string ikey, string appId)
+        private static void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            knownCorelationIds[ikey] = string.Format(CORELATION_ID_FORMAT, appId, CultureInfo.InvariantCulture);
+            knownCorrelationIds[ikey] = string.Format(CORRELATION_ID_FORMAT, appId, CultureInfo.InvariantCulture);
         }
 
         /// <summary>

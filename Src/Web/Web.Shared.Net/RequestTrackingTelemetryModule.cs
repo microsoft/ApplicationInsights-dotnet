@@ -131,7 +131,7 @@
                 bool foundMyAppId = false;
                 if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
                 {
-                    foundMyAppId = CorelationIdLookupHelper.TryGetXComponentCorelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out myAppId);
+                    foundMyAppId = CorrelationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out myAppId);
                 }
 
                 // If the source header is present on the incoming request,
@@ -172,7 +172,7 @@
             {
                 string appId;
 
-                if (CorelationIdLookupHelper.TryGetXComponentCorelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out appId))
+                if (CorrelationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, EffectiveProfileQueryEndpoint, out appId))
                 {
                     context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] = appId;
                 }

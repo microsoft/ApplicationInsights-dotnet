@@ -291,7 +291,7 @@
                         && webRequest.Headers[RequestResponseHeaders.SourceAppIdHeader] == null)
                     {
                         string appId;
-                        if (CorelationIdLookupHelper.TryGetXComponentCorelationId(telemetry.Context.InstrumentationKey, appIdEndpoint, out appId))
+                        if (CorrelationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, appIdEndpoint, out appId))
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.SourceAppIdHeader, appId);
                         }
@@ -394,7 +394,7 @@
                                 var targetAppId = responseObj.Headers[RequestResponseHeaders.TargetAppIdHeader];
 
                                 string myAppId;
-                                if (CorelationIdLookupHelper.TryGetXComponentCorelationId(telemetry.Context.InstrumentationKey, this.appIdEndpoint, out myAppId))
+                                if (CorrelationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, this.appIdEndpoint, out myAppId))
                                 {
                                     // We only add the cross component correlation key if the key does not remain the current component.
                                     if (!string.IsNullOrEmpty(targetAppId) && targetAppId != myAppId)
