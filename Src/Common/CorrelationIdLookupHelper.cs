@@ -17,7 +17,10 @@
         /// </summary>
         private const int MAXSIZE = 100;
 
-        private const int GET_APP_ID_TIMEOUT = 2000; // milliseconds
+        // For now we have decided to go with not waiting to retrieve the app Id, instead we just cache it on retrieval.
+        // This means the initial few attempts to get correlation id might fail and the inital telemetry sent might be missing such data.
+        // However, once it is in the cache - subsequent telemetry should contain this data. 
+        private int getAppIdTimeout = 0; // milliseconds
 
         private const string CORRELATION_ID_FORMAT = "aid-v1:{0}";
 
@@ -33,7 +36,8 @@
         /// This constructor is mostly used by the test classes to provide an override for fetching appId logic
         /// </summary>
         /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
-        public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod)
+        /// <param name="expectedResponseTime">Wait time for the provided method to return the app Id.</param>
+        public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod, int expectedResponseTime = 20)
         {
             if (appIdProviderMethod == null)
             {
@@ -41,6 +45,7 @@
             }
 
             this.provideAppId = appIdProviderMethod;
+            this.getAppIdTimeout = expectedResponseTime;
         }
 
         /// <summary>
@@ -101,7 +106,7 @@
                     // We wait for 2 seconds to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
                     Task<string> getAppIdTask = provideAppId(instrumentationKey.ToLowerInvariant());
-                    if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
+                    if (getAppIdTask.Wait(getAppIdTimeout))
                     {
                         GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
                         correlationId = knownCorrelationIds[instrumentationKey];
