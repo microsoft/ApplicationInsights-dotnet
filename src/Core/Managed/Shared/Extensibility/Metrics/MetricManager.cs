@@ -9,8 +9,8 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    using Implementation.Metrics;
 
 #if CORE_PCL || NET45 || NET46
     using TaskEx = System.Threading.Tasks.Task;

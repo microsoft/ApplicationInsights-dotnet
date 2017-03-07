@@ -224,7 +224,7 @@
         /// <summary>
         /// Initializes this processor using the correct telemetry pipeline configuration.
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">The telemetry configuration to be used by this processor.</param>
         public void Initialize(TelemetryConfiguration configuration)
         {
             this.samplingProcessor.Initialize(configuration);
@@ -267,7 +267,7 @@
                 if (samplingProc != null)
                 {
                     samplingProc.Dispose();
-                    // Cannot set samplingProcessor = null, since it is readonly, but multiple Dispose calls must be idempotent.
+                    //// Cannot set samplingProcessor = null, since it is readonly, but multiple Dispose calls must be idempotent.
                 }
             }
         }
