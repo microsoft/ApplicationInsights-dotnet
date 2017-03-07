@@ -13,7 +13,7 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
-    [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-Common")]
+    [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-CrossComponentCorrelation")]
     internal sealed class CrossComponentCorrelationEventSource : EventSource
     {
         public static readonly CrossComponentCorrelationEventSource Log = new CrossComponentCorrelationEventSource();

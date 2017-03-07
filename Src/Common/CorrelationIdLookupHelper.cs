@@ -18,9 +18,9 @@
         private const int MAXSIZE = 100;
 
         // For now we have decided to go with not waiting to retrieve the app Id, instead we just cache it on retrieval.
-        // This means the initial few attempts to get correlation id might fail and the inital telemetry sent might be missing such data.
+        // This means the initial few attempts to get correlation id might fail and the initial telemetry sent might be missing such data.
         // However, once it is in the cache - subsequent telemetry should contain this data. 
-        private int getAppIdTimeout = 0; // milliseconds
+        private const int GET_APP_ID_TIMEOUT = 0; // milliseconds
 
         private const string CORRELATION_ID_FORMAT = "aid-v1:{0}";
 
@@ -37,7 +37,7 @@
         /// </summary>
         /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
         /// <param name="expectedResponseTime">Wait time for the provided method to return the app Id.</param>
-        public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod, int expectedResponseTime = 20)
+        public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod)
         {
             if (appIdProviderMethod == null)
             {
@@ -45,7 +45,6 @@
             }
 
             this.provideAppId = appIdProviderMethod;
-            this.getAppIdTimeout = expectedResponseTime;
         }
 
         /// <summary>
@@ -100,13 +99,13 @@
                 try
                 {
                     // Todo: When this fails, say in the vortex endpoint case, ProfileQueryEndpont is not provided, it may perpetually keep failing.
-                    // We can possibly make it more robust by having an exponential backoff on making a call to prod endpoint. Or store failure and never query again.
+                    // We can possibly make it more robust by storing the failure and quiting querying after a few attempts.
                     // Is that worth the effort?
                     
                     // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
                     Task<string> getAppIdTask = provideAppId(instrumentationKey.ToLowerInvariant());
-                    if (getAppIdTask.Wait(getAppIdTimeout))
+                    if (getAppIdTask.Wait(GET_APP_ID_TIMEOUT))
                     {
                         GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
                         correlationId = knownCorrelationIds[instrumentationKey];
