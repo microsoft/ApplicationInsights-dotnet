@@ -36,7 +36,6 @@
         /// This constructor is mostly used by the test classes to provide an override for fetching appId logic
         /// </summary>
         /// <param name="appIdProviderMethod">The delegate to be called to fetch the appId</param>
-        /// <param name="expectedResponseTime">Wait time for the provided method to return the app Id.</param>
         public CorrelationIdLookupHelper(Func<string, Task<string>> appIdProviderMethod)
         {
             if (appIdProviderMethod == null)
