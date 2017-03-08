@@ -22,7 +22,7 @@
         // However, once it is in the cache - subsequent telemetry should contain this data. 
         private const int GET_APP_ID_TIMEOUT = 0; // milliseconds
 
-        private const string CORRELATION_ID_FORMAT = "aid-v1:{0}";
+        private const string CORRELATION_ID_FORMAT = "cid-v1:{0}";
 
         private const string APPID_QUERY_API_RELATIVE_URI_FORMAT = "api/profiles/{0}/appId";
 

@@ -8,12 +8,12 @@
         /// <summary>
         /// Source instrumentation header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
         /// </summary>
-        public const string SourceAppIdHeader = "x-ms-request-source-appid";
+        public const string SourceAppIdHeader = "x-ms-request-source";
 
         /// <summary>
         /// Target instrumentation header that is added to the response and retrieved by the calling application when processing incoming responses.
         /// </summary>
-        public const string TargetAppIdHeader = "x-ms-request-target-appid";
+        public const string TargetAppIdHeader = "x-ms-request-target";
 
         /// <summary>
         /// Standard parent Id header.
