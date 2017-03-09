@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\packages\WiX.3.10.1\build\wix.props" Condition="Exists('..\..\..\..\..\packages\WiX.3.10.1\build\wix.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.Common.props'))\Test.Common.props" />
@@ -23,7 +23,9 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   <ItemGroup>
     <Reference Include="Microsoft.Data.Edm, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -78,12 +80,9 @@
       <HintPath>..\..\..\..\..\packages\System.Spatial.5.6.0\lib\net40\System.Spatial.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="NuGet.Core, Version=1.6.30117.9648, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\packages\NuGet.Core.2.8.1\lib\net40-Client\NuGet.Core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -102,6 +101,8 @@
     <Compile Include="Helpers\AzureStorageHelper.cs" />
     <Compile Include="Helpers\DataItem.cs" />
     <Compile Include="Helpers\DeploymentAndValidationTools.cs" />
+    <Compile Include="Helpers\DotNetCoreProcess.cs" />
+    <Compile Include="Helpers\DotNetCoreTestWebApplication.cs" />
     <Compile Include="Helpers\DotNetVersionCheck.cs" />
     <Compile Include="Helpers\EtwEventSessionRdd.cs" />
     <Compile Include="Helpers\ExecutionEnvironment.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Helpers\RequestHelper.cs" />
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
+    <Compile Include="Helpers\IISTestWebApplication.cs" />
     <Compile Include="Helpers\TestWebApplication.cs" />
     <Compile Include="IIS\Iis.cs" />
     <Compile Include="IIS\IisApplicationPool.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="Serialization\TelemetryExtensions.cs" />
     <Compile Include="Serialization\TelemetryItemFactory.cs" />
     <Compile Include="SqlTests.cs" />
+    <Compile Include="TestCategory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

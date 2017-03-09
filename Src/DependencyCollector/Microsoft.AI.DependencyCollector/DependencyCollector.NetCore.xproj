@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Product.props'))\Product.props" />
+
+  <PropertyGroup>
+    <ProjectGuid>1d40941a-6018-4505-ad0b-c739b094b2be</ProjectGuid>
+
+    <RootNamespace>Microsoft.ApplicationInsights.DependencyCollector</RootNamespace>
+    <Language>C#</Language>
+
+    <OutputPath>$(BinRoot)\$(Configuration)\Src\DependencyCollector\</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
+
+  <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.targets" Condition="'$(VSToolsPath)' != ''" />
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CopyBinariesToExpectedNuGetLocation
+    </BuildDependsOn>
+  </PropertyGroup>
+  <Target Name="CopyBinariesToExpectedNuGetLocation">
+    <ItemGroup>
+      <CopyFrom Include="$(OutputPath)Microsoft.AI.DependencyCollector\bin\$(Configuration)\netstandard1.6\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyFrom)" DestinationFolder="$(OutputPath)Microsoft.AI.DependencyCollector" />
+  </Target>
+</Project>

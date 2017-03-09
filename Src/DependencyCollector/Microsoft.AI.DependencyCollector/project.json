@@ -1,0 +1,35 @@
+{
+  "version": "2.3.0-beta2",
+
+  "authors": [ "Microsoft" ],
+  "copyright": "Copyright © Microsoft. All Rights Reserved.",
+
+  "buildOptions": {
+    "keyFile": "../../../Keys/35MSSharedLib1024.snk",
+    "delaySign": true,
+    "xmlDoc": true,
+    "compile": {
+      "include": [
+        "../Shared/Implementation/ApplicationInsightsUrlFilter.cs",
+        "../../Common/InstrumentationKeyHashLookupHelper.cs",
+        "../../Web/Web.Net45/Implementation/SdkVersionUtils.cs"
+      ]
+    }
+  },
+
+  "dependencies": {
+    "Microsoft.ApplicationInsights": "2.3.0-beta2",
+    "Microsoft.Extensions.DiagnosticAdapter": "1.0.0",
+    "NETStandard.Library": "1.6.1",
+    "System.Diagnostics.DiagnosticSource": "4.3.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "define": [ "NETCORE" ]
+      }
+    }
+  }
+}

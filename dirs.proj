@@ -1,27 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project=".\GlobalStaticVersion.props" />
   <Import Project=".\Global.props" />
+
   <PropertyGroup>
     <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
+
+    <SolutionThatCreatesNuGetPackage>Src\Microsoft.ApplicationInsights.Web.sln</SolutionThatCreatesNuGetPackage>
   </PropertyGroup>
+
   <ItemGroup>
-    <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
-    <Solution Include="Test\DependencyCollector\FunctionalTests.sln" /> 
+    <Solution Include="$(SolutionThatCreatesNuGetPackage)" />
+    <Solution Include="Test\DependencyCollector\FunctionalTests.sln" />
     <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
     <Solution Include="Test\Web\FunctionalTests.sln" />
   </ItemGroup>
+
   <Target Name="Build">
     <!-- Generate build version -->
     <WriteLinesToFile File="$(PreReleaseVersionFileName)" Lines="$(PreReleaseVersion)" Overwrite="true" Encoding="Unicode"/>
 
-    <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
-          ContinueOnError="ErrorAndStop"/>
-          
-    <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop"/> 
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="RestoreAndBuildSolution" Properties="SolutionToBuild=%(Solution.Identity)" ContinueOnError="ErrorAndStop" />
   </Target>
+
   <Target Name="Clean">
     <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+  </Target>
+
+  <Target Name="RestoreAndBuildSolution">
+    <PropertyGroup>
+      <BuildingSolutionThatCreatesNuGetPackage Condition="'$(SolutionToBuild)' == '$(SolutionThatCreatesNuGetPackage)'">true</BuildingSolutionThatCreatesNuGetPackage>
+      <BuildingSolutionThatCreatesNuGetPackage Condition="'$(BuildingSolutionThatCreatesNuGetPackage)' == ''">false</BuildingSolutionThatCreatesNuGetPackage>
+
+      <DisableLocalDebugNuget Condition="$(BuildingSolutionThatCreatesNuGetPackage) Or '$(Configuration)' == 'Release'">true</DisableLocalDebugNuget>
+      <DisableLocalDebugNuget Condition="'$(DisableLocalDebugNuget)' == ''">false</DisableLocalDebugNuget>
+
+      <DisableLocalReleaseNuget Condition="$(BuildingSolutionThatCreatesNuGetPackage) Or '$(Configuration)' == 'Debug'">true</DisableLocalReleaseNuget>
+      <DisableLocalReleaseNuget Condition="'$(DisableLocalReleaseNuget)' == ''">false</DisableLocalReleaseNuget>
+    </PropertyGroup>
+
+    <Exec Condition="$(DisableLocalDebugNuget)" Command='nuget.exe sources Disable -Name LocallyBuiltApplicationInsightsDebugPackages -ConfigFile NuGet.config'/>
+    <Exec Condition="$(DisableLocalReleaseNuget)" Command='nuget.exe sources Disable -Name LocallyBuiltApplicationInsightsReleasePackages -ConfigFile NuGet.config'/>
+
+    <Exec Command='IF EXIST "$(SolutionToBuild)" nuget.exe restore "$(SolutionToBuild)" -NonInteractive' ContinueOnError="ErrorAndStop"/>
+
+    <MSBuild Projects="$(SolutionToBuild)" ContinueOnError="ErrorAndStop"/>
+
+    <Exec Condition="$(DisableLocalDebugNuget)" Command='nuget.exe sources Enable -Name LocallyBuiltApplicationInsightsDebugPackages -ConfigFile NuGet.config'/>
+    <Exec Condition="$(DisableLocalReleaseNuget)" Command='nuget.exe sources Enable -Name LocallyBuiltApplicationInsightsReleasePackages -ConfigFile NuGet.config'/>
   </Target>
 </Project>
