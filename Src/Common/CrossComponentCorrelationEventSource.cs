@@ -35,6 +35,26 @@
             this.WriteEvent(1, exception, this.ApplicationName);
         }
 
+        [Event(
+            2,
+            Keywords = Keywords.Diagnostics,
+            Message = "Failed to add cross component correlation header. Error: {0}",
+            Level = EventLevel.Warning)]
+        public void SetHeaderFailed(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(2, exception, this.ApplicationName);
+        }
+
+        [Event(
+            3,
+            Keywords = Keywords.Diagnostics,
+            Message = "Failed to determine cross component correlation header. Error: {0}",
+            Level = EventLevel.Warning)]
+        public void GetHeaderFailed(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(3, exception, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
@@ -61,11 +81,10 @@
             /// </summary>
             public const EventKeywords UserActionable = (EventKeywords)0x1;
 
-            /*  Reserve first 3 for other service keywords
-             *  public const EventKeywords Service1 = (EventKeywords)0x2;
-             *  public const EventKeywords Service2 = (EventKeywords)0x4;
-             *  public const EventKeywords Service3 = (EventKeywords)0x8;
-             */
+            /// <summary>
+            /// Key word for diagnostics events.
+            /// </summary>
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
         }
     }
 }

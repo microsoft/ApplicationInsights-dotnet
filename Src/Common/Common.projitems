@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CrossComponentCorrelationEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestResponseHeaders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorrelationIdLookupHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WebHeaderCollectionExtensions.cs" />
   </ItemGroup>
 </Project>

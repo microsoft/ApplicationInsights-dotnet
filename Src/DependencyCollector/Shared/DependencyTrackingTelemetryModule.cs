@@ -62,7 +62,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.)
+        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
         /// </summary>
         public string ProfileQueryEndpoint { get; set; }
 
@@ -70,7 +70,7 @@
         {
             get
             {
-                return string.IsNullOrEmpty(ProfileQueryEndpoint) ? telemetryConfiguration.TelemetryChannel.EndpointAddress : ProfileQueryEndpoint;
+                return string.IsNullOrEmpty(this.ProfileQueryEndpoint) ? this.telemetryConfiguration.TelemetryChannel.EndpointAddress : this.ProfileQueryEndpoint;
             }
         }
 

@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Web;
 
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -50,7 +51,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.)
+        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
         /// </summary>
         public string ProfileQueryEndpoint { get; set; }
 
@@ -58,7 +59,7 @@
         {
             get
             {
-                return string.IsNullOrEmpty(ProfileQueryEndpoint) ? telemetryChannelEnpoint : ProfileQueryEndpoint;
+                return string.IsNullOrEmpty(this.ProfileQueryEndpoint) ? this.telemetryChannelEnpoint : this.ProfileQueryEndpoint;
             }
         }
         
@@ -126,15 +127,24 @@
 
             if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
             {
-                string sourceAppId = context.Request.Headers[RequestResponseHeaders.SourceAppIdHeader];
+                string sourceAppId = null;
 
-                bool correlationIdLookupHelperInitialized = TryInitializeCorrelationHelperIfNotInitialized();
+                try
+                {
+                    sourceAppId = context.Request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey);
+                }
+                catch (Exception ex)
+                {
+                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                }
+                
+                bool correlationIdLookupHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
 
-                string myAppId = string.Empty;
+                string currentComponentAppId = string.Empty;
                 bool foundMyAppId = false;
                 if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && correlationIdLookupHelperInitialized)
                 {
-                    foundMyAppId = this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out myAppId);
+                    foundMyAppId = this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out currentComponentAppId);
                 }
 
                 // If the source header is present on the incoming request,
@@ -142,7 +152,7 @@
                 // then populate the source field.
                 if (!string.IsNullOrEmpty(sourceAppId)
                     && foundMyAppId
-                    && sourceAppId != myAppId)
+                    && sourceAppId != currentComponentAppId)
                 {
                     requestTelemetry.Source = sourceAppId;
                 }
@@ -170,18 +180,25 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            bool correlationIdHelperInitialized = TryInitializeCorrelationHelperIfNotInitialized();
+            bool correlationIdHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
 
-            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                && context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] == null
-                && correlationIdHelperInitialized)
+            try
             {
-                string appId;
-
-                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out appId))
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
+                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey) == null
+                    && correlationIdHelperInitialized)
                 {
-                    context.Response.Headers[RequestResponseHeaders.TargetAppIdHeader] = appId;
+                    string correlationId;
+
+                    if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
+                    {
+                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey, correlationId);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
             }
         }
 
@@ -225,9 +242,9 @@
         }
 
         /// <summary>
-        /// Simple test hook, that allows for using a stub rather than the implemenation that calls the original service.
+        /// Simple test hook, that allows for using a stub rather than the implementation that calls the original service.
         /// </summary>
-        /// <param name="correlationIdLookupHelper"></param>
+        /// <param name="correlationIdLookupHelper">Lookup header to use.</param>
         internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
         {
             this.correlationIdLookupHelper = correlationIdLookupHelper;
@@ -262,7 +279,7 @@
             {
                 if (this.correlationIdLookupHelper == null)
                 {
-                    this.correlationIdLookupHelper = new CorrelationIdLookupHelper(EffectiveProfileQueryEndpoint);
+                    this.correlationIdLookupHelper = new CorrelationIdLookupHelper(this.EffectiveProfileQueryEndpoint);
                 }
 
                 return true;

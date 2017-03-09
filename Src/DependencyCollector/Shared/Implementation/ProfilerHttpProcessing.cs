@@ -8,13 +8,14 @@
 #if !NET40
     using System.Web;
 #endif
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Web.Implementation;
-    
+
     /// <summary>
     /// Concrete class with all processing logic to generate RDD data from the calls backs
     /// received from Profiler instrumentation for HTTP .   
@@ -26,7 +27,7 @@
         private TelemetryClient telemetryClient;
         private ICollection<string> correlationDomainExclusionList;
         private bool setCorrelationHeaders;
-        CorrelationIdLookupHelper correlationIdLookupHelper;
+        private CorrelationIdLookupHelper correlationIdLookupHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
@@ -63,15 +64,6 @@
             {
                 this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
             }
-        }
-
-        /// <summary>
-        /// Simple test hook, that allows for using a stub rather than the implemenation that calls the original service.
-        /// </summary>
-        /// <param name="correlationIdLookupHelper"></param>
-        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
-        {
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
         }
 
 #region Http callbacks
@@ -217,6 +209,15 @@
         }
 
         /// <summary>
+        /// Simple test hook, that allows for using a stub rather than the implementation that calls the original service.
+        /// </summary>
+        /// <param name="correlationIdLookupHelper">Lookup header to use.</param>
+        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
+        {
+            this.correlationIdLookupHelper = correlationIdLookupHelper;
+        }
+
+        /// <summary>
         /// Common helper for all Begin Callbacks.
         /// </summary>
         /// <param name="thisObj">This object.</param>        
@@ -296,14 +297,21 @@
                 if (this.setCorrelationHeaders
                     && !this.correlationDomainExclusionList.Contains(url.Host))
                 {
-                    if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
-                        && webRequest.Headers[RequestResponseHeaders.SourceAppIdHeader] == null)
+                    try
                     {
-                        string appId;
-                        if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
+                        if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
+                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey) == null)
                         {
-                            webRequest.Headers.Add(RequestResponseHeaders.SourceAppIdHeader, appId);
+                            string appId;
+                            if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
+                            {
+                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey, appId);
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
                     }
 
                     // Add the root ID
@@ -400,13 +408,22 @@
 
                             if (responseObj.Headers != null)
                             {
-                                var targetAppId = responseObj.Headers[RequestResponseHeaders.TargetAppIdHeader];
+                                string targetAppId = null;
 
-                                string myAppId;
-                                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out myAppId))
+                                try
+                                {
+                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey);
+                                }
+                                catch (Exception ex)
+                                {
+                                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                                }
+
+                                string currentComponentAppId;
+                                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out currentComponentAppId))
                                 {
                                     // We only add the cross component correlation key if the key does not remain the current component.
-                                    if (!string.IsNullOrEmpty(targetAppId) && targetAppId != myAppId)
+                                    if (!string.IsNullOrEmpty(targetAppId) && targetAppId != currentComponentAppId)
                                     {
                                         telemetry.Type = RemoteDependencyConstants.AI;
                                         telemetry.Target += " | " + targetAppId;
