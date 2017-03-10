@@ -6,6 +6,7 @@
     using System.IO;
     using System.Net;
     using System.Threading.Tasks;
+    using Extensibility;
     using Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -149,17 +150,26 @@
         /// <returns>App id.</returns>
         private async Task<string> FetchAppIdFromService(string instrumentationKey)
         {
-            Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-
-            WebRequest request = WebRequest.Create(appIdEndpoint);
-            request.Method = "GET";
-
-            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
+            try
             {
-                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                SdkInternalOperationsMonitor.Enter();
+
+                Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+
+                WebRequest request = WebRequest.Create(appIdEndpoint);
+                request.Method = "GET";
+
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
                 {
-                    return await reader.ReadToEndAsync();
+                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        return await reader.ReadToEndAsync();
+                    }
                 }
+            }
+            finally
+            {
+                SdkInternalOperationsMonitor.Exit();
             }
         }
 
