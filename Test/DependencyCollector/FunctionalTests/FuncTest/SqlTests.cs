@@ -81,7 +81,6 @@
 
         #region Misc tests
         [TestMethod]
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
         {
@@ -93,7 +92,6 @@
             this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, 1, AccessTimeMaxSqlCallToApmdbNormal);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestStoredProcedureNameIsCollected()
@@ -122,7 +120,6 @@
                      });           
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
@@ -130,7 +127,6 @@
             this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequenceFailed()
@@ -138,7 +134,6 @@
             this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceWithTasks()
@@ -155,11 +150,10 @@
                          Assert.AreEqual(1, sqlItems.Length, "We should only report 1 dependency call");
                      });
         }
-        #endregion
+#endregion
 
         #region ExecuteReader
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsync()
@@ -167,7 +161,6 @@
             this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsyncFailed()
@@ -175,7 +168,6 @@
             this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReader()
@@ -183,7 +175,6 @@
             this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_0Args()
@@ -191,7 +182,6 @@
             this.TestSqlCommandExecute("BeginExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_1Arg()
@@ -199,7 +189,6 @@
             this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_2Arg()
@@ -207,7 +196,6 @@
             this.TestSqlCommandExecute("BeginExecuteReader2", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_3Arg()
@@ -215,7 +203,6 @@
             this.TestSqlCommandExecute("BeginExecuteReader3", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReader()
@@ -223,7 +210,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed_0Args()
@@ -231,7 +217,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteReader0", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed_1Args()
@@ -241,7 +226,6 @@
         #endregion
 
         #region ExecuteScalar
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
@@ -249,7 +233,6 @@
             this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsyncFailed()
@@ -257,7 +240,6 @@
             this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalar()
@@ -265,7 +247,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalarFailed()
@@ -276,7 +257,6 @@
 
         #region ExecuteNonQuery
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQuery()
@@ -284,7 +264,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQueryFailed()
@@ -292,7 +271,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsync()
@@ -301,7 +279,6 @@
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestExecuteNonQueryAsyncFailed()
         {
@@ -309,7 +286,6 @@
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg0()
         {
@@ -317,14 +293,12 @@
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg2()
         {
             this.TestSqlCommandExecute("BeginExecuteNonQuery2", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
@@ -334,7 +308,6 @@
         #endregion
 
         #region ExecuteXmlReader
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
@@ -342,7 +315,6 @@
             this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsyncFailed()
@@ -350,7 +322,6 @@
             this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.", extraClauseForFailureCase: ForXMLClauseInFailureCase);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteXmlReaderFailed()
@@ -358,7 +329,6 @@
             this.TestSqlCommandExecute("BeginExecuteXmlReader", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
@@ -366,7 +336,6 @@
             this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "0", errorMessage: null);
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReaderFailed()
@@ -377,7 +346,6 @@
 
         #region SqlConnection.Open
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenSuccess()
@@ -389,7 +357,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAccountException()
@@ -401,7 +368,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenServerException()
@@ -413,7 +379,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncSuccess()
@@ -425,7 +390,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAccountException()
@@ -437,7 +401,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncServerException()
@@ -449,7 +412,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitSuccess()
@@ -461,7 +423,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitAccountException()
@@ -473,7 +434,6 @@
             }
         }
 
-        [TestCategory(TestCategory.Net451)]
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitServerException()

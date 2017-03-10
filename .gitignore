@@ -162,4 +162,3 @@ $RECYCLE.BIN/
 *.vsix
 .PreReleaseVersion
 .nugetVersion
-project.lock.json

@@ -24,12 +24,6 @@
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
         <dependency id="Microsoft.ApplicationInsights.Agent.Intercept" version="2.0.7" />
       </group>
-      <group targetFramework="netcoreapp1.0">
-        <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.Extensions.DiagnosticAdapter" version="1.0.0" />
-        <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="System.Diagnostics.DiagnosticSource" version="4.3.0-preview1-24530-04" />
-      </group>
     </dependencies>
   </metadata>
   <files>
@@ -46,10 +40,5 @@
     <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.dll" target="lib\net45" />
     <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.pdb" target="lib\net45" />
     <file src="$configuration$\Src\DependencyCollector\Net45\Microsoft.AI.DependencyCollector.xml" target="lib\net45" />
-
-    <!-- For .NET Core App 1.0 projects -->
-    <file src="$configuration$\Src\DependencyCollector\Microsoft.AI.DependencyCollector\Microsoft.AI.DependencyCollector.dll" target="lib\netcoreapp1.0" />
-    <file src="$configuration$\Src\DependencyCollector\Microsoft.AI.DependencyCollector\Microsoft.AI.DependencyCollector.pdb" target="lib\netcoreapp1.0" />
-    <file src="$configuration$\Src\DependencyCollector\Microsoft.AI.DependencyCollector\Microsoft.AI.DependencyCollector.xml" target="lib\netcoreapp1.0" />
   </files>
 </package>
