@@ -20,4 +20,6 @@
     <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" />
   </ItemGroup>
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+
 </Project>
