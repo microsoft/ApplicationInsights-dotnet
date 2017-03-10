@@ -1,12 +1,14 @@
 namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
+#if !CORE_PCL 
     using System.Runtime.Serialization;
+#endif
 
     /// <summary>
     /// This exception is used to notify the user that the set of inner exceptions has been trimmed because it exceeded our allowed send limit.
     /// </summary>
-#if !CORE_PCL 
+#if !CORE_PCL
     [Serializable]
 #endif
     internal class InnerExceptionCountExceededException : 
