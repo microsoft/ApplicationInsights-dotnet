@@ -50,9 +50,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Net45\Core.Net45.csproj">
-      <Project>{412659ca-49b0-4834-bfbf-8183055083c8}</Project>
-      <Name>Core.Net45</Name>
+    <ProjectReference Include="..\..\..\src\Core\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\TelemetryChannels\ServerTelemetryChannel\Net45\TelemetryChannel.Net45.csproj">
       <Project>{18ce7397-7566-46d6-a52d-3b441363b326}</Project>
@@ -67,5 +67,5 @@
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets"/>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 </Project>
