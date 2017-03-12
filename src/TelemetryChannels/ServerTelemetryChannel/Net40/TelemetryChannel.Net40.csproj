@@ -75,7 +75,7 @@
     <Compile Include="TaskEx.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\Core.csproj">
+    <ProjectReference Include="..\..\..\Core\Managed\Core.csproj">
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
       <Name>Core</Name>
     </ProjectReference>

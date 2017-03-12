@@ -3,12 +3,12 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFrameworks>net46</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
-    <PackageVersionFile>$(BinRoot)\$(Configuration)\Core\net46\Microsoft.ApplicationInsights.dll</PackageVersionFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\Core\Managed\net46\Microsoft.ApplicationInsights.dll</PackageVersionFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.csproj" />
+    <ProjectReference Include="..\Managed\Core.csproj" />
     <ProjectReference Include="..\DummyCore\DummyCore.csproj" />
   </ItemGroup>
 
