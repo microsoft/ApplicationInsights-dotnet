@@ -848,12 +848,12 @@
 
         private string GetCorrelationIdValue(string appId)
         {
-            return string.Format("cid-v1:{0}", appId, CultureInfo.InvariantCulture);
+            return string.Format(CultureInfo.InvariantCulture, "cid-v1:{0}", appId);
         }
 
         private string GetCorrelationIdHeaderValue(string appId)
         {
-            return string.Format("{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextTargetKey, appId, CultureInfo.InvariantCulture);
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextTargetKey, appId);
         }
 
         private void Initialize(string instrumentationKey)
