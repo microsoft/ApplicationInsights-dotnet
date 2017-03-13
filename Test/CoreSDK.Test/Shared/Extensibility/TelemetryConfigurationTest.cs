@@ -11,6 +11,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
+
     [TestClass]
     public class TelemetryConfigurationTest
     {
@@ -69,13 +73,13 @@
         [TestMethod]
         public void ActiveIsPublicToAllowUsersToAccessActiveTelemetryConfigurationInAdvancedScenarios()
         {
-            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetMethod.IsPublic);
+            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetGetMethod(true).IsPublic);
         }
 
         [TestMethod]
         public void ActiveSetterIsInternalAndNotMeantToBeUsedByOurCustomers()
         {
-            Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").SetMethod.IsPublic);
+            Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
         }
 
         [TestMethod]
@@ -145,7 +149,7 @@
                 var tasks = new Task[8];
                 for (int i = 0; i < tasks.Length; i++)
                 {
-                    tasks[i] = Task.Run(() => TelemetryConfiguration.Active);
+                    tasks[i] = TaskEx.Run(() => TelemetryConfiguration.Active);
                 }
 
                 Task.WaitAll(tasks);

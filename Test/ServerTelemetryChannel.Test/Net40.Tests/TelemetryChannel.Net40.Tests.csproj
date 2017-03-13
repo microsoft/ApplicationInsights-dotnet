@@ -75,9 +75,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Net40\Core.Net40.csproj">
-      <Project>{cd752cd2-6711-4ad7-b5c8-f8c23cf076b1}</Project>
-      <Name>Core.Net40</Name>
+    <ProjectReference Include="..\..\..\src\Core\Managed\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\TelemetryChannels\ServerTelemetryChannel\Net40\TelemetryChannel.Net40.csproj">
       <Project>{1ac957c0-e9a7-42bb-8820-ce2f6e5c937f}</Project>

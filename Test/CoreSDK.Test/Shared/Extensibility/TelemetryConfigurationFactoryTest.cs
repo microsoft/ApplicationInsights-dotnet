@@ -15,6 +15,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
 
+#if NET40
+    using EventLevel = Microsoft.Diagnostics.Tracing.EventLevel;
+#else
+    using EventLevel = System.Diagnostics.Tracing.EventLevel;
+#endif
+
     [TestClass]
     public class TelemetryConfigurationFactoryTest
     {
@@ -304,7 +310,7 @@
             var original = new StubClassWithProperties();
             object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
 
-            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Warning, original.EnumProperty);
+            Assert.Equal(EventLevel.Warning, original.EnumProperty);
         }
 
         [TestMethod]
@@ -317,7 +323,7 @@
             var original = new StubClassWithProperties();
             object instance = TestableTelemetryConfigurationFactory.LoadInstance(definition, typeof(StubClassWithProperties), original, null);
 
-            Assert.Equal(System.Diagnostics.Tracing.EventLevel.Informational, original.EnumProperty);
+            Assert.Equal(EventLevel.Informational, original.EnumProperty);
         }
 
         [TestMethod]
@@ -948,7 +954,7 @@
 
             public StubClassWithProperties ChildProperty { get; set; }
 
-            public System.Diagnostics.Tracing.EventLevel EnumProperty { get; set; }
+            public EventLevel EnumProperty { get; set; }
         }
 
         private class StubConfigurable : ITelemetryModule

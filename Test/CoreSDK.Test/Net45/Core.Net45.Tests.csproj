@@ -36,7 +36,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="xunit.assert">
+    <Reference Include="xunit.assert, Version=2.0.0.2650, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\xunit.assert.2.0.0-beta-build2650\lib\portable-net45+win+wpa81+wp80\xunit.assert.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -50,8 +50,9 @@
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Net45\Core.Net45.csproj">
-      <Name>Core.Net45</Name>
+    <ProjectReference Include="..\..\..\src\Core\Managed\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
@@ -59,7 +60,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="app.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensibility\Implementation\Tracing\" />
