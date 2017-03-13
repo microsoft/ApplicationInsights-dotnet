@@ -6,10 +6,10 @@
     <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
     <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
     <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
-    <BaseIntermediateOutputPath>$(BaseIntermediateOutputPath)\$(MSBuildProjectName)</BaseIntermediateOutputPath>
   </PropertyGroup>
   
   <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>
     <AssemblyName>$(RootNamespace)</AssemblyName>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
   </PropertyGroup>

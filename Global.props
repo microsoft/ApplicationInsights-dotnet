@@ -66,8 +66,8 @@
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
                 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
-        
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj</BaseIntermediateOutputPath>
+
+        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
         <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
 
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -99,9 +99,6 @@
         <RestorePackages>true</RestorePackages>
         <RequireRestoreConsent>false</RequireRestoreConsent>
         
-        <!-- Set the root namespace for all assemblies in this project hierarchy --> 
-        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>        
-      
         <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
         <StyleCopEnabled>false</StyleCopEnabled>
     </PropertyGroup>
