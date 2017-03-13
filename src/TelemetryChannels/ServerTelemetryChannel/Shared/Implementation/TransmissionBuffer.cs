@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.Channel;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
