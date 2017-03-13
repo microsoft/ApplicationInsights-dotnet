@@ -12,9 +12,8 @@
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
     using Channel.Helpers;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-    
 #endif
 
     public class TelemetryBufferTest

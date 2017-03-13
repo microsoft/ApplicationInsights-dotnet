@@ -9,7 +9,7 @@
 #endif
     using Assert = Xunit.Assert;
     using Extensibility;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Net.Http;
 #endif
     using System.Threading;

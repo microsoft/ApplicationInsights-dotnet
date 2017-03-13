@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
     using System.Net;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Net.Http;
 #endif
     using System.Reflection;

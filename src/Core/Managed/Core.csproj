@@ -16,9 +16,6 @@
     <TargetFrameworks>net40;net45;net46;netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DefaultItemExcludes>$(DefaultItemExcludes);DummyCore\**;NuGet\**</DefaultItemExcludes>
-
-    <!-- TODO: Replace CORE_PCL with NETSTANDARD1_3 in sources, then we can remove this line -->
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard1.3'">$(DefineConstants);CORE_PCL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

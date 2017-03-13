@@ -18,7 +18,7 @@
             {
                 return true;
             }
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             return value.All(char.IsWhiteSpace);
 #else
             return string.IsNullOrWhiteSpace(value);

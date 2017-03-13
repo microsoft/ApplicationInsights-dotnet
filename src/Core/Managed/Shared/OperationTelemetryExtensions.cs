@@ -40,7 +40,7 @@
             // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
             telemetry.BeginTimeInTicks = timestamp;
 
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             RichPayloadEventSource.Log.ProcessOperationStart(telemetry);
 #endif
         }
@@ -113,7 +113,7 @@
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
 #endif
         }

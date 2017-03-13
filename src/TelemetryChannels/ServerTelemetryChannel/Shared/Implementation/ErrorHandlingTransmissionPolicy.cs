@@ -8,7 +8,7 @@
     using ApplicationInsights.Channel.Implementation;
     using Extensibility.Implementation;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

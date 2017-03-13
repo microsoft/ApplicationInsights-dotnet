@@ -87,7 +87,7 @@
             Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
         }
 
-#if !CORE_PCL
+#if !NETSTANDARD1_3
         [TestMethod]
         public void InitializeAddsOperationContextTelemetryInitializerByDefault()
         {

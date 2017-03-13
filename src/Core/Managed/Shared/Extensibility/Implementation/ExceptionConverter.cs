@@ -18,7 +18,7 @@
             External.ExceptionDetails exceptionDetails = External.ExceptionDetails.CreateWithoutStackInfo(
                                                                                                                 exception,
                                                                                                                 parentExceptionDetails);
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             var stack = new StackTrace(exception, true);
 
             var frames = stack.GetFrames();
@@ -85,7 +85,7 @@
             return new Tuple<List<TOutput>, bool>(orderedStackTrace, hasFullStack);
         }
 
-#if !CORE_PCL
+#if !NETSTANDARD1_3
         /// <summary>
         /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
         /// </summary>
