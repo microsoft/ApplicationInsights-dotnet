@@ -5,8 +5,6 @@
 
   <PropertyGroup>
     <Company>Microsoft</Company>
-    <!-- This is not the final NuGet package ID, but it must be distinct from the real one or else we get 'Ambiguous project name' during dotnet restore. -->
-    <PackageId>Microsoft.ApplicationInsights.Core</PackageId>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
