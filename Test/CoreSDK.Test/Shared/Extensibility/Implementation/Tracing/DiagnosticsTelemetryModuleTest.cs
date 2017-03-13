@@ -12,6 +12,9 @@
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     [TestClass]
     public class DiagnosticsTelemetryModuleTest
@@ -83,7 +86,7 @@
                 using (var cancellationTokenSource = new CancellationTokenSource())
                 {
                     var taskStarted = new AutoResetEvent(false);
-                    Task.Run(() =>
+                    TaskEx.Run(() =>
                     {
                         taskStarted.Set();
                         while (!cancellationTokenSource.IsCancellationRequested)

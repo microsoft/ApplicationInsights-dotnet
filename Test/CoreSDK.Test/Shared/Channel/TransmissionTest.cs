@@ -11,6 +11,9 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
     using AssertEx = Xunit.AssertEx;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     public class TransmissionTest : AsyncTest
     {
@@ -176,7 +179,7 @@
                     request.OnBeginGetRequestStream = (callback, state) =>
                     {
                         beginGetRequestStreamCount++;
-                        return Task.FromResult<object>(null).AsAsyncResult(callback, request);
+                        return TaskEx.FromResult<object>(null).AsAsyncResult(callback, request);
                     };
         
                     var transmission = new TestableTransmission { OnCreateRequest = uri => request };
@@ -251,7 +254,7 @@
                 var finishBeginGetRequestStream = new ManualResetEventSlim();
                 var request = new StubWebRequest();
                 request.OnAbort = () => requestAborted.Set();
-                request.OnBeginGetRequestStream = (callback, state) => Task.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
+                request.OnBeginGetRequestStream = (callback, state) => TaskEx.Run(() => finishBeginGetRequestStream.Wait()).AsAsyncResult(callback, request);
                 var transmission = new TestableTransmission(timeout: TimeSpan.FromTicks(1));
                 transmission.OnCreateRequest = uri => request;
 
@@ -274,7 +277,7 @@
         
                     await transmission.SendAsync();
         
-                    await Task.Delay(50); // Let timout detector finish
+                    await TaskEx.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
         
                     Assert.False(requestAborted);
                 });

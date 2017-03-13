@@ -12,6 +12,9 @@
     using Assert = Xunit.Assert;
     using Extensibility.Implementation;
     using TestFramework;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     /// <summary>
     /// Tests corresponding to TelemetryClientExtension methods.
@@ -56,7 +59,7 @@
                 this.telemetryClient.TrackTrace("trace1");
 
                 //HttpClient client = new HttpClient();
-                await Task.Delay(100);//client.GetStringAsync("http://bing.com");
+                await TaskEx.Delay(TimeSpan.FromMilliseconds(100));//client.GetStringAsync("http://bing.com");
 
                 var id2 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace2");
@@ -95,7 +98,7 @@
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
 
-            var result = Task.Delay(millisecondsDelay: 50).AsAsyncResult(
+            var result = TaskEx.Delay(TimeSpan.FromMilliseconds(50)).AsAsyncResult(
                 (r) =>
                     {
                         id2 = Thread.CurrentThread.ManagedThreadId;

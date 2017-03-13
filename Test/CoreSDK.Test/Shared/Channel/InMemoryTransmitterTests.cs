@@ -9,7 +9,9 @@
 #endif
     using Assert = Xunit.Assert;
     using Extensibility;
+#if CORE_PCL || NET45 || NET46
     using System.Net.Http;
+#endif
     using System.Threading;
 
     public class InMemoryTransmitterTests
@@ -35,7 +37,7 @@
                 Assert.Equal(expectedValue, transmitter.SendingInterval);
             }
 
-#if !CORE_PCL
+#if !NET40
             private class TelemetryBufferWithInternalOperationValidation : TelemetryBuffer
             {
                 public bool WasCalled = false;

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -36,7 +36,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="xunit.assert">
+    <Reference Include="xunit.assert, Version=2.0.0.2650, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\xunit.assert.2.0.0-beta-build2650\lib\portable-net45+win+wpa81+wp80\xunit.assert.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -48,9 +48,9 @@
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Net46\Core.Net46.csproj">
-      <Project>{958cfe53-53b7-4e26-846d-da3f214013e6}</Project>
-      <Name>Core.Net46</Name>
+    <ProjectReference Include="..\..\..\src\Core\Managed\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
@@ -58,6 +58,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
