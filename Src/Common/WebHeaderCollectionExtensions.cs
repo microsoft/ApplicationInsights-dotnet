@@ -82,7 +82,7 @@
                     if (keyValue.Length == 2 && keyValue[0].Trim() == keyName)
                     {
                         // Overwrite the existing thing
-                        headerValues[i] = string.Format("{0}={1}", keyName, value, CultureInfo.InvariantCulture);
+                        headerValues[i] = string.Format(CultureInfo.InvariantCulture, "{0}={1}", keyName, value);
                         found = true;
                     }
                 }
@@ -91,13 +91,13 @@
 
                 if (!found)
                 {
-                    headers[headerName] += string.Format(", {0}={1}", keyName, value, CultureInfo.InvariantCulture);
+                    headers[headerName] += string.Format(CultureInfo.InvariantCulture, ", {0}={1}", keyName, value);
                 }
             }
             else
             {
                 // header with headerName does not exist - let's add one.
-                headers[headerName] = string.Format("{0}={1}", keyName, value, CultureInfo.InvariantCulture);
+                headers[headerName] = string.Format(CultureInfo.InvariantCulture, "{0}={1}", keyName, value);
             }
         }
     }

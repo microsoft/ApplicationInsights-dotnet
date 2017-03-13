@@ -119,18 +119,18 @@
                             {
                                 this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch (AggregateException ae)
+                            catch (Exception ex)
                             {
-                                CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToInvariantString());
+                                CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
                             }
                         });
 
                         return false;
                     }
                 }
-                catch (AggregateException ae)
+                catch (Exception ex)
                 {
-                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(ae.Flatten().InnerException.ToInvariantString());
+                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
 
                     correlationId = string.Empty;
                     return false;
@@ -140,7 +140,7 @@
 
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            this.knownCorrelationIds[ikey] = string.Format(CorrelationIdFormat, appId, CultureInfo.InvariantCulture);
+            this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
         }
 
         /// <summary>
@@ -180,7 +180,18 @@
         /// <returns>Computed Uri.</returns>
         private Uri GetAppIdEndPointUri(string instrumentationKey)
         {
-            return new Uri(this.endpointAddress, string.Format(AppIdQueryApiRelativeUriFormat, instrumentationKey, CultureInfo.InvariantCulture));
+            return new Uri(this.endpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+        }
+
+        private string GetExceptionDetailString(Exception ex)
+        {
+            var ae = ex as AggregateException;
+            if (ae != null)
+            {
+                return ae.Flatten().InnerException.ToInvariantString();
+            }
+
+            return ex.ToInvariantString();
         }
     }
 }
