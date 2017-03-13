@@ -14,6 +14,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Reflection;
+    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Tests the rich payload event source tracking.
@@ -375,7 +376,7 @@
             VerifyOperationPayload(expectedOperation, actualEvent.Payload);
         }
 
-        private static void VerifyOperationPayload(OperationTelemetry expected, IReadOnlyList<object> actualPayload)
+        private static void VerifyOperationPayload(OperationTelemetry expected, ReadOnlyCollection<object> actualPayload)
         {
             Assert.IsNotNull(actualPayload);
             Assert.AreEqual(4, actualPayload.Count);
