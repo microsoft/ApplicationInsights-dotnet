@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
-#if CORE_PCL
+#if NETSTANDARD1_3
     using System.Net.Http;
     using System.Net.Http.Headers;
 #endif
@@ -13,7 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -26,7 +26,7 @@
         internal const string ContentEncodingHeader = "Content-Encoding";
 
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
-#if CORE_PCL
+#if NETSTANDARD1_3
         private readonly HttpClient client;
 #endif
         private int isSending;
@@ -58,7 +58,7 @@
             this.Timeout = timeout == default(TimeSpan) ? DefaultTimeout : timeout;
             this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
             this.TelemetryItems = null;
-#if CORE_PCL
+#if NETSTANDARD1_3
             this.client = new HttpClient() { Timeout = this.Timeout };
 #endif
         }
@@ -162,7 +162,7 @@
 
             try
             {
-#if CORE_PCL
+#if NETSTANDARD1_3
                 using (MemoryStream contentStream = new MemoryStream(this.Content))
                 {
                     HttpRequestMessage request = this.CreateRequestMessage(this.EndpointAddress, contentStream);
@@ -342,7 +342,7 @@
             return Tuple.Create(transmissionA, transmissionB);
         }
 
-#if CORE_PCL
+#if NETSTANDARD1_3
         /// <summary>
         /// Creates an http request for sending a transmission.
         /// </summary>

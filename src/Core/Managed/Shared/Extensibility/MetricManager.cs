@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

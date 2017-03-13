@@ -56,7 +56,7 @@
                 modules.Modules.Add(new DiagnosticsTelemetryModule());
             }
 
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 #endif
             // Load configuration from the specified configuration
