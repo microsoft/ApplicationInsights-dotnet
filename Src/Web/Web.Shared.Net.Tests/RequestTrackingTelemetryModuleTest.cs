@@ -174,6 +174,8 @@
         [TestMethod]
         public void OnEndTracksRequest()
         {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+
             var sendItems = new List<ITelemetry>();
             var stubTelemetryChannel = new StubTelemetryChannel { OnSend = item => sendItems.Add(item) };
             var configuration = new TelemetryConfiguration
@@ -184,8 +186,8 @@
 
             var module = this.RequestTrackingTelemetryModuleFactory();
             module.Initialize(configuration);
-            module.OnBeginRequest(null);
-            module.OnEndRequest(null);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
 
             Assert.Equal(1, sendItems.Count);
         }
@@ -386,7 +388,7 @@
 
         private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory()
         {
-            var module = this.RequestTrackingTelemetryModuleFactory();
+            var module = new RequestTrackingTelemetryModule();
             module.OverrideCorrelationIdLookupHelper(this.correlationIdLookupHelper);
 
             return module;
