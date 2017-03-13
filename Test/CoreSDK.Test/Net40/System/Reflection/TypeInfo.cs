@@ -4,7 +4,7 @@ namespace System.Reflection
 {
     internal class TypeInfo
     {
-        public const BindingFlags AllFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+        private const BindingFlags AllFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         private Type type;
 
@@ -24,10 +24,10 @@ namespace System.Reflection
         public string Name => type.Name;
         public Type[] GenericTypeArguments => type.GetGenericArguments();
 
-        public IEnumerable<ConstructorInfo> DeclaredConstructors => type.GetConstructors(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        public IEnumerable<ConstructorInfo> DeclaredConstructors => type.GetConstructors(AllFlags);
 
-        public PropertyInfo GetDeclaredProperty(string name) => type.GetProperty(name, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        public PropertyInfo GetDeclaredProperty(string name) => type.GetProperty(name, AllFlags);
 
-        public MethodInfo GetDeclaredMethod(string name) => type.GetMethod(name, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        public MethodInfo GetDeclaredMethod(string name) => type.GetMethod(name, AllFlags);
     }
 }
