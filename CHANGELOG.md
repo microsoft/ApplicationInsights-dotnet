@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.4.0-beta1
+- Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.
+
+
 ## Version 2.3.0-beta3
 - Exception statistics improvements and other minor bug fixes. [Full list.] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/milestone/19?closed=1)
 

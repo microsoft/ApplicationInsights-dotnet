@@ -375,8 +375,6 @@
                     this.TelemetryTable.Remove(thisObj);
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
 
-                    int statusCode = -1;
-
                     var responseObj = returnValue as HttpWebResponse;
 
                     if (responseObj == null && exception != null)
@@ -387,25 +385,40 @@
                         {
                             responseObj = webException.Response as HttpWebResponse;
                         }
-#if !NET40
-                        if (responseObj == null)
-                        {
-                            var httpException = exception as HttpException;
+                    }
 
-                            if (httpException != null)
-                            {
-                                statusCode = httpException.GetHttpCode();
-                            }
+                    if (responseObj != null)
+                    {
+                        int statusCode = -1;
+
+                        try
+                        {
+                            statusCode = (int)responseObj.StatusCode;
                         }
-#endif
+                        catch (ObjectDisposedException)
+                        {
+                            // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
+                            // on the second call to GetResponse() we cannot determine the statusCode.
+                        }
+
+                        telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                        telemetry.Success = (statusCode > 0) && (statusCode < 400);
+                    }
+                    else if (exception != null)
+                    {
+                        var webException = exception as WebException;
+                        if (webException != null)
+                        {
+                            telemetry.ResultCode = webException.Status.ToString();
+                        }
+
+                        telemetry.Success = false;
                     }
 
                     if (responseObj != null)
                     {
                         try
                         {
-                            statusCode = (int)responseObj.StatusCode;
-
                             if (responseObj.Headers != null)
                             {
                                 string targetAppId = null;
@@ -437,9 +450,6 @@
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
                     }
-                    
-                    telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
-                    telemetry.Success = (statusCode > 0) && (statusCode < 400);
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
