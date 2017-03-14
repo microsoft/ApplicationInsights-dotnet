@@ -389,22 +389,26 @@
 
                     if (responseObj != null)
                     {
+                        int statusCode = -1;
                         try
                         {
-                            var statusCode = (int)responseObj.StatusCode;
-                            telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
-                            telemetry.Success = (statusCode > 0) && (statusCode < 400);
+                            statusCode = (int)responseObj.StatusCode;
                         }
                         catch (ObjectDisposedException)
                         {
                             // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
+                        telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                        telemetry.Success = (statusCode > 0) && (statusCode < 400);
                     }
                     else if (exception != null)
                     {
                         var webException = exception as WebException;
-                        telemetry.ResultCode = webException.Status.ToString();
+                        if (webException != null)
+                        {
+                            telemetry.ResultCode = webException.Status.ToString();
+                        }
                         telemetry.Success = false;
                     }
 
