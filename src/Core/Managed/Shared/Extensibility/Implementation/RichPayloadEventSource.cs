@@ -1,6 +1,4 @@
-﻿#if NET45
-    // .Net 4.5 has a private implementation of this
-#else
+﻿#if !NET45 // .Net 4.5 has a private implementation of this
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
 #if NET40
