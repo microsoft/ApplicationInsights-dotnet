@@ -884,6 +884,27 @@
 
         #endregion
 
+        [TestMethod]
+        public void InitializeIsMarkesAsInternalSdkOperation()
+        {
+            bool isInternalOperation = false;
+
+            StubConfigurableWithStaticCallback.OnInitialize = (item) => { isInternalOperation = SdkInternalOperationsMonitor.IsEntered(); };
+
+            Assert.Equal(false, SdkInternalOperationsMonitor.IsEntered());
+            string configFileContents = Configuration(
+                @"<TelemetryModules>
+                    <Add Type = """ + typeof(StubConfigurableWithStaticCallback).AssemblyQualifiedName + @"""  />
+                  </TelemetryModules>"
+                );
+
+            var modules = new TestableTelemetryModules();
+            new TestableTelemetryConfigurationFactory().Initialize(new TelemetryConfiguration(), modules, configFileContents);
+
+            Assert.Equal(true, isInternalOperation);
+            Assert.Equal(false, SdkInternalOperationsMonitor.IsEntered());
+        }
+
         private static TelemetryConfiguration CreateTelemetryConfigurationWithDeveloperModeValue(string developerModeValue)
         {
             XElement definition = XDocument.Parse(Configuration(
@@ -961,6 +982,19 @@
             {
                 this.Configuration = configuration;
                 this.Initialized = true;
+            }
+        }
+
+        private class StubConfigurableWithStaticCallback : ITelemetryModule
+        {
+            /// <summary>
+            /// Gets or sets the callback invoked by the <see cref="Initialize"/> method.
+            /// </summary>
+            public static Action<TelemetryConfiguration> OnInitialize = item => { };
+
+            public void Initialize(TelemetryConfiguration configuration)
+            {
+                OnInitialize(configuration);
             }
         }
 
