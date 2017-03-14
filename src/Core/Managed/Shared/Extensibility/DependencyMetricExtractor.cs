@@ -119,14 +119,13 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
 
         /// <summary>
-        /// Initializes the metrics based on settings.
+        /// Initializes the internal metrics trackers based on settings.
         /// </summary>
         /// <param name="unusedConfiguration">Is not currently used.</param>
         public override void InitializeExtractor(TelemetryConfiguration unusedConfiguration)
         {
             ReinitializeMetrics(this.metrics?.MaxDependencyTypesToDiscover ?? MaxDependenctTypesToDiscoverDefault);
         }
-
 
         /// <summary>
         /// Extracts appropriate data points for auto-collected, pre-aggregated metrics from a single <c>DependencyTelemetry</c> item.
@@ -178,31 +177,35 @@ namespace Microsoft.ApplicationInsights.Extensibility
 
                 if (dependencyType == null)
                 {
-                    // If dependency type is not set, we use "Unknown".
+                    // If dependency type is not set, we use "Unknown":
                     metricToTrack = (dependencyFailed)
                                     ? allMetrics.Unknown.Failure
                                     : allMetrics.Unknown.Success;
                 }
                 else
                 {
+                    // See if we have already duscovered the current dependency type:
                     SucceessAndFailureMetrics typeMetrics;
                     bool previouslyDiscovered = allMetrics.ByType.TryGetValue(dependencyType, out typeMetrics);
 
-                    // We are aiming to discover one or more types and we have encountered a non-null type that has not been previously seen.
-                    // We will see if we reached the limit of types to discover already. If we did, the current item will go into the Other bucket.
-                    // In case that we have not yet reached the limit, we will need to take a lock.
-                    // This is a very rare case. It is expected to occur only MaxDependencyTypesToDiscover times.
-                    // In case of very high contention, this may happen more often, but will no longer happen once the MaxDependencyTypesToDiscover limit is reached.
                     if (!previouslyDiscovered)
                     {
+                        // We have not seen the current dependency type yet:
+
                         if (allMetrics.ByType.Count >= allMetrics.MaxDependencyTypesToDiscover)
                         {
+                            // If the limit of types to discover is already reached, just use "Other":
                             metricToTrack = (dependencyFailed)
                                     ? allMetrics.Default.Failure
                                     : allMetrics.Default.Success;
                         }
                         else
                         {
+                            // So we have not yet reached the limit.
+                            // We will need to take a lock to make sure that the number of discovered types is used correctly as a limit.
+                            // Note: this is a very rare case. It is expected to occur only MaxDependencyTypesToDiscover times.
+                            // In case of very high contention, this may happen a little more often,
+                            // but will no longer happen once the MaxDependencyTypesToDiscover limit is reached.
                             try
                             {
                                 typeMetrics = allMetrics.ByType.GetOrAdd(
@@ -236,11 +239,13 @@ namespace Microsoft.ApplicationInsights.Extensibility
                             }
                             catch(InvalidOperationException)
                             {
+                                // Limit was reached concurrently. We will use "Other" after all:
                                 metricToTrack = (dependencyFailed)
                                     ? allMetrics.Default.Failure
                                     : allMetrics.Default.Success;
                             }
 
+                            // Use the newly created metric for thisnewly discovered dependency type:
                             metricToTrack = (dependencyFailed)
                                     ? typeMetrics.Failure
                                     : typeMetrics.Success;
@@ -249,10 +254,15 @@ namespace Microsoft.ApplicationInsights.Extensibility
                 }
             }
             
+            // Now that we selected the right metric, track the value:
             isItemProcessed = true;
             metricToTrack.Track(dependencyCall.Duration.TotalMilliseconds);
         }
 
+        /// <summary>
+        /// Initializes the privates and activates them atomically.
+        /// </summary>
+        /// <param name="maxDependencyTypesToDiscoverCount"></param>
         private void ReinitializeMetrics(int maxDependencyTypesToDiscoverCount)
         {
             MetricManager metricManager = this.MetricManager;

@@ -6,6 +6,11 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
 namespace Microsoft.ApplicationInsights.Extensibility
 {
+
+    /// <summary>
+    /// Participates in the telemetry pipeline as a telemetry processor and enables subclasses to extracts auto-collected, pre-aggregated
+    /// metrics from telemetry objects unsing minimal effort.
+    /// </summary>
     public abstract class MetricExtractorTelemetryProcessorBase : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
         private MetricManager metricManager = null;
