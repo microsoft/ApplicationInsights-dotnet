@@ -374,10 +374,8 @@
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
-#if !NETSTANDARD1_3
                 // logs rich payload ETW event for any partners to process it                
                 RichPayloadEventSource.Log.Process(telemetry);
-#endif
             }
         }
 
