@@ -102,7 +102,7 @@
                 if ((id > 0) && (id < 65534))
                 {
                     string domainName = data.PayloadString(data.PayloadNames.Length - 1);
-                    result = domainName.StartsWith("/LM/W3SVC") || domainName.StartsWith("ConsoleApp");
+                    result = domainName.StartsWith("/LM/W3SVC") || domainName.StartsWith("ConsoleApp") || domainName.StartsWith("AppInsightsDomain");
                 }
             }
             else
