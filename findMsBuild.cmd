@@ -1,4 +1,4 @@
-@echo off 
+@echo off
 
 IF NOT DEFINED VSVERSION SET VSVERSION=15.0
 
