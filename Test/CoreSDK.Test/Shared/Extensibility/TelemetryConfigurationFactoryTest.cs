@@ -87,7 +87,6 @@
             Assert.False(string.IsNullOrEmpty(configuration.InstrumentationKey));
         }
 
-#if !NETSTANDARD1_3
         [TestMethod]
         public void InitializeAddsOperationContextTelemetryInitializerByDefault()
         {
@@ -97,8 +96,7 @@
             var contextInitializer = configuration.TelemetryInitializers[0];
             Assert.IsType<OperationCorrelationTelemetryInitializer>(contextInitializer);
         }
-#endif
-        
+
         [TestMethod]
         public void InitializeNotifiesTelemetryInitializersImplementingITelemetryModuleInterface()
         {
