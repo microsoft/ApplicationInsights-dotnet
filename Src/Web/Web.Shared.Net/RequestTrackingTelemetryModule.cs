@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Web;
 
+    using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -18,6 +19,8 @@
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
         private bool correlationHeadersEnabled = true;
+        private string telemetryChannelEnpoint;
+        private CorrelationIdLookupHelper correlationIdLookupHelper;
 
         /// <summary>
         /// Gets the list of handler types for which requests telemetry will not be collected
@@ -45,8 +48,21 @@
             {
                 this.correlationHeadersEnabled = value;
             }
-        } 
+        }
 
+        /// <summary>
+        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
+        /// </summary>
+        public string ProfileQueryEndpoint { get; set; }
+
+        internal string EffectiveProfileQueryEndpoint
+        {
+            get
+            {
+                return string.IsNullOrEmpty(this.ProfileQueryEndpoint) ? this.telemetryChannelEnpoint : this.ProfileQueryEndpoint;
+            }
+        }
+        
         /// <summary>
         /// Implements on begin callback of http module.
         /// </summary>
@@ -109,6 +125,39 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
+            if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
+            {
+                string sourceAppId = null;
+
+                try
+                {
+                    sourceAppId = context.Request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey);
+                }
+                catch (Exception ex)
+                {
+                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                }
+                
+                bool correlationIdLookupHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
+
+                string currentComponentAppId = string.Empty;
+                bool foundMyAppId = false;
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && correlationIdLookupHelperInitialized)
+                {
+                    foundMyAppId = this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out currentComponentAppId);
+                }
+
+                // If the source header is present on the incoming request,
+                // and it is an external component (not the same ikey as the one used by the current component),
+                // then populate the source field.
+                if (!string.IsNullOrEmpty(sourceAppId)
+                    && foundMyAppId
+                    && sourceAppId != currentComponentAppId)
+                {
+                    requestTelemetry.Source = sourceAppId;
+                }
+            }
+
             this.telemetryClient.TrackRequest(requestTelemetry);
         }
 
@@ -131,10 +180,25 @@
                 this.telemetryClient.Initialize(requestTelemetry);
             }
 
-            if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                && context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] == null)
+            bool correlationIdHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
+
+            try
             {
-                context.Response.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey);
+                if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
+                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey) == null
+                    && correlationIdHelperInitialized)
+                {
+                    string correlationId;
+
+                    if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
+                    {
+                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey, correlationId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
             }
         }
 
@@ -146,6 +210,11 @@
         {
             this.telemetryClient = new TelemetryClient(configuration);
             this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("web:");
+
+            if (configuration != null && configuration.TelemetryChannel != null)
+            {
+                this.telemetryChannelEnpoint = configuration.TelemetryChannel.EndpointAddress;
+            }
         }
 
         /// <summary>
@@ -173,6 +242,15 @@
         }
 
         /// <summary>
+        /// Simple test hook, that allows for using a stub rather than the implementation that calls the original service.
+        /// </summary>
+        /// <param name="correlationIdLookupHelper">Lookup header to use.</param>
+        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
+        {
+            this.correlationIdLookupHelper = correlationIdLookupHelper;
+        }
+
+        /// <summary>
         /// Checks whether or not handler is a transfer handler.
         /// </summary>
         /// <param name="handler">An instance of handler to validate.</param>
@@ -193,6 +271,23 @@
             }
 
             return false;
+        }
+
+        private bool TryInitializeCorrelationHelperIfNotInitialized()
+        {
+            try
+            {
+                if (this.correlationIdLookupHelper == null)
+                {
+                    this.correlationIdLookupHelper = new CorrelationIdLookupHelper(this.EffectiveProfileQueryEndpoint);
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

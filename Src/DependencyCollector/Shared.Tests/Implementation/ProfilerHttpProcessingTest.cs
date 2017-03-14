@@ -11,6 +11,7 @@
     using System.Net;
     using System.Reflection;
     using System.Threading;
+    using System.Threading.Tasks;
 #if !NET40
     using System.Web;
 #endif
@@ -26,20 +27,21 @@
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-    using Microsoft.VisualStudio.TestTools.UnitTesting;    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
     {
         #region Fields
         private const int TimeAccuracyMilliseconds = 150; // this may be big number when under debugger
+        private const string RandomAppIdEndpoint = "http://app.id.endpoint"; // appIdEndpoint - this really won't be used for tests because of the app id provider override.
         private TelemetryConfiguration configuration;
         private Uri testUrl = new Uri("http://www.microsoft.com/");
         private Uri testUrlNonStandardPort = new Uri("http://www.microsoft.com:911/");
         private List<ITelemetry> sendItems;
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private Exception ex;
-        private ProfilerHttpProcessing httpProcessingProfiler;        
+        private ProfilerHttpProcessing httpProcessingProfiler;
         #endregion //Fields
 
         #region TestInitialize
@@ -98,39 +100,39 @@
         }
 
         /// <summary>
-        /// Validates if DependencyTelemetry sent contains the cross component instrumentation key hash.
+        /// Validates if DependencyTelemetry sent contains the cross component correlation ID.
         /// </summary>
         [TestMethod]
-        [Description("Validates if DependencyTelemetry sent contains the cross component IKey hash.")]
-        public void RddTestHttpProcessingProfilerOnEndAddsIkeyToTargetField()
+        [Description("Validates if DependencyTelemetry sent contains the cross component correlation ID.")]
+        public void RddTestHttpProcessingProfilerOnEndAddsAppIdToTargetField()
         {
-            // Here is a sample IKey Hash, since the test initialize method adds a random ikey. This will not match the hash for current ikey. Hence represents an external component.
-            string hashedIkey = "vwuSMCFBLdIHSdeEXvFnmiXPO5ilQRqw9kO/SE5ino4=";
+            // Here is a sample App ID, since the test initialize method adds a random ikey and our mock getAppId method pretends that the appId for a given ikey is the same as the ikey.
+            // This will not match the current component's App ID. Hence represents an external component.
+            string appId = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
 
-            this.SimulateWebRequestResponseWithIKeyHash(hashedIkey);
+            this.SimulateWebRequestResponseWithAppId(appId);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            Assert.AreEqual(this.testUrl.Host + " | " + hashedIkey, ((DependencyTelemetry)this.sendItems[0]).Target);
+            Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
         /// <summary>
-        /// Validates if DependencyTelemetry sent contains the cross component instrumentation key hash.
+        /// Validates that DependencyTelemetry sent does not contains the cross component correlation id when the caller and callee are the same component.
         /// </summary>
         [TestMethod]
-        [Description("Validates DependencyTelemetry does not sends IKey hash if the IKey is not from a different component.")]
-        public void RddTestHttpProcessingProfilerOnEndDoesNotAddIkeyToTargetFieldForInternalComponents()
+        [Description("Validates DependencyTelemetry does not send correlation ID if the IKey is from the same component")]
+        public void RddTestHttpProcessingProfilerOnEndDoesNotAddAppIdToTargetFieldForInternalComponents()
         {
-            // Initialize the test with a given instrumentation key.
-            this.Initialize("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
-            
-            // Here is the equivalent generated IKey Hash
-            string hashedIkey = "o05HMrc4Og8W1Jyy60JPDPxxQy3bOKyuaj6HudZHTjE=";
+            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
 
-            this.SimulateWebRequestResponseWithIKeyHash(hashedIkey);
+            // Initialize the test with a given instrumentation key.
+            this.Initialize(appId);
+
+            this.SimulateWebRequestResponseWithAppId(appId);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
 
-            // As opposed to this.testUrl.Host + " | " + hashedIkey
+            // As opposed to this.testUrl.Host + " | " + correlationId
             Assert.AreEqual(this.testUrl.Host, ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
@@ -143,10 +145,10 @@
         {
             var request = WebRequest.Create(this.testUrl);
 
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey));
         }
 
         /// <summary>
@@ -186,9 +188,9 @@
                 Assert.AreNotEqual(request.Headers[RequestResponseHeaders.StandardParentIdHeader], op.Telemetry.Context.Operation.Id);
             }
         }
-        
+
         /// <summary>
-        /// Ensures that the source request header is not added when request is sent as per the config.
+        /// Ensures that the source request header is not added, as per the config, when request is sent.
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not added when the config commands as such")]
@@ -198,18 +200,18 @@
             string url = string.Format(CultureInfo.InvariantCulture, "http://hostnamestart{0}hostnameend.com/path/to/something?param=1", hostnamepart);
             var request = WebRequest.Create(new Uri(url));
 
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
-            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>());
+            var httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ false, new List<string>(), RandomAppIdEndpoint);
             httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
 
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
-            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList);
+            httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, exclusionList, RandomAppIdEndpoint);
             httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNull(request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader]);
+            Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
             Assert.AreEqual(0, request.Headers.Keys.Cast<string>().Where((x) => { return x.StartsWith("x-ms-", StringComparison.OrdinalIgnoreCase); }).Count());
         }
 
@@ -218,18 +220,29 @@
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
-        public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSourceHeader()
+        public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSource()
         {
-            string sampleHeaderValue = "helloWorld";
+            string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextSourceKey + "=HelloWorld";
             var request = WebRequest.Create(this.testUrl);
 
-            request.Headers.Add(RequestResponseHeaders.SourceInstrumentationKeyHeader, sampleHeaderValue);
+            request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithAppId);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            var actualHeaderValue = request.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+            var actualHeaderValue = request.Headers[RequestResponseHeaders.RequestContextHeader];
 
             Assert.IsNotNull(actualHeaderValue);
-            Assert.AreEqual(sampleHeaderValue, actualHeaderValue);
+            Assert.AreEqual(sampleHeaderValueWithAppId, actualHeaderValue);
+
+            string sampleHeaderValueWithoutAppId = "helloWorld";
+            request = WebRequest.Create(this.testUrl);
+
+            request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithoutAppId);
+
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+            actualHeaderValue = request.Headers[RequestResponseHeaders.RequestContextHeader];
+
+            Assert.IsNotNull(actualHeaderValue);
+            Assert.AreNotEqual(sampleHeaderValueWithAppId, actualHeaderValue);
         }
 
         /// <summary>
@@ -820,18 +833,27 @@
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
 
-        private void SimulateWebRequestResponseWithIKeyHash(string hashedIkey)
+        private void SimulateWebRequestResponseWithAppId(string appId)
         {
             var request = WebRequest.Create(this.testUrl);
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, hashedIkey);
+            headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(appId));
 
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
-            returnObjectPassed.Headers[RequestResponseHeaders.TargetInstrumentationKeyHeader] = hashedIkey;
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
             var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
+        }
+
+        private string GetCorrelationIdValue(string appId)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "cid-v1:{0}", appId);
+        }
+
+        private string GetCorrelationIdHeaderValue(string appId)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextTargetKey, appId);
         }
 
         private void Initialize(string instrumentationKey)
@@ -841,7 +863,23 @@
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = instrumentationKey;
-            this.httpProcessingProfiler = new ProfilerHttpProcessing(this.configuration, null, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>());
+            this.httpProcessingProfiler = new ProfilerHttpProcessing(
+                this.configuration,
+                null,
+                new ObjectInstanceBasedOperationHolder(),
+                true /*setCorrelationHeaders*/,
+                new List<string>(),
+                RandomAppIdEndpoint);
+
+            var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
+            {
+                // Pretend App Id is the same as Ikey
+                var tcs = new TaskCompletionSource<string>();
+                tcs.SetResult(ikey);
+                return tcs.Task;
+            });
+
+            this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
             this.ex = new Exception();
         }
         #endregion Helpers

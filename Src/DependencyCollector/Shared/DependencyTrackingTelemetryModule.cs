@@ -62,6 +62,19 @@
         }
 
         /// <summary>
+        /// Gets or sets the endpoint that is to be used to get the application insights resource's profile (appId etc.).
+        /// </summary>
+        public string ProfileQueryEndpoint { get; set; }
+
+        internal string EffectiveProfileQueryEndpoint
+        {
+            get
+            {
+                return string.IsNullOrEmpty(this.ProfileQueryEndpoint) ? this.telemetryConfiguration.TelemetryChannel.EndpointAddress : this.ProfileQueryEndpoint;
+            }
+        }
+
+        /// <summary>
         /// IDisposable implementation.
         /// </summary>
         public void Dispose()
@@ -116,7 +129,7 @@
             var agentVersion = Decorator.GetAgentVersion();
             DependencyCollectorEventSource.Log.RemoteDependencyModuleInformation("AgentVersion is " + agentVersion);
 
-            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains);
+            this.httpProcessing = new ProfilerHttpProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.WebRequestConditionalHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains, this.EffectiveProfileQueryEndpoint);
             this.sqlCommandProcessing = new ProfilerSqlCommandProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
             this.sqlConnectionProcessing = new ProfilerSqlConnectionProcessing(this.telemetryConfiguration, agentVersion, DependencyTableStore.Instance.SqlRequestConditionalHolder);
 
