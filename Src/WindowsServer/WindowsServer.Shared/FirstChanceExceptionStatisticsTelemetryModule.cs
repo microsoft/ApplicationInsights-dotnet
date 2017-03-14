@@ -124,14 +124,25 @@
                 }
             }
 
-            // mark exception as tracked
-            exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
+            // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
+            // so the .Data is now writable. Also it may be null in certain cases
+            if (exception.Data != null && !exception.Data.IsReadOnly)
+            {
+                // mark exception as tracked
+                exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
+            }
+
             return wasTracked;
         }
 
         private static bool IsTracked(Exception exception)
         {
-            return exception.Data.Contains(ExceptionIsTracked);
+            if (exception.Data != null)
+            {
+                return exception.Data.Contains(ExceptionIsTracked);
+            }
+
+            return false;
         }
 
         /// <summary>
