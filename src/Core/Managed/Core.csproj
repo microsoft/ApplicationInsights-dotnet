@@ -1,5 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project>
+  <!--
+       Workaround for https://github.com/dotnet/sdk/issues/803
+       Set BaseIntermediateOutputPath before including Sdk.props
+  -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'BaseIntermediateOutputPath.props'))\BaseIntermediateOutputPath.props" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
@@ -15,7 +20,6 @@
 
     <TargetFrameworks>net40;net45;net46;netstandard1.3</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DefaultItemExcludes>$(DefaultItemExcludes);DummyCore\**;NuGet\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +34,6 @@
 
   <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
-    <PackageReference Include="MicroBuild.Core" Version="0.2.0" />
     <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" />
   </ItemGroup>
 
@@ -41,6 +44,7 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
-  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" />
 
+  <!-- Part of workaround for https://github.com/dotnet/sdk/issues/803 -->
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

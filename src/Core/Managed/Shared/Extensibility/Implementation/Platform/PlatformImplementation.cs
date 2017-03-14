@@ -1,6 +1,4 @@
-﻿#if NETSTANDARD1_3
-    // netstandard1.3 has it's own implementation
-#else
+﻿#if !NETSTANDARD1_3 // netstandard1.3 has it's own implementation
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
