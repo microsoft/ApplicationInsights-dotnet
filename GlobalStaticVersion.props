@@ -5,9 +5,9 @@
       Semantic Version. See http://semver.org for full details. 
       Update for every public release. 
     -->
-    <SemanticVersionMajor>2</SemanticVersionMajor>
-    <SemanticVersionMinor>3</SemanticVersionMinor>
-    <SemanticVersionPatch>0</SemanticVersionPatch>
+    <SemanticVersionMajor>5</SemanticVersionMajor>
+    <SemanticVersionMinor>0</SemanticVersionMinor>
+    <SemanticVersionPatch>6</SemanticVersionPatch>
     <PreReleaseMilestone>beta3</PreReleaseMilestone>
     <!-- 
       Date when Semantic Version was changed. 

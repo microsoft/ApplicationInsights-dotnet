@@ -8,18 +8,20 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
     public abstract class MetricExtractorTelemetryProcessorBase : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
-        private MetricManager _metricManager = null;
-        private ITelemetryProcessor _nextProcessorInPipeline = null;
-        private string _extractorName = null;
+        private MetricManager metricManager = null;
+        private ITelemetryProcessor nextProcessorInPipeline = null;
+        private string extractorName = null;
 
         public MetricExtractorTelemetryProcessorBase(ITelemetryProcessor nextProcessorInPipeline)
             : this(nextProcessorInPipeline, metricTelemetryMarkerKey: null, metricTelemetryMarkerValue: null)
         {
         }
 
-        public MetricExtractorTelemetryProcessorBase(ITelemetryProcessor nextProcessorInPipeline, string metricTelemetryMarkerKey, string metricTelemetryMarkerValue)
+        public MetricExtractorTelemetryProcessorBase(ITelemetryProcessor nextProcessorInPipeline,
+                                                     string metricTelemetryMarkerKey,
+                                                     string metricTelemetryMarkerValue)
         {
-            _nextProcessorInPipeline = nextProcessorInPipeline;
+            this.nextProcessorInPipeline = nextProcessorInPipeline;
 
             if (metricTelemetryMarkerKey != null)
             {
@@ -49,18 +51,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
         protected MetricManager MetricManager
         {
-            get { return _metricManager; }
+            get { return this.metricManager; }
         }
 
         protected virtual string ExtractorName
         {
             get
             {
-                string name = _extractorName;
+                string name = this.extractorName;
                 if (name == null)
                 {
                     name = this.GetType().FullName;
-                    _extractorName = name;  // benign race
+                    this.extractorName = name;  // benign race
                 }
                 return name;
             }
@@ -75,8 +77,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             {
                 telemetryClient.Context.Properties[MetricTelemetryMarkerKey] = MetricTelemetryMarkerValue;
             }
-            
-            _metricManager = new MetricManager(telemetryClient);
+
+            this.metricManager = new MetricManager(telemetryClient);
 
             InitializeExtractor(configuration);
         }
@@ -118,7 +120,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
                                                      extractorVersion);
 
             string extractionPipelineInfo;
-            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ConsideredByProcessors.Moniker.Key, out extractionPipelineInfo);
+            bool hasPrevInfo = item.Context.Properties.TryGetValue(MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key, out extractionPipelineInfo);
 
             if (! hasPrevInfo)
             {
@@ -133,12 +135,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
             }
 
             extractionPipelineInfo = extractionPipelineInfo + thisExtractorInfo;
-            item.Context.Properties[MetricTerms.Extraction.ConsideredByProcessors.Moniker.Key] = extractionPipelineInfo;
+            item.Context.Properties[MetricTerms.Extraction.ProcessedByExtractors.Moniker.Key] = extractionPipelineInfo;
         }
 
         private void InvokeNextProcessor(ITelemetry item)
         {
-            ITelemetryProcessor next = _nextProcessorInPipeline;
+            ITelemetryProcessor next = this.nextProcessorInPipeline;
             if (next != null)
             {
                 next.Process(item);
@@ -152,12 +154,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 
         protected virtual void Dispose(bool disposing)
         {
-            IDisposable metricManager = _metricManager;
-            if (metricManager != null)
+            IDisposable metricMgr = this.metricManager;
+            if (metricMgr != null)
             {
                 // benign race
-                metricManager.Dispose();
-                _metricManager = null;
+                metricMgr.Dispose();
+                this.metricManager = null;
             }
         }
 
