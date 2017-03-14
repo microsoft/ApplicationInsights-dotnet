@@ -1,11 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Global.props'))\Global.props" />
   <Import Project=".\GlobalStaticVersion.props" />
-  <PropertyGroup>
-    <!-- This will be set in dirs.proj for the build -->
-    <PreReleaseVersion Condition="'$(PreReleaseVersion)' == ''">$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
-  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Global.props'))\Global.props" />
 
   <PropertyGroup>
     <ErrorReport>prompt</ErrorReport>
