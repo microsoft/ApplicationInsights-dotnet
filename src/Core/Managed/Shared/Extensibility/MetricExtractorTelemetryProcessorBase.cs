@@ -4,7 +4,7 @@ using System.Globalization;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-namespace Microsoft.ApplicationInsights.Extensibility.Metrics
+namespace Microsoft.ApplicationInsights.Extensibility
 {
     public abstract class MetricExtractorTelemetryProcessorBase : ITelemetryProcessor, ITelemetryModule, IDisposable
     {

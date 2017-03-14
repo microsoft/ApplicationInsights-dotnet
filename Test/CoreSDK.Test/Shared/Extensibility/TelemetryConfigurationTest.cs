@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Metrics
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
     using System.Reflection;

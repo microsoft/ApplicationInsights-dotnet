@@ -5,7 +5,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
-namespace Microsoft.ApplicationInsights.Extensibility.Metrics
+namespace Microsoft.ApplicationInsights.Extensibility
 {
     public class DependencyMetricExtractor : MetricExtractorTelemetryProcessorBase
     {

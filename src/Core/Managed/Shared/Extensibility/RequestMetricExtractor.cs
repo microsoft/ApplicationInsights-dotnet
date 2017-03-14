@@ -4,7 +4,7 @@ using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using System.Collections.Generic;
 
-namespace Microsoft.ApplicationInsights.Extensibility.Metrics
+namespace Microsoft.ApplicationInsights.Extensibility
 {
     public class RequestMetricExtractor : MetricExtractorTelemetryProcessorBase
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.ApplicationInsights.Extensibility.Metrics.MetricTerms
+namespace Microsoft.ApplicationInsights.Extensibility.MetricTerms
 {
     internal static class Shared
     {
@@ -61,7 +61,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Metrics.MetricTerms
 }
 
 
-//namespace Microsoft.ApplicationInsights.Extensibility.Metrics
+//namespace Microsoft.ApplicationInsights.Extensibility
 //{
 //    internal static class MetricTerms
 //    {

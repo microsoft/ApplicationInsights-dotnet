@@ -38,8 +38,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SeverityLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\DependencyMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\IMetricProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IMetricProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metric.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricExtractorTelemetryProcessorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AvailabilityData_types.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\Base_types.cs" />
@@ -62,7 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\HttpWebResponseWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\RichPayloadEventSource.Keywords.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SdkVersionUtils.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\SimpleMetricStatisticsAggregator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TaskTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryDebugWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\CloudContext.cs" />
@@ -121,12 +125,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\Metric.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\MetricExtractorTelemetryProcessorBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\MetricManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\DependencyMetricExtractor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\MetricTerms.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metrics\RequestMetricExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTerms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\RequestMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />
