@@ -293,30 +293,6 @@
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "404");
         }
 
-#if !NET40
-        /// <summary>
-        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.")]
-        [Owner("mafletch")]
-        [TestCategory("CVT")]
-        public void RddTestHttpProcessingProfilerOnHttpExceptionForGetResponse()
-        {
-            var request = WebRequest.Create(this.testUrl);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            Exception exc = new HttpException(404, "exception message");
-            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
-            stopwatch.Stop();
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "404");
-        }
-#endif
         /// <summary>
         /// Validates HttpProcessingProfiler OnBegin logs error into EventLog when passed invalid thisObject.
         /// </summary>
