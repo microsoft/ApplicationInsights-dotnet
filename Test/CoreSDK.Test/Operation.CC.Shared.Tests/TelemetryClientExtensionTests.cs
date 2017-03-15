@@ -121,12 +121,12 @@
         [TestMethod]
         public void StartDependencyTrackingHandlesMultipleContextStoresInCallContext()
         {
-            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as CallContextBasedOperationHolder<DependencyTelemetry>;
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var parentContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(operation.Telemetry.Id, parentContextStore.ParentOperationId);
             Assert.AreEqual(operation.Telemetry.Context.Operation.Name, parentContextStore.RootOperationName);
 
-            var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as CallContextBasedOperationHolder<DependencyTelemetry>;
+            var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var childContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(childOperation.Telemetry.Id, childContextStore.ParentOperationId);
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, childContextStore.RootOperationName);
@@ -150,7 +150,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void StopDependencyTrackingThrowsExceptionWithNullTelemetryClient()
         {
-            var operationItem = new CallContextBasedOperationHolder<DependencyTelemetry>(this.telemetryClient, new DependencyTelemetry());
+            var operationItem = new OperationHolder<DependencyTelemetry>(this.telemetryClient, new DependencyTelemetry());
             TelemetryClient tc = null;
             tc.StopOperation(operationItem);
         }

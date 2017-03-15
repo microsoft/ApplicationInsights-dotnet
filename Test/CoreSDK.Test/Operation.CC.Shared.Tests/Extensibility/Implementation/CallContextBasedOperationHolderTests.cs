@@ -17,7 +17,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreatingOperationItemWithNullTelemetryClientThrowsArgumentNullException()
         {
-            var operationItem = new CallContextBasedOperationHolder<DependencyTelemetry>(null, new DependencyTelemetry());
+            var operationItem = new OperationHolder<DependencyTelemetry>(null, new DependencyTelemetry());
         }
 
         /// <summary>
@@ -27,7 +27,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreatingOperationItemWithNullTelemetryThrowsArgumentNullException()
         {
-            var operationItem = new CallContextBasedOperationHolder<DependencyTelemetry>(new TelemetryClient(), null);
+            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(), null);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         [TestMethod]
         public void CreatingOperationItemDoesNotThrowOnPassingValidArguments()
         {
-            var operationItem = new CallContextBasedOperationHolder<DependencyTelemetry>(new TelemetryClient(), new DependencyTelemetry());
+            var operationItem = new OperationHolder<DependencyTelemetry>(new TelemetryClient(), new DependencyTelemetry());
         }
     }
 }

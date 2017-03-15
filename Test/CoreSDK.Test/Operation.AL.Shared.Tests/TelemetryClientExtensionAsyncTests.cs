@@ -31,7 +31,7 @@
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
         }
 
         /// <summary>

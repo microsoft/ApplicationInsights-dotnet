@@ -23,13 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="shared\**\*.cs" Exclude="$(DefaultItemExcludes);net40\**;net45\**;net46\**;netstandard1.3\**;Operation.AL.Shared\**;Operation.CC.Shared\**" />
+    <Compile Include="shared\**\*.cs" Exclude="$(DefaultItemExcludes);net40\**;net45\**;net46\**;netstandard1.3\**" />
     <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
     <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
     <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
     <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
-    <Compile Include="Operation.AL.Shared\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
-    <Compile Include="Operation.CC.Shared\**\*.cs" Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'" />
   </ItemGroup>
 
   <ItemGroup>

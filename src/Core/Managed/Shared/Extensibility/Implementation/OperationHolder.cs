@@ -6,7 +6,7 @@
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
     /// </summary>
-    internal class CallContextBasedOperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
+    internal class OperationHolder<T> : IOperationHolder<T> where T : OperationTelemetry
     {
         /// <summary>
         /// Parent context store that is used to restore call context.
@@ -22,12 +22,12 @@
         private bool isDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CallContextBasedOperationHolder{T}"/> class.
+        /// Initializes a new instance of the <see cref="OperationHolder{T}"/> class.
         /// Initializes telemetry client.
         /// </summary>
         /// <param name="telemetryClient">Initializes telemetry client object.</param>
         /// <param name="telemetry">Operation telemetry item that is assigned to the telemetry associated to the current operation item.</param>
-        public CallContextBasedOperationHolder(TelemetryClient telemetryClient, T telemetry)
+        public OperationHolder(TelemetryClient telemetryClient, T telemetry)
         {
             if (telemetry == null)
             {

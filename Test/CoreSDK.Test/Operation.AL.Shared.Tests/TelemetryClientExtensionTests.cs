@@ -24,13 +24,13 @@
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@
             Assert.IsNotNull(operation);
             Assert.IsNotNull(operation.Telemetry);
 
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
 
         }
 
@@ -72,56 +72,56 @@
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.AreNotEqual(operation.Telemetry.Timestamp, DateTimeOffset.MinValue);
 
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
         }
 
         [TestMethod]
         public void StartDependencyTrackingAddsOperationContextStoreToCallContext()
         {
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
-            Assert.IsNotNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNotNull(CallContextHelpers.GetCurrentOperationContext());
 
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
 
         }
 
         [TestMethod]
         public void UsingSendsTelemetryAndDisposesOperationItem()
         {
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
             {
             }
 
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             Assert.AreEqual(1, this.sendItems.Count);
-            AsyncLocalHelpers.SaveOperationContext(null);
+            CallContextHelpers.SaveOperationContext(null);
         }
 
         [TestMethod]
         public void UsingWithStopOperationSendsTelemetryAndDisposesOperationItemOnlyOnce()
         {
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
             {
                 this.telemetryClient.StopOperation(operation);
             }
 
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             Assert.AreEqual(1, this.sendItems.Count);
         }
 
         [TestMethod]
         public void StartDependencyTrackingHandlesMultipleContextStoresInCallContext()
         {
-            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as AsyncLocalBasedOperationHolder<DependencyTelemetry>;
-            var parentContextStore = AsyncLocalHelpers.GetCurrentOperationContext();
+            var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
+            var parentContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(operation.Telemetry.Id, parentContextStore.ParentOperationId);
             Assert.AreEqual(operation.Telemetry.Context.Operation.Name, parentContextStore.RootOperationName);
 
-            var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as AsyncLocalBasedOperationHolder<DependencyTelemetry>;
-            var childContextStore = AsyncLocalHelpers.GetCurrentOperationContext();
+            var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
+            var childContextStore = CallContextHelpers.GetCurrentOperationContext();
             Assert.AreEqual(childOperation.Telemetry.Id, childContextStore.ParentOperationId);
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, childContextStore.RootOperationName);
 
@@ -129,9 +129,9 @@
             Assert.AreEqual(parentContextStore, childOperation.ParentContext);
 
             this.telemetryClient.StopOperation(childOperation);
-            Assert.AreEqual(parentContextStore, AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.AreEqual(parentContextStore, CallContextHelpers.GetCurrentOperationContext());
             this.telemetryClient.StopOperation(operation);
-            Assert.IsNull(AsyncLocalHelpers.GetCurrentOperationContext());
+            Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@
         [ExpectedException(typeof(ArgumentNullException))]
         public void StopDependencyTrackingThrowsExceptionWithNullTelemetryClient()
         {
-            var operationItem = new AsyncLocalBasedOperationHolder<DependencyTelemetry>(this.telemetryClient, new DependencyTelemetry());
+            var operationItem = new OperationHolder<DependencyTelemetry>(this.telemetryClient, new DependencyTelemetry());
             TelemetryClient tc = null;
             tc.StopOperation(operationItem);
         }
@@ -182,7 +182,7 @@
         public void StartDependencyTrackingStoresTheArgumentOperationNameInContext()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
-            Assert.AreEqual("TestOperationName", AsyncLocalHelpers.GetCurrentOperationContext().RootOperationName);
+            Assert.AreEqual("TestOperationName", CallContextHelpers.GetCurrentOperationContext().RootOperationName);
         }
 
         [TestMethod]
