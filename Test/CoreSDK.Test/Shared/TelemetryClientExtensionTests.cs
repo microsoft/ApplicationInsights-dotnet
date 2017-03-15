@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Messaging;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -25,13 +24,13 @@
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
+            CallContextHelpers.RestoreOperationContext(null);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName); 
+            CallContextHelpers.RestoreOperationContext(null);
         }
 
         [TestMethod]
@@ -40,8 +39,6 @@
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(operation);
             Assert.IsNotNull(operation.Telemetry);
-
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
         [TestMethod]
@@ -78,8 +75,6 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.AreNotEqual(operation.Telemetry.Timestamp, DateTimeOffset.MinValue);
-
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
         [TestMethod]
@@ -88,8 +83,6 @@
             Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(CallContextHelpers.GetCurrentOperationContext());
-
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
         [TestMethod]
@@ -102,7 +95,6 @@
 
             Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             Assert.AreEqual(1, this.sendItems.Count);
-            CallContext.FreeNamedDataSlot(CallContextHelpers.OperationContextSlotName);
         }
 
         [TestMethod]
@@ -227,7 +219,7 @@
         [TestMethod]
         public void StartOperationCanOverrideRootAndParentOperationId()
         {
-            using (var operation1 = this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
+            using (this.telemetryClient.StartOperation<RequestTelemetry>("Request", operationId: "ROOT", parentOperationId: "PARENT"))
             {
             }
 

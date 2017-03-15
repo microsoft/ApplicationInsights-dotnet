@@ -8,7 +8,7 @@
     /// Tests corresponding to TelemetryClientExtension methods.
     /// </summary>
     [TestClass]
-    public class CallContextBasedOperationHolderTests
+    public class OperationHolderTests
     {
         /// <summary>
         /// Tests the scenario if OperationItem throws ArgumentNullException with null telemetry client.
