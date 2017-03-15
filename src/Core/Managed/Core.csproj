@@ -28,7 +28,7 @@
     <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
     <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
     <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
-    <Compile Include="Operation.AL.Shared\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
+    <Compile Include="Operation.AL.Shared\**\*.cs" Condition="'$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'netstandard1.3'" />
     <Compile Include="Operation.CC.Shared\**\*.cs" Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'" />
   </ItemGroup>
 
