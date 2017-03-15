@@ -56,9 +56,8 @@
                 modules.Modules.Add(new DiagnosticsTelemetryModule());
             }
 
-#if !NETSTANDARD1_3
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-#endif
+
             // Load configuration from the specified configuration
             if (!string.IsNullOrEmpty(serializedConfiguration))
             {

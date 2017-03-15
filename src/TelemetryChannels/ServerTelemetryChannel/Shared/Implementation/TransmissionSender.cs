@@ -179,12 +179,25 @@
                     if (responseContent == null && exception is WebException)
                     {
                         HttpWebResponse response = (HttpWebResponse)((WebException)exception).Response;
-                        responseContent = new HttpWebResponseWrapper()
+
+                        if (response != null)
                         {
-                            StatusCode = (int)response.StatusCode,
-                            StatusDescription = response.StatusDescription,
-                            RetryAfterHeader = response.Headers?.Get("Retry-After")
-                        };
+                            responseContent = new HttpWebResponseWrapper()
+                            {
+                                StatusCode = (int)response.StatusCode,
+                                StatusDescription = response.StatusDescription,
+                                RetryAfterHeader = response.Headers?.Get("Retry-After")
+                            };
+                        }
+                        else
+                        {
+                            responseContent = new HttpWebResponseWrapper()
+                            {
+                                StatusCode = 0,
+                                StatusDescription = null,
+                                RetryAfterHeader = null
+                            };
+                        }
                     }
 
                     this.OnTransmissionSent(new TransmissionProcessedEventArgs(acceptedTransmission, exception, responseContent));
