@@ -29,6 +29,7 @@
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
       </group>
       <group targetFramework="netstandard1.3">
+        <dependency id="NETStandard.Library" version="1.6.1" />
       </group>
     </dependencies>
   </metadata>
