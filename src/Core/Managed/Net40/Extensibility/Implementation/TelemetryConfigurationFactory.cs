@@ -50,46 +50,58 @@
 
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules, string serializedConfiguration)
         {
-            if (modules != null)
+#if !CORE_PCL
+            try
             {
-                // Create diagnostics module so configuration loading errors are reported to the portal    
-                modules.Modules.Add(new DiagnosticsTelemetryModule());
-            }
+                SdkInternalOperationsMonitor.Enter();
+#endif
+                if (modules != null)
+                {
+                    // Create diagnostics module so configuration loading errors are reported to the portal    
+                    modules.Modules.Add(new DiagnosticsTelemetryModule());
+                }
 
 #if !CORE_PCL
-            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+                configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 #endif
-            // Load configuration from the specified configuration
-            if (!string.IsNullOrEmpty(serializedConfiguration))
-            {
-                try
+                // Load configuration from the specified configuration
+                if (!string.IsNullOrEmpty(serializedConfiguration))
                 {
-                    XDocument xml = XDocument.Parse(serializedConfiguration);
-                    LoadFromXml(configuration, modules, xml);
+                    try
+                    {
+                        XDocument xml = XDocument.Parse(serializedConfiguration);
+                        LoadFromXml(configuration, modules, xml);
+                    }
+                    catch (XmlException exp)
+                    {
+                        CoreEventSource.Log.ConfigurationFileCouldNotBeParsedError(exp.Message);
+                    }
                 }
-                catch (XmlException exp)
+
+                // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
+                string environmentIKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
+                if (!string.IsNullOrEmpty(environmentIKey))
                 {
-                    CoreEventSource.Log.ConfigurationFileCouldNotBeParsedError(exp.Message);
+                    configuration.InstrumentationKey = environmentIKey;
                 }
-            }
 
-            // If an environment variable exists with an instrumentation key then use it (instead) for the "blackfield" scenario.
-            string environmentIKey = PlatformSingleton.Current.GetEnvironmentVariable(InstrumentationKeyWebSitesEnvironmentVariable);
-            if (!string.IsNullOrEmpty(environmentIKey))
+                // Creating the default channel if no channel configuration supplied
+                configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
+
+                // Creating the the processor chain with default processor (transmissionprocessor) if none configured
+                if (configuration.TelemetryProcessors == null)
+                {
+                    configuration.TelemetryProcessorChainBuilder.Build();
+                }
+
+                InitializeComponents(configuration, modules);
+#if !CORE_PCL
+            }
+            finally
             {
-                configuration.InstrumentationKey = environmentIKey;
+                SdkInternalOperationsMonitor.Exit();
             }
-
-            // Creating the default channel if no channel configuration supplied
-            configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
-
-            // Creating the the processor chain with default processor (transmissionprocessor) if none configured
-            if (configuration.TelemetryProcessors == null)
-            {
-                configuration.TelemetryProcessorChainBuilder.Build();
-            }
-
-            InitializeComponents(configuration, modules);
+#endif
         }
 
         public virtual void Initialize(TelemetryConfiguration configuration, TelemetryModules modules)
