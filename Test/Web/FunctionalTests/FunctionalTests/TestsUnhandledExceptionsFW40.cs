@@ -16,7 +16,7 @@
 
         private const int TestListenerTimeoutInMs = 30000;
 
-        protected HttpListenerObservable Listener { get; private set; }
+        protected TelemetryHttpListenerObservable Listener { get; private set; }
 
         protected EtwEventSession EtwSession { get; private set; }
 
@@ -31,7 +31,7 @@
 
             Trace.WriteLine("Application directory:" + this.applicationDirectory);
 
-            this.Listener = new HttpListenerObservable("http://localhost:4002/v2/track/");
+            this.Listener = new TelemetryHttpListenerObservable("http://localhost:4002/v2/track/");
             this.Listener.Start();
 
             this.EtwSession = new EtwEventSession();
