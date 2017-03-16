@@ -79,10 +79,10 @@
                 throw new ArgumentNullException("operationTelemetry cannot be null.");
             }
 
-            var operationHolder = new AsyncLocalBasedOperationHolder<T>(telemetryClient, operationTelemetry)
+            var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
             {
                 // Parent context store is assigned to operation that is used to restore call context.
-                ParentContext = AsyncLocalHelpers.GetCurrentOperationContext()
+                ParentContext = CallContextHelpers.GetCurrentOperationContext()
             };
 
             telemetryClient.Initialize(operationTelemetry);
@@ -108,11 +108,11 @@
             operationTelemetry.Start();
 
             // Update the call context to store certain fields that can be used for subsequent operations.
-            var operationContext = new OperationContextForAsyncLocal();
+            var operationContext = new OperationContextForCallContext();
             operationContext.ParentOperationId = operationTelemetry.Id;
             operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
             operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
-            AsyncLocalHelpers.SaveOperationContext(operationContext);
+            CallContextHelpers.SaveOperationContext(operationContext);
 
             return operationHolder;
         }

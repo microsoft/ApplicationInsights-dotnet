@@ -3,9 +3,15 @@
     using Implementation;
     using Microsoft.ApplicationInsights.Channel;
 
+#if NET40 || NET45
     /// <summary>
-    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in AsyncLocal variable.
+    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in CallContext.
     /// </summary>
+#else
+    /// <summary>
+    /// Telemetry initializer that populates OperationContext for the telemetry item based on context stored in an AsyncLocal variable.
+    /// </summary>
+#endif
     public class OperationCorrelationTelemetryInitializer : ITelemetryInitializer
     {
         /// <summary>
@@ -18,7 +24,7 @@
 
             if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
             {
-                var parentContext = AsyncLocalHelpers.GetCurrentOperationContext();
+                var parentContext = CallContextHelpers.GetCurrentOperationContext();
                 if (parentContext != null)
                 {
                     if (string.IsNullOrEmpty(itemContext.ParentId)
