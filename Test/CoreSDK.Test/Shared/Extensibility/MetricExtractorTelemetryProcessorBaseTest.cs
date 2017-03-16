@@ -244,7 +244,6 @@
 
                 Assert.Equal(3, metric.Properties.Count);
                 Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
-                metricTelemetryMarkerValue: 
                 Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
 
                 Assert.True(metric.Properties.ContainsKey("Foo"));

@@ -1,10 +1,11 @@
-﻿using System;
-
-namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+    using System;
+
     internal static class MetricTerms
     {
         private const string MetricPropertiesNamePrefix = "Microsoft.ApplicationInsights.Metrics";
+
         public static class Extraction
         {
             public static class ProcessedByExtractors
@@ -12,6 +13,7 @@ namespace Microsoft.ApplicationInsights.Extensibility
                 public static class Moniker
                 {
                     public const string Key = MetricPropertiesNamePrefix + ".Extraction.ProcessedByExtractors";
+                    public const string ExtractorInfoTemplate = "(Name:{0}, Ver:{1})";      // $"(Name:{ExtractorName}, Ver:{ExtractorVersion})"
                 }
             }
         }
@@ -22,7 +24,6 @@ namespace Microsoft.ApplicationInsights.Extensibility
             {
                 public const string Key = MetricPropertiesNamePrefix + ".MetricIsAutocollected";
                 public const string Value = "True";
-
             }
 
             public static class MetricNames
