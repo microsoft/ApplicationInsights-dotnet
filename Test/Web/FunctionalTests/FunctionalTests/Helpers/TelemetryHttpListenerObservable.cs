@@ -7,91 +7,28 @@
     using System.IO.Compression;
     using System.Net;
     using System.Net.Http;
-    using System.Reactive.Linq;
-    using System.Reactive.Threading.Tasks;
     using System.Text;
     using System.Threading.Tasks;
+    using AI;
     using Functional.Serialization;
     using FunctionalTests.Helpers;
-    using AI;
 
-    public class HttpListenerObservable : IObservable<Envelope>, IDisposable
+    public class TelemetryHttpListenerObservable : HttpListenerObservableBase<Envelope>
     {
-        private readonly HttpListener listener;
-        private IObservable<Envelope> stream;
         private int validatedPackages;
-
-        public HttpListenerObservable(string url)
-        {
-            this.listener = new HttpListener();
-            this.listener.Prefixes.Add(url);
-        }
-
         public bool FailureDetected { get; set; }
 
-        public void Start()
+        public TelemetryHttpListenerObservable(string url) : base(url)
         {
-            this.FailureDetected = false;
-            this.validatedPackages = 0;
-
-            if (this.stream != null)
-            {
-                this.Stop();   
-            }
-
-            if (!this.listener.IsListening)
-            {
-                this.listener.Start();
-            }
-
-            this.stream = this.CreateStream();
         }
 
-        public void Stop()
+        protected override void OnStart()
         {
-            this.Dispose();
+            validatedPackages = 0;
+            FailureDetected = false;
         }
 
-        public IDisposable Subscribe(IObserver<Envelope> observer)
-        {
-            if (this.stream == null)
-            {
-                throw new InvalidOperationException("Call HttpListenerObservable.Start before subscribing to the stream");
-            }
-
-            return this.stream
-                .Subscribe(observer);
-        }
-
-        public void Dispose()
-        {
-            if (listener != null && listener.IsListening)
-            {
-                listener.Stop();
-                listener.Close();
-                this.stream = null;
-            }
-        }
-
-        private IObservable<Envelope> CreateStream()
-        {
-            return Observable
-                .Create<Envelope>
-                (obs =>
-                    Task.Factory.FromAsync(
-                        (a, c) => this.listener.BeginGetContext(a, c),
-                        ar => this.listener.EndGetContext(ar),
-                        null)
-                        .ToObservable()
-                        .SelectMany(this.CreateNewItemsFromContext)
-                        .Subscribe(obs)
-                )
-              .Repeat()
-              .Publish()
-              .RefCount();
-        }
-
-        private IEnumerable<Envelope> CreateNewItemsFromContext(HttpListenerContext context)
+        protected override IEnumerable<Envelope> CreateNewItemsFromContext(HttpListenerContext context)
         {
             try
             {
@@ -150,7 +87,7 @@
                         {
                             break;
                         }
-                        
+
                         outputStream.Write(block, 0, bytesRead);
                     }
                     compressedzipStream.Close();

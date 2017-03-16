@@ -50,6 +50,11 @@ namespace Functional.Helpers
             get { return string.Format(LocalhostUriTemplate, TelemetryListenerPort) + "/v2/track/"; }
         }
 
+        public string AppIdListenerUri
+        {
+            get { return string.Format(LocalhostUriTemplate, TelemetryListenerPort) + "/api/profiles/"; }
+        }
+
         public string IKey { get; set; }
     }
 }
