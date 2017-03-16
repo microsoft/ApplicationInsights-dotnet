@@ -17,7 +17,7 @@
 
             var processors = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform);
 
-            Assert.AreEqual(1, processors.Count());
+            Assert.AreEqual(2, processors.Count());
 
             var type = processors.FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
             Assert.IsNotNull(type);
@@ -26,6 +26,15 @@
             Assert.AreEqual("Event", excludedTypes);
 
             var maxItems = processors.Descendants().Where(element => element.Name.LocalName == "MaxTelemetryItemsPerSecond").First().Value;
+            Assert.AreEqual("5", maxItems);
+
+            type = processors.LastOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
+            Assert.IsNotNull(type);
+
+            var includedTypes = processors.Descendants().Where(element => element.Name.LocalName == "IncludedTypes").First().Value;
+            Assert.AreEqual("Event", includedTypes);
+
+            maxItems = processors.Descendants().Where(element => element.Name.LocalName == "MaxTelemetryItemsPerSecond").First().Value;
             Assert.AreEqual("5", maxItems);
         }
 
@@ -51,7 +60,7 @@
 
             XDocument configAfterUninstall = ConfigurationHelpers.UninstallTransform(customConfig);
 
-            Assert.AreEqual(1, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count); 
+            Assert.AreEqual(2, ConfigurationHelpers.GetTelemetryProcessors(configAfterUninstall).ToList().Count); 
         }
     }
 }

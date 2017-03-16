@@ -2,6 +2,12 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.4.0-beta1
+- Event telemetry is set to be sampled separately from all other telemetry types. It potentially can double the bill. The reason for this change is that Events are mostly used for usage analysis and should not be subject to sampling on high load of requests and dependencies. Edit `ApplicationInsights.config` file to revert to the previous behavior.
+
+## Version 2.3.0
+- Minor bug fixes
+
 ## Version 2.3.0-beta3
 - [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
 - Fire new ETW events for Operation Start/Stop.
