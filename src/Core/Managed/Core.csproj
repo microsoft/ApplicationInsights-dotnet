@@ -32,11 +32,11 @@
 
   <ItemGroup>
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" />
     <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
   </ItemGroup>
 
