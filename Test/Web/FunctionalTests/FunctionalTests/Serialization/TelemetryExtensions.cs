@@ -10,13 +10,14 @@ namespace Functional.Helpers
     using System.IO;
     using System.Linq;
     using System.Reactive.Linq;
-    
+
     using AI;
+    using System.Diagnostics;
 
     public static class TelemetryExtensions
     {
         public static Envelope[] ReceiveItems(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int count,
             int timeOut)
         {
@@ -41,7 +42,7 @@ namespace Functional.Helpers
         }
 
         public static T[] ReceiveItemsOfType<T>(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int count,
             int timeOut)
         {
@@ -62,7 +63,7 @@ namespace Functional.Helpers
         }
 
         public static Envelope[] ReceiveItemsOfTypes<T1, T2>(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int count,
             int timeOut)
         {
@@ -82,7 +83,7 @@ namespace Functional.Helpers
         }
 
         public static Envelope[] ReceiveAllItemsDuringTime(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int timeOut)
         {
             if (null == listener)
@@ -98,7 +99,7 @@ namespace Functional.Helpers
         }
 
         public static T[] ReceiveAllItemsDuringTimeOfType<T>(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int timeOut)
         {
             if (null == listener)
@@ -115,7 +116,7 @@ namespace Functional.Helpers
         }
 
         public static Envelope[] ReceiveAllItemsDuringTimeOfType<T1, T2>(
-            this HttpListenerObservable listener,
+            this TelemetryHttpListenerObservable listener,
             int timeOut)
         {
             if (null == listener)
