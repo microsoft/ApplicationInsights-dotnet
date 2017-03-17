@@ -232,7 +232,7 @@
                 MetricTelemetry metric = ProduceOneMetricAggregation(metricTelemetryMarkerKey: "Foo", metricTelemetryMarkerValue: "Bar");
 
                 Assert.Equal(3, metric.Properties.Count);
-                Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
+                Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                 Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
 
                 Assert.True(metric.Properties.ContainsKey("Foo"));
@@ -243,7 +243,7 @@
                 MetricTelemetry metric = ProduceOneMetricAggregation(metricTelemetryMarkerKey: "Foo", metricTelemetryMarkerValue: "");
 
                 Assert.Equal(3, metric.Properties.Count);
-                Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
+                Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                 Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
 
                 Assert.True(metric.Properties.ContainsKey("Foo"));
@@ -265,7 +265,7 @@
                 MetricTelemetry metric = ProduceOneMetricAggregation(metricTelemetryMarkerKey: null, metricTelemetryMarkerValue: "Bar");
 
                 Assert.Equal(2, metric.Properties.Count);
-                Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
+                Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                 Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
             }
 
@@ -273,7 +273,7 @@
                 MetricTelemetry metric = ProduceOneMetricAggregation(metricTelemetryMarkerKey: "", metricTelemetryMarkerValue: "Bar");
 
                 Assert.Equal(2, metric.Properties.Count);
-                Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
+                Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                 Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
 
                 Assert.False(metric.Properties.ContainsKey(""));

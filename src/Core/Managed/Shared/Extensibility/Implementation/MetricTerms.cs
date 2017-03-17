@@ -1,10 +1,21 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
 
     internal static class MetricTerms
     {
         private const string MetricPropertiesNamePrefix = "Microsoft.ApplicationInsights.Metrics";
+
+        public static class Aggregation
+        {
+            public static class Interval
+            {
+                public static class Moniker
+                {
+                    public const string Key = MetricPropertiesNamePrefix + ".Aggregation.IntervalMs";
+                }
+            }
+        }
 
         public static class Extraction
         {

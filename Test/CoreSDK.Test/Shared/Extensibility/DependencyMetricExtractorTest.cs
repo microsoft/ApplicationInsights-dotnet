@@ -178,7 +178,7 @@
             Assert.Equal(50, metricT.Sum);
 
             Assert.Equal(3, metricT.Properties.Count);
-            Assert.True(metricT.Properties.ContainsKey("IntervalDurationMs"));
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricT.Properties.ContainsKey("Success"));
@@ -196,7 +196,7 @@
             Assert.Equal(300, metricF.Sum);
 
             Assert.Equal(3, metricF.Properties.Count);
-            Assert.True(metricF.Properties.ContainsKey("IntervalDurationMs"));
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricF.Properties.ContainsKey("Success"));
@@ -289,7 +289,7 @@
                     Assert.Equal("Dependency duration", metric.Name);
                     Assert.NotNull(metric.Properties);
                     Assert.True(metric.Properties.ContainsKey("Type"));
-                    Assert.True(metric.Properties.ContainsKey("IntervalDurationMs"));
+                    Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                     Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
                     Assert.Equal("True", metric.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
                     Assert.True(metric.Properties.ContainsKey("Success"));
@@ -353,7 +353,7 @@
             Assert.Equal(50, metricT.Sum);
 
             Assert.Equal(3, metricT.Properties.Count);
-            Assert.True(metricT.Properties.ContainsKey("IntervalDurationMs"));
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricT.Properties.ContainsKey("Success"));
@@ -371,7 +371,7 @@
             Assert.Equal(300, metricF.Sum);
 
             Assert.Equal(3, metricF.Properties.Count);
-            Assert.True(metricF.Properties.ContainsKey("IntervalDurationMs"));
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricF.Properties.ContainsKey("Success"));

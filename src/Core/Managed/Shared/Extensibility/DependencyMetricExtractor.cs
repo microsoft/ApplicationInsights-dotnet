@@ -6,6 +6,7 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     /// <summary>
     /// Participates in the telemetry pipeline as a telemetry processor and extracts auto-collected, pre-aggregated

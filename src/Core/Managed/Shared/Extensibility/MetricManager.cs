@@ -22,11 +22,6 @@
     public sealed class MetricManager : IDisposable
     {
         /// <summary>
-        /// Name of the property added to aggregation results to indicate duration of the aggregation interval.
-        /// </summary>
-        private static string intervalDurationPropertyName = "IntervalDurationMs";
-
-        /// <summary>
         /// Value of the property indicating 'app insights version' allowing to tell metric was built using metric manager.
         /// </summary>
         private static string sdkVersionPropertyValue = SdkVersionUtils.GetSdkVersion("m-agg:");
@@ -248,7 +243,9 @@
                     { 
                         MetricTelemetry aggregatedMetricTelemetry = CreateAggregatedMetricTelemetry(aggregatorWithStats.Key, aggregatorWithStats.Value);
 
-                        aggregatedMetricTelemetry.Properties.Add(intervalDurationPropertyName, ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
+                        aggregatedMetricTelemetry.Properties.Add(
+                                                        MetricTerms.Aggregation.Interval.Moniker.Key,
+                                                        ((long)aggregationIntervalDuation.TotalMilliseconds).ToString(CultureInfo.InvariantCulture));
 
                         // set the timestamp back by aggregation period
                         aggregatedMetricTelemetry.Timestamp = DateTimeOffset.Now - aggregationPeriod;

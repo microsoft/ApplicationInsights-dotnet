@@ -41,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\DependencyMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IMetricProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\MetricTerms.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricExtractorTelemetryProcessorBase.cs" />
@@ -125,7 +126,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTerms.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\RequestMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
