@@ -52,14 +52,14 @@
                                                                 MetricTerms.Autocollection.MetricNames.Request.Duration,
                                                                 new Dictionary<string, string>()
                                                                 {
-                                                                    [MetricTerms.Autocollection.Request.PropertyName.Success] = Boolean.TrueString,
+                                                                    [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.TrueString,
                                                                 });
 
             this.responseFailureTimeMetric = MetricManager.CreateMetric(
                                                                 MetricTerms.Autocollection.MetricNames.Request.Duration,
                                                                 new Dictionary<string, string>()
                                                                 {
-                                                                    [MetricTerms.Autocollection.Request.PropertyName.Success] = Boolean.FalseString,
+                                                                    [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.FalseString,
                                                                 });
         }
 

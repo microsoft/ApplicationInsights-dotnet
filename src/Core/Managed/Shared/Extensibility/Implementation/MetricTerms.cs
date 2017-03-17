@@ -52,21 +52,21 @@
 
             public static class Request
             {
-                public static class PropertyName
+                public static class PropertyNames
                 {
-                    public const string Success = "Success";
+                    public const string Success = "Request.Success";
                 }
             }
 
             public static class DependencyCall
             {
-                public static class PropertyName
+                public static class PropertyNames
                 {
-                    public const string Success = "Success";
-                    public const string TypeName = "Type";
+                    public const string Success = "Dependency.Success";
+                    public const string TypeName = "Dependency.Type";
                 }
 
-                public static class TypeName
+                public static class TypeNames
                 {
                     public const string Other = "Other";
                     public const string Unknown = "Unknown";

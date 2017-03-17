@@ -181,8 +181,8 @@
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricT.Properties.ContainsKey("Success"));
-            Assert.Equal(Boolean.TrueString, metricT.Properties["Success"]);
+            Assert.Equal(true, metricT.Properties.ContainsKey("Dependency.Success"));
+            Assert.Equal(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
 
             Assert.NotNull(telemetrySentToChannel[9]);
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
@@ -199,8 +199,8 @@
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricF.Properties.ContainsKey("Success"));
-            Assert.Equal(Boolean.FalseString, metricF.Properties["Success"]);
+            Assert.Equal(true, metricF.Properties.ContainsKey("Dependency.Success"));
+            Assert.Equal(Boolean.FalseString, metricF.Properties["Dependency.Success"]);
         }
 
         [TestMethod]
@@ -292,8 +292,8 @@
                     Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                     Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
                     Assert.Equal("True", metric.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-                    Assert.True(metric.Properties.ContainsKey("Success"));
-                    Assert.False(string.IsNullOrWhiteSpace(metric.Properties["Success"]));
+                    Assert.True(metric.Properties.ContainsKey("Dependency.Success"));
+                    Assert.False(string.IsNullOrWhiteSpace(metric.Properties["Dependency.Success"]));
                 }
             }
 
@@ -303,7 +303,7 @@
                             =>
                             {
                                 IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
-                                return (p != null) && "Test Type A".Equals(p["Type"]) && "True".Equals(p["Success"]);
+                                return (p != null) && "Test Type A".Equals(p["Type"]) && "True".Equals(p["Dependency.Success"]);
                             });
                 Assert.Equal(1, metrics.Count());
                 MetricTelemetry metric = (MetricTelemetry) metrics.First();
@@ -356,8 +356,8 @@
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricT.Properties.ContainsKey("Success"));
-            Assert.Equal(Boolean.TrueString, metricT.Properties["Success"]);
+            Assert.Equal(true, metricT.Properties.ContainsKey("Dependency.Success"));
+            Assert.Equal(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
 
             Assert.NotNull(telemetrySentToChannel[9]);
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
@@ -374,8 +374,8 @@
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
             Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
             Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricF.Properties.ContainsKey("Success"));
-            Assert.Equal(Boolean.FalseString, metricF.Properties["Success"]);
+            Assert.Equal(true, metricF.Properties.ContainsKey("Dependency.Success"));
+            Assert.Equal(Boolean.FalseString, metricF.Properties["Dependency.Success"]);
         }
 
         
