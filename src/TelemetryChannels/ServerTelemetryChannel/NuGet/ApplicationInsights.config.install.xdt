@@ -14,6 +14,13 @@
         xdt:Transform="InsertIfMissing"
         xdt:Locator="Match(Type)">
       <MaxTelemetryItemsPerSecond>5</MaxTelemetryItemsPerSecond>
+      <ExcludedTypes>Event</ExcludedTypes>
+    </Add>
+    <Add Type="Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.AdaptiveSamplingTelemetryProcessor, Microsoft.AI.ServerTelemetryChannel"
+        xdt:Transform="InsertIfMissing"
+        xdt:Locator="Match(Type)">
+      <MaxTelemetryItemsPerSecond>5</MaxTelemetryItemsPerSecond>
+      <IncludedTypes>Event</IncludedTypes>
     </Add>
   </TelemetryProcessors>
 </ApplicationInsights>

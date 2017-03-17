@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationHelpers.cs" />
+    <Compile Include="TelemetryProcessorsTests.cs" />
     <Compile Include="TelemetryChannelTests.cs" />
   </ItemGroup>
   <ItemGroup>
