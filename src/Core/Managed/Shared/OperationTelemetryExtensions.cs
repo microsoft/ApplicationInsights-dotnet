@@ -82,7 +82,7 @@
         /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
         public static void GenerateOperationId(this OperationTelemetry telemetry)
         {
-            telemetry.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            telemetry.GenerateOperationId();
         }
 
         /// <summary>

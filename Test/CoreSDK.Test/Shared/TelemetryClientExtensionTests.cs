@@ -254,5 +254,33 @@
             Assert.AreEqual(1, this.sendItems.Count);
             Assert.AreEqual(requestTelemetry, this.sendItems[0]);
         }
+
+        [TestMethod]
+        public void StartOperationWithCorrelationContextSetsProperties()
+        {
+            var requestTelemetry = new RequestTelemetry();
+            requestTelemetry.Context.CorrelationContext["1"] = "1";
+            requestTelemetry.Context.CorrelationContext["2"] = "2";
+            using (var operation = this.telemetryClient.StartOperation(requestTelemetry))
+            {
+                Assert.AreEqual("1", operation.Telemetry.Context.Properties["1"]);
+                Assert.AreEqual("2", operation.Telemetry.Context.Properties["2"]);
+            }
+        }
+
+        [TestMethod]
+        public void StartOperationByNameWithCorrelationContextSetsProperties()
+        {
+            var correlationContext = new Dictionary<string, string>
+            {
+                ["1"] = "1",
+                ["2"] = "2",
+            };
+            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("REQUEST", "rootId", correlationContext: correlationContext))
+            {
+                Assert.AreEqual("1", operation.Telemetry.Context.Properties["1"]);
+                Assert.AreEqual("2", operation.Telemetry.Context.Properties["2"]);
+            }
+        }
     }
 }
