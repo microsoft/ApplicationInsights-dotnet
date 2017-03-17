@@ -28,9 +28,16 @@
 
         private const string AppIdQueryApiRelativeUriFormat = "api/profiles/{0}/appId";
 
+        // We have arbitrarily chosen 5 second delay between trying to get app Id once we get a failure while trying to get it. 
+        // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component correlation id.
+        private readonly TimeSpan intervalBetweenFailedRetries = TimeSpan.FromSeconds(5);
+
         private Uri endpointAddress;
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+
+        // Stores failed instrumentation keys along with the time we tried to retrieve them.
+        private ConcurrentDictionary<string, DateTime> failingInstrumenationKeys = new ConcurrentDictionary<string, DateTime>();
 
         private Func<string, Task<string>> provideAppId;
 
@@ -98,9 +105,16 @@
 
                 try
                 {
-                    // Todo: When this fails, say in the vortex endpoint case, ProfileQueryEndpont is not provided, it may perpetually keep failing.
-                    // We can possibly make it more robust by storing the failure and quiting querying after a few attempts.
-                    // Is that worth the effort?
+                    DateTime lastTriedTime;
+                    if (this.failingInstrumenationKeys.TryGetValue(instrumentationKey, out lastTriedTime))
+                    {
+                        if (DateTime.UtcNow - lastTriedTime <= this.intervalBetweenFailedRetries)
+                        {
+                            // We tried not too long ago and failed to retrieve app Id for this instrumentation key from breeze. Let wait a while before we try again. For now just report failure.
+                            correlationId = string.Empty;
+                            return false;
+                        }
+                    }
 
                     // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
@@ -121,6 +135,7 @@
                             }
                             catch (Exception ex)
                             {
+                                this.failingInstrumenationKeys[instrumentationKey] = DateTime.UtcNow;
                                 CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
                             }
                         });
@@ -130,6 +145,7 @@
                 }
                 catch (Exception ex)
                 {
+                    this.failingInstrumenationKeys[instrumentationKey] = DateTime.UtcNow;
                     CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
 
                     correlationId = string.Empty;

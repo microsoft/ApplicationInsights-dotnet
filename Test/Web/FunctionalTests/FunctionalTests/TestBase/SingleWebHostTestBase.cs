@@ -25,7 +25,9 @@ namespace Functional.Helpers
 
         protected HttpClient HttpClient { get; private set; }
 
-        protected HttpListenerObservable Listener { get; private set; }
+        protected TelemetryHttpListenerObservable Listener { get; private set; }
+
+        protected AppIdRequestHttpListener AppIdRequestListener { get; private set; }
 
         protected SingleWebHostTestConfiguration Config { get; private set; }
 
@@ -50,8 +52,11 @@ namespace Functional.Helpers
                 BaseAddress = new Uri(configuration.ApplicationUri)
             };
 
-            this.Listener = new HttpListenerObservable(configuration.TelemetryListenerUri);
+            this.Listener = new TelemetryHttpListenerObservable(configuration.TelemetryListenerUri);
             this.Listener.Start();
+
+            this.AppIdRequestListener = new AppIdRequestHttpListener(configuration.AppIdListenerUri);
+            this.AppIdRequestListener.Start();
 
             this.EtwSession = new EtwEventSession();
             this.EtwSession.Start();
@@ -60,8 +65,10 @@ namespace Functional.Helpers
         protected void StopWebAppHost(bool treatTraceErrorsAsFailures = true)
         {
             this.Listener.Stop();
+            this.AppIdRequestListener.Stop();
             this.Server.Stop();
             this.HttpClient.Dispose();
+            this.AppIdRequestListener.Dispose();
 
             if (treatTraceErrorsAsFailures && this.EtwSession.FailureDetected || this.Listener.FailureDetected)
             {
