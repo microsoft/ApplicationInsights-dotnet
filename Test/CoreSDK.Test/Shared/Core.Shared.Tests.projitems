@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManagerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricSample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\DependencyMetricExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\RequestMetricExtractorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContextTest.cs" />

@@ -18,7 +18,6 @@
     [TestClass]
     public class RequestMetricExtractorTest
     {
-        private const string SkipExtractionTestKey = "Test-SkipExctraction";
         private const string TestMetricValueKey = "Test-MetricValue";
         private const string TestMetricName = "Test-Metric";
 
@@ -41,7 +40,7 @@
             using (telemetryConfig)
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
-                client.TrackEvent("Test Event", new Dictionary<string, string>() { [SkipExtractionTestKey] = Boolean.FalseString });
+                client.TrackEvent("Test Event");
                 client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
                 client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
             }
@@ -78,9 +77,7 @@
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
 
-                client.TrackEvent(
-                            "Test Event 1",
-                            new Dictionary<string, string>() { [SkipExtractionTestKey] = Boolean.FalseString, [TestMetricValueKey] = 5.0.ToString() });
+                client.TrackEvent("Test Event 1");
 
                 client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(5), "201", success: true);
                 client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "202", success: true);

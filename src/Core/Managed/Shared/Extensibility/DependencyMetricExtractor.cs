@@ -43,7 +43,7 @@
         /// <summary>
         /// Groups privates to ensure atomic updates via replacements.
         /// </summary>
-        private MetricsCache metrics = null;
+        private MetricsCache metrics = new MetricsCache();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyMetricExtractor"/> class.
@@ -112,19 +112,14 @@
                 return;
             }
 
+            MetricManager thisMetricManager = this.MetricManager;
+            MetricsCache thisMetrics = this.metrics;
+
             //// If there is no MetricManager, then this extractor has not been properly initialized yet:
-            if (this.MetricManager == null)
+            if (thisMetricManager == null)
             {
                 //// This will be caught and properly logged by the base class:
                 throw new InvalidOperationException("Cannot execute ExtractMetrics becasue this metrics extractor has not been initialized (no metrics manager).");
-            }
-
-            //// If locals have not been initialized, then this extractor has not been properly initialized yet:
-            MetricsCache allMetrics = this.metrics;
-            if (allMetrics == null)
-            {
-                //// This will be caught and properly logged by the base class:
-                throw new InvalidOperationException("Cannot execute ExtractMetrics becasue this metrics extractor has not been initialized (no metrics cache).");
             }
 
             //// Get dependency call success status:
@@ -133,41 +128,47 @@
             //// Now we ned to determine which data series to use:
             Metric metricToTrack = null;
 
-            if (allMetrics.MaxDependencyTypesToDiscover == 0)
+            if (thisMetrics.MaxDependencyTypesToDiscover == 0)
             {
                 //// If auto-discovering dependency types is disabled, just pick series based on success status:
                 metricToTrack = dependencyFailed
-                                    ? allMetrics.Default.Failure
-                                    : allMetrics.Default.Success;
+                                    ? thisMetrics.Default.Failure
+                                    : thisMetrics.Default.Success;
             }
             else
             {
                 //// Pick series based on dependency type (and success status):
                 string dependencyType = dependencyCall.Type;
 
-                if (dependencyType == null)
+                if (dependencyType == null || dependencyType.Equals(string.Empty, StringComparison.OrdinalIgnoreCase))
                 {
                     //// If dependency type is not set, we use "Unknown":
                     metricToTrack = dependencyFailed
-                                        ? allMetrics.Unknown.Failure
-                                        : allMetrics.Unknown.Success;
+                                        ? thisMetrics.Unknown.Failure
+                                        : thisMetrics.Unknown.Success;
                 }
                 else
                 {
-                    //// See if we have already duscovered the current dependency type:
+                    //// See if we have already discovered the current dependency type:
                     SucceessAndFailureMetrics typeMetrics;
-                    bool previouslyDiscovered = allMetrics.ByType.TryGetValue(dependencyType, out typeMetrics);
+                    bool previouslyDiscovered = thisMetrics.ByType.TryGetValue(dependencyType, out typeMetrics);
 
-                    if (!previouslyDiscovered)
+                    if (previouslyDiscovered)
+                    {
+                        metricToTrack = dependencyFailed
+                                    ? typeMetrics.Failure
+                                    : typeMetrics.Success;
+                    }
+                    else
                     {
                         //// We have not seen the current dependency type yet:
 
-                        if (allMetrics.ByType.Count >= allMetrics.MaxDependencyTypesToDiscover)
+                        if (thisMetrics.ByType.Count >= thisMetrics.MaxDependencyTypesToDiscover)
                         {
                             //// If the limit of types to discover is already reached, just use "Other":
                             metricToTrack = dependencyFailed
-                                    ? allMetrics.Default.Failure
-                                    : allMetrics.Default.Success;
+                                    ? thisMetrics.Default.Failure
+                                    : thisMetrics.Default.Success;
                         }
                         else
                         {
@@ -178,28 +179,28 @@
                             //// but will no longer happen once the MaxDependencyTypesToDiscover limit is reached.
                             try
                             {
-                                typeMetrics = allMetrics.ByType.GetOrAdd(
+                                typeMetrics = thisMetrics.ByType.GetOrAdd(
                                         dependencyType,
                                         (depType) =>
                                         {
-                                            lock (allMetrics.TypeDiscoveryLock)
+                                            lock (thisMetrics.TypeDiscoveryLock)
                                             {
-                                                if (allMetrics.DependencyTypesDiscoveredCount >= allMetrics.MaxDependencyTypesToDiscover)
+                                                if (thisMetrics.DependencyTypesDiscoveredCount >= thisMetrics.MaxDependencyTypesToDiscover)
                                                 {
                                                     throw new InvalidOperationException("MaxDependencyTypesToDiscover reached.");
                                                 }
 
-                                                allMetrics.DependencyTypesDiscoveredCount++;
+                                                thisMetrics.DependencyTypesDiscoveredCount++;
 
                                                 return new SucceessAndFailureMetrics(
-                                                    MetricManager.CreateMetric(
+                                                    thisMetricManager.CreateMetric(
                                                             MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                                             new Dictionary<string, string>()
                                                             {
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyName.Success] = Boolean.TrueString,  // SUCCESS metric
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyName.TypeName] = depType,
                                                             }),
-                                                    MetricManager.CreateMetric(
+                                                    thisMetricManager.CreateMetric(
                                                             MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                                             new Dictionary<string, string>()
                                                             {
@@ -213,8 +214,8 @@
                             {
                                 //// Limit was reached concurrently. We will use "Other" after all:
                                 metricToTrack = dependencyFailed
-                                    ? allMetrics.Default.Failure
-                                    : allMetrics.Default.Success;
+                                    ? thisMetrics.Default.Failure
+                                    : thisMetrics.Default.Success;
                             }
 
                             //// Use the newly created metric for thisnewly discovered dependency type:
@@ -222,7 +223,7 @@
                                     ? typeMetrics.Failure
                                     : typeMetrics.Success;
                         }
-                    }
+                    }   // else OF if (previouslyDiscovered)
                 }
             }
             
@@ -237,9 +238,12 @@
         /// <param name="maxDependencyTypesToDiscoverCount">Max number of Dependency Types to discover.</param>
         private void ReinitializeMetrics(int maxDependencyTypesToDiscoverCount)
         {
-            MetricManager metricManager = this.MetricManager;
-            if (metricManager == null)
+            MetricManager thisMetricManager = this.MetricManager;
+            if (thisMetricManager == null)
             {
+                MetricsCache newMetrics = new MetricsCache();
+                newMetrics.MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
+                this.metrics = newMetrics;
                 return;
             }
 
@@ -248,13 +252,13 @@
                 MetricsCache newMetrics = new MetricsCache();
 
                 newMetrics.Default = new SucceessAndFailureMetrics(
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyName.Success] = Boolean.TrueString,      // SUCCESS metric
                                 }),
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
@@ -274,14 +278,14 @@
                 MetricsCache newMetrics = new MetricsCache();
 
                 newMetrics.Default = new SucceessAndFailureMetrics(
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyName.Success] = Boolean.TrueString,      // SUCCESS metric
                                     [MetricTerms.Autocollection.DependencyCall.PropertyName.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeName.Other,
                                 }),
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
@@ -290,14 +294,14 @@
                                 }));
 
                 newMetrics.Unknown = new SucceessAndFailureMetrics(
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyName.Success] = Boolean.TrueString,      // SUCCESS metric
                                     [MetricTerms.Autocollection.DependencyCall.PropertyName.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeName.Unknown,
                                 }),
-                        metricManager.CreateMetric(
+                        thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
                                 new Dictionary<string, string>()
                                 {
