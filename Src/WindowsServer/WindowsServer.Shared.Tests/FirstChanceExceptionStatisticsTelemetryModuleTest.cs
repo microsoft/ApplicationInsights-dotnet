@@ -300,6 +300,58 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapAfterCacheTimeout()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            int operationId = 0;
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName " + (operationId++);
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                module.DimCapTimeout = DateTime.UtcNow.Ticks - 1;
+
+                for (int i = 0; i < 200; i++)
+                {
+                    if (i == 101)
+                    {
+                        module.DimCapTimeout = DateTime.UtcNow.Ticks - 1;
+                    }
+
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            Assert.Equal(200, metrics.Count);
+            Assert.Equal(200, this.items.Count);
+        }
+
+        [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
@@ -326,7 +378,7 @@
                     {
                         // this assert is neede to avoid code optimization
                         Assert.Equal("test", ex.Message);
-                        throw;
+                        throw new Exception("new exception");
                     }
                 }
                 catch (Exception exc)
