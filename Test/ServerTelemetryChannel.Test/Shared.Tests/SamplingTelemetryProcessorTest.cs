@@ -426,24 +426,7 @@
                 Assert.Equal(samplingPercentage, ((ISupportSampling) sentTelemetry[0]).SamplingPercentage);
             }
             
-
-            // Flush the chahin to make sure the metrics flush:
             telemetryProcessorChainWithSampling.Dispose();
-
-            // Check sampling rate:
-            IEnumerable<ITelemetry> allMetricTelemetry = sentTelemetry.Where((item) => item is MetricTelemetry);
-            MetricTelemetry metricTelemetry = allMetricTelemetry.FirstOrDefault() as MetricTelemetry;
-            Assert.NotNull(metricTelemetry);
-
-            Assert.Equal("Sampling rate", metricTelemetry.Name);
-            Assert.Equal(true, metricTelemetry.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal(Boolean.TrueString, metricTelemetry.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-
-            Assert.Equal(generatedCount, metricTelemetry.Count);
-            Assert.Equal(samplingPercentage, metricTelemetry.Sum / metricTelemetry.Count);
-            Assert.Equal(samplingPercentage, metricTelemetry.Min);
-            Assert.Equal(samplingPercentage, metricTelemetry.Max);
-            Assert.Equal(0, metricTelemetry.StandardDeviation);
         }
 
         private static TelemetryProcessorChain CreateTelemetryProcessorChainWithSampling(IList<ITelemetry> sentTelemetry, double samplingPercentage, string excludedTypes = null, string includedTypes = null)
