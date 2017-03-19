@@ -33,7 +33,7 @@
         /// See also the remarks about the <see cref="DependencyMetricExtractor"/> class for additional info about the use
         /// the of <c>MaxDependencyTypesToDiscover</c>-property.
         /// </summary>
-        public const int MaxDependenctTypesToDiscoverDefault = 10;
+        public const int MaxDependenctTypesToDiscoverDefault = 15;
 
         /// <summary>
         /// Version of this extractor. Used by the infrastructure to mark processed telemetry.

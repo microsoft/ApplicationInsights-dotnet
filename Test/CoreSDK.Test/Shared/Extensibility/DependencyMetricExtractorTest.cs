@@ -32,6 +32,12 @@
         }
 
         [TestMethod]
+        public void MaxDependenctTypesToDiscoverDefaultIsAsExpected()
+        {
+            Assert.Equal(15, DependencyMetricExtractor.MaxDependenctTypesToDiscoverDefault);
+        }
+
+        [TestMethod]
         public void TelemetryMarkedAsProcessedCorrectly()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
@@ -116,7 +122,7 @@
             using (telemetryConfig)
             {
 
-                Assert.Equal(DependencyMetricExtractor.MaxDependenctTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
+                Assert.Equal(0, extractor.MaxDependencyTypesToDiscover);
 
                 extractor.MaxDependencyTypesToDiscover = 1000;
                 Assert.Equal(1000, extractor.MaxDependencyTypesToDiscover);
@@ -230,28 +236,28 @@
                 client.TrackDependency(null, "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(310), "202", success: true);
                 client.TrackDependency("Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(315), success: true);
 
-                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1050), "501", success: false);
-                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1100), "502", success: false);
+                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1070), "501", success: false);
+                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1180), "502", success: false);
 
                 client.TrackEvent("Another Test Event");
 
-                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2050), "501", success: false);
-                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2100), "502", success: false);
-                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2150), "502", success: false);
+                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2042), "501", success: false);
+                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2107), "502", success: false);
+                client.TrackDependency("Test Type C", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(2158), "502", success: false);
 
-                client.TrackDependency("Test Type D", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(505), "201", success: true);
-                client.TrackDependency("Test Type D", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(510), "202", success: true);
+                client.TrackDependency("Test Type D", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(565), "201", success: true);
+                client.TrackDependency("Test Type D", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(573), "202", success: true);
 
-                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1050), "501", success: false);
-                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1100), "502", success: false);
+                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1070), "501", success: false);
+                client.TrackDependency("Test Type A", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1180), "502", success: false);
 
                 client.TrackDependency("Test Type E", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(605), "201", success: true);
 
                 client.TrackDependency("Test Type E", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(3010), "202", success: false);
 
-                client.TrackDependency("", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4005), "201", success: false);
-                client.TrackDependency(null, "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4010), "202", success: false);
-                client.TrackDependency("Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4015), success: false);
+                client.TrackDependency("", "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4062), "201", success: false);
+                client.TrackDependency(null, "Test Target", "Test Dependency Call", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4012), "202", success: false);
+                client.TrackDependency("Test Dependency Call", "Test Command Name", DateTimeOffset.Now, TimeSpan.FromMilliseconds(4039), success: false);
             }
 
             //// The following metric documents are expected:
@@ -288,7 +294,7 @@
 
                     Assert.Equal("Dependency duration", metric.Name);
                     Assert.NotNull(metric.Properties);
-                    Assert.True(metric.Properties.ContainsKey("Type"));
+                    Assert.True(metric.Properties.ContainsKey("Dependency.Type"));
                     Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
                     Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
                     Assert.Equal("True", metric.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
@@ -303,7 +309,7 @@
                             =>
                             {
                                 IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
-                                return (p != null) && "Test Type A".Equals(p["Type"]) && "True".Equals(p["Dependency.Success"]);
+                                return (p != null) && "Test Type A".Equals(p["Dependency.Type"]) && "True".Equals(p["Dependency.Success"]);
                             });
                 Assert.Equal(1, metrics.Count());
                 MetricTelemetry metric = (MetricTelemetry) metrics.First();
@@ -314,70 +320,133 @@
                 Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
                 Assert.Equal(50, metric.Sum);
             }
-        }
 
-        [TestMethod]
-        public void CorrectlyExtractsMetric()
-        {
-            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory = (nextProc) => new DependencyMetricExtractor(nextProc);
-
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
-            using (telemetryConfig)
             {
-                TelemetryClient client = new TelemetryClient(telemetryConfig);
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Test Type B".Equals(p["Dependency.Type"]) && "True".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
 
-                client.TrackEvent("Test Event 1");
-
-                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(5), "201", success: true);
-                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "202", success: true);
-                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(15), "203", success: true);
-                client.TrackRequest("Test Request 4", DateTimeOffset.Now, TimeSpan.FromMilliseconds(20), "204", success: true);
-
-                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(50), "501", success: false);
-                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(100), "502", success: false);
-                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(150), "503", success: false);
+                Assert.Equal(4, metric.Count);
+                Assert.Equal(120, metric.Max);
+                Assert.Equal(105, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
+                Assert.Equal(450, metric.Sum);
             }
 
-            Assert.Equal(10, telemetrySentToChannel.Count);
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Unknown".Equals(p["Dependency.Type"]) && "True".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
 
-            Assert.NotNull(telemetrySentToChannel[8]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
-            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[8];
+                Assert.Equal(3, metric.Count);
+                Assert.Equal(315, metric.Max);
+                Assert.Equal(305, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 4.082482905) < 0.0000001);
+                Assert.Equal(930, metric.Sum);
+            }
 
-            Assert.Equal("Server response time", metricT.Name);
-            Assert.Equal(4, metricT.Count);
-            Assert.Equal(20, metricT.Max);
-            Assert.Equal(5, metricT.Min);
-            Assert.Equal(true, Math.Abs(metricT.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
-            Assert.Equal(50, metricT.Sum);
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Test Type A".Equals(p["Dependency.Type"]) && "False".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
 
-            Assert.Equal(3, metricT.Properties.Count);
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricT.Properties.ContainsKey("Dependency.Success"));
-            Assert.Equal(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
+                Assert.Equal(4, metric.Count);
+                Assert.Equal(1180, metric.Max);
+                Assert.Equal(1070, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 55) < 0.0000001);
+                Assert.Equal(4500, metric.Sum);
+            }
 
-            Assert.NotNull(telemetrySentToChannel[9]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
-            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[9];
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Test Type C".Equals(p["Dependency.Type"]) && "False".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
 
-            Assert.Equal("Server response time", metricF.Name);
-            Assert.Equal(3, metricF.Count);
-            Assert.Equal(150, metricF.Max);
-            Assert.Equal(50, metricF.Min);
-            Assert.Equal(true, Math.Abs(metricF.StandardDeviation.Value - 40.8248290) < 0.0000001);
-            Assert.Equal(300, metricF.Sum);
+                Assert.Equal(3, metric.Count);
+                Assert.Equal(2158, metric.Max);
+                Assert.Equal(2042, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 47.47162895) < 0.0000001);
+                Assert.Equal(6307, metric.Sum);
+            }
 
-            Assert.Equal(3, metricF.Properties.Count);
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
-            Assert.Equal(true, metricF.Properties.ContainsKey("Dependency.Success"));
-            Assert.Equal(Boolean.FalseString, metricF.Properties["Dependency.Success"]);
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Other".Equals(p["Dependency.Type"]) && "True".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
+
+                Assert.Equal(3, metric.Count);
+                Assert.Equal(605, metric.Max);
+                Assert.Equal(565, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 17.2819752) < 0.0000001);
+                Assert.Equal(1743, metric.Sum);
+            }
+
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Other".Equals(p["Dependency.Type"]) && "False".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
+
+                Assert.Equal(1, metric.Count);
+                Assert.Equal(3010, metric.Max);
+                Assert.Equal(3010, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 0) < 0.0000001);
+                Assert.Equal(3010, metric.Sum);
+            }
+
+            {
+                IEnumerable<ITelemetry> metrics = telemetrySentToChannel.Where(
+                            (t)
+                            =>
+                            {
+                                IDictionary<string, string> p = (t as MetricTelemetry)?.Properties;
+                                return (p != null) && "Unknown".Equals(p["Dependency.Type"]) && "False".Equals(p["Dependency.Success"]);
+                            });
+                Assert.Equal(1, metrics.Count());
+                MetricTelemetry metric = (MetricTelemetry) metrics.First();
+
+                Assert.Equal(3, metric.Count);
+                Assert.Equal(4062, metric.Max);
+                Assert.Equal(4012, metric.Min);
+                Assert.Equal(true, Math.Abs(metric.StandardDeviation.Value - 20.43417617) < 0.0000001);
+                Assert.Equal(12113, metric.Sum);
+            }
         }
-
         
         [TestMethod]
         public void DisposeIsIdempotent()
