@@ -454,12 +454,8 @@
             Assert.Equal(0, metrics[1].Value, 15);
 
             Assert.Equal(1, this.items.Count);
-            Assert.Equal(2, ((MetricTelemetry) this.items[0]).Count);
-            Assert.Equal(1, ((MetricTelemetry) this.items[0]).Sum);
-
-            // One of them should be 0 as re-thorwn, another - one
-            //Assert.Equal(0, Math.Min(((MetricTelemetry) this.items[0]).Sum, ((MetricTelemetry) this.items[1]).Sum), 15);
-            //Assert.Equal(1, Math.Max(((MetricTelemetry) this.items[0]).Sum, ((MetricTelemetry) this.items[1]).Sum), 15);
+            Assert.Equal(2, ((MetricTelemetry)this.items[0]).Count);
+            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Sum);
         }
 
         [TestMethod]
