@@ -401,10 +401,11 @@
         {
             const int ItemsToGenerate = 100;
             var sentTelemetry = new List<ITelemetry>();
-            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(sentTelemetry,
-                                                                                                                    samplingPercentage,
-                                                                                                                    excludedTypes,
-                                                                                                                    includedTypes);
+            TelemetryProcessorChain telemetryProcessorChainWithSampling = CreateTelemetryProcessorChainWithSampling(
+                                                                                    sentTelemetry,
+                                                                                    samplingPercentage,
+                                                                                    excludedTypes,
+                                                                                    includedTypes);
 
             int generatedCount = 0;
             for (int i = 0; i < ItemsToGenerate; i++)
