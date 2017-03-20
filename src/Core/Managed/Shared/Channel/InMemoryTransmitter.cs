@@ -78,13 +78,13 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         internal void Flush(TimeSpan timeout)
         {
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
 #endif
                 this.DequeueAndSend(timeout);
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             }
             finally
             {
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Channel
                         this.startRunnerEvent.WaitOne(this.sendingInterval);
                     }
                 }
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             }
             finally
             {

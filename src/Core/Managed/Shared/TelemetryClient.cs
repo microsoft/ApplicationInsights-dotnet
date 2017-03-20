@@ -374,10 +374,8 @@
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
-#if !CORE_PCL
                 // logs rich payload ETW event for any partners to process it                
                 RichPayloadEventSource.Log.Process(telemetry);
-#endif
             }
         }
 

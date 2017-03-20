@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+       Workaround for https://github.com/dotnet/sdk/issues/803
+       Import this file before including Sdk.props
+  -->
+  <PropertyGroup>
+    <EnlistmentRoot Condition="'$(EnlistmentRoot)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
+    <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

@@ -4,12 +4,14 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
     using System.Net;
+#if !NET40
     using System.Net.Http;
+#endif
     using System.Reflection;
     using System.Text;
     using Microsoft.ApplicationInsights.Channel;
@@ -1020,17 +1022,39 @@
             telemetryClient.Initialize(telemetry11);
 
             string json = JsonSerializer.SerializeAsString(telemetryItems);
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
 
+#if NET40
+            WebRequest request = WebRequest.Create("https://dc.services.visualstudio.com/v2/validate");
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.ContentLength = jsonBytes.Length;
+            using (var requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(jsonBytes, 0, jsonBytes.Length);
+            }
+
+            WebResponse response = request.GetResponse();
+            var result = (HttpWebResponse)response;
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                var responseStream = response.GetResponseStream();
+                using (var reader = new System.IO.StreamReader(responseStream))
+                {
+                    Trace.WriteLine(reader.ReadToEnd());
+                }
+            }
+#else
             HttpClient client = new HttpClient();
             var result = client.PostAsync(
                 "https://dc.services.visualstudio.com/v2/validate",
-                new ByteArrayContent(Encoding.UTF8.GetBytes(json))).GetAwaiter().GetResult();
-
+                new ByteArrayContent(jsonBytes)).GetAwaiter().GetResult();
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 Trace.WriteLine(response);
             }
+#endif
 
             Assert.Equal(HttpStatusCode.OK, result.StatusCode);
         }

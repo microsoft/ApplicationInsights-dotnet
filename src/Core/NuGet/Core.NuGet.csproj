@@ -1,0 +1,29 @@
+﻿<Project>
+  <!--
+       Workaround for https://github.com/dotnet/sdk/issues/803
+       Set BaseIntermediateOutputPath before including Sdk.props
+  -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'BaseIntermediateOutputPath.props'))\BaseIntermediateOutputPath.props" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Common.props'))\Common.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net45</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\Core\Managed\net45\Microsoft.ApplicationInsights.dll</PackageVersionFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Managed\Core.csproj" />
+    <ProjectReference Include="..\DummyCore\DummyCore.csproj" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Package.targets'))\Package.targets" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+
+  <!-- Part of workaround for https://github.com/dotnet/sdk/issues/803 -->
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

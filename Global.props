@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <Import Condition="'$(EnlistmentRoot)'==''" Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'BaseIntermediateOutputPath.props'))\BaseIntermediateOutputPath.props" />
+
     <!-- This file (Global.props) must be included into all projects in all solutions of this product.                    -->
     <!-- It defines common build paths and infrastructure.                                                                -->
     <!-- Other products / repositories using the same build pattern will have an own copy of copy this file               -->
@@ -60,15 +62,9 @@
         <!--  Src MUST contain the EnlistmentRoot.marker file which marks the EnlistmentRoot.                             -->        
         <!--  Src also contains the NuGet.config file which ensures that NuGet uses the NuGet.Packages folder.            -->        
         
-        <EnlistmentRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</EnlistmentRoot>
-        
         <BinRoot>$(EnlistmentRoot)\..\bin</BinRoot>
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
-                
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
-        
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj</BaseIntermediateOutputPath>
-        <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
 
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         
@@ -99,9 +95,6 @@
         <RestorePackages>true</RestorePackages>
         <RequireRestoreConsent>false</RequireRestoreConsent>
         
-        <!-- Set the root namespace for all assemblies in this project hierarchy --> 
-        <RootNamespace>Microsoft.ApplicationInsights</RootNamespace>        
-      
         <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
         <StyleCopEnabled>false</StyleCopEnabled>
     </PropertyGroup>

@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
 #if NET40

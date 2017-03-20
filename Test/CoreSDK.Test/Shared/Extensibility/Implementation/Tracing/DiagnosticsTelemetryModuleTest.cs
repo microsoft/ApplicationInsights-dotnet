@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
     using System;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
@@ -12,6 +12,9 @@
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     [TestClass]
     public class DiagnosticsTelemetryModuleTest
@@ -83,7 +86,7 @@
                 using (var cancellationTokenSource = new CancellationTokenSource())
                 {
                     var taskStarted = new AutoResetEvent(false);
-                    Task.Run(() =>
+                    TaskEx.Run(() =>
                     {
                         taskStarted.Set();
                         while (!cancellationTokenSource.IsCancellationRequested)
