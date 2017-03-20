@@ -7,10 +7,11 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
 
     /// <summary>
-    /// Participates in the telemetry pipeline as a telemetry processor and extracts auto-collected, pre-aggregated
-    /// metrics from DependencyTelemetry objects which represent calls to external dependencies.
+    /// An instance of this class is contained within the <see cref="AutocollectedMetricsExtractor"/> telemetry processor.
+    /// It extracts auto-collected, pre-aggregated (aka. "standard") metrics from DependencyTelemetry objects which represent invocations of the monitored service.
     /// </summary>
     /// <remarks>
     /// Auto-Discovering Dependency Types: **
@@ -26,20 +27,19 @@
     /// examined whether the dependency type field is used appropriately.
     /// If <c>MaxDependencyTypesToDiscover</c> is set to <c>0</c>, dependency calls will not be grouped by type.
     /// </remarks>
-    public sealed class DependencyMetricExtractor : MetricExtractorTelemetryProcessorBase
+    internal class DependencyMetricsExtractor : ISpecificAutocollectedMetricsExtractor
     {
         /// <summary>
         /// The default value for the <see cref="MaxDependencyTypesToDiscover"/> property if it is not set to a different value.
-        /// See also the remarks about the <see cref="DependencyMetricExtractor"/> class for additional info about the use
+        /// See also the remarks about the <see cref="DependencyMetricsExtractor"/> class for additional info about the use
         /// the of <c>MaxDependencyTypesToDiscover</c>-property.
         /// </summary>
         public const int MaxDependenctTypesToDiscoverDefault = 15;
 
         /// <summary>
-        /// Version of this extractor. Used by the infrastructure to mark processed telemetry.
-        /// Change this value when publically observed behavior changes in any way.
+        /// The <c>MetricManager</c> to be used for creating and sending the metrics by this extractor.
         /// </summary>
-        private const string Version = "1.0";
+        private MetricManager metricManager = null;
 
         /// <summary>
         /// Groups privates to ensure atomic updates via replacements.
@@ -47,17 +47,31 @@
         private MetricsCache metrics = new MetricsCache();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyMetricExtractor"/> class.
+        /// Initializes a new instance of the <see cref="DependencyMetricsExtractor"/> class.
         /// </summary>
-        /// <param name="nextProcessorInPipeline">Subsequent telemetry processor.</param>
-        public DependencyMetricExtractor(ITelemetryProcessor nextProcessorInPipeline)
-            : base(nextProcessorInPipeline, MetricTerms.Autocollection.Moniker.Key, MetricTerms.Autocollection.Moniker.Value)
+        public DependencyMetricsExtractor()
         {
         }
 
         /// <summary>
+        /// Gets the name of this extractor.
+        /// All telemetry that has been processed by this extractor will be tagged by adding the
+        /// string "<c>(Name: {ExtractorName}, Ver:{ExtractorVersion})</c>" to the <c>xxx.ProcessedByExtractors</c> property.
+        /// The respective logic is in the <see cref="AutocollectedMetricsExtractor"/>-class.
+        /// </summary>
+        public string ExtractorName { get; } = typeof(DependencyMetricsExtractor).FullName;
+
+        /// <summary>
+        /// Gets the version of this extractor.
+        /// All telemetry that has been processed by this extractor will be tagged by adding the
+        /// string "<c>(Name: {ExtractorName}, Ver:{ExtractorVersion})</c>" to the <c>xxx.ProcessedByExtractors</c> property.
+        /// The respective logic is in the <see cref="AutocollectedMetricsExtractor"/>-class.
+        /// </summary>
+        public string ExtractorVersion { get; } = "1.0";
+
+        /// <summary>
         /// Gets or sets the maximum number of auto-discovered dependency types.
-        /// See also the remarks about the <see cref="DependencyMetricExtractor"/> class for additional info about the use the of this property.
+        /// See also the remarks about the <see cref="DependencyMetricsExtractor"/> class for additional info about the use the of this property.
         /// </summary>
         public int MaxDependencyTypesToDiscover
         {
@@ -73,28 +87,18 @@
                     throw new ArgumentOutOfRangeException(nameof(value), value, "MaxDependencyTypesToDiscover value may not be negative.");
                 }
 
-                this.MetricManager?.Flush();
+                this.metricManager?.Flush();
                 this.ReinitializeMetrics(value);
-            }
-        }
-
-        /// <summary>
-        /// Exposes the version of this Extractor's public contracts to the base class.
-        /// </summary>
-        protected override string ExtractorVersion
-        {
-            get
-            {
-                return Version;
             }
         }
 
         /// <summary>
         /// Initializes the internal metrics trackers based on settings.
         /// </summary>
-        /// <param name="unusedConfiguration">Is not currently used.</param>
-        public override void InitializeExtractor(TelemetryConfiguration unusedConfiguration)
+        /// <param name="metricManager">The <c>MetricManager</c> to be used for creating and sending the metrics by this extractor.</param>
+        public void InitializeExtractor(MetricManager metricManager)
         {
+            this.metricManager = metricManager;
             this.ReinitializeMetrics(this.metrics?.MaxDependencyTypesToDiscover ?? MaxDependenctTypesToDiscoverDefault);
         }
 
@@ -103,7 +107,7 @@
         /// </summary>
         /// <param name="fromItem">The telemetry item from which to extract the metric data points.</param>
         /// <param name="isItemProcessed">Whether of not the specified item was processed (aka not ignored) by this extractor.</param>
-        public override void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)
+        public void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)
         {
             //// If this item is not a DependencyTelemetry, we will not process it:
             DependencyTelemetry dependencyCall = fromItem as DependencyTelemetry;
@@ -113,7 +117,7 @@
                 return;
             }
 
-            MetricManager thisMetricManager = this.MetricManager;
+            MetricManager thisMetricManager = this.metricManager;
             MetricsCache thisMetrics = this.metrics;
 
             //// If there is no MetricManager, then this extractor has not been properly initialized yet:
@@ -239,7 +243,7 @@
         /// <param name="maxDependencyTypesToDiscoverCount">Max number of Dependency Types to discover.</param>
         private void ReinitializeMetrics(int maxDependencyTypesToDiscoverCount)
         {
-            MetricManager thisMetricManager = this.MetricManager;
+            MetricManager thisMetricManager = this.metricManager;
             if (thisMetricManager == null)
             {
                 MetricsCache newMetrics = new MetricsCache();
@@ -341,7 +345,7 @@
         }   // private class SucceessAndFailureMetrics
 
         /// <summary>
-        /// This private data structure groups several privates of the outer class (DependencyMetricExtractor).
+        /// This private data structure groups several privates of the outer class (DependencyMetricsExtractor).
         /// It allows for a lock-free atomic update of all the represented settings and values.
         /// </summary>
         private class MetricsCache

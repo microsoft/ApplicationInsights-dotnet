@@ -13,72 +13,206 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using BaseTest = MetricExtractorTelemetryProcessorBaseTest;
-
     [TestClass]
-    public class DependencyMetricExtractorTest
+    public class AutocollectedMetricsExtractorTest
     {
-        private const string TestMetricValueKey = "Test-MetricValue";
-        private const string TestMetricName = "Test-Metric";
-
+        #region General Tests
 
         [TestMethod]
         public void CanConstruct()
         {
-            var extractor = new DependencyMetricExtractor(null);
-            Assert.Equal("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected", extractor.MetricTelemetryMarkerKey);
-            Assert.Equal(Boolean.TrueString, extractor.MetricTelemetryMarkerValue);
-            Assert.Equal(DependencyMetricExtractor.MaxDependenctTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
+            var extractor = new AutocollectedMetricsExtractor(null);
         }
 
         [TestMethod]
-        public void MaxDependenctTypesToDiscoverDefaultIsAsExpected()
+        public void DisposeIsIdempotent()
         {
-            Assert.Equal(15, DependencyMetricExtractor.MaxDependenctTypesToDiscoverDefault);
+            AutocollectedMetricsExtractor extractor = null;
+
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory =
+                    (nextProc) =>
+                    {
+                        extractor = new AutocollectedMetricsExtractor(nextProc);
+                        return extractor;
+                    };
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                ;
+            }
+
+            extractor.Dispose();
+            extractor.Dispose();
         }
 
+        #endregion General Tests
+
+        #region Request-metrics-related Tests
+
         [TestMethod]
-        public void TelemetryMarkedAsProcessedCorrectly()
+        public void Request_TelemetryMarkedAsProcessedCorrectly()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory = (nextProc) => new DependencyMetricExtractor(nextProc) { MaxDependencyTypesToDiscover = 0 };
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
 
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
-                client.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
-                client.TrackDependency("Test Dependency Call 1", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), success: true);
-                client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 2", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
+                client.TrackEvent("Test Event");
+                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
+                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
             }
 
             Assert.Equal(4, telemetrySentToChannel.Count);
 
-            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[0]);
-            Assert.Equal("Test Request", ((RequestTelemetry) telemetrySentToChannel[0]).Name);
-            Assert.Equal(false, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[0]);
+            Assert.Equal("Test Event", ((EventTelemetry) telemetrySentToChannel[0]).Name);
+            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
 
-            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[1]);
-            Assert.Equal("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
-            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
-            Assert.Equal($"(Name:{typeof(DependencyMetricExtractor).FullName}, Ver:{"1.0"})",
-                         ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[1]);
+            Assert.Equal("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+                         ((RequestTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
-            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[2]);
-            Assert.Equal("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
-            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
-            Assert.Equal($"(Name:{typeof(DependencyMetricExtractor).FullName}, Ver:{"1.0"})",
-                         ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[2]);
+            Assert.Equal("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+                         ((RequestTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
         }
 
         [TestMethod]
-        public void CanSetMaxDependencyTypesToDiscoverBeforeInitialization()
+        public void Request_CorrectlyExtractsMetric()
         {
-            var extractor = new DependencyMetricExtractor(null);
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
 
-            Assert.Equal(DependencyMetricExtractor.MaxDependenctTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+
+                client.TrackEvent("Test Event 1");
+
+                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(5), "201", success: true);
+                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "202", success: true);
+                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(15), "203", success: true);
+                client.TrackRequest("Test Request 4", DateTimeOffset.Now, TimeSpan.FromMilliseconds(20), "204", success: true);
+
+                client.TrackRequest("Test Request 1", DateTimeOffset.Now, TimeSpan.FromMilliseconds(50), "501", success: false);
+                client.TrackRequest("Test Request 2", DateTimeOffset.Now, TimeSpan.FromMilliseconds(100), "502", success: false);
+                client.TrackRequest("Test Request 3", DateTimeOffset.Now, TimeSpan.FromMilliseconds(150), "503", success: false);
+            }
+
+            Assert.Equal(10, telemetrySentToChannel.Count);
+
+            Assert.NotNull(telemetrySentToChannel[8]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
+            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[8];
+
+            Assert.Equal("Server response time", metricT.Name);
+            Assert.Equal(4, metricT.Count);
+            Assert.Equal(20, metricT.Max);
+            Assert.Equal(5, metricT.Min);
+            Assert.Equal(true, Math.Abs(metricT.StandardDeviation.Value - 5.590169943749474) < 0.0000001);
+            Assert.Equal(50, metricT.Sum);
+
+            Assert.Equal(3, metricT.Properties.Count);
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.Equal(true, metricT.Properties.ContainsKey("Request.Success"));
+            Assert.Equal(Boolean.TrueString, metricT.Properties["Request.Success"]);
+
+            Assert.NotNull(telemetrySentToChannel[9]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
+            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[9];
+
+            Assert.Equal("Server response time", metricF.Name);
+            Assert.Equal(3, metricF.Count);
+            Assert.Equal(150, metricF.Max);
+            Assert.Equal(50, metricF.Min);
+            Assert.Equal(true, Math.Abs(metricF.StandardDeviation.Value - 40.8248290) < 0.0000001);
+            Assert.Equal(300, metricF.Sum);
+
+            Assert.Equal(3, metricF.Properties.Count);
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.Equal(true, metricF.Properties.ContainsKey("Request.Success"));
+            Assert.Equal(Boolean.FalseString, metricF.Properties["Request.Success"]);
+        }
+
+        #endregion Request-metrics-related Tests
+
+        #region Dependency-metrics-related Tests
+
+        [TestMethod]
+        public void Dependency_MaxDependenctTypesToDiscoverDefaultIsAsExpected()
+        {
+            Assert.Equal(15, DependencyMetricsExtractor.MaxDependenctTypesToDiscoverDefault);
+        }
+
+        [TestMethod]
+        public void Dependency_TelemetryMarkedAsProcessedCorrectly()
+        {
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc) { MaxDependencyTypesToDiscover = 0 };
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+                
+                client.TrackRequest("Test Request", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), "200", success: true);
+                client.TrackDependency("Test Dependency Call 1", "Test Command", DateTimeOffset.Now, TimeSpan.FromMilliseconds(10), success: true);
+                client.TrackDependency("Test Dependency Type", "Test Target", "Test Dependency Call 2", "Test Data", DateTimeOffset.Now, TimeSpan.FromMilliseconds(11), "201", success: true);
+                client.TrackEvent("Test Event");
+            }
+
+            Assert.Equal(6, telemetrySentToChannel.Count);
+            
+            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[0]);
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+                         ((RequestTelemetry) telemetrySentToChannel[0]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+
+            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[1]);
+            Assert.Equal("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
+            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
+                         ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+
+            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[2]);
+            Assert.Equal("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
+            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
+                         ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+
+            Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[3]);
+            Assert.Equal("Test Event", ((EventTelemetry) telemetrySentToChannel[3]).Name);
+            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+
+
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[5]);
+
+            Assert.Equal(1, telemetrySentToChannel.Where( (t) => "Server response time".Equals((t as MetricTelemetry)?.Name) ).Count());
+            Assert.Equal(1, telemetrySentToChannel.Where( (t) => "Dependency duration".Equals((t as MetricTelemetry)?.Name) ).Count());
+        }
+
+        [TestMethod]
+        public void Dependency_CanSetMaxDependencyTypesToDiscoverBeforeInitialization()
+        {
+            var extractor = new AutocollectedMetricsExtractor(null);
+
+            Assert.Equal(DependencyMetricsExtractor.MaxDependenctTypesToDiscoverDefault, extractor.MaxDependencyTypesToDiscover);
 
             extractor.MaxDependencyTypesToDiscover = 1000;
             Assert.Equal(1000, extractor.MaxDependencyTypesToDiscover);
@@ -103,22 +237,22 @@
         }
 
         [TestMethod]
-        public void CanSetMaxDependencyTypesToDiscoverAfterInitialization()
+        public void Dependency_CanSetMaxDependencyTypesToDiscoverAfterInitialization()
         {
-            DependencyMetricExtractor extractor = null;
+            AutocollectedMetricsExtractor extractor = null;
 
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory = (nextProc)
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc)
                                                                                                 =>
                                                                                                 {
-                                                                                                    extractor = new DependencyMetricExtractor(nextProc)
+                                                                                                    extractor = new AutocollectedMetricsExtractor(nextProc)
                                                                                                             {
                                                                                                                 MaxDependencyTypesToDiscover = 0
                                                                                                             };
                                                                                                     return extractor;
                                                                                                 };
 
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
             {
 
@@ -148,12 +282,12 @@
         }
 
         [TestMethod]
-        public void CorrectlyExtractsMetricWhenGroupingByTypeDisabled()
+        public void Dependency_CorrectlyExtractsMetricWhenGroupingByTypeDisabled()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory = (nextProc) => new DependencyMetricExtractor(nextProc) { MaxDependencyTypesToDiscover = 0 };
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc) { MaxDependencyTypesToDiscover = 0 };
 
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
@@ -210,12 +344,12 @@
         }
 
         [TestMethod]
-        public void CorrectlyExtractsMetricWhenGroupingByTypeEnabled()
+        public void Dependency_CorrectlyExtractsMetricWhenGroupingByTypeEnabled()
         {
             List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory = (nextProc) => new DependencyMetricExtractor(nextProc) { MaxDependencyTypesToDiscover = 3 };
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc) { MaxDependencyTypesToDiscover = 3 };
 
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
             using (telemetryConfig)
             {
                 TelemetryClient client = new TelemetryClient(telemetryConfig);
@@ -447,28 +581,36 @@
                 Assert.Equal(12113, metric.Sum);
             }
         }
-        
-        [TestMethod]
-        public void DisposeIsIdempotent()
+
+        #endregion Dependency-metrics-related Tests
+
+        #region Common Tools
+
+        internal static TelemetryConfiguration CreateTelemetryConfigWithExtractor(IList<ITelemetry> telemetrySentToChannel,
+                                                                                  Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory)
         {
-            MetricExtractorTelemetryProcessorBase extractor = null;
+            ITelemetryChannel channel = new StubTelemetryChannel { OnSend = (t) => telemetrySentToChannel.Add(t) };
+            string iKey = Guid.NewGuid().ToString("D");
+            TelemetryConfiguration telemetryConfig = new TelemetryConfiguration(iKey, channel);
 
-            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
-            Func<ITelemetryProcessor, MetricExtractorTelemetryProcessorBase> extractorFactory =
-                    (nextProc) =>
-                    {
-                        extractor = new DependencyMetricExtractor(nextProc);
-                        return extractor;
-                    };
+            var channelBuilder = new TelemetryProcessorChainBuilder(telemetryConfig);
+            channelBuilder.Use(extractorFactory);
+            channelBuilder.Build();
 
-            TelemetryConfiguration telemetryConfig = BaseTest.CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
-            using (telemetryConfig)
+            TelemetryProcessorChain processors = telemetryConfig.TelemetryProcessorChain;
+            foreach (ITelemetryProcessor processor in processors.TelemetryProcessors)
             {
-                ;
+                ITelemetryModule m = processor as ITelemetryModule;
+                if (m != null)
+                {
+                    m.Initialize(telemetryConfig);
+                }
             }
 
-            extractor.Dispose();
-            extractor.Dispose();
+
+            return telemetryConfig;
         }
+
+        #endregion Common Tools
     }
 }

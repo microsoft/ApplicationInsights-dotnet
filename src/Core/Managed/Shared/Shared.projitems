@@ -38,13 +38,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\SeverityLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\DependencyMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IDebugOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\IMetricProcessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\MetricTerms.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\SimpleMetricStatisticsAggregator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\DependencyMetricsExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\ISpecificAutocollectedMetricsExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\MetricTerms.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\RequestMetricsExtractor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\Metrics\SimpleMetricStatisticsAggregator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Metric.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricExtractorTelemetryProcessorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\AutocollectedMetricsExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\MetricManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\ComponentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\External\AvailabilityData_types.cs" />
@@ -126,7 +128,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\ITelemetryProcessor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\RequestMetricExtractor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\SequencePropertyInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\TelemetryModules.cs" />

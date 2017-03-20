@@ -177,7 +177,7 @@
                 return;
             }
 
-            //// If telemetry wasalready sampled, do nothing:
+            //// If telemetry was already sampled, do nothing:
             bool itemAlreadySampled = samplingSupportingTelemetry.SamplingPercentage.HasValue;
             if (itemAlreadySampled)
             {

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
 
