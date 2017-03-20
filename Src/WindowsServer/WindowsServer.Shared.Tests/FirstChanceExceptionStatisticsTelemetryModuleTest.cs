@@ -352,6 +352,66 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryExceptionsAreThrottled()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            });
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = "operationName";
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                module.TargetMovingAverage = 50;
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+            }
+
+            int countProcessed = 0;
+            int countThrottled = 0;
+
+            foreach (KeyValuePair<Metric, double> items in metrics)
+            {
+                if (items.Key.Dimensions.Count == 1)
+                {
+                    countThrottled++;
+                }
+                else
+                {
+                    countProcessed++;
+                }
+            }
+
+            Assert.Equal(166, countProcessed);
+            Assert.Equal(34, countThrottled);
+        }
+
+        [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
@@ -378,7 +438,7 @@
                     {
                         // this assert is neede to avoid code optimization
                         Assert.Equal("test", ex.Message);
-                        throw new Exception("new exception");
+                        throw;
                     }
                 }
                 catch (Exception exc)
@@ -393,14 +453,13 @@
             Assert.Equal(1, metrics[0].Value, 15);
             Assert.Equal(0, metrics[1].Value, 15);
 
-            Assert.Equal(2, this.items.Count);
-
-            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Count);
-            Assert.Equal(1, ((MetricTelemetry)this.items[1]).Count);
+            Assert.Equal(1, this.items.Count);
+            Assert.Equal(2, ((MetricTelemetry) this.items[0]).Count);
+            Assert.Equal(1, ((MetricTelemetry) this.items[0]).Sum);
 
             // One of them should be 0 as re-thorwn, another - one
-            Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
-            Assert.Equal(1, Math.Max(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+            //Assert.Equal(0, Math.Min(((MetricTelemetry) this.items[0]).Sum, ((MetricTelemetry) this.items[1]).Sum), 15);
+            //Assert.Equal(1, Math.Max(((MetricTelemetry) this.items[0]).Sum, ((MetricTelemetry) this.items[1]).Sum), 15);
         }
 
         [TestMethod]

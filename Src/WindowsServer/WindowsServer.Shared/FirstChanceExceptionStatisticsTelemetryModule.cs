@@ -21,11 +21,11 @@
     {
         internal const int CacheSize = 100;
 
-        internal const double TargetMovingAverage = 5000;
         internal const double CurrentWeight = .7;
         internal const double NewWeight = .3;
         internal const long TicksMovingAverage = 100000000; // 10 seconds
         internal long MovingAverageTimeout;
+        internal double TargetMovingAverage = 5000;
 
         // cheap dimension capping
         internal long DimCapTimeout;
@@ -215,7 +215,7 @@
                                 (((double)this.newProcessed) * NewWeight);
                             }
 
-                            this.newThreshold = (long)((TargetMovingAverage - (this.currentMovingAverage * CurrentWeight)) / NewWeight);
+                            this.newThreshold = (long)((this.TargetMovingAverage - (this.currentMovingAverage * CurrentWeight)) / NewWeight);
 
                             this.newProcessed = 0;
 
@@ -300,16 +300,13 @@
                 dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
             }
 
-            if (string.IsNullOrEmpty(operation) == false)
+            if (SdkInternalOperationsMonitor.IsEntered())
             {
-                if (SdkInternalOperationsMonitor.IsEntered())
-                {
-                    dimensions.Add("operation", "AI (Internal)");
-                }
-                else if (!string.IsNullOrEmpty(operation))
-                {
-                    dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
-                }
+                dimensions.Add("operation", "AI (Internal)");
+            }
+            else if (string.IsNullOrEmpty(operation) == false)
+            {
+                dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
             }
 
             var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
