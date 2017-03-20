@@ -269,17 +269,18 @@
         }
 
         [TestMethod]
-        public void StartOperationByNameWithCorrelationContextSetsProperties()
+        public void StartOperationWithParentCorrelationContextSetsProperties()
         {
-            var correlationContext = new Dictionary<string, string>
+            var requestTelemetry = new RequestTelemetry();
+            requestTelemetry.Context.CorrelationContext["1"] = "1";
+            requestTelemetry.Context.CorrelationContext["2"] = "2";
+            using (this.telemetryClient.StartOperation(requestTelemetry))
             {
-                ["1"] = "1",
-                ["2"] = "2",
-            };
-            using (var operation = this.telemetryClient.StartOperation<RequestTelemetry>("REQUEST", "rootId", correlationContext: correlationContext))
-            {
-                Assert.AreEqual("1", operation.Telemetry.Context.Properties["1"]);
-                Assert.AreEqual("2", operation.Telemetry.Context.Properties["2"]);
+                using (var dependencyOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("dependency"))
+                {
+                    Assert.AreEqual("1", dependencyOperation.Telemetry.Context.Properties["1"]);
+                    Assert.AreEqual("2", dependencyOperation.Telemetry.Context.Properties["2"]);
+                }
             }
         }
     }

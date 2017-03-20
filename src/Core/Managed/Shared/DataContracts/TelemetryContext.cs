@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,7 +15,7 @@
     public sealed class TelemetryContext
     {
         private readonly IDictionary<string, string> properties;
-        private readonly IDictionary<string, string> correlationContext;
+        private readonly Lazy<IDictionary<string, string>> correlationContext;
         private readonly IDictionary<string, string> tags;
 
         private string instrumentationKey;
@@ -41,7 +42,7 @@
             Debug.Assert(properties != null, "properties");
             this.properties = properties;
             this.tags = new ConcurrentDictionary<string, string>();
-            this.correlationContext = new ConcurrentDictionary<string, string>();
+            this.correlationContext = new Lazy<IDictionary<string, string>>(() => new Dictionary<string, string>());
         }
 
         /// <summary>
@@ -129,7 +130,7 @@
         /// </summary>
         internal IDictionary<string, string> CorrelationContext
         {
-            get { return this.correlationContext; }
+            get { return this.correlationContext.Value; }
         }
 
         internal InternalContext Internal

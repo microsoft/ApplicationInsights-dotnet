@@ -25,8 +25,6 @@
             return StartOperation<T>(telemetryClient, operationName, operationId: null, parentOperationId: null);
         }
 
-        // TODO: add link once HTTP protocol is moved to corefx
-
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
         /// </summary>
@@ -35,9 +33,8 @@
         /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
         /// <param name="operationId">Operation ID to set in the new operation.</param>
         /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
-        /// <param name="correlationContext">CorrelationContext that is added to telemetry properties and propagated with outgoing HTTP calls.</param>
         /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
-        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null, IDictionary<string, string> correlationContext = null) where T : OperationTelemetry, new()
+        public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
             {
@@ -61,21 +58,8 @@
                 operationTelemetry.Context.Operation.ParentId = parentOperationId;
             }
 
-            if (correlationContext != null)
-            {
-                foreach (var item in correlationContext)
-                {
-                    if (!operationTelemetry.Context.CorrelationContext.ContainsKey(item.Key))
-                    {
-                        operationTelemetry.Context.CorrelationContext.Add(item);
-                    }
-                }
-            }
-
             return StartOperation(telemetryClient, operationTelemetry);
         }
-
-        // TODO: add link once HTTP protocol is moved to corefx
 
         /// <summary>
         /// Creates an operation object with a given telemetry item. 

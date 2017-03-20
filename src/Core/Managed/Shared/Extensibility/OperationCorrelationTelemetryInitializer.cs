@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using Implementation;
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
 
 #if NET40 || NET45
@@ -50,18 +51,12 @@
             // update CorrelationContext if there is any parent CorrelationContext
             if (parentContext != null && parentContext.CorrelationContext != null)
             {
-                foreach (var item in parentContext.CorrelationContext)
-                {
-                    if (!telemetryItem.Context.CorrelationContext.ContainsKey(item.Key))
-                    {
-                        telemetryItem.Context.CorrelationContext.Add(item);
-                    }
-                }
+                telemetryItem.Context.CorrelationContext.Merge(parentContext.CorrelationContext);
             }
 
-            // TODO: change backend so it tracts correlaton context as properties, so we don't need to copy them
-            // we don't expect any Correlaiton-Context at all, or in the worst case expect a few item,
-            // copying it should not affect performance in the meantime.
+            // TODO: change backend so it tracks correlation context as properties, so we don't need to copy them
+            // we don't expect any Correlation-Context at all, or in the worst case expect a few items,
+            // so copying it should not affect performance in the meantime.
             foreach (var item in telemetryItem.Context.CorrelationContext)
             {
                 if (!telemetryItem.Context.Properties.ContainsKey(item.Key))
