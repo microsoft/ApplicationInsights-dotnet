@@ -15,7 +15,7 @@
       Update for every public release.
       This resets file version counter. We will not change it before the stable version
     -->
-    <SemanticVersionDate>2017-03-20</SemanticVersionDate>
+    <SemanticVersionDate>2016-06-06</SemanticVersionDate>
     
     <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
     <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>
