@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Runtime.ExceptionServices;
+    using System.Threading;
     using Extensibility.Implementation.Tracing;
     using Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -18,6 +19,17 @@
     /// </summary>
     public sealed class FirstChanceExceptionStatisticsTelemetryModule : ITelemetryModule, IDisposable
     {
+        internal const int CacheSize = 100;
+
+        internal const double CurrentWeight = .7;
+        internal const double NewWeight = .3;
+        internal const long TicksMovingAverage = 100000000; // 10 seconds
+        internal long MovingAverageTimeout;
+        internal double TargetMovingAverage = 5000;
+
+        // cheap dimension capping
+        internal long DimCapTimeout;
+
         private const int LOCKED = 1;
         private const int UNLOCKED = 0;
 
@@ -36,16 +48,22 @@
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction;
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
+        private readonly object movingAverageLockObject = new object();
 
         private TelemetryClient telemetryClient;
         private MetricManager metricManager;
 
         private bool isInitialized = false;
 
-        // cheap dimentions capping
-        private ConcurrentDictionary<string, int> operationValues = new ConcurrentDictionary<string, int>();
-        private ConcurrentDictionary<string, int> methodValues = new ConcurrentDictionary<string, int>();
-        private ConcurrentDictionary<string, int> typeValues = new ConcurrentDictionary<string, int>();
+        private long newThreshold = 0;
+        private long newProcessed = 0;
+        private double currentMovingAverage = 0;
+
+        private long cacheLifetime = 1200000000; // Two minutes in ticks
+
+        private HashCache<string> operationValues = new HashCache<string>();
+        private HashCache<string> methodValues = new HashCache<string>();
+        private HashCache<string> typeValues = new HashCache<string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FirstChanceExceptionStatisticsTelemetryModule" /> class.
@@ -60,6 +78,9 @@
             Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction,
             Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction)
         {
+            this.DimCapTimeout = DateTime.UtcNow.Ticks + this.cacheLifetime;
+            this.MovingAverageTimeout = DateTime.UtcNow.Ticks - 1; // Setting the timeout to be expired
+
             this.registerAction = registerAction;
             this.unregisterAction = unregisterAction;
         }
@@ -77,14 +98,14 @@
                 {
                     if (!this.isInitialized)
                     {
-                        this.isInitialized = true;
-
                         this.telemetryClient = new TelemetryClient(configuration);
                         this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
 
                         this.metricManager = new MetricManager(this.telemetryClient);
 
                         this.registerAction(this.CalculateStatistics);
+
+                        this.isInitialized = true;
                     }
                 }
             }
@@ -120,6 +141,11 @@
                     if (innerException != null)
                     {
                         wasTracked = IsTracked(innerException);
+
+                        if (wasTracked == true)
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -154,6 +180,9 @@
             if (disposing)
             {
                 this.unregisterAction(this.CalculateStatistics);
+                this.typeValues.Dispose();
+                this.methodValues.Dispose();
+                this.operationValues.Dispose();
                 this.metricManager.Dispose();
             }
         }
@@ -170,6 +199,31 @@
             {
                 executionSyncObject = LOCKED;
 
+                if (this.MovingAverageTimeout < DateTime.UtcNow.Ticks)
+                {
+                    lock (this.movingAverageLockObject)
+                    {
+                        if (this.MovingAverageTimeout < DateTime.UtcNow.Ticks)
+                        {
+                            if (this.MovingAverageTimeout + TicksMovingAverage < DateTime.UtcNow.Ticks)
+                            {
+                                this.currentMovingAverage = 0;
+                            }
+                            else
+                            {
+                                this.currentMovingAverage = (this.currentMovingAverage * CurrentWeight) +
+                                (((double)this.newProcessed) * NewWeight);
+                            }
+
+                            this.newThreshold = (long)((this.TargetMovingAverage - (this.currentMovingAverage * CurrentWeight)) / NewWeight);
+
+                            this.newProcessed = 0;
+
+                            this.MovingAverageTimeout = DateTime.UtcNow.Ticks + TicksMovingAverage;
+                        }
+                    }
+                }
+
                 var exception = firstChanceExceptionArgs?.Exception;
 
                 if (exception == null)
@@ -182,26 +236,35 @@
 
                 var type = exception.GetType().FullName;
 
-                // obtaining the operation name. At this stage we have no intention to send this telemetry item
-                ExceptionTelemetry fakeTelemetry = new ExceptionTelemetry(exception);
-                this.telemetryClient.Initialize(fakeTelemetry);
-
-                var operation = fakeTelemetry.Context.Operation.Name;
-
-                // obtaining failing method name by walking 1 frame up the stack
-                var frame = new StackFrame(1);
-                var failingMethod = frame.GetMethod();
-                var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
-
-                var offset = frame.GetILOffset();
-                if (offset != StackFrame.OFFSET_UNKNOWN)
+                if (this.newProcessed < this.newThreshold)
                 {
-                    method += ": " + offset.ToString(CultureInfo.InvariantCulture);
+                    Interlocked.Increment(ref this.newProcessed);
+
+                    // obtaining the operation name. At this stage we have no intention to send this telemetry item
+                    ExceptionTelemetry fakeTelemetry = new ExceptionTelemetry(exception);
+                    this.telemetryClient.Initialize(fakeTelemetry);
+
+                    var operation = fakeTelemetry.Context.Operation.Name;
+
+                    // obtaining failing method name by walking 1 frame up the stack
+                    var frame = new StackFrame(1);
+                    var failingMethod = frame.GetMethod();
+                    var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
+
+                    var offset = frame.GetILOffset();
+                    if (offset != StackFrame.OFFSET_UNKNOWN)
+                    {
+                        method += ": " + offset.ToString(CultureInfo.InvariantCulture);
+                    }
+
+                    bool wasTracked = this.WasExceptionTracked(exception);
+
+                    this.TrackStatistics(type, operation, method, wasTracked);
                 }
-
-                bool wasTracked = this.WasExceptionTracked(exception);
-
-                this.TrackStatistics(type, operation, method, wasTracked);
+                else
+                {
+                    this.TrackStatistics(type, null, null, false);
+                }
             }
             catch (Exception exc)
             {
@@ -224,14 +287,24 @@
         private void TrackStatistics(string type, string operation, string method, bool wasTracked)
         {
             var dimensions = new Dictionary<string, string>();
+
+            if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+            {
+                this.ResetDimCapCaches(this.typeValues, this.methodValues, this.operationValues);
+            }
+
             dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
-            dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
+
+            if (string.IsNullOrEmpty(method) == false)
+            {
+                dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
+            }
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
                 dimensions.Add("operation", "AI (Internal)");
             }
-            else if (!string.IsNullOrEmpty(operation))
+            else if (string.IsNullOrEmpty(operation) == false)
             {
                 dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
             }
@@ -248,21 +321,100 @@
             }
         }
 
-        private string GetDimCappedString(string dimensionValue, ConcurrentDictionary<string, int> capValues)
+        private string GetDimCappedString(string dimensionValue, HashCache<string> hashCache)
         {
-            int temp;
-            if (capValues.TryGetValue(dimensionValue, out temp))
+            hashCache.RwLock.EnterReadLock();
+
+            if (hashCache.ValueCache.Contains(dimensionValue) == true)
             {
+                hashCache.RwLock.ExitReadLock();
+
                 return dimensionValue;
             }
-            else if (capValues.Count > 100)
+
+            if (hashCache.ValueCache.Count > CacheSize)
             {
+                hashCache.RwLock.ExitReadLock();
+
                 return "OtherValue";
             }
-            else
+
+            hashCache.RwLock.ExitReadLock();
+            hashCache.RwLock.EnterWriteLock();
+
+            hashCache.ValueCache.Add(dimensionValue);
+
+            hashCache.RwLock.ExitWriteLock();
+
+            return dimensionValue;
+        }
+
+        private void ResetDimCapCaches(HashCache<string> cache1, HashCache<string> cache2, HashCache<string> cache3)
+        {
+            cache1.RwLock.EnterWriteLock();
+
+            if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
             {
-                capValues.TryAdd(dimensionValue, 0);
-                return dimensionValue;
+                cache2.RwLock.EnterWriteLock();
+
+                if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+                {
+                    cache3.RwLock.EnterWriteLock();
+
+                    if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+                    {
+                        cache1.ValueCache.Clear();
+                        cache2.ValueCache.Clear();
+                        cache3.ValueCache.Clear();
+
+                        this.DimCapTimeout = DateTime.UtcNow.Ticks + this.cacheLifetime;
+                    }
+
+                    cache3.RwLock.ExitWriteLock();
+                }
+
+                cache2.RwLock.ExitWriteLock();
+            }
+
+            cache1.RwLock.ExitWriteLock();
+        }
+
+        internal class HashCache<T> : IDisposable
+        {
+            internal ReaderWriterLockSlim RwLock;
+            internal HashSet<T> ValueCache = new HashSet<T>();
+
+            private bool disposedValue = false; // To detect redundant calls
+
+            internal HashCache()
+            {
+                this.RwLock = new ReaderWriterLockSlim();
+                this.ValueCache = new HashSet<T>();
+            }
+
+            void IDisposable.Dispose()
+            {
+                this.Dispose(true);
+            }
+
+            // This code added to correctly implement the disposable pattern.
+            internal void Dispose()
+            {
+                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+                this.Dispose(true);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!this.disposedValue)
+                {
+                    if (disposing)
+                    {
+                        ////this.RwLock.Dispose();
+                    }
+
+                    this.disposedValue = true;
+                }
             }
         }
     }
