@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Runtime.ExceptionServices;
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -182,6 +183,11 @@
                             //// Note: this is a very rare case. It is expected to occur only MaxDependencyTypesToDiscover times.
                             //// In case of very high contention, this may happen a little more often,
                             //// but will no longer happen once the MaxDependencyTypesToDiscover limit is reached.
+
+                            const string TypeDiscoveryLimitReachedMessage = "Cannot discover more dependency types becasue the MaxDependencyTypesToDiscover limit"
+                                                                          + " is reached. This is a control-flow exception that should not propagate outside "
+                                                                          + "the metric extraction logic.";
+
                             try
                             {
                                 typeMetrics = thisMetrics.ByType.GetOrAdd(
@@ -192,7 +198,7 @@
                                             {
                                                 if (thisMetrics.DependencyTypesDiscoveredCount >= thisMetrics.MaxDependencyTypesToDiscover)
                                                 {
-                                                    throw new InvalidOperationException("MaxDependencyTypesToDiscover reached.");
+                                                    throw new InvalidOperationException(TypeDiscoveryLimitReachedMessage);
                                                 }
 
                                                 thisMetrics.DependencyTypesDiscoveredCount++;
@@ -215,8 +221,17 @@
                                             }
                                         });
                             }
-                            catch (InvalidOperationException)
+                            catch (InvalidOperationException ex)
                             {
+                                if (!ex.Message.Equals(TypeDiscoveryLimitReachedMessage, StringComparison.Ordinal))
+                                {
+#if NET40
+                                    throw;
+#else
+                                    ExceptionDispatchInfo.Capture(ex).Throw();
+#endif
+                                }
+
                                 //// Limit was reached concurrently. We will use "Other" after all:
                                 metricToTrack = dependencyFailed
                                     ? thisMetrics.Default.Failure
