@@ -407,6 +407,9 @@
                 }
             }
 
+            // The test starts with the current moving average being 0. With the setting of the
+            // weight for the new sample being .3 and the target moving average being 50 (as
+            // set in the test), this means 50 / .3 = 166 becomes the throttle limit for this window.
             Assert.Equal(166, countProcessed);
             Assert.Equal(34, countThrottled);
         }
