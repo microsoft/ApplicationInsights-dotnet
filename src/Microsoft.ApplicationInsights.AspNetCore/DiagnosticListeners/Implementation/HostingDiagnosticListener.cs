@@ -43,7 +43,7 @@
                     Id = httpContext.TraceIdentifier
                 };
                 this.client.Initialize(requestTelemetry);
-                requestTelemetry.Start(/*timestamp*/);
+                requestTelemetry.Start(timestamp);
                 httpContext.Features.Set(requestTelemetry);
 
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
@@ -102,7 +102,7 @@
                     return;
                 }
 
-                telemetry.Stop(/*timestamp*/);
+                telemetry.Stop(timestamp);
                 telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
 
                 var successExitCode = httpContext.Response.StatusCode < 400;

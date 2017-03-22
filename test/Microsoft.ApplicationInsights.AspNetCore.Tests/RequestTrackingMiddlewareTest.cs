@@ -284,7 +284,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.NotEqual(id1, id2);
         }
 
-        [Fact(Skip = "Disabled until timestamp overloads are supported in OperationTelemetryExtensions.Start/Stop. https://github.com/Microsoft/ApplicationInsights-dotnet/pull/424")]
+        [Fact]
         public void SimultaneousRequestsGetCorrectDurations()
         {
             var context1 = new DefaultHttpContext();
@@ -312,7 +312,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.Equal(TimeSpan.FromSeconds(9), ((RequestTelemetry)sentTelemetry[1]).Duration);
         }
 
-        [Fact(Skip = "Disabled until precise durations are supported in OperationTelemetryExtensions.Start/Stop. https://github.com/Microsoft/ApplicationInsights-dotnet/pull/426")]
+        [Fact]
         public void OnEndRequestSetsPreciseDurations()
         {
             var context = new DefaultHttpContext();
