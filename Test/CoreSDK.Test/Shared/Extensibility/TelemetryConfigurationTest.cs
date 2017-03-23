@@ -314,24 +314,6 @@
 
         #endregion
 
-        #region MetricProcessors
-
-        [TestMethod]
-        public void MetricProcessorsReturnsAnEmptyListByDefaultToAvoidNullReferenceExceptionsInUserCode()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(0, configuration.MetricProcessors.Count);
-        }
-
-        [TestMethod]
-        public void MetricPrcessorsReturnsThreadSafeList()
-        {
-            var configuration = new TelemetryConfiguration();
-            Assert.Equal(typeof(SnapshottingList<IMetricProcessor>), configuration.MetricProcessors.GetType());
-        }
-
-        #endregion
-
         #region Serialized Configuration
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsNull()
