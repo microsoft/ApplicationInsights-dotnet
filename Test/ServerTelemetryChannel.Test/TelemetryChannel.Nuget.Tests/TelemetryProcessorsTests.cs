@@ -17,7 +17,7 @@
 
             var processors = ConfigurationHelpers.GetTelemetryProcessors(configAfterTransform);
 
-            Assert.AreEqual(2, processors.Count());
+            Assert.AreEqual(3, processors.Count());
 
             var type = processors.FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
             Assert.IsNotNull(type);
@@ -34,7 +34,7 @@
             var includedTypes = processors.Descendants().Where(element => element.Name.LocalName == "IncludedTypes").First().Value;
             Assert.AreEqual("Event", includedTypes);
 
-            maxItems = processors.Descendants().Where(element => element.Name.LocalName == "MaxTelemetryItemsPerSecond").First().Value;
+            maxItems = processors.Descendants().Where(element => element.Name.LocalName == "MaxTelemetryItemsPerSecond").Last().Value;
             Assert.AreEqual("5", maxItems);
         }
 

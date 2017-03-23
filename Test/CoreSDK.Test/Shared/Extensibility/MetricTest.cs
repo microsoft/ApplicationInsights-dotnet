@@ -1,5 +1,4 @@
-﻿
-namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
     using System.Collections.Generic;

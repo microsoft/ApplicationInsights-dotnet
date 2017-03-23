@@ -2,14 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
-    using Extensibility.Implementation;
+    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-
+    
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
     /// </summary>
@@ -144,67 +146,81 @@
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
-            if (this.SamplingPercentage < 100.0 - 1.0E-12)
+            double samplingPercentage = this.SamplingPercentage;
+
+            //// If sampling rate is 100%, there is nothing to do:
+            if (samplingPercentage >= 100.0 - 1.0E-12)
             {
-                var samplingSupportingTelemetry = item as ISupportSampling;
-
-                if (samplingSupportingTelemetry != null)
-                {
-                    var excludedTypesHashSetRef = this.excludedTypesHashSet;
-                    var includedTypesHashSetRef = this.includedTypesHashSet;
-
-                    if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(item.GetType()))
-                    {
-                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                        {
-                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
-                        }
-                    }
-                    else if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(item.GetType()))
-                    {
-                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                        {
-                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
-                        }
-                    }
-                    else if (!samplingSupportingTelemetry.SamplingPercentage.HasValue)
-                    {
-                        samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
-
-                        if (!this.IsSampledIn(item))
-                        {
-                            if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                            {
-                                TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
-                            }
-
-                            TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
-                            return;
-                        }
-                    }
-                }
+                this.Next.Process(item);
+                return;
             }
 
-            this.Next.Process(item);
-        }
+            //// So sampling rate is not 100%.
 
-        private bool IsSampledIn(ITelemetry telemetry)
-        {
-            // check if telemetry supports sampling
-            var samplingSupportingTelemetry = telemetry as ISupportSampling;
-
+            //// If null was passed in as item or if sampling not supported in general, do nothing:
+            var samplingSupportingTelemetry = item as ISupportSampling;
             if (samplingSupportingTelemetry == null)
             {
-                return true;
+                this.Next.Process(item);
+                return;
             }
 
-            // check sampling < 100% is specified
-            if (samplingSupportingTelemetry.SamplingPercentage >= 100.0)
+            //// If telemetry was excuded by type, do nothing:
+            if (!this.IsSamplingApplicable(item.GetType()))
             {
-                return true;
+                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                {
+                    TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
+                }
+
+                this.Next.Process(item);
+                return;
             }
-            
-            return SamplingScoreGenerator.GetSamplingScore(telemetry) < samplingSupportingTelemetry.SamplingPercentage;
+
+            //// If telemetry was already sampled, do nothing:
+            bool itemAlreadySampled = samplingSupportingTelemetry.SamplingPercentage.HasValue;
+            if (itemAlreadySampled)
+            {
+                this.Next.Process(item);
+                return;
+            }
+
+            //// Ok, now we can actually sample:
+
+            samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
+            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+
+            if (isSampledIn)
+            {
+                this.Next.Process(item);
+            }
+            else
+            { 
+                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                {
+                    TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                }
+
+                TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
+            }
+        }
+
+        private bool IsSamplingApplicable(Type telemetryItemType)
+        {
+            var excludedTypesHashSetRef = this.excludedTypesHashSet;
+            var includedTypesHashSetRef = this.includedTypesHashSet;
+
+            if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(telemetryItemType))
+            {
+                return false;
+            }
+
+            if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(telemetryItemType))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

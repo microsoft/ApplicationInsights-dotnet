@@ -247,9 +247,10 @@
         {
             if (disposing)
             {
-                if (this.estimatorProcessor != null)
+                IDisposable estimatorProc = this.estimatorProcessor;
+                if (estimatorProc != null)
                 {
-                    this.estimatorProcessor.Dispose();
+                    estimatorProc.Dispose();
                     this.estimatorProcessor = null;
                 }
             }
