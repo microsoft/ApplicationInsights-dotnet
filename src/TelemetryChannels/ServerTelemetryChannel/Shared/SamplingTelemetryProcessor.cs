@@ -2,18 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
-    using Extensibility.Implementation;
+    
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Metrics;
     using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
-
+    
     /// <summary>
     /// Represents a telemetry processor for sampling telemetry at a fixed-rate before sending to Application Insights.
     /// </summary>
-    public sealed class SamplingTelemetryProcessor : ITelemetryProcessor
+    public sealed class SamplingTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
         private const string DependencyTelemetryName = "Dependency";
         private const string EventTelemetryName = "Event";
@@ -21,6 +24,22 @@
         private const string PageViewTelemetryName = "PageView";
         private const string RequestTelemetryName = "Request";
         private const string TraceTelemetryName = "Trace";
+
+        private const string SamplingRateMetricName = "Sampling rate";
+
+        private const string MetricAutocollectionMonikerKey = "Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected";
+        private const string MetricAutocollectionMonikerValue = "True";
+
+        private static readonly string SamplingRateMetricPropertyNamePrefix = "Microsoft.ApplicationInsights.Sampling.Processor";
+        private static readonly string ProcessorTypeNameMetricPropertyName = SamplingRateMetricPropertyNamePrefix + ".Type";
+        private static readonly string ProcessorVersionMetricPropertyName = SamplingRateMetricPropertyNamePrefix + ".Version";
+        private static readonly string UniqueProcessorIdMetricPropertyName  = SamplingRateMetricPropertyNamePrefix + ".UniqueId";
+        private static readonly string IncludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".IncludedTypes";
+        private static readonly string ExcludedTypesMetricPropertyName      = SamplingRateMetricPropertyNamePrefix + ".ExcludedTypes";
+
+        private readonly string processorUniqueId;
+        private readonly string processorTypeName = typeof(SamplingTelemetryProcessor).FullName;
+        private readonly string processorVersion = "1.0";
 
         private readonly char[] listSeparators = { ';' };
         private readonly IDictionary<string, Type> allowedTypes;
@@ -30,6 +49,9 @@
 
         private HashSet<Type> includedTypesHashSet;
         private string includedTypesString;
+
+        private MetricManager metricManager = null;
+        private Metric samplingRateMetric = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SamplingTelemetryProcessor"/> class.
@@ -41,6 +63,8 @@
             {
                 throw new ArgumentNullException("next");
             }
+
+            this.processorUniqueId = this.GetHashCode().ToString(CultureInfo.InvariantCulture);
 
             this.SamplingPercentage = 100.0;
             this.Next = next;
@@ -72,6 +96,7 @@
             set
             {
                 this.excludedTypesString = value;
+                this.samplingRateMetric = null;
 
                 HashSet<Type> newExcludedTypesHashSet = new HashSet<Type>();
                 if (!string.IsNullOrEmpty(value))
@@ -105,6 +130,7 @@
             set
             {
                 this.includedTypesString = value;
+                this.samplingRateMetric = null;
 
                 HashSet<Type> newIncludedTypesHashSet = new HashSet<Type>();
                 if (!string.IsNullOrEmpty(value))
@@ -139,72 +165,147 @@
         private ITelemetryProcessor Next { get; set; }
 
         /// <summary>
+        /// Initializes this processor using the correct telemetry pipeline configuration.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration to be used by this processor.</param>
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            this.metricManager = (configuration == null)
+                                        ? new MetricManager()
+                                        : new MetricManager(new TelemetryClient(configuration));
+        }
+
+        /// <summary>
+        /// Disposes of the contained disposable fields.
+        /// </summary>
+        public void Dispose()
+        {
+            IDisposable metricMgr = this.metricManager;
+            if (metricMgr != null)
+            {
+                // benign race
+                metricMgr.Dispose();
+                this.metricManager = null;
+            }
+        }
+
+        /// <summary>
         /// Process a collected telemetry item.
         /// </summary>
         /// <param name="item">A collected Telemetry item.</param>
         public void Process(ITelemetry item)
         {
-            if (this.SamplingPercentage < 100.0 - 1.0E-12)
+            double samplingPercentage = this.SamplingPercentage;
+
+            //// If sampling rate is 100% we log the sapling rate as a metric and do nothing else:
+            if (samplingPercentage >= 100.0 - 1.0E-12)
             {
-                var samplingSupportingTelemetry = item as ISupportSampling;
-
-                if (samplingSupportingTelemetry != null)
-                {
-                    var excludedTypesHashSetRef = this.excludedTypesHashSet;
-                    var includedTypesHashSetRef = this.includedTypesHashSet;
-
-                    if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(item.GetType()))
-                    {
-                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                        {
-                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
-                        }
-                    }
-                    else if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(item.GetType()))
-                    {
-                        if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                        {
-                            TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
-                        }
-                    }
-                    else if (!samplingSupportingTelemetry.SamplingPercentage.HasValue)
-                    {
-                        samplingSupportingTelemetry.SamplingPercentage = this.SamplingPercentage;
-
-                        if (!this.IsSampledIn(item))
-                        {
-                            if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
-                            {
-                                TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
-                            }
-
-                            TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
-                            return;
-                        }
-                    }
-                }
+                this.TrackSamplingRate(100.0);
+                this.Next.Process(item);
+                return;
             }
 
-            this.Next.Process(item);
-        }
+            //// So sampling rate is not 100%.
 
-        private bool IsSampledIn(ITelemetry telemetry)
-        {
-            // check if telemetry supports sampling
-            var samplingSupportingTelemetry = telemetry as ISupportSampling;
-
+            //// If null was passed in as item or if sampling not supported in general, do nothing (logging sampling rate does not apply):
+            var samplingSupportingTelemetry = item as ISupportSampling;
             if (samplingSupportingTelemetry == null)
             {
-                return true;
+                this.Next.Process(item);
+                return;
             }
 
-            // check sampling < 100% is specified
-            if (samplingSupportingTelemetry.SamplingPercentage >= 100.0)
+            //// If telemetry was excuded by type, do nothing (logging sampling rate does not apply):
+            if (!this.IsSamplingApplicable(item.GetType()))
             {
-                return true;
+                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                {
+                    TelemetryChannelEventSource.Log.SamplingSkippedByType(item.ToString());
+                }
+
+                this.Next.Process(item);
+                return;
             }
-            
-            return SamplingScoreGenerator.GetSamplingScore(telemetry) < samplingSupportingTelemetry.SamplingPercentage;
+
+            //// If telemetry wasalready sampled, do nothing (logging sampling rate does not apply):
+            bool itemAlreadySampled = samplingSupportingTelemetry.SamplingPercentage.HasValue;
+            if (itemAlreadySampled)
+            {
+                this.Next.Process(item);
+                return;
+            }
+
+            //// Ok, now we can actually sample:
+
+            samplingSupportingTelemetry.SamplingPercentage = samplingPercentage;
+            bool isSampledIn = SamplingScoreGenerator.GetSamplingScore(item) < samplingPercentage;
+
+            this.TrackSamplingRate(samplingPercentage);
+
+            if (isSampledIn)
+            {
+                this.Next.Process(item);
+            }
+            else
+            { 
+                if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                {
+                    TelemetryChannelEventSource.Log.ItemSampledOut(item.ToString());
+                }
+
+                TelemetryDebugWriter.WriteTelemetry(item, this.GetType().Name);
+            }
+        }
+
+        private bool IsSamplingApplicable(Type telemetryItemType)
+        {
+            var excludedTypesHashSetRef = this.excludedTypesHashSet;
+            var includedTypesHashSetRef = this.includedTypesHashSet;
+
+            if (excludedTypesHashSetRef.Count > 0 && excludedTypesHashSetRef.Contains(telemetryItemType))
+            {
+                return false;
+            }
+
+            if (includedTypesHashSetRef.Count > 0 && !includedTypesHashSetRef.Contains(telemetryItemType))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void TrackSamplingRate(double samplingPercentage)
+        {
+            Metric samplingMetric = this.samplingRateMetric;
+            if (samplingMetric == null)
+            {
+                MetricManager metricManager = this.metricManager;
+                if (metricManager == null)
+                {
+                    return;
+                }
+
+                // There is an edge case where there may be several sampling processors in the pipeline.
+                // To account for that, the aggregated metric documents will be marked with sufficinet info to differentiate the sampling rates.
+                // In general, if the user is only interested in whether the sampling rate is 100% or not 100% across, these properties my be ignored.
+                samplingMetric = metricManager.CreateMetric(
+                        SamplingRateMetricName,
+                        new Dictionary<string, string>()
+                        {
+                            [ProcessorTypeNameMetricPropertyName] = this.processorTypeName,
+                            [ProcessorVersionMetricPropertyName] = this.processorVersion,
+                            [UniqueProcessorIdMetricPropertyName] = this.processorUniqueId,
+                            [IncludedTypesMetricPropertyName] = this.IncludedTypes ?? "null",
+                            [ExcludedTypesMetricPropertyName] = this.ExcludedTypes ?? "null",
+                            [MetricAutocollectionMonikerKey] = MetricAutocollectionMonikerValue,
+                        });
+
+                Metric prevSamplingMetric = Interlocked.CompareExchange(ref this.samplingRateMetric, samplingMetric, null);
+                samplingMetric = prevSamplingMetric ?? samplingMetric;
+            }
+
+            samplingMetric.Track(samplingPercentage);
         }
     }
 }

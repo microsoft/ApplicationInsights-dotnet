@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Metrics
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Text;
 
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>

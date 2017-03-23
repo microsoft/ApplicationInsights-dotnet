@@ -10,7 +10,7 @@
     /// <summary>
     /// Telemetry processor for sampling telemetry at a dynamic rate before sending to Application Insights.
     /// </summary>
-    public class AdaptiveSamplingTelemetryProcessor : ITelemetryProcessor, IDisposable
+    public class AdaptiveSamplingTelemetryProcessor : ITelemetryProcessor, ITelemetryModule, IDisposable
     {
         /// <summary>
         /// Fixed-rate sampling telemetry processor.
@@ -222,6 +222,15 @@
         }
 
         /// <summary>
+        /// Initializes this processor using the correct telemetry pipeline configuration.
+        /// </summary>
+        /// <param name="configuration">The telemetry configuration to be used by this processor.</param>
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            this.samplingProcessor.Initialize(configuration);
+        }
+
+        /// <summary>
         /// Processes telemetry item.
         /// </summary>
         /// <param name="item">Telemetry item to process.</param>
@@ -247,10 +256,18 @@
         {
             if (disposing)
             {
-                if (this.estimatorProcessor != null)
+                IDisposable estimatorProc = this.estimatorProcessor;
+                if (estimatorProc != null)
                 {
-                    this.estimatorProcessor.Dispose();
+                    estimatorProc.Dispose();
                     this.estimatorProcessor = null;
+                }
+
+                IDisposable samplingProc = this.samplingProcessor;
+                if (samplingProc != null)
+                {
+                    samplingProc.Dispose();
+                    //// Cannot set samplingProcessor = null, since it is readonly, but multiple Dispose calls must be idempotent.
                 }
             }
         }
