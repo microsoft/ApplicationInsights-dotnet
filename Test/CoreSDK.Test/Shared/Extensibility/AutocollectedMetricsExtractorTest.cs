@@ -70,19 +70,19 @@
 
             Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[0]);
             Assert.Equal("Test Event", ((EventTelemetry) telemetrySentToChannel[0]).Name);
-            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
 
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[1]);
             Assert.Equal("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
-            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
             Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
-                         ((RequestTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+                         ((RequestTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[2]);
             Assert.Equal("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
-            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
             Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
-                         ((RequestTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+                         ((RequestTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
         }
@@ -124,9 +124,9 @@
             Assert.Equal(50, metricT.Sum);
 
             Assert.Equal(3, metricT.Properties.Count);
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.AppInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricT.Properties["Microsoft.AppInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricT.Properties.ContainsKey("Request.Success"));
             Assert.Equal(Boolean.TrueString, metricT.Properties["Request.Success"]);
 
@@ -142,9 +142,9 @@
             Assert.Equal(300, metricF.Sum);
 
             Assert.Equal(3, metricF.Properties.Count);
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.AppInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricF.Properties["Microsoft.AppInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricF.Properties.ContainsKey("Request.Success"));
             Assert.Equal(Boolean.FalseString, metricF.Properties["Request.Success"]);
         }
@@ -179,25 +179,25 @@
             Assert.Equal(6, telemetrySentToChannel.Count);
             
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[0]);
-            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
             Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
-                         ((RequestTelemetry) telemetrySentToChannel[0]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+                         ((RequestTelemetry) telemetrySentToChannel[0]).Properties["Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[1]);
             Assert.Equal("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
-            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
             Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
-                         ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+                         ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[2]);
             Assert.Equal("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
-            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
             Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
-                         ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"]);
+                         ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"]);
 
             Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[3]);
             Assert.Equal("Test Event", ((EventTelemetry) telemetrySentToChannel[3]).Name);
-            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Extraction.ProcessedByExtractors"));
+            Assert.Equal(false, ((EventTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("Microsoft.AppInsights.Metrics.Extraction.ProcessedByExtractors"));
 
 
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
@@ -318,9 +318,9 @@
             Assert.Equal(50, metricT.Sum);
 
             Assert.Equal(3, metricT.Properties.Count);
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricT.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricT.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricT.Properties.ContainsKey("Microsoft.AppInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricT.Properties["Microsoft.AppInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricT.Properties.ContainsKey("Dependency.Success"));
             Assert.Equal(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
 
@@ -336,9 +336,9 @@
             Assert.Equal(300, metricF.Sum);
 
             Assert.Equal(3, metricF.Properties.Count);
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(metricF.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-            Assert.Equal("True", metricF.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(metricF.Properties.ContainsKey("Microsoft.AppInsights.Metrics.MetricIsAutocollected"));
+            Assert.Equal("True", metricF.Properties["Microsoft.AppInsights.Metrics.MetricIsAutocollected"]);
             Assert.Equal(true, metricF.Properties.ContainsKey("Dependency.Success"));
             Assert.Equal(Boolean.FalseString, metricF.Properties["Dependency.Success"]);
         }
@@ -429,9 +429,9 @@
                     Assert.Equal("Dependency duration", metric.Name);
                     Assert.NotNull(metric.Properties);
                     Assert.True(metric.Properties.ContainsKey("Dependency.Type"));
-                    Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.Aggregation.IntervalMs"));
-                    Assert.True(metric.Properties.ContainsKey("Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"));
-                    Assert.Equal("True", metric.Properties["Microsoft.ApplicationInsights.Metrics.MetricIsAutocollected"]);
+                    Assert.True(metric.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+                    Assert.True(metric.Properties.ContainsKey("Microsoft.AppInsights.Metrics.MetricIsAutocollected"));
+                    Assert.Equal("True", metric.Properties["Microsoft.AppInsights.Metrics.MetricIsAutocollected"]);
                     Assert.True(metric.Properties.ContainsKey("Dependency.Success"));
                     Assert.False(string.IsNullOrWhiteSpace(metric.Properties["Dependency.Success"]));
                 }

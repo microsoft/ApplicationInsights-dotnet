@@ -4,7 +4,7 @@
 
     internal static class MetricTerms
     {
-        private const string MetricPropertiesNamePrefix = "Microsoft.ApplicationInsights.Metrics";
+        private const string MetricPropertiesNamePrefix = "Microsoft.AppInsights.Metrics";
 
         public static class Aggregation
         {
