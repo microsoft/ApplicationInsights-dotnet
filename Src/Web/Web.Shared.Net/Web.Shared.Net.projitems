@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AccountIdTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationInsightsHttpModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpContextBaseExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensions.cs" />

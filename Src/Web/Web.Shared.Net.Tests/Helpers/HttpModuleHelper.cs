@@ -70,6 +70,11 @@
             return new HttpContext(workerRequest);
         }
 
+        public static HttpContextBase GetFakeHttpContextBase(IDictionary<string, string> headers = null)
+        {
+            return new HttpContextWrapper(GetFakeHttpContext(headers));
+        }
+
         public static HttpContext GetFakeHttpContextForFailedRequest()
         {
             var httpContext = GetFakeHttpContext();
