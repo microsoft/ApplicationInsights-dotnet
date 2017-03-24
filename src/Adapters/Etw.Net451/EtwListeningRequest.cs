@@ -40,6 +40,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// <summary>
         /// Verify this request is valid.
         /// </summary>
+        /// <param name="errorMessage">Error message to display in case the request is invalid.</param>
+        /// <returns>True if the request is valid, otherwise false.</returns>
         /// <exception cref="ArgumentNullException">Throws when the object is not valid.</exception>
         public bool Validate(out string errorMessage)
         {

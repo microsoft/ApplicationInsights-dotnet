@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
 {
     using System;
     using System.Diagnostics.Tracing;
+    using System.Reflection;
 
     /// <summary>
     /// EventSource for reporting errors and warnings from the EventSourceListener telemetry module.
@@ -28,10 +29,16 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
             this.ApplicationName = this.GetApplicationName();
         }
 
-        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
+        public string ApplicationName
+        {
+            [NonEvent]
+            get;
 
-        [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration,
-        Message = "No Sources configured for the {1}")]
+            [NonEvent]
+            private set;
+        }
+
+        [Event(NoEventSourcesConfiguredEventId, Level = EventLevel.Warning, Keywords = Keywords.Configuration, Message = "No Sources configured for the {1}")]
         public void NoSourcesConfigured(string moduleName, string applicationName = null)
         {
             this.WriteEvent(NoEventSourcesConfiguredEventId, applicationName ?? this.ApplicationName, moduleName);
@@ -61,7 +68,11 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation
             string name;
             try
             {
+#if NET40 || NET45 || NET46
                 name = AppDomain.CurrentDomain.FriendlyName;
+#else
+                name = string.Empty;
+#endif
             }
             catch
             {

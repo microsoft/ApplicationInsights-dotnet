@@ -1,9 +1,5 @@
 @echo off
 
-call "%VS140COMNTOOLS%\VsDevCmd.bat"
-
-SET dotNetPath=%systemdrive%\Windows\Microsoft.NET\Framework\v4.0.30319\;
-IF NOT "x!PATH:%dotNetPath%=!"=="x%PATH%" SET PATH=%PATH%;%dotNetPath%
 SET ProjectName=Msbuild.All
 
 SET Configuration=Release

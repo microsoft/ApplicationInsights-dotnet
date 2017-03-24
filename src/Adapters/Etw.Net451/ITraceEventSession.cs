@@ -16,10 +16,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     internal interface ITraceEventSession : IDisposable
     {
         /// <summary>
+        /// Gets the TraceEventDispatcher for the session.
+        /// </summary>
+        /// <remarks>
         /// If this is a real time session you can fetch the source associated with the session
         /// to start receiving events. Currently does not work on file based sources (we
         /// expect you to wait until the file is complete).
-        /// </summary>
+        /// </remarks>
         TraceEventDispatcher Source { get; }
 
         /// <summary>
@@ -59,11 +62,13 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         /// <summary>
         /// Disables a provider with the given name completely.
         /// </summary>
+        /// <param name="providerName">Name of the provider to disable.</param>
         void DisableProvider(string providerName);
 
         /// <summary>
         /// Disables a provider with the given provider ID completely.
         /// </summary>
+        /// <param name="providerGuid">GUID of the provider to disable.</param>
         void DisableProvider(Guid providerGuid);
     }
 }

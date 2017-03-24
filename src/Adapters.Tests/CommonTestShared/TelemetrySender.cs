@@ -21,7 +21,7 @@
 
             string response = null;
 
-            string json = Encoding.Default.GetString(JsonSerializer.Serialize(new List<ITelemetry> { telemetryItem }, false));
+            string json = Encoding.UTF8.GetString(JsonSerializer.Serialize(new List<ITelemetry> { telemetryItem }, false));
 
             HttpClient client = new HttpClient();
             var result = client.PostAsync(
