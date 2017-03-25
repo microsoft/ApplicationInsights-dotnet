@@ -223,19 +223,31 @@
             // Required field
             if (!this.Success.HasValue)
             {
-                int responseCode;
-
-                if (int.TryParse(this.ResponseCode, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCode))
-                {
-                    this.Success = (responseCode < 400) || (responseCode == 401);
-                }
-                else
-                {
-                    this.Success = true;
-                }
+                this.Success = this.GetSuccessFromResponseCode();
             }
 
             this.Context.SanitizeTelemetryContext();
+        }
+
+        internal bool GetSuccessFromResponseCode()
+        {
+            string reponseCodeString = this.ResponseCode;
+            if (reponseCodeString == null)
+            {
+                return true;
+            }
+
+            int responseCodeInt;
+            bool canParseRc = int.TryParse(reponseCodeString, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCodeInt);
+
+            if (canParseRc)
+            {
+                return (responseCodeInt < 400) || (responseCodeInt == 401);
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
