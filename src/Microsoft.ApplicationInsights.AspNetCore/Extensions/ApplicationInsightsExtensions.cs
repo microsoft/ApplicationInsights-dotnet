@@ -51,7 +51,7 @@
         /// <summary>
         /// Adds Application Insights services into service collection.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="instrumentationKey">Instrumentation key to use for telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, string instrumentationKey)
@@ -63,7 +63,7 @@
         /// <summary>
         /// Adds Application Insights services into service collection.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="configuration">Configuration to use for sending telemetry.</param>
         /// <returns>The <see cref="IServiceCollection"/>.</returns>
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
@@ -75,7 +75,7 @@
         /// <summary>
         /// Adds Application Insights services into service collection.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="options">The action used to configure the options.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
@@ -90,7 +90,7 @@
         /// <summary>
         /// Adds Application Insights services into service collection.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="options">The options instance used to configure with.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
@@ -115,7 +115,7 @@
         /// <summary>
         /// Adds Application Insights services into service collection.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> insance.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
         /// <param name="options">The action used to configure the options.</param>
         /// <returns>
         /// The <see cref="IServiceCollection"/>.
@@ -163,13 +163,13 @@
         }
 
         /// <summary>
-        /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>
+        /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
         /// </summary>
         /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
-        /// <param name="developerMode">Enables or disables developer mode</param>
-        /// <param name="endpointAddress">Sets telemetry endpoint address</param>
-        /// <param name="instrumentationKey">Sets instrumentation key</param>
-        /// <returns>The <see cref="IConfigurationBuilder"/></returns>
+        /// <param name="developerMode">Enables or disables developer mode.</param>
+        /// <param name="endpointAddress">Sets telemetry endpoint address.</param>
+        /// <param name="instrumentationKey">Sets instrumentation key.</param>
+        /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddApplicationInsightsSettings(
             this IConfigurationBuilder configurationSourceRoot,
             bool? developerMode = null,
@@ -221,7 +221,7 @@
         /// Values can also be read from environment variables to support azure web sites configuration:
         /// </summary>
         /// <param name="config">Configuration to read variables from.</param>
-        /// <param name="serviceOptions">Telemetry configuration to populate</param>
+        /// <param name="serviceOptions">Telemetry configuration to populate.</param>
         internal static void AddTelemetryConfiguration(IConfiguration config, ApplicationInsightsServiceOptions serviceOptions)
         {
             string instrumentationKey = config[InstrumentationKeyForWebSites];
