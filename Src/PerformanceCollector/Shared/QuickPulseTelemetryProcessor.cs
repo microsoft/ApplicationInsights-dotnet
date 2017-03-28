@@ -151,9 +151,9 @@
             {
                 // filter out QPS requests from dependencies even when we're not collecting (for Pings)
                 var dependency = telemetry as DependencyTelemetry;
-                if (this.serviceEndpoint != null && dependency != null && !string.IsNullOrWhiteSpace(dependency.Name))
+                if (this.serviceEndpoint != null && dependency != null && !string.IsNullOrWhiteSpace(dependency.Target))
                 {
-                    if (dependency.Name.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (dependency.Target.IndexOf(this.serviceEndpoint.Host, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         // this is an HTTP request to QuickPulse service, we don't want to let it through
                         letTelemetryThrough = false;
