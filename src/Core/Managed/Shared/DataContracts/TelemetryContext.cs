@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,6 +15,7 @@
     public sealed class TelemetryContext
     {
         private readonly IDictionary<string, string> properties;
+        private readonly Lazy<IDictionary<string, string>> correlationContext;
         private readonly IDictionary<string, string> tags;
 
         private string instrumentationKey;
@@ -40,6 +42,7 @@
             Debug.Assert(properties != null, "properties");
             this.properties = properties;
             this.tags = new ConcurrentDictionary<string, string>();
+            this.correlationContext = new Lazy<IDictionary<string, string>>(() => new Dictionary<string, string>());
         }
 
         /// <summary>
@@ -119,6 +122,15 @@
         public IDictionary<string, string> Properties
         {
             get { return this.properties; }
+        }
+
+        /// <summary>
+        /// Gets a Correlation-Context for the operation.
+        /// <see href="https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md"/> 
+        /// </summary>
+        internal IDictionary<string, string> CorrelationContext
+        {
+            get { return this.correlationContext.Value; }
         }
 
         internal InternalContext Internal

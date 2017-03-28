@@ -81,6 +81,14 @@
         internal long BeginTimeInTicks { get; set; }
 
         /// <summary>
+        /// Sets random operation Id.
+        /// </summary>
+        public void GenerateOperationId()
+        {
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        }
+
+        /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
         void ITelemetry.Sanitize()

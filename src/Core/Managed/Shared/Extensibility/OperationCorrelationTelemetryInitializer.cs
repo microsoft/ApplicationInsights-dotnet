@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using Implementation;
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
 
 #if NET40 || NET45
@@ -21,10 +22,10 @@
         public void Initialize(ITelemetry telemetryItem)
         {
             var itemContext = telemetryItem.Context.Operation;
+            var parentContext = CallContextHelpers.GetCurrentOperationContext();
 
             if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
             {
-                var parentContext = CallContextHelpers.GetCurrentOperationContext();
                 if (parentContext != null)
                 {
                     if (string.IsNullOrEmpty(itemContext.ParentId)
@@ -44,6 +45,23 @@
                     {
                         itemContext.Name = parentContext.RootOperationName;
                     }
+                }
+            }
+
+            // update CorrelationContext if there is any parent CorrelationContext
+            if (parentContext != null && parentContext.CorrelationContext != null)
+            {
+                telemetryItem.Context.CorrelationContext.Merge(parentContext.CorrelationContext);
+            }
+
+            // TODO: change backend so it tracks correlation context as properties, so we don't need to copy them
+            // we don't expect any Correlation-Context at all, or in the worst case expect a few items,
+            // so copying it should not affect performance in the meantime.
+            foreach (var item in telemetryItem.Context.CorrelationContext)
+            {
+                if (!telemetryItem.Context.Properties.ContainsKey(item.Key))
+                {
+                    telemetryItem.Context.Properties.Add(item.Key, item.Value);
                 }
             }
         }

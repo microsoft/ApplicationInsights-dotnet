@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
@@ -112,6 +113,7 @@
             operationContext.ParentOperationId = operationTelemetry.Id;
             operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
             operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
+            operationContext.CorrelationContext = operationTelemetry.Context.CorrelationContext;
             CallContextHelpers.SaveOperationContext(operationContext);
 
             return operationHolder;
@@ -122,7 +124,8 @@
         /// </summary>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="operation">Operation object to compute duration and track.</param>
-        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation) where T : OperationTelemetry
+        public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation)
+            where T : OperationTelemetry
         {
             if (telemetryClient == null)
             {

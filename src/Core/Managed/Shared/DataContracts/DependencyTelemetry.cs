@@ -28,7 +28,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             this.InternalData = new RemoteDependencyData();
             this.context = new TelemetryContext(this.InternalData.properties);
-            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.GenerateOperationId();
         }
 
         /// <summary>
