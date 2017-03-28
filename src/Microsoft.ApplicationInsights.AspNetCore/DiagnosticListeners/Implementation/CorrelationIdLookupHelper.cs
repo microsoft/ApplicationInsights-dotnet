@@ -3,12 +3,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System;
     using System.Collections.Concurrent;
     using System.Globalization;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Extensibility;
+
 #if NET451
     using System.IO;
     using System.Net;
-#endif
-    using System.Threading.Tasks;
-#if NETCORE
+#else
     using System.Net.Http;
 #endif
 
@@ -31,7 +32,22 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
         private const string AppIdQueryApiRelativeUriFormat = "api/profiles/{0}/appId";
 
+        private Func<TelemetryConfiguration> options;
+
         private Uri endpointAddress;
+        // Get the base URI, so that we can append the known relative segments to it.
+        private Uri EndpointAddress
+        {
+            get
+            {
+                if (endpointAddress == null)
+                {
+                    Uri endpointUri = new Uri(options().TelemetryChannel.EndpointAddress);
+                    endpointAddress = new Uri(endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
+                }
+                return endpointAddress;
+            }
+        }
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
 
@@ -54,19 +70,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <summary>
         /// Initializes a new instance of the <see cref="CorrelationIdLookupHelper" /> class.
         /// </summary>
-        /// <param name="endpointAddress">Endpoint that is to be used to fetch appId.</param>
-        public CorrelationIdLookupHelper(string endpointAddress)
+        /// <param name="options">Options that is to be used to fetch endpoint address.</param>
+        public CorrelationIdLookupHelper(Func<TelemetryConfiguration> options)
         {
-            if (string.IsNullOrEmpty(endpointAddress))
-            {
-                throw new ArgumentNullException(nameof(endpointAddress));
-            }
-
-            Uri endpointUri = new Uri(endpointAddress);
-
-            // Get the base URI, so that we can append the known relative segments to it.
-            this.endpointAddress = new Uri(endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
-
+            this.options = options;
             this.provideAppId = this.FetchAppIdFromService;
         }
 
@@ -150,24 +157,27 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         {
             try
             {
-
                 Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-                Task<string> resultTask = null;
+                string result = null;
 #if NET451
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    resultTask = reader.ReadToEndAsync();
+                    result = await reader.ReadToEndAsync();
                 }
-#elif NETCORE
+#else
                 using (HttpClient client = new HttpClient())
                 {
-                    result= client.GetStringAsync(appIdEndpoint).ConfigureAwait(false);
+                    result = await client.GetStringAsync(appIdEndpoint).ConfigureAwait(false);
                 }
 #endif
-                return await resultTask;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
             finally
             {
@@ -181,7 +191,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <returns>Computed Uri.</returns>
         private Uri GetAppIdEndPointUri(string instrumentationKey)
         {
-            return new Uri(this.endpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+            return new Uri(this.EndpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
         }
     }
 }
