@@ -1,7 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+#if !NET40
+    using System.Diagnostics;
+#endif
     using Extensibility.Implementation.Tracing;
+    using System.Linq;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
@@ -74,17 +78,36 @@
                     if (!this.isDisposed)
                     {
                         var operationTelemetry = this.Telemetry;
-
-                        var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
-                        if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||
-                            operationTelemetry.Context.Operation.Name != currentOperationContext.RootOperationName)
+                        bool isActivityEnabled = false;
+#if !NET40
+                        isActivityEnabled = ActivityProxy.TryRun(() =>
                         {
-                            CoreEventSource.Log.InvalidOperationToStopError();
-                            return;
-                        }
+                            var currentActivity = Activity.Current;
+                            if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
+                                operationTelemetry.Context.Operation.Name != Activity.Current.Tags.FirstOrDefault(t => t.Key == "OperationName").Value)
+                            {
+                                CoreEventSource.Log.InvalidOperationToStopError();
+                                return true;
+                            }
 
+                            currentActivity.Stop();
+
+                            return true;
+                        });
+#endif
+                        if (!isActivityEnabled)
+                        {
+                            var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
+                            if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||
+                                operationTelemetry.Context.Operation.Name != currentOperationContext.RootOperationName)
+                            {
+                                CoreEventSource.Log.InvalidOperationToStopError();
+                                return;
+                            }
+                            CallContextHelpers.RestoreOperationContext(this.ParentContext);
+                        }
                         operationTelemetry.Stop();
-                        CallContextHelpers.RestoreOperationContext(this.ParentContext);
+
                         this.telemetryClient.Track(operationTelemetry);
                     }
 

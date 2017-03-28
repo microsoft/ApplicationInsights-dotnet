@@ -1,10 +1,14 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
+#if !NET40
+    using System.Diagnostics;
+#endif
     using System.ComponentModel;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using System.Linq;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -105,15 +109,58 @@
                 operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
             }
 
+            bool isActivityEnabled = false;
+#if !NET40
+            isActivityEnabled = ActivityProxy.TryRun(() =>
+            {
+                bool operationNameIsSet = false;
+                var activity = new Activity("Internal");
+                if (!string.IsNullOrEmpty(operationTelemetry.Context.Operation.Name))
+                {
+                    activity.AddTag("OperationName", operationTelemetry.Context.Operation.Name);
+                    operationNameIsSet = true;
+                }
+
+                if (Activity.Current == null)
+                {
+                    if (!string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id))
+                    {
+                        activity.SetParentId(operationTelemetry.Context.Operation.Id);
+                    }
+                    else if (!string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId))
+                    {
+                        activity.SetParentId(operationTelemetry.Context.Operation.ParentId);
+                    }
+                    operationTelemetry.Id = activity.ParentId;
+                }
+                else
+                {
+                    if (!operationNameIsSet)
+                    {
+                        var parentOperationName = Activity.Current.Tags.FirstOrDefault(t => t.Key == "OperationName").Value;
+                        if (!string.IsNullOrEmpty(parentOperationName))
+                        {
+                            activity.AddTag("OperationName", parentOperationName);
+                        }
+                    }
+                    operationTelemetry.Id = Activity.Current.Id;
+                }
+
+                activity.Start();
+                return true;
+            });
+#endif
             operationTelemetry.Start();
 
-            // Update the call context to store certain fields that can be used for subsequent operations.
-            var operationContext = new OperationContextForCallContext();
-            operationContext.ParentOperationId = operationTelemetry.Id;
-            operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
-            operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
-            CallContextHelpers.SaveOperationContext(operationContext);
-
+            if (!isActivityEnabled)
+            {
+                // Update the call context to store certain fields that can be used for subsequent operations.
+                var operationContext = new OperationContextForCallContext();
+                operationContext.ParentOperationId = operationTelemetry.Id;
+                operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
+                operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
+                CallContextHelpers.SaveOperationContext(operationContext);
+            }
             return operationHolder;
         }
 
