@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers
 {
+    using System;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -11,12 +12,21 @@
     /// </summary>
     internal class OperationCorrelationTelemetryInitializer : TelemetryInitializerBase
     {
+        private ICorrelationIdLookupHelper correlationIdLookupHelper = null;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationCorrelationTelemetryInitializer"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">Accessor for retrieving the current HTTP context.</param>
-        public OperationCorrelationTelemetryInitializer(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        /// <param name="correlationIdLookupHelper">A store for correlation ids that we don't have to query it everytime.</param>
+        public OperationCorrelationTelemetryInitializer(
+            IHttpContextAccessor httpContextAccessor, ICorrelationIdLookupHelper correlationIdLookupHelper) : base(httpContextAccessor)
         {
+            if (correlationIdLookupHelper == null)
+            {
+                throw new ArgumentNullException(nameof(correlationIdLookupHelper));
+            }
+            this.correlationIdLookupHelper = correlationIdLookupHelper;
         }
 
         /// <summary>
@@ -54,14 +64,20 @@
             HttpRequest currentRequest = platformContext.Request;
             if (currentRequest?.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
             {
-                string sourceIkey = currentRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
-
+                string headerCorrelationId = currentRequest.Headers[RequestResponseHeaders.SourceInstrumentationKeyHeader];
+                string appCorrelationId = null;
                 // If the source header is present on the incoming request, and it is an external component (not the same ikey as the one used by the current component), populate the source field.
-                if (!string.IsNullOrEmpty(sourceIkey) &&
-                    (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) ||
-                        sourceIkey != InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)))
+                if (!string.IsNullOrEmpty(headerCorrelationId))
                 {
-                    requestTelemetry.Source = sourceIkey;
+                    if (string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey))
+                    {
+                        requestTelemetry.Source = headerCorrelationId;
+                    }
+                    else if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out appCorrelationId) &&
+                        appCorrelationId != headerCorrelationId)
+                    {
+                        requestTelemetry.Source = headerCorrelationId;
+                    }
                 }
             }
         }

@@ -130,7 +130,6 @@
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
@@ -141,6 +140,13 @@
             services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
             services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
+            
+            services.AddSingleton<ICorrelationIdLookupHelper>(provider =>
+            {
+                TelemetryConfiguration configuration = provider.GetService<TelemetryConfiguration>();
+                return new CorrelationIdLookupHelper(configuration.TelemetryChannel.EndpointAddress);
+            });
+            services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer>();
 
             services.AddSingleton<TelemetryClient>();
 
