@@ -50,12 +50,12 @@
                 requestTelemetry.Start(timestamp);
                 httpContext.Features.Set(requestTelemetry);
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
-                if (responseHeaders != null && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
+                if (responseHeaders != null && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && !responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextTargetKey))
                 {
                     string correlationId = null;
                     if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
                     {
-                        responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(correlationId));
+                        responseHeaders.Add(RequestResponseHeaders.RequestContextTargetKey, new StringValues(correlationId));
                     }
                 }
             }
