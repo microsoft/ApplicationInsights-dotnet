@@ -1,6 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
+#if !NET40
+    using System.Diagnostics;
+#endif
     using Implementation;
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Channel;
 
 #if NET40 || NET45
@@ -22,27 +26,80 @@
         {
             var itemContext = telemetryItem.Context.Operation;
 
-            if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
+            bool isActivityEnabled = false;
+#if !NET40
+            if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
             {
-                var parentContext = CallContextHelpers.GetCurrentOperationContext();
-                if (parentContext != null)
+                var currentActivity = Activity.Current;
+                if (currentActivity != null)
                 {
-                    if (string.IsNullOrEmpty(itemContext.ParentId)
-                        && !string.IsNullOrEmpty(parentContext.ParentOperationId))
+                    if (string.IsNullOrEmpty(itemContext.Id))
                     {
-                        itemContext.ParentId = parentContext.ParentOperationId;
+                        itemContext.Id = currentActivity.RootId;
+
+                        if (string.IsNullOrEmpty(itemContext.ParentId))
+                        {
+                            itemContext.ParentId = currentActivity.ParentId;
+                        }
+
+                        if (telemetryItem is OperationTelemetry)
+                        {
+                            ((OperationTelemetry)telemetryItem).Id = currentActivity.Id;
+                        }
+
+                        foreach (var baggage in currentActivity.Baggage)
+                        {
+                            if (!telemetryItem.Context.Properties.ContainsKey(baggage.Key))
+                            {
+                                telemetryItem.Context.Properties.Add(baggage);
+                            }
+                        }
                     }
 
-                    if (string.IsNullOrEmpty(itemContext.Id)
-                        && !string.IsNullOrEmpty(parentContext.RootOperationId))
-                    {
-                        itemContext.Id = parentContext.RootOperationId;
-                    }
+                    string operationName = currentActivity.GetOperationName();
 
-                    if (string.IsNullOrEmpty(itemContext.Name)
-                        && !string.IsNullOrEmpty(parentContext.RootOperationName))
+                    if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
                     {
-                        itemContext.Name = parentContext.RootOperationName;
+                        itemContext.Name = operationName;
+                    }
+                }
+            }
+#endif
+            if (!isActivityEnabled)
+            {
+                if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
+                {
+                    var parentContext = CallContextHelpers.GetCurrentOperationContext();
+                    if (parentContext != null)
+                    {
+                        if (string.IsNullOrEmpty(itemContext.ParentId)
+                            && !string.IsNullOrEmpty(parentContext.ParentOperationId))
+                        {
+                            itemContext.ParentId = parentContext.ParentOperationId;
+                        }
+
+                        if (string.IsNullOrEmpty(itemContext.Id)
+                            && !string.IsNullOrEmpty(parentContext.RootOperationId))
+                        {
+                            itemContext.Id = parentContext.RootOperationId;
+                        }
+
+                        if (string.IsNullOrEmpty(itemContext.Name)
+                            && !string.IsNullOrEmpty(parentContext.RootOperationName))
+                        {
+                            itemContext.Name = parentContext.RootOperationName;
+                        }
+
+                        if (parentContext.CorrelationContext != null)
+                        {
+                            foreach (var item in parentContext.CorrelationContext)
+                            {
+                                if (!telemetryItem.Context.Properties.ContainsKey(item.Key))
+                                {
+                                    telemetryItem.Context.Properties.Add(item);
+                                }
+                            }
+                        }
                     }
                 }
             }

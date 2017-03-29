@@ -89,6 +89,14 @@
         }
 
         /// <summary>
+        /// Sets operation Id.
+        /// </summary>
+        internal void GenerateId()
+        {
+            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+        }
+
+        /// <summary>
         /// Allow to call OperationTelemetry.Sanitize method from child classes.
         /// </summary>
         protected void Sanitize()

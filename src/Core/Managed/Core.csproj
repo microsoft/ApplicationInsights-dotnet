@@ -40,6 +40,10 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' != 'net40'">
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0-beta-25124-07" />
+  </ItemGroup>
+  
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 

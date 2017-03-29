@@ -1,6 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+#if !NET40
+    using System.Diagnostics;
+#endif
     using Extensibility.Implementation.Tracing;
 
     /// <summary>
@@ -74,17 +77,36 @@
                     if (!this.isDisposed)
                     {
                         var operationTelemetry = this.Telemetry;
-
-                        var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
-                        if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||
-                            operationTelemetry.Context.Operation.Name != currentOperationContext.RootOperationName)
+                        bool isActivityEnabled = false;
+#if !NET40
+                        if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
                         {
-                            CoreEventSource.Log.InvalidOperationToStopError();
-                            return;
+                            var currentActivity = Activity.Current;
+                            if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
+                                operationTelemetry.Context.Operation.Name != Activity.Current.GetOperationName())
+                            {
+                                CoreEventSource.Log.InvalidOperationToStopError();
+                                return;
+                            }
+
+                            currentActivity.Stop();
+                        }
+#endif
+                        if (!isActivityEnabled)
+                        {
+                            var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
+                            if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||
+                                operationTelemetry.Context.Operation.Name != currentOperationContext.RootOperationName)
+                            {
+                                CoreEventSource.Log.InvalidOperationToStopError();
+                                return;
+                            }
+
+                            CallContextHelpers.RestoreOperationContext(this.ParentContext);
                         }
 
                         operationTelemetry.Stop();
-                        CallContextHelpers.RestoreOperationContext(this.ParentContext);
+
                         this.telemetryClient.Track(operationTelemetry);
                     }
 

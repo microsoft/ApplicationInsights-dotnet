@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -93,26 +94,78 @@
                 operationTelemetry.GenerateOperationId();
             }
 
+            var telemetryContext = operationTelemetry.Context.Operation;
+
             // If the operation is not executing in the context of any other operation
             // set its name and id as a context (root) operation name and id
-            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Id))
+            if (string.IsNullOrEmpty(telemetryContext.Id))
             {
-                operationTelemetry.Context.Operation.Id = operationTelemetry.Id;
+                telemetryContext.Id = operationTelemetry.Id;
             }
 
-            if (string.IsNullOrEmpty(operationTelemetry.Context.Operation.Name))
+            if (string.IsNullOrEmpty(telemetryContext.Name))
             {
-                operationTelemetry.Context.Operation.Name = operationTelemetry.Name;
+                telemetryContext.Name = operationTelemetry.Name;
             }
 
+            bool isActivityEnabled = false;
+#if !NET40
+            if (ActivityExtensions.IsActivityEnabled())
+            {
+                bool operationNameIsSet = false;
+
+                var childActivity = new Activity("Microsoft.ApplicationInsights.OperationContext");
+                if (!string.IsNullOrEmpty(telemetryContext.Name))
+                {
+                    childActivity.SetOperationName(telemetryContext.Name);
+                    operationNameIsSet = true;
+                }
+
+                var parentActivity = Activity.Current;
+
+                if (parentActivity == null)
+                {
+                    if (!string.IsNullOrEmpty(telemetryContext.Id))
+                    {
+                        childActivity.SetParentId(telemetryContext.Id);
+                    }
+                    else if (!string.IsNullOrEmpty(telemetryContext.ParentId))
+                    {
+                        childActivity.SetParentId(telemetryContext.ParentId);
+                    }
+
+                    operationTelemetry.Id = childActivity.ParentId;
+                }
+                else
+                {
+                    if (!operationNameIsSet)
+                    {
+                        var parentOperationName = parentActivity.GetOperationName();
+                        if (!string.IsNullOrEmpty(parentOperationName))
+                        {
+                            childActivity.SetOperationName(parentOperationName);
+                        }
+                    }
+
+                    operationTelemetry.Id = parentActivity.Id;
+                }
+
+                childActivity.Start();
+            }
+#endif
             operationTelemetry.Start();
 
-            // Update the call context to store certain fields that can be used for subsequent operations.
-            var operationContext = new OperationContextForCallContext();
-            operationContext.ParentOperationId = operationTelemetry.Id;
-            operationContext.RootOperationId = operationTelemetry.Context.Operation.Id;
-            operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
-            CallContextHelpers.SaveOperationContext(operationContext);
+            if (!isActivityEnabled)
+            {
+                // Update the call context to store certain fields that can be used for subsequent operations.
+                var operationContext = new OperationContextForCallContext
+                {
+                    ParentOperationId = operationTelemetry.Id,
+                    RootOperationId = operationTelemetry.Context.Operation.Id,
+                    RootOperationName = operationTelemetry.Context.Operation.Name
+                };
+                CallContextHelpers.SaveOperationContext(operationContext);
+            }
 
             return operationHolder;
         }
