@@ -99,13 +99,15 @@
         }
 #else
         [TestMethod]
-        public void StartDependencyTrackingAddsOperationContextStoreToCallContext()
+        public void StartDependencyTrackingAddsOperationContextStoreToCurrentActivity()
         {
             Assert.IsNull(Activity.Current);
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null);
             Assert.IsNotNull(Activity.Current);
         }
 #endif
+
+#if NET40
         [TestMethod]
         public void UsingSendsTelemetryAndDisposesOperationItem()
         {
@@ -117,6 +119,19 @@
             Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
             Assert.AreEqual(1, this.sendItems.Count);
         }
+#else 
+        [TestMethod]
+        public void UsingSendsTelemetryAndDisposesOperationItem()
+        {
+            Assert.IsNull(Activity.Current);
+            using (var operation = this.telemetryClient.StartOperation<DependencyTelemetry>(operationName: null))
+            {
+            }
+
+            Assert.IsNull(Activity.Current);
+            Assert.AreEqual(1, this.sendItems.Count);
+        }
+#endif
 
 #if NET40
         [TestMethod]
@@ -169,19 +184,18 @@
             Assert.IsNull(CallContextHelpers.GetCurrentOperationContext());
         }
 #else
-
         [TestMethod]
-        public void StartDependencyTrackingHandlesMultipleContextStoresInCallContext()
+        public void StartDependencyTrackingHandlesMultipleContextStoresInCurrentActivity()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var currentActivity = Activity.Current;
             Assert.AreEqual(operation.Telemetry.Id, currentActivity.ParentId);
-            Assert.AreEqual(operation.Telemetry.Context.Operation.Name, GetOperationName(currentActivity));
+            Assert.AreEqual(operation.Telemetry.Context.Operation.Name, currentActivity.GetOperationName());
 
             var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var childActivity = Activity.Current;
             Assert.AreEqual(childOperation.Telemetry.Id, childActivity.ParentId);
-            Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, GetOperationName(childActivity));
+            Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, currentActivity.GetOperationName());
 
             Assert.IsNull(currentActivity.Parent);
             Assert.AreEqual(currentActivity, childActivity.Parent);
@@ -245,10 +259,10 @@
         }
 #else
         [TestMethod]
-        public void StartDependencyTrackingStoresTheArgumentOperationNameInActivity()
+        public void StartDependencyTrackingStoresTheArgumentOperationNameInCurrentActivity()
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("TestOperationName");
-            Assert.AreEqual("TestOperationName", GetOperationName(Activity.Current));
+            Assert.AreEqual("TestOperationName", Activity.Current.GetOperationName());
         }
 #endif
 
@@ -324,12 +338,5 @@
             Assert.AreEqual(1, this.sendItems.Count);
             Assert.AreEqual(requestTelemetry, this.sendItems[0]);
         }
-
-#if !NET40
-        private string GetOperationName(Activity activity)
-        {
-            return Activity.Current.Tags.FirstOrDefault(t => t.Key == "OperationName").Value;
-        }
-#endif
     }
 }

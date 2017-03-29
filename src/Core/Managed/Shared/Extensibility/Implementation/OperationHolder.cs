@@ -3,7 +3,6 @@
     using System;
 #if !NET40
     using System.Diagnostics;
-    using System.Linq;
 #endif
     using Extensibility.Implementation.Tracing;
 
@@ -80,20 +79,18 @@
                         var operationTelemetry = this.Telemetry;
                         bool isActivityEnabled = false;
 #if !NET40
-                        isActivityEnabled = ActivityProxy.TryRun(() =>
+                        if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
                         {
                             var currentActivity = Activity.Current;
                             if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
-                                operationTelemetry.Context.Operation.Name != Activity.Current.Tags.FirstOrDefault(t => t.Key == "OperationName").Value)
+                                operationTelemetry.Context.Operation.Name != Activity.Current.GetOperationName())
                             {
                                 CoreEventSource.Log.InvalidOperationToStopError();
-                                return true;
+                                return;
                             }
 
                             currentActivity.Stop();
-
-                            return true;
-                        });
+                        }
 #endif
                         if (!isActivityEnabled)
                         {

@@ -115,6 +115,7 @@
     <Compile Include="Asserts\SetAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="OperationCorrelationTelemetryInitializerTests.net40.cs" />
     <Compile Include="System\Reflection\CustomAttributeExtensions.cs" />
     <Compile Include="FailOnAssertSetup.cs" />
     <Compile Include="Extensibility\Implementation\Platform\PlatformReferencesTests.cs" />

@@ -1,9 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
 #if !NET40
-    using System;
     using System.Diagnostics;
-    using System.Linq;
 #endif
     using Implementation;
     using Microsoft.ApplicationInsights;
@@ -30,49 +28,43 @@
 
             bool isActivityEnabled = false;
 #if !NET40
-            isActivityEnabled = ActivityProxy.TryRun(() =>
+            if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
             {
-                if (Activity.Current == null)
-                {
-                    return false;
-                }
-
                 var currentActivity = Activity.Current;
-
-                if (string.IsNullOrEmpty(itemContext.Id))
+                if (currentActivity != null)
                 {
-                    itemContext.Id = currentActivity.RootId;
-
-                    if (string.IsNullOrEmpty(itemContext.ParentId))
+                    if (string.IsNullOrEmpty(itemContext.Id))
                     {
-                        itemContext.ParentId = currentActivity.ParentId;
+                        itemContext.Id = currentActivity.RootId;
+
+                        if (string.IsNullOrEmpty(itemContext.ParentId))
+                        {
+                            itemContext.ParentId = currentActivity.ParentId;
+                        }
+
+                        if (telemetryItem is OperationTelemetry)
+                        {
+                            ((OperationTelemetry)telemetryItem).Id = currentActivity.Id;
+                        }
+
+                        foreach (var baggage in currentActivity.Baggage)
+                        {
+                            if (!telemetryItem.Context.Properties.ContainsKey(baggage.Key))
+                            {
+                                telemetryItem.Context.Properties.Add(baggage);
+                            }
+                        }
                     }
 
-                    if (telemetryItem is OperationTelemetry)
+                    string operationName = currentActivity.GetOperationName();
+
+                    if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
                     {
-                        ((OperationTelemetry)telemetryItem).Id = currentActivity.Id;
+                        itemContext.Name = operationName;
                     }
                 }
-
-                foreach (var baggage in currentActivity.Baggage)
-                {
-                    if (!telemetryItem.Context.Properties.ContainsKey(baggage.Key))
-                    {
-                        telemetryItem.Context.Properties.Add(baggage);
-                    }
-                }
-
-                string operationName = currentActivity.Tags.FirstOrDefault(tag => tag.Key == "OperationName").Value;
-
-                if (string.IsNullOrEmpty(itemContext.Name) && !string.IsNullOrEmpty(operationName))
-                {
-                    itemContext.Name = operationName;
-                }
-
-                return true;
-            });
+            }
 #endif
-
             if (!isActivityEnabled)
             {
                 if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
