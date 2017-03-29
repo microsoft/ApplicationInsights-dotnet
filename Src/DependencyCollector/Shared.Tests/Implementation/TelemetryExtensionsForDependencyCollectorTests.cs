@@ -22,7 +22,7 @@
         private TelemetryClient telemetryClient;
         private WebRequest webRequest;
         private SqlCommand sqlRequest;
-
+        private IOperationHolder<DependencyTelemetry> operationHolder;
         [TestInitialize]
         public void TestInitialize()
         {
@@ -34,7 +34,7 @@
             DependencyTrackingTelemetryModule module = new DependencyTrackingTelemetryModule();
             module.Initialize(configuration);
             this.telemetryClient = new TelemetryClient(configuration);
-            var operationHolder = this.telemetryClient.StartOperation<DependencyTelemetry>("operationName");
+            this.operationHolder = this.telemetryClient.StartOperation<DependencyTelemetry>("operationName");
             this.telemetry = operationHolder.Telemetry;
             this.webRequest = WebRequest.Create(new Uri("http://bing.com"));
             this.sqlRequest = new SqlCommand("select * from table;");
@@ -43,6 +43,7 @@
         [TestCleanup]
         public void TestClean()
         {
+            this.telemetryClient.StopOperation(this.operationHolder);
             this.sqlRequest.Dispose();
         }
 
