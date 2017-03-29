@@ -1,14 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights
 {
     using System;
-#if !NET40
-    using System.Diagnostics;
-#endif
     using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Linq;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using System.Linq;
 
     /// <summary>
     /// Extension class to telemetry client that creates operation object with the respective fields initialized.
@@ -127,10 +125,11 @@
                     {
                         activity.SetParentId(operationTelemetry.Context.Operation.Id);
                     }
-                    else if (!string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId))
+                                else if (!string.IsNullOrEmpty(operationTelemetry.Context.Operation.ParentId))
                     {
                         activity.SetParentId(operationTelemetry.Context.Operation.ParentId);
                     }
+
                     operationTelemetry.Id = activity.ParentId;
                 }
                 else
@@ -143,6 +142,7 @@
                             activity.AddTag("OperationName", parentOperationName);
                         }
                     }
+
                     operationTelemetry.Id = Activity.Current.Id;
                 }
 
@@ -161,6 +161,7 @@
                 operationContext.RootOperationName = operationTelemetry.Context.Operation.Name;
                 CallContextHelpers.SaveOperationContext(operationContext);
             }
+
             return operationHolder;
         }
 

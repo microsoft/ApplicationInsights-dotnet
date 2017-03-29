@@ -3,9 +3,9 @@
     using System;
 #if !NET40
     using System.Diagnostics;
+    using System.Linq;
 #endif
     using Extensibility.Implementation.Tracing;
-    using System.Linq;
 
     /// <summary>
     /// Operation class that holds the telemetry item and the corresponding telemetry client.
@@ -104,8 +104,10 @@
                                 CoreEventSource.Log.InvalidOperationToStopError();
                                 return;
                             }
+
                             CallContextHelpers.RestoreOperationContext(this.ParentContext);
                         }
+
                         operationTelemetry.Stop();
 
                         this.telemetryClient.Track(operationTelemetry);
