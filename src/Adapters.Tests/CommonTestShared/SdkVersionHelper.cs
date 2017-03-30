@@ -8,11 +8,12 @@
     {
         public static string GetExpectedSdkVersion(Type assemblyType, string prefix)
         {
-            string versonStr = Assembly.GetAssembly(assemblyType).GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
-            string[] versionParts = new Version(versonStr).ToString().Split('.');
+#if NET40 || NET45 || NET46
+            string versionStr = typeof(SdkVersionHelper).Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;
+#else
+            string versionStr = typeof(SdkVersionHelper).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>().First().Version;
+#endif
+            string[] versionParts = new Version(versionStr).ToString().Split('.');
 
             return prefix + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
         }

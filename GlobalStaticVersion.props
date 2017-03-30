@@ -17,5 +17,7 @@
     
     <PreReleaseVersionFileName>.PreReleaseVersion</PreReleaseVersionFileName>
     <PreReleaseVersionFilePath>$(MSBuildThisFileDirectory)$(PreReleaseVersionFileName)</PreReleaseVersionFilePath>
+
+    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
   </PropertyGroup>
 </Project>

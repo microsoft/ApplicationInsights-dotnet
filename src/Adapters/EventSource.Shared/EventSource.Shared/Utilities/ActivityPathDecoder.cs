@@ -38,10 +38,15 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
         }
 
         /// <summary>
-        /// Returns true if 'guid' follow the EventSource style activity ID for the process with ID processID.  
+        /// Checks whether the passed activity GUID represents an activity path.
+        /// </summary>
+        /// /// <param name="guid">Activity GUID to check.</param>
+        /// <param name="processID">ID of the process.</param>        
+        /// <remarks>
         /// You can pass a process ID of 0 to this routine and it will do the best it can, but the possibility
         /// of error is significantly higher (but still under .1%).
-        /// </summary>
+        /// </remarks>
+        /// <returns>True if 'guid' follow the EventSource style activity ID for the process with ID processID, otherwise false.</returns>
         public static unsafe bool IsActivityPath(Guid guid, int processID)
         {
             uint* uintPtr = (uint*)&guid;
@@ -65,9 +70,13 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
         }
 
         /// <summary>
-        /// Returns a string representation for the activity path. If the GUID is not an activity path then it returns
-        /// the normal string representation for a GUID.
+        /// Returns a string representation for the activity path. 
         /// </summary>
+        /// <param name="guid">Activity path to convert to string representation.</param>
+        /// <remarks>
+        /// If the GUID is not an activity path then the method returns the normal string representation for a GUID.
+        /// </remarks>
+        /// <returns>String representation for the activity path.</returns>
         public static unsafe string GetActivityPathString(Guid guid)
         {
             if (!IsActivityPath(guid, Process.GetCurrentProcess().Id))
@@ -146,7 +155,7 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
                     // Fall into the Multi-byte decode case.  
                 }
 
-                Debug.Assert((uint)NumberListCodes.MultiByte1 <= nibble, "Single-byte number should be fully handled by the code above");
+                Debug.Assert(nibble >= (uint)NumberListCodes.MultiByte1, "Single-byte number should be fully handled by the code above");
 
                 // At this point we are decoding a multi-byte number.
                 // We are fetching the number as a stream of bytes. 
@@ -182,8 +191,11 @@ namespace Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities
         }
 
         /// <summary>
-        /// Assuming guid is an Activity Path, extract the process ID from it.   
+        /// Extracts process ID from an activity path.
         /// </summary>
+        /// <param name="guid">Activity GUID.</param>
+        /// <returns>Process ID part of the activity path.</returns>
+        /// <remarks>The method assumes the passed GUID is in fact and activity path.</remarks>
         private static unsafe int ActivityPathProcessID(Guid guid)
         {
             uint* uintPtr = (uint*)&guid;

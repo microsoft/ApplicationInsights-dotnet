@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
 EndProject
@@ -54,7 +54,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Common.props = Common.props
 		Common.targets = Common.targets
-		Global.props = Global.props
+		Directory.Build.props = Directory.Build.props
 		GlobalStaticVersion.props = GlobalStaticVersion.props
 		NuGet.targets = NuGet.targets
 		Package.targets = Package.targets
@@ -91,9 +91,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\Adapter
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "src\Adapters.Tests\CommonTestShared\CommonTestShared.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46", "src\Adapters\EventSource.Net46\EventSource.Net46.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Net46.Tests", "src\Adapters.Tests\EventSource.Net46.Tests\EventSource.Net46.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Netstandard13.Tests", "src\Adapters.Tests\EventSource.Netstandard13.Tests\EventSource.Netstandard13.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451", "src\Adapters\Etw.Net451\Etw.Net451.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
 EndProject
@@ -102,6 +100,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451.Tests", "src\Adapters.Tests\Etw.Net451.Tests\Etw.Net451.Tests.csproj", "{15FA58D1-F397-4808-831C-7AE65EE640AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtwCollector.NuGet", "src\NuGet\EtwCollector\EtwCollector.NuGet.csproj", "{F371663D-99DB-4722-BC38-55EC178A84EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSource.Netstandard13", "src\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -278,11 +278,11 @@ Global
 		{17EE52DA-5460-4BD2-A70F-529D2A94C938} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{587B624B-8C64-498E-93D7-A2D2ABC17EAB} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
-		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{A964DE6D-9750-4013-8BE2-79C2AFC056E5} = {EE933574-C82B-4E59-A0D1-05328197B937}
 		{15FA58D1-F397-4808-831C-7AE65EE640AF} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{F371663D-99DB-4722-BC38-55EC178A84EB} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
 	EndGlobalSection
 EndGlobal

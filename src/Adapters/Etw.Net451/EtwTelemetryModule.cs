@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
         private Func<ITraceEventSession> traceEventSessionFactory;
 
         /// <summary>
-        /// EtwTelemetryModule default constructor.
+        /// Initializes a new instance of the <see cref="EtwTelemetryModule"/> class.
         /// </summary>
         public EtwTelemetryModule()
             : this(() => new AITraceEventSession(new TraceEventSession(

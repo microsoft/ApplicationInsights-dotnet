@@ -11,8 +11,8 @@ namespace Microsoft.ApplicationInsights.EtwCollector.Implemenetation
     using System.Diagnostics;
     using System.Globalization;
     using DataContracts;
-    using Diagnostics.Tracing;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
+    using Microsoft.Diagnostics.Tracing;
 
     internal static class TraceEventExtensions
     {

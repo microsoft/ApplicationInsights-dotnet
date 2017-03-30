@@ -41,7 +41,7 @@
     <MakeDir Directories="$(PackageOutputDir)"/>
     
     <!-- Generate .nupkg file -->
-    <Error Condition="'$(CoreSdkVersion)' == ''" Text="CoreSdkVersion property must be a valid version of Core SDK included in Global.props."/>
+    <Error Condition="'$(CoreSdkVersion)' == ''" Text="CoreSdkVersion property must be a valid version of Core SDK included in Directory.Build.props."/>
     <Exec Command="$(PackageCommand)" ConsoleToMSBuild="true">          
         <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />      
     </Exec>  
