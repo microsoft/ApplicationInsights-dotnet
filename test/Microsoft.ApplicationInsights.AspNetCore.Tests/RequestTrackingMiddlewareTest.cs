@@ -330,7 +330,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             middleware.OnEndRequest(context, timestamp: startTime + (long)durationInStopwatchTicks);
 
             Assert.Equal(1, sentTelemetry.Count);
-            Assert.Equal(expectedDuration, ((RequestTelemetry)sentTelemetry[0]).Duration);
+            Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3), Math.Round(((RequestTelemetry)sentTelemetry[0]).Duration.TotalMilliseconds, 3));
         }
     }
 }
