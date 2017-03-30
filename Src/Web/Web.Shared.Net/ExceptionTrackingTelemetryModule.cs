@@ -15,12 +15,27 @@
     {
         private TelemetryClient telemetryClient;
 
+        private bool initializationErrorReported;
+
         /// <summary>
         /// Implements on error callback of http module.
         /// </summary>
         public void OnError(HttpContext context)
         {
-            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+            if (this.telemetryClient == null)
+            {
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
+            }
 
             if (context == null)
             {

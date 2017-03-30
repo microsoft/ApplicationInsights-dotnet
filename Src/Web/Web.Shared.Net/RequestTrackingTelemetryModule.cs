@@ -18,6 +18,7 @@
     {
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
+        private bool initializationErrorReported;
         private bool correlationHeadersEnabled = true;
         private string telemetryChannelEnpoint;
         private CorrelationIdLookupHelper correlationIdLookupHelper;
@@ -68,7 +69,20 @@
         /// </summary>
         public void OnBeginRequest(HttpContext context)
         {
-            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+            if (this.telemetryClient == null)
+            {
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
+            }
 
             if (context == null)
             {
@@ -91,7 +105,20 @@
         /// </summary>
         public void OnEndRequest(HttpContext context)
         {
-            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+            if (this.telemetryClient == null)
+            {
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
+            }
 
             if (!this.NeedProcessRequest(context))
             {
