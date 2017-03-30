@@ -68,10 +68,7 @@
         /// </summary>
         public void OnBeginRequest(HttpContext context)
         {
-            if (this.telemetryClient == null)
-            {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
-            }
+            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
 
             if (context == null)
             {
@@ -94,10 +91,7 @@
         /// </summary>
         public void OnEndRequest(HttpContext context)
         {
-            if (this.telemetryClient == null)
-            {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
-            }
+            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
 
             if (!this.NeedProcessRequest(context))
             {

@@ -20,10 +20,7 @@
         /// </summary>
         public void OnError(HttpContext context)
         {
-            if (this.telemetryClient == null)
-            {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
-            }
+            WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
 
             if (context == null)
             {
