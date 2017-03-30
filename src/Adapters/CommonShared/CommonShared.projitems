@@ -9,6 +9,6 @@
     <Import_RootNamespace>CommonShared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)SdkVersionUtils.cs" />    
+    <Compile Include="$(MSBuildThisFileDirectory)SdkVersionUtils.cs" />
   </ItemGroup>  
 </Project>
