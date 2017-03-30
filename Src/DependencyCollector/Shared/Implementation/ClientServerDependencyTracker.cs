@@ -2,7 +2,11 @@
 {
     using System;
     using System.Data.SqlClient;
+#if NET45
+    using System.Diagnostics;
+#endif
     using System.Net;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
 
     internal static class ClientServerDependencyTracker
@@ -20,7 +24,21 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
+#if NET45
+            var activity = new Activity("HttpOut");
+            activity.Start();
             telemetryClient.Initialize(telemetry);
+            activity.Stop();
+#else
+            telemetryClient.Initialize(telemetry);
+
+            // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
+            // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
+            // let's fix it
+            telemetry.Id = AppInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
+            telemetry.Context.Operation.Id = AppInsightsActivity.GetRootId(telemetry.Id);
+
+#endif
             PretendProfilerIsAttached = false;
             return telemetry;
         }
