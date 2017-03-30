@@ -69,7 +69,6 @@
         public static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(options => AddTelemetryConfiguration(configuration, options));
-
             return services;
         }
 

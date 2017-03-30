@@ -4,6 +4,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Collections.Concurrent;
     using System.Globalization;
     using System.Threading.Tasks;
+    
+    using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility;
 
 #if NET451
@@ -32,7 +34,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
         private const string AppIdQueryApiRelativeUriFormat = "api/profiles/{0}/appId";
 
-        private Func<TelemetryConfiguration> options;
+        private Func<TelemetryConfiguration> configurationProvider;
 
         private Uri endpointAddress;
         // Get the base URI, so that we can append the known relative segments to it.
@@ -42,7 +44,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             {
                 if (endpointAddress == null)
                 {
-                    Uri endpointUri = new Uri(options().TelemetryChannel.EndpointAddress);
+                    Uri endpointUri = new Uri(configurationProvider().TelemetryChannel.EndpointAddress);
                     endpointAddress = new Uri(endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
                 }
                 return endpointAddress;
@@ -70,10 +72,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <summary>
         /// Initializes a new instance of the <see cref="CorrelationIdLookupHelper" /> class.
         /// </summary>
-        /// <param name="options">Options that is to be used to fetch endpoint address.</param>
-        public CorrelationIdLookupHelper(Func<TelemetryConfiguration> options)
+        /// <param name="configurationProvider">A delegate that provides telemetry configuration, which is to be used to fetch endpoint address.</param>
+        public CorrelationIdLookupHelper(Func<TelemetryConfiguration> configurationProvider)
         {
-            this.options = options;
+            this.configurationProvider = configurationProvider;
             this.provideAppId = this.FetchAppIdFromService;
         }
 
@@ -126,17 +128,17 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                             {
                                 this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch
+                            catch(Exception ex)
                             {
-                                // Slient the exception since this is a 'Try' method.
+                                AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
                             }
                         });
                         return false;
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    // Slient the exception since this is a 'Try' method
+                    AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
                     correlationId = string.Empty;
                     return false;
                 }

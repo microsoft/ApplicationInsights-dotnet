@@ -10,13 +10,7 @@
         "licenseUrl": "http://go.microsoft.com/fwlink/?LinkID=510709",
         "requireLicenseAcceptance": true,
         "iconUrl": "http://appanacdn.blob.core.windows.net/cdn/icons/aic.png",
-        "tags": [
-            "Analytics",
-            "ApplicationInsights",
-            "Telemetry",
-            "AppInsights",
-            "aspnetcore"
-        ],
+        "tags": ["Analytics", "ApplicationInsights", "Telemetry", "AppInsights", "aspnetcore"],
         "repository": {
             "type": "git",
             "url": "https://github.com/Microsoft/ApplicationInsights-aspnetcore.git"

@@ -18,7 +18,6 @@
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
         private readonly string sdkVersion;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
         /// </summary>
