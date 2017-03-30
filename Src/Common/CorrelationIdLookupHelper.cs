@@ -30,14 +30,14 @@
 
         // We have arbitrarily chosen 5 second delay between trying to get app Id once we get a failure while trying to get it. 
         // This is to throttle tries between failures to safeguard against performance hits. The impact would be that telemetry generated during this interval would not have x-component correlation id.
-        private readonly TimeSpan intervalBetweenFailedRetries = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan intervalBetweenFailedRetries = TimeSpan.FromSeconds(30);
 
         private Uri endpointAddress;
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
 
         // Stores failed instrumentation keys along with the time we tried to retrieve them.
-        private ConcurrentDictionary<string, DateTime> failingInstrumenationKeys = new ConcurrentDictionary<string, DateTime>();
+        private ConcurrentDictionary<string, FailedResult> failingInstrumenationKeys = new ConcurrentDictionary<string, FailedResult>();
 
         private Func<string, Task<string>> provideAppId;
 
@@ -105,10 +105,10 @@
 
                 try
                 {
-                    DateTime lastTriedTime;
-                    if (this.failingInstrumenationKeys.TryGetValue(instrumentationKey, out lastTriedTime))
+                    FailedResult lastFailedResult;
+                    if (this.failingInstrumenationKeys.TryGetValue(instrumentationKey, out lastFailedResult))
                     {
-                        if (DateTime.UtcNow - lastTriedTime <= this.intervalBetweenFailedRetries)
+                        if (!lastFailedResult.ShouldRetry || DateTime.UtcNow - lastFailedResult.FailureTime <= this.intervalBetweenFailedRetries)
                         {
                             // We tried not too long ago and failed to retrieve app Id for this instrumentation key from breeze. Let wait a while before we try again. For now just report failure.
                             correlationId = string.Empty;
@@ -121,7 +121,7 @@
                     Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());
                     if (getAppIdTask.Wait(GetAppIdTimeout))
                     {
-                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.GetAwaiter().GetResult());
                         correlationId = this.knownCorrelationIds[instrumentationKey];
                         return true;
                     }
@@ -131,12 +131,11 @@
                         {
                             try
                             {
-                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.GetAwaiter().GetResult());
                             }
                             catch (Exception ex)
                             {
-                                this.failingInstrumenationKeys[instrumentationKey] = DateTime.UtcNow;
-                                CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+                                this.RegisterFailure(instrumentationKey, ex);
                             }
                         });
 
@@ -145,8 +144,7 @@
                 }
                 catch (Exception ex)
                 {
-                    this.failingInstrumenationKeys[instrumentationKey] = DateTime.UtcNow;
-                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+                    this.RegisterFailure(instrumentationKey, ex);
 
                     correlationId = string.Empty;
                     return false;
@@ -199,6 +197,28 @@
             return new Uri(this.endpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
         }
 
+        /// <summary>
+        /// Registers failure for further action in future.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key for which the failure occurred.</param>
+        /// <param name="ex">Exception indicating failure.</param>
+        private void RegisterFailure(string instrumentationKey, Exception ex)
+        {
+            var webException = ex as WebException;
+            if (webException != null)
+            {
+                this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(
+                    DateTime.UtcNow,
+                    ((HttpWebResponse)webException.Response).StatusCode);
+            }
+            else
+            {
+                this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
+            }
+
+            CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+        }
+
         private string GetExceptionDetailString(Exception ex)
         {
             var ae = ex as AggregateException;
@@ -209,5 +229,56 @@
 
             return ex.ToInvariantString();
         }
+
+        /// <summary>
+        /// Structure that represents a failed fetch app Id call.
+        /// </summary>
+        private class FailedResult
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FailedResult" /> class.
+            /// </summary>
+            /// <param name="failureTime">Time when the failure occurred.</param>
+            /// <param name="failureCode">Failure response code.</param>
+            public FailedResult(DateTime failureTime, HttpStatusCode failureCode)
+            {
+                this.FailureTime = failureTime;
+                this.FailureCode = (int)failureCode;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FailedResult" /> class.
+            /// </summary>
+            /// <param name="failureTime">Time when the failure occurred.</param>
+            public FailedResult(DateTime failureTime)
+            {
+                this.FailureTime = failureTime;
+
+                // Unknown failure code.
+                this.FailureCode = int.MinValue;
+            }
+
+            /// <summary>
+            /// Gets the time of failure.
+            /// </summary>
+            public DateTime FailureTime { get; private set; }
+
+            /// <summary>
+            /// Gets the integer value for response code representing the type of failure.
+            /// </summary>
+            public int FailureCode { get; private set; }
+
+            /// <summary>
+            /// Gets a value indicating whether the failure is likely to go away when a retry happens.
+            /// </summary>
+            public bool ShouldRetry
+            {
+                get
+                {
+                    // If not in the 400 range.
+                    return !(this.FailureCode >= 400 && this.FailureCode < 500);
+                }
+            }
+        } 
     }
 }
