@@ -26,9 +26,9 @@
         {
             var itemContext = telemetryItem.Context.Operation;
 
-            bool isActivityEnabled = false;
+            bool isActivityAvailable = false;
 #if !NET40
-            if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
+            if (isActivityAvailable = ActivityExtensions.IsActivityAvailable())
             {
                 var currentActivity = Activity.Current;
                 if (currentActivity != null)
@@ -65,7 +65,7 @@
                 }
             }
 #endif
-            if (!isActivityEnabled)
+            if (!isActivityAvailable)
             {
                 if (string.IsNullOrEmpty(itemContext.ParentId) || string.IsNullOrEmpty(itemContext.Id) || string.IsNullOrEmpty(itemContext.Name))
                 {
