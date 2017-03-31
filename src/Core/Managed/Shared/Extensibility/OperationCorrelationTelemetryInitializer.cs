@@ -28,8 +28,8 @@
 
             bool isActivityAvailable = false;
 #if !NET40
-            if (isActivityAvailable = ActivityExtensions.IsActivityAvailable())
-            {
+            isActivityAvailable = ActivityExtensions.TryRun(() =>
+            { 
                 var currentActivity = Activity.Current;
                 if (currentActivity != null)
                 {
@@ -63,7 +63,7 @@
                         itemContext.Name = operationName;
                     }
                 }
-            }
+            });
 #endif
             if (!isActivityAvailable)
             {

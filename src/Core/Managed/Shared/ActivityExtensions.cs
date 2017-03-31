@@ -1,6 +1,7 @@
 ﻿#if !NET40
 namespace Microsoft.ApplicationInsights
 {
+    using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
@@ -13,16 +14,24 @@ namespace Microsoft.ApplicationInsights
         private static bool isEnabled = false;
 
         /// <summary>
-        /// Checks that Activity API could be called (DiagnosticSource DLL is loaded).
+        /// Executes action if Activity is available (DiagnosticSource DLL is available).
+        /// Decorate all code that works with Activity with this method.
         /// </summary>
-        public static bool IsActivityAvailable()
+        /// <param name="action">Action to execute.</param>
+        /// <returns>True if Activity is available, false otherwise.</returns>
+        public static bool TryRun(Action action)
         {
-            if (isInitialized)
+            Debug.Assert(action != null, "Action must not be null");
+            if (!isInitialized)
             {
-                return isEnabled;
+                isEnabled = Initialize();
             }
 
-            isEnabled = Initialize();
+            if (isEnabled)
+            {
+                action.Invoke();
+            }
+
             return isEnabled;
         }
 

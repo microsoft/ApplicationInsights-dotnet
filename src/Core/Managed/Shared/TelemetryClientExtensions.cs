@@ -112,7 +112,7 @@
 
             bool isActivityAvailable = false;
 #if !NET40
-            if (isActivityAvailable = ActivityExtensions.IsActivityAvailable())
+            isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 bool operationNameIsSet = false;
 
@@ -142,7 +142,7 @@
                 {
                     if (!operationNameIsSet)
                     {
-                        var parentOperationName = parentActivity.GetOperationName();
+                        string parentOperationName = parentActivity.GetOperationName();
                         if (!string.IsNullOrEmpty(parentOperationName))
                         {
                             childActivity.SetOperationName(parentOperationName);
@@ -153,7 +153,7 @@
                 }
 
                 childActivity.Start();
-            }
+            });
 #endif
             operationTelemetry.Start();
 

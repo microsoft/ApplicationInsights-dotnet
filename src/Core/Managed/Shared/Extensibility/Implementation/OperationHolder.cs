@@ -79,18 +79,18 @@
                         var operationTelemetry = this.Telemetry;
                         bool isActivityAvailable = false;
 #if !NET40
-                        if (isActivityAvailable = ActivityExtensions.IsActivityAvailable())
+                        isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
                             if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
-                                operationTelemetry.Context.Operation.Name != currentActivity.GetOperationName())
+                            operationTelemetry.Context.Operation.Name != currentActivity.GetOperationName())
                             {
                                 CoreEventSource.Log.InvalidOperationToStopError();
                                 return;
                             }
 
                             currentActivity.Stop();
-                        }
+                        });
 #endif
                         if (!isActivityAvailable)
                         {
