@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and std deviation.
+    /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties
