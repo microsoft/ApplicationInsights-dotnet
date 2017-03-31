@@ -124,7 +124,7 @@
             WebHeaderCollection headers = new WebHeaderCollection();
 
             // no valid items
-            headers["Correlation-Context"] = "k1, some string";
+            headers["Correlation-Context"] = "k1, some string,k2=v2=v3";
 
             var correlationContext = headers.GetNameValueCollectionFromHeader("Correlation-Context");
             Assert.IsTrue(correlationContext == null || !correlationContext.Any());

@@ -4,14 +4,15 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Diagnostics;
-    using System.Globalization;
-    using System.Text;
+    using System.Linq;
 
     /// <summary>
     /// WebHeaderCollection extension methods.
     /// </summary>
     internal static class WebHeaderCollectionExtensions
     {
+        private const string keyValuePairSeparator = "=";
+
         /// <summary>
         /// For the given header collection, for a given header of name-value type, find the value of a particular key.
         /// </summary>
@@ -21,10 +22,7 @@
         /// <returns>Value against the given parameters.</returns>
         public static string GetNameValueHeaderValue(this NameValueCollection headers, string headerName, string keyName)
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentNullException(nameof(headerName));
-            }
+            Debug.Assert(headerName != null, "headerName must not be null");
 
             if (string.IsNullOrEmpty(keyName))
             {
@@ -59,10 +57,7 @@
         /// <returns>List of KeyValuePairs in the given header.</returns>
         public static IDictionary<string, string> GetNameValueCollectionFromHeader(this NameValueCollection headers, string headerName)
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentNullException(nameof(headerName));
-            }
+            Debug.Assert(headerName != null, "headerName must not be null");
 
             var requiredHeader = headers[headerName];
 
@@ -97,15 +92,8 @@
         /// <param name="value">Value in the name value pair.</param>
         public static void SetNameValueHeaderValue(this NameValueCollection headers, string headerName, string keyName, string value)
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentNullException(nameof(headerName));
-            }
-
-            if (string.IsNullOrEmpty(keyName))
-            {
-                throw new ArgumentNullException(nameof(keyName));
-            }
+            Debug.Assert(headerName != null, "headerName must not be null");
+            Debug.Assert(keyName != null, "keyName must not be null");
 
             var requiredHeader = headers[headerName];
 
@@ -116,9 +104,10 @@
                 for (int i = 0; i < headerValues.Length; i++)
                 {
                     string keyValueString = headerValues[i];
-                    var keyValue = keyValueString.Split('=');
-
-                    if (keyValue.Length == 2 && keyValue[0].Trim() == keyName)
+                    string currentKey, currentValue;
+                    if (keyValueString.Contains(keyName) &&
+                        TryParseKeyValueHeader(keyValueString, out currentKey, out currentValue) &&
+                        keyName.Equals(currentKey))
                     {
                         // Overwrite the existing thing
                         headerValues[i] = FormatKeyValueHeader(keyName, value);
@@ -130,7 +119,7 @@
 
                 if (!found)
                 {
-                    headers[headerName] += string.Format(CultureInfo.InvariantCulture, ",{0}={1}", keyName, value);
+                    headers[headerName] += ',' + FormatKeyValueHeader(keyName, value);
                 }
             }
             else
@@ -148,30 +137,18 @@
         /// <param name="keyValuePairs">List of KeyValuePairs to format into header.</param>
         public static void SetHeaderFromNameValueCollection(this NameValueCollection headers, string headerName, IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentNullException(nameof(headerName));
-            }
+            Debug.Assert(headerName != null, "headerName must not be null");
 
             var requiredHeader = headers[headerName];
 
             // do not set header if it's present
             if (string.IsNullOrEmpty(requiredHeader))
             {
-                StringBuilder headerValue = new StringBuilder();
-                foreach (var pair in keyValuePairs)
-                {
-                    if (headerValue.Length > 0)
-                    {
-                        headerValue.Append(",");
-                    }
-
-                    headerValue.Append(FormatKeyValueHeader(pair.Key, pair.Value));
-                }
+                var headerValue = string.Join(",", keyValuePairs.Select(pair => FormatKeyValueHeader(pair.Key, pair.Value)));
 
                 if (headerValue.Length > 0)
                 {
-                    headers[headerName] = headerValue.ToString();
+                    headers[headerName] = headerValue;
                 }
             }
         }
@@ -179,26 +156,37 @@
         private static bool TryParseKeyValueHeader(string pairString, out string key, out string value)
         {
             Debug.Assert(pairString != null, "pairString is null");
-            var keyValue = pairString.Split('=');
-
-            if (keyValue.Length == 2)
-            {
-                key = keyValue[0].Trim();
-                value = keyValue[1].Trim();
-                if (key.Length > 0 && value.Length > 0)
-                {
-                    return true;
-                }
-            }
 
             key = null;
             value = null;
+
+            int indexOfSeparator = pairString.IndexOf(keyValuePairSeparator, StringComparison.Ordinal);
+
+            // Must be a separator, and cannot be first or last
+            if (indexOfSeparator <= 0 || indexOfSeparator == pairString.Length - 1)
+            {
+                return false;
+            }
+
+            // Must be exactly one separator
+            if (pairString.IndexOf(keyValuePairSeparator, indexOfSeparator + 1, StringComparison.Ordinal) >= 0)
+            {
+                return false;
+            }
+
+            key = pairString.Substring(0, indexOfSeparator).Trim();
+            value = pairString.Substring(indexOfSeparator + 1).Trim();
+            if (key.Length > 0 && value.Length > 0)
+            {
+                return true;
+            }
+
             return false;
         }
 
         private static string FormatKeyValueHeader(string key, string value)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}={1}", key.Trim(), value.Trim());
+            return key.Trim() + keyValuePairSeparator + value.Trim();
         }
     }
 }

@@ -30,8 +30,18 @@
         /// </summary>
         public string ParentOperationIdHeaderName
         {
-            get { return ActivityHelpers.ParentOperationIdHeaderName; }
-            set { ActivityHelpers.ParentOperationIdHeaderName = value; }
+            get
+            {
+                return ActivityHelpers.ParentOperationIdHeaderName;
+            }
+
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    ActivityHelpers.ParentOperationIdHeaderName = value;
+                }
+            }
         }
 
         /// <summary>
@@ -39,8 +49,18 @@
         /// </summary>
         public string RootOperationIdHeaderName
         {
-            get { return ActivityHelpers.RootOperationIdHeaderName; }
-            set { ActivityHelpers.RootOperationIdHeaderName = value; }
+            get
+            {
+                return ActivityHelpers.RootOperationIdHeaderName;
+            }
+
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    ActivityHelpers.RootOperationIdHeaderName = value;
+                }
+            }
         }
 
         /// <summary>
