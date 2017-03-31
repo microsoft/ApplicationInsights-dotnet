@@ -17,7 +17,8 @@
 #endif
 
     /// <summary>
-    /// Metric factory and controller.
+    /// Metric factory and controller. Sends metrics to Application Insights service. Pre-aggregates metrics to reduce bandwidth.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
     /// </summary>
     public sealed class MetricManager : IDisposable
     {
@@ -95,13 +96,16 @@
         /// <param name="name">Name of the metric.</param>
         /// <param name="dimensions">Optional dimensions.</param>
         /// <returns>Metric instance.</returns>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
+        /// </remarks>
         public Metric CreateMetric(string name, IDictionary<string, string> dimensions = null)
         {
             return new Metric(this, name, dimensions);
         }
 
         /// <summary>
-        /// Flushes the in-memory aggregation buffers.
+        /// Flushes the in-memory aggregation buffers. Not normally required - occurs automatically at intervals and on Dispose.
         /// </summary>
         public void Flush()
         {

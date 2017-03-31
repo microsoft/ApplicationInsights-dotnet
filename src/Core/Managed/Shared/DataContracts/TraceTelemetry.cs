@@ -9,6 +9,7 @@
     /// <summary>
     /// Telemetry type used for log messages.
     /// Contains a time and message and optionally some additional metadata.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
     public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
@@ -83,6 +84,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this trace.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -91,6 +93,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {
