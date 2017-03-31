@@ -11,6 +11,7 @@
 
     /// <summary>
     /// Telemetry type used to track exceptions.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
@@ -67,7 +68,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the value indicated where the exception was handled.
+        /// Gets or sets the value indicating where the exception was handled.
         /// </summary>
         [Obsolete("Use custom properties to report exception handling layer")]
         public ExceptionHandledAt HandledAt
@@ -133,6 +134,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined exception metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, double> Metrics
         {
@@ -141,6 +143,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -158,6 +161,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {

@@ -8,7 +8,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used to track metrics.
+    /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and std deviation.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
     public sealed class MetricTelemetry : ITelemetry, ISupportProperties
     {
@@ -36,7 +37,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with the 
+        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the 
         /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
@@ -49,9 +50,10 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with properties provided.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
         /// </summary>
         /// <remarks>
-        /// Metric statistics provided are assumed to be calculated over a period of time equaling 1 minute.
+        /// To send metrics, collect your metric events over an aggregation interval of 1 minute.
         /// </remarks>
         /// <param name="name">Metric name.</param>
         /// <param name="count">Count of values taken during aggregation interval.</param>
@@ -120,7 +122,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the number of samples for this metric.
+        /// Gets or sets the number of values in the sample set.
         /// </summary>
         public int? Count
         {
@@ -129,7 +131,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the min value of this metric.
+        /// Gets or sets the min value of this metric across the sample set.
         /// </summary>
         public double? Min
         {
@@ -138,7 +140,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the max value of this metric.
+        /// Gets or sets the max value of this metric across the sample set.
         /// </summary>
         public double? Max
         {
@@ -147,7 +149,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the standard deviation of this metric.
+        /// Gets or sets the standard deviation of this metric across the sample set.
         /// </summary>
         public double? StandardDeviation
         {
@@ -157,6 +159,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this metric.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
