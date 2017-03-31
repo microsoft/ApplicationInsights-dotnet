@@ -8,8 +8,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used for availability test results.
+    /// Telemetry type used for availability web test results.
     /// Contains a time and message and optionally some additional metadata.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
     public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
     {
@@ -120,6 +121,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this availability test run.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -128,6 +130,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined event metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, double> Metrics
         {

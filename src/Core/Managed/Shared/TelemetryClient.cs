@@ -16,6 +16,7 @@
     
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722">Learn more</a>
     /// </summary>
     public sealed class TelemetryClient
     {
@@ -89,6 +90,9 @@
         /// <summary>
         /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
+        /// </remarks>
         /// <param name="eventName">A name for the event.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         /// <param name="metrics">Measurements associated with this event.</param>
@@ -113,6 +117,9 @@
         /// Send an <see cref="EventTelemetry"/> for display in Diagnostic Search and aggregation in Metrics Explorer.
         /// Create a separate <see cref="EventTelemetry"/> instance for each call to <see cref="TrackEvent(EventTelemetry)"/>.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
+        /// </remarks>
         /// <param name="telemetry">An event log item.</param>
         public void TrackEvent(EventTelemetry telemetry)
         {
@@ -127,6 +134,9 @@
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
+        /// </remarks>
         /// <param name="message">Message to display.</param>
         public void TrackTrace(string message)
         {
@@ -136,6 +146,9 @@
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
+        /// </remarks>
         /// <param name="message">Message to display.</param>
         /// <param name="severityLevel">Trace severity level.</param>
         public void TrackTrace(string message, SeverityLevel severityLevel)
@@ -146,6 +159,9 @@
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
+        /// </remarks>
         /// <param name="message">Message to display.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         public void TrackTrace(string message, IDictionary<string, string> properties)
@@ -163,6 +179,9 @@
         /// <summary>
         /// Send a trace message for display in Diagnostic Search.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
+        /// </remarks>
         /// <param name="message">Message to display.</param>
         /// <param name="severityLevel">Trace severity level.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
@@ -182,6 +201,9 @@
         /// Send a trace message for display in Diagnostic Search.
         /// Create a separate <see cref="TraceTelemetry"/> instance for each call to <see cref="TrackTrace(TraceTelemetry)"/>.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
+        /// </remarks>
         /// <param name="telemetry">Message with optional properties.</param>
         public void TrackTrace(TraceTelemetry telemetry)
         {
@@ -190,7 +212,7 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
+        /// Obsolete - use TrackMetric(MetricTelemetry). Send a <see cref="MetricTelemetry"/> for aggregation in Metric Explorer.
         /// </summary>
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
@@ -209,9 +231,12 @@
         }
 
         /// <summary>
-        /// Send a <see cref="MetricTelemetry"/> for representing aggregated metric data.
+        /// Send a <see cref="MetricTelemetry"/> that represents aggregated metric data.
         /// Create a separate <see cref="MetricTelemetry"/> instance for each call to <see cref="TrackMetric(MetricTelemetry)"/>.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
+        /// </remarks>
         public void TrackMetric(MetricTelemetry telemetry)
         {
             if (telemetry == null)
@@ -228,6 +253,9 @@
         /// <param name="exception">The exception to log.</param>
         /// <param name="properties">Named string values you can use to classify and search for this exception.</param>
         /// <param name="metrics">Additional values associated with this exception.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
+        /// </remarks>
         public void TrackException(Exception exception, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             if (exception == null)
@@ -254,6 +282,9 @@
         /// Send an <see cref="ExceptionTelemetry"/> for display in Diagnostic Search.
         /// Create a separate <see cref="ExceptionTelemetry"/> instance for each call to <see cref="TrackException(ExceptionTelemetry)"/>
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackexception">Learn more</a>
+        /// </remarks>
         public void TrackException(ExceptionTelemetry telemetry)
         {
             if (telemetry == null)
@@ -273,6 +304,9 @@
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
+        /// </remarks>
         public void TrackDependency(string dependencyName, string commandName, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
 #pragma warning disable 618
@@ -291,6 +325,9 @@
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="resultCode">Result code of dependency call execution.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
+        /// </remarks>
         public void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
         {
             this.TrackDependency(new DependencyTelemetry(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode, success));
@@ -300,6 +337,9 @@
         /// Send information about external dependency call in the application.
         /// Create a separate <see cref="DependencyTelemetry"/> instance for each call to <see cref="TrackDependency(DependencyTelemetry)"/>
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackdependency">Learn more</a>
+        /// </remarks>
         public void TrackDependency(DependencyTelemetry telemetry)
         {
             if (telemetry == null)
@@ -321,6 +361,9 @@
         /// <param name="message">Error message on availability test run failure.</param>
         /// <param name="properties">Named string values you can use to classify and search for this availability telemetry.</param>
         /// <param name="metrics">Additional values associated with this availability telemetry.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
         public void TrackAvailability(string name, DateTimeOffset timeStamp, TimeSpan duration, string runLocation, bool success, string message = null, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
             var availabilityTelemetry = new AvailabilityTelemetry(name, timeStamp, duration, runLocation, success, message);
@@ -342,6 +385,9 @@
         /// Send information about availability of an application.
         /// Create a separate <see cref="AvailabilityTelemetry"/> instance for each call to <see cref="TrackAvailability(AvailabilityTelemetry)"/>
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
+        /// </remarks>
         public void TrackAvailability(AvailabilityTelemetry telemetry)
         {
             if (telemetry == null)
@@ -455,6 +501,9 @@
         /// Send information about the page viewed in the application.
         /// </summary>
         /// <param name="name">Name of the page.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
+        /// </remarks>
         public void TrackPageView(string name)
         {
             this.Track(new PageViewTelemetry(name));
@@ -464,6 +513,9 @@
         /// Send information about the page viewed in the application.
         /// Create a separate <see cref="PageViewTelemetry"/> instance for each call to <see cref="TrackPageView(PageViewTelemetry)"/>.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
+        /// </remarks>
         public void TrackPageView(PageViewTelemetry telemetry)
         {
             if (telemetry == null)
@@ -482,6 +534,9 @@
         /// <param name="duration">The time taken by the application to handle the request.</param>
         /// <param name="responseCode">The response status code.</param>
         /// <param name="success">True if the request was handled successfully by the application.</param>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
+        /// </remarks>
         public void TrackRequest(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
         {
             this.Track(new RequestTelemetry(name, startTime, duration, responseCode, success));
@@ -491,6 +546,9 @@
         /// Send information about a request handled by the application.
         /// Create a separate <see cref="RequestTelemetry"/> instance for each call to <see cref="TrackRequest(RequestTelemetry)"/>.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
+        /// </remarks>
         public void TrackRequest(RequestTelemetry request)
         {
             if (request == null)
@@ -504,6 +562,9 @@
         /// <summary>
         /// Flushes the in-memory buffer. 
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
+        /// </remarks>
         public void Flush()
         {
             this.configuration.TelemetryChannel.Flush();

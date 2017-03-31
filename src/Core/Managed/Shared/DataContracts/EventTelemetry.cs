@@ -8,7 +8,8 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Telemetry type used to track events.
+    /// Telemetry type used to track custom events.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
     public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
@@ -57,7 +58,7 @@
         }
         
         /// <summary>
-        /// Gets or sets the name of the event.
+        /// Gets or sets the name of the event. Max length 150.
         /// </summary>
         public string Name
         {
@@ -67,6 +68,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined event metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, double> Metrics
         {
@@ -75,6 +77,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this event.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -83,6 +86,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {

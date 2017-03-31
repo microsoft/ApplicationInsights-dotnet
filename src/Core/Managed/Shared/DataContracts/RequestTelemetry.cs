@@ -14,6 +14,7 @@
     /// You can send information about requests processed by your web application to Application Insights by 
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
@@ -78,7 +79,7 @@
         }
 
         /// <summary>
-        /// Gets or sets human-readable name of the requested page.
+        /// Gets or sets human-readable name of the requested page. Max length 150.
         /// </summary>
         public override string Name
         {
@@ -136,6 +137,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this request.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
         {
@@ -165,6 +167,7 @@
         
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
@@ -183,6 +186,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {
