@@ -4,7 +4,6 @@ namespace Microsoft.ApplicationInsights
     using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    using System.Reflection;
 
     [TestClass]
     public class ActivityExtensionsTests
@@ -12,10 +11,32 @@ namespace Microsoft.ApplicationInsights
         [TestMethod]
         public void CanLoadDiagnosticSourceAssembly()
         {
-            // verifies that currently referenced DiagnosticSource version, culture and public token matches one checked in ActivityExtension.Initialize
-            // if fails, fix the ActivityExtension as well
-            Assert.DoesNotThrow(() => 
-                Assembly.Load(new AssemblyName("System.Diagnostics.DiagnosticSource, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")));
+            Assert.True(ActivityExtensions.TryRun(() => Assert.Null(Activity.Current)));
+        }
+
+        [TestMethod]
+        public void GetOperationNameReturnsNullIfThereIsNoOperationName()
+        {
+            var activity = new Activity("test me");
+            Assert.Null(activity.GetOperationName());
+        }
+
+        [TestMethod]
+        public void SetOperationNameIsConsistentWithGetOperationName()
+        {
+            var activity = new Activity("test");
+            activity.SetOperationName("test me");
+            Assert.Equal("test me", activity.GetOperationName());
+        }
+
+        [TestMethod]
+        public void GetOperationNameReturnsLastAddedOperationName()
+        {
+            var activity = new Activity("test");
+            activity.AddTag("OperationName", "test me 1");
+            activity.AddTag("OperationName", "test me 2");
+
+            Assert.Equal("test me 2", activity.GetOperationName());
         }
     }
 }
