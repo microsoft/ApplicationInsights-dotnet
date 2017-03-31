@@ -19,6 +19,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
 
             middleware.OnHostingException(null, null);
 
+            Assert.NotNull(sentTelemetry);
+            Assert.IsType<ExceptionTelemetry>(sentTelemetry);
             Assert.Equal(ExceptionHandledAt.Platform, ((ExceptionTelemetry)sentTelemetry).HandledAt);
         }
 
