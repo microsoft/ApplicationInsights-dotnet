@@ -72,7 +72,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.NuGet", "src\Core\NuGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyCore", "src\Core\DummyCore\DummyCore.csproj", "{40CCD816-19FD-4B1D-9E24-AD2099351187}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Standalone.Tests", "Test\CoreSDK.Test\Stanalone\Core.Standalone.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Standalone.Tests", "Test\CoreSDK.Test\Standalone\Core.Standalone.Tests.csproj", "{2759BC71-7F47-44DA-8579-AE2D8C8C684D}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

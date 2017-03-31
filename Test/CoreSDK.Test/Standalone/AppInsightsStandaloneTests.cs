@@ -35,7 +35,7 @@
         }
 
         [TestMethod]
-        public void AppInsightsUsesdActivityWhenDiagnosticSourceIsAvailable()
+        public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailable()
         {
             var dependencyId = RunTestApplication(true, "guid");
             Assert.True(dependencyId.StartsWith("|guid."));
