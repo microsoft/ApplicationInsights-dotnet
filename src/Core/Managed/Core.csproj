@@ -1,10 +1,4 @@
-﻿<Project>
-  <!--
-       Workaround for https://github.com/dotnet/sdk/issues/803
-       Set BaseIntermediateOutputPath before including Sdk.props
-  -->
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'BaseIntermediateOutputPath.props'))\BaseIntermediateOutputPath.props" />
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
@@ -46,7 +40,4 @@
   
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
-
-  <!-- Part of workaround for https://github.com/dotnet/sdk/issues/803 -->
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

@@ -1,10 +1,4 @@
-﻿<Project>
-  <!--
-       Workaround for https://github.com/dotnet/sdk/issues/803
-       Set BaseIntermediateOutputPath before including Sdk.props
-  -->
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'BaseIntermediateOutputPath.props'))\BaseIntermediateOutputPath.props" />
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Common.props'))\Common.props" />
 
   <PropertyGroup>
@@ -23,7 +17,4 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Package.targets'))\Package.targets" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
-
-  <!-- Part of workaround for https://github.com/dotnet/sdk/issues/803 -->
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

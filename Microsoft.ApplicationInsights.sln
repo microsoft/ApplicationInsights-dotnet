@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26206.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core.Tests", "Core.Tests", "{C2FEEDE5-8CAE-41A4-8932-42D284A86EA7}"
 EndProject
@@ -19,8 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CodeCov.ps1 = CodeCov.ps1
 		Common.props = Common.props
 		Common.targets = Common.targets
+		Directory.Build.props = Directory.Build.props
 		dirs.proj = dirs.proj
-		Global.props = Global.props
 		GlobalStaticVersion.props = GlobalStaticVersion.props
 		NuGet.config = NuGet.config
 		NuGet.targets = NuGet.targets
