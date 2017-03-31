@@ -9,6 +9,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ActivityExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssertExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryChannelTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Channel\InMemoryTransmitterTests.cs" />
