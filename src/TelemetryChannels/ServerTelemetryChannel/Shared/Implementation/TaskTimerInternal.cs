@@ -58,7 +58,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         }
 
         /// <summary>
-        /// Start the task.
+        /// Starts the task. Updates the cancellation token and makes any tasks launched previously not available to be cancelled.
         /// </summary>
         /// <param name="elapsed">The task to run.</param>
         public void Start(Func<Task> elapsed)
@@ -83,7 +83,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             if (task != null)
                             {
 #if !NET40
-                                await task.ConfigureAwait(false);                                
+                                await task.ConfigureAwait(false);
 #else
                                 task.ContinueWith(
                                     userTask =>
