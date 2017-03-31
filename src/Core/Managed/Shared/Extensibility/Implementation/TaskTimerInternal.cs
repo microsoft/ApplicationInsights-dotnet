@@ -62,7 +62,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <param name="elapsed">The task to run.</param>
         public void Start(Func<Task> elapsed)
         {
-            var newTokenSource = new CancellationTokenSource();
+            var newTokenSource = new CancellationTokenSource();            
 
             TaskEx.Delay(this.Delay, newTokenSource.Token)
                 .ContinueWith(
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     previousTask =>
 #endif
                     {
-                        CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
+                        DisposeToken(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
                             Task task = elapsed();
@@ -82,7 +82,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                             if (task != null)
                             {
 #if !NET40
-                                await task.ConfigureAwait(false);
+                                await task.ConfigureAwait(false);                                
 #else
                                 task.ContinueWith(
                                     userTask =>
@@ -100,18 +100,18 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                                     TaskContinuationOptions.ExecuteSynchronously,
                                     TaskScheduler.Default);
 #endif
-                            }
+                            }                            
                         }
                         catch (Exception exception)
-                        {
+                        {                            
                             LogException(exception);
-                        }
+                        }                        
                     },
                     CancellationToken.None,
                     TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);
 
-            CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
+            DisposeToken(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }
 
         /// <summary>
@@ -148,6 +148,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             CoreEventSource.Log.LogError(exception.ToInvariantString());
+        }
+
+        private static void DisposeToken(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource != null)
+            {
+                tokenSource.Dispose();
+            }
         }
 
         private static void CancelAndDispose(CancellationTokenSource tokenSource)
