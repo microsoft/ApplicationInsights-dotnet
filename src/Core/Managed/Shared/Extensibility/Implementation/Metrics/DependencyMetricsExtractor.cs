@@ -125,13 +125,13 @@
             if (thisMetricManager == null)
             {
                 //// This will be caught and properly logged by the base class:
-                throw new InvalidOperationException("Cannot execute ExtractMetrics becasue this metrics extractor has not been initialized (no metrics manager).");
+                throw new InvalidOperationException("Cannot execute ExtractMetrics because this metrics extractor has not been initialized (no metrics manager).");
             }
 
             //// Get dependency call success status:
             bool dependencyFailed = (dependencyCall.Success != null) && (dependencyCall.Success == false);
 
-            //// Now we ned to determine which data series to use:
+            //// Now we need to determine which data series to use:
             Metric metricToTrack = null;
 
             if (thisMetrics.MaxDependencyTypesToDiscover == 0)
@@ -184,7 +184,7 @@
                             //// In case of very high contention, this may happen a little more often,
                             //// but will no longer happen once the MaxDependencyTypesToDiscover limit is reached.
 
-                            const string TypeDiscoveryLimitReachedMessage = "Cannot discover more dependency types becasue the MaxDependencyTypesToDiscover limit"
+                            const string TypeDiscoveryLimitReachedMessage = "Cannot discover more dependency types because the MaxDependencyTypesToDiscover limit"
                                                                           + " is reached. This is a control-flow exception that should not propagate outside "
                                                                           + "the metric extraction logic.";
 
@@ -238,7 +238,7 @@
                                     : thisMetrics.Default.Success;
                             }
 
-                            //// Use the newly created metric for thisnewly discovered dependency type:
+                            //// Use the newly created metric for this newly discovered dependency type:
                             metricToTrack = dependencyFailed
                                     ? typeMetrics.Failure
                                     : typeMetrics.Success;

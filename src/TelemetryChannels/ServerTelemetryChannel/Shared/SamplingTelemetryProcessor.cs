@@ -165,7 +165,7 @@
                 return;
             }
 
-            //// If telemetry was excuded by type, do nothing:
+            //// If telemetry was excluded by type, do nothing:
             if (!this.IsSamplingApplicable(item.GetType()))
             {
                 if (TelemetryChannelEventSource.Log.IsVerboseEnabled)

@@ -108,7 +108,7 @@ namespace Microsoft.ApplicationInsights.Channel
                 {
                     while (this.enabled)
                     {
-                        // Pulling all items from the buffer and sending as one transmissiton.
+                        // Pulling all items from the buffer and sending as one transmission.
                         this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
                         // Waiting for the flush delay to elapse

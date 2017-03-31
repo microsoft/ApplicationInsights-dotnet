@@ -83,7 +83,7 @@
         }
 
         /// <summary>
-        /// Tests the sceanrio if Stop assigns the duration to zero when a timestamp is supplied by Start is not called.
+        /// Tests the scenario if Stop assigns the duration to zero when a timestamp is supplied by Start is not called.
         /// </summary>
         [TestMethod]
         public void OperationTelemetryStopWithTimestampAssignsDurationZeroWithoutStart()
@@ -95,7 +95,7 @@
         }
 
         /// <summary>
-        /// Tests the sceanrio if durations can be recorded more precisely than 1ms
+        /// Tests the scenario if durations can be recorded more precisely than 1ms
         /// </summary>
         [TestMethod]
         public void OperationTelemetryCanRecordPreciseDurations()

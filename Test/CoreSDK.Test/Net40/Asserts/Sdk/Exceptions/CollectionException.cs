@@ -41,7 +41,7 @@ namespace Xunit.Sdk
 
         /// <summary>
         /// The index of the position where the first comparison failure occurred, or -1 if
-        /// comparisions did not occur (because the actual and expected counts differed).
+        /// comparisons did not occur (because the actual and expected counts differed).
         /// </summary>
         public int IndexFailurePoint { get; set; }
 

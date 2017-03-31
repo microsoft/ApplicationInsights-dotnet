@@ -134,7 +134,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Gets or sets data associated with the current dependency instance. Command name/statement statement for SQL dependency, URL for http dependency.
+        /// Gets or sets data associated with the current dependency instance. Command name/statement for SQL dependency, URL for http dependency.
         /// </summary>
         public string Data
         {

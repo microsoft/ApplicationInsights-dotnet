@@ -27,10 +27,10 @@
             // The first random sample will be very closely related to the value of X we set here. 
             // Thus setting X = seed will result in a close correlation between the bit patterns of the seed and
             // the first random sample, therefore if the seed has a pattern (e.g. 1,2,3) then there will also be 
-            // a recognisable pattern across the first random samples.
+            // a recognizable pattern across the first random samples.
             //
             // Such a strong correlation between the seed and the first random sample is an undesirable
-            // charactersitic of a RNG, therefore we significantly weaken any correlation by hashing the seed's bits. 
+            // characteristic of a RNG, therefore we significantly weaken any correlation by hashing the seed's bits. 
             // This is achieved by multiplying the seed with four large primes each with bits distributed over the
             // full length of a 64bit value, finally adding the results to give X.
             this.lastX = (seed * 5073061188973594169L) + (seed * 8760132611124384359L) + (seed * 8900702462021224483L)

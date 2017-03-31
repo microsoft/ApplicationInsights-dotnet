@@ -33,7 +33,7 @@
         {
             if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
             {
-                // We succesfully sent transmittion
+                // We successfully sent transmittion
                 this.backoffLogicManager.ResetConsecutiveErrors();
                 return;
             }

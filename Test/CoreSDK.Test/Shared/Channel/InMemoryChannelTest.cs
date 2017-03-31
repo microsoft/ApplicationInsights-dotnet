@@ -46,7 +46,7 @@
                 SendingInterval = TimeSpan.FromDays(1),
                 EndpointAddress = "http://localhost/bad"
             };
-            channel.Send(new TraceTelemetry("test")); // Send telemetry so that it sets next send intreval and does not interfere with Flush
+            channel.Send(new TraceTelemetry("test")); // Send telemetry so that it sets next send interval and does not interfere with Flush
             channel.Flush();
 
             var transmission = new TraceTelemetry("test");

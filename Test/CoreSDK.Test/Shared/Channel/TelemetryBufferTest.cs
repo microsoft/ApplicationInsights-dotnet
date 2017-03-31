@@ -94,7 +94,7 @@
         public void TelemetryBufferDoesNotGrowBeyondMaxBacklogSize()
         {            
             TelemetryBuffer buffer = new TelemetryBuffer { Capacity = 2, BacklogSize = 1002};
-            buffer.OnFull = () => { //intentionaly blank to simulate situation where buffer
+            buffer.OnFull = () => { //intentionally blank to simulate situation where buffer
                                     //is not emptied.
                                   };
 

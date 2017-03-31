@@ -222,7 +222,7 @@
             List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
             this.ConvertExceptionTree(exception, null, exceptions);
 
-            // trim if we have too many, also add a custom exception to let the user know we're trimed
+            // trim if we have too many, also add a custom exception to let the user know we're trimmed
             if (exceptions.Count > Constants.MaxExceptionCountToSave)
             {
                 // TODO: when we localize these messages, we should consider not using InvariantCulture

@@ -21,7 +21,7 @@ struct RequestData
     [Description("Result of a request execution. HTTP status code for HTTP requests.")]
     60: required string 	 responseCode;
     
-    [Description("Indication of successfull or unsuccessfull call.")]
+    [Description("Indication of successful or unsuccessful call.")]
     70: required bool 	 success;
     
     [MaxStringLength("1024")]

@@ -264,7 +264,7 @@
                 bool result = storage.Enqueue(() => new StubTransmission());
                 Thread.Sleep(20);
 
-                Assert.False(fileCreated, "filecreated");
+                Assert.False(fileCreated, "file created");
                 Assert.False(result);
             }
 
@@ -655,7 +655,7 @@
                 Assert.NotNull(dequeued);
             }
 
-            // The test timeout must be large enough to account for potential conficts in the storage dequeue that
+            // The test timeout must be large enough to account for potential conflicts in the storage dequeue that
             // cause small sleeps of up to 100 ms each plus the overhead of the test runner itself.
             [TestMethod, Timeout(250)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()

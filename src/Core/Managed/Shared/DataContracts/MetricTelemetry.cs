@@ -176,7 +176,7 @@
             this.Properties.SanitizeProperties();
             this.Sum = Utils.SanitizeNanAndInfinity(this.Sum);
 
-            // note: we set count to 1 if it isn't a postitive integer
+            // note: we set count to 1 if it isn't a positive integer
             // thinking that if it is zero (negative case is clearly broken)
             // that most likely means somebody created instance but forgot to set count
             this.Count = (!this.Count.HasValue) || (this.Count <= 0) ? 1 : this.Count;

@@ -17,7 +17,7 @@
         private static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 
         /// <summary>
-        /// An extension to telemetry item that starts the timer for the the respective telemetry.
+        /// An extension to telemetry item that starts the timer for the respective telemetry.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
@@ -26,7 +26,7 @@
         }
 
         /// <summary>
-        /// An extension to telemetry item that initializes the timer for the the respective telemetry
+        /// An extension to telemetry item that initializes the timer for the respective telemetry
         /// using a timestamp from a high-resolution <see cref="Stopwatch"/>.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
