@@ -292,7 +292,7 @@
             }
             else
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemtry type: {0}", telemetryItem.GetType());                
+                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());                
                 CoreEventSource.Log.LogVerbose(msg);
             }
         }

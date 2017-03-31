@@ -476,7 +476,7 @@
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
-            // Currenly backend requires SDK version to comply "name: version"
+            // Currently backend requires SDK version to comply "name: version"
             if (string.IsNullOrEmpty(telemetry.Context.Internal.SdkVersion))
             {
                 var version = LazyInitializer.EnsureInitialized(ref this.sdkVersion, () => SdkVersionUtils.GetSdkVersion(VersionPrefix));

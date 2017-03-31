@@ -185,7 +185,7 @@
             [TestMethod]
             public void ReportBackoffWriteDoesNotLogMessagesBeforeIntervalPasses()
             {
-                // this test fails when run in parrallel with other tests
+                // this test fails when run in parallel with other tests
                 using (var listener = new TestEventListener(waitForDelayedEvents: false))
                 {
                     const long AllKeywords = -1;
@@ -253,7 +253,7 @@
             [TestMethod]
             public void DisableDoesNotLogMessageIfEnabledWasNotCalled()
             {
-                // this test may fail when other tests running in parrallel
+                // this test may fail when other tests running in parallel
                 using (var listener = new TestEventListener(waitForDelayedEvents: false))
                 {
                     const long AllKeywords = -1;

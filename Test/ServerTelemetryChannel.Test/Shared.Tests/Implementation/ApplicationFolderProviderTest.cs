@@ -63,7 +63,7 @@
             IPlatformFolder applicationFolder = provider.GetApplicationFolder();
 
             Assert.IsNotNull(applicationFolder);
-            Assert.AreEqual(((PlatformFolder)applicationFolder).Folder.Name, customFolder.Name, "Subfolder for custom folder should not be created.");
+            Assert.AreEqual(((PlatformFolder)applicationFolder).Folder.Name, customFolder.Name, "Sub-folder for custom folder should not be created.");
 
             localAppData.Delete(true);
             customFolder.Delete(true);
