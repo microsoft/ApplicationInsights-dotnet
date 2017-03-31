@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <!-- TODO: Figure out how to get signing to work in MicroBuildV2 for .xproj without using this "unsupported" manual approach. -->
-        <PathToSigningDll>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\MicroBuild\Plugins\MicroBuild.Plugins.Signing.1.0.311\build\MicroBuild.Signing.dll</PathToSigningDll>
+        <PathToSigningDll>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\MicroBuild\Plugins\MicroBuild.Plugins.Signing.1.0.321\build\MicroBuild.Signing.dll</PathToSigningDll>
         <RunningInMicroBuild Condition="Exists('$(AGENT_BUILDDIRECTORY)')">true</RunningInMicroBuild>
         <SignAssembly Condition="Exists('$(PathToSigningDll)')">true</SignAssembly>
         <AssemblyOriginatorKeyFile>$(CommonBuildPropsLocation)\Keys\InternalKey.snk</AssemblyOriginatorKeyFile>

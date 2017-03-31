@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DiagnosticAdapter;
+    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// <see cref="IApplicationInsightDiagnosticListener"/> implementation that listens for events specific to AspNetCore hosting layer.
@@ -14,7 +15,6 @@
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient client;
-        private readonly ContextData<long> beginRequestTimestamp = new ContextData<long>();
         private readonly string sdkVersion;
 
         /// <summary>
@@ -38,10 +38,19 @@
         {
             if (this.client.IsEnabled())
             {
-                httpContext.Features.Set(new RequestTelemetry());
+                var requestTelemetry = new RequestTelemetry
+                {
+                    Id = httpContext.TraceIdentifier
+                };
+                this.client.Initialize(requestTelemetry);
+                requestTelemetry.Start(timestamp);
+                httpContext.Features.Set(requestTelemetry);
 
-                this.beginRequestTimestamp.Value = timestamp;
-                this.client.Context.Operation.Id = httpContext.TraceIdentifier;
+                IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
+                if (responseHeaders != null && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
+                {
+                    responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)));
+                }
             }
         }
 
@@ -93,8 +102,7 @@
                     return;
                 }
 
-                telemetry.Duration = new TimeSpan(timestamp - this.beginRequestTimestamp.Value);
-                telemetry.Timestamp = DateTime.Now - telemetry.Duration;
+                telemetry.Stop(timestamp);
                 telemetry.ResponseCode = httpContext.Response.StatusCode.ToString();
 
                 var successExitCode = httpContext.Response.StatusCode < 400;

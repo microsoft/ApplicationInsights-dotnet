@@ -40,6 +40,12 @@ namespace MVCFramework45.FunctionalTests.Controllers
             return View();
         }
 
+        public IActionResult Dependency()
+        {
+            this.telemetryClient.TrackDependency("MyDependency", "MyCommand", DateTimeOffset.Now, TimeSpan.FromMilliseconds(1), success: true);
+            return View();
+        }
+
         public IActionResult Error()
         {
             return View("~/Views/Shared/Error.cshtml");
