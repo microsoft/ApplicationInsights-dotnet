@@ -28,15 +28,21 @@
     <None Include="Package.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\ApplicationInsights.config.install.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\ApplicationInsights.config.transform">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="Resources\net40\ApplicationInsights.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net40\ApplicationInsights.config.uninstall.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net45\ApplicationInsights.config.install.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net45\ApplicationInsights.config.uninstall.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="Resources\web.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

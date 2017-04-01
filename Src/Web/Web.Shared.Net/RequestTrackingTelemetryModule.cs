@@ -100,6 +100,7 @@
             }
         }
 
+#if NET40
         /// <summary>
         /// Implements on PreRequestHandlerExecute callback of http module
         /// that is executed right before the handler and restores any execution context 
@@ -119,8 +120,9 @@
                 return;
             }
 
-            ActivityHelpers.RestoreActivityIfLost(context);
+            ActivityHelpers.RestoreOperationContextIfLost(context);
         }
+#endif
 
         /// <summary>
         /// Implements on end callback of http module.
@@ -147,9 +149,11 @@
                 return;
             }
 
+#if NET40
             // we store Activity/Call context to initialize child telemtery within the scope of this request,
             // so it's time to stop it
-            ActivityHelpers.StopRequestActivity();
+            ActivityHelpers.CleanOperationContext();
+#endif
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 

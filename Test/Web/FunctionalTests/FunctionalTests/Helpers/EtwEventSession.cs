@@ -14,6 +14,7 @@
             "Microsoft-ApplicationInsights-Core",
             "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel",
             "Microsoft-ApplicationInsights-Extensibility-WindowsServer",
+            "Microsoft-AspNet-Diagnostics",
         };
 
         private const string SessionName = "RequestTelemetryFunctionalTest";
@@ -94,7 +95,11 @@
 
             bool result = true;
 
-            if (data.PayloadNames.Length > 0)
+            if (data.ProviderName == "Microsoft-AspNet-Diagnostics")
+            {
+                result = true;
+            }
+            else if (data.PayloadNames.Length > 0)
             {
                 int id = (int) data.ID;
 
