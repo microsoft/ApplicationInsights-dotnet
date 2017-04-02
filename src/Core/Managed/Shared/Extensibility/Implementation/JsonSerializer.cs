@@ -364,6 +364,7 @@
                     writer.WriteStartObject();
 
                     writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
+                    writer.WriteProperty("problemId", exceptionTelemetry.Data.problemId);
                     writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
                     writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
                     writer.WritePropertyName("exceptions");

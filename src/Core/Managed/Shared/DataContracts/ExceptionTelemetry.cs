@@ -29,6 +29,7 @@
         /// </summary>
         public ExceptionTelemetry()
         {
+            this.ExpandStackFrames = true;
             this.Data = new ExceptionData();
             this.context = new TelemetryContext(this.Data.properties);
         }
@@ -59,11 +60,32 @@
         public string Sequence { get; set; }
 
         /// <summary>
+        /// Gets or sets the flag to expand the stack frames. Default value is true.
+        /// </summary>
+        public bool ExpandStackFrames { get; set; }
+
+        /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context
         {
             get { return this.context; }
+        }
+
+        /// <summary>
+        /// Gets or sets the problemId.
+        /// </summary>
+        public string ProblemId
+        {
+            get
+            {
+                return this.Data.problemId;
+            }
+
+            set
+            {
+                this.Data.problemId = value;
+            }
         }
 
         /// <summary>
