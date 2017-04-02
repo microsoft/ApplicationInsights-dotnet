@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Tests the scenario if Delay task throws on wait after cancelation.
+        /// Tests the scenario if Delay task throws on wait after cancellation.
         /// </summary>
         [TestMethod]
         public void DelayWhichIsCanceledThrows()
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Tests the scenario if Delay task completes after cancelation without waiting for timeout.
+        /// Tests the scenario if Delay task completes after cancellation without waiting for timeout.
         /// </summary>
         [TestMethod]
         public void DelayWith1SecondAndCanceledDoesntWaitForASecond()

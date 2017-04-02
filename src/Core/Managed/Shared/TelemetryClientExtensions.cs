@@ -13,6 +13,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class TelemetryClientExtensions
     {
+        private const string ChildActivityName = "Microsoft.ApplicationInsights.OperationContext";
+
         /// <summary>
         /// Start operation creates an operation object with a respective telemetry item. 
         /// </summary>
@@ -108,13 +110,13 @@
                 telemetryContext.Name = operationTelemetry.Name;
             }
 
-            bool isActivityEnabled = false;
+            bool isActivityAvailable = false;
 #if !NET40
-            if (ActivityExtensions.IsActivityEnabled())
+            isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
                 bool operationNameIsSet = false;
 
-                var childActivity = new Activity("Microsoft.ApplicationInsights.OperationContext");
+                var childActivity = new Activity(ChildActivityName);
                 if (!string.IsNullOrEmpty(telemetryContext.Name))
                 {
                     childActivity.SetOperationName(telemetryContext.Name);
@@ -140,7 +142,7 @@
                 {
                     if (!operationNameIsSet)
                     {
-                        var parentOperationName = parentActivity.GetOperationName();
+                        string parentOperationName = parentActivity.GetOperationName();
                         if (!string.IsNullOrEmpty(parentOperationName))
                         {
                             childActivity.SetOperationName(parentOperationName);
@@ -151,11 +153,11 @@
                 }
 
                 childActivity.Start();
-            }
+            });
 #endif
             operationTelemetry.Start();
 
-            if (!isActivityEnabled)
+            if (!isActivityAvailable)
             {
                 // Update the call context to store certain fields that can be used for subsequent operations.
                 var operationContext = new OperationContextForCallContext

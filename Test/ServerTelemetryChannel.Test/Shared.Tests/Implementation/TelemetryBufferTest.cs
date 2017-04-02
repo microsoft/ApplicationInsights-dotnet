@@ -114,7 +114,7 @@
                     exceptionThrown = true;
                 }
 
-                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlogsize to 1001");                
+                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlog size to 1001");                
             }
         }
 

@@ -11,6 +11,7 @@
 
     /// <summary>
     /// Telemetry type used to track exceptions.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=723596">Learn more</a>
     /// </summary>
     public sealed class ExceptionTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
@@ -155,6 +156,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined exception metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, double> Metrics
         {
@@ -163,6 +165,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this exception.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -180,6 +183,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {
@@ -240,7 +244,7 @@
             List<ExceptionDetails> exceptions = new List<ExceptionDetails>();
             this.ConvertExceptionTree(exception, null, exceptions);
 
-            // trim if we have too many, also add a custom exception to let the user know we're trimed
+            // trim if we have too many, also add a custom exception to let the user know we're trimmed
             if (exceptions.Count > Constants.MaxExceptionCountToSave)
             {
                 // TODO: when we localize these messages, we should consider not using InvariantCulture

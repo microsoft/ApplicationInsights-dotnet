@@ -4,6 +4,9 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.4.0-beta1
 - Event telemetry is set to be sampled separately from all other telemetry types. It potentially can double the bill. The reason for this change is that Events are mostly used for usage analysis and should not be subject to sampling on high load of requests and dependencies. Edit `ApplicationInsights.config` file to revert to the previous behavior.
+- Added dependency on System.Diagnostics.DiagnosticsSource package. It is still possible to use standalone Microsoft.ApplicationInsights.dll to track telemetry.
+- StartOperation starts a new System.Diagnostics.Activity and stores operation context in it. StartOperation overwrites OperationTelemetry.Id set before or during telemetry initialization for the dependency correlation purposes.
+- OperationCorrelationTelemetryInitializer initializes telemetry from the Activity.Current. Please refer to https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md for more details about Activity and how to use it
 
 ## Version 2.3.0
 - Minor bug fixes
@@ -42,7 +45,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 - Read InstrumentationKey from environment variable APPINSIGHTS_INSTRUMENTATIONKEY if it is was not provided inline. If provided it overrides what is set though configuration file. (Feature is not available in PCL version of SDK).
 - Context properties `NetworkType`, `ScreenResolution` and `Language` marked as obsolete. Please use custom properties to report network type, screen resolution and language. Values stored in these properties will be send as custom properties. 
-- Dependency type was updated to reflect the latest developments in Applicaiton Insights Applicaiton Map feature. You can set a new field - `Target`. `CommandName` was renamed to `Data` for consistancy with the Application Analytics schema. `DependencyKind` will never be send any more and will not be set to "Other" by default. Also there are two more constructors for `DependencyTelemetry` item.
+- Dependency type was updated to reflect the latest developments in Application Insights Application Map feature. You can set a new field - `Target`. `CommandName` was renamed to `Data` for consistency with the Application Analytics schema. `DependencyKind` will never be send any more and will not be set to "Other" by default. Also there are two more constructors for `DependencyTelemetry` item.
 - Type `SessionStateTelemetry` was marked obsolete. Use `IsFirst` flag in `SessionContext` to indicate that the session is just started.
 - Type `PerformanceCounterTelemetry` was marked obsolete. Use `MetricTelemetry` instead.
 - Marked `RequestTelemetry.HttpMethod` as obsolete. Put http verb as part of the name for the better grouping by name and use custom properties to report http verb as a dimension.
@@ -65,9 +68,9 @@ This changelog will be used to generate documentation on [release notes page](ht
 
 ## Version 2.2.0-beta1
 
-- Add ExceptionTelemetry.Message property. If it is provided it is used instead of Exception.Message property for the ounter-most exception.
-- Telemetry types can be exluded from sampling by specifing ExcludedTypes property. 
-- ServerTelemetryChannel: changed backoff logic to be less aggressive, added diagnostics event when backoff logic kicks in and added more tracing. (Done to address issues when data stopps flowing till application gets restarted)
+- Add ExceptionTelemetry.Message property. If it is provided it is used instead of Exception.Message property for the outer-most exception.
+- Telemetry types can be excluded from sampling by specifing ExcludedTypes property. 
+- ServerTelemetryChannel: changed backoff logic to be less aggressive, added diagnostics event when backoff logic kicks in and added more tracing. (Done to address issues when data stops flowing till application gets restarted)
 
 ## Version 2.1.0-beta4
 - [Bug fix](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/76)
@@ -98,7 +101,7 @@ method ```WriteTelemetry``` on ```TelemetryDebugWriter``` with ```filteredBy``` 
 item is being filtered out.
 - DependencyTelemetry.Async property was removed.
 - DependencyTelemetry.Count property was removed.
-- When configuration is loaded from ApplicationInsights.config incorrect and broken elements are skiped. That includes both high level evelemts like TelemetryInitializers as well as individual properties.  
+- When configuration is loaded from ApplicationInsights.config incorrect and broken elements are skipped. That includes both high level elements like TelemetryInitializers as well as individual properties.  
 - Internal Application Insights SDK traces will be marked as synthetic and have `SyntheticSource` equals to 'SDKTelemetry'.
 - UserContext.AcquisitionDate property was removed.
 - UserContext.StoreRegion property was removed.
@@ -120,7 +123,7 @@ item is being filtered out.
 ## Version 2.0.0-beta3
 - Adaptive sampling turned on by default in server telemetry channel. Details can be found in [#80](https://github.com/Microsoft/ApplicationInsights-dotnet/issues/80).
 - Fixed signature of ```UseSampling``` to allow chaining with other calls to ```Use``` of telemetry processors.
-- Property ```Request.ID``` returned back. ```OperationContext``` now has a property ```ParentId``` for end-to-end coorrelation.
+- Property ```Request.ID``` returned back. ```OperationContext``` now has a property ```ParentId``` for end-to-end correlation.
 - ```TimestampTelemetryInitializer``` is removed. Timestamp will be added automatically by ```TelemetryClient```.
 - ```OperationCorrelationTelemetryInitializer``` is added by default to enable operaitons correlation.
 
@@ -146,7 +149,7 @@ item is being filtered out.
 
 ## Version 1.2.3
 - Bug fixes.
-- Telemetry item will be serialized to Debug Ouput even when Instrumentation Key was not set.
+- Telemetry item will be serialized to Debug Output even when Instrumentation Key was not set.
 
 ## Version 1.2
 - First version shipped from github

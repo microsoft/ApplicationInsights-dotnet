@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 return Activator.CreateInstance(parameter.ParameterType);
             }
 
-            throw new NotSupportedException("Complex types are not suppored");
+            throw new NotSupportedException("Complex types are not supported");
         }
 
         private static void VerifyEventId(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)

@@ -77,22 +77,22 @@
                     if (!this.isDisposed)
                     {
                         var operationTelemetry = this.Telemetry;
-                        bool isActivityEnabled = false;
+                        bool isActivityAvailable = false;
 #if !NET40
-                        if (isActivityEnabled = ActivityExtensions.IsActivityEnabled())
+                        isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
                             if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
-                                operationTelemetry.Context.Operation.Name != Activity.Current.GetOperationName())
+                            operationTelemetry.Context.Operation.Name != currentActivity.GetOperationName())
                             {
                                 CoreEventSource.Log.InvalidOperationToStopError();
                                 return;
                             }
 
                             currentActivity.Stop();
-                        }
+                        });
 #endif
-                        if (!isActivityEnabled)
+                        if (!isActivityAvailable)
                         {
                             var currentOperationContext = CallContextHelpers.GetCurrentOperationContext();
                             if (currentOperationContext == null || operationTelemetry.Id != currentOperationContext.ParentOperationId ||

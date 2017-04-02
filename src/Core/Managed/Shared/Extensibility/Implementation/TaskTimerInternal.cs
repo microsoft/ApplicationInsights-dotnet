@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         {
                             Task task = elapsed();
 
-                            // Task may be executed syncronously
+                            // Task may be executed synchronously
                             // It should return Task.FromResult but just in case we check for null if someone returned null
                             if (task != null)
                             {
