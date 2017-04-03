@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 
@@ -14,7 +15,12 @@
                     .Version;
 
             Version version = new Version(versionStr);
-            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision;
+
+            string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
+#if NET40
+            postfix += "-fw4";
+#endif
+            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + postfix;
         }
     }
 }
