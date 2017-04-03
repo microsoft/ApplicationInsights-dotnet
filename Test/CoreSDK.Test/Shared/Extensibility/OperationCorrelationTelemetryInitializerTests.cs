@@ -25,7 +25,8 @@ namespace Microsoft.ApplicationInsights.Extensibility
             var telemetry = new DependencyTelemetry();
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
-            Assert.AreEqual("ParentOperationId", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual("ParentOperationId", telemetry.Context.Operation.Id);
+            Assert.AreEqual(parent.Id, telemetry.Context.Operation.ParentId);
             parent.Stop();
         }
 
@@ -95,10 +96,9 @@ namespace Microsoft.ApplicationInsights.Extensibility
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual("parent", telemetry.Context.Operation.Id);
-            Assert.AreEqual("parent", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.Id, telemetry.Context.Operation.ParentId);
+            Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|parent."));
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(currentActivity.Id, telemetry.Id);
-            Assert.IsTrue(telemetry.Id.StartsWith("|parent."));
 
             Assert.AreEqual(2, telemetry.Context.Properties.Count);
             Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
@@ -119,10 +119,10 @@ namespace Microsoft.ApplicationInsights.Extensibility
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual("activityRoot", telemetry.Context.Operation.Id);
-            Assert.AreEqual("activityRoot", telemetry.Context.Operation.ParentId);
+            Assert.AreEqual(currentActivity.Id, telemetry.Context.Operation.ParentId);
+            Assert.IsTrue(telemetry.Context.Operation.ParentId.StartsWith("|activityRoot."));
+
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(currentActivity.Id, telemetry.Id);
-            Assert.IsTrue(telemetry.Id.StartsWith("|activityRoot."));
             Assert.AreEqual(1, telemetry.Context.Properties.Count);
             Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
             currentActivity.Stop();
@@ -136,18 +136,16 @@ namespace Microsoft.ApplicationInsights.Extensibility
             currentActivity.AddTag("OperationName", "test");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.Start();
-            var telemetry = new RequestTelemetry();
+            var telemetry = new TraceTelemetry();
 
             telemetry.Context.Operation.Id = "rootId";
             telemetry.Context.Operation.ParentId = null;
             telemetry.Context.Operation.Name = "operation";
-            telemetry.Id = "12345";
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual("rootId", telemetry.Context.Operation.Id);
             Assert.IsNull(telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual("12345", telemetry.Id);
             Assert.AreEqual(0, telemetry.Context.Properties.Count);
             currentActivity.Stop();
         }
@@ -160,17 +158,15 @@ namespace Microsoft.ApplicationInsights.Extensibility
             currentActivity.AddTag("OperationName", "test");
             currentActivity.AddBaggage("k1", "v1");
             currentActivity.Start();
-            var telemetry = new RequestTelemetry();
+            var telemetry = new TraceTelemetry();
 
             telemetry.Context.Operation.ParentId = "parentId";
             telemetry.Context.Operation.Name = "operation";
-            telemetry.Id = "12345";
             (new OperationCorrelationTelemetryInitializer()).Initialize(telemetry);
 
             Assert.AreEqual("activityRoot", telemetry.Context.Operation.Id);
             Assert.AreEqual("parentId", telemetry.Context.Operation.ParentId);
             Assert.AreEqual("operation", telemetry.Context.Operation.Name);
-            Assert.AreEqual(currentActivity.Id, telemetry.Id);
             Assert.AreEqual(1, telemetry.Context.Properties.Count);
             Assert.AreEqual("v1", telemetry.Context.Properties["k1"]);
             currentActivity.Stop();
