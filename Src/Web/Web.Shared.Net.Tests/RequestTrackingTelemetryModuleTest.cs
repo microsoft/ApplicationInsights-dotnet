@@ -697,12 +697,12 @@
 #if NET40
             Assert.Equal(requestTelemetry.Id, trace.Context.Operation.ParentId);
 #else
-            // we created Activity for request and assigned Id for the request like guid1.1.12345
-            // then we created Activity for request children and assigned it Id like guid1.1.12345_1
-            // then we lost it and restored (started a new child activity), so the Id is guid1.1.123_1.abc
+            // we created Activity for request and assigned Id for the request like guid1.1.12345_
+            // then we lost it and restored (started a new child activity), so the Id is guid1.1.12345_abc_
             // so the request is grand parent to the trace
+            Assert.Equal(Activity.Current.ParentId, requestTelemetry.Id);
             Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id));
-            Assert.Equal(Activity.Current.ParentId, trace.Context.Operation.ParentId);
+            Assert.Equal(Activity.Current.Id, trace.Context.Operation.ParentId);
 #endif
             Assert.Equal("v", trace.Context.Properties["k"]);
         }

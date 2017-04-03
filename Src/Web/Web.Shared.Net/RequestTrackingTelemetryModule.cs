@@ -79,12 +79,7 @@
                 return;
             }
 
-            var telemetry = context.GetRequestTelemetry();
-            if (telemetry == null)
-            {
-                telemetry = context.CreateRequestTelemetryPrivate();
-                ActivityHelpers.StartActivity(context);
-            }
+            var telemetry = context.ReadOrCreateRequestTelemetryPrivate();
 
             // NB! Whatever is saved in RequestTelemetry on Begin is not guaranteed to be sent because Begin may not be called; Keep it in context
             // In WCF there will be 2 Begins and 1 End. We need time from the first one
@@ -133,7 +128,7 @@
 
             // we store Activity/Call context to initialize child telemtery within the scope of this request,
             // so it's time to stop it
-            ActivityHelpers.StopActivity();
+            ActivityHelpers.StopRequestActivity();
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 
@@ -200,7 +195,6 @@
             }
 
             this.telemetryClient.TrackRequest(requestTelemetry);
-            ActivityHelpers.StopRequestActivity();
         }
 
         /// <summary>

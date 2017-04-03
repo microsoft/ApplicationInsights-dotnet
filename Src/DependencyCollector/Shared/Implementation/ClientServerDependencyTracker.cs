@@ -11,6 +11,8 @@
 
     internal static class ClientServerDependencyTracker
     {
+        private const string DependencyActivityName = "Microsoft.AppInsights.Web.Dependency";
+
         /// <summary>
         /// Gets or sets a value indicating whether pretending the profiler is attached or not.
         /// </summary>
@@ -24,10 +26,22 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
-#if NET45
-            var activity = new Activity("HttpOut");
-            activity.Start();
             telemetryClient.Initialize(telemetry);
+#if NET45
+            // telemetry is initialized from current Activity (but not the Id)
+            // but every operation must have it's own Activity and Id must be set accordingly
+            // basically we repeat TelemetryClientExtensions.StartOperation here
+            var activity = new Activity(DependencyActivityName);
+            activity.Start();
+            
+            telemetry.Id = activity.Id;
+
+            // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
+            if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+            {
+                telemetry.Context.Operation.Id = activity.RootId;
+            }
+
             activity.Stop();
 #else
             telemetryClient.Initialize(telemetry);

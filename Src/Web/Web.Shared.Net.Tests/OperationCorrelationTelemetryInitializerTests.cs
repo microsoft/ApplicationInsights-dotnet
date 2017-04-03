@@ -58,7 +58,6 @@
             // simulate OnBegin behavior:
             // create telemetry and start activity for children
             var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
-            ActivityHelpers.StartActivity(source.FakeContext);
             
             // lost Acitivity / call context
             ActivityHelpers.StopRequestActivity();

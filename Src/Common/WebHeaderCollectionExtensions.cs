@@ -11,7 +11,7 @@
     /// </summary>
     internal static class WebHeaderCollectionExtensions
     {
-        private const string keyValuePairSeparator = "=";
+        private const string KeyValuePairSeparator = "=";
 
         /// <summary>
         /// For the given header collection, for a given header of name-value type, find the value of a particular key.
@@ -160,7 +160,7 @@
             key = null;
             value = null;
 
-            int indexOfSeparator = pairString.IndexOf(keyValuePairSeparator, StringComparison.Ordinal);
+            int indexOfSeparator = pairString.IndexOf(KeyValuePairSeparator, StringComparison.Ordinal);
 
             // Must be a separator, and cannot be first or last
             if (indexOfSeparator <= 0 || indexOfSeparator == pairString.Length - 1)
@@ -169,7 +169,7 @@
             }
 
             // Must be exactly one separator
-            if (pairString.IndexOf(keyValuePairSeparator, indexOfSeparator + 1, StringComparison.Ordinal) >= 0)
+            if (pairString.IndexOf(KeyValuePairSeparator, indexOfSeparator + 1, StringComparison.Ordinal) >= 0)
             {
                 return false;
             }
@@ -186,7 +186,7 @@
 
         private static string FormatKeyValueHeader(string key, string value)
         {
-            return key.Trim() + keyValuePairSeparator + value.Trim();
+            return key.Trim() + KeyValuePairSeparator + value.Trim();
         }
     }
 }

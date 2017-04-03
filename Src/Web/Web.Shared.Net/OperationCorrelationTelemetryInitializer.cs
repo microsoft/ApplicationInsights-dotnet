@@ -101,7 +101,7 @@
                     telemetry.Context.Operation.ParentId = requestTelemetry.Id;
                 }
 #if NET45
-                var activity = platformContext.Items[ActivityHelpers.ChildActivityItemName] as Activity;
+                var activity = platformContext.Items[ActivityHelpers.RequestActivityItemName] as Activity;
                 if (activity == null)
                 {
                     return;

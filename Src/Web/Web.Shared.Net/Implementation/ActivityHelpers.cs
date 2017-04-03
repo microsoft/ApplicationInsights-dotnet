@@ -14,7 +14,7 @@ namespace Microsoft.ApplicationInsights.Common
 
     internal class ActivityHelpers
     {
-        internal const string ChildActivityItemName = "Microsoft.AppInsights.Web.Child";
+        internal const string RequestActivityItemName = "Microsoft.AppInsights.Web.Request";
         internal const string CorrelationContextItemName = "Microsoft.AppInsights.Web.CorrelationContext";
 
         internal static string RootOperationIdHeaderName { get; set; }
@@ -59,6 +59,9 @@ namespace Microsoft.ApplicationInsights.Common
             }
 
             requestActivity.Start();
+            
+            // save activity as AsyncLocal.CallContext may be lost
+            context.Items[RequestActivityItemName] = requestActivity;
 
             // Initialize requestTelemetry Context immediately: 
             // even though it will be initialized with Base OperationCorrelationTelemetryInitializer,
@@ -71,18 +74,6 @@ namespace Microsoft.ApplicationInsights.Common
         }
 
         /// <summary>
-        /// Starts Activity that provides Operation Context for any telemetry tracked within the scope of current request.
-        /// </summary>
-        /// <param name="context">HttpContext instance.</param>
-        internal static void StartActivity(HttpContext context)
-        {
-            // start an Activity to initialize any telemetry that will be tracked within this request scope
-            // save it in the HttpContext, so we will be able to restore it if it will be lost in managed/native thread hops
-            var childActivity = new Activity(ChildActivityItemName).Start();
-            context.Items[ChildActivityItemName] = childActivity;
-        }
-
-        /// <summary>
         /// Restores Activity if it was lost.
         /// </summary>
         /// <param name="context">HttpContext instance.</param>
@@ -90,7 +81,7 @@ namespace Microsoft.ApplicationInsights.Common
         {
             if (Activity.Current == null)
             {
-                var lostActivity = context.Items[ChildActivityItemName] as Activity;
+                var lostActivity = context.Items[RequestActivityItemName] as Activity;
                 if (lostActivity != null)
                 {
                     var restoredActivity = new Activity(lostActivity.OperationName);
@@ -107,29 +98,10 @@ namespace Microsoft.ApplicationInsights.Common
         }
 
         /// <summary>
-        /// Stops activity for child telemetry.
-        /// </summary>
-        internal static void StopActivity()
-        {
-            Activity current = Activity.Current;
-            while (current != null)
-            {
-                if (current.OperationName == ChildActivityItemName)
-                {
-                    current.Stop();
-                    return;
-                }
-
-                current = current.Parent;
-            }
-        }
-
-        /// <summary>
         /// Stops root, top-most activity, created for current request.
         /// </summary>
         internal static void StopRequestActivity()
         {
-            Activity current = Activity.Current;
             while (Activity.Current != null)
             {
                 Activity.Current.Stop();
@@ -180,24 +152,12 @@ namespace Microsoft.ApplicationInsights.Common
                 }
             }
 
-            context.Items[CorrelationContextItemName] = correlationContext;
-            return requestTelemetry;
-        }
+            CorrelationHelper.SetOperationContext(requestTelemetry, correlationContext);
 
-        /// <summary>
-        /// Sets CallContext that provides Operation Context for any telemetry tracked within the scope of current request.
-        /// </summary>
-        /// <param name="context">HttpContext instance.</param>
-        internal static void StartActivity(HttpContext context)
-        {
-            // start an Activity to initialize any telemetry that will be tracked within this request scope
-            // save it in the HttpContext, so we will be able to restore it if it will be lost in managed/native thread hops
-            var requestTelemetry = context.GetRequestTelemetry();
-            var correlationContext = context.Items[CorrelationContextItemName] as IDictionary<string, string>;
-            if (requestTelemetry != null)
-            {
-                CorrelationHelper.SetOperationContext(requestTelemetry, correlationContext);
-            }
+            // save correlation-context in case CallContext will be lost, the rest of the context is saved in requestTelemetry
+            context.Items[CorrelationContextItemName] = correlationContext;
+
+            return requestTelemetry;
         }
 
         /// <summary>
@@ -210,14 +170,6 @@ namespace Microsoft.ApplicationInsights.Common
             var correlationContext = context.Items[CorrelationContextItemName] as IDictionary<string, string>;
 
             CorrelationHelper.SetOperationContext(requestTelemetry, correlationContext);
-        }
-
-        /// <summary>
-        /// Cleans up CallContext.
-        /// </summary>
-        internal static void StopActivity()
-        {
-            CorrelationHelper.CleanOperationContext();
         }
 
         /// <summary>
