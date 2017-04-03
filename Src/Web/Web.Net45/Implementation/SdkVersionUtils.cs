@@ -14,7 +14,12 @@
                     .Version;
 
             Version version = new Version(versionStr);
-            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision;
+
+            string postfix = version.Revision.ToString();
+#if NET40
+            postfix += "-fw4";
+#endif
+            return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + postfix;
         }
     }
 }
