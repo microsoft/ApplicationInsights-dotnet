@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 
@@ -27,7 +28,7 @@
 #endif
 
             Version version = new Version(versionStr);
-            string postfix = version.Revision.ToString();
+            string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
 #if NET40
             postfix += "-fw4";
 #endif
