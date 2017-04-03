@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 
@@ -19,7 +20,7 @@
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
-            
+
 #else
             string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
                     .First()
@@ -27,7 +28,12 @@
 #endif
 
             Version version = new Version(versionStr);
-            return versionPrefix + version.ToString(3) + "-" + version.Revision;
+            string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
+#if NET40
+            postfix += "-fw4";
+#endif
+
+            return versionPrefix + version.ToString(3) + "-" + postfix;
         }
     }
 }
