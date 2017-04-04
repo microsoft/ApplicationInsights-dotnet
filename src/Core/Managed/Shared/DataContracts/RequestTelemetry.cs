@@ -161,7 +161,7 @@
 
             set 
             {
-                this.Data.url = value == null ? null : value.ToString();
+                this.Data.url = value?.ToString();
             }
         }
         
