@@ -306,7 +306,7 @@
 
             refinedProblemId = this.GetDimCappedString(problemId, this.problemIdValues, ProblemIdCacheSize);
 
-            if(string.IsNullOrEmpty(refinedProblemId) == true)
+            if (string.IsNullOrEmpty(refinedProblemId) == true)
             {
                 refinedProblemId = "MaxProblemIdValues";
             }

@@ -115,13 +115,11 @@
             var dims = metrics[0].Key.Dimensions;
             Assert.Equal(1, dims.Count);
 
-            char[] delimeter1 = new char[] { '/' };
+            Assert.True(dims["problemId"].StartsWith(typeof(Exception).FullName));
 
-            string[] s = dims["problemId"].Split(delimeter1);
+            int nameStart = dims["problemId"].IndexOf(" at ") + 4;
 
-            Assert.Equal(s[1], typeof(Exception).FullName);
-
-            Assert.True(s[0].StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
+            Assert.True(dims["problemId"].Substring(nameStart).StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
         }
 
         [TestMethod]
@@ -463,7 +461,7 @@
             Assert.Equal(1, ((MetricTelemetry)this.items[1]).Count);
 
             // One of them should be 0 as re-thorwn, another - one
-            //Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+            // Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
         }
 
         [TestMethod]
@@ -559,7 +557,7 @@
                 {
                     try
                     {
-                        Method1();
+                        this.Method1();
                     }
                     catch
                     {
@@ -577,21 +575,6 @@
                 // There should have been two unique TrackExceptions
                 Assert.Equal(2, this.items.Count);
             }
-        }
-
-        private void Method1()
-        {
-            Method2();
-        }
-
-        private void Method2()
-        {
-            Method3();
-        }
-
-        private void Method3()
-        {
-            throw new Exception("exception from Method 3");
         }
 
         [TestMethod]
@@ -637,6 +620,21 @@
                     this.configuration.Dispose();
                 }
             }
+        }
+
+        private void Method1()
+        {
+            this.Method2();
+        }
+
+        private void Method2()
+        {
+            this.Method3();
+        }
+
+        private void Method3()
+        {
+            throw new Exception("exception from Method 3");
         }
     }
 }
