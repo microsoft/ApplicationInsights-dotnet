@@ -107,10 +107,21 @@
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 
-            // Success will be set in Sanitize on the base of ResponseCode 
+            var success = true;
             if (string.IsNullOrEmpty(requestTelemetry.ResponseCode))
             {
-                requestTelemetry.ResponseCode = context.Response.StatusCode.ToString(CultureInfo.InvariantCulture);
+                var statusCode = context.Response.StatusCode;
+                requestTelemetry.ResponseCode = statusCode.ToString(CultureInfo.InvariantCulture);
+
+                if (statusCode >= 400 && statusCode != 401)
+                {
+                    success = false;
+                }
+            }
+
+            if (!requestTelemetry.Success.HasValue)
+            {
+                requestTelemetry.Success = success;
             }
 
             if (requestTelemetry.Url == null)
