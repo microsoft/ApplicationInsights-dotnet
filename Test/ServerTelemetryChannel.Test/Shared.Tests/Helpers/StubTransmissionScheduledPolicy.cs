@@ -28,11 +28,11 @@
                    DateTimeOffset.UtcNow.AddSeconds(2).ToString(),
                    () =>
                    {
-                       this.ActionInvoked.Set();
-
                        this.MaxBufferCapacity = null;
                        this.MaxSenderCapacity = null;
                        this.Apply();
+
+                       this.ActionInvoked.Set();
 
                        return null;
                    });
