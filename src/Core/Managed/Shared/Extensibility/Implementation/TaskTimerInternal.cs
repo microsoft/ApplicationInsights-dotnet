@@ -57,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         }
 
         /// <summary>
-        /// Start the task.
+        /// Starts the task. Updates the cancellation token and makes any tasks launched previously not available to be cancelled.
         /// </summary>
         /// <param name="elapsed">The task to run.</param>
         public void Start(Func<Task> elapsed)
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     previousTask =>
 #endif
                     {
-                        CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
+                        DisposeToken(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
                             Task task = elapsed();
@@ -111,7 +111,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);
 
-            CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
+            DisposeToken(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }
 
         /// <summary>
@@ -148,6 +148,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             CoreEventSource.Log.LogError(exception.ToInvariantString());
+        }
+
+        private static void DisposeToken(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource != null)
+            {
+                tokenSource.Dispose();
+            }
         }
 
         private static void CancelAndDispose(CancellationTokenSource tokenSource)

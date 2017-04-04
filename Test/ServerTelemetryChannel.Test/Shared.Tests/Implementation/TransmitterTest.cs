@@ -8,13 +8,16 @@
     using System.IO;
     using System.Linq;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.TestFramework;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.WindowsServer.Channel.Helpers;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;    
+    using Assert = Xunit.Assert;
 #if NET45
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -371,6 +374,111 @@
                 Assert.Equal(1, sender.Capacity);
                 Assert.Equal(10, buffer.Capacity);
                 Assert.Equal(100, storage.Capacity);
+            }
+
+            [TestMethod]
+            public void RestoresOriginalComponentCapacityInCaseOfTwoPoliciesRunningByTimer()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+
+                var sender = new StubTransmissionSender { Capacity = 2 };
+                var buffer = new StubTransmissionBuffer { Capacity = 1 };
+                var storage = new StubTransmissionStorage { Capacity = 100 };
+
+                var policies = new[] { new StubTransmissionScheduledPolicy(), new StubTransmissionScheduledPolicy() };
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, policies: policies);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string response = BackendResponseHelper.CreateBackendResponse(
+                    itemsReceived: 2,
+                    itemsAccepted: 1,
+                    errorCodes: new[] { "500" });
+
+                var wrapper = new HttpWebResponseWrapper
+                {
+                    StatusCode = 500,
+                    Content = response
+                };
+
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+
+                Assert.True(policies[0].ActionInvoked.Wait(3000));
+                Assert.True(policies[1].ActionInvoked.Wait(3000));
+
+                Assert.NotEqual(0, sender.Capacity);
+                Assert.NotEqual(0, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void RestoresOriginalComponentCapacityInCaseOfOnePolicyRunningByTimer()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+
+                var sender = new StubTransmissionSender { Capacity = 2 };
+                var buffer = new StubTransmissionBuffer { Capacity = 1 };
+                var storage = new StubTransmissionStorage { Capacity = 100 };
+
+                var policies = new[] { new StubTransmissionScheduledPolicy() };
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, policies: policies);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string response = BackendResponseHelper.CreateBackendResponse(
+                    itemsReceived: 2,
+                    itemsAccepted: 1,
+                    errorCodes: new[] { "500" });
+
+                var wrapper = new HttpWebResponseWrapper
+                {
+                    StatusCode = 500,
+                    Content = response
+                };
+
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+
+                Assert.True(policies[0].ActionInvoked.Wait(3000));
+
+                Assert.NotEqual(0, sender.Capacity);
+                Assert.NotEqual(0, buffer.Capacity);
+            }
+
+            [TestMethod]
+            public void RestoresOriginalComponentCapacityInCaseOfOnePolicyRunningByTimerTwoTimes()
+            {
+                IList<Transmission> enqueuedTransmissions = new List<Transmission>();
+
+                var sender = new StubTransmissionSender { Capacity = 2 };
+                var buffer = new StubTransmissionBuffer { Capacity = 1 };
+                var storage = new StubTransmissionStorage { Capacity = 100 };
+
+                var policies = new[] { new StubTransmissionScheduledPolicy() };
+                Transmitter transmitter = CreateTransmitter(sender, buffer, storage, policies: policies);
+
+                var items = new List<ITelemetry> { new EventTelemetry(), new EventTelemetry() };
+                Transmission transmission = new Transmission(new Uri("http://uri"), items, "type", "encoding");
+
+                string response = BackendResponseHelper.CreateBackendResponse(
+                    itemsReceived: 2,
+                    itemsAccepted: 1,
+                    errorCodes: new[] { "500" });
+
+                var wrapper = new HttpWebResponseWrapper
+                {
+                    StatusCode = 500,
+                    Content = response
+                };
+
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+                sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
+
+                Assert.True(policies[0].ActionInvoked.Wait(3000));
+
+                Assert.NotEqual(0, sender.Capacity);
+                Assert.NotEqual(0, buffer.Capacity);
             }
 
             [TestMethod]
