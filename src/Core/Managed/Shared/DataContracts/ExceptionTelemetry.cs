@@ -192,13 +192,13 @@
 
 #if !NETSTANDARD1_3
         /// <summary>
-        /// Set parsedStack from an array of StackFrame objects
+        /// Set parsedStack from an array of StackFrame objects.
         /// </summary>
         public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
         {
             List<StackFrame> orderedStackTrace = new List<StackFrame>();
 
-            if(this.Exceptions != null && this.Exceptions.Count > 0)
+            if (this.Exceptions != null && this.Exceptions.Count > 0)
             {
                 if (frames != null && frames.Length > 0)
                 {

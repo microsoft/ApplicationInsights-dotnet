@@ -51,42 +51,8 @@
             return exceptionDetails;
         }
 
-        /// <summary>
-        /// Sanitizing stack to 32k while selecting the initial and end stack trace.
-        /// </summary>
-        private static Tuple<List<TOutput>, bool> SanitizeStackFrame<TInput, TOutput>(
-            IList<TInput> inputList,
-            Func<TInput, int, TOutput> converter,
-            Func<TOutput, int> lengthGetter)
-        {
-            List<TOutput> orderedStackTrace = new List<TOutput>();
-            bool hasFullStack = true;
-            if (inputList != null && inputList.Count > 0)
-            {
-                int currentParsedStackLength = 0;
-                for (int level = 0; level < inputList.Count; level++)
-                {
-                    // Skip middle part of the stack
-                    int current = (level % 2 == 0) ? (inputList.Count - 1 - (level / 2)) : (level / 2);
-
-                    TOutput convertedStackFrame = converter(inputList[current], current);
-                    currentParsedStackLength += lengthGetter(convertedStackFrame);
-
-                    if (currentParsedStackLength > ExceptionConverter.MaxParsedStackLength)
-                    {
-                        hasFullStack = false;
-                        break;
-                    }
-
-                    orderedStackTrace.Insert(orderedStackTrace.Count / 2, convertedStackFrame);
-                }
-            }
-
-            return new Tuple<List<TOutput>, bool>(orderedStackTrace, hasFullStack);
-        }
-
 #if !NETSTANDARD1_3
-       /// <summary>
+        /// <summary>
         /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
         /// </summary>
         internal static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
@@ -120,7 +86,7 @@
 
             return convertedStackFrame;
         }
-        
+
         /// <summary>
         /// Gets the stack frame length for only the strings in the stack frame.
         /// </summary>
@@ -132,5 +98,39 @@
             return stackFrameLength;
         }
 #endif
+
+        /// <summary>
+        /// Sanitizing stack to 32k while selecting the initial and end stack trace.
+        /// </summary>
+        private static Tuple<List<TOutput>, bool> SanitizeStackFrame<TInput, TOutput>(
+            IList<TInput> inputList,
+            Func<TInput, int, TOutput> converter,
+            Func<TOutput, int> lengthGetter)
+        {
+            List<TOutput> orderedStackTrace = new List<TOutput>();
+            bool hasFullStack = true;
+            if (inputList != null && inputList.Count > 0)
+            {
+                int currentParsedStackLength = 0;
+                for (int level = 0; level < inputList.Count; level++)
+                {
+                    // Skip middle part of the stack
+                    int current = (level % 2 == 0) ? (inputList.Count - 1 - (level / 2)) : (level / 2);
+
+                    TOutput convertedStackFrame = converter(inputList[current], current);
+                    currentParsedStackLength += lengthGetter(convertedStackFrame);
+
+                    if (currentParsedStackLength > ExceptionConverter.MaxParsedStackLength)
+                    {
+                        hasFullStack = false;
+                        break;
+                    }
+
+                    orderedStackTrace.Insert(orderedStackTrace.Count / 2, convertedStackFrame);
+                }
+            }
+
+            return new Tuple<List<TOutput>, bool>(orderedStackTrace, hasFullStack);
+        }
     }
 }
