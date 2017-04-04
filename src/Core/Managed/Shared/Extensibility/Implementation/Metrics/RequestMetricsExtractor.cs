@@ -50,9 +50,9 @@
                 return;
             }
 
-            bool isFailed = (request.Success != null)
+            bool isFailed = (request.Success.HasValue)
                                 ? (request.Success == false)
-                                : !request.GetSuccessFromResponseCode();
+                                : true;
 
             Metric metric = isFailed
                                 ? this.responseFailureTimeMetric
