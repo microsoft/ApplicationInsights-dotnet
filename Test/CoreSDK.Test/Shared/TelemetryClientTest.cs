@@ -925,7 +925,13 @@
             EventTelemetry eventTelemetry = new EventTelemetry("test");
             client.Track(eventTelemetry);
 
-            Assert.Equal("dotnet:"+ string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3], eventTelemetry.Context.Internal.SdkVersion);
+            var expected = "dotnet:" + string.Join(".", versionParts[0], versionParts[1], versionParts[2]) + "-" + versionParts[3];
+
+#if NET40
+            expected += "-fw4";
+#endif
+
+            Assert.Equal(expected, eventTelemetry.Context.Internal.SdkVersion);
         }
 
         [TestMethod]
