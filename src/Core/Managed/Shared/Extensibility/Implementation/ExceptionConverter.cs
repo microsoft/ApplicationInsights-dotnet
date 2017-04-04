@@ -86,7 +86,7 @@
         }
 
 #if !NETSTANDARD1_3
-        /// <summary>
+       /// <summary>
         /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
         /// </summary>
         private static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
@@ -130,6 +130,39 @@
                                    + (stackFrame.assembly == null ? 0 : stackFrame.assembly.Length)
                                    + (stackFrame.fileName == null ? 0 : stackFrame.fileName.Length);
             return stackFrameLength;
+        }
+
+        /// <summary>
+        /// Set parsedStack from an array of StackFrame objects
+        /// </summary>
+        internal static void SetParsedStack(External.StackFrame[] frames, External.ExceptionDetails exceptionDetails)
+        {
+            List<External.StackFrame> orderedStackTrace = new List<External.StackFrame>();
+            bool hasFullStack = true;
+
+            if (frames != null && frames.Length > 0)
+            {
+                int currentParsedStackLength = 0;
+
+                for (int level = 0; level < frames.Length; level++)
+                {
+                    // Skip middle part of the stack
+                    int current = (level % 2 == 0) ? (frames.Length - 1 - (level / 2)) : (level / 2);
+
+                    currentParsedStackLength += GetStackFrameLength(frames[current]);
+
+                    if (currentParsedStackLength > ExceptionConverter.MaxParsedStackLength)
+                    {
+                        hasFullStack = false;
+                        break;
+                    }
+
+                    orderedStackTrace.Insert(orderedStackTrace.Count / 2, frames[current]);
+                }
+            }
+
+            exceptionDetails.parsedStack = orderedStackTrace;
+            exceptionDetails.hasFullStack = hasFullStack;
         }
 #endif
     }

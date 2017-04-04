@@ -22,6 +22,7 @@
         private readonly TelemetryContext context;
         private Exception exception;
         private string message;
+        private object[] stackFrames;
 
         private double? samplingPercentage;
 
@@ -30,7 +31,7 @@
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.ExpandStackFrames = true;
+            this.stackFrames = null;
             this.Data = new ExceptionData();
             this.context = new TelemetryContext(this.Data.properties);
         }
@@ -61,11 +62,6 @@
         public string Sequence { get; set; }
 
         /// <summary>
-        /// Gets or sets the flag to expand the stack frames. Default value is true.
-        /// </summary>
-        public bool ExpandStackFrames { get; set; }
-
-        /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
         public TelemetryContext Context
@@ -86,6 +82,26 @@
             set
             {
                 this.Data.problemId = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the stack frames for the exception.
+        /// </summary>
+        public object[] StackFrames
+        {
+            get
+            {
+                return this.stackFrames;
+            }
+
+            set
+            {
+                this.stackFrames = value;
+
+#if !NETSTANDARD1_3
+                ExceptionConverter.SetParsedStack((StackFrame[])this.stackFrames, this.Exceptions[0]);
+#endif
             }
         }
 
