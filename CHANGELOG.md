@@ -2,6 +2,10 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.3.0
+- Includes all changes since 2.2.0 stable release.
+- Removed metric aggregation functionality added in 2.3.0-beta1 release.
+
 ## Version 2.3.0-beta3
 - [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
 - Fire new ETW events for Operation Start/Stop.
