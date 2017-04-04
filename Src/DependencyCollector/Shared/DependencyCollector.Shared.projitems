@@ -15,6 +15,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureQueueHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureTableHttpParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\GenericServiceHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlConnectionProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ProfilerSqlCommandProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
