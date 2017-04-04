@@ -113,12 +113,15 @@
             Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
-            Assert.Equal(2, dims.Count);
+            Assert.Equal(1, dims.Count);
 
-            Assert.True(dims.Contains(new KeyValuePair<string, string>("type", typeof(Exception).FullName)));
-            string value;
-            Assert.True(dims.TryGetValue("method", out value));
-            Assert.True(value.StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
+            char[] delimeter1 = new char[] { '/' };
+
+            string[] s = dims["problemId"].Split(delimeter1);
+
+            Assert.Equal(s[1], typeof(Exception).FullName);
+
+            Assert.True(s[0].StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
         }
 
         [TestMethod]
@@ -161,9 +164,9 @@
             Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
-            Assert.Equal(3, dims.Count);
+            Assert.Equal(2, dims.Count);
 
-            Assert.True(dims.Contains(new KeyValuePair<string, string>("operation", "operationName")));
+            Assert.True(dims.Contains(new KeyValuePair<string, string>("operationName", "operationName")));
         }
 
         [TestMethod]
@@ -204,10 +207,10 @@
             Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
 
             var dims = metrics[0].Key.Dimensions;
-            Assert.Equal(3, dims.Count);
+            Assert.Equal(2, dims.Count);
 
             string operationName;
-            Assert.True(dims.TryGetValue("operation", out operationName));
+            Assert.True(dims.TryGetValue("operationName", out operationName));
             Assert.Equal("AI (Internal)", operationName);
         }
 
@@ -253,7 +256,7 @@
             }
 
             Assert.Equal(200, metrics.Count);
-            Assert.Equal(102, this.items.Count);
+            Assert.Equal(204, this.items.Count);
         }
 
         [TestMethod]
@@ -296,7 +299,7 @@
             }
 
             Assert.Equal(200, metrics.Count);
-            Assert.Equal(1, this.items.Count);
+            Assert.Equal(2, this.items.Count);
         }
 
         [TestMethod]
@@ -348,7 +351,7 @@
             }
 
             Assert.Equal(200, metrics.Count);
-            Assert.Equal(200, this.items.Count);
+            Assert.Equal(400, this.items.Count);
         }
 
         [TestMethod]
@@ -450,20 +453,17 @@
                 }
             }
 
-            Assert.Equal(2, metrics.Count);
+            Assert.Equal(1, metrics.Count);
             Assert.Equal("Exceptions Thrown", metrics[0].Key.Name);
 
             Assert.Equal(1, metrics[0].Value, 15);
-            Assert.Equal(0, metrics[1].Value, 15);
 
             Assert.Equal(2, this.items.Count);
 
-            Assert.Equal(1, ((MetricTelemetry)this.items[0]).Count);
             Assert.Equal(1, ((MetricTelemetry)this.items[1]).Count);
 
             // One of them should be 0 as re-thorwn, another - one
-            Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
-            Assert.Equal(1, Math.Max(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+            //Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
         }
 
         [TestMethod]
