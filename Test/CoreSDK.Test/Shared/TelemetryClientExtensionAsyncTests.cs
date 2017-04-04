@@ -76,12 +76,12 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
                 }
                 else
                 {
                     Assert.Equal(id, ((RequestTelemetry)item).Id);
-                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
                     Assert.Null(item.Context.Operation.ParentId);
                 }
             }
@@ -124,16 +124,26 @@
                 if (item is TraceTelemetry)
                 {
                     Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
                 }
                 else
                 {
                     Assert.Equal(id, ((RequestTelemetry)item).Id);
-                    Assert.Equal(id, item.Context.Operation.Id);
+                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
                     Assert.Null(item.Context.Operation.ParentId);
 
                 }
             }
+        }
+
+        private string GetRootOperationId(string operationId)
+        {
+#if NET40
+            return operationId;
+#else
+            Assert.True(operationId.StartsWith("|"));
+            return operationId.Substring(1, operationId.IndexOf('.') - 1);
+#endif
         }
     }
 }

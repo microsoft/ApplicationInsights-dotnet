@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights
     {
         private const string OperationNameTag = "OperationName";
         private static bool isInitialized = false;
-        private static bool isEnabled = false;
+        private static bool isAvailable = false;
 
         /// <summary>
         /// Executes action if Activity is available (DiagnosticSource DLL is available).
@@ -24,15 +24,15 @@ namespace Microsoft.ApplicationInsights
             Debug.Assert(action != null, "Action must not be null");
             if (!isInitialized)
             {
-                isEnabled = Initialize();
+                isAvailable = Initialize();
             }
 
-            if (isEnabled)
+            if (isAvailable)
             {
                 action.Invoke();
             }
 
-            return isEnabled;
+            return isAvailable;
         }
 
         internal static string GetOperationName(this Activity activity)

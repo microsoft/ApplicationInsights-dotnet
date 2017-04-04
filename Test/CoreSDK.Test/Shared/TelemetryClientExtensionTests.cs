@@ -189,12 +189,12 @@
         {
             var operation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var currentActivity = Activity.Current;
-            Assert.AreEqual(operation.Telemetry.Id, currentActivity.ParentId);
+            Assert.AreEqual(operation.Telemetry.Id, currentActivity.Id);
             Assert.AreEqual(operation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
 
             var childOperation = this.telemetryClient.StartOperation<DependencyTelemetry>("OperationName") as OperationHolder<DependencyTelemetry>;
             var childActivity = Activity.Current;
-            Assert.AreEqual(childOperation.Telemetry.Id, childActivity.ParentId);
+            Assert.AreEqual(childOperation.Telemetry.Id, childActivity.Id);
             Assert.AreEqual(childOperation.Telemetry.Context.Operation.Name, this.GetOperationName(currentActivity));
 
             Assert.IsNull(currentActivity.Parent);

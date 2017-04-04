@@ -39,12 +39,7 @@
 
                         if (string.IsNullOrEmpty(itemContext.ParentId))
                         {
-                            itemContext.ParentId = currentActivity.ParentId;
-                        }
-
-                        if (telemetryItem is OperationTelemetry)
-                        {
-                            ((OperationTelemetry)telemetryItem).Id = currentActivity.Id;
+                            itemContext.ParentId = currentActivity.Id;
                         }
 
                         foreach (var baggage in currentActivity.Baggage)
