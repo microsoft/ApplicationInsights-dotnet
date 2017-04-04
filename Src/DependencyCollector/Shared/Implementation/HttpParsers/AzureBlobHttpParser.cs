@@ -15,7 +15,7 @@
         /// Tries parsing given dependency telemetry item. 
         /// </summary>
         /// <param name="httpDependency">Dependency item to parse. It is expected to be of HTTP type.</param>
-        /// <returns><code>true</code> if successfully parsed dependency</returns>
+        /// <returns><code>true</code> if successfully parsed dependency.</returns>
         internal static bool TryParse(ref DependencyTelemetry httpDependency)
         {
             string name = httpDependency.Name;
@@ -64,7 +64,6 @@
             // 2. Use account name as a target instead of "account.blob.core.windows.net"
             // 3. Do not include container name into name as it is high cardinality. Move to custom properties
             // 4. Parse blob name and put into custom properties as well
-
             httpDependency.Type = RemoteDependencyConstants.AzureBlob;
             httpDependency.Name = verb + account + '/' + container;
 

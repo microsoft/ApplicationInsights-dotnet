@@ -159,6 +159,48 @@
         }
 
         [TestMethod]
+        public void OnEndSetsSuccessToFalseFor400()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 400;
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            module.Initialize(TelemetryConfiguration.CreateDefault());
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Equal(false, context.GetRequestTelemetry().Success);
+        }
+
+        [TestMethod]
+        public void OnEndSetsSuccessToTrueFor401()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 401;
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            module.Initialize(TelemetryConfiguration.CreateDefault());
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Equal(true, context.GetRequestTelemetry().Success);
+        }
+
+        [TestMethod]
+        public void OnEndSetsSuccessToTrueFor200()
+        {
+            var context = HttpModuleHelper.GetFakeHttpContext();
+            context.Response.StatusCode = 200;
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            module.Initialize(TelemetryConfiguration.CreateDefault());
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            Assert.Equal(true, context.GetRequestTelemetry().Success);
+        }
+
+        [TestMethod]
         public void OnEndSetsUrl()
         {
             var context = HttpModuleHelper.GetFakeHttpContext();

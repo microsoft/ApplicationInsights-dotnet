@@ -13,7 +13,7 @@
         /// Tries parsing given dependency telemetry item. 
         /// </summary>
         /// <param name="httpDependency">Dependency item to parse. It is expected to be of HTTP type.</param>
-        /// <returns><code>true</code> if successfully parsed dependency</returns>
+        /// <returns><code>true</code> if successfully parsed dependency.</returns>
         internal static bool TryParse(ref DependencyTelemetry httpDependency)
         {
             if (httpDependency.Name.EndsWith(".svc", StringComparison.OrdinalIgnoreCase))
