@@ -82,21 +82,15 @@
                 throw new ArgumentNullException("operationTelemetry cannot be null.");
             }
 
-            var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry)
-            {
-                // Parent context store is assigned to operation that is used to restore call context.
-                ParentContext = CallContextHelpers.GetCurrentOperationContext()
-            };
-
             telemetryClient.Initialize(operationTelemetry);
+
+            var telemetryContext = operationTelemetry.Context.Operation;
 
             // Initialize operation id if it wasn't initialized by telemetry initializers
             if (string.IsNullOrEmpty(operationTelemetry.Id))
             {
                 operationTelemetry.GenerateOperationId();
             }
-
-            var telemetryContext = operationTelemetry.Context.Operation;
 
             // If the operation is not executing in the context of any other operation
             // set its name and id as a context (root) operation name and id
@@ -111,50 +105,41 @@
             }
 
             bool isActivityAvailable = false;
+
 #if !NET40
             isActivityAvailable = ActivityExtensions.TryRun(() =>
             {
-                bool operationNameIsSet = false;
+                var parentActivity = Activity.Current;
+                var operationActivity = new Activity(ChildActivityName);
 
-                var childActivity = new Activity(ChildActivityName);
-                if (!string.IsNullOrEmpty(telemetryContext.Name))
+                string operationName = telemetryContext.Name;
+                if (string.IsNullOrEmpty(operationName))
                 {
-                    childActivity.SetOperationName(telemetryContext.Name);
-                    operationNameIsSet = true;
+                    operationName = parentActivity?.GetOperationName();
                 }
 
-                var parentActivity = Activity.Current;
+                if (!string.IsNullOrEmpty(operationName))
+                {
+                    operationActivity.SetOperationName(operationName);
+                }
 
                 if (parentActivity == null)
                 {
-                    if (!string.IsNullOrEmpty(telemetryContext.Id))
-                    {
-                        childActivity.SetParentId(telemetryContext.Id);
-                    }
-                    else if (!string.IsNullOrEmpty(telemetryContext.ParentId))
-                    {
-                        childActivity.SetParentId(telemetryContext.ParentId);
-                    }
-
-                    operationTelemetry.Id = childActivity.ParentId;
-                }
-                else
-                {
-                    if (!operationNameIsSet)
-                    {
-                        string parentOperationName = parentActivity.GetOperationName();
-                        if (!string.IsNullOrEmpty(parentOperationName))
-                        {
-                            childActivity.SetOperationName(parentOperationName);
-                        }
-                    }
-
-                    operationTelemetry.Id = parentActivity.Id;
+                    // telemetryContext.Id is always set: if it was null, it is set to opTelemetry.Id and opTelemetry.Id is never null
+                    operationActivity.SetParentId(telemetryContext.Id);
                 }
 
-                childActivity.Start();
+                operationActivity.Start();
+                operationTelemetry.Id = operationActivity.Id;
             });
 #endif
+            var operationHolder = new OperationHolder<T>(telemetryClient, operationTelemetry);
+            if (!isActivityAvailable)
+            {
+                // Parent context store is assigned to operation that is used to restore call context.
+                operationHolder.ParentContext = CallContextHelpers.GetCurrentOperationContext();
+            }
+
             operationTelemetry.Start();
 
             if (!isActivityAvailable)

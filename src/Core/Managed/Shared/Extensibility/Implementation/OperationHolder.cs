@@ -82,7 +82,7 @@
                         isActivityAvailable = ActivityExtensions.TryRun(() =>
                         {
                             var currentActivity = Activity.Current;
-                            if (currentActivity == null || operationTelemetry.Id != currentActivity.ParentId ||
+                            if (currentActivity == null || operationTelemetry.Id != currentActivity.Id ||
                             operationTelemetry.Context.Operation.Name != currentActivity.GetOperationName())
                             {
                                 CoreEventSource.Log.InvalidOperationToStopError();
