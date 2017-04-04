@@ -23,11 +23,7 @@
         public static string GetNameValueHeaderValue(this NameValueCollection headers, string headerName, string keyName)
         {
             Debug.Assert(headerName != null, "headerName must not be null");
-
-            if (string.IsNullOrEmpty(keyName))
-            {
-                throw new ArgumentNullException(nameof(keyName));
-            }
+            Debug.Assert(keyName != null, "keyName must not be null");
 
             var requiredHeader = headers[headerName];
 

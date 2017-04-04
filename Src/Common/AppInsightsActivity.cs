@@ -4,26 +4,37 @@
     using System.Diagnostics;
     using System.Threading;
 
-    // this is a temporary solution that mimics System.Diagnostics.Activity and Correlation HTTP protocol:
+    // See
     // https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md
-    // it is copied from https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/Activity.cs
-    // and intended to be used on .NET 4.0
+    // https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/Activity.cs
+
+    /// <summary>
+    /// Mimics System.Diagnostics.Activity and Correlation HTTP protocol 
+    /// and intended to be used on .NET 4.0.
+    /// </summary>
     internal class AppInsightsActivity
     {
         private const int RequestIdMaxLength = 1024;
 
-        // Used to generate an ID:
-        // instance unique prefix
+        /// <summary>
+        /// Instance unique prefix, used to generate an Id.
+        /// </summary>
         private static string uniqPrefix;
 
-        // A unique number inside the appdomain, randomized between appdomains. 
-        // Int gives enough randomization and keeps hex-encoded s_currentRootId 8 chars long for most applications
+        /// <summary>
+        /// A unique number inside the AppDomain, randomized between AppDomains. 
+        /// Integer gives enough randomization and keeps hex-encoded s_currentRootId 8 chars long for most applications.
+        /// </summary>
         private static long currentRootId = (uint)GetRandomNumber();
 
+        /// <summary>
+        /// Generates Id for the RequestTelemetry from the parentId.
+        /// </summary>
+        /// <param name="parentId">Parent Activity/Request Id.</param>
         public static string GenerateRequestId(string parentId = null)
         {
             string ret;
-            if (parentId != null && parentId.Length != 0)
+            if (!string.IsNullOrEmpty(parentId))
             {
                 // Start from outside the process (e.g. incoming HTTP)
                 // sanitize external RequestId as it may not be hierarchical. 
@@ -46,10 +57,14 @@
             return ret;
         }
 
+        /// <summary>
+        /// Generates Id for the DependencyTelemetry.
+        /// </summary>
+        /// <param name="parentId">Parent Activity/Request Id.</param>
         public static string GenerateDependencyId(string parentId)
         {
             string ret;
-            if (parentId != null && parentId.Length != 0)
+            if (!string.IsNullOrEmpty(parentId))
             {
                 // Start from outside the process (e.g. incoming HTTP)
                 // sanitize external RequestId as it may not be hierarchical. 
@@ -72,6 +87,10 @@
             return ret;
         }
 
+        /// <summary>
+        /// Gets the root Id from the request Id: substring between '|' and first '.'.
+        /// </summary>
+        /// <param name="id">Id to get the root from.</param>
         public static string GetRootId(string id)
         {
             // id MAY start with '|' and contain '.'. We return substring between them
@@ -122,9 +141,6 @@
         {
             if (uniqPrefix == null)
             {
-                // Here we make an ID to represent the Process/AppDomain.   Ideally we use process ID but 
-                // it is unclear if we have that ID handy.   Currently we use low bits of high freq tick 
-                // as a unique random number (which is not bad, but loses randomness for startup scenarios).  
                 Interlocked.CompareExchange(ref uniqPrefix, GenerateInstancePrefix(), null);
             }
 
@@ -133,6 +149,9 @@
 
         private static string GenerateInstancePrefix()
         {
+            // Here we make an ID to represent the Process/AppDomain.   Ideally we use process ID but 
+            // it is unclear if we have that ID handy.   Currently we use low bits of high freq tick 
+            // as a unique random number (which is not bad, but loses randomness for startup scenarios).  
             int uniqNum = unchecked((int)Stopwatch.GetTimestamp());
             return $"|{Environment.MachineName}-{uniqNum:x}";
         }
