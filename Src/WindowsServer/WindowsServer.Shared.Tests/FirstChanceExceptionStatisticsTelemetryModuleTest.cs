@@ -549,6 +549,52 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryCallMultipleMethods()
+        {
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+
+                for (int i = 0; i < 200; i++)
+                {
+                    try
+                    {
+                        Method1();
+                    }
+                    catch
+                    {
+                    }
+
+                    try
+                    {
+                        throw new Exception("Second exception");
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                // There should have been two unique TrackExceptions
+                Assert.Equal(2, this.items.Count);
+            }
+        }
+
+        private void Method1()
+        {
+            Method2();
+        }
+
+        private void Method2()
+        {
+            Method3();
+        }
+
+        private void Method3()
+        {
+            throw new Exception("exception from Method 3");
+        }
+
+        [TestMethod]
         public void ModuleConstructorCallsRegister()
         {
             EventHandler<FirstChanceExceptionEventArgs> handler = null;

@@ -262,7 +262,7 @@
                     }
                 }
 
-                problemId = methodName + ":" + methodOffset.ToString(CultureInfo.InvariantCulture) + "/" + exceptionType;
+                problemId = exceptionType + " at " + methodName + ":" + methodOffset.ToString(CultureInfo.InvariantCulture);
 
                 if (this.newProcessed < this.newThreshold)
                 {
@@ -373,7 +373,8 @@
                         this.telemetryClient.Initialize(exceptionTelemetry);
                     }
 
-                    exceptionTelemetry.ExpandStackFrames = true;
+                    StackTrace st = new StackTrace(3, true);
+                    exceptionTelemetry.SetParsedStack(st.GetFrames());
 
                     if (string.IsNullOrEmpty(exceptionTelemetry.ProblemId) == true)
                     {
