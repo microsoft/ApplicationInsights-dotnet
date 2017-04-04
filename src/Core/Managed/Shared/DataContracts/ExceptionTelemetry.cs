@@ -22,7 +22,6 @@
         private readonly TelemetryContext context;
         private Exception exception;
         private string message;
-        private object[] stackFrames;
 
         private double? samplingPercentage;
 
@@ -31,7 +30,6 @@
         /// </summary>
         public ExceptionTelemetry()
         {
-            this.stackFrames = null;
             this.Data = new ExceptionData();
             this.context = new TelemetryContext(this.Data.properties);
         }
@@ -82,26 +80,6 @@
             set
             {
                 this.Data.problemId = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the stack frames for the exception.
-        /// </summary>
-        public object[] StackFrames
-        {
-            get
-            {
-                return this.stackFrames;
-            }
-
-            set
-            {
-                this.stackFrames = value;
-
-#if !NETSTANDARD1_3
-                ExceptionConverter.SetParsedStack((StackFrame[])this.stackFrames, this.Exceptions[0]);
-#endif
             }
         }
 
@@ -211,7 +189,43 @@
         {
             get { return this.Data.exceptions; }
         }
-        
+
+#if !NETSTANDARD1_3
+        /// <summary>
+        /// Set parsedStack from an array of StackFrame objects
+        /// </summary>
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        {
+            List<StackFrame> orderedStackTrace = new List<StackFrame>();
+
+            if(this.Exceptions != null && this.Exceptions.Count > 0)
+            {
+                if (frames != null && frames.Length > 0)
+                {
+                    int stackLength = 0;
+
+                    this.Exceptions[0].parsedStack = new List<StackFrame>();
+                    this.Exceptions[0].hasFullStack = true;
+
+                    for (int level = 0; level < frames.Length; level++)
+                    {
+                        StackFrame sf = ExceptionConverter.GetStackFrame(frames[level], level);
+
+                        stackLength += ExceptionConverter.GetStackFrameLength(sf);
+
+                        if (stackLength > ExceptionConverter.MaxParsedStackLength)
+                        {
+                            this.Exceptions[0].hasFullStack = false;
+                            break;
+                        }
+
+                        this.Exceptions[0].parsedStack.Add(sf);
+                    }
+                }
+            }
+        }
+#endif
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>

@@ -89,7 +89,7 @@
        /// <summary>
         /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
         /// </summary>
-        private static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
+        internal static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
         {
             var convertedStackFrame = new External.StackFrame()
             {
@@ -124,45 +124,12 @@
         /// <summary>
         /// Gets the stack frame length for only the strings in the stack frame.
         /// </summary>
-        private static int GetStackFrameLength(External.StackFrame stackFrame)
+        internal static int GetStackFrameLength(External.StackFrame stackFrame)
         {
             var stackFrameLength = (stackFrame.method == null ? 0 : stackFrame.method.Length)
                                    + (stackFrame.assembly == null ? 0 : stackFrame.assembly.Length)
                                    + (stackFrame.fileName == null ? 0 : stackFrame.fileName.Length);
             return stackFrameLength;
-        }
-
-        /// <summary>
-        /// Set parsedStack from an array of StackFrame objects
-        /// </summary>
-        internal static void SetParsedStack(External.StackFrame[] frames, External.ExceptionDetails exceptionDetails)
-        {
-            List<External.StackFrame> orderedStackTrace = new List<External.StackFrame>();
-            bool hasFullStack = true;
-
-            if (frames != null && frames.Length > 0)
-            {
-                int currentParsedStackLength = 0;
-
-                for (int level = 0; level < frames.Length; level++)
-                {
-                    // Skip middle part of the stack
-                    int current = (level % 2 == 0) ? (frames.Length - 1 - (level / 2)) : (level / 2);
-
-                    currentParsedStackLength += GetStackFrameLength(frames[current]);
-
-                    if (currentParsedStackLength > ExceptionConverter.MaxParsedStackLength)
-                    {
-                        hasFullStack = false;
-                        break;
-                    }
-
-                    orderedStackTrace.Insert(orderedStackTrace.Count / 2, frames[current]);
-                }
-            }
-
-            exceptionDetails.parsedStack = orderedStackTrace;
-            exceptionDetails.hasFullStack = hasFullStack;
         }
 #endif
     }
