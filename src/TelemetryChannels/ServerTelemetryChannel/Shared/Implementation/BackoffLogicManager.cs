@@ -1,16 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
-    using System.Net;
-    using System.Threading.Tasks;
     using System.Web.Script.Serialization;
-
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
-    internal class BackoffLogicManager : IDisposable
+    internal class BackoffLogicManager
     {
-        private const int SlotDelayInSeconds = 10;
+        internal const int SlotDelayInSeconds = 10;
+
         private const int MaxDelayInSeconds = 3600;
         private const int DefaultBackoffEnabledReportingIntervalInMin = 30;
 
@@ -19,8 +16,7 @@
 
         private readonly object lockConsecutiveErrors = new object();
         private readonly TimeSpan minIntervalToUpdateConsecutiveErrors;
-
-        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(SlotDelayInSeconds) };
+        
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
         private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
@@ -29,12 +25,14 @@
         {
             this.DefaultBackoffEnabledReportingInterval = TimeSpan.FromMinutes(DefaultBackoffEnabledReportingIntervalInMin);
             this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+            this.CurrentDelay = TimeSpan.FromSeconds(SlotDelayInSeconds);
         }
 
         public BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval)
         {
             this.DefaultBackoffEnabledReportingInterval = defaultBackoffEnabledReportingInterval;
             this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+            this.CurrentDelay = TimeSpan.FromSeconds(SlotDelayInSeconds);
         }
 
         internal BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval, TimeSpan minIntervalToUpdateConsecutiveErrors) 
@@ -59,29 +57,7 @@
 
         public TimeSpan DefaultBackoffEnabledReportingInterval { get; set; }
 
-        internal TimeSpan CurrentDelay
-        {
-            get { return this.pauseTimer.Delay; }
-        }
-
-        public void ScheduleRestore(WebHeaderCollection headers, Func<Task> elapsedFunc)
-        {
-            // Back-off for the Delay duration and enable sending capacity
-            string retryAfterHeader = string.Empty;
-            if (headers != null)
-            {
-                retryAfterHeader = headers.Get("Retry-After");
-            }
-
-            this.ScheduleRestore(retryAfterHeader, elapsedFunc);
-        }
-
-        public void ScheduleRestore(string retryAfterHeader, Func<Task> elapsedFunc)
-        {
-            // Back-off for the Delay duration and enable sending capacity
-            this.pauseTimer.Delay = this.GetBackOffTime(retryAfterHeader);
-            this.pauseTimer.Start(elapsedFunc);
-        }
+        internal TimeSpan CurrentDelay { get; private set; }
 
         public BackendResponse GetBackendResponse(string responseContent)
         {
@@ -123,9 +99,9 @@
         {
             this.LastStatusCode = statusCode;
             
-            if (!this.exponentialBackoffReported && this.pauseTimer.Delay > this.DefaultBackoffEnabledReportingInterval)
+            if (!this.exponentialBackoffReported && this.CurrentDelay > this.DefaultBackoffEnabledReportingInterval)
             {
-                TelemetryChannelEventSource.Log.BackoffEnabled(this.pauseTimer.Delay.TotalMinutes, statusCode);
+                TelemetryChannelEventSource.Log.BackoffEnabled(this.CurrentDelay.TotalMinutes, statusCode);
                 this.exponentialBackoffReported = true;
             }
 
@@ -152,10 +128,12 @@
             }
         }
 
-        public void Dispose()
+        public TimeSpan GetBackOffTimeInterval(string headerValue)
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            TimeSpan backOffTime = this.GetBackOffTime(headerValue);
+            this.CurrentDelay = backOffTime;
+
+            return backOffTime;
         }
 
         // Calculates the time to wait before retrying in case of an error based on
@@ -213,18 +191,6 @@
             TelemetryChannelEventSource.Log.TransmissionPolicyRetryAfterParseFailedWarning(retryAfter);
 
             return false;
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.pauseTimer != null)
-                {
-                    this.pauseTimer.Dispose();
-                    this.pauseTimer = null;
-                }
-            }
         }
     }
 }

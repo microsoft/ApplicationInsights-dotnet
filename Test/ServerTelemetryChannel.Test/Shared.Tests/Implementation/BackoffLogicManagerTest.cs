@@ -96,7 +96,7 @@
             public void NoErrorDelayIsSameAsSlotDelay()
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ScheduleRestore(string.Empty, () => null);
+                manager.GetBackOffTimeInterval(string.Empty);
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
@@ -105,7 +105,7 @@
             {
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.ReportBackoffEnabled(500);
-                manager.ScheduleRestore(string.Empty, () => null);
+                manager.GetBackOffTimeInterval(string.Empty);
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
@@ -117,19 +117,16 @@
                 PrivateObject wrapper = new PrivateObject(manager);
                 wrapper.SetField("consecutiveErrors", int.MaxValue);
 
-                manager.ScheduleRestore(string.Empty, () => null);
+                manager.GetBackOffTimeInterval(string.Empty);
 
                 Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
             }
 
             [TestMethod]
             public void RetryAfterFromHeadersHasMorePriorityThanExponentialRetry()
-            {
-                WebHeaderCollection headers = new WebHeaderCollection();
-                headers.Add("Retry-After", DateTimeOffset.UtcNow.AddSeconds(30).ToString("O"));
-
+            {                
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ScheduleRestore(headers, () => null);
+                manager.GetBackOffTimeInterval(DateTimeOffset.UtcNow.AddSeconds(30).ToString("O"));
 
                 Xunit.Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
             }
@@ -137,11 +134,8 @@
             [TestMethod]
             public void AssertIfDateParseErrorCausesDefaultDelay()
             {
-                WebHeaderCollection headers = new WebHeaderCollection();
-                headers.Add("Retry-After", "no one can parse me");
-
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ScheduleRestore(headers, () => null);
+                manager.GetBackOffTimeInterval("no one can parse me");
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
 
@@ -151,11 +145,8 @@
                 // An old date
                 string retryAfterDateString = DateTime.Now.AddMinutes(-1).ToString("R", CultureInfo.InvariantCulture);
 
-                WebHeaderCollection headers = new WebHeaderCollection();
-                headers.Add("Retry-After", retryAfterDateString);
-
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
-                manager.ScheduleRestore(headers, () => null);
+                manager.GetBackOffTimeInterval(retryAfterDateString);
                 Assert.Equal(TimeSpan.FromSeconds(10), manager.CurrentDelay);
             }
         }
