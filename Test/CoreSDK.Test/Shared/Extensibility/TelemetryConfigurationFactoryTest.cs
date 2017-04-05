@@ -3,17 +3,22 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+#if CORE_PCL || NET45 || NET46
+    using System.Diagnostics.Tracing;
+#endif
     using System.Linq;
     using System.Reflection;
     using System.Xml.Linq;
+#if NET40
+    using Microsoft.Diagnostics.Tracing;
+#endif
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.TestFramework;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Assert = Xunit.Assert;    
 
     [TestClass]
     public class TelemetryConfigurationFactoryTest
@@ -54,6 +59,34 @@
         {
             TelemetryConfigurationFactory.Instance = null;
             Assert.NotNull(TelemetryConfigurationFactory.Instance);
+        }
+
+        [TestMethod]
+        public void InstanceGetterLogsMessageToCoreEventSource()
+        {
+            using (var listener = new TestEventListener())
+            {
+                listener.EnableEvents(CoreEventSource.Log, EventLevel.Verbose);
+
+                // Invoke Getter and verify that atleast one message is logged to CoreEventSource.
+                TelemetryConfigurationFactory.Instance = null;
+                TelemetryConfigurationFactory retInstance = TelemetryConfigurationFactory.Instance;                
+                Assert.True(listener.Messages.Count() > 0, "TelemetryConfigurationFactory setter did not any message to CoreEventSource");
+            }            
+        }
+
+        [TestMethod]
+        public void InstanceSetterLogsMessageToCoreEventSource()
+        {
+            using (var listener = new TestEventListener())
+            {
+                listener.EnableEvents(CoreEventSource.Log, EventLevel.Verbose);
+
+                // Invoke Setter and verify that atleast one message is logged to CoreEventSource.
+                var replacement = new TestableTelemetryConfigurationFactory();
+                TelemetryConfigurationFactory.Instance = replacement;
+                Assert.True(listener.Messages.Count() > 0, "TelemetryConfigurationFactory getter did not any message to CoreEventSource");
+            }            
         }
 
         #endregion
