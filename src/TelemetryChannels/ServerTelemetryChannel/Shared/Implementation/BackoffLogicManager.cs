@@ -1,16 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.Channel.Implementation
 {
     using System;
-    using System.Net;
-    using System.Threading.Tasks;
     using System.Web.Script.Serialization;
-
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     internal class BackoffLogicManager
     {
-        private const int SlotDelayInSeconds = 10;
+        internal const int SlotDelayInSeconds = 10;
+
         private const int MaxDelayInSeconds = 3600;
         private const int DefaultBackoffEnabledReportingIntervalInMin = 30;
 
@@ -22,18 +19,20 @@
         
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
-        private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
+        private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;        
 
         public BackoffLogicManager()
         {
             this.DefaultBackoffEnabledReportingInterval = TimeSpan.FromMinutes(DefaultBackoffEnabledReportingIntervalInMin);
             this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+            this.CurrentDelay = TimeSpan.FromSeconds(SlotDelayInSeconds);
         }
 
         public BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval)
         {
             this.DefaultBackoffEnabledReportingInterval = defaultBackoffEnabledReportingInterval;
             this.minIntervalToUpdateConsecutiveErrors = TimeSpan.FromSeconds(SlotDelayInSeconds);
+            this.CurrentDelay = TimeSpan.FromSeconds(SlotDelayInSeconds);
         }
 
         internal BackoffLogicManager(TimeSpan defaultBackoffEnabledReportingInterval, TimeSpan minIntervalToUpdateConsecutiveErrors) 

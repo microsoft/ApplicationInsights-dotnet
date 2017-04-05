@@ -13,7 +13,7 @@
     internal class ThrottlingTransmissionPolicy : TransmissionPolicy, IDisposable
     {
         private BackoffLogicManager backoffLogicManager;
-        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(10) };
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(BackoffLogicManager.SlotDelayInSeconds) };
 
         public override void Initialize(Transmitter transmitter)
         {
