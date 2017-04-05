@@ -27,7 +27,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WindowsServerEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AzureServiceRuntimeAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnhandledExceptionTelemetryModule.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FirstChanceExceptionStatisticsTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnobservedExceptionTelemetryModule.cs" />
   </ItemGroup>
 </Project>

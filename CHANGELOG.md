@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.3.0
+- Includes all changes since 2.2.0 stable release.
+- Exception statistics feature introduced in beta version is removed.
+
 ## Version 2.3.0-beta3
 - Exception statistics improvements and other minor bug fixes. [Full list.] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/milestone/19?closed=1)
 - Cross Components Correlation ID changed from SHA(instrumentation key) to Application ID retrieved from http endpoint `api/profiles/{ikey}/appId`.

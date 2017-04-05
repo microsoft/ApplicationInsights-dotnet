@@ -15,6 +15,8 @@
     {
         private TelemetryClient telemetryClient;
 
+        private bool initializationErrorReported;
+
         /// <summary>
         /// Implements on error callback of http module.
         /// </summary>
@@ -22,7 +24,17 @@
         {
             if (this.telemetryClient == null)
             {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
             }
 
             if (context == null)

@@ -102,9 +102,6 @@
 
                     this.requestModule.OnBeginRequest(httpApplication.Context);
                 }
-
-                // Kept for backcompat. Should be removed in 2.3 SDK
-                WebEventsPublisher.Log.OnBegin();
             }
         }
 
@@ -170,10 +167,6 @@
                     {
                         this.requestModule.OnEndRequest(httpApplication.Context);
                     }
-
-                    // Kept for backcompat. Should be removed in 2.3 SDK
-                    WebEventsPublisher.Log.OnError();
-                    WebEventsPublisher.Log.OnEnd();
                 }
                 else
                 {
