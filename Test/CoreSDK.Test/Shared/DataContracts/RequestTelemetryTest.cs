@@ -191,50 +191,6 @@
             Assert.True(telemetry.Success.Value);
         }
 
-        [TestMethod]
-        public void SanitizeWillInitializeSuccessIfStatusCodeNaN()
-        {
-            RequestTelemetry telemetry = new RequestTelemetry();
-            telemetry.ResponseCode = "NaN";
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.True(telemetry.Success.Value);
-        }
-
-        [TestMethod]
-        public void SanitizeWillInitializeSuccessIfStatusCodeLess400()
-        {
-            RequestTelemetry telemetry = new RequestTelemetry();
-            telemetry.ResponseCode = "300";
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.True(telemetry.Success.Value);
-        }
-
-        [TestMethod]
-        public void SanitizeWillInitializeSuccessIfStatusCode401()
-        {
-            RequestTelemetry telemetry = new RequestTelemetry();
-            telemetry.ResponseCode = "300";
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.True(telemetry.Success.Value);
-        }
-
-        [TestMethod]
-        public void SanitizeWillInitializeSuccessIfStatusCode500()
-        {
-            RequestTelemetry telemetry = new RequestTelemetry();
-            telemetry.ResponseCode = "500";
-
-            ((ITelemetry)telemetry).Sanitize();
-
-            Assert.False(telemetry.Success.Value);
-        }
-
         [TestMethod]  
         public void SanitizePopulatesIdWithErrorBecauseItIsRequiredByEndpoint()
         {  

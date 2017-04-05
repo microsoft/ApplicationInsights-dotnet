@@ -32,7 +32,7 @@
         /// </summary>
         public RequestTelemetry()
         {
-            this.Data = new RequestData();
+            this.Data = new RequestData() { success = true };
             this.context = new TelemetryContext(this.Data.properties);
             this.GenerateId();
         }
@@ -161,7 +161,7 @@
 
             set 
             {
-                this.Data.url = value == null ? null : value.ToString();
+                this.Data.url = value?.ToString();
             }
         }
         
@@ -223,34 +223,7 @@
                 this.Success = true;
             }
 
-            // Required field
-            if (!this.Success.HasValue)
-            {
-                this.Success = this.GetSuccessFromResponseCode();
-            }
-
             this.Context.SanitizeTelemetryContext();
-        }
-
-        internal bool GetSuccessFromResponseCode()
-        {
-            string reponseCodeString = this.ResponseCode;
-            if (reponseCodeString == null)
-            {
-                return true;
-            }
-
-            int responseCodeInt;
-            bool canParseRc = int.TryParse(reponseCodeString, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCodeInt);
-
-            if (canParseRc)
-            {
-                return (responseCodeInt < 400) || (responseCodeInt == 401);
-            }
-            else
-            {
-                return true;
-            }
         }
     }
 }
