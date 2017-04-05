@@ -29,11 +29,11 @@
                 this.pauseTimer.Start(
                    () =>
                    {
-                       this.ActionInvoked.Set();
-
                        this.MaxBufferCapacity = null;
                        this.MaxSenderCapacity = null;
                        this.Apply();
+
+                       this.ActionInvoked.Set();
 
                        return null;
                    });
