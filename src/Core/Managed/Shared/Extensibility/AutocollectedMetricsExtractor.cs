@@ -5,6 +5,7 @@
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -52,6 +53,11 @@
         /// The telemetry processor that will be called after this processor.
         /// </summary>
         private ITelemetryProcessor nextProcessorInPipeline = null;
+
+        /// <summary>
+        /// Marks if we ever log MetricExtractorAfterSampling_Error so that if we do we use Verbosity level subsequently.
+        /// </summary>
+        private bool isMetricExtractorAfterSamplingLogged = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutocollectedMetricsExtractor" /> class.
@@ -233,6 +239,11 @@
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
+            if (!this.EnsureItemNotSampled(fromItem))
+            {
+                return;
+            }
+
             foreach (ExtractorWithInfo participant in this.extractors)
             {
                 try
@@ -250,6 +261,29 @@
                     CoreEventSource.Log.LogError("Error in " + typeof(RequestMetricsExtractor).Name + ": " + ex.ToString());
                 }
             }
+        }
+
+        private bool EnsureItemNotSampled(ITelemetry item)
+        {
+            ISupportSampling potentiallySampledItem = item as ISupportSampling;
+
+            if (potentiallySampledItem != null && potentiallySampledItem.SamplingPercentage.HasValue)
+            {
+                if (!this.isMetricExtractorAfterSamplingLogged)  
+                {
+                    //// benign race
+                    this.isMetricExtractorAfterSamplingLogged = true;
+                    CoreEventSource.Log.MetricExtractorAfterSampling_Error();
+                }
+                else
+                {
+                    CoreEventSource.Log.MetricExtractorAfterSampling_Verbose();
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
