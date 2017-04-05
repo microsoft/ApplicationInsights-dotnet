@@ -316,11 +316,6 @@
                     policy.Dispose();
                 }
 
-                if (this.backoffLogicManager != null)
-                {
-                    this.backoffLogicManager.Dispose();
-                }
-
                 if (this.Storage != null)
                 {
                     this.Storage.Dispose();

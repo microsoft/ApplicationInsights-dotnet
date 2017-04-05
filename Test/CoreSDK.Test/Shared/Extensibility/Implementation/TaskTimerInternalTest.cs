@@ -81,10 +81,10 @@
                 timer.Start(
                     () => Task.Factory.StartNew(
                         () =>
-                            {
-                                actionStarted.Set();
-                                actionCanFinish.Wait();
-                            }));
+                        {
+                            actionStarted.Set();
+                            actionCanFinish.Wait();
+                        }));
 
                 Assert.True(timer.IsStarted);
 
@@ -107,7 +107,7 @@
                 {
                     listener.EnableEvents(CoreEventSource.Log, EventLevel.Error);
 
-                    var timer = new TaskTimerInternal {Delay = TimeSpan.FromMilliseconds(1)};
+                    var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
                     var actionInvoked = new ManualResetEventSlim();
 
                     timer.Start(() => { actionInvoked.Set(); return null; });
@@ -133,30 +133,23 @@
             }
 
             [TestMethod]
-            public void StartIsCalledMultipleTimes()
+            public void CancelsPreviousActionWhenStartIsCalledMultipleTimes()
             {
-                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(25) };
+                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
 
-                int invocationCount = 0;
-                var firstActionInvoked = new ManualResetEventSlim();
-                var secondActionInvoked = new ManualResetEventSlim();
-                timer.Start(() => Task.Factory.StartNew(
-                    () =>
-                    {                       
-                        Interlocked.Increment(ref invocationCount);
-                        firstActionInvoked.Set();
-                    }));
+                int invokationCount = 0;
+                var lastActionInvoked = new ManualResetEventSlim();
+                timer.Start(() => Task.Factory.StartNew(() => Interlocked.Increment(ref invokationCount)));
                 timer.Start(
                     () => Task.Factory.StartNew(
                         () =>
-                            {
-                                Interlocked.Increment(ref invocationCount);
-                                secondActionInvoked.Set();
-                            }));
+                        {
+                            Interlocked.Increment(ref invokationCount);
+                            lastActionInvoked.Set();
+                        }));
 
-                Assert.True(firstActionInvoked.Wait(50));
-                Assert.True(secondActionInvoked.Wait(50));
-                Assert.Equal(2, invocationCount);
+                Assert.True(lastActionInvoked.Wait(50));
+                Assert.Equal(1, invokationCount);
             }
 
             [TestMethod]
@@ -200,43 +193,15 @@
                 AsyncTest.Run(async () =>
                 {
                     var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(1) };
-        
+
                     bool actionInvoked = false;
                     timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
                     timer.Cancel();
-        
+
                     await Task.Delay(20);
-        
+
                     Assert.False(actionInvoked);
                 });
-            }
-
-            [TestMethod]
-            public void CancelAbortsOnlyLastTask()
-            {
-                var timer = new TaskTimerInternal { Delay = TimeSpan.FromMilliseconds(25) };
-
-                int invocationCount = 0;
-                var firstActionInvoked = new ManualResetEventSlim();
-                var secondActionInvoked = new ManualResetEventSlim();
-                timer.Start(() => Task.Factory.StartNew(
-                    () =>
-                    {
-                        Interlocked.Increment(ref invocationCount);
-                        firstActionInvoked.Set();
-                    }));
-                timer.Start(
-                    () => Task.Factory.StartNew(
-                        () =>
-                        {
-                            Interlocked.Increment(ref invocationCount);
-                            secondActionInvoked.Set();
-                        }));
-
-                timer.Cancel();
-
-                Assert.True(firstActionInvoked.Wait(50));
-                Assert.Equal(1, invocationCount);
             }
         }
     }
