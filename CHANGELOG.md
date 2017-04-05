@@ -2,6 +2,7 @@
 
 ## Version 2.4.0-beta1
 - Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.
+- Improvements to exception statistics, e.g. 2 of each type of exception will be output via TrackException
 
 
 ## Version 2.3.0-beta3

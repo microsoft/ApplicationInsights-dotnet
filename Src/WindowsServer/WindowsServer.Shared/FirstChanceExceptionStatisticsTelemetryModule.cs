@@ -137,21 +137,21 @@
             ////    }
             ////}
 
-            if (!wasTracked && exception is AggregateException)
-            {
-                foreach (var innerException in ((AggregateException)exception).InnerExceptions)
-                {
-                    if (innerException != null)
-                    {
-                        wasTracked = IsTracked(innerException);
+            ////if (!wasTracked && exception is AggregateException)
+            ////{
+            ////    foreach (var innerException in ((AggregateException)exception).InnerExceptions)
+            ////    {
+            ////        if (innerException != null)
+            ////        {
+            ////            wasTracked = IsTracked(innerException);
 
-                        if (wasTracked == true)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
+            ////            if (wasTracked == true)
+            ////            {
+            ////                break;
+            ////            }
+            ////        }
+            ////    }
+            ////}
 
             // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
             // so the .Data is now writable. Also it may be null in certain cases
