@@ -76,13 +76,13 @@
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[1]);
             Assert.Equal("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
             Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+            Assert.Equal("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[2]);
             Assert.Equal("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
             Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+            Assert.Equal("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
@@ -185,19 +185,19 @@
             
             Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[0]);
             Assert.Equal(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.Equal($"(Name:{typeof(RequestMetricsExtractor).FullName}, Ver:{"1.0"})",
+            Assert.Equal("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[1]);
             Assert.Equal("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
             Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
+            Assert.Equal("(Name:'Dependencies', Ver:'1.0')",
                          ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[2]);
             Assert.Equal("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
             Assert.Equal(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
-            Assert.Equal($"(Name:{typeof(DependencyMetricsExtractor).FullName}, Ver:{"1.0"})",
+            Assert.Equal("(Name:'Dependencies', Ver:'1.0')",
                          ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
             Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[3]);

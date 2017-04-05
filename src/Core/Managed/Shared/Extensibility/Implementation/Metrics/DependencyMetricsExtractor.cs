@@ -60,7 +60,7 @@
         /// string "<c>(Name: {ExtractorName}, Ver:{ExtractorVersion})</c>" to the <c>xxx.ProcessedByExtractors</c> property.
         /// The respective logic is in the <see cref="AutocollectedMetricsExtractor"/>-class.
         /// </summary>
-        public string ExtractorName { get; } = typeof(DependencyMetricsExtractor).FullName;
+        public string ExtractorName { get; } = "Dependencies";
 
         /// <summary>
         /// Gets the version of this extractor.

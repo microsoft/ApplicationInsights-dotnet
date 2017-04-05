@@ -24,7 +24,7 @@
                 public static class Moniker
                 {
                     public const string Key = MetricPropertiesNamePrefix + ".ProcessedByMetricExtractors";
-                    public const string ExtractorInfoTemplate = "(Name:{0}, Ver:{1})";      // $"(Name:{ExtractorName}, Ver:{ExtractorVersion})"
+                    public const string ExtractorInfoTemplate = "(Name:'{0}', Ver:'{1}')";      // $"(Name:'{ExtractorName}', Ver:'{ExtractorVersion}')"
                 }
             }
         }
