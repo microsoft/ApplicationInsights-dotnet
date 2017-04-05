@@ -336,7 +336,7 @@
 
             this.SendException(refinedOperationName, refinedProblemId, exceptionTelemetry, exception);
 
-            var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
+            var metric = this.metricManager.CreateMetric("Exceptions thrown", dimensions);
 
             metric.Track(1);
         }

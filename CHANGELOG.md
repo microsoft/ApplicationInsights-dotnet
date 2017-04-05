@@ -12,7 +12,7 @@
   ```
   customMetrics
   | where timestamp > ago(5d)
-  | where name == "Exceptions Thrown" 
+  | where name == "Exceptions thrown" 
   | extend type = tostring(customDimensions.type), method = tostring(customDimensions.method), operation = tostring(customDimensions.operation) 
   | summarize sum(value), sum(valueCount) by type, method, operation 
   ```
