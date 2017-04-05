@@ -127,14 +127,15 @@
         {
             bool wasTracked = IsTracked(exception);
 
-            if (!wasTracked)
-            {
-                var innerException = exception.InnerException;
-                if (innerException != null)
-                {
-                    wasTracked = IsTracked(innerException);
-                }
-            }
+            //// This is temporarily being commented out to capture outer exceptions. It will be modified later. 
+            ////if (!wasTracked)
+            ////{
+            ////    var innerException = exception.InnerException;
+            ////    if (innerException != null)
+            ////    {
+            ////        wasTracked = IsTracked(innerException);
+            ////    }
+            ////}
 
             if (!wasTracked && exception is AggregateException)
             {
