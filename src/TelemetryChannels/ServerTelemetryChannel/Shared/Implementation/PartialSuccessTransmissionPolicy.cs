@@ -12,9 +12,10 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
-    internal class PartialSuccessTransmissionPolicy : TransmissionPolicy
+    internal class PartialSuccessTransmissionPolicy : TransmissionPolicy, IDisposable
     {
         private BackoffLogicManager backoffLogicManager;
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(10) };
 
         public override void Initialize(Transmitter transmitter)
         {
@@ -27,6 +28,12 @@
 
             base.Initialize(transmitter);
             transmitter.TransmissionSent += this.HandleTransmissionSentEvent;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private void HandleTransmissionSentEvent(object sender, TransmissionProcessedEventArgs args)
@@ -135,8 +142,8 @@
             // Back-off for the Delay duration and enable sending capacity
             this.backoffLogicManager.ReportBackoffEnabled(statusCode);
 
-            this.backoffLogicManager.ScheduleRestore(
-                response.RetryAfterHeader, 
+            this.pauseTimer.Delay = this.backoffLogicManager.GetBackOffTimeInterval(response.RetryAfterHeader);
+            this.pauseTimer.Start(
                 () =>
                     {
                         this.MaxBufferCapacity = null;
@@ -146,6 +153,18 @@
 
                         return TaskEx.FromResult<object>(null);
                     });
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.pauseTimer != null)
+                {
+                    this.pauseTimer.Dispose();
+                    this.pauseTimer = null;
+                }
+            }
         }
     }
 }
