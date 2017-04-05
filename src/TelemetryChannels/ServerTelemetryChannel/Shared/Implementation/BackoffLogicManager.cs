@@ -19,7 +19,7 @@
         
         private bool exponentialBackoffReported = false;
         private int consecutiveErrors;
-        private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;        
+        private DateTimeOffset nextMinTimeToUpdateConsecutiveErrors = DateTimeOffset.MinValue;
 
         public BackoffLogicManager()
         {

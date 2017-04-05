@@ -64,10 +64,10 @@
                     this.pauseTimer.Delay = this.backoffLogicManager.GetBackOffTimeInterval(httpWebResponse.RetryAfterHeader);
                     this.pauseTimer.Start(
                         () =>
-                                    {
-                                        this.ResetPolicy();
-                                        return TaskEx.FromResult<object>(null);
-                                    });
+                        {
+                            this.ResetPolicy();
+                            return TaskEx.FromResult<object>(null);
+                        });
                 }
             }
         }
