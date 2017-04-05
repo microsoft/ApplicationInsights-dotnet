@@ -115,9 +115,9 @@
             var dims = metrics[0].Key.Dimensions;
             Assert.Equal(1, dims.Count);
 
-            Assert.True(dims["problemId"].StartsWith(typeof(Exception).FullName));
+            Assert.True(dims["problemId"].StartsWith(typeof(Exception).FullName, StringComparison.Ordinal));
 
-            int nameStart = dims["problemId"].IndexOf(" at ") + 4;
+            int nameStart = dims["problemId"].IndexOf(" at ", StringComparison.OrdinalIgnoreCase) + 4;
 
             Assert.True(dims["problemId"].Substring(nameStart).StartsWith(typeof(FirstChanceExceptionStatisticsTelemetryModuleTest).FullName + "." + nameof(this.FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException), StringComparison.Ordinal));
         }
