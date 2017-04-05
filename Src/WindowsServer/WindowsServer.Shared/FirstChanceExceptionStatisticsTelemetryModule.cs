@@ -204,7 +204,7 @@
                 StackFrame exceptionStackFrame;
                 string problemId;
                 string methodName = "UnknownMethod";
-                int methodOffset = 0;
+                int methodOffset = StackFrame.OFFSET_UNKNOWN;
                 bool getOperationName = false;
 
                 executionSyncObject = LOCKED;
@@ -257,12 +257,19 @@
 
                     if (methodBase != null)
                     {
-                        methodName = methodBase.DeclaringType.FullName + "." + methodBase.Name;
+                        methodName = (methodBase.DeclaringType?.FullName ?? "Global") + "." + methodBase.Name;
                         methodOffset = exceptionStackFrame.GetILOffset();
                     }
                 }
 
-                problemId = exceptionType + " at " + methodName + ":" + methodOffset.ToString(CultureInfo.InvariantCulture);
+                if (methodOffset == StackFrame.OFFSET_UNKNOWN)
+                {
+                    problemId = exceptionType + " at " + methodName;
+                }
+                else
+                {
+                    problemId = exceptionType + " at " + methodName + ":" + methodOffset.ToString(CultureInfo.InvariantCulture);
+                }
 
                 if (this.newProcessed < this.newThreshold)
                 {
@@ -359,32 +366,31 @@
                 return;
             }
 
-            try
+            this.exceptionKeyValues.RwLock.EnterWriteLock();
+
+            if (this.exceptionKeyValues.ValueCache.Contains(exceptionKey) == false)
             {
-                this.exceptionKeyValues.RwLock.EnterWriteLock();
+                this.exceptionKeyValues.ValueCache.Add(exceptionKey);
 
-                if (this.exceptionKeyValues.ValueCache.Contains(exceptionKey) == false)
+                this.exceptionKeyValues.RwLock.ExitWriteLock();
+
+                if (exceptionTelemetry == null)
                 {
-                    this.exceptionKeyValues.ValueCache.Add(exceptionKey);
-
-                    if (exceptionTelemetry == null)
-                    {
-                        exceptionTelemetry = new ExceptionTelemetry(exception);
-                        this.telemetryClient.Initialize(exceptionTelemetry);
-                    }
-
-                    StackTrace st = new StackTrace(3, true);
-                    exceptionTelemetry.SetParsedStack(st.GetFrames());
-
-                    if (string.IsNullOrEmpty(exceptionTelemetry.ProblemId) == true)
-                    {
-                        exceptionTelemetry.ProblemId = problemId;
-                    }
-
-                    this.telemetryClient.TrackException(exceptionTelemetry);
+                    exceptionTelemetry = new ExceptionTelemetry(exception);
+                    this.telemetryClient.Initialize(exceptionTelemetry);
                 }
+
+                StackTrace st = new StackTrace(3, true);
+                exceptionTelemetry.SetParsedStack(st.GetFrames());
+
+                if (string.IsNullOrEmpty(exceptionTelemetry.ProblemId) == true)
+                {
+                    exceptionTelemetry.ProblemId = problemId;
+                }
+
+                this.telemetryClient.TrackException(exceptionTelemetry);
             }
-            finally
+            else
             {
                 this.exceptionKeyValues.RwLock.ExitWriteLock();
             }
