@@ -205,17 +205,19 @@
 
                                                 return new SucceessAndFailureMetrics(
                                                     thisMetricManager.CreateMetric(
-                                                            MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                                             new Dictionary<string, string>()
                                                             {
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.TrueString,  // SUCCESS metric
+                                                                [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = depType,
                                                             }),
                                                     thisMetricManager.CreateMetric(
-                                                            MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                                            MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                                             new Dictionary<string, string>()
                                                             {
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString, // FAILURE metric
+                                                                [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                                                 [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = depType,
                                                             }));
                                             }
@@ -273,16 +275,18 @@
 
                 newMetrics.Default = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.TrueString,      // SUCCESS metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                 }),
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                 }));
 
                 newMetrics.Unknown = null;
@@ -299,33 +303,37 @@
 
                 newMetrics.Default = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.TrueString,      // SUCCESS metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Other,
                                 }),
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Other,
                                 }));
 
                 newMetrics.Unknown = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.TrueString,      // SUCCESS metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown,
                                 }),
                         thisMetricManager.CreateMetric(
-                                MetricTerms.Autocollection.MetricNames.DependencyCall.Duration,
+                                MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
+                                    [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown,
                                 }));
 

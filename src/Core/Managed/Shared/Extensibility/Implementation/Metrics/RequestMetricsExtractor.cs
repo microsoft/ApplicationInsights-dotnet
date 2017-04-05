@@ -27,18 +27,20 @@
         public void InitializeExtractor(MetricManager metricManager)
         {
             this.responseSuccessTimeMetric = metricManager.CreateMetric(
-                                                                MetricTerms.Autocollection.MetricNames.Request.Duration,
-                                                                new Dictionary<string, string>()
-                                                                {
-                                                                    [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.TrueString,
-                                                                });
+                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
+                    new Dictionary<string, string>()
+                    {
+                        [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.TrueString,
+                        [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.RequestDuration.Id,
+                    });
 
             this.responseFailureTimeMetric = metricManager.CreateMetric(
-                                                                MetricTerms.Autocollection.MetricNames.Request.Duration,
-                                                                new Dictionary<string, string>()
-                                                                {
-                                                                    [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.FalseString,
-                                                                });
+                    MetricTerms.Autocollection.Metric.RequestDuration.Name,
+                    new Dictionary<string, string>()
+                    {
+                        [MetricTerms.Autocollection.Request.PropertyNames.Success] = Boolean.FalseString,
+                        [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.RequestDuration.Id,
+                    });
         }
 
         public void ExtractMetrics(ITelemetry fromItem, out bool isItemProcessed)

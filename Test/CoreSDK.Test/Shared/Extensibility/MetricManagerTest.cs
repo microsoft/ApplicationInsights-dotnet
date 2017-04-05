@@ -124,7 +124,7 @@
             Assert.Equal(1, aggregatedMetric.Count);
             Assert.Equal(1, aggregatedMetric.Properties.Count);
 
-            Assert.True(aggregatedMetric.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
+            Assert.True(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
         }
 
         [TestMethod]
@@ -150,8 +150,8 @@
             Assert.Equal(1, aggregatedMetric.Count);
             Assert.Equal(1, aggregatedMetric.Properties.Count);
 
-            Assert.True(aggregatedMetric.Properties.ContainsKey("Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"));
-            Assert.True(long.Parse(aggregatedMetric.Properties["Microsoft.AppInsights.Metrics.Aggregation.IntervalMs"]) > 0);
+            Assert.True(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+            Assert.True(long.Parse(aggregatedMetric.Properties["_MS.AggregationIntervalMs"]) > 0);
         }
 
         [TestMethod]
