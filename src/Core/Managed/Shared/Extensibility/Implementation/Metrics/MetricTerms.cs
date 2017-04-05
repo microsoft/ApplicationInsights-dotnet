@@ -4,7 +4,7 @@
 
     internal static class MetricTerms
     {
-        private const string MetricPropertiesNamePrefix = "Microsoft.AppInsights.Metrics";
+        private const string MetricPropertiesNamePrefix = "_MS";
 
         public static class Aggregation
         {
@@ -12,7 +12,7 @@
             {
                 public static class Moniker
                 {
-                    public const string Key = MetricPropertiesNamePrefix + ".Aggregation.IntervalMs";
+                    public const string Key = MetricPropertiesNamePrefix + ".AggregationIntervalMs";
                 }
             }
         }
@@ -23,7 +23,7 @@
             {
                 public static class Moniker
                 {
-                    public const string Key = MetricPropertiesNamePrefix + ".Extraction.ProcessedByExtractors";
+                    public const string Key = MetricPropertiesNamePrefix + ".ProcessedByMetricExtractors";
                     public const string ExtractorInfoTemplate = "(Name:{0}, Ver:{1})";      // $"(Name:{ExtractorName}, Ver:{ExtractorVersion})"
                 }
             }
@@ -33,20 +33,30 @@
         {
             public static class Moniker
             {
-                public const string Key = MetricPropertiesNamePrefix + ".MetricIsAutocollected";
+                public const string Key = MetricPropertiesNamePrefix + ".IsAutocollected";
                 public const string Value = "True";
             }
 
-            public static class MetricNames
+            public static class MetricId
             {
-                public static class Request
+                public static class Moniker
                 {
-                    public const string Duration = "Server response time";
+                    public const string Key = MetricPropertiesNamePrefix + ".MetricId";
+                }
+            }
+
+            public static class Metric
+            {
+                public static class RequestDuration
+                {
+                    public const string Name = "Server response time";
+                    public const string Id = "requests/duration";
                 }
 
-                public static class DependencyCall
+                public static class DependencyCallDuration
                 {
-                    public const string Duration = "Dependency duration";
+                    public const string Name = "Dependency duration";
+                    public const string Id = "dependencies/duration";
                 }
             }
 
