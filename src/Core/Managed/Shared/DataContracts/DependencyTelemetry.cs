@@ -9,6 +9,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
     /// <summary>
     /// The class that represents information about the collected dependency.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
     public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
@@ -189,6 +190,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this remote dependency.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
         {
@@ -197,6 +199,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         /// <summary>
         /// Gets a dictionary of application-defined event metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
@@ -223,6 +226,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {

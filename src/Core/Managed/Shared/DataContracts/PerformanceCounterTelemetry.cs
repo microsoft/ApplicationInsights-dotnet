@@ -7,6 +7,7 @@
 
     /// <summary>
     /// The class that represents information about performance counters.
+    /// Obsolete - use MetricTelemetry instead.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
     public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties

@@ -13,26 +13,32 @@
     public static class TelemetryClientExtensions
     {
         /// <summary>
-        /// Start operation creates an operation object with a respective telemetry item. 
+        /// Start operation creates an operation object with a given telemetry item. 
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operation-context">Learn more</a>
+        /// </remarks>
+        /// <typeparam name="T">Type of the telemetry item required.</typeparam>
         /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        /// <param name="operationName">Name of the operation that you want to propagate.</param>
+        /// <returns>IOperationHolder with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName) where T : OperationTelemetry, new()
         {
             return StartOperation<T>(telemetryClient, operationName, operationId: null, parentOperationId: null);
         }
 
         /// <summary>
-        /// Start operation creates an operation object with a respective telemetry item. 
+        /// Start operation creates an operation object with a given telemetry item. 
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operation-context">Learn more</a>
+        /// </remarks>
+        /// <typeparam name="T">Type of the telemetry item required.</typeparam>
         /// <param name="telemetryClient">Telemetry client object.</param>
-        /// <param name="operationName">Name of the operation that customer is planning to propagate.</param>
+        /// <param name="operationName">Name of the operation you want to propagate.</param>
         /// <param name="operationId">Operation ID to set in the new operation.</param>
         /// <param name="parentOperationId">Optional parent operation ID to set in the new operation.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        /// <returns>IOperationHolder with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, string operationName, string operationId, string parentOperationId = null) where T : OperationTelemetry, new()
         {
             if (telemetryClient == null)
@@ -63,10 +69,13 @@
         /// <summary>
         /// Creates an operation object with a given telemetry item. 
         /// </summary>
-        /// <typeparam name="T">Type of the telemetry item.</typeparam>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operation-context">Learn more</a>
+        /// </remarks>
+        /// <typeparam name="T">Type of the telemetry item required.</typeparam>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="operationTelemetry">Operation to start.</param>
-        /// <returns>Operation item object with a new telemetry item having current start time and timestamp.</returns>
+        /// <returns>IOperationHolder with a new telemetry item having current start time and timestamp.</returns>
         public static IOperationHolder<T> StartOperation<T>(this TelemetryClient telemetryClient, T operationTelemetry) where T : OperationTelemetry
         {
             if (telemetryClient == null)
@@ -118,8 +127,11 @@
         }
 
         /// <summary>
-        /// Stop operation computes the duration of the operation and tracks it using the respective telemetry client.
+        /// Stop operation computes the duration of the operation and tracks it using the given telemetry client.
         /// </summary>
+        /// <remarks>
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operation-context">Learn more</a>
+        /// </remarks>
         /// <param name="telemetryClient">Telemetry client object.</param>
         /// <param name="operation">Operation object to compute duration and track.</param>
         public static void StopOperation<T>(this TelemetryClient telemetryClient, IOperationHolder<T> operation) where T : OperationTelemetry
