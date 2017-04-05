@@ -68,7 +68,23 @@
         }
 
         /// <summary>
-        /// Gets or sets the value indicating where the exception was handled.
+        /// Gets or sets the problemId.
+        /// </summary>
+        public string ProblemId
+        {
+            get
+            {
+                return this.Data.problemId;
+            }
+
+            set
+            {
+                this.Data.problemId = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the value indicated where the exception was handled.
         /// </summary>
         [Obsolete("Use custom properties to report exception handling layer")]
         public ExceptionHandledAt HandledAt
@@ -173,7 +189,43 @@
         {
             get { return this.Data.exceptions; }
         }
-        
+
+#if !NETSTANDARD1_3
+        /// <summary>
+        /// Set parsedStack from an array of StackFrame objects.
+        /// </summary>
+        public void SetParsedStack(System.Diagnostics.StackFrame[] frames)
+        {
+            List<StackFrame> orderedStackTrace = new List<StackFrame>();
+
+            if (this.Exceptions != null && this.Exceptions.Count > 0)
+            {
+                if (frames != null && frames.Length > 0)
+                {
+                    int stackLength = 0;
+
+                    this.Exceptions[0].parsedStack = new List<StackFrame>();
+                    this.Exceptions[0].hasFullStack = true;
+
+                    for (int level = 0; level < frames.Length; level++)
+                    {
+                        StackFrame sf = ExceptionConverter.GetStackFrame(frames[level], level);
+
+                        stackLength += ExceptionConverter.GetStackFrameLength(sf);
+
+                        if (stackLength > ExceptionConverter.MaxParsedStackLength)
+                        {
+                            this.Exceptions[0].hasFullStack = false;
+                            break;
+                        }
+
+                        this.Exceptions[0].parsedStack.Add(sf);
+                    }
+                }
+            }
+        }
+#endif
+
         /// <summary>
         /// Sanitizes the properties based on constraints.
         /// </summary>
