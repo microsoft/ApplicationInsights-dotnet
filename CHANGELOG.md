@@ -8,9 +8,12 @@ This changelog will be used to generate documentation on [release notes page](ht
 - StartOperation starts a new System.Diagnostics.Activity and stores operation context in it. StartOperation overwrites OperationTelemetry.Id set before or during telemetry initialization for the dependency correlation purposes.
 - OperationCorrelationTelemetryInitializer initializes telemetry from the Activity.Current. Please refer to https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md for more details about Activity and how to use it
 - `Request.Success` field will not be populated based on `ResponseCode`. It needs to be set explicitly.
+- New "ProblemId" property on ExceptionTelemetry. It can be used to set a custom ProblemId value.
 
 ## Version 2.3.0
-- Minor bug fixes
+- Includes all changes since 2.2.0 stable release.
+- Removed metric aggregation functionality added in 2.3.0-beta1 release.
+- [Fixed a bug which caused SDK to stop sending telemetry.](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
 
 ## Version 2.3.0-beta3
 - [Added overloads of TelemetryClientExtensions.StartOperation.] (https://github.com/Microsoft/ApplicationInsights-dotnet/issues/163)
