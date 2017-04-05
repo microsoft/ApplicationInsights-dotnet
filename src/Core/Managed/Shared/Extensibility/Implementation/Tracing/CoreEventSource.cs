@@ -401,20 +401,20 @@
 
         // Verbosity is Error - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
         [Event(33,
-            Message = "Metrics Extractor should be used before Sampling Processors or any other Telemetry Processors that might filter out Telemetry Items. Otherwise, extracted metrics may be incorrect.",
+            Message = "A Metric Extractor detected a telemetry item with SamplingPercentage < 100. Metrics Extractors should be used before Sampling Processors or any other Telemetry Processors that might filter out Telemetry Items. Otherwise, extracted metrics may be incorrect.",
             Level = EventLevel.Error,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
-        public void MetricExtractorAfterSampling_Error(string appDomainName = "Incorrect")
+        public void MetricExtractorAfterSamplingError(string appDomainName = "Incorrect")
         {
             this.WriteEvent(33, this.nameProvider.Name);
         }
 
-        // Verbosity is Verbose - so it is always sent to portal; Keyword is Diagnostics so throttling is not applied.
+        // Verbosity is Verbose - targeted at support personnel; Keyword is Diagnostics so throttling is not applied.
         [Event(34,
-            Message = "Metrics Extractor should be used before Sampling Processors or any other Telemetry Processors that might filter out Telemetry Items. Otherwise, extracted metrics may be incorrect.",
+            Message = "A Metric Extractor detected a telemetry item with SamplingPercentage < 100. Metrics Extractors Extractor should be used before Sampling Processors or any other Telemetry Processors that might filter out Telemetry Items. Otherwise, extracted metrics may be incorrect.",
             Level = EventLevel.Verbose,
             Keywords = Keywords.Diagnostics | Keywords.UserActionable)]
-        public void MetricExtractorAfterSampling_Verbose(string appDomainName = "Incorrect")
+        public void MetricExtractorAfterSamplingVerbose(string appDomainName = "Incorrect")
         {
             this.WriteEvent(34, this.nameProvider.Name);
         }

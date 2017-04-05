@@ -55,7 +55,7 @@
         private ITelemetryProcessor nextProcessorInPipeline = null;
 
         /// <summary>
-        /// Marks if we ever log MetricExtractorAfterSampling_Error so that if we do we use Verbosity level subsequently.
+        /// Marks if we ever log MetricExtractorAfterSamplingError so that if we do we use Verbosity level subsequently.
         /// </summary>
         private bool isMetricExtractorAfterSamplingLogged = false;
 
@@ -267,17 +267,19 @@
         {
             ISupportSampling potentiallySampledItem = item as ISupportSampling;
 
-            if (potentiallySampledItem != null && potentiallySampledItem.SamplingPercentage.HasValue)
+            if (potentiallySampledItem != null
+                    && potentiallySampledItem.SamplingPercentage.HasValue
+                    && potentiallySampledItem.SamplingPercentage.Value < (100.0 - 1.0E-12))
             {
                 if (!this.isMetricExtractorAfterSamplingLogged)  
                 {
                     //// benign race
                     this.isMetricExtractorAfterSamplingLogged = true;
-                    CoreEventSource.Log.MetricExtractorAfterSampling_Error();
+                    CoreEventSource.Log.MetricExtractorAfterSamplingError();
                 }
                 else
                 {
-                    CoreEventSource.Log.MetricExtractorAfterSampling_Verbose();
+                    CoreEventSource.Log.MetricExtractorAfterSamplingVerbose();
                 }
 
                 return false;
