@@ -30,8 +30,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         /// <summary>
         /// Gets or sets the delay before the task starts. 
         /// </summary>
-        public TimeSpan Delay 
-        { 
+        public TimeSpan Delay
+        {
             get
             {
                 return this.delay;
@@ -57,7 +57,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         }
 
         /// <summary>
-        /// Starts the task. Updates the cancellation token and makes any tasks launched previously not available to be cancelled.
+        /// Start the task.
         /// </summary>
         /// <param name="elapsed">The task to run.</param>
         public void Start(Func<Task> elapsed)
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     previousTask =>
 #endif
                     {
-                        DisposeToken(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
+                        CancelAndDispose(Interlocked.CompareExchange(ref this.tokenSource, null, newTokenSource));
                         try
                         {
                             Task task = elapsed();
@@ -111,7 +111,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                     TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);
 
-            DisposeToken(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
+            CancelAndDispose(Interlocked.Exchange(ref this.tokenSource, newTokenSource));
         }
 
         /// <summary>
@@ -148,14 +148,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             CoreEventSource.Log.LogError(exception.ToInvariantString());
-        }
-
-        private static void DisposeToken(CancellationTokenSource tokenSource)
-        {
-            if (tokenSource != null)
-            {
-                tokenSource.Dispose();
-            }
         }
 
         private static void CancelAndDispose(CancellationTokenSource tokenSource)

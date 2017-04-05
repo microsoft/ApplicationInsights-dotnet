@@ -7,6 +7,7 @@
     internal class StubTransmissionScheduledPolicy : StubTransmissionPolicy
     {
         public ManualResetEventSlim ActionInvoked = new ManualResetEventSlim();
+        private TaskTimerInternal pauseTimer = new TaskTimerInternal { Delay = TimeSpan.FromSeconds(10) };
 
         public override void Initialize(Transmitter transmitter)
         {
@@ -24,8 +25,8 @@
 
                 this.Transmitter.Enqueue(e.Transmission);
 
-                this.Transmitter.BackoffLogicManager.ScheduleRestore(
-                   DateTimeOffset.UtcNow.AddSeconds(2).ToString(),
+                this.pauseTimer.Delay = TimeSpan.FromMilliseconds(10);
+                this.pauseTimer.Start(
                    () =>
                    {
                        this.MaxBufferCapacity = null;
