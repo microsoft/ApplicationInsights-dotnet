@@ -315,5 +315,24 @@
             Assert.AreEqual(parsedUrl.Host, d.Target);
             Assert.AreEqual(expectedName, d.Name);
         }
+
+        [TestMethod]
+        public void HttpDependenciesParsingTelemetryInitializerConvertsDocumentDb()
+        {
+            // check if DocumentDB parsing is enabled
+            // detailed parsing validation is in DocumentDbHttpParserTests
+            HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
+            Uri parsedUrl = new Uri("https://myaccount.documents.azure.com/dbs/myDatabase");
+
+            var d = new DependencyTelemetry(
+                dependencyTypeName: RemoteDependencyConstants.HTTP,
+                target: parsedUrl.Host,
+                dependencyName: "GET " + parsedUrl.AbsolutePath,
+                data: parsedUrl.OriginalString);
+
+            initializer.Initialize(d);
+
+            Assert.AreEqual(RemoteDependencyConstants.AzureDocumentDb, d.Type);
+        }
     }
 }

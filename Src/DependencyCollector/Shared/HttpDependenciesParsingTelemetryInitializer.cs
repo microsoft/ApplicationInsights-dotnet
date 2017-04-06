@@ -26,6 +26,7 @@
                     AzureBlobHttpParser.TryParse(ref httpDependency)
                     || AzureTableHttpParser.TryParse(ref httpDependency)
                     || AzureQueueHttpParser.TryParse(ref httpDependency)
+                    || DocumentDbHttpParser.TryParse(ref httpDependency)
                     || GenericServiceHttpParser.TryParse(ref httpDependency);
             }
         }
