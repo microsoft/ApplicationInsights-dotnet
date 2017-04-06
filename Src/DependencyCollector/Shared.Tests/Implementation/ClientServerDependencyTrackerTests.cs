@@ -67,7 +67,7 @@
 
             Assert.IsNull(telemetry.Context.Operation.ParentId);
             Assert.IsNotNull(telemetry.Context.Operation.Id);
-            Assert.IsTrue(telemetry.Id.StartsWith('|' + telemetry.Context.Operation.Id));
+            Assert.IsTrue(telemetry.Id.StartsWith('|' + telemetry.Context.Operation.Id, StringComparison.Ordinal));
             Assert.AreEqual(0, telemetry.Context.Properties.Count);
         }
 

@@ -204,7 +204,7 @@
 
                 Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
 #if NET45
-                Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id));
+                Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
                 Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
 #else
                 Assert.AreEqual(op.Telemetry.Context.Operation.Id, ApplicationInsightsActivity.GetRootId(request.Headers[RequestResponseHeaders.StandardParentIdHeader]));
