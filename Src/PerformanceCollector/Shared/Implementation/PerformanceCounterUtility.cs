@@ -51,7 +51,7 @@
         /// <summary>
         /// Formats a counter into a readable string.
         /// </summary>
-        /// <param name="pc">Performance counter sructure.</param>
+        /// <param name="pc">Performance counter structure.</param>
         public static string FormatPerformanceCounter(PerformanceCounterStructure pc)
         {
             return FormatPerformanceCounter(pc.CategoryName, pc.CounterName, pc.InstanceName);

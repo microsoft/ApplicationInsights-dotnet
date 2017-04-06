@@ -2,7 +2,6 @@
 {
     using System;
     using System.Globalization;
-    using System.Threading;
 
     /// <summary>
     /// Gauge that computes normalized CPU percentage utilized by a process by utilizing the last computed time.
@@ -14,15 +13,14 @@
 
         private readonly object lockObject = new object();
         private bool isInitialized = false;
-        private int processorsCount = 0;
-
+        private int processorsCount = -1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NormalizedCPUPercenageGauge"/> class.
         /// </summary>
         /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="value"> Gauges to sum.</param>
-        public NormalizedCPUPercenageGauge(string name, ICounterValue value) : base (name, value)
+        public NormalizedCPUPercenageGauge(string name, ICounterValue value) : base(name, value)
         {
         }
 
@@ -44,28 +42,33 @@
                 }
             }
 
-            if (this.processorsCount < 1)
+            double result = 0;
+            if (this.processorsCount >= 1)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Invalid value for processorsCount: {0}", this.processorsCount.ToString(CultureInfo.InvariantCulture));
+                double value = base.Collect();
+                result = value / this.processorsCount;
             }
 
-            double value = base.Collect();
-            return value / this.processorsCount;
+            return result;
         }
 
         private int GetProcessorsCount()
         {
-            int count = 0;
+            int count = -1;
             try
             {
                 string countString = Environment.GetEnvironmentVariable(ProcessorsCounterEnvironmentVariable);
                 if (!int.TryParse(countString, out count) || count < 1)
                 {
-                    throw new InvalidCastException(string.Format(CultureInfo.InvariantCulture, "Invalid value for NUMBER_OF_PROCESSORS: {0}", countString));
+                   count = -1;
+                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(
+                        ProcessorsCounterEnvironmentVariable,
+                        string.Format(CultureInfo.InvariantCulture, "Invalid value for NUMBER_OF_PROCESSORS: {0}", countString));
                 }
             }
             catch (Exception ex)
             {
+                count = -1;
                 PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(ProcessorsCounterEnvironmentVariable, ex.ToString());
             }
 

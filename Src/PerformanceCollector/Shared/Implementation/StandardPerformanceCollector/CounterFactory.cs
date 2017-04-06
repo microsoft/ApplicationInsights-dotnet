@@ -20,7 +20,7 @@
             switch (originalString)
             {
                 case @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized":
-                    return new StandardPerformanceCounter(categoryName, counterName, instanceName);
+                    return new NormalizedProcessCPUPerformanceCounter(categoryName, counterName, instanceName);
                 default:
                     return new StandardPerformanceCounter(categoryName, counterName, instanceName);
             }

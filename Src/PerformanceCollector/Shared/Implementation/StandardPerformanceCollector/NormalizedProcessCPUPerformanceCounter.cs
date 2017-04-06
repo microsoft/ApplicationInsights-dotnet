@@ -7,13 +7,19 @@
     /// <summary>
     /// Interface represents normalized value of CPU Utilization by Process counter value.
     /// </summary>
-    internal class NormalizedProcessCPUPerformanceCounter : ICounterValue
+    internal class NormalizedProcessCPUPerformanceCounter : ICounterValue, IDisposable
     {
-        PerformanceCounter performanceCounter = null;
+        private PerformanceCounter performanceCounter = null;
 
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="NormalizedProcessCPUPerformanceCounter" /> class.
+        /// </summary>
+        /// <param name="categoryName">The counter category name.</param>
+        /// <param name="counterName">The counter name.</param>
+        /// <param name="instanceName">The instance name.</param>
         internal NormalizedProcessCPUPerformanceCounter(string categoryName, string counterName, string instanceName)
         {
-            performanceCounter = new PerformanceCounter(categoryName, counterName, instanceName, true);
+            this.performanceCounter = new PerformanceCounter("Process", "% Processor Time", instanceName, true);
         }
 
         /// <summary>
@@ -24,7 +30,7 @@
         {
             try
             {
-                return this.performanceCounter.NextValue();
+                return this.performanceCounter.NextValue() / Environment.ProcessorCount;
             }
             catch (Exception e)
             {
@@ -34,6 +40,30 @@
                         Resources.PerformanceCounterReadFailed,
                         PerformanceCounterUtility.FormatPerformanceCounter(this.performanceCounter)),
                     e);
+            }
+        }
+
+        /// <summary>
+        /// Disposes resources allocated by this type.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Dispose implementation.
+        /// </summary>
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.performanceCounter != null)
+                {
+                    this.performanceCounter.Dispose();
+                    this.performanceCounter = null;
+                }
             }
         }
     }

@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
 
-    internal class StandardPerformanceCollector : IPerformanceCollector
+    internal class StandardPerformanceCollector : IPerformanceCollector, IDisposable
     {
         private readonly List<Tuple<PerformanceCounterData, ICounterValue>> performanceCounters = new List<Tuple<PerformanceCounterData, ICounterValue>>();
         private CounterFactory factory = new CounterFactory();
@@ -107,6 +106,15 @@
             {
                 this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
             }
+        }
+
+        /// <summary>
+        /// Disposes resources allocated by this type.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -280,6 +288,28 @@
                         instanceName);
 
                 this.performanceCounters.Add(new Tuple<PerformanceCounterData, ICounterValue>(perfData, performanceCounter));
+            }
+        }
+
+        /// <summary>
+        /// Dispose implementation.
+        /// </summary>
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.performanceCounters != null)
+                {
+                    foreach (var performanceCounter in this.performanceCounters)
+                    {
+                        if (performanceCounter.Item2 is IDisposable)
+                        {
+                            ((IDisposable)performanceCounter.Item2).Dispose();
+                        }
+                    }
+
+                    this.performanceCounters.Clear();
+                }
             }
         }
     }

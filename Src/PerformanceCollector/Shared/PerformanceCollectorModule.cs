@@ -226,6 +226,11 @@
                     this.timer.Dispose();
                     this.timer = null;
                 }
+
+                if (this.collector != null && this.collector is IDisposable)
+                {
+                    ((IDisposable)this.collector).Dispose();
+                }
             }
         }
 

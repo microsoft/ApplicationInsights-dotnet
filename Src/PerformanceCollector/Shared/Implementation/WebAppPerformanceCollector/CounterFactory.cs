@@ -463,6 +463,13 @@
                             reportAs,
                             new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
                             new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
+                case @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized":
+                    return new NormalizedCPUPercenageGauge(
+                        reportAs,
+                        new SumUpCountersGauge(
+                            reportAs,
+                            new RawCounterGauge("kernelTime", "kernelTime", AzureWebApEnvironmentVariables.App),
+                            new RawCounterGauge("userTime", "userTime", AzureWebApEnvironmentVariables.App)));
                 case @"\Process(??APP_WIN32_PROC??)\% User Time":
                     return new RawCounterGauge(
                         reportAs,
