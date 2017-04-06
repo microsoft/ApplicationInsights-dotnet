@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Extensibility
+﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Metrics
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +20,7 @@
         {
         }
 
-        public string ExtractorName { get; } = typeof(RequestMetricsExtractor).FullName;
+        public string ExtractorName { get; } = "Requests";
 
         public string ExtractorVersion { get; } = "1.0";
 
