@@ -49,8 +49,8 @@
             // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
             // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
             // let's fix it
-            telemetry.Id = AppInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
-            telemetry.Context.Operation.Id = AppInsightsActivity.GetRootId(telemetry.Id);
+            telemetry.Id = ApplicationInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
+            telemetry.Context.Operation.Id = ApplicationInsightsActivity.GetRootId(telemetry.Id);
 
 #endif
             PretendProfilerIsAttached = false;

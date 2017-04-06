@@ -12,7 +12,7 @@
     /// Mimics System.Diagnostics.Activity and Correlation HTTP protocol 
     /// and intended to be used on .NET 4.0.
     /// </summary>
-    internal class AppInsightsActivity
+    internal class ApplicationInsightsActivity
     {
         private const int RequestIdMaxLength = 1024;
 

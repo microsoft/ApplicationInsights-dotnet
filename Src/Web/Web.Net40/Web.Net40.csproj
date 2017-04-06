@@ -73,8 +73,8 @@
     <Compile Include="..\Web.Net45\Implementation\SdkVersionUtils.cs">
       <Link>Implementation\SdkVersionUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\Common\AppInsightsActivity.cs">
-      <Link>AppInsightsActivity.cs</Link>
+    <Compile Include="..\..\Common\ApplicationInsightsActivity.cs">
+      <Link>ApplicationInsightsActivity.cs</Link>
     </Compile>    
     <Compile Include="Implementation\HttpRequestExtensions.cs" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 namespace Microsoft.ApplicationInsights.Common
 {
+    using System;
     using System.Collections.Generic;
 #if NET45
     using System.Diagnostics;
@@ -129,18 +130,18 @@ namespace Microsoft.ApplicationInsights.Common
             requestTelemetry.Context.Operation.ParentId = parentId;
             if (rootId != null)
             {
-                requestTelemetry.Id = AppInsightsActivity.GenerateRequestId(rootId);
+                requestTelemetry.Id = ApplicationInsightsActivity.GenerateRequestId(rootId);
             }
             else if (parentId != null)
             {
-                requestTelemetry.Id = AppInsightsActivity.GenerateRequestId(parentId);
+                requestTelemetry.Id = ApplicationInsightsActivity.GenerateRequestId(parentId);
             }
             else
             {
-                requestTelemetry.Id = AppInsightsActivity.GenerateRequestId();
+                requestTelemetry.Id = ApplicationInsightsActivity.GenerateRequestId();
             }
 
-            requestTelemetry.Context.Operation.Id = AppInsightsActivity.GetRootId(requestTelemetry.Id);
+            requestTelemetry.Context.Operation.Id = ApplicationInsightsActivity.GetRootId(requestTelemetry.Id);
             if (correlationContext != null)
             {
                 foreach (var item in correlationContext)
@@ -193,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Common
             if (!string.IsNullOrEmpty(parentId))
             {
                 correlationContext =
-                    request.Headers.GetNameValueCollectionFromHeader(RequestResponseHeaders.CorrelationContextHeader);
+                    request.UnvalidatedGetHeaders().GetNameValueCollectionFromHeader(RequestResponseHeaders.CorrelationContextHeader);
 
                 bool isHierarchicalId = IsHierarchicalRequestId(parentId);
 

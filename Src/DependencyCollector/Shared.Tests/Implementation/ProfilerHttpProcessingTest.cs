@@ -207,7 +207,7 @@
                 Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id));
                 Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
 #else
-                Assert.AreEqual(op.Telemetry.Context.Operation.Id, AppInsightsActivity.GetRootId(request.Headers[RequestResponseHeaders.StandardParentIdHeader]));
+                Assert.AreEqual(op.Telemetry.Context.Operation.Id, ApplicationInsightsActivity.GetRootId(request.Headers[RequestResponseHeaders.StandardParentIdHeader]));
 #endif
             }
         }
