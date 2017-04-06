@@ -5,7 +5,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Reflection;
     using System.Runtime.ExceptionServices;
+    using System.Threading;
     using Extensibility.Implementation.Tracing;
     using Implementation;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -18,6 +20,18 @@
     /// </summary>
     public sealed class FirstChanceExceptionStatisticsTelemetryModule : ITelemetryModule, IDisposable
     {
+        internal const int OperationNameCacheSize = 100;
+        internal const int ProblemIdCacheSize = 10000;
+
+        internal const double CurrentWeight = .7;
+        internal const double NewWeight = .3;
+        internal const long TicksMovingAverage = 100000000; // 10 seconds
+        internal long MovingAverageTimeout;
+        internal double TargetMovingAverage = 5000;
+
+        // cheap dimension capping
+        internal long DimCapTimeout;
+
         private const int LOCKED = 1;
         private const int UNLOCKED = 0;
 
@@ -36,16 +50,22 @@
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction;
         private readonly Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction;
         private readonly object lockObject = new object();
+        private readonly object movingAverageLockObject = new object();
 
         private TelemetryClient telemetryClient;
         private MetricManager metricManager;
 
         private bool isInitialized = false;
 
-        // cheap dimentions capping
-        private ConcurrentDictionary<string, int> operationValues = new ConcurrentDictionary<string, int>();
-        private ConcurrentDictionary<string, int> methodValues = new ConcurrentDictionary<string, int>();
-        private ConcurrentDictionary<string, int> typeValues = new ConcurrentDictionary<string, int>();
+        private long newThreshold = 0;
+        private long newProcessed = 0;
+        private double currentMovingAverage = 0;
+
+        private long cacheLifetime = 300000000; // 30 seconds in ticks
+
+        private HashCache<string> operationNameValues = new HashCache<string>();
+        private HashCache<string> problemIdValues = new HashCache<string>();
+        private HashCache<string> exceptionKeyValues = new HashCache<string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FirstChanceExceptionStatisticsTelemetryModule" /> class.
@@ -60,6 +80,9 @@
             Action<EventHandler<FirstChanceExceptionEventArgs>> registerAction,
             Action<EventHandler<FirstChanceExceptionEventArgs>> unregisterAction)
         {
+            this.DimCapTimeout = DateTime.UtcNow.Ticks + this.cacheLifetime;
+            this.MovingAverageTimeout = DateTime.UtcNow.Ticks - 1; // Setting the timeout to be expired
+
             this.registerAction = registerAction;
             this.unregisterAction = unregisterAction;
         }
@@ -77,14 +100,14 @@
                 {
                     if (!this.isInitialized)
                     {
-                        this.isInitialized = true;
-
                         this.telemetryClient = new TelemetryClient(configuration);
                         this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
 
                         this.metricManager = new MetricManager(this.telemetryClient);
 
                         this.registerAction(this.CalculateStatistics);
+
+                        this.isInitialized = true;
                     }
                 }
             }
@@ -104,25 +127,31 @@
         {
             bool wasTracked = IsTracked(exception);
 
-            if (!wasTracked)
-            {
-                var innerException = exception.InnerException;
-                if (innerException != null)
-                {
-                    wasTracked = IsTracked(innerException);
-                }
-            }
+            //// This is temporarily being commented out to capture outer exceptions. It will be modified later. 
+            ////if (!wasTracked)
+            ////{
+            ////    var innerException = exception.InnerException;
+            ////    if (innerException != null)
+            ////    {
+            ////        wasTracked = IsTracked(innerException);
+            ////    }
+            ////}
 
-            if (!wasTracked && exception is AggregateException)
-            {
-                foreach (var innerException in ((AggregateException)exception).InnerExceptions)
-                {
-                    if (innerException != null)
-                    {
-                        wasTracked = IsTracked(innerException);
-                    }
-                }
-            }
+            ////if (!wasTracked && exception is AggregateException)
+            ////{
+            ////    foreach (var innerException in ((AggregateException)exception).InnerExceptions)
+            ////    {
+            ////        if (innerException != null)
+            ////        {
+            ////            wasTracked = IsTracked(innerException);
+
+            ////            if (wasTracked == true)
+            ////            {
+            ////                break;
+            ////            }
+            ////        }
+            ////    }
+            ////}
 
             // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
             // so the .Data is now writable. Also it may be null in certain cases
@@ -154,6 +183,9 @@
             if (disposing)
             {
                 this.unregisterAction(this.CalculateStatistics);
+                this.operationNameValues.Dispose();
+                this.problemIdValues.Dispose();
+                this.exceptionKeyValues.Dispose();
                 this.metricManager.Dispose();
             }
         }
@@ -168,9 +200,42 @@
 
             try
             {
+                Exception exception;
+                string exceptionType;
+                StackFrame exceptionStackFrame;
+                string problemId;
+                string methodName = "UnknownMethod";
+                int methodOffset = StackFrame.OFFSET_UNKNOWN;
+                bool getOperationName = false;
+
                 executionSyncObject = LOCKED;
 
-                var exception = firstChanceExceptionArgs?.Exception;
+                if (this.MovingAverageTimeout < DateTime.UtcNow.Ticks)
+                {
+                    lock (this.movingAverageLockObject)
+                    {
+                        if (this.MovingAverageTimeout < DateTime.UtcNow.Ticks)
+                        {
+                            if (this.MovingAverageTimeout + TicksMovingAverage < DateTime.UtcNow.Ticks)
+                            {
+                                this.currentMovingAverage = 0;
+                            }
+                            else
+                            {
+                                this.currentMovingAverage = (this.currentMovingAverage * CurrentWeight) +
+                                (((double)this.newProcessed) * NewWeight);
+                            }
+
+                            this.newThreshold = (long)((this.TargetMovingAverage - (this.currentMovingAverage * CurrentWeight)) / NewWeight);
+
+                            this.newProcessed = 0;
+
+                            this.MovingAverageTimeout = DateTime.UtcNow.Ticks + TicksMovingAverage;
+                        }
+                    }
+                }
+
+                exception = firstChanceExceptionArgs?.Exception;
 
                 if (exception == null)
                 {
@@ -178,30 +243,43 @@
                     return;
                 }
 
-                WindowsServerEventSource.Log.FirstChanceExceptionCallbackCalled();
-
-                var type = exception.GetType().FullName;
-
-                // obtaining the operation name. At this stage we have no intention to send this telemetry item
-                ExceptionTelemetry fakeTelemetry = new ExceptionTelemetry(exception);
-                this.telemetryClient.Initialize(fakeTelemetry);
-
-                var operation = fakeTelemetry.Context.Operation.Name;
-
-                // obtaining failing method name by walking 1 frame up the stack
-                var frame = new StackFrame(1);
-                var failingMethod = frame.GetMethod();
-                var method = (failingMethod.DeclaringType?.FullName ?? "Global") + "." + failingMethod.Name;
-
-                var offset = frame.GetILOffset();
-                if (offset != StackFrame.OFFSET_UNKNOWN)
+                if (this.WasExceptionTracked(exception) == true)
                 {
-                    method += ": " + offset.ToString(CultureInfo.InvariantCulture);
+                    return;
                 }
 
-                bool wasTracked = this.WasExceptionTracked(exception);
+                exceptionType = exception.GetType().FullName;
 
-                this.TrackStatistics(type, operation, method, wasTracked);
+                exceptionStackFrame = new StackFrame(1);
+
+                if (exceptionStackFrame != null)
+                {
+                    MethodBase methodBase = exceptionStackFrame.GetMethod();
+
+                    if (methodBase != null)
+                    {
+                        methodName = (methodBase.DeclaringType?.FullName ?? "Global") + "." + methodBase.Name;
+                        methodOffset = exceptionStackFrame.GetILOffset();
+                    }
+                }
+
+                if (methodOffset == StackFrame.OFFSET_UNKNOWN)
+                {
+                    problemId = exceptionType + " at " + methodName;
+                }
+                else
+                {
+                    problemId = exceptionType + " at " + methodName + ":" + methodOffset.ToString(CultureInfo.InvariantCulture);
+                }
+
+                if (this.newProcessed < this.newThreshold)
+                {
+                    Interlocked.Increment(ref this.newProcessed);
+
+                    getOperationName = true;
+                }
+
+                this.TrackStatistics(getOperationName, problemId, exception);
             }
             catch (Exception exc)
             {
@@ -221,48 +299,209 @@
             }
         }
 
-        private void TrackStatistics(string type, string operation, string method, bool wasTracked)
+        private void TrackStatistics(bool getOperationName, string problemId, Exception exception)
         {
+            ExceptionTelemetry exceptionTelemetry = null;
             var dimensions = new Dictionary<string, string>();
-            dimensions.Add("type", this.GetDimCappedString(type, this.typeValues));
-            dimensions.Add("method", this.GetDimCappedString(method, this.methodValues));
+            string operationName = null;
+            string refinedOperationName = null;
+            string refinedProblemId = null;
+
+            if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+            {
+                this.ResetDimCapCaches(this.operationNameValues, this.problemIdValues, this.exceptionKeyValues);
+            }
+
+            refinedProblemId = this.GetDimCappedString(problemId, this.problemIdValues, ProblemIdCacheSize);
+
+            if (string.IsNullOrEmpty(refinedProblemId) == true)
+            {
+                refinedProblemId = "MaxProblemIdValues";
+            }
+
+            dimensions.Add("problemId", refinedProblemId);
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
-                dimensions.Add("operation", "AI (Internal)");
-            }
-            else if (!string.IsNullOrEmpty(operation))
-            {
-                dimensions.Add("operation", this.GetDimCappedString(operation, this.operationValues));
-            }
-
-            var metric = this.metricManager.CreateMetric("Exceptions Thrown", dimensions);
-
-            if (wasTracked)
-            {
-                metric.Track(0);
+                dimensions.Add("operationName", "AI (Internal)");
             }
             else
             {
-                metric.Track(1);
+                if (getOperationName == true)
+                {
+                    exceptionTelemetry = new ExceptionTelemetry(exception);
+                    this.telemetryClient.Initialize(exceptionTelemetry);
+                    operationName = exceptionTelemetry.Context.Operation.Name;
+                }
+
+                if (string.IsNullOrEmpty(operationName) == false)
+                {
+                    refinedOperationName = this.GetDimCappedString(operationName, this.operationNameValues, OperationNameCacheSize);
+
+                    dimensions.Add("operationName", refinedOperationName);
+                }
+            }
+
+            this.SendException(refinedOperationName, refinedProblemId, exceptionTelemetry, exception);
+
+            var metric = this.metricManager.CreateMetric("Exceptions thrown", dimensions);
+
+            metric.Track(1);
+        }
+
+        private void SendException(string operationName, string problemId, ExceptionTelemetry exceptionTelemetry, Exception exception)
+        {
+            string exceptionKey;
+
+            if (string.IsNullOrEmpty(operationName) == true)
+            {
+                exceptionKey = problemId;
+            }
+            else
+            {
+                exceptionKey = operationName + problemId;
+            }
+
+            if (this.exceptionKeyValues.Contains(exceptionKey) == true)
+            {
+                return;
+            }
+
+            this.exceptionKeyValues.RwLock.EnterWriteLock();
+
+            if (this.exceptionKeyValues.ValueCache.Contains(exceptionKey) == false)
+            {
+                this.exceptionKeyValues.ValueCache.Add(exceptionKey);
+
+                this.exceptionKeyValues.RwLock.ExitWriteLock();
+
+                if (exceptionTelemetry == null)
+                {
+                    exceptionTelemetry = new ExceptionTelemetry(exception);
+                    this.telemetryClient.Initialize(exceptionTelemetry);
+                }
+
+                StackTrace st = new StackTrace(3, true);
+                exceptionTelemetry.SetParsedStack(st.GetFrames());
+
+                if (string.IsNullOrEmpty(exceptionTelemetry.ProblemId) == true)
+                {
+                    exceptionTelemetry.ProblemId = problemId;
+                }
+
+                this.telemetryClient.TrackException(exceptionTelemetry);
+            }
+            else
+            {
+                this.exceptionKeyValues.RwLock.ExitWriteLock();
             }
         }
 
-        private string GetDimCappedString(string dimensionValue, ConcurrentDictionary<string, int> capValues)
+        private string GetDimCappedString(string dimensionValue, HashCache<string> hashCache, int cacheSize)
         {
-            int temp;
-            if (capValues.TryGetValue(dimensionValue, out temp))
+            hashCache.RwLock.EnterReadLock();
+
+            if (hashCache.ValueCache.Contains(dimensionValue) == true)
             {
+                hashCache.RwLock.ExitReadLock();
+
                 return dimensionValue;
             }
-            else if (capValues.Count > 100)
+
+            if (hashCache.ValueCache.Count > cacheSize)
             {
-                return "OtherValue";
+                hashCache.RwLock.ExitReadLock();
+
+                return null;
             }
-            else
+
+            hashCache.RwLock.ExitReadLock();
+            hashCache.RwLock.EnterWriteLock();
+
+            hashCache.ValueCache.Add(dimensionValue);
+
+            hashCache.RwLock.ExitWriteLock();
+
+            return dimensionValue;
+        }
+
+        private void ResetDimCapCaches(HashCache<string> cache1, HashCache<string> cache2, HashCache<string> cache3)
+        {
+            cache1.RwLock.EnterWriteLock();
+
+            if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
             {
-                capValues.TryAdd(dimensionValue, 0);
-                return dimensionValue;
+                cache2.RwLock.EnterWriteLock();
+
+                if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+                {
+                    cache3.RwLock.EnterWriteLock();
+
+                    if (this.DimCapTimeout < DateTime.UtcNow.Ticks)
+                    {
+                        cache1.ValueCache.Clear();
+                        cache2.ValueCache.Clear();
+                        cache3.ValueCache.Clear();
+
+                        this.DimCapTimeout = DateTime.UtcNow.Ticks + this.cacheLifetime;
+                    }
+
+                    cache3.RwLock.ExitWriteLock();
+                }
+
+                cache2.RwLock.ExitWriteLock();
+            }
+
+            cache1.RwLock.ExitWriteLock();
+        }
+
+        internal class HashCache<T> : IDisposable
+        {
+            internal ReaderWriterLockSlim RwLock;
+            internal HashSet<T> ValueCache = new HashSet<T>();
+
+            private bool disposedValue = false; // To detect redundant calls
+
+            internal HashCache()
+            {
+                this.RwLock = new ReaderWriterLockSlim();
+                this.ValueCache = new HashSet<T>();
+            }
+
+            void IDisposable.Dispose()
+            {
+                this.Dispose(true);
+            }
+
+            // This code added to correctly implement the disposable pattern.
+            internal void Dispose()
+            {
+                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+                this.Dispose(true);
+            }
+
+            internal bool Contains(T value)
+            {
+                bool rc;
+
+                this.RwLock.EnterReadLock();
+                rc = this.ValueCache.Contains(value);
+                this.RwLock.ExitReadLock();
+
+                return rc;
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!this.disposedValue)
+                {
+                    if (disposing)
+                    {
+                        ////this.RwLock.Dispose();
+                    }
+
+                    this.disposedValue = true;
+                }
             }
         }
     }
