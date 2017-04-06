@@ -130,19 +130,6 @@ namespace Microsoft.ApplicationInsights.Common
                 correlationContext =
                     request.UnvalidatedGetHeaders().GetNameValueCollectionFromHeader(RequestResponseHeaders.CorrelationContextHeader);
 
-/*                bool isHierarchicalId = IsHierarchicalRequestId(parentId);
-
-                if (correlationContext != null)
-                {
-                    foreach (var item in correlationContext)
-                    {
-                        if (!isHierarchicalId && item.Key == "Id")
-                        {
-                            rootId = item.Value;
-                        }
-                    }
-                }*/
-
                 return true;
             }
 
