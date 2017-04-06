@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Threading;
 
     // See
@@ -45,7 +46,7 @@
                     parentId += '.';
                 }
 
-                ret = AppendSuffix(parentId, Interlocked.Increment(ref currentRootId).ToString("x"), '_');
+                ret = AppendSuffix(parentId, Interlocked.Increment(ref currentRootId).ToString("x", CultureInfo.InvariantCulture), '_');
             }
             else
             {
@@ -75,7 +76,7 @@
                     parentId += '.';
                 }
 
-                ret = AppendSuffix(parentId, Interlocked.Increment(ref currentRootId).ToString("x"), '_');
+                ret = AppendSuffix(parentId, Interlocked.Increment(ref currentRootId).ToString("x", CultureInfo.InvariantCulture), '_');
             }
             else
             {
@@ -133,7 +134,7 @@
             }
 
             // generate overflow suffix
-            string overflowSuffix = ((int)GetRandomNumber()).ToString("x8");
+            string overflowSuffix = ((int)GetRandomNumber()).ToString("x8", CultureInfo.InvariantCulture);
             return parentId.Substring(0, trimPosition) + overflowSuffix + '#';
         }
 
@@ -144,7 +145,7 @@
                 Interlocked.CompareExchange(ref uniqPrefix, GenerateInstancePrefix(), null);
             }
 
-            return uniqPrefix + "-" + Interlocked.Increment(ref currentRootId).ToString("x") + '.';
+            return uniqPrefix + "-" + Interlocked.Increment(ref currentRootId).ToString("x", CultureInfo.InvariantCulture) + '.';
         }
 
         private static string GenerateInstancePrefix()
@@ -153,7 +154,7 @@
             // it is unclear if we have that ID handy.   Currently we use low bits of high freq tick 
             // as a unique random number (which is not bad, but loses randomness for startup scenarios).  
             int uniqNum = unchecked((int)Stopwatch.GetTimestamp());
-            return $"|{Environment.MachineName}-{uniqNum:x}";
+            return string.Format(CultureInfo.InvariantCulture, "|{0}-{1:x}.", Environment.MachineName, uniqNum);
         }
 
         private static ulong GetRandomNumber()

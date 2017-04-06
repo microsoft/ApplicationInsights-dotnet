@@ -424,7 +424,7 @@
             Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
             Assert.Equal("|guid1.1", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1.1."));
+            Assert.True(requestTelemetry.Id.StartsWith("|guid1.1.", StringComparison.Ordinal));
             Assert.NotEqual("|guid1.1", requestTelemetry.Id);
             Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
             Assert.Equal("v", requestTelemetry.Properties["k"]);
@@ -447,7 +447,7 @@
             Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1."));
+            Assert.True(requestTelemetry.Id.StartsWith("|guid1.", StringComparison.Ordinal));
             Assert.NotEqual("|guid1.1.", requestTelemetry.Id);
             Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
 
@@ -469,7 +469,7 @@
             var operationId = requestTelemetry.Context.Operation.Id;
             Assert.NotNull(operationId);
             Assert.Null(requestTelemetry.Context.Operation.ParentId);
-            Assert.True(requestTelemetry.Id.StartsWith('|' + operationId + '.'));
+            Assert.True(requestTelemetry.Id.StartsWith('|' + operationId + '.', StringComparison.Ordinal));
             Assert.NotEqual(operationId, requestTelemetry.Id);
         }
 
@@ -514,28 +514,7 @@
             Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
             Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
 
-            Assert.True(requestTelemetry.Id.StartsWith("|guid2."));
-        }
-
-        // skip, Activity not yet validates correlation context
-        [Ignore]
-        [TestMethod]
-        public void InitializeWithInvalidCorrelationContext()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid.",
-                ["Correlation-Context"] = $"123,k1=v1,k12345678910111213=v2,k3={Guid.NewGuid()}{Guid.NewGuid()}" // key length must be less than 16, value length < 42
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            // initialize telemetry
-            module.OnEndRequest(context);
-
-            Assert.Equal("v1", requestTelemetry.Context.Properties["k1"]);
+            Assert.True(requestTelemetry.Id.StartsWith("|guid2.", StringComparison.Ordinal));
         }
 
         [TestMethod]
@@ -701,7 +680,7 @@
             // then we lost it and restored (started a new child activity), so the Id is guid1.1.12345_abc_
             // so the request is grand parent to the trace
             Assert.Equal(Activity.Current.ParentId, requestTelemetry.Id);
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id));
+            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
             Assert.Equal(Activity.Current.Id, trace.Context.Operation.ParentId);
 #endif
             Assert.Equal("v", trace.Context.Properties["k"]);
@@ -738,7 +717,7 @@
             // then we created Activity for request children and assigned it Id like guid1.1.12345_1
             // then we lost it and restored (started a new child activity), so the Id is guid1.1.123_1.abc
             // so the request is grand parent to the trace
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id));
+            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
 #endif
             Assert.Equal("v", trace.Context.Properties["k"]);
         }
