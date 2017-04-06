@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
-    using System.Globalization;
     using System.Linq;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
@@ -17,8 +16,7 @@
                 throw new ArgumentException("platformContext");
             }
 
-            var result = new RequestTelemetry();
-            result.GenerateOperationId();
+            var result = ActivityHelpers.ParseRequest(platformContext);
 
             platformContext.Items.Add(RequestTrackingConstants.RequestTelemetryItemName, result);
             WebEventSource.Log.WebTelemetryModuleRequestTelemetryCreated();

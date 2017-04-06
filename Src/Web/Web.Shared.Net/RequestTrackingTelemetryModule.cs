@@ -79,14 +79,36 @@
                 return;
             }
 
-            var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
+            var telemetry = context.ReadOrCreateRequestTelemetryPrivate();
 
             // NB! Whatever is saved in RequestTelemetry on Begin is not guaranteed to be sent because Begin may not be called; Keep it in context
             // In WCF there will be 2 Begins and 1 End. We need time from the first one
-            if (requestTelemetry.Timestamp == DateTimeOffset.MinValue)
+            if (telemetry.Timestamp == DateTimeOffset.MinValue)
             {
-                requestTelemetry.Start();
+                telemetry.Start();
             }
+        }
+
+        /// <summary>
+        /// Implements on PreRequestHandlerExecute callback of http module
+        /// that is executed right before the handler and restores any execution context 
+        /// if it was lost in native/managed thread switches.
+        /// </summary>
+        public void OnPreRequestHandlerExecute(HttpContext context)
+        {
+            if (this.telemetryClient == null)
+            {
+                // TODO: write event log, when https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/390/commits/c38d6d48e666114fedba90b8df6a4f36571cbb66 is merged to 2.4.0
+                return;
+            }
+
+            if (context == null)
+            {
+                WebEventSource.Log.NoHttpContextWarning();
+                return;
+            }
+
+            ActivityHelpers.RestoreActivityIfLost(context);
         }
 
         /// <summary>
@@ -104,6 +126,9 @@
                 return;
             }
 
+            // we store Activity/Call context to initialize child telemtery within the scope of this request,
+            // so it's time to stop it
+            ActivityHelpers.StopRequestActivity();
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 
@@ -142,7 +167,7 @@
 
                 try
                 {
-                    sourceAppId = context.Request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey);
+                    sourceAppId = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey);
                 }
                 catch (Exception ex)
                 {

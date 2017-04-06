@@ -79,6 +79,9 @@
     <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs">
       <Link>SdkVersionUtils.cs</Link>
     </Compile>
+    <Compile Include="..\..\Common\ApplicationInsightsActivity.cs">
+      <Link>ApplicationInsightsActivity.cs</Link>
+    </Compile>       
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />

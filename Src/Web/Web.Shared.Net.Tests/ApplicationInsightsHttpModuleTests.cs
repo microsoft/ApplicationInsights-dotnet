@@ -36,6 +36,7 @@
         {
             ((IHttpModule)this.module.Target).Dispose();
             ((IHttpModule)this.module2.Target).Dispose();
+            Common.ActivityHelpers.StopRequestActivity();
         }
 
         [TestMethod]
