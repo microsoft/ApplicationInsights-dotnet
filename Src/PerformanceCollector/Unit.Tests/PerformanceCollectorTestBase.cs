@@ -35,12 +35,12 @@
             {
                 var value = result.Item2;
 
-                Assert.AreEqual(categoryName,  result.Item1.CategoryName);
-                Assert.AreEqual(counterName,  result.Item1.CounterName);
+                Assert.AreEqual(categoryName,  result.Item1.PerformanceCounter.CategoryName);
+                Assert.AreEqual(counterName,  result.Item1.PerformanceCounter.CounterName);
 
                 if (instanceName != null)
                 {
-                    Assert.AreEqual(instanceName,  result.Item1.InstanceName);
+                    Assert.AreEqual(instanceName,  result.Item1.PerformanceCounter.InstanceName);
                 }
 
                 Assert.IsTrue(value >= 0 && value <= 100);
@@ -76,8 +76,8 @@
             collector.RefreshCounters();
             
             // All bad state counters are removed and added later through register counter, and as a result, the order of the performance coutners is changed.
-            Assert.AreEqual(collector.PerformanceCounters.First().InstanceName, "_Total");
-            Assert.AreEqual(collector.PerformanceCounters.Last().InstanceName, "_Total123afadfdsdf");
+            Assert.AreEqual(collector.PerformanceCounters.First().PerformanceCounter.InstanceName, "_Total");
+            Assert.AreEqual(collector.PerformanceCounters.Last().PerformanceCounter.InstanceName, "_Total123afadfdsdf");
         }
 
         internal void PerformanceCollectorBadStateTest(IPerformanceCollector collector)

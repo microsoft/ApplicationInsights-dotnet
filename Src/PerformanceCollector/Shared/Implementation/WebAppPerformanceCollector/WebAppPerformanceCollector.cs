@@ -21,14 +21,6 @@
         }
 
         /// <summary>
-        /// Loads instances that are used in performance counter computation.
-        /// </summary>
-        public void LoadDependentInstances()
-        {
-            this.factory = new CounterFactory();
-        }
-
-        /// <summary>
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
@@ -125,9 +117,9 @@
             this.RegisterPerformanceCounter(
                 pcd.OriginalString,
                 pcd.ReportAs,
-                pcd.CategoryName,
-                pcd.CounterName,
-                pcd.InstanceName,
+                pcd.PerformanceCounter.CategoryName,
+                pcd.PerformanceCounter.CounterName,
+                pcd.PerformanceCounter.InstanceName,
                 pcd.UsesInstanceNamePlaceholder,
                 pcd.IsCustomCounter);
         }

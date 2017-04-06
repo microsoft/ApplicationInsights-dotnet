@@ -8,7 +8,8 @@
 
     internal class StandardPerformanceCollector : IPerformanceCollector
     {
-        private readonly List<Tuple<PerformanceCounterData, PerformanceCounter>> performanceCounters = new List<Tuple<PerformanceCounterData, PerformanceCounter>>();
+        private readonly List<Tuple<PerformanceCounterData, ICounterValue>> performanceCounters = new List<Tuple<PerformanceCounterData, ICounterValue>>();
+        private CounterFactory factory = new CounterFactory();
 
         private IEnumerable<string> win32Instances;
         private IEnumerable<string> clrInstances;
@@ -36,15 +37,15 @@
 
                         try
                         {
-                            value = CollectCounter(pc.Item2);
+                            value = pc.Item2.Collect();
                         }
                         catch (InvalidOperationException e)
                         {
                             if (onReadingFailure != null)
                             {
                                 onReadingFailure(
-                                    PerformanceCounterUtility.FormatPerformanceCounter(pc.Item2),
-                                    e);
+                                     PerformanceCounterUtility.FormatPerformanceCounter(pc.Item1.PerformanceCounter),
+                                     e);
                             }
 
                             return new Tuple<PerformanceCounterData, double>[] { };
@@ -109,31 +110,11 @@
         }
 
         /// <summary>
-        /// Collects a value for a single counter.
-        /// </summary>
-        private static double CollectCounter(PerformanceCounter pc)
-        {
-            try
-            {
-                return pc.NextValue();
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Resources.PerformanceCounterReadFailed,
-                        PerformanceCounterUtility.FormatPerformanceCounter(pc)),
-                    e);
-            }
-        }
-
-        /// <summary>
         /// Rebinds performance counters to Windows resources.
         /// </summary>
         private void RefreshPerformanceCounter(PerformanceCounterData pcd)
         {
-            Tuple<PerformanceCounterData, PerformanceCounter> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
+            Tuple<PerformanceCounterData, ICounterValue> tupleToRemove = this.performanceCounters.FirstOrDefault(t => t.Item1 == pcd);
             if (tupleToRemove != null)
             {
                 this.performanceCounters.Remove(tupleToRemove);
@@ -142,9 +123,9 @@
             this.RegisterPerformanceCounter(
                 pcd.OriginalString,
                 pcd.ReportAs,
-                pcd.CategoryName,
-                pcd.CounterName,
-                pcd.InstanceName,
+                pcd.PerformanceCounter.CategoryName,
+                pcd.PerformanceCounter.CounterName,
+                pcd.PerformanceCounter.InstanceName,
                 pcd.UsesInstanceNamePlaceholder,
                 pcd.IsCustomCounter);
         }
@@ -201,7 +182,7 @@
         private void RegisterCounter(
             string originalString,
             string reportAs,
-            PerformanceCounter pc,
+            PerformanceCounterStructure pc,
             bool isCustomCounter,
             bool usesInstanceNamePlaceholder,
             out string error)
@@ -243,11 +224,11 @@
         /// <param name="isCustomCounter">Indicates whether the counter is a custom counter.</param>
         private void RegisterPerformanceCounter(string originalString, string reportAs, string categoryName, string counterName, string instanceName, bool usesInstanceNamePlaceholder, bool isCustomCounter)
         {
-            PerformanceCounter performanceCounter = null;
+            ICounterValue performanceCounter = null;
 
             try
             {
-                performanceCounter = new PerformanceCounter(categoryName, counterName, instanceName, true);
+                performanceCounter = this.factory.GetCounter(originalString, categoryName, counterName, instanceName);
             }
             catch (Exception e)
             {
@@ -264,14 +245,14 @@
                             instanceName),
                         e);
                 }
-            }
+            }            
 
             bool firstReadOk = false;
             try
             {
                 // perform the first read. For many counters the first read will always return 0
                 // since a single sample is not enough to calculate a value
-                performanceCounter.NextValue();
+                performanceCounter.Collect();
 
                 firstReadOk = true;
             }
@@ -298,7 +279,7 @@
                         counterName,
                         instanceName);
 
-                this.performanceCounters.Add(new Tuple<PerformanceCounterData, PerformanceCounter>(perfData, performanceCounter));
+                this.performanceCounters.Add(new Tuple<PerformanceCounterData, ICounterValue>(perfData, performanceCounter));
             }
         }
     }

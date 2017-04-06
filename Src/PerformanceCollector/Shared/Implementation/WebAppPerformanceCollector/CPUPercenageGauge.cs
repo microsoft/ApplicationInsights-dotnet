@@ -37,6 +37,15 @@
         /// <returns>The value of the target metric.</returns>
         public double GetValueAndReset()
         {
+            return this.Collect();
+        }
+
+        /// <summary>
+        /// Returns the percentage of the CPU process utilization time with respect to the total duration.
+        /// </summary>
+        /// <returns>The value of the target metric.</returns>
+        protected virtual double Collect()
+        {
             double previouslyCollectedValue = this.lastCollectedValue;
             this.lastCollectedValue = this.valueProvider.GetValueAndReset();
 
@@ -56,7 +65,7 @@
                     PerformanceCollectorEventSource.Log.WebAppCounterNegativeValue(
                     this.lastCollectedValue,
                     previouslyCollectedValue,
-                    this.name);                    
+                    this.name);
                 }
                 else
                 {
