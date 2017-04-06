@@ -154,6 +154,72 @@
             Assert.Equal(Boolean.FalseString, metricF.Properties["Request.Success"]);
         }
 
+        [TestMethod]
+        public void Request_CorrectlyWorksWithResponseSuccess()
+        {
+            List<ITelemetry> telemetrySentToChannel = new List<ITelemetry>();
+            Func<ITelemetryProcessor, AutocollectedMetricsExtractor> extractorFactory = (nextProc) => new AutocollectedMetricsExtractor(nextProc);
+
+            TelemetryConfiguration telemetryConfig = CreateTelemetryConfigWithExtractor(telemetrySentToChannel, extractorFactory);
+            using (telemetryConfig)
+            {
+                TelemetryClient client = new TelemetryClient(telemetryConfig);
+
+                client.TrackRequest(new RequestTelemetry()
+                                    {
+                                        Name = "Test Request 1",
+                                        Timestamp = DateTimeOffset.Now,
+                                        Duration = TimeSpan.FromMilliseconds(5),
+                                        ResponseCode = "xxx",
+                                        Success = true
+                                    });
+
+                client.TrackRequest(new RequestTelemetry()
+                                    {
+                                        Name = "Test Request 2",
+                                        Timestamp = DateTimeOffset.Now,
+                                        Duration = TimeSpan.FromMilliseconds(10),
+                                        ResponseCode = "xxx",
+                                        Success = false
+                                    });
+
+                client.TrackRequest(new RequestTelemetry()
+                                    {
+                                        Name = "Test Request 3",
+                                        Timestamp = DateTimeOffset.Now,
+                                        Duration = TimeSpan.FromMilliseconds(15),
+                                        ResponseCode = "xxx",
+                                        Success = null
+                                    });
+            }
+
+            Assert.Equal(5, telemetrySentToChannel.Count);
+
+            Assert.NotNull(telemetrySentToChannel[3]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
+            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[3];
+
+            Assert.Equal("Server response time", metricT.Name);
+            Assert.Equal(2, metricT.Count);
+            Assert.Equal(15, metricT.Max);
+            Assert.Equal(5, metricT.Min);
+            Assert.Equal(20, metricT.Sum);
+            Assert.Equal(true, metricT.Properties.ContainsKey("Request.Success"));
+            Assert.Equal(Boolean.TrueString, metricT.Properties["Request.Success"]);
+
+            Assert.NotNull(telemetrySentToChannel[4]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
+            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[4];
+
+            Assert.Equal("Server response time", metricF.Name);
+            Assert.Equal(1, metricF.Count);
+            Assert.Equal(10, metricF.Max);
+            Assert.Equal(10, metricF.Min);
+            Assert.Equal(10, metricF.Sum);
+            Assert.Equal(true, metricF.Properties.ContainsKey("Request.Success"));
+            Assert.Equal(Boolean.FalseString, metricF.Properties["Request.Success"]);
+        }
+
         #endregion Request-metrics-related Tests
 
         #region Dependency-metrics-related Tests
