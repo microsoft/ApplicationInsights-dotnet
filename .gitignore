@@ -6,6 +6,7 @@
 *.user
 *.sln.docstates
 .vs
+*.sln.dotsettings
 
 # Build results
 [Dd]ebug/
@@ -19,6 +20,9 @@
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
+
+# Project lock files in Visual Studio 2015
+project.lock.json
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -160,5 +164,3 @@ $RECYCLE.BIN/
 *.prf
 *.wrn
 *.vsix
-.PreReleaseVersion
-.nugetVersion

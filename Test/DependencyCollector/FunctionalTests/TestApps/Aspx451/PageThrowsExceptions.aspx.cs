@@ -1,6 +1,7 @@
 ﻿namespace Aspx451
 {
     using System;
+    using System.Globalization;
     using System.Net;
     using System.Runtime.InteropServices;
 
@@ -23,7 +24,7 @@
             {
                 try
                 {
-                    temp = int.Parse("lala");
+                    temp = int.Parse("lala", CultureInfo.CurrentCulture);
                 }
                 catch (Exception)
                 {

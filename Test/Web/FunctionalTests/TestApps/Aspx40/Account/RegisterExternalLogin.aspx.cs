@@ -3,6 +3,7 @@ using System.Web;
 using System.Web.Security;
 using DotNetOpenAuth.AspNet;
 using Microsoft.AspNet.Membership.OpenAuth;
+using System.Globalization;
 
 namespace Aspx40.Account
 {
@@ -76,10 +77,10 @@ namespace Aspx40.Account
                 Title = "External login failed";
                 userNameForm.Visible = false;
 
-                providerMessage.Text = String.Format("External login {0} failed,", ProviderDisplayName);
+                providerMessage.Text = String.Format(CultureInfo.InvariantCulture, "External login {0} failed,", ProviderDisplayName);
 
                 // To view this error, enable page tracing in web.config (<system.web><trace enabled="true"/></system.web>) and visit ~/Trace.axd
-                Trace.Warn("OpenAuth", String.Format("There was an error verifying authentication with {0})", ProviderDisplayName), authResult.Error);
+                Trace.Warn("OpenAuth", String.Format(CultureInfo.InvariantCulture, "There was an error verifying authentication with {0})", ProviderDisplayName), authResult.Error);
                 return;
             }
 

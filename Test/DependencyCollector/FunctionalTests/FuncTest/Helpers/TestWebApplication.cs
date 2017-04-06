@@ -11,11 +11,10 @@ namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
-    using System.Threading;
-
-    using FuncTest.IIS;
-    using System.Reflection;
+    using System.Globalization;
     using System.IO;
+    using System.Reflection;
+    using FuncTest.IIS;
 
     /// <summary>The test web application.</summary>
     internal class TestWebApplication
@@ -103,7 +102,7 @@ namespace FuncTest.Helpers
             {
                 this.Pool = new IisApplicationPool(this.PoolName, enable32BitAppOnWin64: enableWin32Mode);
                 this.WebSite = new IisWebSite(this.WebSiteName, this.AppFolder, this.Port, this.Pool);
-                this.ExternalCall = string.Format("http://localhost:{0}/ExternalCalls.aspx", this.Port);
+                this.ExternalCall = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/ExternalCalls.aspx", this.Port);
                 this.IsFirstTest = true;
                 if (Directory.Exists(this.AppFolder))
                     ACLTools.GetEveryoneAccessToPath(this.AppFolder);
@@ -111,7 +110,7 @@ namespace FuncTest.Helpers
             catch (Exception ex)
             {
                 Trace.TraceError("Exception occured while attempting to deploy application {0}: {1}. Tests will not continue as they are guaranteed to fail.", this.AppName, ex);
-                throw ex;
+                throw;
             }
         }
 
@@ -134,7 +133,7 @@ namespace FuncTest.Helpers
         /// <param name="queryString">The query string.</param>
         internal string ExecuteAnonymousRequest(string pageName, string queryString)
         {
-            string url = string.Format("http://localhost:{0}/{1}?{2}", this.Port, pageName, queryString);
+            string url = string.Format(CultureInfo.InvariantCulture, "http://localhost:{0}/{1}?{2}", this.Port, pageName, queryString);
 
             string response;
             RequestHelper.ExecuteAnonymousRequest(url, out response);

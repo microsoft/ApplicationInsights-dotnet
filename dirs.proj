@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project=".\GlobalStaticVersion.props" />
-  <Import Project=".\Global.props" />
-  <PropertyGroup>
-    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
-  </PropertyGroup>
   <ItemGroup>
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
     <Solution Include="Test\DependencyCollector\FunctionalTests.sln" /> 
@@ -12,13 +8,10 @@
     <Solution Include="Test\Web\FunctionalTests.sln" />
   </ItemGroup>
   <Target Name="Build">
-    <!-- Generate build version -->
-    <WriteLinesToFile File="$(PreReleaseVersionFileName)" Lines="$(PreReleaseVersion)" Overwrite="true" Encoding="Unicode"/>
-
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
           
-    <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop"/> 
+    <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
   </Target>
   <Target Name="Clean">
     <RemoveDir Directories="$(BinRoot)\$(Configuration)" />

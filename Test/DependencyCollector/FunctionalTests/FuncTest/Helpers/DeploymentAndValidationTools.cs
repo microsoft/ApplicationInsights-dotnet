@@ -4,9 +4,10 @@ namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
+    using AI;
     using FuncTest.IIS;
     using Microsoft.Deployment.WindowsInstaller;
-    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -209,7 +210,7 @@ namespace FuncTest.Helpers
             }
 
             // Validate is within expected limits
-            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration);
+            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration, CultureInfo.InvariantCulture);
 
             // DNS resolution may take up to 15 seconds https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.timeout(v=vs.110).aspx.
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 
@@ -224,7 +225,7 @@ namespace FuncTest.Helpers
                 Assert.IsTrue(accessTime.Ticks >= 0, "Access time should be zero or above for failed calls");
             }
 
-            Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format("Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
+            Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format(CultureInfo.InvariantCulture, "Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
 
             // Validate success flag
             var successFlagActual = itemToValidate.data.baseData.success;

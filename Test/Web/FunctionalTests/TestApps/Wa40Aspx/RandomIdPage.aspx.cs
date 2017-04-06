@@ -1,6 +1,7 @@
 ﻿namespace Wa40Aspx
 {
     using System;
+    using System.Globalization;
     using System.Web;
 
     public partial class RandomIdPage : System.Web.UI.Page
@@ -20,7 +21,7 @@
 
             this.Response.AddHeader("Test_Random", Guid.NewGuid().ToString("N"));
 
-            this.label1.InnerText = requestCountNotFromCache.ToString();
+            this.label1.InnerText = requestCountNotFromCache.ToString(CultureInfo.InvariantCulture);
             ++requestCountNotFromCache;
         }
     }

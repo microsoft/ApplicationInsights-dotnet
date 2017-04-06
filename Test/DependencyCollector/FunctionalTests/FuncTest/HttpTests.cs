@@ -1,10 +1,11 @@
 ﻿namespace FuncTest
 {
     using System;
-    using System.Linq;    
+    using System.Globalization;
+    using System.Linq;
+    using AI;
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -613,7 +614,7 @@
             testWebApplication.DoTest(
                 application =>
                 {
-                    application.ExecuteAnonymousRequest(string.Format(QueryStringOutboundAzureSdk, type, count));
+                    application.ExecuteAnonymousRequest(string.Format(CultureInfo.InvariantCulture, QueryStringOutboundAzureSdk, type, count));
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
@@ -623,7 +624,7 @@
 
                     foreach (var httpItem in httpItems)
                     {
-                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
+                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration, CultureInfo.InvariantCulture);
                         Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
                         string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];

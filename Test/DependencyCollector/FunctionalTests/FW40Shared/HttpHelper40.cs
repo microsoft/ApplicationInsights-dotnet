@@ -10,6 +10,7 @@ namespace FW40Shared
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -46,7 +47,7 @@ namespace FW40Shared
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Reviewed manually")]
         public static void MakeHttpCallSync(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             for (int i = 0; i < count; i++)
@@ -69,7 +70,7 @@ namespace FW40Shared
         public static string MakeHttpCallUsingHttpClient(string url)
         {
             HttpClient httpClient = new HttpClient();
-            return httpClient.GetStringAsync(url).Result;
+            return httpClient.GetStringAsync(new Uri(url)).Result;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace FW40Shared
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Reviewed manually")]
         public static void MakeHttpPostCallSync(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             for (int i = 0; i < count; i++)
@@ -151,7 +152,7 @@ namespace FW40Shared
         /// <param name="hostname">the call will be made to http://www.hostname.com</param>      
         public static void MakeHttpCallAsync1(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             IAsyncResult result = null;
@@ -250,7 +251,7 @@ namespace FW40Shared
         /// <param name="hostname">the call will be made to http://www.hostname.com</param>    
         public static void MakeHttpCallAsync3(int count, string hostname)
         {
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = null;
             HttpWebResponse myHttpWebResponse = null;
             IAsyncResult result = null;
@@ -320,7 +321,7 @@ namespace FW40Shared
             // asynchronous request.
             AsyncCallback callBack = new AsyncCallback(CallBackForHttp);
 
-            Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+            Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
             HttpWebRequest myHttpWebRequest = (HttpWebRequest)WebRequest.Create(ourUri);
             IAsyncResult result = myHttpWebRequest.BeginGetResponse(callBack, myHttpWebRequest);          
         }

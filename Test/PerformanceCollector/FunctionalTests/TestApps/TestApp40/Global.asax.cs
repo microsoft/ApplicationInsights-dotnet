@@ -16,6 +16,8 @@
     public class Global : System.Web.HttpApplication
     {
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Necessary for .NET CLR Memory counters to start reporting process ID.")]
         protected void Application_Start(object sender, EventArgs e)
         {
             // necessary for .NET CLR Memory counters to start reporting process ID

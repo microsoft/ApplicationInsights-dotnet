@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Copy of DevDivRuleSet" Description="DevDiv required checks." ToolsVersion="12.0">
+<RuleSet Name="Copy of DevDivRuleSet" Description="DevDiv required checks." ToolsVersion="15.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1304" Action="Error" />
     <Rule Id="CA1305" Action="Error" />

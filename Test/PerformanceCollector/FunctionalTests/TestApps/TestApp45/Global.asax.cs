@@ -19,6 +19,8 @@ namespace TestApp45
 
     public class WebApiApplication : System.Web.HttpApplication
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Necessary for .NET CLR Memory counters to start reporting process ID.")]
         protected void Application_Start()
         {
             // necessary for .NET CLR Memory counters to start reporting process ID
