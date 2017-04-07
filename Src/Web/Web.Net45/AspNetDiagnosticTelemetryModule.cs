@@ -15,7 +15,7 @@
     /// </summary>
     public class AspNetDiagnosticTelemetryModule : IObserver<DiagnosticListener>, IDisposable, ITelemetryModule
     {
-        private const string AspNetListenerName = "Microsoft.AspNet.Diagnostics";
+        private const string AspNetListenerName = "Microsoft.AspNet.TelemetryCorrelation";
         private const string IncomingRequestEventName = "Microsoft.AspNet.HttpReqIn";
         private const string IncomingRequestStartEventName = "Microsoft.AspNet.HttpReqIn.Start";
         private const string IncomingRequestStopEventName = "Microsoft.AspNet.HttpReqIn.Stop";

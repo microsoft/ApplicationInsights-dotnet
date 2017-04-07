@@ -299,7 +299,7 @@
         private class FakeAspNetDiagnosticSource : IDisposable
         {
             public const string IncomingRequestEventName = "Microsoft.AspNet.HttpReqIn";
-            private const string AspNetListenerName = "Microsoft.AspNet.Diagnostics";
+            private const string AspNetListenerName = "Microsoft.AspNet.TelemetryCorrelation";
             private const string IncomingRequestStopLostActivity = "Microsoft.AspNet.HttpReqIn.ActivityLost.Stop";
 
             private readonly DiagnosticListener listener;

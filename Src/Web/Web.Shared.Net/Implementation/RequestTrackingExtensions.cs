@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
 #if NET45
-    using Microsoft.AspNet.Diagnostics;
+    using Microsoft.AspNet.TelemetryCorrelation;
 #endif
 
     internal static class RequestTrackingExtensions
