@@ -118,10 +118,10 @@
 
                     // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());
+                    Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());           
                     if (getAppIdTask.Wait(GetAppIdTimeout))
                     {
-                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.GetAwaiter().GetResult());
+                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
                         correlationId = this.knownCorrelationIds[instrumentationKey];
                         return true;
                     }
@@ -131,7 +131,19 @@
                         {
                             try
                             {
-                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.GetAwaiter().GetResult());
+                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                            }
+                            catch (AggregateException ex)
+                            {
+                                ex.Flatten();
+                                if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
+                                {
+                                    this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
+                                }
+                                else
+                                {
+                                    this.RegisterFailure(instrumentationKey, ex);
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -141,6 +153,21 @@
 
                         return false;
                     }
+                }
+                catch (AggregateException ex)
+                {
+                    ex.Flatten();
+                    if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
+                    {
+                        this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
+                    }
+                    else
+                    {
+                        this.RegisterFailure(instrumentationKey, ex);
+                    }
+
+                    correlationId = string.Empty;
+                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -154,9 +181,14 @@
 
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+            if (appId != null)
+            {
+                this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+            }
         }
 
+#if !NET40
+        
         /// <summary>
         /// Retrieves the app id given the instrumentation key.
         /// </summary>
@@ -186,7 +218,47 @@
                 SdkInternalOperationsMonitor.Exit();
             }
         }
+#else
+        /// <summary>
+        /// Retrieves the app id given the instrumentation key.
+        /// </summary>
+        /// <param name="instrumentationKey">Instrumentation key for which app id is to be retrieved.</param>
+        /// <returns>App id.</returns>
+        private Task<string> FetchAppIdFromService(string instrumentationKey)
+        {
+            var task = new Task<string>(() =>
+            {
+                try
+                {
+                    SdkInternalOperationsMonitor.Enter();
 
+                    Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+
+                    WebRequest request = WebRequest.Create(appIdEndpoint);
+                    request.Method = "GET";
+
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                    {
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            return reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+                    return null;
+                }
+                finally
+                {
+                    SdkInternalOperationsMonitor.Exit();
+                }
+            });
+
+            return task;
+        }
+#endif
         /// <summary>
         /// Strips off any relative path at the end of the base URI and then appends the known relative path to get the app id uri.
         /// </summary>
