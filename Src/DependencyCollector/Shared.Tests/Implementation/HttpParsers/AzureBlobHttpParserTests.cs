@@ -87,10 +87,6 @@
 
             var testCases = new List<Tuple<string, string, string, string, Dictionary<string, string>>>()
             {
-                ////
-                //// copied from https://msdn.microsoft.com/en-us/library/azure/dd135733.aspx 9/29/2016
-                ////
-
                 Tuple.Create("Get Blob", "GET", "https://myaccount.blob.core.windows.net/my/container/myblob", "myaccount", blobProperties),
                 Tuple.Create("Get Blob", "GET", "https://myaccount.blob.core.chinacloudapi.cn/my/container/myblob", "myaccount", blobProperties),
                 Tuple.Create("Get Blob", "GET", "https://myaccount.blob.core.cloudapi.de/my/container/myblob", "myaccount", blobProperties),
