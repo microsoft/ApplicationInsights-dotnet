@@ -355,6 +355,28 @@
                 this.ApplicationName);
         }
 
+        [Event(
+            37,
+            Message = "Initialize has not been called on this module yet.",
+            Level = EventLevel.Error)]
+        public void InitializeHasNotBeenCalledOnModuleYetError(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                37,
+                this.ApplicationName);
+        }
+
+        [Event(
+            38,
+            Message = "Initialize has not been called on this module yet.",
+            Level = EventLevel.Verbose)]
+        public void InitializeHasNotBeenCalledOnModuleYetVerbose(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                38,
+                this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

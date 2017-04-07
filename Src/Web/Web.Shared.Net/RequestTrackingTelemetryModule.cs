@@ -18,6 +18,7 @@
     {
         private readonly IList<string> handlersToFilter = new List<string>();
         private TelemetryClient telemetryClient;
+        private bool initializationErrorReported;
         private bool correlationHeadersEnabled = true;
         private string telemetryChannelEnpoint;
         private CorrelationIdLookupHelper correlationIdLookupHelper;
@@ -70,7 +71,17 @@
         {
             if (this.telemetryClient == null)
             {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
             }
 
             if (context == null)
@@ -118,7 +129,17 @@
         {
             if (this.telemetryClient == null)
             {
-                throw new InvalidOperationException("Initialize has not been called on this module yet.");
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
+                return;
             }
 
             if (!this.NeedProcessRequest(context))
