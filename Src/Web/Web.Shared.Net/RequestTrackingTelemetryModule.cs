@@ -110,7 +110,16 @@
         {
             if (this.telemetryClient == null)
             {
-                // TODO: write event log, when https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/390/commits/c38d6d48e666114fedba90b8df6a4f36571cbb66 is merged to 2.4.0
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
                 return;
             }
 
