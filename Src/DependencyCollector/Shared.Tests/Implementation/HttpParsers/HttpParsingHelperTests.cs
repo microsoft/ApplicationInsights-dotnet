@@ -86,7 +86,7 @@
                 string value = null;
                 string key = expected[2 * i];
                 Assert.IsTrue(queryParameters.TryGetValue(key, out value), $"Property '{key}' not found");
-                Assert.AreEqual(expected[2 * i + 1], value, $"Value of property '{key}' mismatched");
+                Assert.AreEqual(expected[(2 * i) + 1], value, $"Value of property '{key}' mismatched");
             }
         }
 

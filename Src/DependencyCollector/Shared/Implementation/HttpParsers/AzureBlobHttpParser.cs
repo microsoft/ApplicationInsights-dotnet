@@ -1,8 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
+    using System;
+    using System.Collections.Generic;
+
     using DataContracts;
     using Implementation;
-    using System.Collections.Generic;
+
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure Blob call.
     /// </summary>
@@ -52,7 +55,35 @@
             HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, AzureBlobSupportedVerbs);
 
             List<string> pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithoutVerb);
-            string container = pathTokens.Count > 0 ? pathTokens[0] : string.Empty;
+
+            string container = null;
+            string blob = null;
+
+            if (pathTokens.Count == 1)
+            {
+                container = pathTokens[0];
+            } 
+            else if (pathTokens.Count > 1)
+            {
+                Dictionary<string, string> queryParameters = HttpParsingHelper.ExtractQuryParameters(url);
+                string resType;
+                if (queryParameters == null || !queryParameters.TryGetValue("restype", out resType)
+                    || !string.Equals(resType, "container", StringComparison.OrdinalIgnoreCase))
+                {
+                    // if restype != container then the last path entry is blob name
+                    blob = pathTokens[pathTokens.Count - 1];
+                    httpDependency.Properties["Blob"] = blob;
+
+                    pathTokens.RemoveAt(pathTokens.Count - 1);
+                }
+
+                container = string.Join("/", pathTokens);
+            }
+
+            if (container != null)
+            {
+                httpDependency.Properties["Container"] = container;
+            }
 
             // This is very naive overwriting of Azure Blob dependency that is compatible with the today's implementation
             //
@@ -60,13 +91,8 @@
             //
             // 1. Use specific name for specific operations. Like "Lease Blob" for "?comp=lease" query parameter
             // 2. Use account name as a target instead of "account.blob.core.windows.net"
-            // 3. Do not include container name into name as it is high cardinality. Move to custom properties
-            // 4. Parse blob name and put into custom properties as well
-
             httpDependency.Type = RemoteDependencyConstants.AzureBlob;
-            httpDependency.Name = string.IsNullOrEmpty(verb)
-                                      ? account + '/' + container
-                                      : verb + " " + account + '/' + container;
+            httpDependency.Name = string.IsNullOrEmpty(verb) ? account : verb + " " + account;
 
             return true;
         }

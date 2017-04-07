@@ -91,7 +91,6 @@
         /// </returns>
         internal static Dictionary<string, string> ExtractQuryParameters(string requestPath)
         {
-
             int startIdx = requestPath.IndexOf('?') + 1;
             if (startIdx <= 0 || startIdx >= requestPath.Length)
             {
