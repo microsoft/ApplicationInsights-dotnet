@@ -18,7 +18,6 @@
             External.ExceptionDetails exceptionDetails = External.ExceptionDetails.CreateWithoutStackInfo(
                                                                                                                 exception,
                                                                                                                 parentExceptionDetails);
-#if !NETSTANDARD1_3
             var stack = new StackTrace(exception, true);
 
             var frames = stack.GetFrames();
@@ -28,30 +27,9 @@
                                                                                         GetStackFrameLength);
             exceptionDetails.parsedStack = sanitizedTuple.Item1;
             exceptionDetails.hasFullStack = sanitizedTuple.Item2;
-#else
-            if (exception.StackTrace != null)
-            {
-                string[] lines = exception.StackTrace.Split(new string[] { "\n" }, StringSplitOptions.None);
-
-                // Adding 1 for length in lengthGetter for newline character
-                Tuple<List<string>, bool> sanitizedTuple = SanitizeStackFrame(
-                                                                            lines,
-                                                                            (input, id) => input,
-                                                                            (input) => input == null ? 0 : input.Length + 1);
-                List<string> sanitizedStackLines = sanitizedTuple.Item1;
-                exceptionDetails.hasFullStack = sanitizedTuple.Item2;
-                exceptionDetails.stack = string.Join("\n", sanitizedStackLines.ToArray());
-            }
-            else
-            {
-                exceptionDetails.hasFullStack = true;
-                exceptionDetails.stack = string.Empty;
-            }
-#endif
             return exceptionDetails;
         }
 
-#if !NETSTANDARD1_3
         /// <summary>
         /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
         /// </summary>
@@ -97,7 +75,6 @@
                                    + (stackFrame.fileName == null ? 0 : stackFrame.fileName.Length);
             return stackFrameLength;
         }
-#endif
 
         /// <summary>
         /// Sanitizing stack to 32k while selecting the initial and end stack trace.
