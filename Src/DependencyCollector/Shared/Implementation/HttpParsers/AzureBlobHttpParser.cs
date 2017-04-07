@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
     using System;
+    using System.Collections.Generic;
+
     using DataContracts;
     using Implementation;
 
@@ -9,7 +11,15 @@
     /// </summary>
     internal static class AzureBlobHttpParser
     {
-        private static readonly string[] AzureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
+        private static readonly string[] AzureBlobHostSuffixes =
+            {
+                ".blob.core.windows.net",
+                ".blob.core.chinacloudapi.cn",
+                ".blob.core.cloudapi.de",
+                ".blob.core.usgovcloudapi.net"
+            };
+
+        private static readonly string[] AzureBlobSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE" };
 
         /// <summary>
         /// Tries parsing given dependency telemetry item. 
@@ -27,7 +37,7 @@
                 return false;
             }
 
-            if (!host.EndsWith(".blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
+            if (!HttpParsingHelper.EndsWithAny(host, AzureBlobHostSuffixes))
             {
                 return false;
             }
@@ -38,23 +48,42 @@
 
             string account = host.Substring(0, host.IndexOf('.'));
 
-            string verb = null;
-            string nameWithoutVerb = name;
+            string verb;
+            string nameWithoutVerb;
 
-            for (int i = 0; i < AzureBlobVerbPrefixes.Length; i++)
+            // try to parse out the verb
+            HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, AzureBlobSupportedVerbs);
+
+            List<string> pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithoutVerb);
+
+            string container = null;
+            string blob = null;
+
+            if (pathTokens.Count == 1)
             {
-                var verbPrefix = AzureBlobVerbPrefixes[i];
-                if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
+                container = pathTokens[0];
+            } 
+            else if (pathTokens.Count > 1)
+            {
+                Dictionary<string, string> queryParameters = HttpParsingHelper.ExtractQuryParameters(url);
+                string resType;
+                if (queryParameters == null || !queryParameters.TryGetValue("restype", out resType)
+                    || !string.Equals(resType, "container", StringComparison.OrdinalIgnoreCase))
                 {
-                    verb = name.Substring(0, verbPrefix.Length);
-                    nameWithoutVerb = name.Substring(verbPrefix.Length);
-                    break;
+                    // if restype != container then the last path entry is blob name
+                    blob = pathTokens[pathTokens.Count - 1];
+                    httpDependency.Properties["Blob"] = blob;
+
+                    pathTokens.RemoveAt(pathTokens.Count - 1);
                 }
+
+                container = string.Join("/", pathTokens);
             }
 
-            var slashPrefixShift = nameWithoutVerb[0] == '/' ? 1 : 0;
-            var idx = nameWithoutVerb.IndexOf('/', slashPrefixShift); // typically first symbol of the path is '/'
-            string container = idx != -1 ? nameWithoutVerb.Substring(slashPrefixShift, idx - slashPrefixShift) : nameWithoutVerb.Substring(slashPrefixShift);
+            if (container != null)
+            {
+                httpDependency.Properties["Container"] = container;
+            }
 
             // This is very naive overwriting of Azure Blob dependency that is compatible with the today's implementation
             //
@@ -62,10 +91,8 @@
             //
             // 1. Use specific name for specific operations. Like "Lease Blob" for "?comp=lease" query parameter
             // 2. Use account name as a target instead of "account.blob.core.windows.net"
-            // 3. Do not include container name into name as it is high cardinality. Move to custom properties
-            // 4. Parse blob name and put into custom properties as well
             httpDependency.Type = RemoteDependencyConstants.AzureBlob;
-            httpDependency.Name = verb + account + '/' + container;
+            httpDependency.Name = string.IsNullOrEmpty(verb) ? account : verb + " " + account;
 
             return true;
         }

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using System;
+    using System.Collections.Generic;
+
     using DataContracts;
     using Implementation;
 
@@ -9,7 +10,15 @@
     /// </summary>
     internal static class AzureTableHttpParser
     {
-        private static readonly string[] AzureTableVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE ", "MERGE ", "POST " };
+        private static readonly string[] AzureTableHostSuffixes =
+            {
+                ".table.core.windows.net",
+                ".table.core.chinacloudapi.cn",
+                ".table.core.cloudapi.de",
+                ".table.core.usgovcloudapi.net"
+            };
+
+        private static readonly string[] AzureTableSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE", "MERGE", "POST" };
 
         /// <summary>
         /// Tries parsing given dependency telemetry item. 
@@ -27,7 +36,7 @@
                 return false;
             }
 
-            if (!host.EndsWith(".table.core.windows.net", StringComparison.OrdinalIgnoreCase))
+            if (!HttpParsingHelper.EndsWithAny(host, AzureTableHostSuffixes))
             {
                 return false;
             }
@@ -38,28 +47,24 @@
 
             string account = host.Substring(0, host.IndexOf('.'));
 
-            string verb = null;
-            string nameWithoutVerb = name;
-            for (int i = 0; i < AzureTableVerbPrefixes.Length; i++)
+            string verb;
+            string nameWithoutVerb;
+
+            // try to parse out the verb
+            HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, AzureTableSupportedVerbs);
+
+            List<string> pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithoutVerb);
+            string tableName = pathTokens.Count > 0 ? pathTokens[0] : string.Empty;
+            int idx = tableName.IndexOf('(');
+            if (idx >= 0)
             {
-                var verbPrefix = AzureTableVerbPrefixes[i];
-                if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    verb = name.Substring(0, verbPrefix.Length);
-                    nameWithoutVerb = name.Substring(verbPrefix.Length);
-                    break;
-                }
+                tableName = tableName.Substring(0, idx);
             }
 
-            var slashPrefixShift = nameWithoutVerb[0] == '/' ? 1 : 0;
-            var idx = nameWithoutVerb.IndexOf('/', slashPrefixShift); // typically first symbol of the path is '/'
-
-            string tableName = idx != -1 ? nameWithoutVerb.Substring(slashPrefixShift, idx - slashPrefixShift) : nameWithoutVerb.Substring(slashPrefixShift);
-            idx = tableName.IndexOf('(');
-            tableName = idx != -1 ? tableName.Substring(0, idx) : tableName;
-
             httpDependency.Type = RemoteDependencyConstants.AzureTable;
-            httpDependency.Name = verb + account + '/' + tableName;
+            httpDependency.Name = string.IsNullOrEmpty(verb)
+                                      ? account + '/' + tableName
+                                      : verb + " " + account + '/' + tableName;
 
             return true;
         }
