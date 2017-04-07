@@ -26,6 +26,8 @@
         {
         }
 
+        #if !NET40
+
         public Task SaveAsync(Stream stream)
         {
             return TaskEx.Run(() => this.OnSave(stream));
@@ -35,5 +37,7 @@
         {
             return TaskEx.Run(this.OnSend);
         }
+
+        #endif
     }
 }

@@ -356,16 +356,18 @@
 
             // ACT
             telemetryProcessor.Process(
-                new DependencyTelemetry() { Name = "http://microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
+                new DependencyTelemetry() { Target = "microsoft.ru", Context = { InstrumentationKey = config.InstrumentationKey } });
             telemetryProcessor.Process(
-                new DependencyTelemetry() { Name = "http://qps.cloudapp.net/blabla", Context = { InstrumentationKey = config.InstrumentationKey } });
+                new DependencyTelemetry() { Target = "qps.cloudapp.net", Context = { InstrumentationKey = config.InstrumentationKey } });
             telemetryProcessor.Process(
-                new DependencyTelemetry() { Name = "https://bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
+               new DependencyTelemetry() { Target = "qps.cloudapp.net | I5UqryrMvK", Context = { InstrumentationKey = config.InstrumentationKey } });
+            telemetryProcessor.Process(
+                new DependencyTelemetry() { Target = "bing.com", Context = { InstrumentationKey = config.InstrumentationKey } });
 
             // ASSERT
             Assert.AreEqual(2, simpleTelemetryProcessorSpy.ReceivedCalls);
-            Assert.AreEqual("http://microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Name);
-            Assert.AreEqual("https://bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Name);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
             Assert.AreEqual(2, accumulatorManager.CurrentDataAccumulator.AIDependencyCallCount);
         }
 
@@ -377,14 +379,15 @@
             var telemetryProcessor = new QuickPulseTelemetryProcessor(simpleTelemetryProcessorSpy);
             
             // ACT
-            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://microsoft.ru" });
-            telemetryProcessor.Process(new DependencyTelemetry() { Name = "http://rt.services.visualstudio.com/blabla" });
-            telemetryProcessor.Process(new DependencyTelemetry() { Name = "https://bing.com" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Target = "microsoft.ru" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Target = "rt.services.visualstudio.com" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Target = "rt.services.visualstudio.com | I5UqryrMvK" });
+            telemetryProcessor.Process(new DependencyTelemetry() { Target = "bing.com" });
 
             // ASSERT
             Assert.AreEqual(2, simpleTelemetryProcessorSpy.ReceivedCalls);
-            Assert.AreEqual("http://microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Name);
-            Assert.AreEqual("https://bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Name);
+            Assert.AreEqual("microsoft.ru", (simpleTelemetryProcessorSpy.ReceivedItems[0] as DependencyTelemetry).Target);
+            Assert.AreEqual("bing.com", (simpleTelemetryProcessorSpy.ReceivedItems[1] as DependencyTelemetry).Target);
         }
 
         [TestMethod]
