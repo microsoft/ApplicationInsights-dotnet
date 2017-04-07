@@ -11,8 +11,8 @@ namespace Microsoft.ApplicationInsights.Common
 
     internal class ActivityHelpers
     {
-        internal const string CorrelationContextItemName = "Microsoft.AppInsights.Web.CorrelationContext";
-        internal const string RequestActivityItemName = "Microsoft.AppInsights.Web.Activity";
+        internal const string CorrelationContextItemName = "Microsoft.ApplicationInsights.Web.CorrelationContext";
+        internal const string RequestActivityItemName = "Microsoft.ApplicationInsights.Web.Activity";
 
         internal static string RootOperationIdHeaderName { get; set; }
 
