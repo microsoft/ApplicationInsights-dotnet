@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using System;
     using System.Collections.Generic;
 
     using DataContracts;
@@ -20,7 +19,7 @@
                 ".documents.usgovcloudapi.net"
             };
 
-        private static readonly string[] DocumentDbVerbPrefixes = { "GET", "POST", "PUT", "HEAD", "DELETE" };
+        private static readonly string[] DocumentDbSupportedVerbs = { "GET", "POST", "PUT", "HEAD", "DELETE" };
 
         private static readonly Dictionary<string, string> OperationNames = new Dictionary<string, string>
             {
@@ -29,52 +28,61 @@
                 ["GET /dbs"] = "List databases",
                 ["GET /dbs/*"] = "Get database",
                 ["DELETE /dbs/*"] = "Delete database",
+                
                 // Collection operations
                 ["POST /dbs/*/colls"] = "Create collection",
                 ["GET /dbs/*/colls"] = "List collections",
                 ["GET /dbs/*/colls/*"] = "Get collection",
                 ["DELETE /dbs/*/colls/*"] = "Delete collection",
                 ["PUT /dbs/*/colls/*"] = "Replace collection",
+                
                 // Document operations
                 ["POST /dbs/*/colls/*/docs"] = CreateOrQueryDocumentOperationName, // Create & Query share this moniker
                 ["GET /dbs/*/colls/*/docs"] = "List documents",
                 ["GET /dbs/*/colls/*/docs/*"] = "Get document",
                 ["PUT /dbs/*/colls/*/docs/*"] = "Replace document",
                 ["DELETE /dbs/*/colls/*/docs/*"] = "Delete document",
+                
                 // Attachment operations
                 ["POST /dbs/*/colls/*/docs/*/attachments"] = "Create attachment",
                 ["GET /dbs/*/colls/*/docs/*/attachments"] = "List attachments",
                 ["GET /dbs/*/colls/*/docs/*/attachments/*"] = "Get attachment",
                 ["PUT /dbs/*/colls/*/docs/*/attachments/*"] = "Replace attachment",
                 ["DELETE /dbs/*/colls/*/docs/*/attachments/*"] = "Delete attachment",
+                
                 // Stored procedure operations
                 ["POST /dbs/*/colls/*/sprocs"] = "Create stored procedure",
                 ["GET /dbs/*/colls/*/sprocs"] = "List stored procedures",
                 ["PUT /dbs/*/colls/*/sprocs/*"] = "Replace stored procedure",
                 ["DELETE /dbs/*/colls/*/sprocs/*"] = "Delete stored procedure",
                 ["POST /dbs/*/colls/*/sprocs/*"] = "Execute stored procedure",
+                
                 // User defined function operations
                 ["POST /dbs/*/colls/*/udfs"] = "Create UDF",
                 ["GET /dbs/*/colls/*/udfs"] = "List UDFs",
                 ["PUT /dbs/*/colls/*/udfs/*"] = "Replace UDF",
                 ["DELETE /dbs/*/colls/*/udfs/*"] = "Delete UDF",
+                
                 // Trigger operations
                 ["POST /dbs/*/colls/*/triggers"] = "Create trigger",
                 ["GET /dbs/*/colls/*/triggers"] = "List triggers",
                 ["PUT /dbs/*/colls/*/triggers/*"] = "Replace trigger",
                 ["DELETE /dbs/*/colls/*/triggers/*"] = "Delete trigger",
+                
                 // User operations
                 ["POST /dbs/*/users"] = "Create user",
                 ["GET /dbs/*/users"] = "List users",
                 ["GET /dbs/*/users/*"] = "Get user",
                 ["PUT /dbs/*/users/*"] = "Replace user",
                 ["DELETE /dbs/*/users/*"] = "Delete user",
+                
                 // Permission operations
                 ["POST /dbs/*/users/*/permissions"] = "Create permission",
                 ["GET /dbs/*/users/*/permissions"] = "List permissions",
                 ["GET /dbs/*/users/*/permissions/*"] = "Get permission",
                 ["PUT /dbs/*/users/*/permissions/*"] = "Replace permission",
                 ["DELETE /dbs/*/users/*/permissions/*"] = "Delete permission",
+                
                 // Offer operations
                 ["POST /offers"] = "Query offers",
                 ["GET /offers"] = "List offers",
@@ -107,25 +115,13 @@
             //// DocumentDB REST API: https://docs.microsoft.com/en-us/rest/api/documentdb/
             ////
 
-            string account = host.Substring(0, host.IndexOf('.'));
-
             string verb = null;
             string nameWithoutVerb = name;
 
             // try to parse out the verb
             if (char.IsLetter(name[0]))
             {
-                for (int i = 0; i < DocumentDbVerbPrefixes.Length; i++)
-                {
-                    var supportedVerb = DocumentDbVerbPrefixes[i];
-                    if (name.StartsWith(supportedVerb, StringComparison.OrdinalIgnoreCase) 
-                        && name.Length > supportedVerb.Length && name[supportedVerb.Length] == ' ')
-                    {
-                        verb = supportedVerb;
-                        nameWithoutVerb = name.Substring(supportedVerb.Length + 1);
-                        break;
-                    }
-                }
+                HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, DocumentDbSupportedVerbs);
             }
 
             List<KeyValuePair<string, string>> resourcePath = HttpParsingHelper.ParseResourcePath(nameWithoutVerb);
@@ -191,6 +187,7 @@
                             operationName = "Query documents";
                             break;
                         }
+
                     case "201":
                     case "403":
                     case "409":
@@ -199,9 +196,6 @@
                             operationName = "Create document";
                             break;
                         }
-                    default:
-                        // keep the ambiguous name
-                        break;
                 }
             }
 

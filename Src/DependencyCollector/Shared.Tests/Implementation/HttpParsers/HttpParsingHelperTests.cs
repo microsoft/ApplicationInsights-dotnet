@@ -11,12 +11,12 @@
         public void SplitTests()
         {
             AssertAreDeepEqual(HttpParsingHelper.Split("a/bb/ccc/dddd", '/', 0, -1), "a", "bb", "ccc", "dddd");
-            AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd", '/', 0, -1), "", "a", "bb", "ccc", "dddd");
+            AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd", '/', 0, -1), string.Empty, "a", "bb", "ccc", "dddd");
             AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd", '/', 1, -1), "a", "bb", "ccc", "dddd");
-            AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd/", '/', 1, -1), "a", "bb", "ccc", "dddd", "");
+            AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd/", '/', 1, -1), "a", "bb", "ccc", "dddd", string.Empty);
             AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd?ee", '/', 1, 14), "a", "bb", "ccc", "dddd");
             AssertAreDeepEqual(HttpParsingHelper.Split("/a/bb/ccc/dddd", '/', 3, 8), "bb", "cc");
-            AssertAreDeepEqual(HttpParsingHelper.Split("/a//bb//ccc//dddd/", '/', 1, -1), "a", "", "bb", "", "ccc", "", "dddd", "");
+            AssertAreDeepEqual(HttpParsingHelper.Split("/a//bb//ccc//dddd/", '/', 1, -1), "a", string.Empty, "bb", string.Empty, "ccc", string.Empty, "dddd", string.Empty);
         }
 
         [TestMethod]
@@ -24,9 +24,9 @@
         {
             AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("a/bb/ccc/dddd"), "a", "bb", "ccc", "dddd");
             AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd"), "a", "bb", "ccc", "dddd");
-            AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd/"), "a", "bb", "ccc", "dddd", "");
+            AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd/"), "a", "bb", "ccc", "dddd", string.Empty);
             AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd?ee"), "a", "bb", "ccc", "dddd");
-            AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd/?ee"), "a", "bb", "ccc", "dddd", "");
+            AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd/?ee"), "a", "bb", "ccc", "dddd", string.Empty);
             AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd#ee"), "a", "bb", "ccc", "dddd");
             AssertAreDeepEqual(HttpParsingHelper.TokenizeRequestPath("/a/bb/ccc/dddd?ee/ff"), "a", "bb", "ccc", "dddd");
         }
@@ -35,13 +35,13 @@
         public void ParseResourcePathTests()
         {
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("a/bb/ccc"), "a", "bb", "ccc", null);
-            AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("a/bb/ccc/"), "a", "bb", "ccc", "");
+            AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("a/bb/ccc/"), "a", "bb", "ccc", string.Empty);
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc/dddd"), "a", "bb", "ccc", "dddd");
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc/dddd/"), "a", "bb", "ccc", "dddd");
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/a/dddd"), "a", "bb", "a", "dddd");
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc/dddd?ee"), "a", "bb", "ccc", "dddd");
             AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc#ee/ff"), "a", "bb", "ccc", null);
-            AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc/?ee/ff"), "a", "bb", "ccc", "");
+            AssertRequestPathIsValid(HttpParsingHelper.ParseResourcePath("/a/bb/ccc/?ee/ff"), "a", "bb", "ccc", string.Empty);
         }
 
         [TestMethod]
@@ -57,15 +57,15 @@
             ValidateBuildOperationMoniker("PUT", "/a/bb/ccc/?ee/ff", "PUT /a/*/ccc/*");
         }
 
-        private void ValidateBuildOperationMoniker(string verb, string url, string expectedMoniker)
+        private static void ValidateBuildOperationMoniker(string verb, string url, string expectedMoniker)
         {
             var resourcePath = HttpParsingHelper.ParseResourcePath(url);
             Assert.AreEqual(expectedMoniker, HttpParsingHelper.BuildOperationMoniker(verb, resourcePath));
         }
 
-        private void AssertRequestPathIsValid(List<KeyValuePair<string, string>> resourcePath, params string[] expected)
+        private static void AssertRequestPathIsValid(List<KeyValuePair<string, string>> resourcePath, params string[] expected)
         {
-            List<string> actual = resourcePath.SelectMany(kvp => new [] { kvp.Key, kvp.Value }).ToList();
+            List<string> actual = resourcePath.SelectMany(kvp => new[] { kvp.Key, kvp.Value }).ToList();
 
             AssertAreDeepEqual(actual, expected);
         }

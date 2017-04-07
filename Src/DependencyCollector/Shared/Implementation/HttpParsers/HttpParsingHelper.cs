@@ -15,7 +15,7 @@
         /// <returns>Operation moniker string.</returns>
         internal static string BuildOperationMoniker(string verb, List<KeyValuePair<string, string>> resourcePath)
         {
-            var tokens = new List<string>(4 * resourcePath.Count + 2);
+            var tokens = new List<string>((4 * resourcePath.Count) + 2);
 
             if (!string.IsNullOrEmpty(verb))
             {
@@ -78,6 +78,30 @@
         }
 
         /// <summary>
+        /// Extracts the HTTP verb from dependency name.
+        /// </summary>
+        /// <param name="name">The dependency name.</param>
+        /// <param name="verb">The extracted verb (<code>null</code> if not matched).</param>
+        /// <param name="nameWithoutVerb">The dependency name sans the extracted verb.</param>
+        /// <param name="supportedVerbs">List of supported verbs to extract.</param>
+        internal static void ExtractVerb(string name, out string verb, out string nameWithoutVerb, params string[] supportedVerbs)
+        {
+            verb = null;
+            nameWithoutVerb = name;
+
+            foreach (var supportedVerb in supportedVerbs)
+            {
+                if (name.StartsWith(supportedVerb, StringComparison.OrdinalIgnoreCase) && name.Length > supportedVerb.Length
+                    && name[supportedVerb.Length] == ' ')
+                {
+                    verb = supportedVerb;
+                    nameWithoutVerb = name.Substring(supportedVerb.Length + 1);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Splits substring by given delimiter.
         /// </summary>
         /// <param name="str">The string to split.</param>
@@ -137,6 +161,7 @@
                     return true;
                 }
             }
+
             return false;
         }
     }

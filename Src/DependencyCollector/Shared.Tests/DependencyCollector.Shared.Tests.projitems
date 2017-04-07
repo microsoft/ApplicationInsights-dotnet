@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelperTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\HttpParsingHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Operation\CacheBasedOperationHolderTests.cs" />

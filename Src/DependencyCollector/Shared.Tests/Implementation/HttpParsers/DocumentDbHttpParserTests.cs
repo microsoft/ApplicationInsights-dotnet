@@ -32,54 +32,63 @@
                 Tuple.Create("List databases",              "GET",      "https://myaccount.documents.azure.com/dbs", defaultProperties, defaultResultCode),
                 Tuple.Create("Get database",                "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase", databaseProperties, defaultResultCode),
                 Tuple.Create("Delete database",             "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase", databaseProperties, defaultResultCode),
+
                 // Collection operations
                 Tuple.Create("Create collection",           "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls", databaseProperties, defaultResultCode),
                 Tuple.Create("List collections",            "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls", databaseProperties, defaultResultCode),
                 Tuple.Create("Get collection",              "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection", collectionProperties, defaultResultCode),
                 Tuple.Create("Delete collection",           "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace collection",          "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection", collectionProperties, defaultResultCode),
+                
                 // Document operations
-                Tuple.Create("Create document" ,            "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "201"),
-                Tuple.Create("Query documents" ,            "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "200"),
-                Tuple.Create("Create/query document" ,      "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "400"),
+                Tuple.Create("Create document",             "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "201"),
+                Tuple.Create("Query documents",             "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "200"),
+                Tuple.Create("Create/query document",       "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, "400"),
                 Tuple.Create("List documents",              "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs", collectionProperties, defaultResultCode),
                 Tuple.Create("Get document",                "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace document",            "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc", collectionProperties, defaultResultCode),
                 Tuple.Create("Delete document",             "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc", collectionProperties, defaultResultCode),
+                
                 // Attachment operations
                 Tuple.Create("Create attachment",           "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc/attachments", collectionProperties, defaultResultCode),
                 Tuple.Create("List attachments",            "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc/attachments", collectionProperties, defaultResultCode),
                 Tuple.Create("Get attachment",              "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc/attachments/myAtt", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace attachment",          "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc/attachments/myAtt", collectionProperties, defaultResultCode),
                 Tuple.Create("Delete attachment",           "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/docs/myDoc/attachments/myAtt", collectionProperties, defaultResultCode),
+                
                 // Stored procedure operations
                 Tuple.Create("Create stored procedure",     "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/sprocs", collectionProperties, defaultResultCode),
                 Tuple.Create("List stored procedures",      "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/sprocs", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace stored procedure",    "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/sprocs/mySproc", sprocProperties, defaultResultCode),
                 Tuple.Create("Delete stored procedure",     "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/sprocs/mySproc", sprocProperties, defaultResultCode),
                 Tuple.Create("Execute stored procedure",    "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/sprocs/mySproc", sprocProperties, defaultResultCode),
+                
                 // User defined function operations
                 Tuple.Create("Create UDF",                  "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/udfs", collectionProperties, defaultResultCode),
                 Tuple.Create("List UDFs",                   "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/udfs", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace UDF",                 "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/udfs/myUdf", udfProperties, defaultResultCode),
                 Tuple.Create("Delete UDF",                  "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/udfs/myUdf", udfProperties, defaultResultCode),
+                
                 // Trigger operations
                 Tuple.Create("Create trigger",              "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/triggers", collectionProperties, defaultResultCode),
                 Tuple.Create("List triggers",               "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/triggers", collectionProperties, defaultResultCode),
                 Tuple.Create("Replace trigger",             "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/triggers/myTrigger", triggerProperties, defaultResultCode),
                 Tuple.Create("Delete trigger",              "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/colls/myCollection/triggers/myTrigger", triggerProperties, defaultResultCode),
+                
                 // User operations
                 Tuple.Create("Create user",                 "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/users", databaseProperties, defaultResultCode),
                 Tuple.Create("List users",                  "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/users", databaseProperties, defaultResultCode),
                 Tuple.Create("Get user",                    "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser", databaseProperties, defaultResultCode),
                 Tuple.Create("Replace user",                "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser", databaseProperties, defaultResultCode),
                 Tuple.Create("Delete user",                 "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser", databaseProperties, defaultResultCode),
+                
                 // Permission operations
                 Tuple.Create("Create permission",           "POST",     "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser/permissions", databaseProperties, defaultResultCode),
                 Tuple.Create("List permissions",            "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser/permissions", databaseProperties, defaultResultCode),
                 Tuple.Create("Get permission",              "GET",      "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser/permissions/myPerm", databaseProperties, defaultResultCode),
                 Tuple.Create("Replace permission",          "PUT",      "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser/permissions/myPerm", databaseProperties, defaultResultCode),
                 Tuple.Create("Delete permission",           "DELETE",   "https://myaccount.documents.azure.com/dbs/myDatabase/users/myUser/permissions/myPerm", databaseProperties, defaultResultCode),
+                
                 // Offer operations
                 Tuple.Create("Query offers",                "POST",     "https://myaccount.documents.azure.com/offers", defaultProperties, defaultResultCode),
                 Tuple.Create("List offers",                 "GET",      "https://myaccount.documents.azure.com/offers", defaultProperties, defaultResultCode),
