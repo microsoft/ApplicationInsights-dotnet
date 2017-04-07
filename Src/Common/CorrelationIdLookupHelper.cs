@@ -225,8 +225,8 @@
         /// <param name="instrumentationKey">Instrumentation key for which app id is to be retrieved.</param>
         /// <returns>App id.</returns>
         private Task<string> FetchAppIdFromService(string instrumentationKey)
-        {
-            var task = new Task<string>(() =>
+        {            
+            return Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -255,8 +255,6 @@
                     SdkInternalOperationsMonitor.Exit();
                 }
             });
-
-            return task;
         }
 #endif
         /// <summary>
