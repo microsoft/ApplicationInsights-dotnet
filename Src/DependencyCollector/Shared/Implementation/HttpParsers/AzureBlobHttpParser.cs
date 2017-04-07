@@ -1,15 +1,22 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using System;
     using DataContracts;
     using Implementation;
-
+    using System.Collections.Generic;
     /// <summary>
     /// HTTP Dependency parser that attempts to parse dependency as Azure Blob call.
     /// </summary>
     internal static class AzureBlobHttpParser
     {
-        private static readonly string[] AzureBlobVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE " };
+        private static readonly string[] AzureBlobHostSuffixes =
+            {
+                ".blob.core.windows.net",
+                ".blob.core.chinacloudapi.cn",
+                ".blob.core.cloudapi.de",
+                ".blob.core.usgovcloudapi.net"
+            };
+
+        private static readonly string[] AzureBlobSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE" };
 
         /// <summary>
         /// Tries parsing given dependency telemetry item. 
@@ -27,7 +34,7 @@
                 return false;
             }
 
-            if (!host.EndsWith(".blob.core.windows.net", StringComparison.OrdinalIgnoreCase))
+            if (!HttpParsingHelper.EndsWithAny(host, AzureBlobHostSuffixes))
             {
                 return false;
             }
@@ -38,23 +45,14 @@
 
             string account = host.Substring(0, host.IndexOf('.'));
 
-            string verb = null;
-            string nameWithoutVerb = name;
+            string verb;
+            string nameWithoutVerb;
 
-            for (int i = 0; i < AzureBlobVerbPrefixes.Length; i++)
-            {
-                var verbPrefix = AzureBlobVerbPrefixes[i];
-                if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    verb = name.Substring(0, verbPrefix.Length);
-                    nameWithoutVerb = name.Substring(verbPrefix.Length);
-                    break;
-                }
-            }
+            // try to parse out the verb
+            HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, AzureBlobSupportedVerbs);
 
-            var slashPrefixShift = nameWithoutVerb[0] == '/' ? 1 : 0;
-            var idx = nameWithoutVerb.IndexOf('/', slashPrefixShift); // typically first symbol of the path is '/'
-            string container = idx != -1 ? nameWithoutVerb.Substring(slashPrefixShift, idx - slashPrefixShift) : nameWithoutVerb.Substring(slashPrefixShift);
+            List<string> pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithoutVerb);
+            string container = pathTokens.Count > 0 ? pathTokens[0] : string.Empty;
 
             // This is very naive overwriting of Azure Blob dependency that is compatible with the today's implementation
             //
@@ -64,8 +62,11 @@
             // 2. Use account name as a target instead of "account.blob.core.windows.net"
             // 3. Do not include container name into name as it is high cardinality. Move to custom properties
             // 4. Parse blob name and put into custom properties as well
+
             httpDependency.Type = RemoteDependencyConstants.AzureBlob;
-            httpDependency.Name = verb + account + '/' + container;
+            httpDependency.Name = string.IsNullOrEmpty(verb)
+                                      ? account + '/' + container
+                                      : verb + " " + account + '/' + container;
 
             return true;
         }

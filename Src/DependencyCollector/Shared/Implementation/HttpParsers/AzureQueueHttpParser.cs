@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
 {
-    using System;
+    using System.Collections.Generic;
+
     using DataContracts;
     using Implementation;
 
@@ -9,7 +10,15 @@
     /// </summary>
     internal static class AzureQueueHttpParser
     {
-        private static readonly string[] AzureQueueVerbPrefixes = { "GET ", "PUT ", "OPTIONS ", "HEAD ", "DELETE ", "POST " };
+        private static readonly string[] AzureQueueHostSuffixes =
+            {
+                ".queue.core.windows.net",
+                ".queue.core.chinacloudapi.cn",
+                ".queue.core.cloudapi.de",
+                ".queue.core.usgovcloudapi.net"
+            };
+
+        private static readonly string[] AzureQueueSupportedVerbs = { "GET", "PUT", "OPTIONS", "HEAD", "DELETE", "POST" };
 
         /// <summary>
         /// Tries parsing given dependency telemetry item. 
@@ -27,37 +36,30 @@
                 return false;
             }
 
-            if (!host.EndsWith(".queue.core.windows.net", StringComparison.OrdinalIgnoreCase))
+            if (!HttpParsingHelper.EndsWithAny(host, AzureQueueHostSuffixes))
             {
                 return false;
             }
-
+            
             ////
             //// Queue Service REST API: https://msdn.microsoft.com/en-us/library/azure/dd179423.aspx
             ////
 
             string account = host.Substring(0, host.IndexOf('.'));
 
-            string verb = null;
-            string nameWithoutVerb = name;
+            string verb;
+            string nameWithoutVerb;
 
-            for (int i = 0; i < AzureQueueVerbPrefixes.Length; i++)
-            {
-                var verbPrefix = AzureQueueVerbPrefixes[i];
-                if (name.StartsWith(verbPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    verb = name.Substring(0, verbPrefix.Length);
-                    nameWithoutVerb = name.Substring(verbPrefix.Length);
-                    break;
-                }
-            }
+            // try to parse out the verb
+            HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, AzureQueueSupportedVerbs);
 
-            var isFirstSlash = nameWithoutVerb[0] == '/' ? 1 : 0;
-            var idx = nameWithoutVerb.IndexOf('/', isFirstSlash); // typically first symbol of the path is '/'
-            string queueName = idx != -1 ? nameWithoutVerb.Substring(isFirstSlash, idx - isFirstSlash) : nameWithoutVerb.Substring(isFirstSlash);
+            List<string> pathTokens = HttpParsingHelper.TokenizeRequestPath(nameWithoutVerb);
+            string queueName = pathTokens.Count > 0 ? pathTokens[0] : string.Empty;
 
             httpDependency.Type = RemoteDependencyConstants.AzureQueue;
-            httpDependency.Name = verb + account + '/' + queueName;
+            httpDependency.Name = string.IsNullOrEmpty(verb)
+                                      ? account + '/' + queueName
+                                      : verb + " " + account + '/' + queueName;
 
             return true;
         }

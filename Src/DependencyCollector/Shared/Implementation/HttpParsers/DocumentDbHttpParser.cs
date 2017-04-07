@@ -115,14 +115,11 @@
             //// DocumentDB REST API: https://docs.microsoft.com/en-us/rest/api/documentdb/
             ////
 
-            string verb = null;
-            string nameWithoutVerb = name;
+            string verb;
+            string nameWithoutVerb;
 
             // try to parse out the verb
-            if (char.IsLetter(name[0]))
-            {
-                HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, DocumentDbSupportedVerbs);
-            }
+            HttpParsingHelper.ExtractVerb(name, out verb, out nameWithoutVerb, DocumentDbSupportedVerbs);
 
             List<KeyValuePair<string, string>> resourcePath = HttpParsingHelper.ParseResourcePath(nameWithoutVerb);
 

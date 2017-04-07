@@ -7,6 +7,10 @@
     {
         private static readonly char[] RequestPathEndDelimiters = new char[] { '?', '#' };
 
+        private static readonly char[] RequestPathTokenDelimiters = new char[] { '/' };
+
+        private static readonly char[] QueryStringTokenDelimiters = new char[] { '&', '=' };
+
         /// <summary>
         /// Builds a resource operation moniker in the format of "VERB /a/*/b/*/c".
         /// </summary>
@@ -72,9 +76,56 @@
         {
             var slashPrefixShift = requestPath[0] == '/' ? 1 : 0;
             int endIdx = requestPath.IndexOfAny(RequestPathEndDelimiters, slashPrefixShift);
-            List<string> tokens = Split(requestPath, '/', slashPrefixShift, endIdx);
+            List<string> tokens = Split(requestPath, RequestPathTokenDelimiters, slashPrefixShift, endIdx);
 
             return tokens;
+        }
+
+        /// <summary>
+        /// Extracts parameters from query string.
+        /// </summary>
+        /// <param name="requestPath">The request path.</param>
+        /// <returns>
+        /// Dictionary of query parameters. 
+        /// If parameter is specified more than once then the last value is returned.
+        /// </returns>
+        internal static Dictionary<string, string> ExtractQuryParameters(string requestPath)
+        {
+
+            int startIdx = requestPath.IndexOf('?') + 1;
+            if (startIdx <= 0 || startIdx >= requestPath.Length)
+            {
+                return null;
+            }
+
+            int endIdx = requestPath.IndexOf('#', startIdx);
+            if (endIdx < 0)
+            {
+                endIdx = requestPath.Length;
+            }
+
+            List<string> tokens = Split(requestPath, QueryStringTokenDelimiters, startIdx, endIdx);
+
+            int pairCount = (tokens.Count + 1) / 2;
+            if (pairCount == 0)
+            {
+                return null;
+            }
+
+            var results = new Dictionary<string, string>(pairCount);
+            for (int i = 0; i < pairCount; i++)
+            {
+                int keyIdx = 2 * i;
+                int valIdx = keyIdx + 1;
+                string key = tokens[keyIdx];
+                string value = valIdx == tokens.Count ? null : tokens[valIdx];
+                if (!string.IsNullOrEmpty(key))
+                {
+                    results[key] = value;
+                }
+            }
+
+            return results;
         }
 
         /// <summary>
@@ -89,6 +140,11 @@
             verb = null;
             nameWithoutVerb = name;
 
+            if (!char.IsLetter(name[0]))
+            {
+                return;
+            }
+
             foreach (var supportedVerb in supportedVerbs)
             {
                 if (name.StartsWith(supportedVerb, StringComparison.OrdinalIgnoreCase) && name.Length > supportedVerb.Length
@@ -102,10 +158,10 @@
         }
 
         /// <summary>
-        /// Splits substring by given delimiter.
+        /// Splits substring by given delimiters.
         /// </summary>
         /// <param name="str">The string to split.</param>
-        /// <param name="delimiter">The delimiter.</param>
+        /// <param name="delimiters">The delimiters.</param>
         /// <param name="startIdx">
         /// The index at which splitting will start. 
         /// This is not validated and expected to be within input string range.
@@ -116,7 +172,7 @@
         /// This is not validated and expected to be less than string length.
         /// </param>
         /// <returns>A list of substrings.</returns>
-        internal static List<string> Split(string str, char delimiter, int startIdx, int endIdx)
+        internal static List<string> Split(string str, char[] delimiters, int startIdx, int endIdx)
         {
             if (endIdx < 0)
             {
@@ -133,7 +189,7 @@
             int idx = startIdx;
             while (idx <= endIdx)
             {
-                int cutIdx = str.IndexOf(delimiter, idx, endIdx - idx);
+                int cutIdx = str.IndexOfAny(delimiters, idx, endIdx - idx);
                 if (cutIdx < 0)
                 {
                     cutIdx = endIdx;
