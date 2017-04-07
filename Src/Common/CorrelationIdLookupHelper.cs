@@ -133,18 +133,6 @@
                             {
                                 this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch (AggregateException ex)
-                            {
-                                ex.Flatten();
-                                if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                                }
-                                else
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex);
-                                }
-                            }
                             catch (Exception ex)
                             {
                                 this.RegisterFailure(instrumentationKey, ex);
@@ -153,21 +141,6 @@
 
                         return false;
                     }
-                }
-                catch (AggregateException ex)
-                {
-                    ex.Flatten();
-                    if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                    {
-                        this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                    }
-                    else
-                    {
-                        this.RegisterFailure(instrumentationKey, ex);
-                    }
-
-                    correlationId = string.Empty;
-                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -276,6 +249,18 @@
         /// <param name="ex">Exception indicating failure.</param>
         private void RegisterFailure(string instrumentationKey, Exception ex)
         {
+            var ae = ex as AggregateException;
+
+            if (ae != null)
+            {
+                ae = ae.Flatten();
+                if (ae.InnerException != null)
+                {
+                    RegisterFailure(instrumentationKey, ae.InnerException);
+                    return;
+                }
+            }
+
             var webException = ex as WebException;
             if (webException != null)
             {
