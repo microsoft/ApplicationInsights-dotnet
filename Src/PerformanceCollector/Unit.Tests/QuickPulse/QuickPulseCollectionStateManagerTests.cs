@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse.Helpers;
@@ -18,6 +19,14 @@
 
         private const string CollectMessage = "Collect";
 
+        private const string UpdatedConfigurationMessage = "UpdatedConfiguration";
+
+        private static readonly CollectionConfigurationInfo EmptyCollectionConfigurationInfo = new CollectionConfigurationInfo()
+                                                                                                   {
+                                                                                                       ETag = string.Empty,
+                                                                                                       Metrics = new CalculatedMetricInfo[0]
+                                                                                                   };
+
         [TestMethod]
         public void QuickPulseCollectionStateManagerDoesNothingWithoutInstrumentationKey()
         {
@@ -30,8 +39,8 @@
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT
-            manager.UpdateState(string.Empty);
-            manager.UpdateState(null);
+            manager.UpdateState(string.Empty, string.Empty);
+            manager.UpdateState(null, string.Empty);
 
             // ASSERT
             Assert.AreEqual(0, serviceClient.PingCount);
@@ -51,7 +60,8 @@
                 () => { },
                 () => { },
                 () => null,
-                _ => { });
+                _ => { },
+                _ => null);
 
             // ACT
 
@@ -71,7 +81,7 @@
             // ACT
             for (int i = 0; i < 10; i++)
             {
-                manager.UpdateState("empty iKey");
+                manager.UpdateState("empty iKey", string.Empty);
             }
 
             // ASSERT
@@ -89,10 +99,10 @@
             var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // on the next call it actually requests samples collected since the last call
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // ASSERT
             Assert.AreEqual(true, manager.IsCollectingData);
@@ -111,10 +121,10 @@
             var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // requests samples collected since last call - and puts itself back into the idle state
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // ASSERT
             Assert.AreEqual(false, manager.IsCollectingData);
@@ -134,13 +144,13 @@
             var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // ACT
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // now we start sending samples
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.UpdateState("empty iKey");
+                manager.UpdateState("empty iKey", string.Empty);
             }
 
             // ASSERT
@@ -163,7 +173,7 @@
             var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // enter collect state
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             serviceClient.ReturnValueFromPing = false;
             serviceClient.ReturnValueFromSubmitSample = false;
@@ -174,7 +184,7 @@
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.UpdateState("empty iKey");
+                manager.UpdateState("empty iKey", string.Empty);
             }
 
             // ASSERT
@@ -197,7 +207,7 @@
             int collectionCount = 10;
             for (int i = 0; i < collectionCount; i++)
             {
-                manager.UpdateState("empty iKey");
+                manager.UpdateState("empty iKey", string.Empty);
             }
 
             // ASSERT
@@ -222,7 +232,7 @@
             var manager = CreateManager(serviceClient, new Clock(), actions);
 
             // enter collect state
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             actions.Clear();
 
@@ -243,7 +253,7 @@
                     serviceClient.ReturnValueFromSubmitSample = true;
                 }
 
-                manager.UpdateState("empty iKey");
+                manager.UpdateState("empty iKey", string.Empty);
             }
 
             // ASSERT
@@ -268,13 +278,13 @@
             var manager = CreateManager(serviceClient, new Clock(), actions, returnedSamples);
 
             // turn on collection
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // ACT
             // lost connection
             serviceClient.ReturnValueFromSubmitSample = null;
 
-            manager.UpdateState("empty iKey");
+            manager.UpdateState("empty iKey", string.Empty);
 
             // ASSERT
             Assert.AreEqual(1, returnedSamples.Count);
@@ -293,14 +303,14 @@
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey", string.Empty));
 
             serviceClient.ReturnValueFromPing = null;
             timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(-1)));
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey", string.Empty));
 
             timeProvider.FastForward(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey", string.Empty));
         }
 
         [TestMethod]
@@ -315,13 +325,13 @@
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
-            manager.UpdateState("some ikey");
+            manager.UpdateState("some ikey", string.Empty);
 
             timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(-1)));
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState("some ikey", string.Empty));
 
             timeProvider.FastForward(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey", string.Empty));
         }
         
         [TestMethod]
@@ -340,7 +350,7 @@
             timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(1)));
 
             // ASSERT
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty, string.Empty));
         }
 
         [TestMethod]
@@ -354,18 +364,18 @@
             var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty, string.Empty));
 
             // ACT
             serviceClient.ReturnValueFromPing = null;
             timeProvider.FastForward(timings.TimeToServicePollingBackOff.Add(TimeSpan.FromSeconds(1)));
-            manager.UpdateState(string.Empty);
+            manager.UpdateState(string.Empty, string.Empty);
 
             timeProvider.FastForward(TimeSpan.FromMinutes(1));
             serviceClient.ReturnValueFromPing = false;
 
             // ASSERT
-            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty));
+            Assert.AreEqual(timings.ServicePollingInterval, manager.UpdateState(string.Empty, string.Empty));
         }
         
         [TestMethod]
@@ -379,18 +389,18 @@
             var timeProvider = new ClockMock();
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
-            manager.UpdateState(string.Empty);
+            manager.UpdateState(string.Empty, string.Empty);
 
             // ACT & ASSERT
-            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey", string.Empty));
 
             serviceClient.ReturnValueFromSubmitSample = null;
             timeProvider.FastForward(timings.TimeToCollectionBackOff.Add(TimeSpan.FromSeconds(-1)));
-            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey", string.Empty));
             Assert.AreEqual(true, manager.IsCollectingData);
 
             timeProvider.FastForward(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey", string.Empty));
             Assert.AreEqual(false, manager.IsCollectingData);
         }
 
@@ -406,16 +416,268 @@
             var manager = CreateManager(serviceClient, timeProvider, actions, returnedSamples, timings);
 
             // ACT & ASSERT
-            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey", string.Empty));
             Assert.IsTrue(manager.IsCollectingData);
 
             timeProvider.FastForward(timings.TimeToCollectionBackOff.Add(TimeSpan.FromSeconds(-1)));
-            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.CollectionInterval, manager.UpdateState("some ikey", string.Empty));
             Assert.IsTrue(manager.IsCollectingData);
 
             timeProvider.FastForward(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey"));
+            Assert.AreEqual(timings.ServicePollingBackedOffInterval, manager.UpdateState("some ikey", string.Empty));
             Assert.AreEqual(false, manager.IsCollectingData);
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerUpdatesCollectionConfigurationWhenNoConfigurationPreviously()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+
+            var actions = new List<string>();
+            var collectionConfigurationInfos = new List<CollectionConfigurationInfo>();
+            var manager = CreateManager(serviceClient, new Clock(), actions, collectionConfigurationInfos: collectionConfigurationInfos);
+
+            var filters = new[]
+                              {
+                                  new FilterConjunctionGroupInfo()
+                                      {
+                                          Filters =
+                                              new[]
+                                                  {
+                                                      new FilterInfo()
+                                                          {
+                                                              FieldName = "Name",
+                                                              Predicate = Predicate.Equal,
+                                                              Comparand = "Request1"
+                                                          }
+                                                  }
+                                      }
+                              };
+            var metrics = new[]
+                              {
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric0",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Name",
+                                          Aggregation = AggregationType.Avg,
+                                          FilterGroups = filters
+                                      },
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric1",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Id",
+                                          Aggregation = AggregationType.Sum,
+                                          FilterGroups = filters
+                                      }
+                              };
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "1", Metrics = metrics };
+
+            // ACT
+            manager.UpdateState("empty iKey", string.Empty);
+
+            // ASSERT
+            CollectionConfigurationInfo receivedCollectionConfigurationInfo = collectionConfigurationInfos.Single();
+            Assert.AreEqual("1", receivedCollectionConfigurationInfo.ETag);
+            Assert.AreEqual(2, receivedCollectionConfigurationInfo.Metrics.Length);
+
+            Assert.AreEqual(metrics[0].ToString(), receivedCollectionConfigurationInfo.Metrics[0].ToString());
+            Assert.AreEqual(metrics[0].Id, receivedCollectionConfigurationInfo.Metrics[0].Id);
+
+            Assert.AreEqual(metrics[1].ToString(), receivedCollectionConfigurationInfo.Metrics[1].ToString());
+            Assert.AreEqual(metrics[1].Id, receivedCollectionConfigurationInfo.Metrics[1].Id);
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerUpdatesCollectionConfigurationWhenETagChanges()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+
+            var actions = new List<string>();
+            var collectionConfigurationInfos = new List<CollectionConfigurationInfo>();
+            var manager = CreateManager(serviceClient, new Clock(), actions, collectionConfigurationInfos: collectionConfigurationInfos);
+
+            var filters = new[]
+            {
+                new FilterConjunctionGroupInfo()
+                {
+                    Filters = new[] { new FilterInfo() { FieldName = "Name", Predicate = Predicate.Equal, Comparand = "Request1" } }
+                }
+            };
+            var metrics = new[]
+                              {
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric0",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Name",
+                                          Aggregation = AggregationType.Avg,
+                                          FilterGroups = filters
+                                      },
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric1",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Id",
+                                          Aggregation = AggregationType.Sum,
+                                          FilterGroups = filters
+                                      }
+                              };
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "1", Metrics = metrics };
+
+            manager.UpdateState("empty iKey", string.Empty);
+            collectionConfigurationInfos.Clear();
+
+            // ACT
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "2", Metrics = metrics };
+            manager.UpdateState("empty iKey", string.Empty);
+
+            // ASSERT
+            CollectionConfigurationInfo receivedCollectionConfigurationInfo = collectionConfigurationInfos.Single();
+            Assert.AreEqual("2", receivedCollectionConfigurationInfo.ETag);
+            Assert.AreEqual(2, receivedCollectionConfigurationInfo.Metrics.Length);
+
+            Assert.AreEqual(metrics[0].ToString(), receivedCollectionConfigurationInfo.Metrics[0].ToString());
+            Assert.AreEqual(metrics[0].Id, receivedCollectionConfigurationInfo.Metrics[0].Id);
+
+            Assert.AreEqual(metrics[1].ToString(), receivedCollectionConfigurationInfo.Metrics[1].ToString());
+            Assert.AreEqual(metrics[1].Id, receivedCollectionConfigurationInfo.Metrics[1].Id);
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerDoesNotUpdateCollectionConfigurationWhenETagIsTheSame()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+
+            var actions = new List<string>();
+            var collectionConfigurationInfos = new List<CollectionConfigurationInfo>();
+            var manager = CreateManager(serviceClient, new Clock(), actions, collectionConfigurationInfos: collectionConfigurationInfos);
+
+            var filters = new[] { new FilterConjunctionGroupInfo { Filters = new[] { new FilterInfo() { FieldName = "Name", Predicate = Predicate.Equal, Comparand = "Request1" } } } };
+            var metrics = new[]
+                              {
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric0",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Name",
+                                          Aggregation = AggregationType.Avg,
+                                          FilterGroups = filters
+                                      },
+                                  new CalculatedMetricInfo()
+                                      {
+                                          Id = "Metric1",
+                                          TelemetryType = TelemetryType.Request,
+                                          Projection = "Id",
+                                          Aggregation = AggregationType.Sum,
+                                          FilterGroups = filters
+                                      }
+                              };
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "1", Metrics = metrics };
+
+            manager.UpdateState("empty iKey", string.Empty);
+            collectionConfigurationInfos.Clear();
+
+            // ACT
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "1", Metrics = new CalculatedMetricInfo[0] };
+            manager.UpdateState("empty iKey", string.Empty);
+
+            // ASSERT
+            Assert.AreEqual(0, collectionConfigurationInfos.Count);
+        }
+
+        [TestMethod]
+        public void QuickPulseCollectionStateManagerReportsErrorsInCollectionConfiguration()
+        {
+            // ARRANGE
+            var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
+
+            var actions = new List<string>();
+            var collectionConfigurationInfos = new List<CollectionConfigurationInfo>();
+            var manager = CreateManager(serviceClient, new Clock(), actions, collectionConfigurationInfos: collectionConfigurationInfos);
+
+            var filter = new FilterInfo() { FieldName = "NonExistentNameInFilter", Predicate = Predicate.Equal, Comparand = "Request1" };
+            var metrics = new[]
+            {
+                new CalculatedMetricInfo()
+                {
+                    Id = "Metric0",
+                    TelemetryType = TelemetryType.Request,
+                    Projection = "NoneExistentNameInProjection",
+                    Aggregation = AggregationType.Avg,
+                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filter, filter } } }
+                },
+                new CalculatedMetricInfo()
+                {
+                    Id = "Metric1",
+                    TelemetryType = TelemetryType.Request,
+                    Projection = "Id",
+                    Aggregation = AggregationType.Sum,
+                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filter } } }
+                }
+            };
+
+            // ACT
+            serviceClient.CollectionConfigurationInfo = new CollectionConfigurationInfo() { ETag = "1", Metrics = metrics };
+
+            // ping
+            manager.UpdateState("empty iKey", string.Empty);
+
+            // post
+            manager.UpdateState("empty iKey", string.Empty);
+
+            // ASSERT
+            CollectionConfigurationError[] errors = serviceClient.CollectionConfigurationErrors;
+            Assert.AreEqual(4, errors.Length);
+
+            Assert.AreEqual(CollectionConfigurationErrorType.FilterFailureToCreateUnexpected, errors[0].ErrorType);
+            Assert.AreEqual("Failed to create a filter NonExistentNameInFilter Equal Request1.", errors[0].Message);
+            Assert.IsTrue(
+                errors[0].FullException.Contains(
+                    "Error finding property NonExistentNameInFilter in the type Microsoft.ApplicationInsights.DataContracts.RequestTelemetry"));
+            Assert.AreEqual(5, errors[0].Data.Count);
+            Assert.AreEqual("Metric0", errors[0].Data["MetricId"]);
+            Assert.AreEqual("1", errors[0].Data["ETag"]);
+            Assert.AreEqual("NonExistentNameInFilter", errors[0].Data["FilterFieldName"]);
+            Assert.AreEqual(Predicate.Equal.ToString(), errors[0].Data["FilterPredicate"]);
+            Assert.AreEqual("Request1", errors[0].Data["FilterComparand"]);
+
+            Assert.AreEqual(CollectionConfigurationErrorType.FilterFailureToCreateUnexpected, errors[1].ErrorType);
+            Assert.AreEqual("Failed to create a filter NonExistentNameInFilter Equal Request1.", errors[1].Message);
+            Assert.IsTrue(
+                errors[1].FullException.Contains(
+                    "Error finding property NonExistentNameInFilter in the type Microsoft.ApplicationInsights.DataContracts.RequestTelemetry"));
+            Assert.AreEqual(5, errors[1].Data.Count);
+            Assert.AreEqual("Metric0", errors[1].Data["MetricId"]);
+            Assert.AreEqual("1", errors[1].Data["ETag"]);
+            Assert.AreEqual("NonExistentNameInFilter", errors[1].Data["FilterFieldName"]);
+            Assert.AreEqual(Predicate.Equal.ToString(), errors[1].Data["FilterPredicate"]);
+            Assert.AreEqual("Request1", errors[1].Data["FilterComparand"]);
+
+            Assert.AreEqual(CollectionConfigurationErrorType.MetricFailureToCreate, errors[2].ErrorType);
+            Assert.AreEqual(
+                "Failed to create metric Id: 'Metric0', TelemetryType: 'Request', Projection: 'NoneExistentNameInProjection', Aggregation: 'Avg', FilterGroups: [NonExistentNameInFilter Equal Request1, NonExistentNameInFilter Equal Request1].",
+                errors[2].Message);
+            Assert.IsTrue(errors[2].FullException.Contains("Could not construct the projection"));
+            Assert.AreEqual(2, errors[2].Data.Count);
+            Assert.AreEqual("Metric0", errors[2].Data["MetricId"]);
+            Assert.AreEqual("1", errors[2].Data["ETag"]);
+
+            Assert.AreEqual(CollectionConfigurationErrorType.FilterFailureToCreateUnexpected, errors[3].ErrorType);
+            Assert.AreEqual("Failed to create a filter NonExistentNameInFilter Equal Request1.", errors[3].Message);
+            Assert.IsTrue(
+                errors[3].FullException.Contains(
+                    "Error finding property NonExistentNameInFilter in the type Microsoft.ApplicationInsights.DataContracts.RequestTelemetry"));
+            Assert.AreEqual(5, errors[3].Data.Count);
+            Assert.AreEqual("Metric1", errors[3].Data["MetricId"]);
+            Assert.AreEqual("1", errors[3].Data["ETag"]);
+            Assert.AreEqual("NonExistentNameInFilter", errors[3].Data["FilterFieldName"]);
+            Assert.AreEqual(Predicate.Equal.ToString(), errors[3].Data["FilterPredicate"]);
+            Assert.AreEqual("Request1", errors[3].Data["FilterComparand"]);
         }
 
         #region Helpers
@@ -425,7 +687,8 @@
             Clock timeProvider,
             List<string> actions,
             List<QuickPulseDataSample> returnedSamples = null,
-            QuickPulseTimings timings = null)
+            QuickPulseTimings timings = null,
+            List<CollectionConfigurationInfo> collectionConfigurationInfos = null)
         {
             var manager = new QuickPulseCollectionStateManager(
                 serviceClient,
@@ -437,28 +700,36 @@
                     {
                         actions.Add(CollectMessage);
 
+                        CollectionConfigurationError[] errors;
                         var now = DateTimeOffset.UtcNow;
                         return
                             new[]
-                                {
-                                    new QuickPulseDataSample(
-                                        new QuickPulseDataAccumulator
-                                            {
-                                                AIRequestSuccessCount = 5,
-                                                StartTimestamp = now,
-                                                EndTimestamp = now.AddSeconds(1)
-                                            },
-                                        new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
-                                        Enumerable.Empty<Tuple<string, int>>(),
-                                        false)
-                                }.ToList();
+                            {
+                                new QuickPulseDataSample(
+                                    new QuickPulseDataAccumulator(
+                                        new CollectionConfiguration(EmptyCollectionConfigurationInfo, out errors, timeProvider))
+                                    {
+                                        AIRequestSuccessCount = 5,
+                                        StartTimestamp = now,
+                                        EndTimestamp = now.AddSeconds(1)
+                                    },
+                                    new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
+                                    Enumerable.Empty<Tuple<string, int>>(),
+                                    false)
+                            }.ToList();
                     },
                 samples =>
                     {
-                        if (returnedSamples != null)
-                        {
-                            returnedSamples.AddRange(samples);
-                        }
+                        returnedSamples?.AddRange(samples);
+                    },
+                collectionConfigurationInfo =>
+                    {
+                        actions.Add(UpdatedConfigurationMessage);
+                        collectionConfigurationInfos?.Add(collectionConfigurationInfo);
+
+                        CollectionConfigurationError[] errors;
+                        new CollectionConfiguration(collectionConfigurationInfo, out errors, timeProvider);
+                        return errors;
                     });
 
             return manager;

@@ -7,12 +7,14 @@
     using System.Net;
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading.Tasks;
     using Functional.Serialization;
     using FunctionalTests.Helpers;
 
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
 
     internal class QuickPulseHttpListenerObservable : IObservable<MonitoringDataPoint>, IDisposable
     {
@@ -92,29 +94,117 @@
             try
             {
                 var request = context.Request;
-                var response = context.Response;
                 var content = request.GetContent();
                 var requestData = new MemoryStream(Encoding.UTF8.GetBytes(content ?? string.Empty));
+                string requestLocalPath = request.Url.LocalPath;
 
                 Trace.WriteLine("=>");
                 Trace.WriteLine("Item received: " + content);
                 Trace.WriteLine("<=");
 
-                if (request.Url.LocalPath == "/QuickPulseService.svc/ping")
+                var response = context.Response;
+
+                if (requestLocalPath == "/QuickPulseService.svc/ping")
                 {
                     response.AddHeader("x-ms-qps-subscribed", true.ToString());
+                    response.AddHeader("x-ms-qps-configuration-etag", "Etag1");
+                    this.WriteCollectionConfiguration(response.OutputStream);
                 }
-                else if (request.Url.LocalPath == "/QuickPulseService.svc/post")
+                else if (requestLocalPath == "/QuickPulseService.svc/post")
                 {
-                    return TelemetryItemFactory.CreateQuickPulseSamples(requestData);
-                }
+                    var dataPoints = TelemetryItemFactory.CreateQuickPulseSamples(requestData);
 
-                return new MonitoringDataPoint[0];
+                    response.AddHeader("x-ms-qps-subscribed", true.ToString());
+                    response.AddHeader("x-ms-qps-configuration-etag", "Etag1");
+                    this.WriteCollectionConfiguration(response.OutputStream);
+
+                    return dataPoints;
+                }
+            }
+            catch (HttpListenerException)
+            {
+                // client disconnected
             }
             finally
             {
-                context.Response.Close();
+                try
+                {
+                    context.Response.Close();
+                }
+                catch (HttpListenerException)
+                {
+                    // client disconnected
+                }
             }
+
+            return new MonitoringDataPoint[0];
+        }
+
+        private void WriteCollectionConfiguration(Stream stream)
+        {
+            var collectionConfigurationInfo = new CollectionConfigurationInfo()
+            {
+                ETag = "Etag1",
+                Metrics =
+                    new[]
+                    {
+                        new OperationalizedMetricInfo()
+                        {
+                            Id = "Metric1",
+                            Aggregation = AggregationType.Sum,
+                            Projection = "Count()",
+                            FilterGroups =
+                                new[]
+                                {
+                                    new FilterConjunctionGroupInfo()
+                                    {
+                                        Filters =
+                                            new[] { new FilterInfo() { FieldName = "Success", Predicate = Predicate.Equal, Comparand = "True" } }
+                                    }
+                                }
+                        }
+                    },
+                DocumentStreams =
+                    new[]
+                    {
+                        new DocumentStreamInfo()
+                        {
+                            Id = "Stream1",
+                            DocumentFilterGroups =
+                                new[]
+                                {
+                                    new DocumentFilterConjunctionGroupInfo()
+                                    {
+                                        TelemetryType = TelemetryType.Request,
+                                        Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                                    },
+                                    new DocumentFilterConjunctionGroupInfo()
+                                    {
+                                        TelemetryType = TelemetryType.Dependency,
+                                        Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                                    },
+                                    new DocumentFilterConjunctionGroupInfo()
+                                    {
+                                        TelemetryType = TelemetryType.Exception,
+                                        Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                                    },
+                                    new DocumentFilterConjunctionGroupInfo()
+                                    {
+                                        TelemetryType = TelemetryType.Event,
+                                        Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                                    },
+                                    new DocumentFilterConjunctionGroupInfo()
+                                    {
+                                        TelemetryType = TelemetryType.Trace,
+                                        Filters = new FilterConjunctionGroupInfo() { Filters = new FilterInfo[0] }
+                                    }
+                                }
+                        }
+                    }
+            };
+
+            var serializerCollectionConfigurationInfo = new DataContractJsonSerializer(typeof(CollectionConfigurationInfo));
+            serializerCollectionConfigurationInfo.WriteObject(stream, collectionConfigurationInfo);
         }
     }
 }

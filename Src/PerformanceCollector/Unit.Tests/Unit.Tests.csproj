@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
   <PropertyGroup>
@@ -71,6 +71,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Filtering\AccumulatedValuesTest.cs" />
+    <Compile Include="Filtering\CollectionConfigurationAccumulatorTests.cs" />
+    <Compile Include="Filtering\DocumentStreamTests.cs" />
+    <Compile Include="Filtering\FilterConjunctionGroupTests.cs" />
+    <Compile Include="Filtering\CollectionConfigurationTests.cs" />
+    <Compile Include="Filtering\CalculatedMetricTests.cs" />
+    <Compile Include="Filtering\FilterTests.cs" />
+    <Compile Include="Filtering\Mocks\TelemetryMock.cs" />
     <Compile Include="Mocks\PerformanceCollectorMock.cs" />
     <Compile Include="PerformanceCollectorTestBase.cs" />
     <Compile Include="QuickPulse\Mocks\CategorySampleMock.cs" />
@@ -81,6 +89,7 @@
     <Compile Include="QuickPulse\PerfLib\CounterDefinitionSampleTests.cs" />
     <Compile Include="QuickPulse\PerfLib\PerformanceMonitorTests.cs" />
     <Compile Include="QuickPulse\QuickPulseProcessProviderTests.cs" />
+    <Compile Include="QuickPulse\QuickPulseMetricProcessorTests.cs" />
     <Compile Include="QuickPulse\QuickPulseTopCpuCollectorTests.cs" />
     <Compile Include="WebAppPerformanceCollectorTests.cs" />
     <Compile Include="PerformanceCounterUtilityTests.cs" />

@@ -27,7 +27,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseProcess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseProcessProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseTopCpuCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseMetricProcessor.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\ProcessCpuData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\DependencyTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\EventTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\ExceptionTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\ITelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\RequestTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TelemetryDocumentType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TraceTelemetryDocument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCollectionTimeSlotManager.cs" />
@@ -50,11 +60,6 @@
       <!--C# 6-->
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\DependencyTelemetryDocument.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocumentType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\ExceptionTelemetryDocument.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\RequestTelemetryDocument.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\ITelemetryDocument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MetricPoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\AzureWebEnvironmentVariables.cs" />

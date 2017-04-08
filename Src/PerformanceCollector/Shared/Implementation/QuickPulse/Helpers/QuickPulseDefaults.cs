@@ -10,7 +10,7 @@
         /// <summary>
         /// Dictionary of performance counters to collect for standard framework.
         /// </summary>
-        private static readonly Dictionary<QuickPulseCounter, string> PerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
+        private static readonly Dictionary<QuickPulseCounter, string> DefaultPerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
             {
                 [QuickPulseCounter.Bytes] = @"\Memory\Committed Bytes",
                 [QuickPulseCounter.ProcessorTime] = @"\Processor(_Total)\% Processor Time"
@@ -19,7 +19,7 @@
         /// <summary>
         /// Dictionary of performance counters to collect for WEB APP framework.
         /// </summary>
-       private static readonly Dictionary<QuickPulseCounter, string> WebAppPerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
+       private static readonly Dictionary<QuickPulseCounter, string> WebAppDefaultPerformanceCountersToCollect = new Dictionary<QuickPulseCounter, string>
             {
                 [QuickPulseCounter.Bytes] = @"\Process(??APP_WIN32_PROC??)\Private Bytes",
                 [QuickPulseCounter.ProcessorTime] = @"\Process(??APP_WIN32_PROC??)\% Processor Time"
@@ -30,8 +30,8 @@
         /// </summary>
         private static readonly Dictionary<string, string> WebAppToStandardCounterMapping = new Dictionary<string, string>
         {
-            [WebAppPerformanceCountersToCollect[QuickPulseCounter.Bytes]] = PerformanceCountersToCollect[QuickPulseCounter.Bytes],
-            [WebAppPerformanceCountersToCollect[QuickPulseCounter.ProcessorTime]] = PerformanceCountersToCollect[QuickPulseCounter.ProcessorTime],
+            [WebAppDefaultPerformanceCountersToCollect[QuickPulseCounter.Bytes]] = DefaultPerformanceCountersToCollect[QuickPulseCounter.Bytes],
+            [WebAppDefaultPerformanceCountersToCollect[QuickPulseCounter.ProcessorTime]] = DefaultPerformanceCountersToCollect[QuickPulseCounter.ProcessorTime],
         };
 
         public static Uri ServiceEndpoint
@@ -42,15 +42,15 @@
             }
         }
 
-        public static Dictionary<QuickPulseCounter, string> CountersToCollect
+        public static Dictionary<QuickPulseCounter, string> DefaultCountersToCollect
         {
             get
             {
-                return PerformanceCounterUtility.IsWebAppRunningInAzure() ? WebAppPerformanceCountersToCollect : PerformanceCountersToCollect;
+                return PerformanceCounterUtility.IsWebAppRunningInAzure() ? WebAppDefaultPerformanceCountersToCollect : DefaultPerformanceCountersToCollect;
             }
         }
 
-        public static Dictionary<string, string> CounterOriginalStringMapping
+        public static Dictionary<string, string> DefaultCounterOriginalStringMapping
         {
             get
             {

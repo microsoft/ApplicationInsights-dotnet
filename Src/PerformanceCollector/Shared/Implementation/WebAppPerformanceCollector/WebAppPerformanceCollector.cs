@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -46,10 +45,7 @@
                         }
                         catch (InvalidOperationException e)
                         {
-                            if (onReadingFailure != null)
-                            {
-                                onReadingFailure(counter.Item1.OriginalString, e);
-                            }
+                            onReadingFailure?.Invoke(counter.Item1.OriginalString, e);
 
                             return new Tuple<PerformanceCounterData, double>[] { };
                         }
@@ -67,7 +63,7 @@
                 this.PerformanceCounters.Where(pc => pc.IsInBadState)
                     .ToList();
 
-            countersToRefresh.ForEach(pcd => this.RefreshPerformanceCounter(pcd));
+            countersToRefresh.ForEach(this.RefreshPerformanceCounter);
 
             PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count.ToString(CultureInfo.InvariantCulture));
         }
@@ -108,6 +104,25 @@
                     e.Message,
                     perfCounter);
                 error = e.Message;
+            }
+        }
+
+        /// <summary>
+        /// Removes a counter.
+        /// </summary>
+        /// <param name="perfCounter">Name of the performance counter to remove.</param>
+        /// <param name="reportAs">ReportAs value of the performance counter to remove.</param>
+        public void RemoveCounter(string perfCounter, string reportAs)
+        {
+            Tuple<PerformanceCounterData, ICounterValue> keyToRemove =
+                this.performanceCounters.FirstOrDefault(
+                    pair =>
+                    string.Equals(pair.Item1.ReportAs, reportAs, StringComparison.Ordinal)
+                    && string.Equals(pair.Item1.OriginalString, perfCounter, StringComparison.OrdinalIgnoreCase));
+
+            if (keyToRemove != null)
+            {
+                this.performanceCounters.Remove(keyToRemove);
             }
         }
 

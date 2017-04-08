@@ -31,14 +31,15 @@
 
         #region Infra init - success
 
-        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}', DisableTopCpuProcesses: '{2}' ")]
+        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}', DisableTopCpuProcesses: '{2}', AuthApiKey: '{3}' ")]
         public void ModuleIsBeingInitializedEvent(
             string serviceEndpoint,
             bool disableFullTelemetryItems,
             bool disableTopCpuProcesses,
+            string authApiKey,
             string applicationName = "dummy")
         {
-            this.WriteEvent(1, serviceEndpoint ?? string.Empty, disableFullTelemetryItems, disableTopCpuProcesses, this.ApplicationName);
+            this.WriteEvent(1, serviceEndpoint ?? string.Empty, disableFullTelemetryItems, disableTopCpuProcesses, authApiKey, this.ApplicationName);
         }
 
         [Event(3, Level = EventLevel.Informational, Message = @"Performance counter {0} has been successfully registered with QuickPulse performance collector.")]
@@ -108,6 +109,12 @@
         public void TroubleshootingMessageEvent(string message, string applicationName = "dummy")
         {
             this.WriteEvent(14, message ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(21, Message = "Waited for samples to cool down. {0}", Level = EventLevel.Verbose)]
+        public void CollectionConfigurationSampleCooldownEvent(bool cooledDown, string applicationName = "dummy")
+        {
+            this.WriteEvent(21, cooledDown, this.ApplicationName);
         }
 
         [Event(15, Message = "Sample submitted. Response: '{0}'", Level = EventLevel.Verbose)]

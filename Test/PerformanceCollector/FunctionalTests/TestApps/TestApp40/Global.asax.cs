@@ -1,17 +1,13 @@
 ﻿namespace TestApp40
 {
     using System;
-    using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics;
-    using System.IO;
 
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class Global : System.Web.HttpApplication
     {
