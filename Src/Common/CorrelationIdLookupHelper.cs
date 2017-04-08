@@ -220,7 +220,7 @@
                 }
                 catch (Exception ex)
                 {
-                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+                    AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
                     return null;
                 }
                 finally
@@ -256,7 +256,7 @@
                 ae = ae.Flatten();
                 if (ae.InnerException != null)
                 {
-                    RegisterFailure(instrumentationKey, ae.InnerException);
+                    this.RegisterFailure(instrumentationKey, ae.InnerException);
                     return;
                 }
             }
@@ -273,7 +273,7 @@
                 this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
             }
 
-            CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+            AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
         }
 
         private string GetExceptionDetailString(Exception ex)
