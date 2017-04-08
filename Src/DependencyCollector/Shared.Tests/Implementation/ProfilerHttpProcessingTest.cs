@@ -147,7 +147,7 @@
             string roleName = "SomeRoleName";
             string appId = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
 
-            this.SimulateWebRequestWithGivenRequestContextHeaderValue(string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextTargetRoleNameKey, roleName));
+            this.SimulateWebRequestWithGivenRequestContextHeaderValue(string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", this.GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextTargetRoleNameKey, roleName));
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId) + " | roleName:" + roleName, ((DependencyTelemetry)this.sendItems[0]).Target);
@@ -880,7 +880,7 @@
 
         private void SimulateWebRequestResponseWithAppId(string appId)
         {
-            SimulateWebRequestWithGivenRequestContextHeaderValue(this.GetCorrelationIdHeaderValue(appId));
+            this.SimulateWebRequestWithGivenRequestContextHeaderValue(this.GetCorrelationIdHeaderValue(appId));
         }
 
         private void SimulateWebRequestWithGivenRequestContextHeaderValue(string headerValue)
@@ -894,7 +894,6 @@
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
             var objectReturned = this.httpProcessingProfiler.OnEndForGetResponse(null, returnObjectPassed, request);
-
         }
 
         private string GetCorrelationIdValue(string appId)
