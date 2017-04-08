@@ -762,7 +762,7 @@
 
         private string GetCorrelationIdHeaderValue(string appId)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextSourceKey, appId);
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextCorrelationSourceKey, appId);
         }
 
         internal class FakeHttpHandler : IHttpHandler

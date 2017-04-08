@@ -160,7 +160,7 @@
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey));
+            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>
@@ -266,7 +266,7 @@
         [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
         public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSource()
         {
-            string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextSourceKey + "=HelloWorld";
+            string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextCorrelationSourceKey + "=HelloWorld";
             var request = WebRequest.Create(this.testUrl);
 
             request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithAppId);
@@ -873,7 +873,7 @@
 
         private string GetCorrelationIdHeaderValue(string appId)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextTargetKey, appId);
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextCorrleationTargetKey, appId);
         }
 
         private void Initialize(string instrumentationKey)

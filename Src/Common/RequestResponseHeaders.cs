@@ -13,12 +13,22 @@
         /// <summary>
         /// Source key in the request context header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
         /// </summary>
-        public const string RequestContextSourceKey = "appId";
+        public const string RequestContextCorrelationSourceKey = "appId";
 
         /// <summary>
         /// Target key in the request context header that is added to the response and retrieved by the calling application when processing incoming responses.
         /// </summary>
-        public const string RequestContextTargetKey = "appId"; // Although the name of Source and Target key is the same - appId. Conceptually they are different and hence, we intentionally have two constants here. Makes for better reading of the code.
+        public const string RequestContextCorrleationTargetKey = "appId"; // Although the name of Source and Target key is the same - appId. Conceptually they are different and hence, we intentionally have two constants here. Makes for better reading of the code.
+
+        /// <summary>
+        /// Source-RoleName key in the request context header that is added by an application while making http requests and retrieved by the other application when processing incoming requests.
+        /// </summary>
+        public const string RequestContextSourceRoleNameKey = "sourceRoleName";
+
+        /// <summary>
+        /// Target-RoleName key in the request context header that is added to the response and retrieved by the calling application when processing incoming responses.
+        /// </summary>
+        public const string RequestContextTargetRoleNameKey = "targetRoleName";
 
         /// <summary>
         /// Legacy parent Id header.
