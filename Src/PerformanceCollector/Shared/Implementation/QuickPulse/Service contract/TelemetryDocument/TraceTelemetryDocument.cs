@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
-    using Microsoft.ApplicationInsights.DataContracts;
-
     [DataContract]
     internal struct TraceTelemetryDocument : ITelemetryDocument
     {
