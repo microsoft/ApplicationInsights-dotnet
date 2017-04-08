@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Global.props'))\Global.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" />
+
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
+
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>0e1b7739-c7b9-4303-99ef-9da03a00bcfb</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <RootNamespace>AspxCore</RootNamespace>
+    <AssemblyName>AspxCore</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <Language>C#</Language>
+
+    <OutputPath>$(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\DotNet.Web\Microsoft.DotNet.Web.targets" Condition="'$(VSToolsPath)' != ''" />
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CopyBinariesToExpectedDeployFromLocation
+    </BuildDependsOn>
+  </PropertyGroup>
+  <Target Name="CopyBinariesToExpectedDeployFromLocation">
+    <ItemGroup>
+      <CopyFrom Include="$(OutputPath)AspxCore\bin\$(Configuration)\netcoreapp1.0\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyFrom)" DestinationFolder="$(OutputPath)AspxCore" />
+  </Target>
+</Project>

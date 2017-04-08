@@ -25,24 +25,8 @@
             Debug.Assert(headerName != null, "headerName must not be null");
             Debug.Assert(keyName != null, "keyName must not be null");
 
-            var requiredHeader = headers[headerName];
-
-            if (requiredHeader != null)
-            {
-                var headerValues = requiredHeader.Split(',');
-                foreach (var headerValue in headerValues)
-                {
-                    string key, value;
-                    if (headerValue.Contains(keyName) &&
-                        TryParseKeyValueHeader(headerValue, out key, out value) &&
-                        keyName.Equals(key))
-                    {
-                        return value;
-                    }
-                }
-            }
-
-            return null;
+            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
+            return HeadersUtilities.GetHeaderKeyValue(headerValue, keyName);
         }
 
         /// <summary>
@@ -55,30 +39,10 @@
         {
             Debug.Assert(headerName != null, "headerName must not be null");
 
-            var requiredHeader = headers[headerName];
-
-            if (requiredHeader != null)
-            {
-                var values = new Dictionary<string, string>();
-                var headerValues = requiredHeader.Split(',');
-                foreach (var headerValue in headerValues)
-                {
-                    string key, value;
-                    if (TryParseKeyValueHeader(headerValue, out key, out value))
-                    {
-                        if (!values.ContainsKey(key))
-                        {
-                            values.Add(key, value);
-                        }
-                    }
-                }
-
-                return values;
-            }
-
-            return null;
+            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
+            return HeadersUtilities.GetHeaderDictionary(headerValue);
         }
-
+        
         /// <summary>
         /// For the given header collection, adds KeyValuePair to header.
         /// </summary>
@@ -91,38 +55,8 @@
             Debug.Assert(headerName != null, "headerName must not be null");
             Debug.Assert(keyName != null, "keyName must not be null");
 
-            var requiredHeader = headers[headerName];
-
-            if (!string.IsNullOrEmpty(requiredHeader))
-            {
-                bool found = false;
-                var headerValues = requiredHeader.Split(',');
-                for (int i = 0; i < headerValues.Length; i++)
-                {
-                    string keyValueString = headerValues[i];
-                    string currentKey, currentValue;
-                    if (keyValueString.Contains(keyName) &&
-                        TryParseKeyValueHeader(keyValueString, out currentKey, out currentValue) &&
-                        keyName.Equals(currentKey))
-                    {
-                        // Overwrite the existing thing
-                        headerValues[i] = FormatKeyValueHeader(keyName, value);
-                        found = true;
-                    }
-                }
-
-                headers[headerName] = string.Join(",", headerValues);
-
-                if (!found)
-                {
-                    headers[headerName] += ',' + FormatKeyValueHeader(keyName, value);
-                }
-            }
-            else
-            {
-                // header with headerName does not exist - let's add one.
-                headers[headerName] = FormatKeyValueHeader(keyName, value);
-            }
+            IEnumerable<string> headerValue = GetHeaderValue(headers, headerName);
+            headers[headerName] = string.Join(", ", HeadersUtilities.UpdateHeaderWithKeyValue(headerValue, keyName, value));
         }
 
         /// <summary>
@@ -149,35 +83,9 @@
             }
         }
 
-        private static bool TryParseKeyValueHeader(string pairString, out string key, out string value)
+        private static IEnumerable<string> GetHeaderValue(NameValueCollection headers, string headerName)
         {
-            Debug.Assert(pairString != null, "pairString is null");
-
-            key = null;
-            value = null;
-
-            int indexOfSeparator = pairString.IndexOf(KeyValuePairSeparator, StringComparison.Ordinal);
-
-            // Must be a separator, and cannot be first or last
-            if (indexOfSeparator <= 0 || indexOfSeparator == pairString.Length - 1)
-            {
-                return false;
-            }
-
-            // Must be exactly one separator
-            if (pairString.IndexOf(KeyValuePairSeparator, indexOfSeparator + 1, StringComparison.Ordinal) >= 0)
-            {
-                return false;
-            }
-
-            key = pairString.Substring(0, indexOfSeparator).Trim();
-            value = pairString.Substring(indexOfSeparator + 1).Trim();
-            if (key.Length > 0 && value.Length > 0)
-            {
-                return true;
-            }
-
-            return false;
+            return headers[headerName]?.Split(',');
         }
 
         private static string FormatKeyValueHeader(string key, string value)

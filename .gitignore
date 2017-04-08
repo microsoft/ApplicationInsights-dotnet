@@ -164,3 +164,6 @@ $RECYCLE.BIN/
 *.prf
 *.wrn
 *.vsix
+
+.PreReleaseVersion
+.nugetVersion

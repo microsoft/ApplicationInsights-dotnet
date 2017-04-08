@@ -3,11 +3,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-    using Common;
+    using Microsoft.ApplicationInsights.Common;
     using VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class HeaderCollectionManupilationTests
+    public class HeaderCollectionManipulationTests
     {
         /// <summary>
         /// Ensures that the GetNameValueHeaderValue extension methods works as expected.
@@ -58,13 +58,13 @@
             // Non empty collection - adding new key
             headers.SetNameValueHeaderValue("Request-Context", "roleName", "workerRole");
             Assert.AreEqual(1, headers.Keys.Count);
-            Assert.AreEqual("appId=appIdValue,roleName=workerRole", headers["Request-Context"]);
+            Assert.AreEqual("appId=appIdValue, roleName=workerRole", headers["Request-Context"]);
 
             // overwritting existing key
             headers.SetNameValueHeaderValue("Request-Context", "roleName", "webRole");
             headers.SetNameValueHeaderValue("Request-Context", "appId", "udpatedAppId");
             Assert.AreEqual(1, headers.Keys.Count);
-            Assert.AreEqual("appId=udpatedAppId,roleName=webRole", headers["Request-Context"]);
+            Assert.AreEqual("roleName=webRole, appId=udpatedAppId", headers["Request-Context"]);
         }
 
         /// <summary>

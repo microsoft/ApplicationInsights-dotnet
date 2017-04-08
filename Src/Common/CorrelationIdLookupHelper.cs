@@ -8,11 +8,14 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Extensibility.Implementation.Tracing;
+#if NETCORE
+    using System.Net.Http;
+#endif
 
     /// <summary>
     /// A store for instrumentation App Ids. This makes sure we don't query the public endpoint to find an app Id for the same instrumentation key more than once.
     /// </summary>
-    internal class CorrelationIdLookupHelper
+    internal class CorrelationIdLookupHelper : ICorrelationIdLookupHelper
     {
         /// <summary>
         /// Max number of app ids to cache.
@@ -198,24 +201,31 @@
         {
             try
             {
+#if !NETCORE
                 SdkInternalOperationsMonitor.Enter();
-
+#endif
                 Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-
+#if !NETCORE
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
 
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        return await reader.ReadToEndAsync();
-                    }
+                    return await reader.ReadToEndAsync();
                 }
+#else
+                using (HttpClient client = new HttpClient())
+                {
+                    return await client.GetStringAsync(appIdEndpoint).ConfigureAwait(false);
+                }
+#endif
             }
             finally
             {
+#if !NETCORE
                 SdkInternalOperationsMonitor.Exit();
+#endif
             }
         }
 #else
@@ -276,6 +286,7 @@
         /// <param name="ex">Exception indicating failure.</param>
         private void RegisterFailure(string instrumentationKey, Exception ex)
         {
+#if !NETCORE
             var webException = ex as WebException;
             if (webException != null)
             {
@@ -285,8 +296,11 @@
             }
             else
             {
+#endif
                 this.failingInstrumenationKeys[instrumentationKey] = new FailedResult(DateTime.UtcNow);
+#if !NETCORE
             }
+#endif
 
             CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
         }
