@@ -148,7 +148,7 @@
                 Metrics =
                     new[]
                     {
-                        new OperationalizedMetricInfo()
+                        new CalculatedMetricInfo()
                         {
                             Id = "Metric1",
                             Aggregation = AggregationType.Sum,

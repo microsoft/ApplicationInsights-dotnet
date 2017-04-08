@@ -102,6 +102,9 @@
     <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\AggregationType.cs">
       <Link>Serialization\QuickPulse\AggregationType.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\CalculatedMetricInfo.cs">
+      <Link>Serialization\QuickPulse\CalculatedMetricInfo.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\CollectionConfigurationInfo.cs">
       <Link>Serialization\QuickPulse\CollectionConfigurationInfo.cs</Link>
     </Compile>
@@ -122,9 +125,6 @@
     </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\FilterInfo.cs">
       <Link>Serialization\QuickPulse\FilterInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\OperationalizedMetricInfo.cs">
-      <Link>Serialization\QuickPulse\OperationalizedMetricInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Src\PerformanceCollector\Filtering\Implementation\Service contract\Predicate.cs">
       <Link>Serialization\QuickPulse\Predicate.cs</Link>
