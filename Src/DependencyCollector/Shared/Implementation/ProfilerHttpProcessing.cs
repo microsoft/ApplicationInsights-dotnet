@@ -486,7 +486,7 @@
                                 if (!string.IsNullOrEmpty(targetRoleName))
                                 {
                                     telemetry.Type = RemoteDependencyConstants.AI;
-                                    telemetry.Target += " | " + targetRoleName;
+                                    telemetry.Target += " | roleName:" + targetRoleName;
                                 }
                             }
                         }

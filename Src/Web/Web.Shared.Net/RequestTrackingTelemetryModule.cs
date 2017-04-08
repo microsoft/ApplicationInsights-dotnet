@@ -230,11 +230,11 @@
                 {
                     if (string.IsNullOrEmpty(telemetrySource))
                     {
-                        telemetrySource = sourceRoleName;
+                        telemetrySource = "roleName:" + sourceRoleName;
                     }
                     else
                     {
-                        telemetrySource += " | " + sourceRoleName;
+                        telemetrySource += " | roleName:" + sourceRoleName;
                     }
                 }
 
