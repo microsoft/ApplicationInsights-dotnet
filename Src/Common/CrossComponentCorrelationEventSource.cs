@@ -68,7 +68,7 @@
         }
 
         [Event(
-            4,
+            5,
             Keywords = Keywords.Diagnostics,
             Message = "Unknown error occurred.",
             Level = EventLevel.Warning)]

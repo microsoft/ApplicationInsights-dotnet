@@ -135,18 +135,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     {
                         try
                         {
-                            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !HttpHeadersUtilities.ContainsRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextSourceKey))
+                            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !HttpHeadersUtilities.ContainsRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextCorrelationSourceKey))
                             {
                                 string sourceApplicationId;
                                 if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out sourceApplicationId))
                                 {
-                                    HttpHeadersUtilities.SetRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextSourceKey, sourceApplicationId);
+                                    HttpHeadersUtilities.SetRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextCorrelationSourceKey, sourceApplicationId);
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                            AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                         }
 
                         // Add the root ID
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             }
             catch (Exception e)
             {
-                CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
 
@@ -187,7 +187,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     {
                         try
                         {
-                            string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextTargetKey);
+                            string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrleationTargetKey);
                             if (!string.IsNullOrEmpty(targetApplicationId) && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                             {
                                 // We only add the cross component correlation key if the key does not represent the current component.
@@ -202,7 +202,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                         }
                         catch (Exception e)
                         {
-                            CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                            AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                         }
 
                         int statusCode = (int)response.StatusCode;
@@ -216,7 +216,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             }
             catch (Exception e)
             {
-                CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
     }
