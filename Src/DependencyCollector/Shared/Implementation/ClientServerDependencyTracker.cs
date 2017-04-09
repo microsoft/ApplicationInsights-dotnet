@@ -187,7 +187,7 @@
             }
         }
 
-        private static long GetIdForRequestObject(object obj)
+        internal static long GetIdForRequestObject(object obj)
         {
             if (obj == null)
             {

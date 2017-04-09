@@ -17,7 +17,8 @@
     /// </summary>
     public partial class DependencyTrackingTelemetryModuleTest
     {
-        private static readonly string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+        private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
+        private const string FakeProfileApiEndpoint = "http://www.microsoft.com";
 
         [TestMethod]
         [Timeout(5000)]
@@ -25,7 +26,19 @@
         public void TestHttpPostRequestsAreCollected()
         {
             ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    // The correlation id lookup service also makes http call, just make sure we skip that
+                    DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
+                    if (depTelemetry != null && !depTelemetry.Data.StartsWith(FakeProfileApiEndpoint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        sentTelemetry = telemetry;
+                    }
+                }
+            };
 
             var config = new TelemetryConfiguration
             {
@@ -35,7 +48,9 @@
 
             using (var module = new DependencyTrackingTelemetryModule())
             {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
+
                 Uri url = new Uri("http://www.bing.com");
                 new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Post);
 
@@ -48,7 +63,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(url, item.Data);
                 Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual(url.AbsolutePath, item.Name);
+                Assert.AreEqual("POST " + url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
@@ -64,7 +79,20 @@
         public void TestHttpRequestsWithQueryStringAreCollected()
         {
             ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    // The correlation id lookup service also makes http call, just make sure we skip that
+                    DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
+                    if (depTelemetry != null && !depTelemetry.Data.StartsWith(FakeProfileApiEndpoint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        sentTelemetry = telemetry;
+                    }
+                }
+            };
+
             var config = new TelemetryConfiguration
             {
                 InstrumentationKey = IKey,
@@ -73,6 +101,7 @@
 
             using (var module = new DependencyTrackingTelemetryModule())
             {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
                 Uri url = new Uri("http://www.bing.com/search?q=1");
                 new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Get);
@@ -86,7 +115,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(url, item.Data);
                 Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual(url.AbsolutePath, item.Name);
+                Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
@@ -105,7 +134,19 @@
         public void TestHttpGetRequestsAreCollected()
         {
             ITelemetry sentTelemetry = null;
-            var channel = new StubTelemetryChannel { OnSend = telemetry => sentTelemetry = telemetry };
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    // The correlation id lookup service also makes http call, just make sure we skip that
+                    DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
+                    if (depTelemetry != null && !depTelemetry.Data.StartsWith(FakeProfileApiEndpoint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        sentTelemetry = telemetry;
+                    }
+                }
+            };
+
             var config = new TelemetryConfiguration
             {
                 InstrumentationKey = IKey,
@@ -114,6 +155,7 @@
 
             using (var module = new DependencyTrackingTelemetryModule())
             {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
                 Uri url = new Uri("http://www.bing.com/maps");
                 new HttpWebRequestUtils().ExecuteAsyncHttpRequest(url.ToString(), HttpMethod.Get);
@@ -127,7 +169,7 @@
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(url, item.Data);
                 Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual(url.AbsolutePath, item.Name);
+                Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
                 Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
