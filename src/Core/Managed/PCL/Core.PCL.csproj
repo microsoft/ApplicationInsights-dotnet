@@ -4,7 +4,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{862B97AF-F620-43FD-9B65-7E5423F3B7E3}</ProjectGuid>
@@ -13,10 +13,9 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <DefineConstants>$(DefineConstants);CORE_PCL</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,20 +24,65 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Net40\Extensibility\Implementation\TelemetryConfigurationFactory.cs">
       <Link>Extensibility\Implementation\TelemetryConfigurationFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\AjaxCallData.cs">
+      <Link>Extensibility\Implementation\External\AjaxCallData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\AvailabilityData.cs">
+      <Link>Extensibility\Implementation\External\AvailabilityData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\DataPoint.cs">
+      <Link>Extensibility\Implementation\External\DataPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\EventData.cs">
+      <Link>Extensibility\Implementation\External\EventData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\ExceptionData.cs">
+      <Link>Extensibility\Implementation\External\ExceptionData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\MessageData.cs">
+      <Link>Extensibility\Implementation\External\MessageData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\MetricData.cs">
+      <Link>Extensibility\Implementation\External\MetricData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PageViewData.cs">
+      <Link>Extensibility\Implementation\External\PageViewData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PageViewPerfData.cs">
+      <Link>Extensibility\Implementation\External\PageViewPerfData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\PerformanceCounterData.cs">
+      <Link>Extensibility\Implementation\External\PerformanceCounterData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\RemoteDependencyData.cs">
+      <Link>Extensibility\Implementation\External\RemoteDependencyData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\RequestData.cs">
+      <Link>Extensibility\Implementation\External\RequestData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\SessionStateData.cs">
+      <Link>Extensibility\Implementation\External\SessionStateData.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\External\StackFrame.cs">
+      <Link>Extensibility\Implementation\External\StackFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\Net46\Extensibility\Implementation\RichPayloadEventSource.cs">
+      <Link>Extensibility\Implementation\RichPayloadEventSource.cs</Link>
+    </Compile>
     <Compile Include="Extensibility\Implementation\Platform\PlatformImplementation.cs" />
-    <Compile Include="TimeSpanEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.Analyzers.dll" />
     <Analyzer Include="..\..\..\..\..\packages\Desktop.Analyzers.1.1.0\analyzers\dotnet\cs\Desktop.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+  <Import Project="..\Operation.AL.Shared\Operation.AL.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
