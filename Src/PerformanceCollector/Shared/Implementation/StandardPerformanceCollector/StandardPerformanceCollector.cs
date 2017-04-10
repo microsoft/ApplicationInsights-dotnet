@@ -26,8 +26,7 @@
         /// Performs collection for all registered counters.
         /// </summary>
         /// <param name="onReadingFailure">Invoked when an individual counter fails to be read.</param>
-        public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(
-            Action<string, Exception> onReadingFailure = null)
+        public IEnumerable<Tuple<PerformanceCounterData, double>> Collect(Action<string, Exception> onReadingFailure = null)
         {
             return this.performanceCounters.Where(pc => !pc.Item1.IsInBadState).SelectMany(
                 pc =>
@@ -40,12 +39,7 @@
                         }
                         catch (InvalidOperationException e)
                         {
-                            if (onReadingFailure != null)
-                            {
-                                onReadingFailure(
-                                    PerformanceCounterUtility.FormatPerformanceCounter(pc.Item2),
-                                    e);
-                            }
+                            onReadingFailure?.Invoke(PerformanceCounterUtility.FormatPerformanceCounter(pc.Item2), e);
 
                             return new Tuple<PerformanceCounterData, double>[] { };
                         }
@@ -66,7 +60,7 @@
                 this.PerformanceCounters.Where(pc => pc.IsInBadState || pc.UsesInstanceNamePlaceholder)
                     .ToList();
 
-            countersToRefresh.ForEach(pcd => this.RefreshCounter(pcd));
+            countersToRefresh.ForEach(this.RefreshCounter);
 
             PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count.ToString(CultureInfo.InvariantCulture));
         }
@@ -105,6 +99,25 @@
             if (pc != null && !(blockCounterWithInstancePlaceHolder && usesInstanceNamePlaceholder))
             {
                 this.RegisterCounter(perfCounterName, reportAs, pc, isCustomCounter, usesInstanceNamePlaceholder, out error);
+            }
+        }
+
+        /// <summary>
+        /// Removes a counter.
+        /// </summary>
+        /// <param name="perfCounter">Name of the performance counter to remove.</param>
+        /// <param name="reportAs">ReportAs value of the performance counter to remove.</param>
+        public void RemoveCounter(string perfCounter, string reportAs)
+        {
+            Tuple<PerformanceCounterData, PerformanceCounter> keyToRemove =
+                this.performanceCounters.FirstOrDefault(
+                    pair =>
+                    string.Equals(pair.Item1.ReportAs, reportAs, StringComparison.Ordinal)
+                    && string.Equals(pair.Item1.OriginalString, perfCounter, StringComparison.OrdinalIgnoreCase));
+
+            if (keyToRemove != null)
+            {
+                this.performanceCounters.Remove(keyToRemove);
             }
         }
 
@@ -219,14 +232,11 @@
                     usesInstanceNamePlaceholder,
                     isCustomCounter);
 
-                PerformanceCollectorEventSource.Log.CounterRegisteredEvent(
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
+                PerformanceCollectorEventSource.Log.CounterRegisteredEvent(PerformanceCounterUtility.FormatPerformanceCounter(pc));
             }
             catch (InvalidOperationException e)
             {
-                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(
-                    e.Message,
-                    PerformanceCounterUtility.FormatPerformanceCounter(pc));
+                PerformanceCollectorEventSource.Log.CounterRegistrationFailedEvent(e.Message, PerformanceCounterUtility.FormatPerformanceCounter(pc));
                 error = e.Message;
             }
         }

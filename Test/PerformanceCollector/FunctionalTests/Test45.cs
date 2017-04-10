@@ -1,9 +1,7 @@
 ﻿namespace FunctionalTests
 {
-    using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Net.Http;
 
     using Functional.Helpers;
     using Functional.IisExpress;
@@ -104,9 +102,9 @@
         [TestMethod]
         [Owner("alkaplan")]
         [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
-        public void QuickPulseDocuments()
+        public void QuickPulseMetricsAndDocuments()
         {
-            CommonTests.QuickPulseDocuments(this.QuickPulseListener, this);
+            CommonTests.QuickPulseMetricsAndDocuments(this.QuickPulseListener, this);
         }
 
         [TestMethod]

@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Runtime.Caching;
     using System.Text.RegularExpressions;
 
     /// <summary>

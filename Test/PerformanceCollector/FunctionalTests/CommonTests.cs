@@ -1,8 +1,10 @@
 ﻿namespace PerfCounterCollector.FunctionalTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading.Tasks;
 
     using Functional.Helpers;
     using AI;
@@ -74,11 +76,21 @@
             AssertSomeSamplesWithNonZeroMetric(samples, @"\Processor(_Total)\% Processor Time");
         }
 
-        internal static void QuickPulseDocuments(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
+        internal static void QuickPulseMetricsAndDocuments(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
         {
-            test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+            Parallel.For(
+                0,
+                5,
+                i =>
+                    {
+                        System.Threading.Thread.Sleep(TimeSpan.FromSeconds(i));
+                        test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
+                    });
 
-            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.Documents.Any()).ToList();
+            var samples =
+                listener.ReceiveItems(5, TestListenerWaitTimeInMs)
+                    .Where(s => s.Documents?.Length > 0 || s.Metrics.Any(m => m.Name == "Metric1"))
+                    .ToList();
 
             Assert.IsTrue(
                 samples.TrueForAll(
@@ -86,12 +98,23 @@
                     item.InstrumentationKey == "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8" && !string.IsNullOrWhiteSpace(item.Version)
                     && !string.IsNullOrWhiteSpace(item.Instance)));
 
-            // captured failed
+            Assert.IsTrue(samples.Any(s => s.Metrics.Any(m => m.Name == "Metric1" && m.Value > 0)));
+
             Assert.IsTrue(
                 samples.Any(
                     s =>
                     s.Documents.Any(
-                        d => d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("Failed"))));
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("RequestSuccess")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("RequestFailed")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
 
             Assert.IsTrue(
                 samples.Any(
@@ -99,7 +122,15 @@
                     s.Documents.Any(
                         d =>
                         d.DocumentType == TelemetryDocumentType.RemoteDependency.ToString()
-                        && ((DependencyTelemetryDocument)d).Name.Contains("Failed"))));
+                        && ((DependencyTelemetryDocument)d).Name.Contains("DependencySuccess") && d.DocumentStreamIds.Contains("Stream1"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.RemoteDependency.ToString()
+                        && ((DependencyTelemetryDocument)d).Name.Contains("DependencyFailed") && d.DocumentStreamIds.Contains("Stream1"))));
 
             Assert.IsTrue(
                 samples.Any(
@@ -107,29 +138,46 @@
                     s.Documents.Any(
                         d =>
                         d.DocumentType == TelemetryDocumentType.Exception.ToString()
-                        && ((ExceptionTelemetryDocument)d).Exception.Contains("ArgumentNullException"))));
+                        && ((ExceptionTelemetryDocument)d).Exception.Contains("ArgumentNullException") && d.DocumentStreamIds.Contains("Stream1"))));
 
-            // did not capture succeeded
-            Assert.IsFalse(
-                samples.Any(
-                    s =>
-                    s.Documents.Any(
-                        d => d.DocumentType == TelemetryDocumentType.Request.ToString() && ((RequestTelemetryDocument)d).Name.Contains("Success"))));
-
-            Assert.IsFalse(
+            Assert.IsTrue(
                 samples.Any(
                     s =>
                     s.Documents.Any(
                         d =>
-                        d.DocumentType == TelemetryDocumentType.RemoteDependency.ToString()
-                        && ((DependencyTelemetryDocument)d).Name.Contains("Success"))));
+                        d.DocumentType == TelemetryDocumentType.Event.ToString() && ((EventTelemetryDocument)d).Name.Contains("Event1")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Event.ToString() && ((EventTelemetryDocument)d).Name.Contains("Event2")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Trace.ToString() && ((TraceTelemetryDocument)d).Message.Contains("Trace1")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
+
+            Assert.IsTrue(
+                samples.Any(
+                    s =>
+                    s.Documents.Any(
+                        d =>
+                        d.DocumentType == TelemetryDocumentType.Trace.ToString() && ((TraceTelemetryDocument)d).Message.Contains("Trace2")
+                        && d.DocumentStreamIds.Contains("Stream1"))));
         }
 
         internal static void QuickPulseTopCpuProcesses(QuickPulseHttpListenerObservable listener, SingleWebHostTestBase test)
         {
             test.SendRequest("aspx/GenerateTelemetryItems.aspx", false);
 
-            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.Documents.Any()).ToList();
+            var samples = listener.ReceiveItems(15, TestListenerWaitTimeInMs).Where(s => s.TopCpuProcesses != null).ToList();
 
             Assert.IsTrue(samples.Count > 0);
 

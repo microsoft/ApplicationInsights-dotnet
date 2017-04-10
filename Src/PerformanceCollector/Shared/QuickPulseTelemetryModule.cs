@@ -5,11 +5,11 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Security;
     using System.Threading;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
@@ -28,11 +28,13 @@
 
         private const int TopCpuCount = 5;
 
-        private readonly object lockObject = new object();
+        private readonly object moduleInitializationLock = new object();
 
         private readonly object telemetryProcessorsLock = new object();
 
         private readonly object collectedSamplesLock = new object();
+
+        private readonly object performanceCollectorUpdateLock = new object();
 
         private readonly LinkedList<QuickPulseDataSample> collectedSamples = new LinkedList<QuickPulseDataSample>();
 
@@ -56,8 +58,6 @@
 
         private bool isInitialized = false;
 
-        private bool isPerformanceCollectorInitialized = false;
-
         private QuickPulseCollectionTimeSlotManager collectionTimeSlotManager = null;
 
         private IQuickPulseDataAccumulatorManager dataAccumulatorManager = null;
@@ -67,6 +67,10 @@
         private IPerformanceCollector performanceCollector = null;
 
         private IQuickPulseTopCpuCollector topCpuCollector = null;
+
+        private CollectionConfiguration collectionConfiguration;
+
+        private QuickPulseMetricProcessor metricProcessor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
@@ -120,6 +124,14 @@
         public bool DisableTopCpuProcesses { get; set; }
 
         /// <summary>
+        /// Gets the authentication API key.
+        /// Authentication API key is created in the Azure Portal for an application and ensures secure distribution of
+        /// the collection configuration when using QuickPulse.
+        /// </summary>
+        /// <remarks>Loaded from configuration.</remarks>
+        public string AuthenticationApiKey { get; set; }
+
+        /// <summary>
         /// Disposes resources allocated by this type.
         /// </summary>
         public void Dispose()
@@ -136,14 +148,15 @@
         {
             if (!this.isInitialized)
             {
-                lock (this.lockObject)
+                lock (this.moduleInitializationLock)
                 {
                     if (!this.isInitialized)
                     {
                         QuickPulseEventSource.Log.ModuleIsBeingInitializedEvent(
                             this.QuickPulseServiceEndpoint,
                             this.DisableFullTelemetryItems,
-                            this.DisableTopCpuProcesses);
+                            this.DisableTopCpuProcesses,
+                            this.AuthenticationApiKey);
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Validating configuration...");
                         this.ValidateConfiguration(configuration);
@@ -151,16 +164,25 @@
 
                         QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing members...");
                         this.collectionTimeSlotManager = this.collectionTimeSlotManager ?? new QuickPulseCollectionTimeSlotManager();
-                        this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager();
                         this.performanceCollector = this.performanceCollector ?? 
-                            (PerformanceCounterUtility.IsWebAppRunningInAzure() ? (IPerformanceCollector)new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector());
+                            (PerformanceCounterUtility.IsWebAppRunningInAzure() ? new WebAppPerformanceCollector() : (IPerformanceCollector)new StandardPerformanceCollector());
                         this.timeProvider = this.timeProvider ?? new Clock();
                         this.topCpuCollector = this.topCpuCollector
                                                ?? new QuickPulseTopCpuCollector(this.timeProvider, new QuickPulseProcessProvider(PerfLib.GetPerfLib()));
                         this.timings = timings ?? QuickPulseTimings.Default;
 
-                        this.InitializeServiceClient(configuration);
+                        CollectionConfigurationError[] errors;
+                        this.collectionConfiguration = new CollectionConfiguration(
+                            new CollectionConfigurationInfo() { ETag = string.Empty },
+                            out errors,
+                            this.timeProvider);
+                        this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager(this.collectionConfiguration);
 
+                        this.metricProcessor = new QuickPulseMetricProcessor();
+                        this.config.MetricProcessors.Add(this.metricProcessor);
+
+                        this.InitializeServiceClient(configuration);
+                        
                         this.stateManager = new QuickPulseCollectionStateManager(
                             this.serviceClient,
                             this.timeProvider,
@@ -168,7 +190,8 @@
                             this.OnStartCollection,
                             this.OnStopCollection,
                             this.OnSubmitSamples,
-                            this.OnReturnFailedSamples);
+                            this.OnReturnFailedSamples,
+                            this.OnUpdatedConfiguration);
 
                         this.CreateStateThread();
 
@@ -208,49 +231,75 @@
             }
         }
 
-        private void EnsurePerformanceCollectorInitialized()
+        private void UpdatePerformanceCollector(IEnumerable<Tuple<string, string>> performanceCountersToCollect, out CollectionConfigurationError[] errors)
         {
-            if (this.isPerformanceCollectorInitialized)
+            // all counters that need to be collected according to the new configuration - remove duplicates
+            List<Tuple<string, string>> countersToCollect =
+                performanceCountersToCollect.GroupBy(counter => counter.Item1, StringComparer.Ordinal)
+                    .Select(group => group.First())
+                    .Concat(
+                        QuickPulseDefaults.DefaultCountersToCollect.Select(defaultCounter => Tuple.Create(defaultCounter.Value, defaultCounter.Value)))
+                    .ToList();
+
+            lock (this.performanceCollectorUpdateLock)
             {
-                return;
-            }
+                List<PerformanceCounterData> countersCurrentlyCollected = this.performanceCollector.PerformanceCounters.ToList();
 
-            this.isPerformanceCollectorInitialized = true;
+                IEnumerable<Tuple<string, string>> countersToRemove =
+                    countersCurrentlyCollected.Where(
+                        counter => !countersToCollect.Any(c => string.Equals(c.Item1, counter.ReportAs, StringComparison.Ordinal)))
+                        .Select(counter => Tuple.Create(counter.ReportAs, counter.OriginalString));
 
-            QuickPulseEventSource.Log.TroubleshootingMessageEvent("Initializing performance collector...");
+                IEnumerable<Tuple<string, string>> countersToAdd =
+                    countersToCollect.Where(
+                        counter => !countersCurrentlyCollected.Any(c => string.Equals(c.ReportAs, counter.Item1, StringComparison.Ordinal)));
 
-            this.InitializePerformanceCollector();
-        }
-
-        private void InitializePerformanceCollector()
-        {
-            Dictionary<QuickPulseCounter, string> counters = QuickPulseDefaults.CountersToCollect;
-
-            foreach (var counterKey in counters.Keys)
-            {
-                string originalCounterString = counters[counterKey];
-                try
+                // remove counters that should no longer be collected
+                foreach (var counter in countersToRemove)
                 {
-                    string error;
-                    this.performanceCollector.RegisterCounter(
-                        originalCounterString,
-                        originalCounterString,
-                        true,
-                        out error,
-                        true);
+                    this.performanceCollector.RemoveCounter(counter.Item2, counter.Item1);
+                }
 
-                    if (!string.IsNullOrWhiteSpace(error))
+                var errorsList = new List<CollectionConfigurationError>();
+
+                // add counters that should now be collected
+                foreach (var counter in countersToAdd)
+                {
+                    try
                     {
-                        QuickPulseEventSource.Log.CounterParsingFailedEvent(error, originalCounterString);
-                        continue;
-                    }
+                        string error;
+                        this.performanceCollector.RegisterCounter(counter.Item2, counter.Item1, true, out error, true);
 
-                    QuickPulseEventSource.Log.CounterRegisteredEvent(originalCounterString);
+                        if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            errorsList.Add(
+                                CollectionConfigurationError.CreateError(
+                                    CollectionConfigurationErrorType.PerformanceCounterParsing,
+                                    string.Format(CultureInfo.InvariantCulture, "Error parsing performance counter: '{0}'. {1}", counter, error),
+                                    null,
+                                    Tuple.Create("MetricId", counter.Item1)));
+
+                            QuickPulseEventSource.Log.CounterParsingFailedEvent(error, counter.Item2);
+                            continue;
+                        }
+
+                        QuickPulseEventSource.Log.CounterRegisteredEvent(counter.Item2);
+                    }
+                    catch (Exception e)
+                    {
+                        errorsList.Add(
+                            CollectionConfigurationError.CreateError(
+                                CollectionConfigurationErrorType.PerformanceCounterUnexpected,
+                                string.Format(CultureInfo.InvariantCulture, "Unexpected error processing counter '{0}': {1}", counter, e.Message),
+                                e,
+                                Tuple.Create("MetricId", counter.Item1)));
+                            
+
+                        QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, counter.Item2);
+                    }
                 }
-                catch (Exception e)
-                {
-                    QuickPulseEventSource.Log.CounterRegistrationFailedEvent(e.Message, originalCounterString);
-                }
+
+                errors = errorsList.ToArray();
             }
         }
 
@@ -264,6 +313,11 @@
             if (configuration.TelemetryProcessors == null)
             {
                 throw new ArgumentNullException(nameof(configuration.TelemetryProcessors));
+            }
+
+            if (configuration.MetricProcessors == null)
+            {
+                throw new ArgumentNullException(nameof(configuration.MetricProcessors));
             }
         }
 
@@ -354,6 +408,8 @@
 
         private void StateThreadWorker(object state)
         {
+            SdkInternalOperationsMonitor.Enter();
+
             var stopwatch = new Stopwatch();
             TimeSpan? timeToNextUpdate = null;
 
@@ -365,12 +421,14 @@
                 {
                     if (this.stateThreadState.IsStopRequested)
                     {
+                        SdkInternalOperationsMonitor.Exit();
+
                         return;
                     }
 
                     stopwatch.Restart();
 
-                    timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey);
+                    timeToNextUpdate = this.stateManager.UpdateState(this.config.InstrumentationKey, this.AuthenticationApiKey);
 
                     QuickPulseEventSource.Log.StateTimerTickFinishedEvent(stopwatch.ElapsedMilliseconds);
                 }
@@ -393,6 +451,8 @@
 
         private void CollectionThreadWorker(object state)
         {
+            SdkInternalOperationsMonitor.Enter();
+
             var stopwatch = new Stopwatch();
             var threadState = (QuickPulseThreadState)state;
 
@@ -405,6 +465,8 @@
                     if (threadState.IsStopRequested)
                     {
                         this.CloseCollectionThread();
+
+                        SdkInternalOperationsMonitor.Exit();
 
                         return;
                     }
@@ -426,7 +488,6 @@
             }
         }
         
-
         private void InitializeCollectionThread()
         {
             try
@@ -478,12 +539,17 @@
         private QuickPulseDataSample CollectSample()
         {
             // For AI data, all we have to do is lock the current accumulator in
-            QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
+            // use the latest collection configuration info set by the state thread to create the new accumulator
+            QuickPulseDataAccumulator completeAccumulator = this.dataAccumulatorManager.CompleteCurrentDataAccumulator(this.collectionConfiguration);
 
             // For performance collection, we have to read perf samples from Windows
-            List<Tuple<PerformanceCounterData, double>> perfData =
-                this.performanceCollector.Collect((counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName))
-                .ToList();
+            List<Tuple<PerformanceCounterData, double>> perfData;
+            lock (this.performanceCollectorUpdateLock)
+            {
+                perfData =
+                    this.performanceCollector.Collect(
+                        (counterName, e) => QuickPulseEventSource.Log.CounterReadingFailedEvent(e.ToString(), counterName)).ToList();
+            }
 
             // For top N CPU, we have to get data from the provider
             IEnumerable<Tuple<string, int>> topCpuData = this.DisableTopCpuProcesses
@@ -514,9 +580,10 @@
 
             this.EndCollectionThread();
 
-            this.EnsurePerformanceCollectorInitialized();
+            CollectionConfigurationError[] errors;
+            this.UpdatePerformanceCollector(this.collectionConfiguration.PerformanceCounters, out errors);
 
-            this.dataAccumulatorManager.CompleteCurrentDataAccumulator();
+            this.dataAccumulatorManager.CompleteCurrentDataAccumulator(this.collectionConfiguration);
 
             lock (this.telemetryProcessorsLock)
             {
@@ -529,6 +596,8 @@
                         this.DisableFullTelemetryItems);
                 }
             }
+
+            this.metricProcessor.StartCollection(this.dataAccumulatorManager);
 
             this.CreateCollectionThread();
         }
@@ -561,6 +630,8 @@
                     telemetryProcessor.StopCollection();
                 }
             }
+
+            this.metricProcessor.StopCollection();
 
             lock (this.collectedSamplesLock)
             {
@@ -601,6 +672,21 @@
                     this.collectedSamples.RemoveFirst();
                 }
             }
+        }
+
+        private CollectionConfigurationError[] OnUpdatedConfiguration(CollectionConfigurationInfo configurationInfo)
+        {
+            // we need to preserve the current quota for each document stream that still exists in the new configuration
+            CollectionConfigurationError[] errorsConfig;
+            var newCollectionConfiguration = new CollectionConfiguration(configurationInfo, out errorsConfig, this.timeProvider, this.collectionConfiguration?.DocumentStreams);
+
+            // the next accumulator that gets swapped in on the collection thread will be initialized with the new collection configuration
+            Interlocked.Exchange(ref this.collectionConfiguration, newCollectionConfiguration);
+
+            CollectionConfigurationError[] errorsPerformanceCounters;
+            this.UpdatePerformanceCollector(newCollectionConfiguration.PerformanceCounters, out errorsPerformanceCounters);
+
+            return errorsConfig.Concat(errorsPerformanceCounters).ToArray();
         }
 
         #endregion

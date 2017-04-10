@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Concurrent;
 
-    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -15,8 +15,6 @@
         public DateTimeOffset? StartTimestamp = null;
 
         public DateTimeOffset? EndTimestamp = null;
-
-        #region AI
 
         // MSB for the sign, 19 bits for request count, 44 LSBs for duration in ticks
         public long AIRequestCountAndDurationInTicks;
@@ -34,7 +32,7 @@
 
         public long AIExceptionCount;
 
-        #endregion
+        public bool GlobalDocumentQuotaReached;
 
         /// <summary>
         /// 2^19 - 1
@@ -46,6 +44,11 @@
         /// </summary>
         private const long MaxDuration = 17592186044415;
 
+        public QuickPulseDataAccumulator(CollectionConfiguration collectionConfiguration)
+        {
+            this.CollectionConfigurationAccumulator = new CollectionConfigurationAccumulator(collectionConfiguration);
+        }
+        
         public static long EncodeCountAndDuration(long count, long duration)
         {
             if (count > MaxCount || duration > MaxDuration)
@@ -71,5 +74,7 @@
         public long AIDependencyCallDurationInTicks => QuickPulseDataAccumulator.DecodeCountAndDuration(this.AIDependencyCallCountAndDurationInTicks).Item2;
 
         public ConcurrentStack<ITelemetryDocument> TelemetryDocuments { get; set; } = new ConcurrentStack<ITelemetryDocument>();
+        
+        public CollectionConfigurationAccumulator CollectionConfigurationAccumulator { get; private set; }
     }
 }

@@ -2,8 +2,11 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.StandardPerformanceCollector;
+    using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -17,8 +20,7 @@
 
             for (int i = 0; i < CounterCount; i++)
             {
-                string error = null;
-
+                string error;
                 collector.RegisterCounter(
                     counter,
                     null,
@@ -107,6 +109,72 @@
 
             Assert.IsTrue(collector.PerformanceCounters.First().IsInBadState);
             Assert.IsFalse(collector.PerformanceCounters.Last().IsInBadState);
+        }
+
+        internal void PerformanceCollectorAddRemoveCountersTest(StandardPerformanceCollector collector)
+        {
+            var counters = new[]
+                               {
+                                   new PerformanceCounter("Processor", "% Processor Time", "_Total"),
+                                   new PerformanceCounter("Memory", "Available Bytes", string.Empty)
+                               };
+
+            foreach (var pc in counters)
+            {
+                string error;
+                collector.RegisterCounter(
+                    PerformanceCounterUtility.FormatPerformanceCounter(pc),
+                    pc.GetHashCode().ToString(CultureInfo.InvariantCulture),
+                    true,
+                    out error,
+                    false);
+            }
+
+            var twoCounters = collector.PerformanceCounters.ToArray();
+
+            collector.RemoveCounter(@"\PROCESSOR(_Total)\% Processor Time", counters[0].GetHashCode().ToString(CultureInfo.InvariantCulture));
+
+            var oneCounter = collector.PerformanceCounters.ToArray();
+
+            Assert.AreEqual(2, twoCounters.Count());
+            Assert.AreEqual(@"\Processor(_Total)\% Processor Time", twoCounters[0].OriginalString);
+            Assert.AreEqual(@"\Memory\Available Bytes", twoCounters[1].OriginalString);
+
+            Assert.AreEqual(@"\Memory\Available Bytes", oneCounter.Single().OriginalString);
+        }
+
+        internal void PerformanceCollectorAddRemoveCountersForWebAppTest(WebAppPerformanceCollector collector)
+        {
+            var counters = new[]
+                               {
+                                   new PerformanceCounter("ASP.NET Applications", "Request Execution Time", "??APP_W3SVC_PROC??"),
+                                   new PerformanceCounter("ASP.NET Applications", "Requests In Application Queue", "??APP_W3SVC_PROC??")
+                               };
+
+            foreach (var pc in counters)
+            {
+                string error;
+                collector.RegisterCounter(
+                    PerformanceCounterUtility.FormatPerformanceCounter(pc),
+                    pc.GetHashCode().ToString(CultureInfo.InvariantCulture),
+                    true,
+                    out error,
+                    false);
+            }
+
+            var twoCounters = collector.PerformanceCounters.ToArray();
+
+            collector.RemoveCounter(
+                @"\ASP.NET APPLICATIONS(??APP_W3SVC_PROC??)\Request Execution Time",
+                counters[0].GetHashCode().ToString(CultureInfo.InvariantCulture));
+
+            var oneCounter = collector.PerformanceCounters.ToArray();
+
+            Assert.AreEqual(2, twoCounters.Count());
+            Assert.AreEqual(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Request Execution Time", twoCounters[0].OriginalString);
+            Assert.AreEqual(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue", twoCounters[1].OriginalString);
+
+            Assert.AreEqual(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests In Application Queue", oneCounter.Single().OriginalString);
         }
     }
 }

@@ -20,6 +20,11 @@
 
             new TelemetryClient().TrackException(new ArgumentNullException());
 
+            new TelemetryClient().TrackEvent("Event1");
+            new TelemetryClient().TrackEvent("Event2");
+
+            new TelemetryClient().TrackTrace("Trace1");
+            new TelemetryClient().TrackTrace("Trace2");
 
             Response.Clear();
             Response.Write("GenerateTelemetryItems.aspx");

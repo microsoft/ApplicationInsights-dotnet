@@ -5,22 +5,22 @@
     using System.Runtime.Serialization;
 
     [DataContract]
-    internal struct DependencyTelemetryDocument : ITelemetryDocument
+    internal struct RequestTelemetryDocument : ITelemetryDocument
     {
         [DataMember(EmitDefaultValue = false)]
         public Guid Id { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string Version { get; set; }
-        
+
         [DataMember(EmitDefaultValue = false)]
         public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Name { get; set; }
+        public string OperationId { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public DateTimeOffset StartTime { get; set; }
+        public string Name { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public bool? Success { get; set; }
@@ -29,34 +29,40 @@
         public TimeSpan Duration { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string OperationId { get; set; }
+        public string ResponseCode { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string ResultCode { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string CommandName { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string DependencyTypeName { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string DependencyKind { get; set; }
-
+        public Uri Url { get; set; }
+        
         [DataMember(EmitDefaultValue = false)]
         public KeyValuePair<string, string>[] Properties { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string OperationName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string InternalNodeName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleInstance { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType
         {
             get
             {
-                return TelemetryDocumentType.RemoteDependency.ToString();
+                return TelemetryDocumentType.Request.ToString();
             }
 
             private set
             {
             }
         }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string[] DocumentStreamIds { get; set; }
     }
 }

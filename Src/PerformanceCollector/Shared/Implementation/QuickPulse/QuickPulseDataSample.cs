@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using Helpers;
+
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
 
     /// <summary>
@@ -14,6 +16,7 @@
         public QuickPulseDataSample(QuickPulseDataAccumulator accumulator, IDictionary<string, Tuple<PerformanceCounterData, double>> perfData, IEnumerable<Tuple<string, int>> topCpuData, bool topCpuDataAccessDenied)
         {
             // NOTE: it is crucial not to keep any heap references on input parameters, new objects with separate roots must be created!
+            // CollectionConfiguration is an exception to this rule as it may be still processed, and the sender will check the reference count before sending it out
             if (accumulator == null)
             {
                 throw new ArgumentNullException(nameof(accumulator));
@@ -66,15 +69,31 @@
 
             this.AIExceptionsPerSecond = sampleDuration.TotalSeconds > 0 ? accumulator.AIExceptionCount / sampleDuration.TotalSeconds : 0;
 
-            this.PerfCountersLookup = perfData.ToDictionary(
-                p => (QuickPulseDefaults.CounterOriginalStringMapping.ContainsKey(p.Value.Item1.OriginalString) ? QuickPulseDefaults.CounterOriginalStringMapping[p.Value.Item1.OriginalString] : p.Value.Item1.OriginalString), 
-                p => p.Value.Item2);
+            this.GlobalDocumentQuotaReached = accumulator.GlobalDocumentQuotaReached;
+
+            try
+            {
+                this.PerfCountersLookup =
+                    perfData.ToDictionary(
+                        p =>
+                        (QuickPulseDefaults.DefaultCounterOriginalStringMapping.ContainsKey(p.Value.Item1.ReportAs)
+                             ? QuickPulseDefaults.DefaultCounterOriginalStringMapping[p.Value.Item1.ReportAs]
+                             : p.Value.Item1.ReportAs),
+                        p => p.Value.Item2);
+            }
+            catch (Exception e)
+            {
+                // something went wrong with counter names, log an error
+                QuickPulseEventSource.Log.UnknownErrorEvent(e.ToString());
+            }
 
             this.TopCpuData = topCpuData.ToArray();
 
             this.TelemetryDocuments = accumulator.TelemetryDocuments.ToArray();
 
             this.TopCpuDataAccessDenied = topCpuDataAccessDenied;
+
+            this.CollectionConfigurationAccumulator = accumulator.CollectionConfigurationAccumulator;
         }
         
         public DateTimeOffset StartTimestamp { get; }
@@ -104,6 +123,8 @@
 
         public double AIExceptionsPerSecond { get; private set; }
 
+        public bool GlobalDocumentQuotaReached { get; private set; }
+
         #endregion
 
         public IDictionary<string, double> PerfCountersLookup { get; private set; }
@@ -113,5 +134,7 @@
         public ITelemetryDocument[] TelemetryDocuments { get; private set; }
 
         public bool TopCpuDataAccessDenied { get; private set; }
+
+        public CollectionConfigurationAccumulator CollectionConfigurationAccumulator { get; private set; }
     }
 }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using DataContracts;
 
     internal interface IPerformanceCollector
     {
@@ -31,5 +30,12 @@
         /// <param name="error">Captures the error logged.</param>
         /// <param name="blockCounterWithInstancePlaceHolder">Boolean that controls the registry of the counter based on the availability of instance place holder.</param>
         void RegisterCounter(string perfCounter, string reportAs, bool isCustomCounter, out string error, bool blockCounterWithInstancePlaceHolder);
+
+        /// <summary>
+        /// Removes a counter.
+        /// </summary>
+        /// <param name="perfCounter">Name of the performance counter to remove.</param>
+        /// <param name="reportAs">ReportAs value of the counter to remove.</param>
+        void RemoveCounter(string perfCounter, string reportAs);
     }
 }
