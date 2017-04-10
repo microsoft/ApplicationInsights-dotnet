@@ -2,17 +2,24 @@
 
 ## Version 2.4.0-beta1
 - Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.
+- Implemented automatic telemetry correlation: all telemetry reported within the scope of the request is correlated to RequestTelemetry reported for the request.
+- Implemented [Correlation HTTP protocol](https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md): default headers to pass Operation Root Id and Parent Id were changed. This version is backward compatible with previously supported headers. 
+- Improvements to exception statistics, e.g. 2 of each type of exception will be output via TrackException
 
+## Version 2.3.0
+- Includes all changes since 2.2.0 stable release.
+- Exception statistics feature introduced in beta version is removed.
 
 ## Version 2.3.0-beta3
 - Exception statistics improvements and other minor bug fixes. [Full list.] (https://github.com/Microsoft/ApplicationInsights-dotnet-server/milestone/19?closed=1)
+- Cross Components Correlation ID changed from SHA(instrumentation key) to Application ID retrieved from http endpoint `api/profiles/{ikey}/appId`.
 
 ## Version 2.3.0-beta2
 - Automatic collection of first chance exceptions statistics. Use a query like this in Application Analytics to query for this statistics:
   ```
   customMetrics
   | where timestamp > ago(5d)
-  | where name == "Exceptions Thrown" 
+  | where name == "Exceptions thrown" 
   | extend type = tostring(customDimensions.type), method = tostring(customDimensions.method), operation = tostring(customDimensions.operation) 
   | summarize sum(value), sum(valueCount) by type, method, operation 
   ```

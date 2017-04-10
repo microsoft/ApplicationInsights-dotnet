@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
-using System.Web.Routing;
-using Microsoft.ApplicationInsights;
+
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace TestApp45
@@ -15,10 +10,11 @@ namespace TestApp45
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class WebApiApplication : System.Web.HttpApplication
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Necessary for .NET CLR Memory counters to start reporting process ID.")]
         protected void Application_Start()
         {
             // necessary for .NET CLR Memory counters to start reporting process ID

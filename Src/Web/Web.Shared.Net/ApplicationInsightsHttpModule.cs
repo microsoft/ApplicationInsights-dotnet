@@ -69,6 +69,7 @@
                 {
                     context.BeginRequest += this.OnBeginRequest;
                     context.EndRequest += this.OnEndRequest;
+                    context.PreRequestHandlerExecute += this.OnPreRequestHandlerExecute;
                 }
                 catch (Exception exc)
                 {
@@ -102,9 +103,6 @@
 
                     this.requestModule.OnBeginRequest(httpApplication.Context);
                 }
-
-                // Kept for backcompat. Should be removed in 2.3 SDK
-                WebEventsPublisher.Log.OnBegin();
             }
         }
 
@@ -152,6 +150,18 @@
             }
         }
 
+        private void OnPreRequestHandlerExecute(object sender, EventArgs eventArgs)
+        {
+            if (this.isEnabled)
+            {
+                HttpApplication httpApplication = (HttpApplication)sender;
+
+                this.TraceCallback("OnPreRequestHandlerExecute", httpApplication);
+
+                this.requestModule?.OnPreRequestHandlerExecute(httpApplication.Context);
+            }
+        }
+
         private void OnEndRequest(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
@@ -170,10 +180,6 @@
                     {
                         this.requestModule.OnEndRequest(httpApplication.Context);
                     }
-
-                    // Kept for backcompat. Should be removed in 2.3 SDK
-                    WebEventsPublisher.Log.OnError();
-                    WebEventsPublisher.Log.OnEnd();
                 }
                 else
                 {

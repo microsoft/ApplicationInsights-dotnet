@@ -15,10 +15,7 @@
         
         [DataMember(EmitDefaultValue = false)]
         public string SeverityLevel { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string HandledAt { get; set; }
-
+        
         [DataMember(EmitDefaultValue = false)]
         public string Exception { get; set; }
 
@@ -35,6 +32,18 @@
         public KeyValuePair<string, string>[] Properties { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
+        public string OperationName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string InternalNodeName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleInstance { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
         public string DocumentType
         {
             get
@@ -46,5 +55,8 @@
             {
             }
         }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string[] DocumentStreamIds { get; set; }
     }
 }

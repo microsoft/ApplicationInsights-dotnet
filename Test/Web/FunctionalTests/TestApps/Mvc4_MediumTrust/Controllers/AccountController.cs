@@ -10,6 +10,7 @@ using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
 using Mvc4_MediumTrust.Filters;
 using Mvc4_MediumTrust.Models;
+using System.Globalization;
 
 namespace Mvc4_MediumTrust.Controllers
 {
@@ -191,7 +192,7 @@ namespace Mvc4_MediumTrust.Controllers
                     }
                     catch (Exception)
                     {
-                        ModelState.AddModelError("", String.Format("Unable to create local account. An account with the name \"{0}\" may already exist.", User.Identity.Name));
+                        ModelState.AddModelError("", String.Format(CultureInfo.InvariantCulture, "Unable to create local account. An account with the name \"{0}\" may already exist.", User.Identity.Name));
                     }
                 }
             }

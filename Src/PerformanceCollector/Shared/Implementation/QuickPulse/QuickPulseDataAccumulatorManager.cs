@@ -3,30 +3,39 @@
     using System;
     using System.Threading;
 
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
+
     /// <summary>
     /// Accumulator manager for QuickPulse data.
     /// </summary>
     internal class QuickPulseDataAccumulatorManager : IQuickPulseDataAccumulatorManager
     {
-        private QuickPulseDataAccumulator currentDataAccumulator = new QuickPulseDataAccumulator();
+        private QuickPulseDataAccumulator currentDataAccumulator;
         private QuickPulseDataAccumulator completedDataAccumulator;
 
-        public QuickPulseDataAccumulator CurrentDataAccumulator
+        public QuickPulseDataAccumulatorManager(CollectionConfiguration collectionConfiguration)
         {
-            get { return this.currentDataAccumulator; }
+            if (collectionConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(collectionConfiguration));
+            }
+
+            this.currentDataAccumulator = new QuickPulseDataAccumulator(collectionConfiguration);
         }
-        
-        public QuickPulseDataAccumulator CompleteCurrentDataAccumulator()
+
+        public QuickPulseDataAccumulator CurrentDataAccumulator => this.currentDataAccumulator;
+
+        public QuickPulseDataAccumulator CompleteCurrentDataAccumulator(CollectionConfiguration collectionConfiguration)
         {
             /* 
                 Here we need to 
                     - promote currentDataAccumulator to completedDataAccumulator
                     - reset (zero out) the new currentDataAccumulator
 
-                Certain telemetry items will be "sprayed" between two neighboring accumulators due to the fact that the snap might occure in the middle of a reader executing its Interlocked's.
-            */ 
-            
-            this.completedDataAccumulator = Interlocked.Exchange(ref this.currentDataAccumulator, new QuickPulseDataAccumulator());
+                Certain telemetry items will be "sprayed" between two neighboring accumulators due to the fact that the snap might occur in the middle of a reader executing its Interlocked's.
+            */
+
+            this.completedDataAccumulator = Interlocked.Exchange(ref this.currentDataAccumulator, new QuickPulseDataAccumulator(collectionConfiguration));
 
             var timestamp = DateTimeOffset.UtcNow;
             this.completedDataAccumulator.EndTimestamp = timestamp;

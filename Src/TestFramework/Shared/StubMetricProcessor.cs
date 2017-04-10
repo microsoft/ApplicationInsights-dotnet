@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.TestFramework
+namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using Microsoft.ApplicationInsights.Channel;

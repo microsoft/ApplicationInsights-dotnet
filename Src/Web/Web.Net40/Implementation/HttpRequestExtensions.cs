@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+    using System.Collections.Specialized;
     using System.Web;
 
     /// <summary>
@@ -68,6 +69,21 @@
             {
                 return httpRequest.Path;
             }
+        }
+
+        public static NameValueCollection UnvalidatedGetHeaders(this HttpRequest httpRequest)
+        {
+            NameValueCollection result;
+            try
+            {
+                result = httpRequest.Headers;
+            }
+            catch (HttpRequestValidationException)
+            {
+                result = httpRequest.Headers;
+            }
+
+            return result;
         }
     }
 }

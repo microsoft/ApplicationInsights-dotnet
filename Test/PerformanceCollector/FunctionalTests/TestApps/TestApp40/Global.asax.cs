@@ -1,21 +1,19 @@
 ﻿namespace TestApp40
 {
     using System;
-    using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics;
-    using System.IO;
 
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class Global : System.Web.HttpApplication
     {
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Necessary for .NET CLR Memory counters to start reporting process ID.")]
         protected void Application_Start(object sender, EventArgs e)
         {
             // necessary for .NET CLR Memory counters to start reporting process ID

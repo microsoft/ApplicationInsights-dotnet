@@ -11,9 +11,9 @@ namespace Aspx45
 {
     using System;
     using System.Data;
-    using System.Data.SqlClient;    
-    using System.Net;
-    using System.Runtime.InteropServices;    
+    using System.Data.SqlClient;
+    using System.Globalization;
+    using System.Runtime.InteropServices;
     using FW40Shared;
     using FW45Shared;
 
@@ -37,7 +37,7 @@ namespace Aspx45
             var count = 1;
             try
             {
-                count = int.Parse(countStr);
+                count = int.Parse(countStr, CultureInfo.CurrentCulture);
             }
             catch (Exception)
             {

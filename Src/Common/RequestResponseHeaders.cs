@@ -21,13 +21,23 @@
         public const string RequestContextTargetKey = "appId"; // Although the name of Source and Target key is the same - appId. Conceptually they are different and hence, we intentionally have two constants here. Makes for better reading of the code.
 
         /// <summary>
-        /// Standard parent Id header.
+        /// Legacy parent Id header.
         /// </summary>
         public const string StandardParentIdHeader = "x-ms-request-id";
 
         /// <summary>
-        /// Standard root id header.
+        /// Legacy root id header.
         /// </summary>
         public const string StandardRootIdHeader = "x-ms-request-root-id";
+
+        /// <summary>
+        /// Standard Request-Id Id header.
+        /// </summary>
+        public const string RequestIdHeader = "Request-Id";
+
+        /// <summary>
+        /// Standard Correlation-Context header.
+        /// </summary>
+        public const string CorrelationContextHeader = "Correlation-Context";
     }
 }

@@ -9,6 +9,12 @@
     [TestClass]
     public class WebTestTelemetryInitializerTests
     {
+        [TestCleanup]
+        public void Cleanup()
+        {
+            Common.ActivityHelpers.StopRequestActivity();
+        }
+
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
         {

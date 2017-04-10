@@ -5,7 +5,7 @@
     using System.Runtime.Serialization;
 
     [DataContract]
-    internal struct RequestTelemetryDocument : ITelemetryDocument
+    internal struct TraceTelemetryDocument : ITelemetryDocument
     {
         [DataMember(EmitDefaultValue = false)]
         public Guid Id { get; set; }
@@ -17,43 +17,40 @@
         public DateTimeOffset Timestamp { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string OperationId { get; set; }
+        public string Message { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Name { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public DateTimeOffset StartTime { get; set; }
-        
-        [DataMember(EmitDefaultValue = false)]
-        public bool? Success { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public TimeSpan Duration { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string ResponseCode { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public Uri Url { get; set; }
-
-        [DataMember(EmitDefaultValue = false)]
-        public string HttpMethod { get; set; }
+        public string SeverityLevel { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public KeyValuePair<string, string>[] Properties { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string OperationName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string InternalNodeName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleName { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string CloudRoleInstance { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DocumentType
         {
             get
             {
-                return TelemetryDocumentType.Request.ToString();
+                return TelemetryDocumentType.Trace.ToString();
             }
 
             private set
             {
             }
         }
+
+        [DataMember(EmitDefaultValue = false)]
+        public string[] DocumentStreamIds { get; set; }
     }
 }

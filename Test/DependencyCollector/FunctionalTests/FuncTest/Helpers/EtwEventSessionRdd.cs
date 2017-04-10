@@ -2,11 +2,12 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
 
-    public class EtwEventSessionRdd : IDisposable
+    public sealed class EtwEventSessionRdd : IDisposable
     {
         private readonly string[] providers =
         {
@@ -71,7 +72,7 @@
         {
             if (this.IsInterestingTrace(data))
             {
-                Trace.TraceInformation("{0}. Application Trace. Level: {1}; Id: {2}; Message: {3}; ", data.TimeStamp.ToString("hh:mm:ss"), data.Level, data.ID, data.FormattedMessage);
+                Trace.TraceInformation("{0}. Application Trace. Level: {1}; Id: {2}; Message: {3}; ", data.TimeStamp.ToString("hh:mm:ss", CultureInfo.CurrentCulture), data.Level, data.ID, data.FormattedMessage);
             }
         }
 
@@ -93,7 +94,7 @@
                 if ((id > 0) && (id < 65534))
                 {
                     string domainName = data.PayloadString(data.PayloadNames.Length - 1);
-                    result = domainName.StartsWith("/LM/W3SVC");
+                    result = domainName.StartsWith("/LM/W3SVC", StringComparison.Ordinal);
                 }
             }
 

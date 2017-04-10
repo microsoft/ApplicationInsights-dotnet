@@ -17,13 +17,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)AuthenticatedUserIdTelemetryInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextBaseExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpContextExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ActivityHelpers.cs" />    
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpRequestExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RequestTrackingExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\SyntheticUserAgentFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebEventsPublisher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryInitializerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebTelemetryModuleBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OperationCorrelationTelemetryInitializer.cs" />

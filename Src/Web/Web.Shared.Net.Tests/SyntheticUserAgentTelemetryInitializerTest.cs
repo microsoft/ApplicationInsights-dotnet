@@ -10,7 +10,13 @@
     [TestClass]
     public class SyntheticUserAgentTelemetryInitializerTest
     {
-        private string botSubstrings = "search|spider|crawl|Bot|Monitor|AlwaysOn";          
+        private string botSubstrings = "search|spider|crawl|Bot|Monitor|AlwaysOn";
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            Common.ActivityHelpers.StopRequestActivity();
+        }
 
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()

@@ -9,7 +9,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
 #if !NET40
@@ -22,12 +21,17 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if NET40
+    using Microsoft.ApplicationInsights.Net40;
+#endif
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+#pragma warning disable 618
 
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
@@ -54,7 +58,15 @@
 
         [TestCleanup]
         public void Cleanup()
-        {        
+        {
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            CorrelationHelper.CleanOperationContext();
+#endif
         }
         #endregion //TestgInitiliaze
 
@@ -184,9 +196,41 @@
             using (var op = client.StartOperation<RequestTelemetry>("request"))
             {
                 this.httpProcessingProfiler.OnBeginForGetResponse(request);
-                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
-                Assert.AreNotEqual(request.Headers[RequestResponseHeaders.StandardParentIdHeader], op.Telemetry.Context.Operation.Id);
+
+                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
+                var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
+                Assert.IsNotNull(actualParentIdHeader);
+                Assert.AreNotEqual(actualParentIdHeader, op.Telemetry.Context.Operation.Id);
+
+                Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
+#if NET45
+                Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
+                Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
+#else
+                Assert.AreEqual(op.Telemetry.Context.Operation.Id, ApplicationInsightsActivity.GetRootId(request.Headers[RequestResponseHeaders.StandardParentIdHeader]));
+#endif
             }
+        }
+
+        /// <summary>
+        /// Ensures that the parent id header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsCorrelationContextHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+#if NET45
+            var activity = new Activity("test").AddBaggage("Key1", "Value1").AddBaggage("Key2", "Value2").Start();
+#else
+            CorrelationHelper.SetOperationContext(new RequestTelemetry(), new Dictionary<string, string> { ["Key1"] = "Value1", ["Key2"] = "Value2" });
+#endif
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+
+            var actualCorrelationContextHeader = request.Headers[RequestResponseHeaders.CorrelationContextHeader];
+            Assert.IsNotNull(actualCorrelationContextHeader);
+            Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
         /// <summary>

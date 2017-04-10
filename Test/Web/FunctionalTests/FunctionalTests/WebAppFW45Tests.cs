@@ -381,11 +381,17 @@
             Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
             Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
 
-            // Check that request id is set in exception operation Id
+            // Check that request id is set in exception operation parentId
             Assert.AreEqual(
-                ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id, 
-                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId], 
-                "Operation Id is not same as Request id");    
+                ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id,
+                items[exceptionItemIndex].tags[new ContextTagKeys().OperationParentId],
+                "Exception ParentId is not same as Request id");
+
+            // Check that request and exception have the same operation id
+            Assert.AreEqual(
+                items[requestItemIndex].tags[new ContextTagKeys().OperationId],
+                items[exceptionItemIndex].tags[new ContextTagKeys().OperationId],
+                "Exception Operation Id is not same as Request Operation Id");
         }
 
         /// <summary>

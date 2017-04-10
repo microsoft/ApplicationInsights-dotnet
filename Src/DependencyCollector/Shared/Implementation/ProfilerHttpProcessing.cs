@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
 #if !NET40
     using System.Web;
@@ -14,6 +15,9 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if NET40
+    using Microsoft.ApplicationInsights.Net40;
+#endif
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
@@ -323,9 +327,35 @@
 
                     // Add the parent ID
                     var parentId = telemetry.Id;
-                    if (!string.IsNullOrEmpty(parentId) && webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                    if (!string.IsNullOrEmpty(parentId))
                     {
-                        webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                        if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                        {
+                            webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                        }
+
+                        if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
+                        {
+                            webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
+                        }
+
+                        if (webRequest.Headers[RequestResponseHeaders.CorrelationContextHeader] == null)
+                        {
+#if NET45
+                            if (Activity.Current.Baggage.Any())
+                            {
+                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, Activity.Current.Baggage);
+                            }
+#else
+#pragma warning disable 618
+                            var correlationContext = CorrelationHelper.GetCorrelationContext();
+#pragma warning restore 618
+                            if (correlationContext != null && correlationContext.Count > 0)
+                            {
+                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, correlationContext);
+                            }
+#endif
+                        }
                     }
                 }
             }

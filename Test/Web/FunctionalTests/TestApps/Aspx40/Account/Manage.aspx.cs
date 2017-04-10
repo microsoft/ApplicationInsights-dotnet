@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.UI.WebControls;
 
 using Microsoft.AspNet.Membership.OpenAuth;
+using System.Globalization;
 
 namespace Aspx40.Account
 {
@@ -98,7 +99,7 @@ namespace Aspx40.Account
             // You can change this method to convert the UTC date time into the desired display
             // offset and format. Here we're converting it to the server timezone and formatting
             // as a short date and a long time string, using the current thread culture.
-            return utcDateTime.HasValue ? utcDateTime.Value.ToLocalTime().ToString("G") : "[never]";
+            return utcDateTime.HasValue ? utcDateTime.Value.ToLocalTime().ToString("G", CultureInfo.InvariantCulture) : "[never]";
         }
     }
 }

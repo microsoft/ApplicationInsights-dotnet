@@ -2,8 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
+    using System.Threading;
+
     using Helpers;
+
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
 
     internal class QuickPulseCollectionStateManager
     {
@@ -21,6 +26,12 @@
 
         private readonly Action<IList<QuickPulseDataSample>> onReturnFailedSamples;
 
+        private readonly Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration;
+
+        private readonly TimeSpan coolDownTimeout = TimeSpan.FromMilliseconds(50);
+
+        private readonly List<CollectionConfigurationError> collectionConfigurationErrors = new List<CollectionConfigurationError>();
+
         private DateTimeOffset lastSuccessfulPing;
         
         private DateTimeOffset lastSuccessfulSubmit;
@@ -29,6 +40,8 @@
 
         private bool firstStateUpdate = true;
 
+        private string currentConfigurationETag = string.Empty;
+
         public QuickPulseCollectionStateManager(
             IQuickPulseServiceClient serviceClient, 
             Clock timeProvider, 
@@ -36,7 +49,8 @@
             Action onStartCollection, 
             Action onStopCollection, 
             Func<IList<QuickPulseDataSample>> onSubmitSamples, 
-            Action<IList<QuickPulseDataSample>> onReturnFailedSamples)
+            Action<IList<QuickPulseDataSample>> onReturnFailedSamples,
+            Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration)
         {
             if (serviceClient == null)
             {
@@ -73,6 +87,11 @@
                 throw new ArgumentNullException(nameof(onReturnFailedSamples));
             }
 
+            if (onUpdatedConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(onUpdatedConfiguration));
+            }
+
             this.serviceClient = serviceClient;
             this.timeProvider = timeProvider;
             this.timings = timings;
@@ -80,6 +99,7 @@
             this.onStopCollection = onStopCollection;
             this.onSubmitSamples = onSubmitSamples;
             this.onReturnFailedSamples = onReturnFailedSamples;
+            this.onUpdatedConfiguration = onUpdatedConfiguration;
         }
         
         public bool IsCollectingData
@@ -101,7 +121,7 @@
             }
         }
 
-        public TimeSpan UpdateState(string instrumentationKey)
+        public TimeSpan UpdateState(string instrumentationKey, string authApiKey)
         {
             if (string.IsNullOrWhiteSpace(instrumentationKey))
             {
@@ -115,6 +135,7 @@
                 this.firstStateUpdate = false;
             }
 
+            CollectionConfigurationInfo configurationInfo;
             if (this.IsCollectingData)
             {
                 // we are currently collecting
@@ -125,8 +146,28 @@
                     // no samples to submit, do nothing
                     return this.DetermineBackOffs();
                 }
+                else
+                {
+                    // we have samples
+                    if (dataSamplesToSubmit.Any(sample => sample.CollectionConfigurationAccumulator.GetRef() != 0))
+                    {
+                        // some samples are still being processed, wait a little to give them a chance to finish
+                        Thread.Sleep(this.coolDownTimeout);
 
-                bool? keepCollecting = this.serviceClient.SubmitSamples(dataSamplesToSubmit, instrumentationKey);
+                        bool allCooledDown =
+                            dataSamplesToSubmit.All(sample => sample.CollectionConfigurationAccumulator.GetRef() == 0);
+
+                        QuickPulseEventSource.Log.CollectionConfigurationSampleCooldownEvent(allCooledDown);
+                    }
+                }
+
+                bool? keepCollecting = this.serviceClient.SubmitSamples(
+                    dataSamplesToSubmit,
+                    instrumentationKey,
+                    this.currentConfigurationETag,
+                    authApiKey,
+                    out configurationInfo,
+                    this.collectionConfigurationErrors.ToArray());
 
                 QuickPulseEventSource.Log.SampleSubmittedEvent(keepCollecting.ToString());
 
@@ -139,6 +180,7 @@
 
                     case true:
                         // the service wants us to keep collecting
+                        this.UpdateConfiguration(configurationInfo);
                         break;
 
                     case false:
@@ -153,7 +195,12 @@
             else
             {
                 // we are currently idle and pinging the service waiting for it to ask us to start collecting data
-                bool? startCollection = this.serviceClient.Ping(instrumentationKey, this.timeProvider.UtcNow);
+                bool? startCollection = this.serviceClient.Ping(
+                    instrumentationKey,
+                    this.timeProvider.UtcNow,
+                    this.currentConfigurationETag,
+                    authApiKey,
+                    out configurationInfo);
 
                 QuickPulseEventSource.Log.PingSentEvent(startCollection.ToString());
 
@@ -165,6 +212,7 @@
 
                     case true:
                         // the service wants us to start collection now
+                        this.UpdateConfiguration(configurationInfo);
                         this.onStartCollection();
                         break;
 
@@ -180,6 +228,37 @@
             return this.DetermineBackOffs();
         }
 
+        private void UpdateConfiguration(CollectionConfigurationInfo configurationInfo)
+        {
+            // we only get here if Etag in the header is different from the current one, but we still want to check if Etag in the body is also different
+            if (configurationInfo != null && !string.Equals(configurationInfo.ETag, this.currentConfigurationETag, StringComparison.Ordinal))
+            {
+                this.collectionConfigurationErrors.Clear();
+
+                CollectionConfigurationError[] errors = null;
+                try
+                {
+                    errors = this.onUpdatedConfiguration?.Invoke(configurationInfo);
+                }
+                catch (Exception e)
+                {
+                    this.collectionConfigurationErrors.Add(
+                        CollectionConfigurationError.CreateError(
+                            CollectionConfigurationErrorType.CollectionConfigurationFailureToCreateUnexpected,
+                            string.Format(CultureInfo.InvariantCulture, "Unexpected error applying configuration. ETag: {0}", configurationInfo.ETag ?? string.Empty),
+                            e,
+                            Tuple.Create("ETag", configurationInfo.ETag)));
+                }
+
+                if (errors != null)
+                {
+                    this.collectionConfigurationErrors.AddRange(errors);
+                }
+
+                this.currentConfigurationETag = configurationInfo.ETag;
+            }
+        }
+        
         private TimeSpan DetermineBackOffs()
         {
             if (this.IsCollectingData)
