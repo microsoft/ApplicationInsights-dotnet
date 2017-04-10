@@ -58,9 +58,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception exc)
             {
-                // This shouldn't happen, but just in case it does, we shouldn't break the application.
+                DependencyCollectorEventSource.Log.CallbackError(0, "OnNext", exc);
             }
         }
 

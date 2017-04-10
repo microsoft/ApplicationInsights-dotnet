@@ -27,15 +27,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// To use this, the application just needs to call HttpHandlerDiagnosticListener.Initialize(), and this
     /// will register itself with the DiagnosticListener's all listeners collection.
     /// </summary>
-    internal class HttpHandlerDiagnosticListener : DiagnosticListener
+    internal sealed class HttpHandlerDiagnosticListener : DiagnosticListener
     {
         internal static HttpHandlerDiagnosticListener SingletonInstance = new HttpHandlerDiagnosticListener();
 
 #region private fields
-        private const string DiagnosticListenerName = "System.Net.Http.Desktop.V4";
+        private const string DiagnosticListenerName = "System.Net.Http.Desktop";
         private const string RequestWriteName = "System.Net.Http.Request";
         private const string ResponseWriteName = "System.Net.Http.Response";
         private const string ExceptionEventName = "System.Net.Http.Exception";
+        private const string InitializationFailed = "System.Net.Http.InitializationFailed";
 
         // Fields for reflection
         private static FieldInfo connectionGroupListField;
@@ -52,7 +53,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         /// <summary>
         /// Prevents a default instance of the <see cref="HttpHandlerDiagnosticListener" /> class from being created.
-        /// Make sure every caller has to create this object via the Initialize method.
+        /// This class implements a singleton pattern and only this class is allowed to create an instance.
         /// </summary>
         private HttpHandlerDiagnosticListener() : base(DiagnosticListenerName)
         {
@@ -113,6 +114,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 writeListField == null ||
                 httpResponseAccessor == null)
             {
+                // If anything went wrong here, just return false. There is nothing we can do.
                 throw new InvalidOperationException("Unable to initialize all required reflection objects");
             }
         }
@@ -122,6 +124,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             FieldInfo servicePointTableField = typeof(ServicePointManager).GetField("s_ServicePointTable", BindingFlags.Static | BindingFlags.NonPublic);
             if (servicePointTableField == null)
             {
+                // If anything went wrong here, just return false. There is nothing we can do.
                 throw new InvalidOperationException("Unable to access the ServicePointTable field");
             }
 
@@ -161,9 +164,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         PrepareReflectionObjects();
                         PerformInjection();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // If anything went wrong, just no-op
+                        // If anything went wrong, just no-op. Write an event so at least we can find out.
+                        this.Write(InitializationFailed, new { Exception = ex });
                     }
                 }
             }

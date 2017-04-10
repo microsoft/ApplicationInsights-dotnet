@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (value != null)
             {
-                if (value.Name == "System.Net.Http.Desktop.V4")
+                if (value.Name == "System.Net.Http.Desktop")
                 {
                     this.sourceSubscription = value.Subscribe(this.parent, (Predicate<string>)null);
                 }
