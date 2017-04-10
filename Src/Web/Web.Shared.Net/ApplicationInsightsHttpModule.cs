@@ -33,7 +33,6 @@
             {
                 // The call initializes TelemetryConfiguration that will create and Intialize modules
                 TelemetryConfiguration configuration = TelemetryConfiguration.Active;
-
                 foreach (var module in TelemetryModules.Instance.Modules)
                 {
                     if (module is RequestTrackingTelemetryModule)
@@ -69,7 +68,9 @@
                 {
                     context.BeginRequest += this.OnBeginRequest;
                     context.EndRequest += this.OnEndRequest;
+#if NET40
                     context.PreRequestHandlerExecute += this.OnPreRequestHandlerExecute;
+#endif
                 }
                 catch (Exception exc)
                 {
@@ -101,7 +102,9 @@
                         this.AddCorreleationHeaderOnSendRequestHeaders(httpApplication);
                     }
 
+#if NET40
                     this.requestModule.OnBeginRequest(httpApplication.Context);
+#endif
                 }
             }
         }
@@ -150,6 +153,7 @@
             }
         }
 
+#if NET40
         private void OnPreRequestHandlerExecute(object sender, EventArgs eventArgs)
         {
             if (this.isEnabled)
@@ -161,6 +165,7 @@
                 this.requestModule?.OnPreRequestHandlerExecute(httpApplication.Context);
             }
         }
+#endif
 
         private void OnEndRequest(object sender, EventArgs eventArgs)
         {
@@ -171,6 +176,7 @@
 
                 if (this.IsFirstRequest(httpApplication))
                 {
+#if NET40
                     if (this.exceptionModule != null)
                     {
                         this.exceptionModule.OnError(httpApplication.Context);
@@ -180,6 +186,7 @@
                     {
                         this.requestModule.OnEndRequest(httpApplication.Context);
                     }
+#endif
                 }
                 else
                 {

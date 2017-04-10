@@ -7,7 +7,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class TelemetryInitailizersTests
+    public class TelemetryInitailizersTestsNet40
     {
         [TestMethod]
         public void InstallAddsWebTestTelemetryInitializer()

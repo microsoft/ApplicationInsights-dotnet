@@ -1,13 +1,12 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Web
 {
-    using System;
     using System.Linq;
     using System.Xml.Linq;
     using Microsoft.ApplicationInsights.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class TelemetryModulesTests
+    public class TelemetryModulesTestsNet40
     {
         [TestMethod]
         public void InstallAddsRequestTrackingTelemetryModule()
@@ -16,10 +15,11 @@
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
             var typeToFind = typeof(RequestTrackingTelemetryModule);
-            
+
             var node = ConfigurationHelpers.GetTelemetryModules(configAfterTransform)
                 .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
+                .FirstOrDefault(
+                    element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
 
             Assert.IsNotNull(node);
         }
@@ -31,10 +31,31 @@
             XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
 
             var typeToFind = typeof(ExceptionTrackingTelemetryModule);
-            
+
             var node = ConfigurationHelpers.GetTelemetryModules(configAfterTransform)
                 .Descendants()
-                .FirstOrDefault(element => (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) == ConfigurationHelpers.GetPartialTypeName(typeToFind));
+                .FirstOrDefault(
+                    element =>
+                        (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) ==
+                        ConfigurationHelpers.GetPartialTypeName(typeToFind));
+
+            Assert.IsNotNull(node);
+        }
+
+        [TestMethod]
+        public void InstallAddsAspNetDiagnosticModule()
+        {
+            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
+            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
+
+            var typeToFind = typeof(AspNetDiagnosticTelemetryModule);
+
+            var node = ConfigurationHelpers.GetTelemetryModules(configAfterTransform)
+                .Descendants()
+                .FirstOrDefault(
+                    element =>
+                        (element.Attribute("Type") != null ? element.Attribute("Type").Value : null) ==
+                        ConfigurationHelpers.GetPartialTypeName(typeToFind));
 
             Assert.IsNotNull(node);
         }

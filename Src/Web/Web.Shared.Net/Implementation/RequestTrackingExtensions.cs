@@ -1,10 +1,16 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+#if NET45
+    using System.Diagnostics;
+#endif
     using System.Linq;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
+#if NET45
+    using Microsoft.AspNet.TelemetryCorrelation;
+#endif
 
     internal static class RequestTrackingExtensions
     {
@@ -16,8 +22,65 @@
                 throw new ArgumentException("platformContext");
             }
 
+#if NET40
             var result = ActivityHelpers.ParseRequest(platformContext);
+#else
+            var result = new RequestTelemetry();
+            var currentActivity = Activity.Current;
+            var requestContext = result.Context.Operation;
 
+            if (currentActivity == null) 
+            {
+                // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity yet.
+                currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
+                if (!currentActivity.TryParse(platformContext.Request.Headers))
+                {
+                    string rootId, parentId;
+                    if (ActivityHelpers.TryParseCustomHeaders(platformContext.Request, out rootId, out parentId))
+                    {
+                        currentActivity.SetParentId(rootId);
+                        if (!string.IsNullOrEmpty(parentId))
+                        {
+                            requestContext.ParentId = parentId;
+                        }
+                    }
+                }
+
+                currentActivity.Start();
+            }
+
+            // we have Activity.Current, we need to properly initialize request telemetry and store it in HttpContext
+            if (string.IsNullOrEmpty(requestContext.Id))
+            {
+                requestContext.Id = currentActivity.RootId;
+                foreach (var item in currentActivity.Baggage)
+                {
+                    result.Context.Properties[item.Key] = item.Value;
+                }
+            }
+
+            if (!ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
+            {
+                var parentId =
+                    platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
+                if (!string.IsNullOrEmpty(parentId))
+                {
+                    requestContext.ParentId = parentId;
+                }
+            }
+
+            // ParentId could be initialized in IsEnabled if legacy/custom headers were received
+            if (string.IsNullOrEmpty(requestContext.ParentId))
+            {
+                requestContext.ParentId = currentActivity.ParentId;
+            }
+
+            result.Id = currentActivity.Id;
+
+            // save current activity in case it will be lost - we will use it in Web.OperationCorrelationTelemetryIntitalizer
+            platformContext.Items[ActivityHelpers.RequestActivityItemName] = currentActivity;
+
+#endif
             platformContext.Items.Add(RequestTrackingConstants.RequestTelemetryItemName, result);
             WebEventSource.Log.WebTelemetryModuleRequestTelemetryCreated();
 

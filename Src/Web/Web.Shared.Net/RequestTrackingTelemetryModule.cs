@@ -100,6 +100,7 @@
             }
         }
 
+#if NET40
         /// <summary>
         /// Implements on PreRequestHandlerExecute callback of http module
         /// that is executed right before the handler and restores any execution context 
@@ -109,7 +110,16 @@
         {
             if (this.telemetryClient == null)
             {
-                // TODO: write event log, when https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/390/commits/c38d6d48e666114fedba90b8df6a4f36571cbb66 is merged to 2.4.0
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
                 return;
             }
 
@@ -119,8 +129,9 @@
                 return;
             }
 
-            ActivityHelpers.RestoreActivityIfLost(context);
+            ActivityHelpers.RestoreOperationContextIfLost(context);
         }
+#endif
 
         /// <summary>
         /// Implements on end callback of http module.
@@ -147,9 +158,11 @@
                 return;
             }
 
+#if NET40
             // we store Activity/Call context to initialize child telemtery within the scope of this request,
             // so it's time to stop it
-            ActivityHelpers.StopRequestActivity();
+            ActivityHelpers.CleanOperationContext();
+#endif
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 
