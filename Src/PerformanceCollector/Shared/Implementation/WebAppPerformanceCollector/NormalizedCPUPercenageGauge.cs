@@ -60,7 +60,7 @@
                 string countString = Environment.GetEnvironmentVariable(ProcessorsCounterEnvironmentVariable);
                 if (!int.TryParse(countString, out count) || count < 1)
                 {
-                   count = -1;
+                    count = -1;
                     PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(
                         ProcessorsCounterEnvironmentVariable,
                         string.Format(CultureInfo.InvariantCulture, "Invalid value for NUMBER_OF_PROCESSORS: {0}", countString));
