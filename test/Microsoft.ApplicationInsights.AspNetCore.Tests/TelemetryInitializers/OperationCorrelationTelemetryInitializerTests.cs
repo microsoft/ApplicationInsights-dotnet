@@ -9,9 +9,9 @@
 
     public class OperationCorrelationTelemetryInitializerTests
     {
-        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry, string sourceInstrumentationKey = null)
+        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry, string appId = null)
         {
-            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry, sourceInstrumentationKey: sourceInstrumentationKey));
+            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry, httpContextCorrelationId: appId));
         }
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(HttpContext httpContext)
@@ -21,7 +21,7 @@
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(IHttpContextAccessor contextAccessor)
         {
-            return new OperationCorrelationTelemetryInitializer(contextAccessor);
+            return new OperationCorrelationTelemetryInitializer(contextAccessor, CommonMocks.MockCorrelationIdLookupHelper());
         }
 
         [Fact]
@@ -129,7 +129,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var initializer = CreateInitializer(requestTelemetry, "TEST_SOURCE");
-            
+
             var telemetry = new EventTelemetry();
             initializer.Initialize(telemetry);
 
