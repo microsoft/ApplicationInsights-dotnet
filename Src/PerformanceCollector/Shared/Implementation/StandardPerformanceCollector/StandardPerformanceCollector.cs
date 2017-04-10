@@ -39,7 +39,7 @@
                         }
                         catch (InvalidOperationException e)
                         {
-                            onReadingFailure?.Invoke(PerformanceCounterUtility.FormatPerformanceCounter(pc.Item2), e);
+                            onReadingFailure?.Invoke(PerformanceCounterUtility.FormatPerformanceCounter(pc.Item1.PerformanceCounter), e);
 
                             return new Tuple<PerformanceCounterData, double>[] { };
                         }
@@ -109,7 +109,7 @@
         /// <param name="reportAs">ReportAs value of the performance counter to remove.</param>
         public void RemoveCounter(string perfCounter, string reportAs)
         {
-            Tuple<PerformanceCounterData, PerformanceCounter> keyToRemove =
+            Tuple<PerformanceCounterData, ICounterValue> keyToRemove =
                 this.performanceCounters.FirstOrDefault(
                     pair =>
                     string.Equals(pair.Item1.ReportAs, reportAs, StringComparison.Ordinal)
