@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <Copyright>Copyright ï¿½ Microsoft. All Rights Reserved.</Copyright>
     <VersionPrefix>2.4.0-beta1</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -19,11 +18,9 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
-
   <ItemGroup>
     <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs;..\Shared\Implementation\RemoteDependencyConstants.cs;..\..\Common\CorrelationIdLookupHelper.cs;..\..\Common\CrossComponentCorrelationEventSource.cs;..\..\Common\ExceptionUtilities.cs;..\..\Common\ICorrelationIdLookupHelper.cs;..\..\Common\RequestResponseHeaders.cs;..\..\Common\HeadersUtilities.cs;..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs" Exclude="bin\**;obj\**;**\*.csproj;packages\**" />
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta1-build08904" />
@@ -31,10 +28,7 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0-beta-25130-03" />
   </ItemGroup>
 
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
   </PropertyGroup>
-
-
 </Project>
