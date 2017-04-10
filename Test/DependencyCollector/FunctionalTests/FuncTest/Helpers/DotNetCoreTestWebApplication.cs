@@ -12,6 +12,15 @@ namespace FuncTest.Helpers
         private StreamWriter stdoutFile;
         private StreamWriter stderrFile;
 
+        /// <summary>Gets the app folder.</summary>
+        internal override string AppFolder
+        {
+            get
+            {
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { base.AppFolder, "netcoreapp1.0" });
+            }
+        }
+
         internal override void Deploy()
         {
             string applicationDllFileName = this.AppName + ".dll";

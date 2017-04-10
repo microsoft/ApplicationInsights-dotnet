@@ -1,11 +1,8 @@
 ﻿namespace FuncTest.Helpers
 {
     using System;
-    using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.Reflection;
-    using FuncTest.IIS;
 
     internal abstract class TestWebApplication
     {
@@ -18,7 +15,7 @@
         internal string ExternalCallPath { get; set; } = "ExternalCalls.aspx";
 
         /// <summary>Gets the app folder.</summary>
-        internal string AppFolder
+        internal virtual string AppFolder
         {
             get
             {
@@ -26,7 +23,7 @@
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path).Replace('/', Path.DirectorySeparatorChar);
                 string baseExecutingDir = path.Substring(0, path.LastIndexOf(Path.DirectorySeparatorChar));
-                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[2] { baseExecutingDir, this.AppName });
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { baseExecutingDir, this.AppName });
             }
         }
 
