@@ -3,14 +3,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System;
     using System.Collections.Generic;
     using System.Linq;
-#if NET451
-#endif
     using System.Net.Http.Headers;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
-#if NETCORE
-    using Microsoft.ApplicationInsights.Common;
-#endif
+
     internal static class HttpHeadersUtilities
     {
         internal static IEnumerable<string> GetHeaderValues(HttpHeaders headers, string headerName)

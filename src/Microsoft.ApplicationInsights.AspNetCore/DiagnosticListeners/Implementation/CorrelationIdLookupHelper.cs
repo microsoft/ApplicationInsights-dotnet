@@ -4,7 +4,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using System.Collections.Concurrent;
     using System.Globalization;
     using System.Threading.Tasks;
-    
+
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility;
 
@@ -52,6 +52,9 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         }
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+
+        // Dedup dictionary to hold task status. Use iKey as Key, use task id as Value.
+        private ConcurrentDictionary<string, int> iKeyTaskIdMapping = new ConcurrentDictionary<string, int>();
 
         private Func<string, Task<string>> provideAppId;
 
@@ -110,33 +113,47 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
                 try
                 {
-
                     // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                     // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());
-                    if (getAppIdTask.Wait(GetAppIdTimeout))
+                    string iKeyLowered = instrumentationKey.ToLowerInvariant();
+                    int taskId;
+                    if (!this.iKeyTaskIdMapping.TryGetValue(iKeyLowered, out taskId))
                     {
-                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
-                        correlationId = this.knownCorrelationIds[instrumentationKey];
-                        return true;
+                        Task<string> getAppIdTask = this.provideAppId(iKeyLowered);
+                        if (getAppIdTask.Wait(GetAppIdTimeout))
+                        {
+                            correlationId = this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                            return true;
+                        }
+                        else
+                        {
+                            this.iKeyTaskIdMapping.TryAdd(iKeyLowered, getAppIdTask.Id);
+                            getAppIdTask.ContinueWith((appId) =>
+                            {
+                                try
+                                {
+                                    this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                                }
+                                catch (Exception ex)
+                                {
+                                    AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
+                                }
+                                finally
+                                {
+                                    int currentTaskId;
+                                    iKeyTaskIdMapping.TryRemove(iKeyLowered, out currentTaskId);
+                                }
+                            });
+                            return false;
+                        }
                     }
                     else
                     {
-                        getAppIdTask.ContinueWith((appId) =>
-                        {
-                            try
-                            {
-                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
-                            }
-                            catch(Exception ex)
-                            {
-                                AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
-                            }
-                        });
+                        // A existing task is running; Report false for not getting the appId yet.
                         return false;
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     AspNetCoreEventSource.Instance.LogFetchAppIdFailed(ExceptionUtilities.GetExceptionDetailString(ex));
                     correlationId = string.Empty;
@@ -145,9 +162,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             }
         }
 
-        private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
+        private string GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
-            this.knownCorrelationIds[ikey] = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+            string correlationId = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
+            this.knownCorrelationIds[ikey] = correlationId;
+            return correlationId;
         }
 
         /// <summary>
