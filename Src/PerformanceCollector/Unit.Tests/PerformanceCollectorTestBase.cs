@@ -205,8 +205,7 @@
 
             Assert.AreEqual(results[0].Item1.PerformanceCounter.InstanceName, results[1].Item1.PerformanceCounter.InstanceName);
 
-            Assert.IsTrue(results[0].Item2 >= 0 && results[0].Item2 <= 100);
-            Assert.IsTrue(Math.Abs(results[0].Item2 - (results[1].Item2 * Environment.ProcessorCount)) < 0.05);
+            Assert.IsTrue(results[0].Item2 >= 0 && results[0].Item2 <= 100);           
         }
     }
 }

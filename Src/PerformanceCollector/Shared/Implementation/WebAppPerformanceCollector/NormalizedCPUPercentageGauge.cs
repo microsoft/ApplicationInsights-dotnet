@@ -4,9 +4,9 @@
     using System.Globalization;
 
     /// <summary>
-    /// Gauge that computes normalized CPU percentage utilized by a process by utilizing the last computed time.
+    /// Gauge that computes normalized CPU percentage utilized by a process by utilizing the last computed time (divided by the processors count).
     /// </summary>
-    internal class NormalizedCPUPercenageGauge : CPUPercenageGauge
+    internal class NormalizedCPUPercentageGauge : CPUPercenageGauge
     {
         /// <summary>Specific environment variable for Azure App Services.</summary>
         private const string ProcessorsCounterEnvironmentVariable = "NUMBER_OF_PROCESSORS";
@@ -16,11 +16,11 @@
         private int processorsCount = -1;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NormalizedCPUPercenageGauge"/> class.
+        /// Initializes a new instance of the <see cref="NormalizedCPUPercentageGauge"/> class.
         /// </summary>
         /// <param name="name"> Name of the SumUpCountersGauge.</param>
         /// <param name="value"> Gauges to sum.</param>
-        public NormalizedCPUPercenageGauge(string name, ICounterValue value) : base(name, value)
+        public NormalizedCPUPercentageGauge(string name, ICounterValue value) : base(name, value)
         {
         }
 

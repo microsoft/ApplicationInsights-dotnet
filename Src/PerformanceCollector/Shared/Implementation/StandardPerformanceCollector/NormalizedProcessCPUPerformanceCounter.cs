@@ -5,7 +5,7 @@
     using System.Globalization;
 
     /// <summary>
-    /// Interface represents normalized value of CPU Utilization by Process counter value.
+    /// Represents normalized value of CPU Utilization by Process counter value (divided by the processors count).
     /// </summary>
     internal class NormalizedProcessCPUPerformanceCounter : ICounterValue, IDisposable
     {
