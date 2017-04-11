@@ -124,7 +124,7 @@
             string instance = Guid.NewGuid().ToString();
             var timestamp = DateTimeOffset.UtcNow;
 
-            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, instance, instance, string.Empty, new Clock(), false);
+            var serviceClient = new QuickPulseServiceClient(this.serviceEndpoint, instance, instance, instance, string.Empty, new Clock(), false, 0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -150,7 +150,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -222,7 +223,8 @@
                 string.Empty,
                 string.Empty,
                 timeProvider,
-                false);
+                false,
+                0);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -291,7 +293,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -326,7 +329,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -374,7 +378,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var properties = new Dictionary<string, string>() { { "Prop1", "Val1" } };
             var sample =
                 new QuickPulseDataSample(
@@ -462,7 +467,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample1 =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -508,7 +514,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.pingResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString()); };
@@ -532,7 +539,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.pingResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString()); };
@@ -556,7 +564,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.pingResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, "bla"); };
@@ -580,7 +589,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.pingResponse = r => { };
@@ -604,7 +614,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.submitResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, true.ToString()); };
@@ -634,7 +645,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.submitResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, false.ToString()); };
@@ -664,7 +676,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.submitResponse = r => { r.AddHeader(QuickPulseConstants.XMsQpsSubscribedHeaderName, "bla"); };
@@ -694,7 +707,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             this.submitResponse = r => { };
@@ -725,6 +739,7 @@
                 string.Empty,
                 new Clock(),
                 false,
+                0,
                 TimeSpan.FromMilliseconds(50));
 
             this.emulateTimeout = true;
@@ -751,6 +766,7 @@
                 string.Empty,
                 new Clock(),
                 false,
+                0,
                 TimeSpan.FromMilliseconds(50));
 
             this.emulateTimeout = true;
@@ -783,7 +799,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             this.pingResponse = r =>
                 {
@@ -822,7 +839,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             var sample =
                 new QuickPulseDataSample(
@@ -868,7 +886,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             this.pingResponse = r =>
                 {
@@ -908,7 +927,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             var sample =
                 new QuickPulseDataSample(
@@ -955,7 +975,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             this.pingResponse = r =>
                 {
@@ -990,7 +1011,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             var sample =
                 new QuickPulseDataSample(
@@ -1032,7 +1054,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             var metrics = new[]
             {
@@ -1103,7 +1126,8 @@
                 instanceName,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1130,7 +1154,8 @@
                 instanceName,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1161,7 +1186,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1188,7 +1214,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1219,7 +1246,8 @@
                 machineName,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1246,7 +1274,8 @@
                 machineName,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1277,7 +1306,8 @@
                 string.Empty,
                 string.Empty,
                 timeProvider,
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1302,7 +1332,8 @@
                 string.Empty,
                 string.Empty,
                 timeProvider,
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration)
@@ -1338,7 +1369,8 @@
                 string.Empty,
                 version,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1364,7 +1396,8 @@
                 string.Empty,
                 version,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1397,7 +1430,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             // ACT
             CollectionConfigurationInfo configurationInfo;
@@ -1423,7 +1457,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1454,7 +1489,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             foreach (var pair in this.opaqueAuthHeaderValuesToRespondWith.ToList())
             {
@@ -1491,7 +1527,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
 
             foreach (var pair in this.opaqueAuthHeaderValuesToRespondWith.ToList())
             {
@@ -1535,7 +1572,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1567,7 +1605,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1629,7 +1668,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                false);
+                false,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1661,7 +1701,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                true);
+                true,
+                0);
             var sample =
                 new QuickPulseDataSample(
                     new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
@@ -1681,6 +1722,39 @@
         }
 
         [TestMethod]
+        public void QuickPulseServiceClientSubmitsProcessorCountToService()
+        {
+            // ARRANGE
+            var now = DateTimeOffset.UtcNow;
+            var ikey = "some ikey";
+            var serviceClient = new QuickPulseServiceClient(
+                this.serviceEndpoint,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                new Clock(),
+                true,
+                7);
+            var sample =
+                new QuickPulseDataSample(
+                    new QuickPulseDataAccumulator(this.emptyCollectionConfiguration) { StartTimestamp = now, EndTimestamp = now.AddSeconds(1) },
+                    new Dictionary<string, Tuple<PerformanceCounterData, double>>(),
+                    Enumerable.Empty<Tuple<string, int>>(),
+                    false);
+
+            // ACT
+            CollectionConfigurationInfo configurationInfo;
+            serviceClient.SubmitSamples(new[] { sample }, ikey, string.Empty, string.Empty, out configurationInfo, new CollectionConfigurationError[0]);
+
+            // ASSERT
+            this.listener.Stop();
+
+            Assert.AreEqual(1, this.samples.Count);
+            Assert.AreEqual(7, this.samples[0].Item3.ProcessorCount);
+        }
+
+        [TestMethod]
         public void QuickPulseServiceClientSubmitsTopCpuProcessesToService()
         {
             // ARRANGE
@@ -1693,7 +1767,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                true);
+                true,
+                0);
             var cpuData = new[] { Tuple.Create("Process1", 1), Tuple.Create("Process2", 2) };
 
             var sample =
@@ -1731,7 +1806,8 @@
                 string.Empty,
                 string.Empty,
                 new Clock(),
-                true);
+                true,
+                0);
 
             var sample =
                 new QuickPulseDataSample(

@@ -9,10 +9,10 @@
     /// </summary>
     internal class NormalizedProcessCPUPerformanceCounter : ICounterValue, IDisposable
     {
+        private readonly int processorsCount;
+        private readonly bool isInitialized = false;
         private PerformanceCounter performanceCounter = null;
-        private int processorsCount;
-        private bool isInitialized = false;
-
+        
         /// <summary>
         ///  Initializes a new instance of the <see cref="NormalizedProcessCPUPerformanceCounter" /> class.
         /// </summary>
@@ -21,16 +21,16 @@
         /// <param name="instanceName">The instance name.</param>
         internal NormalizedProcessCPUPerformanceCounter(string categoryName, string counterName, string instanceName)
         {
-            this.processorsCount = Environment.ProcessorCount;
-            if (this.processorsCount < 1 || this.processorsCount > 1000)
+            int? count = PerformanceCounterUtility.GetProcessorCount(false);
+
+            if (count.HasValue)
             {
-                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(this.processorsCount.ToString(CultureInfo.InvariantCulture));
-                return;
+                this.processorsCount = count.Value;
+
+                this.performanceCounter = new PerformanceCounter("Process", "% Processor Time", instanceName, true);
+
+                this.isInitialized = true;
             }
-
-            this.performanceCounter = new PerformanceCounter("Process", "% Processor Time", instanceName, true);
-
-            this.isInitialized = true;
         }
 
         /// <summary>
