@@ -78,13 +78,13 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         internal void Flush(TimeSpan timeout)
         {
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
 #endif
                 this.DequeueAndSend(timeout);
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             }
             finally
             {
@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
@@ -108,14 +108,14 @@ namespace Microsoft.ApplicationInsights.Channel
                 {
                     while (this.enabled)
                     {
-                        // Pulling all items from the buffer and sending as one transmissiton.
+                        // Pulling all items from the buffer and sending as one transmission.
                         this.DequeueAndSend(timeout: default(TimeSpan)); // when default(TimeSpan) is provided, value is ignored and default timeout of 100 sec is used
 
                         // Waiting for the flush delay to elapse
                         this.startRunnerEvent.WaitOne(this.sendingInterval);
                     }
                 }
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             }
             finally
             {

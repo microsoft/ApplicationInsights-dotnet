@@ -14,6 +14,7 @@
     /// You can send information about requests processed by your web application to Application Insights by 
     /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
     /// method.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
     public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
@@ -31,9 +32,9 @@
         /// </summary>
         public RequestTelemetry()
         {
-            this.Data = new RequestData();
+            this.Data = new RequestData() { success = true };
             this.context = new TelemetryContext(this.Data.properties);
-            this.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            this.GenerateId();
         }
 
         /// <summary>
@@ -136,6 +137,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this request.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, string> Properties
         {
@@ -159,12 +161,13 @@
 
             set 
             {
-                this.Data.url = value == null ? null : value.ToString();
+                this.Data.url = value?.ToString();
             }
         }
         
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public override IDictionary<string, double> Metrics
         {
@@ -218,21 +221,6 @@
             {
                 this.ResponseCode = "200";
                 this.Success = true;
-            }
-
-            // Required field
-            if (!this.Success.HasValue)
-            {
-                int responseCode;
-
-                if (int.TryParse(this.ResponseCode, NumberStyles.Any, CultureInfo.InvariantCulture, out responseCode))
-                {
-                    this.Success = (responseCode < 400) || (responseCode == 401);
-                }
-                else
-                {
-                    this.Success = true;
-                }
             }
 
             this.Context.SanitizeTelemetryContext();

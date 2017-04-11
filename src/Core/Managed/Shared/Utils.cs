@@ -18,7 +18,7 @@
             {
                 return true;
             }
-#if !CORE_PCL
+#if !NETSTANDARD1_3
             return value.All(char.IsWhiteSpace);
 #else
             return string.IsNullOrWhiteSpace(value);
@@ -61,11 +61,7 @@
         public static TimeSpan ValidateDuration(string value)
         {
             TimeSpan interval;
-#if NET45 || NET46
             if (!TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out interval))
-#else
-            if (!TimeSpanEx.TryParse(value, CultureInfo.InvariantCulture, out interval))
-#endif
             {
                 CoreEventSource.Log.TelemetryIncorrectDuration();
                 return TimeSpan.Zero;

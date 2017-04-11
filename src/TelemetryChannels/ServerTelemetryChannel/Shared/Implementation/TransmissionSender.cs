@@ -25,7 +25,7 @@
         public event EventHandler<TransmissionProcessedEventArgs> TransmissionSent;
 
         /// <summary>
-        /// Gets or sets the the maximum number of <see cref="Transmission"/> objects that can be sent simultaneously.
+        /// Gets or sets the maximum number of <see cref="Transmission"/> objects that can be sent simultaneously.
         /// </summary>
         /// <remarks>
         /// Use this property to limit the number of concurrent HTTP connections. Once the maximum number of 

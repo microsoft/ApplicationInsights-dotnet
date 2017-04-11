@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Common.props'))\Common.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net45</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\Core\Managed\net45\Microsoft.ApplicationInsights.dll</PackageVersionFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Managed\Core.csproj" />
+    <ProjectReference Include="..\DummyCore\DummyCore.csproj" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Package.targets'))\Package.targets" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

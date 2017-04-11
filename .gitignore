@@ -165,4 +165,3 @@ $RECYCLE.BIN/
 *.wrn
 *.vsix
 Web/PerformanceTests_Instrumented/
-.PreReleaseVersion

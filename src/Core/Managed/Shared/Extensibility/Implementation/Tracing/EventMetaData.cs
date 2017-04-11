@@ -2,8 +2,7 @@
 {
 #if NET40
     using Microsoft.Diagnostics.Tracing;
-#endif
-#if !NET40
+#else
     using System.Diagnostics.Tracing;
 #endif
 

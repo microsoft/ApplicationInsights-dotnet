@@ -8,7 +8,7 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -40,7 +40,7 @@
         {
             if (args.Exception == null && (args.Response == null || args.Response.StatusCode == ResponseStatusCodes.Success))
             {
-                // We succesfully sent transmittion
+                // We successfully sent transmittion
                 this.backoffLogicManager.ResetConsecutiveErrors();
                 return;
             }

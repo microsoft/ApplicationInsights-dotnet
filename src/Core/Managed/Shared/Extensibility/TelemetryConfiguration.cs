@@ -7,6 +7,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -28,6 +29,7 @@
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
         private TelemetryProcessorChainBuilder builder;
+        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
 
         /// <summary>
         /// Indicates if this instance has been disposed of.
@@ -181,6 +183,15 @@
         public IList<ITelemetryInitializer> TelemetryInitializers
         {
             get { return this.telemetryInitializers; }
+        }
+
+        /// <summary>
+        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
+        /// before client-side metric aggregation process.
+        /// </summary>
+        public IList<IMetricProcessor> MetricProcessors     
+        {       
+             get { return this.metricProcessors; }      
         }
 
         /// <summary>

@@ -5,7 +5,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using TestFramework;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

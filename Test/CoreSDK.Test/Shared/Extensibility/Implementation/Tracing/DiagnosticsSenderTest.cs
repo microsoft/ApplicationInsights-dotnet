@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
 #if NET40
@@ -23,14 +23,14 @@
                     EventId = 10,
                     Keywords = 0x20,
                     Level = EventLevel.Warning,
-                    MessageFormat = "Error occured at {0}, {1}"
+                    MessageFormat = "Error occurred at {0}, {1}"
                 },
                 Payload = new[] { "My function", "some failure" }
             };
 
             senderMock.Send(evt);
             Assert.AreEqual(1, senderMock.Messages.Count);
-            Assert.AreEqual("Error occured at My function, some failure", senderMock.Messages[0]);
+            Assert.AreEqual("Error occurred at My function, some failure", senderMock.Messages[0]);
         }
 
         [TestMethod]
@@ -44,14 +44,14 @@
                     EventId = 10,
                     Keywords = 0x20,
                     Level = EventLevel.Warning,
-                    MessageFormat = "Error occured"
+                    MessageFormat = "Error occurred"
                 },
                 Payload = null
             };
 
             senderMock.Send(evt);
             Assert.AreEqual(1, senderMock.Messages.Count);
-            Assert.AreEqual("Error occured", senderMock.Messages[0]);
+            Assert.AreEqual("Error occurred", senderMock.Messages[0]);
         }
     }
 }

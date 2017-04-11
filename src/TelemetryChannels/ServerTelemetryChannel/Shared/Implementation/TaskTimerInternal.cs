@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using WindowsServer.TelemetryChannel.Implementation;
 
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -78,7 +78,7 @@ namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implement
                         {
                             Task task = elapsed();
 
-                            // Task may be executed syncronously
+                            // Task may be executed synchronously
                             // It should return Task.FromResult but just in case we check for null if someone returned null
                             if (task != null)
                             {

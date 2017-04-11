@@ -17,6 +17,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     [TestClass]
     public class SnapshottingCollectionTest
@@ -71,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = Task.Run(() => target.Add(new object()));
+                    anotherThread = TaskEx.Run(() => target.Add(new object()));
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -112,7 +115,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = Task.Run(() => target.Clear());
+                    anotherThread = TaskEx.Run(() => target.Clear());
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -263,7 +266,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingCollection<object>(collection);
                 lock (collection)
                 {
-                    anotherThread = Task.Run(() => target.Remove(null));
+                    anotherThread = TaskEx.Run(() => target.Remove(null));
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -292,6 +295,19 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             [TestMethod]
+            public void ReusesPreviouslyCreatedSnapshotToImprovePerformance()
+            {
+                var target = new TestableSnapshottingCollection<object>(new List<object>());
+                var previouslyCreatedSnapshot = new List<object>();
+                target.Snapshot = previouslyCreatedSnapshot;
+
+                var returnedSnapshot = target.GetSnapshot();
+
+                Assert.Same(previouslyCreatedSnapshot, returnedSnapshot);
+            }
+
+#if !NET40 // .Net 4.0 doesn't support Monitor.IsEntered
+            [TestMethod]
             public void LocksCollectionWhileCreatingSnapshotForThreadSafety()
             {
                 bool isCollectionLocked = false;
@@ -308,18 +324,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             [TestMethod]
-            public void ReusesPreviouslyCreatedSnapshotToImprovePerformance()
-            {
-                var target = new TestableSnapshottingCollection<object>(new List<object>());
-                var previouslyCreatedSnapshot = new List<object>();
-                target.Snapshot = previouslyCreatedSnapshot;
-
-                var returnedSnapshot = target.GetSnapshot();
-
-                Assert.Same(previouslyCreatedSnapshot, returnedSnapshot);
-            }
-
-            [TestMethod]
             public void DoesNotKeepCollectionLockedToUnblockOtherThreads()
             {
                 var collection = new List<object>();
@@ -329,6 +333,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 Assert.False(Monitor.IsEntered(collection));
             }
+#endif
         }
 
         private class TestableSnapshottingCollection<T> : SnapshottingCollection<T, ICollection<T>>

@@ -105,10 +105,10 @@
             // validate value of the segementIndexBits parameter
             int effectiveSegementIndexBits = segmentIndexBits;
 
-            // number of segements must be between 1 and 15
+            // number of segments must be between 1 and 15
             if ((segmentIndexBits < 1) || (segmentIndexBits > 4))
             {
-                // 8 segements is default in case the value supplied by caller is incorrect
+                // 8 segments is default in case the value supplied by caller is incorrect
                 effectiveSegementIndexBits = 3;
             }
 
@@ -116,7 +116,7 @@
             // validate value of the segementBits parameter
             int effectiveSegementBits = segmentBits;
 
-            // number of randoms within segement must be between 256 and 64K
+            // number of randoms within segment must be between 256 and 64K
             if ((segmentBits < 7) || (segmentBits > 15))
             {
                 // 1024 randoms is default in case the value supplied by caller is incorrect

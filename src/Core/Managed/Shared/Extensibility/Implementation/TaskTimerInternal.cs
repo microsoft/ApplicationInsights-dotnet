@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -77,7 +77,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                         {
                             Task task = elapsed();
 
-                            // Task may be executed syncronously
+                            // Task may be executed synchronously
                             // It should return Task.FromResult but just in case we check for null if someone returned null
                             if (task != null)
                             {
