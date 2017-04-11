@@ -186,12 +186,12 @@
         }
 
         /// <summary>
-        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing		
+        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
         /// before client-side metric aggregation process.
         /// </summary>
-        public IList<IMetricProcessor> MetricProcessors		
-        { 		
-             get { return this.metricProcessors; }		
+        public IList<IMetricProcessor> MetricProcessors     
+        {       
+             get { return this.metricProcessors; }      
         }
 
         /// <summary>
