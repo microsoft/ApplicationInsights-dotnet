@@ -224,7 +224,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <summary>
         /// Detects if the telemetry object has been processed via the DiagnosticSource path.
         /// </summary>
-        /// <param name="request">The WebRequest object.</param>
+        /// <param name="telemetry">The DependencyTelemetry object to examine.</param>
         private bool HasTouchedByDiagnosticSource(DependencyTelemetry telemetry)
         {
             // If it was ever processed via the DiagnosticSource path, then telemetry.Name
