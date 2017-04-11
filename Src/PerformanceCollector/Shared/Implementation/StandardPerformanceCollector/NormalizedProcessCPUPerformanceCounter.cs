@@ -30,7 +30,22 @@
         {
             try
             {
-                return this.performanceCounter.NextValue() / Environment.ProcessorCount;
+                int processorsCount = Environment.ProcessorCount;
+
+                if (processorsCount < 1 || processorsCount > 1000)
+                {
+                    string message = string.Format(
+                        CultureInfo.CurrentCulture, 
+                        Resources.StandardProcessorsCountReadFailed, 
+                        processorsCount.ToString(CultureInfo.InvariantCulture));
+                    throw new InvalidOperationException(message);
+                }
+
+                return this.performanceCounter.NextValue() / processorsCount;
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch (Exception e)
             {

@@ -58,18 +58,25 @@
             try
             {
                 string countString = Environment.GetEnvironmentVariable(ProcessorsCounterEnvironmentVariable);
-                if (!int.TryParse(countString, out count) || count < 1)
+                if (!int.TryParse(countString, out count) || count < 1 || count > 1000)
                 {
                     count = -1;
-                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(
-                        ProcessorsCounterEnvironmentVariable,
-                        string.Format(CultureInfo.InvariantCulture, "Invalid value for NUMBER_OF_PROCESSORS: {0}", countString));
+                    string message = string.Format(CultureInfo.CurrentCulture, Resources.WebAppProcessorsCountReadFailed, countString);
+                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(ProcessorsCounterEnvironmentVariable, message);
+
+                    throw new InvalidOperationException(message);
                 }
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 count = -1;
                 PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(ProcessorsCounterEnvironmentVariable, ex.ToString());
+
+                throw new InvalidOperationException(ex.Message, ex);
             }
 
             return count;

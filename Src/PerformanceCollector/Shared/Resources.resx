@@ -150,4 +150,10 @@
   <data name="WebAppPerformanceCounterAccessFailed" xml:space="preserve">
     <value>Failed to access or create the web app counter. Counter: {0}.</value>
   </data>
+  <data name="StandardProcessorsCountReadFailed" xml:space="preserve">
+    <value>Invalid value for Environment.ProcessorsCount: {0}</value>
+  </data>
+  <data name="WebAppProcessorsCountReadFailed" xml:space="preserve">
+    <value>Invalid value for NUMBER_OF_PROCESSORS: {0}</value>
+  </data>
 </root>
