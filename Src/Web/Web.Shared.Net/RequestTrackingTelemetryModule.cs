@@ -100,6 +100,7 @@
             }
         }
 
+#if NET40
         /// <summary>
         /// Implements on PreRequestHandlerExecute callback of http module
         /// that is executed right before the handler and restores any execution context 
@@ -109,7 +110,16 @@
         {
             if (this.telemetryClient == null)
             {
-                // TODO: write event log, when https://github.com/Microsoft/ApplicationInsights-dotnet-server/pull/390/commits/c38d6d48e666114fedba90b8df6a4f36571cbb66 is merged to 2.4.0
+                if (!this.initializationErrorReported)
+                {
+                    this.initializationErrorReported = true;
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetError();
+                }
+                else
+                {
+                    WebEventSource.Log.InitializeHasNotBeenCalledOnModuleYetVerbose();
+                }
+
                 return;
             }
 
@@ -119,8 +129,9 @@
                 return;
             }
 
-            ActivityHelpers.RestoreActivityIfLost(context);
+            ActivityHelpers.RestoreOperationContextIfLost(context);
         }
+#endif
 
         /// <summary>
         /// Implements on end callback of http module.
@@ -147,9 +158,11 @@
                 return;
             }
 
+#if NET40
             // we store Activity/Call context to initialize child telemtery within the scope of this request,
             // so it's time to stop it
-            ActivityHelpers.StopRequestActivity();
+            ActivityHelpers.CleanOperationContext();
+#endif
             var requestTelemetry = context.ReadOrCreateRequestTelemetryPrivate();
             requestTelemetry.Stop();
 
@@ -184,15 +197,16 @@
 
             if (string.IsNullOrEmpty(requestTelemetry.Source) && context.Request.Headers != null)
             {
+                string telemetrySource = string.Empty;
                 string sourceAppId = null;
 
                 try
                 {
-                    sourceAppId = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey);
+                    sourceAppId = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey);
                 }
                 catch (Exception ex)
                 {
-                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                    AppMapCorrelationEventSource.Log.GetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                 }
                 
                 bool correlationIdLookupHelperInitialized = this.TryInitializeCorrelationHelperIfNotInitialized();
@@ -211,8 +225,33 @@
                     && foundMyAppId
                     && sourceAppId != currentComponentAppId)
                 {
-                    requestTelemetry.Source = sourceAppId;
+                    telemetrySource = sourceAppId;
                 }
+
+                string sourceRoleName = null;
+
+                try
+                {
+                    sourceRoleName = context.Request.UnvalidatedGetHeaders().GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceRoleNameKey);
+                }
+                catch (Exception ex)
+                {
+                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
+                }
+
+                if (!string.IsNullOrEmpty(sourceRoleName))
+                {
+                    if (string.IsNullOrEmpty(telemetrySource))
+                    {
+                        telemetrySource = "roleName:" + sourceRoleName;
+                    }
+                    else
+                    {
+                        telemetrySource += " | roleName:" + sourceRoleName;
+                    }
+                }
+
+                requestTelemetry.Source = telemetrySource;
             }
 
             this.telemetryClient.TrackRequest(requestTelemetry);
@@ -242,20 +281,20 @@
             try
             {
                 if (!string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey)
-                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey) == null
+                    && context.Response.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrleationTargetKey) == null
                     && correlationIdHelperInitialized)
                 {
                     string correlationId;
 
                     if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
                     {
-                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey, correlationId);
+                        context.Response.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrleationTargetKey, correlationId);
                     }
                 }
             }
             catch (Exception ex)
             {
-                CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
+                AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
             }
         }
 

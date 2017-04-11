@@ -2,10 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+#if !NETCORE
     using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
+#else
+    using Microsoft.Extensions.PlatformAbstractions;
+#endif
 
     /// <summary>
     /// Remote dependency monitoring.
@@ -14,16 +19,18 @@
     {
         private readonly object lockObject = new object();
 
-#if !NET40
+#if !NET40 && !NETCORE
         // Net40 does not support framework event source
         private HttpDiagnosticSourceListener httpDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
 #endif
 
+#if !NETCORE
         private ProfilerSqlCommandProcessing sqlCommandProcessing;
         private ProfilerSqlConnectionProcessing sqlConnectionProcessing;
         private ProfilerHttpProcessing httpProcessing;        
+#endif
         private TelemetryConfiguration telemetryConfiguration;
         private bool isInitialized = false;
         private bool disposed = false;
@@ -101,13 +108,23 @@
                         {                            
                             this.telemetryConfiguration = configuration;
 
+#if !NETCORE
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
+#else
+                            DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, SetComponentCorrelationHttpHeaders, ExcludeComponentCorrelationHttpHeadersOnDomains));
+#endif
                         }
                         catch (Exception exc)
                         {
-                            DependencyCollectorEventSource.Log.RemoteDependencyModuleError(exc.ToInvariantString(), Environment.Version.ToString());
+                            string clrVersion;
+#if NETCORE
+                            clrVersion = PlatformServices.Default.Application.RuntimeFramework.FullName;
+#else
+                            clrVersion = Environment.Version.ToString();
+#endif
+                            DependencyCollectorEventSource.Log.RemoteDependencyModuleError(exc.ToInvariantString(), clrVersion);
                         }
 
                         this.isInitialized = true;
@@ -116,6 +133,7 @@
             }
         }
 
+#if !NETCORE
         internal virtual void InitializeForRuntimeProfiler()
         {
             // initialize instrumentation extension
@@ -143,6 +161,7 @@
         {
             return Decorator.IsHostEnabled();
         }
+#endif
 
         /// <summary>
         /// IDisposable implementation.
@@ -154,13 +173,12 @@
             {
                 if (disposing)
                 {
-#if !NET40
+#if !NET40 && !NETCORE
                     // Net40 does not support framework event source and diagnostic source
                     if (this.httpDiagnosticSourceListener != null)
                     {
                         this.httpDiagnosticSourceListener.Dispose();
                     }
-
                     if (this.httpEventListener != null)
                     {
                         this.httpEventListener.Dispose();
@@ -177,6 +195,7 @@
             }
         }
 
+#if !NETCORE
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
@@ -236,5 +255,6 @@
                 DependencyCollectorEventSource.Log.RemoteDependencyModuleProfilerNotAttached();
             }
         }
+#endif
     }
 }

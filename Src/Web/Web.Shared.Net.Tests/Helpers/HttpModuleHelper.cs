@@ -67,7 +67,9 @@
 
             var workerRequest = new SimpleWorkerRequestWithHeaders(UrlPath, UrlQueryString, new StringWriter(CultureInfo.InvariantCulture), headers);
             
-            return new HttpContext(workerRequest);
+            var context = new HttpContext(workerRequest);
+            HttpContext.Current = context;
+            return context;
         }
 
         public static HttpContextBase GetFakeHttpContextBase(IDictionary<string, string> headers = null)

@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0-beta1-build07987\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0-beta1-build08904\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -90,6 +90,9 @@
     <ProjectReference Include="..\..\Web\Web.Net40\Web.Net40.csproj">
       <Name>Web.Net40</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="RequestTrackingTelemetryModuleTest.Net40.cs" />
   </ItemGroup>
   <Import Project="..\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

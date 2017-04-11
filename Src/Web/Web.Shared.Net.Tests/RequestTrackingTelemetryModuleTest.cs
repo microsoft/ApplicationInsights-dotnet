@@ -9,7 +9,6 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Common;
-    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
@@ -20,8 +19,11 @@
 
     using Assert = Xunit.Assert;
 
+    /// <summary>
+    /// Platform independent tests for RequestTrackingTelemetryModule.
+    /// </summary>
     [TestClass]
-    public class RequestTrackingTelemetryModuleTest
+    public partial class RequestTrackingTelemetryModuleTest
     {
         private CorrelationIdLookupHelper correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
         {
@@ -34,7 +36,14 @@
         [TestCleanup]
         public void Cleanup()
         {
-            ActivityHelpers.StopRequestActivity();
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            ActivityHelpers.CleanOperationContext();
+#endif
         }
 
         [TestMethod]
@@ -361,6 +370,61 @@
         }
 
         [TestMethod]
+        public void OnEndAddsSourceFieldForRequestWithRoleName()
+        {
+            // ARRANGE                       
+            string roleName = "SomeRoleName";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add(RequestResponseHeaders.RequestContextHeader, string.Format(CultureInfo.InvariantCulture, "{0}={1}", RequestResponseHeaders.RequestContextSourceRoleNameKey, roleName));
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            var config = TelemetryConfiguration.CreateDefault();
+
+            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.Equal("roleName:" + roleName, context.GetRequestTelemetry().Source);
+        }
+
+        [TestMethod]
+        public void OnEndAddsSourceFieldForRequestWithCorrelationIdAndRoleName()
+        {
+            // ARRANGE                       
+            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string roleName = "SomeRoleName";
+
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+
+            // Add Request context With both appId and roleName.
+            headers.Add(RequestResponseHeaders.RequestContextHeader, string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", this.GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextSourceRoleNameKey, roleName));
+
+            var context = HttpModuleHelper.GetFakeHttpContext(headers);
+
+            var module = this.RequestTrackingTelemetryModuleFactory();
+            var config = TelemetryConfiguration.CreateDefault();
+
+            // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            // ACT
+            module.Initialize(config);
+            module.OnBeginRequest(context);
+            module.OnEndRequest(context);
+
+            // VALIDATE
+            Assert.Equal(string.Format(CultureInfo.InvariantCulture, "{0} | {1}", this.GetCorrelationIdValue(appId), "roleName:SomeRoleName"), context.GetRequestTelemetry().Source);
+        }
+
+        [TestMethod]
         public void OnEndDoesNotAddSourceFieldForRequestWithOutSourceIkeyHeader()
         {
             // ARRANGE                                   
@@ -387,10 +451,11 @@
         {
             // ARRANGE                       
             string appIdInHeader = this.GetCorrelationIdHeaderValue("b3eb14d6-bb32-4542-9b93-473cd94aaedf");
+            string roleNameHeader = string.Format(CultureInfo.InvariantCulture, "{0}=SomeNameHere", RequestResponseHeaders.RequestContextSourceRoleNameKey);
             string appIdInSourceField = "9AB8EDCB-21D2-44BB-A64A-C33BB4515F20";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.RequestContextHeader, appIdInHeader);
+            headers.Add(RequestResponseHeaders.RequestContextHeader, appIdInHeader + "," + roleNameHeader);
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
@@ -403,323 +468,6 @@
 
             // VALIDATE
             Assert.Equal(appIdInSourceField, context.GetRequestTelemetry().Source);
-        }
-
-        [TestMethod]
-        public void OnBeginSetsOperationContextWithStandardHeaders()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            // initialize telemetry
-            module.OnEndRequest(context);
-
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("|guid1.1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1.1.", StringComparison.Ordinal));
-            Assert.NotEqual("|guid1.1", requestTelemetry.Id);
-            Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
-            Assert.Equal("v", requestTelemetry.Properties["k"]);
-        }
-
-        [TestMethod]
-        public void OnBeginSetsOperationContextWithStandardHeadersWithNonHierarchialId()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "guid1",
-                ["Correlation-Context"] = "k=v"
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid1.", StringComparison.Ordinal));
-            Assert.NotEqual("|guid1.1.", requestTelemetry.Id);
-            Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
-
-            // will initialize telemetry
-            module.OnEndRequest(context);
-            Assert.Equal("v", requestTelemetry.Properties["k"]);
-        }
-
-        [TestMethod]
-        public void OnBeginSetsOperationContextWithoutHeaders()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext();
-
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            var operationId = requestTelemetry.Context.Operation.Id;
-            Assert.NotNull(operationId);
-            Assert.Null(requestTelemetry.Context.Operation.ParentId);
-            Assert.True(requestTelemetry.Id.StartsWith('|' + operationId + '.', StringComparison.Ordinal));
-            Assert.NotEqual(operationId, requestTelemetry.Id);
-        }
-
-        [TestMethod]
-        public void InitializeFromStandardHeadersAlwaysWinsCustomHeaders()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "standard-id",
-                ["x-ms-request-id"] = "legacy-id",
-                ["x-ms-request-rooit-id"] = "legacy-root-id"
-            });
-
-            var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config);
-            module.OnBeginRequest(context);
-
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            // initialize telemetry
-            module.OnEndRequest(context);
-            Assert.Equal("standard-id", requestTelemetry.Context.Operation.ParentId);
-            Assert.Equal("standard-id", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("standard-id", this.GetActivityRootId(requestTelemetry.Id));
-            Assert.NotEqual(requestTelemetry.Context.Operation.Id, requestTelemetry.Id);
-        }
-
-        [TestMethod]
-        public void OnBeginSetsOperationContextWithLegacyHeaders()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["x-ms-request-id"] = "guid1",
-                ["x-ms-request-root-id"] = "guid2"
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-
-            Assert.True(requestTelemetry.Id.StartsWith("|guid2.", StringComparison.Ordinal));
-        }
-
-        [TestMethod]
-        public void InitializeWithInvalidRequestId()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string> { ["Request-Id"] = string.Empty });
-
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-            module.OnEndRequest(context);
-
-            Assert.Null(requestTelemetry.Context.Operation.ParentId);
-            Assert.NotNull(requestTelemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Context.Operation.Id, this.GetActivityRootId(requestTelemetry.Id));
-        }
-
-        [TestMethod]
-        public void InitializeFromStandardHeaderWithHierarchicalIdAndCorrelationContextId()
-        {
-            // accoring to the spec: https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md
-            // service that receives non-hierarchical id, gets Id from the Correlation-Context and creates requestId from it
-            // so below example is not valid according to the spec
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.",
-                ["Correlation-Context"] = "Id=guid2"
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            // initialize telemetry
-            module.OnEndRequest(context);
-
-            Assert.Equal("|guid1.", requestTelemetry.Context.Operation.ParentId);
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("guid1", this.GetActivityRootId(requestTelemetry.Id));
-
-            Assert.Equal("guid2", requestTelemetry.Context.Properties["Id"]);
-        }
-
-        [TestMethod]
-        public void InitializeFromStandardHeaderWithNonHierarchicalIdAndCorrelationContextId()
-        {
-            // accoring to the spec: https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md
-            // service that receives non-hierarchical id, gets Id from the Correlation-Context and creates requestId from it
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "guid1",
-                ["Correlation-Context"] = "Id=guid2"
-            });
-
-            var module = this.RequestTrackingTelemetryModuleFactory(this.CreateDefaultConfig(context));
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            // initialize telemetry
-            module.OnEndRequest(context);
-            Assert.Equal("guid1", requestTelemetry.Context.Operation.ParentId);
-            Assert.Equal("guid2", requestTelemetry.Context.Operation.Id);
-            Assert.Equal("guid2", this.GetActivityRootId(requestTelemetry.Id));
-            Assert.NotEqual("guid2", requestTelemetry.Id);
-
-            Assert.Equal("guid2", requestTelemetry.Context.Properties["Id"]);
-        }
-
-        [TestMethod]
-        public void OnBeginReadsParentIdFromCustomHeader()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["headerName"] = "ParentId"
-            });
-
-            var config = this.CreateDefaultConfig(context, parentIdHeaderName: "headerName");
-            this.RequestTrackingTelemetryModuleFactory(config).OnBeginRequest(context);
-
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            Assert.Equal("ParentId", requestTelemetry.Context.Operation.ParentId);
-        }
-
-        [TestMethod]
-        public void OnBeginReadsRootIdFromCustomHeader()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["headerName"] = "RootId"
-            });
-
-            var config = this.CreateDefaultConfig(context, rootIdHeaderName: "headerName");
-            var module = this.RequestTrackingTelemetryModuleFactory(config);
-            module.OnBeginRequest(context);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            module.OnEndRequest(context);
-            Assert.Equal("RootId", requestTelemetry.Context.Operation.Id);
-
-            Assert.Equal("RootId", requestTelemetry.Context.Operation.Id);
-            Assert.NotEqual("RootId", requestTelemetry.Id);
-            Assert.Equal("RootId", this.GetActivityRootId(requestTelemetry.Id));
-        }
-
-        [TestMethod]
-        public void OnBeginTelemetryCreatedWithinRequestScopeIsRequestChild()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
-
-            var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config);
-            module.OnBeginRequest(context);
-
-            var requestTelemetry = context.GetRequestTelemetry();
-            var telemetryClient = new TelemetryClient(config);
-            var exceptionTelemetry = new ExceptionTelemetry();
-            telemetryClient.Initialize(exceptionTelemetry);
-
-            module.OnEndRequest(context);
-
-            Assert.Equal("guid1", exceptionTelemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
-            Assert.Equal("v", exceptionTelemetry.Context.Properties["k"]);
-        }
-
-        [TestMethod]
-        public void OnPreHandlerTelemetryCreatedWithinRequestScopeIsRequestChild()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
-
-            var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config);
-
-            module.OnBeginRequest(context);
-
-            // simulate losing call context by cleaning up activity
-            ActivityHelpers.StopRequestActivity();
-
-            // CallContext was lost after OnBegin, so OnPreRequestHandlerExecute will set it
-            module.OnPreRequestHandlerExecute(context);
-
-            // if OnPreRequestHandlerExecute set a CallContext, child telemetry will be properly filled
-            var telemetryClient = new TelemetryClient(config);
-
-            var trace = new TraceTelemetry();
-            telemetryClient.TrackTrace(trace);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            Assert.Equal(requestTelemetry.Context.Operation.Id, trace.Context.Operation.Id);
-#if NET40
-            Assert.Equal(requestTelemetry.Id, trace.Context.Operation.ParentId);
-#else
-            // we created Activity for request and assigned Id for the request like guid1.1.12345_
-            // then we lost it and restored (started a new child activity), so the Id is guid1.1.12345_abc_
-            // so the request is grand parent to the trace
-            Assert.Equal(Activity.Current.ParentId, requestTelemetry.Id);
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
-            Assert.Equal(Activity.Current.Id, trace.Context.Operation.ParentId);
-#endif
-            Assert.Equal("v", trace.Context.Properties["k"]);
-        }
-
-        [TestMethod]
-        public void TelemetryCreatedWithinRequestScopeIsRequestChildWhenActivityIsLost()
-        {
-            var context = HttpModuleHelper.GetFakeHttpContext(new Dictionary<string, string>
-            {
-                ["Request-Id"] = "|guid1.1",
-                ["Correlation-Context"] = "k=v"
-            });
-
-            var config = this.CreateDefaultConfig(context);
-            var module = this.RequestTrackingTelemetryModuleFactory(config);
-
-            module.OnBeginRequest(context);
-
-            // simulate losing call context by cleaning up activity
-            ActivityHelpers.StopRequestActivity();
-
-            var telemetryClient = new TelemetryClient(config);
-
-            var trace = new TraceTelemetry();
-            telemetryClient.TrackTrace(trace);
-            var requestTelemetry = context.GetRequestTelemetry();
-
-            Assert.Equal(requestTelemetry.Context.Operation.Id, trace.Context.Operation.Id);
-#if NET40
-            Assert.Equal(requestTelemetry.Id, trace.Context.Operation.ParentId);
-#else
-            // we created Activity for request and assigned Id for the request like guid1.1.12345
-            // then we created Activity for request children and assigned it Id like guid1.1.12345_1
-            // then we lost it and restored (started a new child activity), so the Id is guid1.1.123_1.abc
-            // so the request is grand parent to the trace
-            Assert.True(trace.Context.Operation.ParentId.StartsWith(requestTelemetry.Id, StringComparison.Ordinal));
-#endif
-            Assert.Equal("v", trace.Context.Properties["k"]);
         }
 
         private TelemetryConfiguration CreateDefaultConfig(HttpContext fakeContext, string rootIdHeaderName = null, string parentIdHeaderName = null, string instrumentationKey = null)
@@ -762,7 +510,7 @@
 
         private string GetCorrelationIdHeaderValue(string appId)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextSourceKey, appId);
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextCorrelationSourceKey, appId);
         }
 
         internal class FakeHttpHandler : IHttpHandler

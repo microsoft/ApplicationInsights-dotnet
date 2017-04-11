@@ -19,49 +19,35 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     /// <summary>
     /// Diagnostic listener implementation that listens for events specific to outgoing depedency requests.
     /// </summary>
-    public class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
+    internal class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
     {
-        /// <summary>
-        /// Add Application Insights Dependency Collector services to this .NET Core application.
-        /// </summary>
-        /// <returns>
-        /// An IDisposable that can be disposed to disable the DependencyCollectorDiagnosticListener.
-        /// </returns>
-        public static IDisposable Enable(TelemetryConfiguration configuration = null)
-        {
-            if (configuration == null)
-            {
-                configuration = TelemetryConfiguration.Active;
-            }
-
-            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration));
-        }
-
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryClient client;
+        private readonly bool setComponentCorrelationHttpHeaders;
+        private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
         private readonly ConcurrentDictionary<Guid, DependencyTelemetry> pendingTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
 
-        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
+        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders = true, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddf");
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
 
-            if (correlationIdLookupHelper == null)
-            {
-                correlationIdLookupHelper = new CorrelationIdLookupHelper(configuration.TelemetryChannel.EndpointAddress);
-            }
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
+            this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
+
+            this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
+
+            this.correlationIdLookupHelper = correlationIdLookupHelper ?? new CorrelationIdLookupHelper(configuration.TelemetryChannel.EndpointAddress);
         }
 
         /// <summary>
         /// This method gets called once for each existing DiagnosticListener when this
-        /// DiagnosticListener is added (<see cref="Enable(TelemetryConfiguration)"/> to the list
-        /// of DiagnosticListeners (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>).
-        /// This method will also be called for each subsequent DiagnosticListener that is added to
-        /// the list of DiagnosticListeners.
+        /// DiagnosticListener is added to the list of DiagnosticListeners
+        /// (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>). This method will
+        /// also be called for each subsequent DiagnosticListener that is added to the list of
+        /// DiagnosticListeners.
         /// <seealso cref="IObserver{T}.OnNext(T)"/>
         /// </summary>
         /// <param name="value">The DiagnosticListener that exists when this listener was added to
@@ -111,7 +97,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         {
             try
             {
-                if (request != null && request.RequestUri != null && !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                if (request != null && request.RequestUri != null &&
+                    !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
                 {
                     string httpMethod = request.Method.Method;
                     Uri requestUri = request.RequestUri;
@@ -131,22 +118,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     this.pendingTelemetry.TryAdd(loggingRequestId, telemetry);
 
                     HttpRequestHeaders requestHeaders = request.Headers;
-                    if (requestHeaders != null)
+                    if (requestHeaders != null && this.setComponentCorrelationHttpHeaders && !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
                     {
                         try
                         {
-                            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !HttpHeadersUtilities.ContainsRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextSourceKey))
+                            if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey) && !HttpHeadersUtilities.ContainsRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextCorrelationSourceKey))
                             {
                                 string sourceApplicationId;
                                 if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out sourceApplicationId))
                                 {
-                                    HttpHeadersUtilities.SetRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextSourceKey, sourceApplicationId);
+                                    HttpHeadersUtilities.SetRequestContextKeyValue(requestHeaders, RequestResponseHeaders.RequestContextCorrelationSourceKey, sourceApplicationId);
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                            AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                         }
 
                         // Add the root ID
@@ -167,7 +154,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             }
             catch (Exception e)
             {
-                CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
 
@@ -187,7 +174,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     {
                         try
                         {
-                            string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextTargetKey);
+                            string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrleationTargetKey);
                             if (!string.IsNullOrEmpty(targetApplicationId) && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                             {
                                 // We only add the cross component correlation key if the key does not represent the current component.
@@ -202,7 +189,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                         }
                         catch (Exception e)
                         {
-                            CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                            AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
                         }
 
                         int statusCode = (int)response.StatusCode;
@@ -216,7 +203,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             }
             catch (Exception e)
             {
-                CrossComponentCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
+                AppMapCorrelationEventSource.Log.UnknownError(ExceptionUtilities.GetExceptionDetailString(e));
             }
         }
     }

@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.ApplicationInsights">
-      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0-beta1-build07987\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
+      <HintPath>..\..\..\..\packages\Microsoft.ApplicationInsights.2.4.0-beta1-build08904\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -118,6 +118,7 @@
     <Compile Include="QuickPulse\QuickPulseTelemetryProcessorTests.cs" />
     <Compile Include="WebAppPerformanceCollector\AzureWebAppTest.cs" />
     <Compile Include="WebAppPerformanceCollector\CacheHelperTests.cs" />
+    <Compile Include="WebAppPerformanceCollector\NormalizedCPUPercenageGaugeTests.cs" />
     <Compile Include="WebAppPerformanceCollector\CPUPercenageGaugeTests.cs" />
     <Compile Include="WebAppPerformanceCollector\RatioCounterTests.cs" />
     <Compile Include="WebAppPerformanceCollector\RateCounterTests.cs" />

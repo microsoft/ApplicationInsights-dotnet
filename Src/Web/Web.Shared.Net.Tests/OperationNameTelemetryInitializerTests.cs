@@ -1,7 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System;
+    using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
@@ -13,7 +15,14 @@
         [TestCleanup]
         public void Cleanup()
         {
-           Common.ActivityHelpers.StopRequestActivity();
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            ActivityHelpers.CleanOperationContext();
+#endif
         }
 
         [TestMethod]

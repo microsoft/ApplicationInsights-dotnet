@@ -48,6 +48,15 @@
         }
 
         /// <summary>
+        /// Formats a counter into a readable string.
+        /// </summary>
+        /// <param name="pc">Performance counter structure.</param>
+        public static string FormatPerformanceCounter(PerformanceCounterStructure pc)
+        {
+            return FormatPerformanceCounter(pc.CategoryName, pc.CounterName, pc.InstanceName);
+        }
+
+        /// <summary>
         /// Searches for the environment variable specific to Azure web applications and confirms if the current application is a web application or not.
         /// </summary>
         /// <returns>Boolean, which is true if the current application is an Azure web application.</returns>
@@ -97,24 +106,6 @@
         }
 
         /// <summary>
-        /// Parses a performance counter canonical string into a PerformanceCounter object.
-        /// </summary>
-        /// <remarks>This method also performs placeholder expansion.</remarks>
-        public static PerformanceCounter ParsePerformanceCounter(
-            string performanceCounter,
-            IEnumerable<string> win32Instances,
-            IEnumerable<string> clrInstances)
-        {
-            bool usesInstanceNamePlaceholder;
-
-            return ParsePerformanceCounter(
-                performanceCounter,
-                win32Instances,
-                clrInstances,
-                out usesInstanceNamePlaceholder);
-        }
-
-        /// <summary>
         /// Validates the counter by parsing.
         /// </summary>
         /// <param name="perfCounterName">Performance counter name to validate.</param>
@@ -123,7 +114,7 @@
         /// <param name="usesInstanceNamePlaceholder">Boolean to check if it is using an instance name place holder.</param>
         /// <param name="error">Error message.</param>
         /// <returns>Performance counter.</returns>
-        public static PerformanceCounter CreateAndValidateCounter(
+        public static PerformanceCounterStructure CreateAndValidateCounter(
             string perfCounterName,
             IEnumerable<string> win32Instances,
             IEnumerable<string> clrInstances,
@@ -154,7 +145,7 @@
         /// Parses a performance counter canonical string into a PerformanceCounter object.
         /// </summary>
         /// <remarks>This method also performs placeholder expansion.</remarks>
-        public static PerformanceCounter ParsePerformanceCounter(
+        public static PerformanceCounterStructure ParsePerformanceCounter(
             string performanceCounter,
             IEnumerable<string> win32Instances,
             IEnumerable<string> clrInstances,
@@ -172,7 +163,7 @@
                     nameof(performanceCounter));
             }
 
-            return new PerformanceCounter()
+            return new PerformanceCounterStructure()
                        {
                            CategoryName = match.Groups["categoryName"].Value,
                            InstanceName =

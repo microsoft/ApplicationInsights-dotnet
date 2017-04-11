@@ -9,6 +9,7 @@
     /// <summary>
     /// Tests for the HttpHeadersUtilities class.
     /// </summary>
+    [TestClass]
     public class HttpHeadersUtilitiesTests
     {
         /// <summary>
@@ -154,7 +155,8 @@
             headers.Add("HEADER_NAME", "B=b1");
             headers.Add("HEADER_NAME", "C=c1");
             HttpHeadersUtilities.SetHeaderKeyValue(headers, "HEADER_NAME", "B", "b2");
-            EnumerableAssert.AreEqual(new[] { "A=a1", "B=b2", "C=c1" }, HttpHeadersUtilities.GetHeaderValues(headers, "HEADER_NAME"));
+            EnumerableAssert.AreEqual(new[] { "A=a1", "C=c1", "B=b2" }, HttpHeadersUtilities.GetHeaderValues(headers, "HEADER_NAME"));
+            Assert.IsTrue(HttpHeadersUtilities.ContainsHeaderKeyValue(headers, "HEADER_NAME", "B"));
         }
 
         /// <summary>

@@ -19,7 +19,8 @@
         {
             var counterItems = listener.ReceiveItemsOfType<TelemetryItem<MetricData>>(10, TestListenerWaitTimeInMs);
 
-            AssertCustomCounterReported(counterItems, "\\Memory\\Available Bytes");  
+            AssertCustomCounterReported(counterItems, "\\Memory\\Available Bytes");
+            AssertCustomCounterReported(counterItems, @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized");
         }
 
         public static void CustomCounterCollection(HttpListenerObservable listener)

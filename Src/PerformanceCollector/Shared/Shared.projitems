@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollectorEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterStructure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCounter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\IQuickPulsePerfLib.cs" />
@@ -38,6 +39,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\RequestTelemetryDocument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TelemetryDocumentType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TraceTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\CounterFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\NormalizedProcessCPUPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\ICounterValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\StandardPerformanceCollector\StandardPerformanceCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\Clock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCollectionTimeSlotManager.cs" />
@@ -65,6 +70,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\AzureWebEnvironmentVariables.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CacheHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CounterFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\NormalizedCPUPercentageGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\CPUPercenageGauge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICachedEnvironmentVariableAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebAppPerformanceCollector\ICounterValue.cs" />

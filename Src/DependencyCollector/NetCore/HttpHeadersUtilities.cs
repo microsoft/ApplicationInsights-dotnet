@@ -29,9 +29,14 @@
             return GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
         }
 
+        internal static bool ContainsHeaderKeyValue(HttpHeaders headers, string headerName, string keyName)
+        {
+            return !string.IsNullOrEmpty(GetHeaderKeyValue(headers, headerName, keyName));
+        }
+
         internal static bool ContainsRequestContextKeyValue(HttpHeaders headers, string keyName)
         {
-            return !string.IsNullOrEmpty(GetHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName));
+            return ContainsHeaderKeyValue(headers, RequestResponseHeaders.RequestContextHeader, keyName);
         }
 
         internal static void SetRequestContextKeyValue(HttpHeaders headers, string keyName, string keyValue)

@@ -154,6 +154,7 @@
                         if (!this.defaultCountersInitialized)
                         {
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\% Processor Time", @"\Process(??APP_WIN32_PROC??)\% Processor Time"));
+                            this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized", @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Memory\Available Bytes", @"\Memory\Available Bytes"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec", @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec"));
                             this.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec", @"\.NET CLR Exceptions(??APP_CLR_PROC??)\# of Exceps Thrown / sec"));
@@ -224,6 +225,11 @@
                 {
                     this.timer.Dispose();
                     this.timer = null;
+                }
+
+                if (this.collector != null && this.collector is IDisposable)
+                {
+                    ((IDisposable)this.collector).Dispose();
                 }
             }
         }
@@ -372,8 +378,8 @@
                                  : string.Format(
                                      CultureInfo.InvariantCulture,
                                      "{0} - {1}",
-                                     pc.CategoryName,
-                                     pc.CounterName);
+                                     pc.PerformanceCounter.CategoryName,
+                                     pc.PerformanceCounter.CounterName);
 
             var metricTelemetry = new MetricTelemetry()
             {
@@ -385,7 +391,7 @@
                 StandardDeviation = 0
             };
 
-            metricTelemetry.Properties.Add("CounterInstanceName", pc.InstanceName);
+            metricTelemetry.Properties.Add("CounterInstanceName", pc.PerformanceCounter.InstanceName);
             metricTelemetry.Properties.Add("CustomPerfCounter", "true");
 
             return metricTelemetry;

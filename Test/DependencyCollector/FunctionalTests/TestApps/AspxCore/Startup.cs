@@ -6,6 +6,7 @@ namespace AspxCore
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     public class Startup
     {
@@ -44,7 +45,7 @@ namespace AspxCore
 
             app.UseMvc();
 
-            DependencyCollectorDiagnosticListener.Enable();
+            new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
         }
     }
 }

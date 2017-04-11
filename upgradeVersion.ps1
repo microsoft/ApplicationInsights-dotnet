@@ -11,9 +11,9 @@ $oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersi
 
 Write-Host $oldVersion
 
-(Get-Content Global.props) | 
+(Get-Content Directory.Build.props) | 
 Foreach-Object {$_ -replace $oldVersion, $newVersion} | 
-Set-Content Global.props 
+Set-Content Directory.Build.props 
 
 
 Get-ChildItem -Filter packages.config -Recurse | 
