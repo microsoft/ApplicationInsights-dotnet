@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     /// <summary>
     /// Diagnostic listener implementation that listens for events specific to outgoing depedency requests.
     /// </summary>
-    public class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
+    internal class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
     {
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryClient client;
