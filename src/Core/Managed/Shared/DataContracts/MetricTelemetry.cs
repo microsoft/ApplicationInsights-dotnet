@@ -41,10 +41,11 @@
         /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
+        [Obsolete("This constructor is obsolete. Use different constructor of this class to represent aggregated metric data or use EventTelemetry type to represent individual events.")]
         public MetricTelemetry(string metricName, double metricValue) : this()
         {
             this.Name = metricName;
-            this.Sum = metricValue;
+            this.Value = metricValue;
         }
 
         /// <summary>
