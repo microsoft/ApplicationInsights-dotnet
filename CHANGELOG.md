@@ -8,6 +8,7 @@
 - Improvements to exception statistics, e.g. 2 of each type of exception will be output via TrackException
 - New ```AspNetDiagnosticTelemetryModule``` introduced for Web SDK on .NET 4.5, it consumes events from [Microsoft.AspNet.TelemetryCorrelation package](https://github.com/aspnet/AspNetCorrelationIdTracker) about incoming Http requests.
 - Dependency to Microsoft.AspNet.TelemetryCorrelation package is added for Web SDK on .NET 4.5.
+- Report new performance counter \Process(??APP_WIN32_PROC??)\% Processor Time Normalized that represents process CPU normalized by the processors count
 
 ## Version 2.3.0
 - Includes all changes since 2.2.0 stable release.

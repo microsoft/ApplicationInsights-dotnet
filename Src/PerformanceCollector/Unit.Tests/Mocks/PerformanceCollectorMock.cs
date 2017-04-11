@@ -56,9 +56,9 @@
                                 counter.Item1.UsesInstanceNamePlaceholder,
                                 counter.Item1.IsCustomCounter,
                                 counter.Item1.IsInBadState,
-                                counter.Item1.CategoryName,
-                                counter.Item1.CounterName,
-                                counter.Item1.InstanceName),
+                                counter.Item1.PerformanceCounter.CategoryName,
+                                counter.Item1.PerformanceCounter.CounterName,
+                                counter.Item1.PerformanceCounter.InstanceName),
                             value);
 
                     counter.Item2.Add(value);
@@ -103,7 +103,7 @@
                 && string.Equals(counter.Item1.OriginalString, perfCounter, StringComparison.OrdinalIgnoreCase));
         }
 
-        public PerformanceCounter CreateCounter(
+        public PerformanceCounterStructure CreateCounter(
             string perfCounterName,
             out bool usesInstanceNamePlaceholder,
             out string error)
@@ -131,7 +131,7 @@
         private void RegisterCounter(
             string originalString,
             string reportAs,
-            PerformanceCounter pc,
+            PerformanceCounterStructure pc,
             bool isCustomCounter,
             bool usesInstanceNamePlaceholder,
             out string error)

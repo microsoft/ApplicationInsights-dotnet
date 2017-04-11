@@ -182,6 +182,12 @@
             this.WriteEvent(19, lastCollectedValue, previouslyCollectedValue, counterName, this.ApplicationName);
         }
 
+        [Event(20, Level = EventLevel.Error, Message = @"Processors count has incorrect value: {0}. Normalized process CPU counter value will be reported as 0.")]
+        public void ProcessorsCountIncorrectValueError(string count, string applicationName = "dummy")
+        {
+            this.WriteEvent(20, count, this.ApplicationName);
+        }
+
         #endregion
 
         [NonEvent]
