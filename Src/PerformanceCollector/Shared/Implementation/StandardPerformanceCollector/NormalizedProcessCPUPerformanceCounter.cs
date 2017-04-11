@@ -10,6 +10,8 @@
     internal class NormalizedProcessCPUPerformanceCounter : ICounterValue, IDisposable
     {
         private PerformanceCounter performanceCounter = null;
+        private int processorsCount;
+        private bool isInitialized = false;
 
         /// <summary>
         ///  Initializes a new instance of the <see cref="NormalizedProcessCPUPerformanceCounter" /> class.
@@ -19,7 +21,16 @@
         /// <param name="instanceName">The instance name.</param>
         internal NormalizedProcessCPUPerformanceCounter(string categoryName, string counterName, string instanceName)
         {
+            this.processorsCount = Environment.ProcessorCount;
+            if (this.processorsCount < 1 || this.processorsCount > 1000)
+            {
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(this.processorsCount.ToString(CultureInfo.InvariantCulture));
+                return;
+            }
+
             this.performanceCounter = new PerformanceCounter("Process", "% Processor Time", instanceName, true);
+
+            this.isInitialized = true;
         }
 
         /// <summary>
@@ -28,24 +39,14 @@
         /// <returns>Value of the counter.</returns>
         public double Collect()
         {
-            try
+            if (!this.isInitialized)
             {
-                int processorsCount = Environment.ProcessorCount;
-
-                if (processorsCount < 1 || processorsCount > 1000)
-                {
-                    string message = string.Format(
-                        CultureInfo.CurrentCulture, 
-                        Resources.StandardProcessorsCountReadFailed, 
-                        processorsCount.ToString(CultureInfo.InvariantCulture));
-                    throw new InvalidOperationException(message);
-                }
-
-                return this.performanceCounter.NextValue() / processorsCount;
+                return 0;
             }
-            catch (InvalidOperationException)
-            {
-                throw;
+
+            try
+            {   
+                return this.performanceCounter.NextValue() / this.processorsCount;
             }
             catch (Exception e)
             {

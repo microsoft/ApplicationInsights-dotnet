@@ -11,7 +11,6 @@
         /// <summary>Specific environment variable for Azure App Services.</summary>
         private const string ProcessorsCounterEnvironmentVariable = "NUMBER_OF_PROCESSORS";
 
-        private readonly object lockObject = new object();
         private bool isInitialized = false;
         private int processorsCount = -1;
 
@@ -22,6 +21,30 @@
         /// <param name="value"> Gauges to sum.</param>
         public NormalizedCPUPercentageGauge(string name, ICounterValue value) : base(name, value)
         {
+            string countString = string.Empty;
+            try
+            {
+                countString = Environment.GetEnvironmentVariable(ProcessorsCounterEnvironmentVariable);
+            }
+            catch (Exception ex)
+            {
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(ex.ToString());
+                return;
+            }
+
+            if (!int.TryParse(countString, out this.processorsCount))
+            {
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(countString);
+                return;
+            }
+
+            if (this.processorsCount < 1 || this.processorsCount > 1000)
+            {
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(this.processorsCount.ToString(CultureInfo.InvariantCulture));
+                return;
+            }
+
+            this.isInitialized = true;
         }
 
         /// <summary>
@@ -32,14 +55,7 @@
         {
             if (!this.isInitialized)
             {
-                lock (this.lockObject)
-                {
-                    if (!this.isInitialized)
-                    {
-                        this.processorsCount = this.GetProcessorsCount();
-                        this.isInitialized = true;
-                    }
-                }
+                return 0;
             }
 
             double result = 0;
@@ -50,36 +66,6 @@
             }
 
             return result;
-        }
-
-        private int GetProcessorsCount()
-        {
-            int count = -1;
-            try
-            {
-                string countString = Environment.GetEnvironmentVariable(ProcessorsCounterEnvironmentVariable);
-                if (!int.TryParse(countString, out count) || count < 1 || count > 1000)
-                {
-                    count = -1;
-                    string message = string.Format(CultureInfo.CurrentCulture, Resources.WebAppProcessorsCountReadFailed, countString);
-                    PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(ProcessorsCounterEnvironmentVariable, message);
-
-                    throw new InvalidOperationException(message);
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                count = -1;
-                PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(ProcessorsCounterEnvironmentVariable, ex.ToString());
-
-                throw new InvalidOperationException(ex.Message, ex);
-            }
-
-            return count;
         }
     }
 }

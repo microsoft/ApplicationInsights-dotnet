@@ -5,6 +5,7 @@
 - Implemented automatic telemetry correlation: all telemetry reported within the scope of the request is correlated to RequestTelemetry reported for the request.
 - Implemented [Correlation HTTP protocol](https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md): default headers to pass Operation Root Id and Parent Id were changed. This version is backward compatible with previously supported headers. 
 - Improvements to exception statistics, e.g. 2 of each type of exception will be output via TrackException
+- Report new performance counter \Process(??APP_WIN32_PROC??)\% Processor Time Normalized that represents process CPU normalized by the processors count
 
 ## Version 2.3.0
 - Includes all changes since 2.2.0 stable release.
