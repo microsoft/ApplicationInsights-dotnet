@@ -86,8 +86,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Guid loggingRequestId = Guid.NewGuid();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://excluded.host.com/path/to/file.html");
             listener.OnRequest(request, loggingRequestId);
-            Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());
+            Assert.AreEqual(1, listener.PendingDependencyTelemetry.Count());
             Assert.AreEqual(0, sentTelemetry.Count);
+
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestContextSourceKey));
         }
 
         /// <summary>

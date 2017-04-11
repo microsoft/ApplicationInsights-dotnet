@@ -111,8 +111,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             try
             {
                 if (request != null && request.RequestUri != null &&
-                    !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()) &&
-                    !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
+                    !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
                 {
                     string httpMethod = request.Method.Method;
                     Uri requestUri = request.RequestUri;
@@ -132,7 +131,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     this.pendingTelemetry.TryAdd(loggingRequestId, telemetry);
 
                     HttpRequestHeaders requestHeaders = request.Headers;
-                    if (requestHeaders != null)
+                    if (requestHeaders != null && !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
                     {
                         try
                         {
