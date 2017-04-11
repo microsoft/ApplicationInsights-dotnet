@@ -21,21 +21,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 
         internal static IEnumerable<string> GetHeaderValues(IHeaderDictionary headers, string headerName)
         {
-            IEnumerable<string> result;
-            if (headers == null)
+            IEnumerable<string> result = Enumerable.Empty<string>();
+            if (headers != null)
             {
-                result = Enumerable.Empty<string>();
-            }
-            else
-            {
-                var headerValues = headers[headerName];
-                if (StringValues.IsNullOrEmpty(headerValues))
+                StringValues headerValues = headers[headerName];
+                if (!StringValues.IsNullOrEmpty(headerValues))
                 {
-                    result = Enumerable.Empty<string>();
-                }
-                else
-                {
-                    result = headerValues.AsEnumerable();
+                    result = headerValues.SelectMany(headerValue => headerValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                 }
             }
             return result;
