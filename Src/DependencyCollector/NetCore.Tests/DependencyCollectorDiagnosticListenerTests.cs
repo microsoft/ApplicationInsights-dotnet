@@ -62,7 +62,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 TelemetryChannel = telemetryChannel,
                 InstrumentationKey = instrumentationKey,
             },
-            mockCorrelationIdLookupHelper);
+            setComponentCorrelationHttpHeaders: true,
+            correlationDomainExclusionList: new string[] { "excluded.host.com" },
+            correlationIdLookupHelper: mockCorrelationIdLookupHelper);
         }
 
         /// <summary>
@@ -74,6 +76,21 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             listener.OnRequest(new HttpRequestMessage(), Guid.NewGuid());
             Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());
             Assert.AreEqual(0, sentTelemetry.Count);
+        }
+
+        /// <summary>
+        /// Call OnRequest() with uri that is in the excluded domain list.
+        /// </summary>
+        [TestMethod]
+        public void OnRequestWithUriInExcludedDomainList()
+        {
+            Guid loggingRequestId = Guid.NewGuid();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "http://excluded.host.com/path/to/file.html");
+            listener.OnRequest(request, loggingRequestId);
+            Assert.AreEqual(1, listener.PendingDependencyTelemetry.Count());
+            Assert.AreEqual(0, sentTelemetry.Count);
+
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestContextSourceKey));
         }
 
         /// <summary>
