@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -287,7 +287,7 @@
         {
             this.Transmitter.Initialize();
 
-            // ApplyPolicies will syncronously get list of file names from disk and calculate size
+            // ApplyPolicies will synchronously get list of file names from disk and calculate size
             // Creating task to improve application startup time
             ExceptionHandler.Start(() => { return TaskEx.Run(() => this.Transmitter.ApplyPolicies()); });
 

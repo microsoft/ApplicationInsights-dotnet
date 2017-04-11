@@ -15,6 +15,7 @@
     /// You can send information about pages viewed by your application to Application Insights by 
     /// passing an instance of the <see cref="PageViewTelemetry"/> class to the <see cref="TelemetryClient.TrackPageView(PageViewTelemetry)"/> 
     /// method.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
     public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
@@ -65,7 +66,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the name of the metric.
+        /// Gets or sets the name of the page.
         /// </summary>
         public string Name
         {
@@ -112,6 +113,7 @@
 
         /// <summary>
         /// Gets a dictionary of custom defined metrics.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, double> Metrics
         {
@@ -120,6 +122,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property names and values providing additional information about this page view.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {
@@ -128,6 +131,7 @@
 
         /// <summary>
         /// Gets or sets data sampling percentage (between 0 and 100).
+        /// Should be 100/n where n is an integer. <a href="https://go.microsoft.com/fwlink/?linkid=832969">Learn more</a>
         /// </summary>
         double? ISupportSampling.SamplingPercentage
         {

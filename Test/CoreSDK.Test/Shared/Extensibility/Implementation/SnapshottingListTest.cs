@@ -14,6 +14,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
     using Assert = Xunit.Assert;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     [TestClass]
     public class SnapshottingListTest
@@ -107,7 +110,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingList<object>();
                 lock (target.Collection)
                 {
-                    anotherThread = Task.Run(() => target.Insert(0, new object()));
+                    anotherThread = TaskEx.Run(() => target.Insert(0, new object()));
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -146,7 +149,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingList<object> { null };
                 lock (target.Collection)
                 {
-                    anotherThread = Task.Run(() => target.RemoveAt(0));
+                    anotherThread = TaskEx.Run(() => target.RemoveAt(0));
                     Assert.False(anotherThread.Wait(20));
                 }
 
@@ -196,7 +199,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var target = new TestableSnapshottingList<object> { null };
                 lock (target.Collection)
                 {
-                    anotherThread = Task.Run(() => target[0] = new object());
+                    anotherThread = TaskEx.Run(() => target[0] = new object());
                     Assert.False(anotherThread.Wait(20));
                 }
 

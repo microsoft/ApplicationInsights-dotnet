@@ -17,7 +17,7 @@
         private static readonly double StopwatchTicksToTimeSpanTicks = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 
         /// <summary>
-        /// An extension to telemetry item that starts the timer for the the respective telemetry.
+        /// An extension to telemetry item that starts the timer for the respective telemetry.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
         public static void Start(this OperationTelemetry telemetry)
@@ -26,7 +26,7 @@
         }
 
         /// <summary>
-        /// An extension to telemetry item that initializes the timer for the the respective telemetry
+        /// An extension to telemetry item that initializes the timer for the respective telemetry
         /// using a timestamp from a high-resolution <see cref="Stopwatch"/>.
         /// </summary>
         /// <param name="telemetry">Telemetry item object that calls this extension method.</param>
@@ -40,9 +40,7 @@
             // Stopwatch.GetTimestamp() is used (instead of ElapsedTicks) as it is thread-safe.
             telemetry.BeginTimeInTicks = timestamp;
 
-#if !CORE_PCL
             RichPayloadEventSource.Log.ProcessOperationStart(telemetry);
-#endif
         }
 
         /// <summary>
@@ -84,7 +82,7 @@
         /// <param name="telemetry">Telemetry to initialize Operation id for.</param>
         public static void GenerateOperationId(this OperationTelemetry telemetry)
         {
-            telemetry.Id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
+            telemetry.GenerateId();
         }
 
         /// <summary>
@@ -113,9 +111,7 @@
                 telemetry.Timestamp = DateTimeOffset.UtcNow;
             }
 
-#if !CORE_PCL
             RichPayloadEventSource.Log.ProcessOperationStop(telemetry);
-#endif
         }
     }
 }

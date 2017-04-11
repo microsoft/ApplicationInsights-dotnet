@@ -12,7 +12,7 @@
         public EventMetaData MetaData { get; set; }
 
         /// <summary>
-        /// Gets or sets event event parameters.
+        /// Gets or sets event parameters.
         /// </summary>
         public object[] Payload { get; set; }
     }

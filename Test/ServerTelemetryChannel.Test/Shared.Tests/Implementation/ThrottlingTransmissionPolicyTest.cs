@@ -15,7 +15,7 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -132,7 +132,7 @@
                 const int RetryAfterSeconds = 2;
                 string retryAfter = DateTime.Now.ToUniversalTime().AddSeconds(RetryAfterSeconds).ToString("R", CultureInfo.InvariantCulture);
                 const int WaitForTheFirstApplyAsync = 100;
-                int waitForTheSecondApplyAsync = (RetryAfterSeconds * 1000) /*to miliseconds*/ +
+                int waitForTheSecondApplyAsync = (RetryAfterSeconds * 1000) /*to milliseconds*/ +
                     500 /**magic number to wait for other code before/after 
                          * timer which calls 2nd ApplyAsync
                          **/;

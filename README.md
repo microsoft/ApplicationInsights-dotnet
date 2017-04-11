@@ -8,7 +8,7 @@ This repository has code for the core .NET SDK for Application Insights. [Applic
 
 ## Getting Started
 
-If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this core library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no depenedencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights.
+If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this core library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no dependencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights.
 
 ### Get an Instrumentation Key
 
@@ -31,7 +31,7 @@ tc.InstrumentationKey = "INSERT YOUR KEY";
 
 ### Use the TelemetryClient to send telemetry
 
-This "core" library does not provide any automatic telemetry collection or any automatic meta-data properties. You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. You can also attach additional propety data to each telemetry item sent. The `TelemetryClient` also exposes a number of `Track...()` methods that can be used to send all core telemetry types understood by the Application Insights service. Some example use cases are shown below.
+This "core" library does not provide any automatic telemetry collection or any automatic meta-data properties. You can populate common context on the `TelemetryClient.context` property which will be automatically attached to each telemetry item sent. You can also attach additional property data to each telemetry item sent. The `TelemetryClient` also exposes a number of `Track...()` methods that can be used to send all core telemetry types understood by the Application Insights service. Some example use cases are shown below.
 
 ```C#
 tc.Context.User.Id = Environment.GetUserName(); // This is probably a bad idea from a PII perspective.

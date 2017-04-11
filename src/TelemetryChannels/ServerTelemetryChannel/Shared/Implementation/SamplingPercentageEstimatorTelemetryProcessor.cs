@@ -125,7 +125,7 @@
         /// <param name="item">Telemetry item to process.</param>
         public void Process(ITelemetry item)
         {
-            // increment post-samplin telemetry item counter
+            // increment post-sampling telemetry item counter
             this.itemCount.Increment();
 
             // continue processing telemetry item with the next telemetry processor
@@ -169,7 +169,7 @@
             // we see events post sampling, so get pre-sampling eps
             double beforeSamplingEps = observedEps * this.currenSamplingRate;
 
-            // caclulate suggested sampling rate
+            // calculate suggested sampling rate
             int suggestedSamplingRate = (int)Math.Ceiling(beforeSamplingEps / this.settings.EffectiveMaxTelemetryItemsPerSecond);
 
             // adjust suggested rate so that it fits between min and max configured
@@ -227,7 +227,7 @@
 
             if (samplingPercentageChangeNeeded)
             { 
-                // apply sampling perfcentage change
+                // apply sampling percentage change
                 this.samplingPercentageLastChangeDateTime = DateTimeOffset.UtcNow;
                 this.currenSamplingRate = suggestedSamplingRate;
             }
