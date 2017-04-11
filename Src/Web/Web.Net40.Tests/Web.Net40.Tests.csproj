@@ -91,6 +91,9 @@
       <Name>Web.Net40</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="RequestTrackingTelemetryModuleTest.Net40.cs" />
+  </ItemGroup>
   <Import Project="..\Web.Shared.Net.Tests\Web.Shared.Net.Tests.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

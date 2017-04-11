@@ -136,18 +136,6 @@
                             {
                                 this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch (AggregateException ex)
-                            {
-                                ex.Flatten();
-                                if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                                }
-                                else
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex);
-                                }
-                            }
                             catch (Exception ex)
                             {
                                 this.RegisterFailure(instrumentationKey, ex);
@@ -156,21 +144,6 @@
 
                         return false;
                     }
-                }
-                catch (AggregateException ex)
-                {
-                    ex.Flatten();
-                    if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                    {
-                        this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                    }
-                    else
-                    {
-                        this.RegisterFailure(instrumentationKey, ex);
-                    }
-
-                    correlationId = string.Empty;
-                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -236,7 +209,7 @@
         /// <returns>App id.</returns>
         private Task<string> FetchAppIdFromService(string instrumentationKey)
         {
-            var task = new Task<string>(() =>
+            return Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -257,7 +230,7 @@
                 }
                 catch (Exception ex)
                 {
-                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+                    AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
                     return null;
                 }
                 finally
@@ -265,8 +238,6 @@
                     SdkInternalOperationsMonitor.Exit();
                 }
             });
-
-            return task;
         }
 #endif
         /// <summary>
@@ -287,6 +258,18 @@
         private void RegisterFailure(string instrumentationKey, Exception ex)
         {
 #if !NETCORE
+            var ae = ex as AggregateException;
+
+            if (ae != null)
+            {
+                ae = ae.Flatten();
+                if (ae.InnerException != null)
+                {
+                    this.RegisterFailure(instrumentationKey, ae.InnerException);
+                    return;
+                }
+            }
+
             var webException = ex as WebException;
             if (webException != null)
             {
@@ -302,7 +285,7 @@
             }
 #endif
 
-            CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
+            AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
         }
 
         private string GetExceptionDetailString(Exception ex)

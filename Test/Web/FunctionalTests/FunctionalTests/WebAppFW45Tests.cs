@@ -86,6 +86,8 @@
             };
             
             requestMessage.Headers.Add("x-forwarded-for", "1.2.3.4:54321");
+            requestMessage.Headers.Add("Request-Id", "|guid.");
+            requestMessage.Headers.Add("Correlation-Context", "k1=v1,k2=v2");
 
             var responseTask = client.SendAsync(requestMessage);
             responseTask.Wait(TimeoutInMs);
@@ -99,6 +101,47 @@
           
             this.TestWebApplicationHelper(expectedRequestName, expectedRequestUrl , "200", true, request, testStart, testFinish);
             Assert.AreEqual("1.2.3.4", request.tags[new ContextTagKeys().LocationIp]);
+
+            // Check that request has operation Id, parentId and Id are set from headers
+            Assert.AreEqual("guid", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
+            Assert.AreEqual("|guid.", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
+            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid."), "Request Id is not properly set");
+        }
+
+
+        [TestMethod]
+        [Owner("abaranch")]
+        [DeploymentItem(TestWebApplicaionSourcePath, TestWebApplicaionDestPath)]
+        public void Mvc200RequestFW45BasicRequestValidationAndLegacyIdHeaders()
+        {
+            const string requestPath = "api/products";
+            string expectedRequestUrl = this.Config.ApplicationUri + "/" + requestPath;
+
+            DateTimeOffset testStart = DateTimeOffset.UtcNow;
+
+            //Call an applicaiton page
+            var client = new HttpClient();
+            var requestMessage = new HttpRequestMessage
+            {
+                RequestUri = new Uri(expectedRequestUrl),
+                Method = HttpMethod.Get,
+            };
+
+            requestMessage.Headers.Add("x-ms-request-id", "guid1");
+            requestMessage.Headers.Add("x-ms-request-root-id", "guid2");
+
+            var responseTask = client.SendAsync(requestMessage);
+            responseTask.Wait(TimeoutInMs);
+            var responseTextTask = responseTask.Result.Content.ReadAsStringAsync();
+            responseTextTask.Wait(TimeoutInMs);
+            Assert.IsTrue(responseTextTask.Result.StartsWith("[{"));
+
+            var request = Listener.ReceiveItemsOfType<TelemetryItem<RequestData>>(1, TimeoutInMs)[0];
+
+            // Check that request has operation Id, parentId and Id are set from headers
+            Assert.AreEqual("guid2", request.tags[new ContextTagKeys().OperationId], "Request Operation Id is not parsed from header");
+            Assert.AreEqual("guid1", request.tags[new ContextTagKeys().OperationParentId], "Request Parent Id is not parsed from header");
+            Assert.IsTrue(request.data.baseData.id.StartsWith("|guid2."), "Request Id is not properly set");
         }
 
         [TestMethod]

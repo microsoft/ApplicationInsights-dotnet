@@ -49,6 +49,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCollector.Net45",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCollector.Net45.Tests", "DependencyCollector\Net45.Tests\DependencyCollector.Net45.Tests.csproj", "{257FCE5A-0779-45A5-B541-0CE43D79D009}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore", "DependencyCollector\NetCore\DependencyCollector.NetCore.csproj", "{28F3DDD7-7377-4EB6-B0E6-3D25A2D343D9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore.Tests", "DependencyCollector\NetCore.Tests\DependencyCollector.NetCore.Tests.csproj", "{6566C842-3BC8-4622-83BF-090063D775C4}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCollector.NuGet", "DependencyCollector\NuGet\DependencyCollector.NuGet.csproj", "{AD6E4937-CEEE-4F10-9460-A1E4C7449D51}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AA823E8E-2EB1-4E82-8D62-A6528E204A0E} = {AA823E8E-2EB1-4E82-8D62-A6528E204A0E}
@@ -121,10 +125,6 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{CCAB7A34-8DC5-4A6F-B637-46CEBA93C687}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Filtering.Shared", "PerformanceCollector\Filtering\Filtering.Shared.shproj", "{4E5E951A-7E77-45B3-8041-026CBAD3693B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore", "DependencyCollector\NetCore\DependencyCollector.NetCore.csproj", "{28F3DDD7-7377-4EB6-B0E6-3D25A2D343D9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore.Tests", "DependencyCollector\NetCore.Tests\DependencyCollector.NetCore.Tests.csproj", "{6566C842-3BC8-4622-83BF-090063D775C4}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
