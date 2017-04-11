@@ -45,8 +45,7 @@ namespace AspxCore
 
             app.UseMvc();
 
-            //new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
-            DependencyCollectorDiagnosticListener.Enable(TelemetryConfiguration.Active);
+            new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
         }
     }
 }

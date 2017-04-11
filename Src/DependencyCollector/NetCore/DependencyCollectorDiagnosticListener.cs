@@ -28,22 +28,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
         private readonly ConcurrentDictionary<Guid, DependencyTelemetry> pendingTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
 
-        /// <summary>
-        /// Add Application Insights Dependency Collector services to this .NET Core application.
-        /// </summary>
-        /// <returns>
-        /// An IDisposable that can be disposed to disable the DependencyCollectorDiagnosticListener.
-        /// </returns>
-        public static IDisposable Enable(TelemetryConfiguration configuration = null, IEnumerable<string> excludedDomains = null)
-        {
-            if (configuration == null)
-            {
-                configuration = TelemetryConfiguration.Active;
-            }
-
-            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, true, excludedDomains));
-        }
-
         internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders = true, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
             this.client = new TelemetryClient(configuration);
