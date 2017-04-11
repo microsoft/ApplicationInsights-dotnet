@@ -389,7 +389,7 @@
                     exceptionTelemetry.ProblemId = problemId;
                 }
 
-                // this property allows to differenciate examples from regular exceptions tracked using TrackException
+                // this property allows to differentiate examples from regular exceptions tracked using TrackException
                 exceptionTelemetry.Properties.Add("_MS.ProcessedByMetricExtractors", "(Name: Exceptions, Ver: 1.0)");
 
                 this.telemetryClient.TrackException(exceptionTelemetry);
