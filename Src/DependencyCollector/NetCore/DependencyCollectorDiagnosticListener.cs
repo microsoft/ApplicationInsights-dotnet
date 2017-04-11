@@ -27,38 +27,37 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         /// <returns>
         /// An IDisposable that can be disposed to disable the DependencyCollectorDiagnosticListener.
         /// </returns>
-        public static IDisposable Enable(TelemetryConfiguration configuration = null)
+        public static IDisposable Enable(TelemetryConfiguration configuration = null, IEnumerable<string> excludedDomains = null)
         {
             if (configuration == null)
             {
                 configuration = TelemetryConfiguration.Active;
             }
 
-            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration));
+            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, excludedDomains));
         }
 
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryClient client;
+        private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
         private readonly ConcurrentDictionary<Guid, DependencyTelemetry> pendingTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
 
-        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
+        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddf");
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
 
-            if (correlationIdLookupHelper == null)
-            {
-                correlationIdLookupHelper = new CorrelationIdLookupHelper(configuration.TelemetryChannel.EndpointAddress);
-            }
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
+            this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
+
+            this.correlationIdLookupHelper = correlationIdLookupHelper ?? new CorrelationIdLookupHelper(configuration.TelemetryChannel.EndpointAddress);
         }
 
         /// <summary>
         /// This method gets called once for each existing DiagnosticListener when this
-        /// DiagnosticListener is added (<see cref="Enable(TelemetryConfiguration)"/> to the list
+        /// DiagnosticListener is added (<see cref="Enable(TelemetryConfiguration,IEnumerable{String})"/> to the list
         /// of DiagnosticListeners (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>).
         /// This method will also be called for each subsequent DiagnosticListener that is added to
         /// the list of DiagnosticListeners.
@@ -111,7 +110,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         {
             try
             {
-                if (request != null && request.RequestUri != null && !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                if (request != null && request.RequestUri != null &&
+                    !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()) &&
+                    !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
                 {
                     string httpMethod = request.Method.Method;
                     Uri requestUri = request.RequestUri;
