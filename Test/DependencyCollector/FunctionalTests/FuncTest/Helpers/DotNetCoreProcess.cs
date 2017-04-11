@@ -114,11 +114,19 @@ namespace FuncTest.Helpers
         }
 
         /// <summary>
-        /// Block until this started process has exited.
+        /// Wait up to 10 seconds for this process to exit.
         /// </summary>
         public void WaitForExit()
         {
-            process.WaitForExit();
+            WaitForExit(TimeSpan.FromSeconds(10));
+        }
+
+        /// <summary>
+        /// Block for the provided amount of time or until this started process has exited.
+        /// </summary>
+        public void WaitForExit(TimeSpan timeout)
+        {
+            process.WaitForExit((int)timeout.TotalMilliseconds);
         }
 
         /// <summary>
@@ -127,6 +135,10 @@ namespace FuncTest.Helpers
         public void Kill()
         {
             process.Kill();
+            
+            // Kill is an async operation internally.
+            //(see https://msdn.microsoft.com/en-us/library/system.diagnostics.process.kill(v=vs.110).aspx#Anchor_2)
+            WaitForExit();
         }
     }
 }
