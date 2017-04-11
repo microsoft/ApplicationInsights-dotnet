@@ -67,6 +67,7 @@
             module.CollectionPeriod = TimeSpan.FromMilliseconds(10);
 
             module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Memory\Available Bytes", @"\Memory\Available Bytes"));
+            module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized", @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized"));
             module.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"Will not parse;\Does\NotExist", @"Will not parse;\Does\NotExist"));
 
             module.Counters.Add(new PerformanceCounterCollectionRequest(@"Will not parse", "Custom counter - will not parse"));
