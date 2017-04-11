@@ -90,7 +90,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(1, listener.PendingDependencyTelemetry.Count());
             Assert.AreEqual(0, sentTelemetry.Count);
 
-            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestContextSourceKey));
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>

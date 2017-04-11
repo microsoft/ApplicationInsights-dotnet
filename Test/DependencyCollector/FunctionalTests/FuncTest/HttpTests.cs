@@ -414,6 +414,12 @@
             }
         }
 
+        private static void DotNetCoreTestSetup()
+        {
+            EnsureDotNetCoreInstalled();
+            DeploymentAndValidationTools.ExpectedSDKPrefix = "rddd";
+        }
+
         private const string AspxCoreTestAppFolder = "..\\TestApps\\AspxCore\\";
 
         [TestMethod]
@@ -421,7 +427,7 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpAspxCore()
         {
-            EnsureDotNetCoreInstalled();
+            DotNetCoreTestSetup();
 
             // Execute and verify calls which succeeds            
             this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
@@ -432,7 +438,7 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpPostCallAspxCore()
         {
-            EnsureDotNetCoreInstalled();
+            DotNetCoreTestSetup();
 
             // Execute and verify calls which succeeds            
             this.ExecuteSyncHttpPostTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
@@ -444,7 +450,7 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpFailedAspxCore()
         {
-            EnsureDotNetCoreInstalled();
+            DotNetCoreTestSetup();
 
             // Execute and verify calls which fails.            
             this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, false, 1, AccessTimeMaxHttpInitial, "200");

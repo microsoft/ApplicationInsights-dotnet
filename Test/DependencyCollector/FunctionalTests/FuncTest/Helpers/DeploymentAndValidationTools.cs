@@ -56,7 +56,7 @@ namespace FuncTest.Helpers
 
         private static bool isInitialized;
 
-        public static string ExpectedSDKPrefix { get; private set; }
+        public static string ExpectedSDKPrefix { get; internal set; }
 
         public static HttpListenerObservable SdkEventListener { get; private set; }
 

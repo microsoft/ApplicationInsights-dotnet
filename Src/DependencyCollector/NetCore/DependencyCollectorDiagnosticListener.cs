@@ -31,7 +31,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders = true, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
             this.client = new TelemetryClient(configuration);
-            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddf");
+            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddd");
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
 
