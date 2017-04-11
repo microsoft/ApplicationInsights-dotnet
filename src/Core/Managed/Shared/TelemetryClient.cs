@@ -13,7 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    
+
     /// <summary>
     /// Send events, metrics and other telemetry to the Application Insights service.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722">Learn more</a>
@@ -76,7 +76,7 @@
         /// </summary>
         internal TelemetryConfiguration TelemetryConfiguration
         {
-            get { return this.configuration; }            
+            get { return this.configuration; }
         }
 
         /// <summary>
@@ -217,7 +217,7 @@
         /// <param name="name">Metric name.</param>
         /// <param name="value">Metric value.</param>
         /// <param name="properties">Named string values you can use to classify and filter metrics.</param>
-        [Obsolete("This method is obsolete. Use TrackMetric(metricTelemetry) method to send pre-aggregated metric data or MetricManager class to create metrics.")]     
+        [Obsolete("This method is obsolete. Use TrackMetric(metricTelemetry) method to send pre-aggregated metric data or MetricManager class to create metrics.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
@@ -411,7 +411,7 @@
             if (this.IsEnabled())
             {
                 this.Initialize(telemetry);
-                                
+
                 if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
                     TelemetryDebugWriter.WriteTelemetry(telemetry);
@@ -421,7 +421,7 @@
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
-                // logs rich payload ETW event for any partners to process it                
+                // logs rich payload ETW event for any partners to process it
                 RichPayloadEventSource.Log.Process(telemetry);
             }
         }
@@ -557,9 +557,9 @@
 
             this.Track(request);
         }
-        
+
         /// <summary>
-        /// Flushes the in-memory buffer. 
+        /// Flushes the in-memory buffer.
         /// </summary>
         /// <remarks>
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#flushing-data">Learn more</a>
