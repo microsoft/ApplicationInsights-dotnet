@@ -62,8 +62,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 TelemetryChannel = telemetryChannel,
                 InstrumentationKey = instrumentationKey,
             },
-            new string[] { "excluded.host.com" },
-            mockCorrelationIdLookupHelper);
+            setComponentCorrelationHttpHeaders: true,
+            correlationDomainExclusionList: new string[] { "excluded.host.com" },
+            correlationIdLookupHelper: mockCorrelationIdLookupHelper);
         }
 
         /// <summary>

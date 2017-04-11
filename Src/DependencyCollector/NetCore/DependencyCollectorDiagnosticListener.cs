@@ -21,6 +21,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     /// </summary>
     public class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
     {
+        private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
+        private readonly TelemetryClient client;
+        private readonly bool setComponentCorrelationHttpHeaders;
+        private readonly IEnumerable<string> correlationDomainExclusionList;
+        private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
+        private readonly ConcurrentDictionary<Guid, DependencyTelemetry> pendingTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
+
         /// <summary>
         /// Add Application Insights Dependency Collector services to this .NET Core application.
         /// </summary>
@@ -34,21 +41,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 configuration = TelemetryConfiguration.Active;
             }
 
-            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, excludedDomains));
+            return DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, true, excludedDomains));
         }
 
-        private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
-        private readonly TelemetryClient client;
-        private readonly IEnumerable<string> correlationDomainExclusionList;
-        private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
-        private readonly ConcurrentDictionary<Guid, DependencyTelemetry> pendingTelemetry = new ConcurrentDictionary<Guid, DependencyTelemetry>();
-
-        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
+        internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders = true, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
             this.client = new TelemetryClient(configuration);
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddf");
 
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
+
+            this.setComponentCorrelationHttpHeaders = setComponentCorrelationHttpHeaders;
 
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
 
@@ -57,10 +60,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
         /// <summary>
         /// This method gets called once for each existing DiagnosticListener when this
-        /// DiagnosticListener is added (<see cref="Enable(TelemetryConfiguration,IEnumerable{String})"/> to the list
-        /// of DiagnosticListeners (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>).
-        /// This method will also be called for each subsequent DiagnosticListener that is added to
-        /// the list of DiagnosticListeners.
+        /// DiagnosticListener is added to the list of DiagnosticListeners
+        /// (<see cref="System.Diagnostics.DiagnosticListener.AllListeners"/>). This method will
+        /// also be called for each subsequent DiagnosticListener that is added to the list of
+        /// DiagnosticListeners.
         /// <seealso cref="IObserver{T}.OnNext(T)"/>
         /// </summary>
         /// <param name="value">The DiagnosticListener that exists when this listener was added to
@@ -131,7 +134,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                     this.pendingTelemetry.TryAdd(loggingRequestId, telemetry);
 
                     HttpRequestHeaders requestHeaders = request.Headers;
-                    if (requestHeaders != null && !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
+                    if (requestHeaders != null && this.setComponentCorrelationHttpHeaders && !this.correlationDomainExclusionList.Contains(request.RequestUri.Host))
                     {
                         try
                         {
