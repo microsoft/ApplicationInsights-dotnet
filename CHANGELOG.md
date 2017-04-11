@@ -9,6 +9,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - OperationCorrelationTelemetryInitializer initializes telemetry from the Activity.Current. Please refer to https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/ActivityUserGuide.md for more details about Activity and how to use it
 - `Request.Success` field will not be populated based on `ResponseCode`. It needs to be set explicitly.
 - New "ProblemId" property on ExceptionTelemetry. It can be used to set a custom ProblemId value.
+- Metric Aggregation functionality (originally added in 2.3.0-beta1 but removed in 2.3.0) is re-introduced.
 
 ## Version 2.3.0
 - Includes all changes since 2.2.0 stable release.
