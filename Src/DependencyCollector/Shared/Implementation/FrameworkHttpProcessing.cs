@@ -125,6 +125,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.TelemetryTable.Remove(id);
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
 
+                // If this telemetry was processed via the DiagnosticSource path, we should record that fact in the
+                // SdkVersion field
+                if (this.HasTouchedByDiagnosticSource(telemetry))
+                {
+                    telemetry.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.FrameworkAndDiagnostic + ":");
+                }
+
                 if (statusCode.HasValue)
                 {
                     // We calculate success on the base of http code and do not use the 'success' method argument
@@ -157,11 +164,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             // 2. This is the first time via OnRequestSend, but it's been processed by OnBeginHttpCallback already
             // 3. This is not the first time it's processed by OnRequestSend.
             // We need to determine which case. If the telemetry object is not found, then it's case 1. If the
-            // telemetry object exists, but telemetry.Name doesn't have an HTTP verb (starts with a '/'), then it's
-            // case 2. Otherwise, it's case 3. In both case 1 and 2, we need OnBegin to add all properties.
+            // telemetry object exists, but it's never processed via DiagnosticSource, then it's case 2.
+            // Otherwise, it's case 3. In both case 1 and 2, we need OnBegin to add all properties.
             Tuple<DependencyTelemetry, bool> tuple = this.GetTupleForWebDependencies(request);
-            string name = tuple?.Item1?.Name;
-            if (!string.IsNullOrEmpty(name) && !name.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            DependencyTelemetry telemetry = tuple?.Item1;
+
+            if (this.HasTouchedByDiagnosticSource(telemetry))
             {
                 // This is case 3, so make sure we skip update if it already exists.
                 this.OnBegin(request, true /*skipIfNotNew*/);
@@ -211,6 +219,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected override void RemoveTupleForWebDependencies(WebRequest webRequest)
         {
             this.TelemetryTable.Remove(ClientServerDependencyTracker.GetIdForRequestObject(webRequest));
+        }
+
+        /// <summary>
+        /// Detects if the telemetry object has been processed via the DiagnosticSource path.
+        /// </summary>
+        /// <param name="request">The WebRequest object.</param>
+        private bool HasTouchedByDiagnosticSource(DependencyTelemetry telemetry)
+        {
+            // If it was ever processed via the DiagnosticSource path, then telemetry.Name
+            // must have the HTTP method name at the front, so first character is not a '/'.
+            string name = telemetry?.Name;
+            if (!string.IsNullOrEmpty(name) && !name.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
