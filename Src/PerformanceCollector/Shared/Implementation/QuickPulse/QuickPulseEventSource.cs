@@ -117,7 +117,7 @@
             this.WriteEvent(21, cooledDown, this.ApplicationName);
         }
 
-        [Event(15, Message = "Sample submitted. Response: '{0}'", Level = EventLevel.Verbose)]
+        [Event(15, Message = "Sample submitted. Outgoing etag: '{0}'. Incoming etag: '{1}'. Response: '{2}'", Level = EventLevel.Verbose)]
         public void SampleSubmittedEvent(string outgoingEtag, string incomingEtag, string response, string applicationName = "dummy")
         {
             this.WriteEvent(15, outgoingEtag ?? string.Empty, incomingEtag ?? string.Empty, response ?? string.Empty, this.ApplicationName);
