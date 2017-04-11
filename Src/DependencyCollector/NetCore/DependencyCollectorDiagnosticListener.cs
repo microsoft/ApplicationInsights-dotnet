@@ -24,6 +24,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     {
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryClient client;
+        private readonly TelemetryConfiguration configuration;
         private readonly bool setComponentCorrelationHttpHeaders;
         private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
@@ -35,6 +36,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
 
             this.client = new TelemetryClient(configuration);
+            this.configuration = configuration;
 
             this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddd");
 
@@ -103,8 +105,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         }
 
         /// <summary>
-        /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues)
-        /// There will be anoth Stop event sent with null response.
+        /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues) on netcoreapp2.0 only
+        /// Stop event will be sent anyway with null response.
         /// </summary>
         [DiagnosticName("System.Net.Http.Exception")]
         public void OnException(Exception exception, HttpRequestMessage request)
@@ -121,7 +123,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             if (request != null &&
                 !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
             {
-                this.InjectRequestHeaders(request, this.client.Context.InstrumentationKey);
+                this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
             }
         }
 
