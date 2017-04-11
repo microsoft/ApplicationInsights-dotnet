@@ -13,6 +13,7 @@
             "Microsoft-ApplicationInsights-Extensibility-Web", 
             "Microsoft-ApplicationInsights-Extensibility-DependencyCollector", 
             "Microsoft-ApplicationInsights-Core",
+            "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation",
         };
 
         private const string SessionName = "RequestTelemetryFunctionalTest";
