@@ -304,18 +304,18 @@
                     try
                     {
                         if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
-                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey) == null)
+                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey) == null)
                         {
                             string appId;
                             if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
                             {
-                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey, appId);
+                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey, appId);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
+                        AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                     }
 
                     // Add the root ID
@@ -455,11 +455,11 @@
 
                                 try
                                 {
-                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey);
+                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrleationTargetKey);
                                 }
                                 catch (Exception ex)
                                 {
-                                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                                    AppMapCorrelationEventSource.Log.GetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                                 }
 
                                 string currentComponentAppId;
@@ -471,6 +471,22 @@
                                         telemetry.Type = RemoteDependencyConstants.AI;
                                         telemetry.Target += " | " + targetAppId;
                                     }
+                                }
+
+                                string targetRoleName = null;
+                                try
+                                {
+                                    targetRoleName = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetRoleNameKey);
+                                }
+                                catch (Exception ex)
+                                {
+                                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
+                                }
+
+                                if (!string.IsNullOrEmpty(targetRoleName))
+                                {
+                                    telemetry.Type = RemoteDependencyConstants.AI;
+                                    telemetry.Target += " | roleName:" + targetRoleName;
                                 }
                             }
                         }
