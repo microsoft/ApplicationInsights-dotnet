@@ -66,9 +66,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             listener = new DependencyCollectorDiagnosticListener(configuration,
-            setComponentCorrelationHttpHeaders: true,
-            correlationDomainExclusionList: new string[] { "excluded.host.com" },
-            correlationIdLookupHelper: mockCorrelationIdLookupHelper);
+                setComponentCorrelationHttpHeaders: true,
+                correlationDomainExclusionList: new string[] { "excluded.host.com" },
+                correlationIdLookupHelper: mockCorrelationIdLookupHelper);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(true, telemetry.Success);
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Headers.Add(RequestResponseHeaders.RequestContextCorrleationTargetKey, mockAppId);
+            response.Headers.Add(RequestResponseHeaders.RequestContextCorrelationTargetKey, mockAppId);
 
             listener.OnResponse(response, loggingRequestId);
             Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());
@@ -266,7 +266,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(true, telemetry.Success);
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.NotFound);
-            response.Headers.Add(RequestResponseHeaders.RequestContextCorrleationTargetKey, mockAppId);
+            response.Headers.Add(RequestResponseHeaders.RequestContextCorrelationTargetKey, mockAppId);
 
             listener.OnResponse(response, loggingRequestId);
             Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());
@@ -297,7 +297,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
             string targetApplicationId = mockAppId2;
-            HttpHeadersUtilities.SetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrleationTargetKey, targetApplicationId);
+            HttpHeadersUtilities.SetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrelationTargetKey, targetApplicationId);
 
             listener.OnResponse(response, loggingRequestId);
             Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());
@@ -328,7 +328,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.NotFound);
             string targetApplicationId = mockAppId2;
-            HttpHeadersUtilities.SetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrleationTargetKey, targetApplicationId);
+            HttpHeadersUtilities.SetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrelationTargetKey, targetApplicationId);
 
             listener.OnResponse(response, loggingRequestId);
             Assert.AreEqual(0, listener.PendingDependencyTelemetry.Count());

@@ -319,7 +319,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         {
             try
             {
-                string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrleationTargetKey);
+                string targetApplicationId = HttpHeadersUtilities.GetRequestContextKeyValue(response.Headers, RequestResponseHeaders.RequestContextCorrelationTargetKey);
                 if (!string.IsNullOrEmpty(targetApplicationId) && !string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
                 {
                     // We only add the cross component correlation key if the key does not represent the current component.
