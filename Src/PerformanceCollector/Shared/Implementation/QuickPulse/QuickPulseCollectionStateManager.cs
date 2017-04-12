@@ -9,6 +9,7 @@
     using Helpers;
 
     using Microsoft.ApplicationInsights.Extensibility.Filtering;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     internal class QuickPulseCollectionStateManager
     {
@@ -169,7 +170,7 @@
                     out configurationInfo,
                     this.collectionConfigurationErrors.ToArray());
 
-                QuickPulseEventSource.Log.SampleSubmittedEvent(keepCollecting.ToString());
+                QuickPulseEventSource.Log.SampleSubmittedEvent(this.currentConfigurationETag, configurationInfo?.ETag, keepCollecting.ToString());
 
                 switch (keepCollecting)
                 {
@@ -202,7 +203,7 @@
                     authApiKey,
                     out configurationInfo);
 
-                QuickPulseEventSource.Log.PingSentEvent(startCollection.ToString());
+                QuickPulseEventSource.Log.PingSentEvent(this.currentConfigurationETag, configurationInfo?.ETag, startCollection.ToString());
 
                 switch (startCollection)
                 {
@@ -233,6 +234,8 @@
             // we only get here if Etag in the header is different from the current one, but we still want to check if Etag in the body is also different
             if (configurationInfo != null && !string.Equals(configurationInfo.ETag, this.currentConfigurationETag, StringComparison.Ordinal))
             {
+                QuickPulseEventSource.Log.CollectionConfigurationUpdating(this.currentConfigurationETag, configurationInfo.ETag, string.Empty);
+
                 this.collectionConfigurationErrors.Clear();
 
                 CollectionConfigurationError[] errors = null;
@@ -242,6 +245,8 @@
                 }
                 catch (Exception e)
                 {
+                    QuickPulseEventSource.Log.CollectionConfigurationUpdateFailed(this.currentConfigurationETag, configurationInfo.ETag, e.ToInvariantString(), string.Empty);
+
                     this.collectionConfigurationErrors.Add(
                         CollectionConfigurationError.CreateError(
                             CollectionConfigurationErrorType.CollectionConfigurationFailureToCreateUnexpected,

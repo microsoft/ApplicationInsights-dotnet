@@ -20,6 +20,10 @@
             QuickPulseEventSource.Log.ProcessorRegistered("count");
             QuickPulseEventSource.Log.CounterReadingFailedEvent("Test exception", "counter");
             QuickPulseEventSource.Log.ProcessesReadingFailedEvent("Test exception");
+            QuickPulseEventSource.Log.PingSentEvent("outgoingEtag", "incomingEtag", "true");
+            QuickPulseEventSource.Log.SampleSubmittedEvent("outgoingEtag", "incomingEtag", "true");
+            QuickPulseEventSource.Log.CollectionConfigurationUpdating("oldEtag", "newEtag", "configuration");
+            QuickPulseEventSource.Log.CollectionConfigurationUpdateFailed("oldEtag", "newEtag", "configuration", "exception");
             QuickPulseEventSource.Log.ServiceCommunicationFailedEvent("Test exception");
             QuickPulseEventSource.Log.UnknownErrorEvent("Test exception");
             QuickPulseEventSource.Log.CollectionConfigurationSampleCooldownEvent(true);
