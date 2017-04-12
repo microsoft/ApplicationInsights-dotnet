@@ -200,7 +200,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         Request = request,
                         Response = response,
-                        TimeStamp = timestamp
+                        Timestamp = timestamp
                     });
             }
         }

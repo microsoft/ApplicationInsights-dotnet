@@ -9,8 +9,6 @@ namespace FuncTest.Helpers
     internal class DotNetCoreTestWebApplication : TestWebApplication
     {
         private DotNetCoreProcess process;
-        private StreamWriter stdoutFile;
-        private StreamWriter stderrFile;
 
         /// <summary>Gets the app folder.</summary>
         internal override string AppFolder
@@ -31,19 +29,14 @@ namespace FuncTest.Helpers
                 string output = "";
                 string error = "";
 
-                stdoutFile = new StreamWriter("StandardOutput.txt");
-                stderrFile = new StreamWriter("StandardError.txt");
-
                 process = new DotNetCoreProcess(arguments, workingDirectory: this.AppFolder)
                     .RedirectStandardOutputTo((string outputMessage) =>
                     {
                         output += outputMessage;
-                        stdoutFile.WriteLine(outputMessage);
                     })
                     .RedirectStandardErrorTo((string errorMessage) =>
                     {
                         error += errorMessage;
-                        stderrFile.WriteLine(errorMessage);
                     })
                     .Start();
 
@@ -74,18 +67,6 @@ namespace FuncTest.Helpers
             {
                 process.Kill();
                 process = null;
-            }
-
-            if (stdoutFile != null)
-            {
-                stdoutFile.Close();
-                stdoutFile = null;
-            }
-
-            if (stderrFile != null)
-            {
-                stderrFile.Close();
-                stderrFile = null;
             }
         }
     }

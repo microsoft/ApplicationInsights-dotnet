@@ -179,6 +179,7 @@
                     {
                         this.httpDiagnosticSourceListener.Dispose();
                     }
+
                     if (this.httpEventListener != null)
                     {
                         this.httpEventListener.Dispose();
