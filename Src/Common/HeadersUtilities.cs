@@ -7,7 +7,7 @@
     /// <summary>
     /// Generic functions that can be used to get and set Http headers.
     /// </summary>
-    internal static class HeadersUtilities
+    public static class HeadersUtilities
     {
         /// <summary>
         /// Get the key value from the provided HttpHeader value that is set up as a comma-separated list of key value pairs. Each key value pair is formatted like (key)=(value).
@@ -32,6 +32,11 @@
             return null;
         }
 
+        /// <summary>
+        /// Transform a header value array into a dictionary.
+        /// </summary>
+        /// <param name="headerValues">A list of header values.</param>
+        /// <returns>Returns the dictionary formed by key-value pairs form an array.</returns>
         public static IDictionary<string, string> GetHeaderDictionary(IEnumerable<string> headerValues)
         {
             IDictionary<string, string> result = new Dictionary<string, string>();
@@ -77,39 +82,49 @@
             return headerValues == null || !headerValues.Any()
                 ? newHeaderKeyValue
                 : headerValues
-                    .Where((string headerValue) =>
-                    {
-                        int equalsSignIndex = headerValue.IndexOf('=');
-                        return equalsSignIndex == -1 || TrimSubstring(headerValue, 0, equalsSignIndex) != keyName;
-                    })
+                    .Where(headerValue => !HeaderMatchesKey(headerValue, keyName))
                     .Concat(newHeaderKeyValue);
         }
 
-        private static string TrimSubstring(string value, int startIndex, int endIndex)
+        /// <summary>
+        /// Check if the header contains the key, case-insensitive, ignore leading and trailing whitespaces.
+        /// </summary>
+        /// <param name="headerValue">A header value that might contains key value pair.</param>
+        /// <param name="key">The key to match.</param>
+        /// <returns>Return true when the key matches and return false with it doesn't.</returns>
+        private static bool HeaderMatchesKey(string headerValue, string key)
         {
-            int firstNonWhitespaceIndex = -1;
-            int last = -1;
-            for (int firstSearchIndex = startIndex; firstSearchIndex < endIndex; ++firstSearchIndex)
+            int equalsSignIndex = headerValue.IndexOf('=');
+            if (equalsSignIndex < 0)
             {
-                if (!char.IsWhiteSpace(value[firstSearchIndex]))
+                return false;
+            }
+
+            // Skip leading whitespace
+            int start;
+            for (start = 0; start < equalsSignIndex; start++)
+            {
+                if (!char.IsWhiteSpace(headerValue[start]))
                 {
-                    firstNonWhitespaceIndex = firstSearchIndex;
-
-                    // Found the first non-whitespace character index, now look for the last.
-                    for (int lastSearchIndex = endIndex - 1; lastSearchIndex >= startIndex; --lastSearchIndex)
-                    {
-                        if (!char.IsWhiteSpace(value[lastSearchIndex]))
-                        {
-                            last = lastSearchIndex;
-                            break;
-                        }
-                    }
-
                     break;
                 }
             }
 
-            return firstNonWhitespaceIndex == -1 ? null : value.Substring(firstNonWhitespaceIndex, last - firstNonWhitespaceIndex + 1);
+            if (string.CompareOrdinal(headerValue, start, key, 0, key.Length) != 0)
+            {
+                return false;
+            }
+
+            // Check trailing whitespace
+            for (int i = start + key.Length; i < equalsSignIndex; i++)
+            {
+                if (!char.IsWhiteSpace(headerValue[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
