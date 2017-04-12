@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
-            var exception = new HttpRequestException("http exception");
+            var exception = new HttpRequestException("message", new Exception("The server name or address could not be resolved"));
             this.listener.OnException(exception, request);
             this.listener.OnActivityStop(null, request, TaskStatus.Faulted);
 
@@ -137,6 +137,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(exception, exceptionTelemetry.Exception);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
+            Assert.AreEqual("The server name or address could not be resolved", dependencyTelemetry.Context.Properties["Error"]);
         }
 
         /// <summary>

@@ -58,11 +58,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 [instrumentationKey] = mockAppId
             });
 
-            listener = new DependencyCollectorDiagnosticListener(new TelemetryConfiguration()
+            var configuration = new TelemetryConfiguration
             {
                 TelemetryChannel = telemetryChannel,
                 InstrumentationKey = instrumentationKey,
-            },
+            };
+
+            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+            listener = new DependencyCollectorDiagnosticListener(configuration,
             setComponentCorrelationHttpHeaders: true,
             correlationDomainExclusionList: new string[] { "excluded.host.com" },
             correlationIdLookupHelper: mockCorrelationIdLookupHelper);

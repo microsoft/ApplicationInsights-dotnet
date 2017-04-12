@@ -22,6 +22,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     /// </summary>
     internal class DependencyCollectorDiagnosticListener : IObserver<DiagnosticListener>
     {
+        private const string DependencyErrorPropertyKey = "Error";
+        private const string RequestExceptionPropertyKey = "Microsoft.ApplicationInsights.Exception";
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly TelemetryClient client;
         private readonly TelemetryConfiguration configuration;
@@ -31,10 +33,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
 
         private readonly ConcurrentDictionary<string, IOperationHolder<DependencyTelemetry>> pendingTelemetry = new ConcurrentDictionary<string, IOperationHolder<DependencyTelemetry>>();
 
+        private readonly ConcurrentDictionary<string, Exception> pendingExceptions = new ConcurrentDictionary<string, Exception>();
+
         internal DependencyCollectorDiagnosticListener(TelemetryConfiguration configuration, bool setComponentCorrelationHttpHeaders = true, IEnumerable<string> correlationDomainExclusionList = null, ICorrelationIdLookupHelper correlationIdLookupHelper = null)
         {
-            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-
             this.client = new TelemetryClient(configuration);
             this.configuration = configuration;
 
@@ -111,6 +113,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [DiagnosticName("System.Net.Http.Exception")]
         public void OnException(Exception exception, HttpRequestMessage request)
         {
+            Activity currentActivity = Activity.Current;
+            if (currentActivity == null)
+            {
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                return;
+            }
+
+            this.pendingExceptions.TryAdd(currentActivity.Id, exception);
             this.client.TrackException(exception);
         }
 
@@ -120,6 +130,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [DiagnosticName("System.Net.Http.HttpRequestOut.Start")]
         public void OnActivityStart(HttpRequestMessage request)
         {
+            if (Activity.Current == null)
+            {
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                return;
+            }
+
             if (request != null &&
                 !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
             {
@@ -133,6 +149,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [DiagnosticName("System.Net.Http.HttpRequestOut.Stop")]
         public void OnActivityStop(HttpResponseMessage response, HttpRequestMessage request, TaskStatus requestTaskStatus)
         {
+            Activity currentActivity = Activity.Current;
+            if (currentActivity == null)
+            {
+                DependencyCollectorEventSource.Log.CurrentActivityIsNull();
+                return;
+            }
+
             if (request != null && request.RequestUri != null &&
                 !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
             {
@@ -140,7 +163,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
                 DependencyTelemetry telemetry = new DependencyTelemetry();
-                Activity currentActivity = Activity.Current;
 
                 // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
                 telemetry.Context.Operation.Id = currentActivity.RootId;
@@ -160,13 +182,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
                 telemetry.Target = requestUri.Host;
                 telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Data = requestUri.OriginalString;
-                telemetry.Duration = Activity.Current.Duration;
+                telemetry.Duration = currentActivity.Duration;
                 if (response != null)
                 {
                     this.ParseResponse(response, telemetry);
                 }
                 else
                 {
+                    Exception exception;
+                    if (this.pendingExceptions.TryRemove(currentActivity.Id, out exception))
+                    {
+                        telemetry.Context.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
+                    }
+
                     telemetry.ResultCode = requestTaskStatus.ToString();
                     telemetry.Success = false;
                 }
