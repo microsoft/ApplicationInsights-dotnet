@@ -219,7 +219,7 @@ namespace FuncTest.Helpers
             string resultCodeExpected = "DontCheck")
         {
             string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
-            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), string.Format("Actual version: {0}, Expected prefix: {1}", actualSdkVersion, DeploymentAndValidationTools.ExpectedSDKPrefix));
 
             if (!resultCodeExpected.Equals("DontCheck"))
             {
