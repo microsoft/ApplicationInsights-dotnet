@@ -3,7 +3,6 @@ namespace FuncTest.Helpers
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Threading;
 
     /// <summary>
     /// A helper class for dealing with dotnet.exe processes.
@@ -14,7 +13,7 @@ namespace FuncTest.Helpers
 
         public DotNetCoreProcess(string arguments, string workingDirectory = null)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo("dotnet.exe", arguments)
+            ProcessStartInfo startInfo = new ProcessStartInfo(DotNetExePath, arguments)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
@@ -140,5 +139,37 @@ namespace FuncTest.Helpers
             //(see https://msdn.microsoft.com/en-us/library/system.diagnostics.process.kill(v=vs.110).aspx#Anchor_2)
             WaitForExit();
         }
+
+        /// <summary>
+        /// Get the path to the dotnet.exe file.
+        /// </summary>
+        public static string DotNetExePath
+        {
+            get
+            {
+                if (dotnetExePath == null)
+                {
+                    dotnetExePath = "dotnet.exe";
+
+                    string netCorePath = Environment.GetEnvironmentVariable("NetCorePath");
+                    if (!string.IsNullOrWhiteSpace(netCorePath))
+                    {
+                        dotnetExePath = Path.Combine(netCorePath, dotnetExePath);
+                    }
+                }
+                return dotnetExePath;
+            }
+        }
+
+        /// <summary>
+        /// Check whether or not the dotnet.exe file exists at its expected path.
+        /// </summary>
+        /// <returns></returns>
+        public static bool HasDotNetExe()
+        {
+            return File.Exists(DotNetExePath);
+        }
+
+        private static string dotnetExePath;
     }
 }

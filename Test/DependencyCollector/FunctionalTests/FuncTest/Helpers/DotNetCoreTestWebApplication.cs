@@ -21,7 +21,7 @@ namespace FuncTest.Helpers
         {
             string applicationDllFileName = this.AppName + ".dll";
             string applicationDllPath = Path.Combine(this.AppFolder, applicationDllFileName);
-            if (File.Exists(applicationDllPath))
+            if (File.Exists(applicationDllPath) && DotNetCoreProcess.HasDotNetExe())
             {
                 string arguments = $"\"{applicationDllFileName}\" {this.Port}";
                 string output = "";
