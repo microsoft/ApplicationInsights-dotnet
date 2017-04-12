@@ -391,33 +391,42 @@
         {
             string output = "";
             string error = "";
-            DotNetCoreProcess process = new DotNetCoreProcess("--version")
-                .RedirectStandardOutputTo((string outputMessage) => output += outputMessage)
-                .RedirectStandardErrorTo((string errorMessage) => error += errorMessage)
-                .Run();
 
-            if (process.ExitCode.Value != 0 || !string.IsNullOrEmpty(error))
+            if (!DotNetCoreProcess.HasDotNetExe())
             {
                 Assert.Inconclusive(".Net Core is not installed");
             }
             else
             {
-                // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
-                int dashIndex = output.IndexOf('-');
-                Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));
+                DotNetCoreProcess process = new DotNetCoreProcess("--version")
+                    .RedirectStandardOutputTo((string outputMessage) => output += outputMessage)
+                    .RedirectStandardErrorTo((string errorMessage) => error += errorMessage)
+                    .Run();
 
-                Version minVersion = new Version("1.0.0");
-                if (version < minVersion)
+                if (process.ExitCode.Value != 0 || !string.IsNullOrEmpty(error))
                 {
-                    Assert.Inconclusive($".Net Core version ({output}) must be greater than or equal to {minVersion}.");
+                    Assert.Inconclusive(".Net Core is not installed");
+                }
+                else
+                {
+                    // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
+                    int dashIndex = output.IndexOf('-');
+                    Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));
+
+                    Version minVersion = new Version("1.0.0");
+                    if (version < minVersion)
+                    {
+                        Assert.Inconclusive($".Net Core version ({output}) must be greater than or equal to {minVersion}.");
+                    }
                 }
             }
         }
 
-        private static void DotNetCoreTestSetup()
+        private static IDisposable DotNetCoreTestSetup()
         {
             EnsureDotNetCoreInstalled();
-            DeploymentAndValidationTools.ExpectedSDKPrefix = "rddd";
+
+            return new ExpectedSDKPrefixChanger("rddd");
         }
 
         private const string AspxCoreTestAppFolder = "..\\TestApps\\AspxCore\\";
@@ -427,10 +436,11 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpAspxCore()
         {
-            DotNetCoreTestSetup();
-
-            // Execute and verify calls which succeeds            
-            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+            }
         }
 
         [TestMethod]
@@ -438,10 +448,11 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpPostCallAspxCore()
         {
-            DotNetCoreTestSetup();
-
-            // Execute and verify calls which succeeds            
-            this.ExecuteSyncHttpPostTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which succeeds            
+                this.ExecuteSyncHttpPostTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+            }
         }
 
         [TestMethod]
@@ -450,10 +461,11 @@
         [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
         public void TestRddForSyncHttpFailedAspxCore()
         {
-            DotNetCoreTestSetup();
-
-            // Execute and verify calls which fails.            
-            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, false, 1, AccessTimeMaxHttpInitial, "200");
+            using (DotNetCoreTestSetup())
+            {
+                // Execute and verify calls which fails.            
+                this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, false, 1, AccessTimeMaxHttpInitial, "200");
+            }
         }
 
         #endregion Core
@@ -715,6 +727,22 @@
             }
 
             DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected, resultCodeExpected);
+        }
+
+        private class ExpectedSDKPrefixChanger : IDisposable
+        {
+            private readonly string previousExpectedSDKPrefix;
+
+            public ExpectedSDKPrefixChanger(string expectedSDKPrefix)
+            {
+                previousExpectedSDKPrefix = DeploymentAndValidationTools.ExpectedSDKPrefix;
+                DeploymentAndValidationTools.ExpectedSDKPrefix = expectedSDKPrefix;
+            }
+
+            public void Dispose()
+            {
+                DeploymentAndValidationTools.ExpectedSDKPrefix = previousExpectedSDKPrefix;
+            }
         }
     }
 }

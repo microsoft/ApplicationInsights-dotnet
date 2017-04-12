@@ -1,9 +1,10 @@
 namespace FuncTest.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
-    using System.Threading;
+    using System.Linq;
 
     /// <summary>
     /// A helper class for dealing with dotnet.exe processes.
@@ -14,7 +15,7 @@ namespace FuncTest.Helpers
 
         public DotNetCoreProcess(string arguments, string workingDirectory = null)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo("dotnet.exe", arguments)
+            ProcessStartInfo startInfo = new ProcessStartInfo(DotNetExePath, arguments)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
@@ -140,5 +141,59 @@ namespace FuncTest.Helpers
             //(see https://msdn.microsoft.com/en-us/library/system.diagnostics.process.kill(v=vs.110).aspx#Anchor_2)
             WaitForExit();
         }
+
+        /// <summary>
+        /// Get the path to the dotnet.exe file. This will search the current working directory,
+        /// the directory specified in the NetCorePath environment variable, and each of the
+        /// directories specified in the Path environment variable. If the dotnet.exe file still
+        /// can't be found, then this will return null.
+        /// </summary>
+        public static string DotNetExePath
+        {
+            get
+            {
+                if (dotnetExePath == null)
+                {
+                    List<string> envPaths = new List<string>();
+                    envPaths.Add(@".\");
+                    envPaths.Add(Environment.GetEnvironmentVariable(NetCorePathEnvVariableName));
+                    envPaths.AddRange(Environment.GetEnvironmentVariable(PathEnvVariableName).Split(';'));
+
+                    foreach (string envPath in envPaths)
+                    {
+                        if (!string.IsNullOrWhiteSpace(envPath))
+                        {
+                            string tempDotNetExePath = envPath;
+                            if (!tempDotNetExePath.EndsWith(dotnetExe, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                tempDotNetExePath = Path.Combine(tempDotNetExePath, dotnetExe);
+                            }
+
+                            if (File.Exists(tempDotNetExePath))
+                            {
+                                dotnetExePath = tempDotNetExePath;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return dotnetExePath;
+            }
+        }
+
+        /// <summary>
+        /// Check whether or not the dotnet.exe file exists at its expected path.
+        /// </summary>
+        /// <returns></returns>
+        public static bool HasDotNetExe()
+        {
+            return !string.IsNullOrEmpty(DotNetExePath);
+        }
+
+        private static string dotnetExePath;
+
+        private const string dotnetExe = "dotnet.exe";
+        private const string NetCorePathEnvVariableName = "NetCorePath";
+        private const string PathEnvVariableName = "Path";
     }
 }
