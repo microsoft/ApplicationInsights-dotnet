@@ -100,6 +100,33 @@
         }
 
         [Event(
+            10,
+            Message = "FirstChance exception statistics callback was called, but exception object is null.",
+            Level = EventLevel.Verbose)]
+        public void FirstChanceExceptionCallbackExeptionIsNull(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(10, this.ApplicationName);
+        }
+
+        [Event(
+            11,
+            Message = "FirstChance exception statistics callback was called.",
+            Level = EventLevel.Verbose)]
+        public void FirstChanceExceptionCallbackCalled(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(11, this.ApplicationName);
+        }
+
+        [Event(
+            12,
+            Message = "FirstChance exception statistics callback failed with the exception {0}.",
+            Level = EventLevel.Warning)]
+        public void FirstChanceExceptionCallbackException(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(12, exception, this.ApplicationName);
+        }
+
+        [Event(
             13,
             Message = "[UnobservedTaskException threw another exception:  {0}.]",
             Level = EventLevel.Error)]
