@@ -42,32 +42,6 @@
         }
 
         [TestMethod]
-        public void InstallAddsFirstChanceExceptionTelemetryModule()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            Type typeToFind = typeof(FirstChanceExceptionStatisticsTelemetryModule);
-
-            var node = ConfigurationHelpers.GetTelemetryModules(configAfterTransform)
-                .Descendants()
-                .FirstOrDefault(element => element.Attribute("Type").Value == ConfigurationHelpers.GetPartialTypeName(typeToFind));
-
-            Assert.IsNotNull(node);
-        }
-
-        [TestMethod]
-        public void InstallDoesNotInstallExtraModules()
-        {
-            string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
-            XDocument configAfterTransform = ConfigurationHelpers.InstallTransform(emptyConfig);
-
-            Type typeToFind = typeof(FirstChanceExceptionStatisticsTelemetryModule);
-
-            Assert.AreEqual(4, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
-        }
-
-        [TestMethod]
         public void InstallAddsUnobservedExceptionTelemetryModule()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();

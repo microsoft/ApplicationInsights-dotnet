@@ -15,7 +15,7 @@
         private const string Win32ProcessInstancePlaceholder = @"APP_WIN32_PROC";
         private const string ClrProcessInstancePlaceholder = @"APP_CLR_PROC";
         private const string W3SvcProcessInstancePlaceholder = @"APP_W3SVC_PROC";
-        
+
         private const string Win32ProcessCategoryName = "Process";
         private const string ClrProcessCategoryName = ".NET CLR Memory";
         private const string Win32ProcessCounterName = "ID Process";
@@ -25,6 +25,7 @@
         private const string AzureWebAppSdkVersionPrefix = "azwapc:";
 
         private const string WebSiteEnvironmentVariable = "WEBSITE_SITE_NAME";
+        private const string ProcessorsCountEnvironmentVariable = "NUMBER_OF_PROCESSORS";
 
         private static readonly Dictionary<string, string> PlaceholderCache = new Dictionary<string, string>();
 
@@ -32,10 +33,10 @@
             @"^\?\?(?<placeholder>[a-zA-Z0-9_]+)\?\?$",
             RegexOptions.Compiled);
 
-        private static readonly Regex PerformanceCounterRegex =
+        private static readonly Regex PerformanceCounterRegex = 
             new Regex(
-                @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
-                RegexOptions.Compiled);
+            @"^\\(?<categoryName>[^(]+)(\((?<instanceName>[^)]+)\)){0,1}\\(?<counterName>[\s\S]+)$",
+            RegexOptions.Compiled);
 
         private static bool? isAzureWebApp = null;
 
@@ -67,7 +68,7 @@
                 try
                 {
                     isAzureWebApp = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebSiteEnvironmentVariable));
-                } 
+                }
                 catch (Exception ex)
                 {
                     PerformanceCollectorEventSource.Log.AccessingEnvironmentVariableFailedWarning(WebSiteEnvironmentVariable, ex.ToString());
@@ -76,6 +77,48 @@
             }
 
             return (bool)isAzureWebApp;
+        }
+
+        /// <summary>
+        /// Gets the processor count from the appropriate environment variable depending on whether the app is a WebApp or not.
+        /// </summary>
+        /// <param name="isWebApp">Indicates whether the application is a WebApp or not.</param>
+        /// <returns>The number of processors in the system or null if failed to determine.</returns>
+        public static int? GetProcessorCount(bool isWebApp)
+        {
+            int count;
+
+            if (!isWebApp)
+            {
+                count = Environment.ProcessorCount;
+            }
+            else
+            {
+                string countString;
+                try
+                {
+                    countString = Environment.GetEnvironmentVariable(ProcessorsCountEnvironmentVariable);
+                }
+                catch (Exception ex)
+                {
+                    PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(ex.ToString());
+                    return null;
+                }
+
+                if (!int.TryParse(countString, out count))
+                {
+                    PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(countString);
+                    return null;
+                }
+            }
+
+            if (count < 1 || count > 1000)
+            {
+                PerformanceCollectorEventSource.Log.ProcessorsCountIncorrectValueError(count.ToString(CultureInfo.InvariantCulture));
+                return null;
+            }
+
+            return count;
         }
 
         /// <summary>

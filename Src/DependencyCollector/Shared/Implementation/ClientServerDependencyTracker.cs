@@ -44,8 +44,6 @@
 
             activity.Stop();
 #else
-            telemetryClient.Initialize(telemetry);
-
             // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
             // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
             // let's fix it

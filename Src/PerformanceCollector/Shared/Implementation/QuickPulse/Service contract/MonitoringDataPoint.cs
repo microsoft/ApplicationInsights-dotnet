@@ -14,7 +14,8 @@
     internal struct MonitoringDataPoint
     {
         /*
-         * 4 - adding errors for extended backchannel, adding EventTelemetryDocument and TraceTelemetryDocument, adding DocumentStreamId for full documents
+         * 4 - adding errors for extended backchannel, adding EventTelemetryDocument and TraceTelemetryDocument, adding DocumentStreamId for full documents,
+         *      adding ProcessorCount
          * 3 - adding TopCpuProcesses
         */
         public const int CurrentInvariantVersion = 4;
@@ -42,6 +43,9 @@
 
         [DataMember]
         public bool IsWebApp { get; set; }
+
+        [DataMember]
+        public int ProcessorCount { get; set; }
 
         [DataMember]
         public MetricPoint[] Metrics { get; set; }

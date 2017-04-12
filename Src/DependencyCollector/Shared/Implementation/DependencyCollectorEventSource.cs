@@ -251,6 +251,15 @@
             this.WriteEvent(22, id, this.ApplicationName);
         }
 
+        [Event(
+            23,
+            Message = "Current Activity is null",
+            Level = EventLevel.Error)]
+        public void CurrentActivityIsNull(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(23, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

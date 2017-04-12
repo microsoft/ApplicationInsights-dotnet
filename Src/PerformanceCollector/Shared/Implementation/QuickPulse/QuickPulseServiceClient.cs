@@ -33,6 +33,8 @@
 
         private readonly bool isWebApp;
 
+        private readonly int processorCount;
+
         private readonly DataContractJsonSerializer serializerDataPoint = new DataContractJsonSerializer(typeof(MonitoringDataPoint));
 
         private readonly DataContractJsonSerializer serializerDataPointArray = new DataContractJsonSerializer(typeof(MonitoringDataPoint[]));
@@ -49,6 +51,7 @@
             string version,
             Clock timeProvider,
             bool isWebApp,
+            int processorCount,
             TimeSpan? timeout = null)
         {
             this.ServiceUri = serviceUri;
@@ -58,6 +61,7 @@
             this.version = version;
             this.timeProvider = timeProvider;
             this.isWebApp = isWebApp;
+            this.processorCount = processorCount;
             this.timeout = timeout ?? this.timeout;
 
             foreach (string headerName in QuickPulseConstants.XMsQpsAuthOpaqueHeaderNames)
@@ -226,7 +230,8 @@
                 StreamId = this.streamId,
                 MachineName = this.machineName,
                 Timestamp = timestamp.UtcDateTime,
-                IsWebApp = this.isWebApp
+                IsWebApp = this.isWebApp,
+                ProcessorCount = this.processorCount
             };
 
             this.serializerDataPoint.WriteObject(stream, dataPoint);
@@ -263,6 +268,7 @@
                     MachineName = this.machineName,
                     Timestamp = sample.EndTimestamp.UtcDateTime,
                     IsWebApp = this.isWebApp,
+                    ProcessorCount = this.processorCount,
                     Metrics = metricPoints.ToArray(),
                     Documents = documents,
                     GlobalDocumentQuotaReached = sample.GlobalDocumentQuotaReached,
