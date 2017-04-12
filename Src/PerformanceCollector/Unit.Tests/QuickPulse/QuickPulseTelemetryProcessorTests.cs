@@ -2685,7 +2685,7 @@
             Assert.AreEqual(1.0d, calculatedMetrics["Metric1"].CalculateAggregation(out long count));
             Assert.AreEqual(1, count);
         }
-
+        
         [TestMethod]
         public void QuickPulseTelemetryProcessorHandlesCalculatedMetricsInThreadSafeManner()
         {
@@ -2697,11 +2697,11 @@
             var filterInfoAllFast = new FilterInfo() { FieldName = "Duration", Predicate = Predicate.LessThan, Comparand = "5000" };
             var filterInfoAllSlow = new FilterInfo() { FieldName = "Duration", Predicate = Predicate.GreaterThanOrEqual, Comparand = "5000" };
 
-            var metrics1 = new[]
+            var metrics = new[]
             {
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllGood1Min",
+                    Id = "AllGoodMin",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Min,
@@ -2709,7 +2709,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllGood1Max",
+                    Id = "AllGoodMax",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Max,
@@ -2717,7 +2717,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllBad1Min",
+                    Id = "AllBadMin",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Min,
@@ -2725,7 +2725,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllBad1Max",
+                    Id = "AllBadMax",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Max,
@@ -2733,7 +2733,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllGoodFast1Min",
+                    Id = "AllGoodFastMin",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Min,
@@ -2741,7 +2741,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllGoodFast1Max",
+                    Id = "AllGoodFastMax",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Max,
@@ -2749,7 +2749,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllBadSlow1Min",
+                    Id = "AllBadSlowMin",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Min,
@@ -2757,7 +2757,7 @@
                 },
                 new CalculatedMetricInfo()
                 {
-                    Id = "AllBadSlow1Max",
+                    Id = "AllBadSlowMax",
                     TelemetryType = TelemetryType.Request,
                     Projection = "Id",
                     Aggregation = AggregationType.Max,
@@ -2765,80 +2765,9 @@
                 }
             };
 
-            var metrics2 = new[]
-            {
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllGood2Min",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Min,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll200, filterInfoAllSuccessful } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllGood2Max",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Max,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll200, filterInfoAllSuccessful } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllBad2Min",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Min,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll500, filterInfoAllFailed } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllBad2Max",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Max,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll500, filterInfoAllFailed } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllGoodFast2Min",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Min,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll200, filterInfoAllSuccessful, filterInfoAllFast } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllGoodFast2Max",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Max,
-                    FilterGroups = new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll200, filterInfoAllSuccessful, filterInfoAllFast } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllBadSlow2Min",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Min,
-                    FilterGroups =
-                        new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll500, filterInfoAllFailed, filterInfoAllSlow } } }
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "AllBadSlow2Max",
-                    TelemetryType = TelemetryType.Request,
-                    Projection = "Id",
-                    Aggregation = AggregationType.Max,
-                    FilterGroups =
-                        new[] { new FilterConjunctionGroupInfo() { Filters = new[] { filterInfoAll500, filterInfoAllFailed, filterInfoAllSlow } } }
-                }
-            };
-
-            var collectionConfiguration1 = new CollectionConfiguration(new CollectionConfigurationInfo() { Metrics = metrics1 }, out errors, new ClockMock());
-            var collectionConfiguration2 = new CollectionConfiguration(new CollectionConfigurationInfo() { Metrics = metrics2 }, out errors, new ClockMock());
-
-            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration1);
+            var collectionConfiguration = new CollectionConfiguration(new CollectionConfigurationInfo() { Metrics = metrics }, out errors, new ClockMock());
+            
+            var accumulatorManager = new QuickPulseDataAccumulatorManager(collectionConfiguration);
             var telemetryProcessor = new QuickPulseTelemetryProcessor(new SimpleTelemetryProcessorSpy());
 
             ((IQuickPulseTelemetryProcessor)telemetryProcessor).StartCollection(
@@ -2869,16 +2798,12 @@
             var accumulators = new List<QuickPulseDataAccumulator>();
             for (int i = 0; i < swapTaskCount; i++)
             {
-                int localI = i;
                 var swapTask = new Task(
                     () =>
                         {
                             lock (accumulators)
                             {
-                                // switch the configuration when about half-way in
-                                accumulators.Add(
-                                    accumulatorManager.CompleteCurrentDataAccumulator(
-                                        localI < swapTaskCount / 2 ? collectionConfiguration1 : collectionConfiguration2));
+                                accumulators.Add(accumulatorManager.CompleteCurrentDataAccumulator(collectionConfiguration));
                             }
                         });
 
@@ -2888,176 +2813,97 @@
             // ACT
             tasks.ForEach(task => task.Start());
 
-            Task.WaitAll(tasks.ToArray());
+            var taskArray = tasks.ToArray();
+            Task.WaitAll(taskArray);
 
             // swap the last accumulator
             accumulators.Add(accumulatorManager.CompleteCurrentDataAccumulator(null));
 
             // ASSERT
-            // validate that all accumulators add up to the correct totals
-            long allGood1MinCount = 0;
-            long allBad1MinCount = 0;
-            long allGoodFast1MinCount = 0;
-            long allBadSlow1MinCount = 0;
-            long allGood2MinCount = 0;
-            long allBad2MinCount = 0;
-            long allGoodFast2MinCount = 0;
-            long allBadSlow2MinCount = 0;
-            long allGood1MaxCount = 0;
-            long allBad1MaxCount = 0;
-            long allGoodFast1MaxCount = 0;
-            long allBadSlow1MaxCount = 0;
-            long allGood2MaxCount = 0;
-            long allBad2MaxCount = 0;
-            long allGoodFast2MaxCount = 0;
-            long allBadSlow2MaxCount = 0;
+            Assert.IsTrue(taskArray.All(task => task.Status == TaskStatus.RanToCompletion));
 
-            double allGood1MinValue = long.MaxValue;
-            double allBad1MinValue = long.MaxValue;
-            double allGoodFast1MinValue = long.MaxValue;
-            double allBadSlow1MinValue = long.MaxValue;
-            double allGood2MinValue = long.MaxValue;
-            double allBad2MinValue = long.MaxValue;
-            double allGoodFast2MinValue = long.MaxValue;
-            double allBadSlow2MinValue = long.MaxValue;
-            double allGood1MaxValue = long.MinValue;
-            double allBad1MaxValue = long.MinValue;
-            double allGoodFast1MaxValue = long.MinValue;
-            double allBadSlow1MaxValue = long.MinValue;
-            double allGood2MaxValue = long.MinValue;
-            double allBad2MaxValue = long.MinValue;
-            double allGoodFast2MaxValue = long.MinValue;
-            double allBadSlow2MaxValue = long.MinValue;
+            // validate that all accumulators add up to the correct totals
+            long allGoodMinCount = 0;
+            long allBadMinCount = 0;
+            long allGoodFastMinCount = 0;
+            long allBadSlowMinCount = 0;
+            long allGoodMaxCount = 0;
+            long allBadMaxCount = 0;
+            long allGoodFastMaxCount = 0;
+            long allBadSlowMaxCount = 0;
+
+            double allGoodMinValue = long.MaxValue;
+            double allBadMinValue = long.MaxValue;
+            double allGoodFastMinValue = long.MaxValue;
+            double allBadSlowMinValue = long.MaxValue;
+            double allGoodMaxValue = long.MinValue;
+            double allBadMaxValue = long.MinValue;
+            double allGoodFastMaxValue = long.MinValue;
+            double allBadSlowMaxValue = long.MinValue;
 
             foreach (var accumulator in accumulators)
             {
                 Dictionary<string, AccumulatedValues> metricsValues = accumulator.CollectionConfigurationAccumulator.MetricAccumulators;
 
                 long count;
-                try
-                {
-                    // configuration 1
-                    double value = metricsValues["AllGood1Min"].CalculateAggregation(out count);
-                    allGood1MinValue = count != 0 ? Math.Min(allGood1MinValue, value) : allGood1MinValue;
-                    allGood1MinCount += count;
-                    value = metricsValues["AllGood1Max"].CalculateAggregation(out count);
-                    allGood1MaxValue = count != 0 ? Math.Max(allGood1MaxValue, value) : allGood1MaxValue;
-                    allGood1MaxCount += count;
+                double value = metricsValues["AllGoodMin"].CalculateAggregation(out count);
+                allGoodMinValue = count != 0 ? Math.Min(allGoodMinValue, value) : allGoodMinValue;
+                allGoodMinCount += count;
+                value = metricsValues["AllGoodMax"].CalculateAggregation(out count);
+                allGoodMaxValue = count != 0 ? Math.Max(allGoodMaxValue, value) : allGoodMaxValue;
+                allGoodMaxCount += count;
 
-                    value = metricsValues["AllBad1Min"].CalculateAggregation(out count);
-                    allBad1MinValue = count != 0 ? Math.Min(allBad1MinValue, value) : allBad1MinValue;
-                    allBad1MinCount += count;
-                    value = metricsValues["AllBad1Max"].CalculateAggregation(out count);
-                    allBad1MaxValue = count != 0 ? Math.Max(allBad1MaxValue, value) : allBad1MaxValue;
-                    allBad1MaxCount += count;
+                value = metricsValues["AllBadMin"].CalculateAggregation(out count);
+                allBadMinValue = count != 0 ? Math.Min(allBadMinValue, value) : allBadMinValue;
+                allBadMinCount += count;
+                value = metricsValues["AllBadMax"].CalculateAggregation(out count);
+                allBadMaxValue = count != 0 ? Math.Max(allBadMaxValue, value) : allBadMaxValue;
+                allBadMaxCount += count;
 
-                    value = metricsValues["AllGoodFast1Min"].CalculateAggregation(out count);
-                    allGoodFast1MinValue = count != 0 ? Math.Min(allGoodFast1MinValue, value) : allGoodFast1MinValue;
-                    allGoodFast1MinCount += count;
-                    value = metricsValues["AllGoodFast1Max"].CalculateAggregation(out count);
-                    allGoodFast1MaxValue = count != 0 ? Math.Max(allGoodFast1MaxValue, value) : allGoodFast1MaxValue;
-                    allGoodFast1MaxCount += count;
+                value = metricsValues["AllGoodFastMin"].CalculateAggregation(out count);
+                allGoodFastMinValue = count != 0 ? Math.Min(allGoodFastMinValue, value) : allGoodFastMinValue;
+                allGoodFastMinCount += count;
+                value = metricsValues["AllGoodFastMax"].CalculateAggregation(out count);
+                allGoodFastMaxValue = count != 0 ? Math.Max(allGoodFastMaxValue, value) : allGoodFastMaxValue;
+                allGoodFastMaxCount += count;
 
-                    value = metricsValues["AllBadSlow1Min"].CalculateAggregation(out count);
-                    allBadSlow1MinValue = count != 0 ? Math.Min(allBadSlow1MinValue, value) : allBadSlow1MinValue;
-                    allBadSlow1MinCount += count;
-                    value = metricsValues["AllBadSlow1Max"].CalculateAggregation(out count);
-                    allBadSlow1MaxValue = count != 0 ? Math.Max(allBadSlow1MaxValue, value) : allBadSlow1MaxValue;
-                    allBadSlow1MaxCount += count;
-                }
-                catch
-                {
-                    // metrics not found, wrong configuration
-                }
-
-                try
-                {
-                    // configuration 2
-                    double value = metricsValues["AllGood2Min"].CalculateAggregation(out count);
-                    allGood2MinValue = count != 0 ? Math.Min(allGood2MinValue, value) : allGood2MinValue;
-                    allGood2MinCount += count;
-                    value = metricsValues["AllGood2Max"].CalculateAggregation(out count);
-                    allGood2MaxValue = count != 0 ? Math.Max(allGood2MaxValue, value) : allGood2MaxValue;
-                    allGood2MaxCount += count;
-
-                    value = metricsValues["AllBad2Min"].CalculateAggregation(out count);
-                    allBad2MinValue = count != 0 ? Math.Min(allBad2MinValue, value) : allBad2MinValue;
-                    allBad2MinCount += count;
-                    value = metricsValues["AllBad2Max"].CalculateAggregation(out count);
-                    allBad2MaxValue = count != 0 ? Math.Max(allBad2MaxValue, value) : allBad2MaxValue;
-                    allBad2MaxCount += count;
-
-                    value = metricsValues["AllGoodFast2Min"].CalculateAggregation(out count);
-                    allGoodFast2MinValue = count != 0 ? Math.Min(allGoodFast2MinValue, value) : allGoodFast2MinValue;
-                    allGoodFast2MinCount += count;
-                    value = metricsValues["AllGoodFast2Max"].CalculateAggregation(out count);
-                    allGoodFast2MaxValue = count != 0 ? Math.Max(allGoodFast2MaxValue, value) : allGoodFast2MaxValue;
-                    allGoodFast2MaxCount += count;
-
-                    value = metricsValues["AllBadSlow2Min"].CalculateAggregation(out count);
-                    allBadSlow2MinValue = count != 0 ? Math.Min(allBadSlow2MinValue, value) : allBadSlow2MinValue;
-                    allBadSlow2MinCount += count;
-                    value = metricsValues["AllBadSlow2Max"].CalculateAggregation(out count);
-                    allBadSlow2MaxValue = count != 0 ? Math.Max(allBadSlow2MaxValue, value) : allBadSlow2MaxValue;
-                    allBadSlow2MaxCount += count;
-                }
-                catch
-                {
-                    // metrics not found, wrong configuration
-                }
+                value = metricsValues["AllBadSlowMin"].CalculateAggregation(out count);
+                allBadSlowMinValue = count != 0 ? Math.Min(allBadSlowMinValue, value) : allBadSlowMinValue;
+                allBadSlowMinCount += count;
+                value = metricsValues["AllBadSlowMax"].CalculateAggregation(out count);
+                allBadSlowMaxValue = count != 0 ? Math.Max(allBadSlowMaxValue, value) : allBadSlowMaxValue;
+                allBadSlowMaxCount += count;
             }
-            
-            allGood1MinValue = allGood1MinValue == long.MaxValue ? -1 : allGood1MinValue;
-            allBad1MinValue = allBad1MinValue == long.MaxValue ? -1 : allBad1MinValue;
-            allGoodFast1MinValue = allGoodFast1MinValue == long.MaxValue ? -1 : allGoodFast1MinValue;
-            allBadSlow1MinValue = allBadSlow1MinValue == long.MaxValue ? -1 : allBadSlow1MinValue;
-            allGood2MinValue = allGood2MinValue == long.MaxValue ? -1 : allGood2MinValue;
-            allBad2MinValue = allBad2MinValue == long.MaxValue ? -1 : allBad2MinValue;
-            allGoodFast2MinValue = allGoodFast2MinValue == long.MaxValue ? -1 : allGoodFast2MinValue;
-            allBadSlow2MinValue = allBadSlow2MinValue == long.MaxValue ? -1 : allBadSlow2MinValue;
-            allBad1MaxValue = allBad1MaxValue == long.MinValue ? -1 : allBad1MaxValue;
-            allGoodFast1MaxValue = allGoodFast1MaxValue == long.MinValue ? -1 : allGoodFast1MaxValue;
-            allBadSlow1MaxValue = allBadSlow1MaxValue == long.MinValue ? -1 : allBadSlow1MaxValue;
-            allGood2MaxValue = allGood2MaxValue == long.MinValue ? -1 : allGood2MaxValue;
-            allBad2MaxValue = allBad2MaxValue == long.MinValue ? -1 : allBad2MaxValue;
-            allGoodFast2MaxValue = allGoodFast2MaxValue == long.MinValue ? -1 : allGoodFast2MaxValue;
-            allBadSlow2MaxValue = allBadSlow2MaxValue == long.MinValue ? -1 : allBadSlow2MaxValue;
-            
-            Assert.AreEqual(allGood1MinCount, allGood1MaxCount);
-            Assert.AreEqual(allBad1MinCount, allBad1MaxCount);
-            Assert.AreEqual(allGoodFast1MinCount, allGoodFast1MaxCount);
-            Assert.AreEqual(allBadSlow1MinCount, allBadSlow1MaxCount);
 
-            Assert.AreEqual(allGood2MinCount, allGood2MaxCount);
-            Assert.AreEqual(allBad2MinCount, allBad2MaxCount);
-            Assert.AreEqual(allGoodFast2MinCount, allGoodFast2MaxCount);
-            Assert.AreEqual(allBadSlow2MinCount, allBadSlow2MaxCount);
-
-            Assert.AreEqual(taskCount / 2, allGood1MinCount + allGood2MinCount);
-            Assert.AreEqual(0, allGood1MinValue);
-            Assert.AreEqual(taskCount - 2, allGood2MaxValue);
-            Assert.IsTrue(allGood1MinValue <= allGood1MaxValue);
-            Assert.IsTrue(allGood2MinValue <= allGood2MaxValue);
+            allGoodMinValue = allGoodMinValue == long.MaxValue ? -1 : allGoodMinValue;
+            allBadMinValue = allBadMinValue == long.MaxValue ? -1 : allBadMinValue;
+            allGoodFastMinValue = allGoodFastMinValue == long.MaxValue ? -1 : allGoodFastMinValue;
+            allBadSlowMinValue = allBadSlowMinValue == long.MaxValue ? -1 : allBadSlowMinValue;
+            allBadMaxValue = allBadMaxValue == long.MinValue ? -1 : allBadMaxValue;
+            allGoodFastMaxValue = allGoodFastMaxValue == long.MinValue ? -1 : allGoodFastMaxValue;
+            allBadSlowMaxValue = allBadSlowMaxValue == long.MinValue ? -1 : allBadSlowMaxValue;
             
-            Assert.AreEqual(taskCount / 2, allBad1MinCount + allBad2MinCount);
-            Assert.AreEqual(1, allBad1MinValue);
-            Assert.AreEqual(taskCount - 1, allBad2MaxValue);
-            Assert.IsTrue(allBad1MinValue <= allBad1MaxValue);
-            Assert.IsTrue(allBad2MinValue <= allBad2MaxValue);
-            
-            Assert.AreEqual(taskCount / 4, allGoodFast1MinCount + allGoodFast2MinCount);
-            Assert.IsTrue(allGoodFast1MinValue <= allGoodFast1MaxValue);
-            Assert.IsTrue(allGoodFast2MinValue <= allGoodFast2MaxValue);
-            Assert.IsTrue(allGoodFast1MaxValue == -1 || allGoodFast1MaxValue < taskCount / 2);
-            Assert.IsTrue(allGoodFast2MaxValue == -1 || allGoodFast2MaxValue < taskCount / 2);
-            Assert.IsTrue(allGoodFast1MinCount > allGoodFast2MinCount);
+            // min and max metrics must have the same item count
+            Assert.AreEqual(allGoodMinCount, allGoodMaxCount);
+            Assert.AreEqual(allBadMinCount, allBadMaxCount);
+            Assert.AreEqual(allGoodFastMinCount, allGoodFastMaxCount);
+            Assert.AreEqual(allBadSlowMinCount, allBadSlowMaxCount);
 
-            Assert.AreEqual(taskCount / 4, allBadSlow1MinCount + allBadSlow2MinCount);
-            Assert.IsTrue(allBadSlow1MinValue <= allBadSlow1MaxValue);
-            Assert.IsTrue(allBadSlow2MinValue <= allBadSlow2MaxValue);
-            Assert.IsTrue(allBadSlow1MinValue == -1 || allBadSlow1MinValue >= taskCount / 2);
-            Assert.IsTrue(allBadSlow2MinValue == -1 || allBadSlow2MinValue >= taskCount / 2);
-            Assert.IsTrue(allBadSlow1MinCount < allBadSlow2MinCount);
+            Assert.AreEqual(taskCount / 2, allGoodMinCount);
+            Assert.AreEqual(0, allGoodMinValue);
+            Assert.AreEqual(taskCount - 2, allGoodMaxValue);
+            
+            Assert.AreEqual(taskCount / 2, allBadMinCount);
+            Assert.AreEqual(1, allBadMinValue);
+            Assert.AreEqual(taskCount - 1, allBadMaxValue);
+            
+            Assert.AreEqual(taskCount / 4, allGoodFastMinCount);
+            Assert.AreEqual(0, allGoodFastMinValue);
+            Assert.AreEqual((taskCount / 2) - 2, allGoodFastMaxValue);
+
+            Assert.AreEqual(taskCount / 4, allBadSlowMinCount);
+            Assert.AreEqual((taskCount / 2) + 1, allBadSlowMinValue);
+            Assert.AreEqual(taskCount - 1, allBadSlowMaxValue);
         }
     }
 }
