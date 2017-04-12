@@ -7,6 +7,7 @@ using System.Web.Mvc;
 namespace Mvc4_MediumTrust.Controllers
 {
     using Models;
+    using System.Globalization;
 
     public class ProductsController : Controller
     {
@@ -35,7 +36,7 @@ namespace Mvc4_MediumTrust.Controllers
             var product = products.FirstOrDefault((p) => p.Id == id);
             if (product == null)
             {
-                return HttpNotFound(string.Format("Product id {0} not found", id));
+                return HttpNotFound(string.Format(CultureInfo.InvariantCulture, "Product id {0} not found", id));
             }
             return Json(product, JsonRequestBehavior.AllowGet);
         }

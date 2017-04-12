@@ -1,14 +1,12 @@
 ﻿namespace Unit.Tests
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.Extensibility.Filtering;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.QuickPulse;
     using Microsoft.ManagementServices.RealTimeDataProcessing.QuickPulseService;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -81,7 +79,13 @@
         public void QuickPulseDataAccumulatorCollectsTelemetryItemsInThreadSafeManner()
         {
             // ARRANGE
-            var accumulator = new QuickPulseDataAccumulator();
+            CollectionConfigurationError[] errors;
+            var accumulator =
+                new QuickPulseDataAccumulator(
+                    new CollectionConfiguration(
+                        new CollectionConfigurationInfo() { ETag = string.Empty, Metrics = new CalculatedMetricInfo[0] },
+                        out errors,
+                        new ClockMock()));
 
             // ACT
             var iterationCount = 1000;

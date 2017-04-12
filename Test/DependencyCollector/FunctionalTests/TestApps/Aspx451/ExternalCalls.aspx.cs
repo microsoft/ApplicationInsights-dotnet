@@ -3,7 +3,7 @@
     using System;
     using System.Data;
     using System.Data.SqlClient;
-    using System.Net;
+    using System.Globalization;
     using System.Runtime.InteropServices;
     using FW40Shared;
     using FW45Shared;
@@ -64,7 +64,7 @@
             var count = 1;
             try
             {
-                count = int.Parse(countStr);
+                count = int.Parse(countStr, CultureInfo.CurrentCulture);
             }
             catch (Exception)
             {

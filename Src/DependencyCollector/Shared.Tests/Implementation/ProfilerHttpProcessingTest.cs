@@ -9,7 +9,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
 #if !NET40
@@ -22,12 +21,17 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if NET40
+    using Microsoft.ApplicationInsights.Net40;
+#endif
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+#pragma warning disable 618
 
     [TestClass]
     public sealed class ProfilerHttpProcessingTest : IDisposable
@@ -54,7 +58,15 @@
 
         [TestCleanup]
         public void Cleanup()
-        {        
+        {
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            CorrelationHelper.CleanOperationContext();
+#endif
         }
         #endregion //TestgInitiliaze
 
@@ -116,6 +128,31 @@
             Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
 
+        [TestMethod]
+        [Description("Validates if DependencyTelemetry sent contains the target role name.")]
+        public void RddTestHttpProcessingProfilerOnEndAddsRoleNameToTargetField()
+        {
+            string roleName = "SomeRoleName";
+
+            this.SimulateWebRequestWithGivenRequestContextHeaderValue(RequestResponseHeaders.RequestContextTargetRoleNameKey + "=" + roleName);
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            Assert.AreEqual(this.testUrl.Host + " | roleName:" + roleName, ((DependencyTelemetry)this.sendItems[0]).Target);
+        }
+
+        [TestMethod]
+        [Description("Validates if DependencyTelemetry sent contains the target role name as well as correlation id.")]
+        public void RddTestHttpProcessingProfilerOnEndAddsBothRoleNameAndCorrelationIdToTargetField()
+        {
+            string roleName = "SomeRoleName";
+            string appId = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
+
+            this.SimulateWebRequestWithGivenRequestContextHeaderValue(string.Format(CultureInfo.InvariantCulture, "{0}, {1}={2}", this.GetCorrelationIdHeaderValue(appId), RequestResponseHeaders.RequestContextTargetRoleNameKey, roleName));
+
+            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
+            Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId) + " | roleName:" + roleName, ((DependencyTelemetry)this.sendItems[0]).Target);
+        }
+
         /// <summary>
         /// Validates that DependencyTelemetry sent does not contains the cross component correlation id when the caller and callee are the same component.
         /// </summary>
@@ -148,7 +185,7 @@
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
             this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey));
+            Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>
@@ -184,9 +221,41 @@
             using (var op = client.StartOperation<RequestTelemetry>("request"))
             {
                 this.httpProcessingProfiler.OnBeginForGetResponse(request);
-                Assert.IsNotNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
-                Assert.AreNotEqual(request.Headers[RequestResponseHeaders.StandardParentIdHeader], op.Telemetry.Context.Operation.Id);
+
+                var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
+                var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
+                Assert.IsNotNull(actualParentIdHeader);
+                Assert.AreNotEqual(actualParentIdHeader, op.Telemetry.Context.Operation.Id);
+
+                Assert.AreEqual(actualParentIdHeader, actualRequestIdHeader);
+#if NET45
+                Assert.IsTrue(actualRequestIdHeader.StartsWith(Activity.Current.Id, StringComparison.Ordinal));
+                Assert.AreNotEqual(Activity.Current.Id, actualRequestIdHeader);
+#else
+                Assert.AreEqual(op.Telemetry.Context.Operation.Id, ApplicationInsightsActivity.GetRootId(request.Headers[RequestResponseHeaders.StandardParentIdHeader]));
+#endif
             }
+        }
+
+        /// <summary>
+        /// Ensures that the parent id header is added when request is sent.
+        /// </summary>
+        [TestMethod]
+        public void RddTestHttpProcessingProfilerOnBeginAddsCorrelationContextHeader()
+        {
+            var request = WebRequest.Create(this.testUrl);
+
+            Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+#if NET45
+            var activity = new Activity("test").AddBaggage("Key1", "Value1").AddBaggage("Key2", "Value2").Start();
+#else
+            CorrelationHelper.SetOperationContext(new RequestTelemetry(), new Dictionary<string, string> { ["Key1"] = "Value1", ["Key2"] = "Value2" });
+#endif
+            this.httpProcessingProfiler.OnBeginForGetResponse(request);
+
+            var actualCorrelationContextHeader = request.Headers[RequestResponseHeaders.CorrelationContextHeader];
+            Assert.IsNotNull(actualCorrelationContextHeader);
+            Assert.IsTrue(actualCorrelationContextHeader == "Key2=Value2,Key1=Value1" || actualCorrelationContextHeader == "Key1=Value1,Key2=Value2");
         }
 
         /// <summary>
@@ -222,7 +291,7 @@
         [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
         public void RddTestHttpProcessingProfilerOnBeginDoesNotOverwriteExistingSource()
         {
-            string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextSourceKey + "=HelloWorld";
+            string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextCorrelationSourceKey + "=HelloWorld";
             var request = WebRequest.Create(this.testUrl);
 
             request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithAppId);
@@ -293,30 +362,6 @@
             ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "404");
         }
 
-#if !NET40
-        /// <summary>
-        /// Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.
-        /// </summary>
-        [TestMethod]
-        [Description("Validates HttpProcessingProfiler sends correct telemetry including response code on calling OnExceptionForGetResponse for HttpException.")]
-        [Owner("mafletch")]
-        [TestCategory("CVT")]
-        public void RddTestHttpProcessingProfilerOnHttpExceptionForGetResponse()
-        {
-            var request = WebRequest.Create(this.testUrl);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            this.httpProcessingProfiler.OnBeginForGetResponse(request);
-            Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
-            Exception exc = new HttpException(404, "exception message");
-            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingProfiler.OnExceptionForGetResponse(null, exc, request);
-            stopwatch.Stop();
-
-            Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
-            ValidateTelemetryPacket(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, false, stopwatch.Elapsed.TotalMilliseconds, "404");
-        }
-#endif
         /// <summary>
         /// Validates HttpProcessingProfiler OnBegin logs error into EventLog when passed invalid thisObject.
         /// </summary>
@@ -835,10 +880,15 @@
 
         private void SimulateWebRequestResponseWithAppId(string appId)
         {
+            this.SimulateWebRequestWithGivenRequestContextHeaderValue(this.GetCorrelationIdHeaderValue(appId));
+        }
+
+        private void SimulateWebRequestWithGivenRequestContextHeaderValue(string headerValue)
+        {
             var request = WebRequest.Create(this.testUrl);
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(appId));
+            headers.Add(RequestResponseHeaders.RequestContextHeader, headerValue);
 
             var returnObjectPassed = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
 
@@ -853,7 +903,7 @@
 
         private string GetCorrelationIdHeaderValue(string appId)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextTargetKey, appId);
+            return string.Format(CultureInfo.InvariantCulture, "{0}=cid-v1:{1}", RequestResponseHeaders.RequestContextCorrleationTargetKey, appId);
         }
 
         private void Initialize(string instrumentationKey)

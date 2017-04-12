@@ -1,18 +1,16 @@
 ﻿namespace FuncTest.Helpers
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
-    using System.Text;
-    using System.Threading.Tasks;
 
     public class LocalDb
     {
         public const string LocalDbConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog={0};Integrated Security=True;Connection Timeout=300";
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2234:Pass System.Uri objects instead of strings", Justification = "Not a normal URI.")]
         public static void CreateLocalDb(string databaseName, string scriptName)
         {
             string codeBase = Assembly.GetExecutingAssembly().CodeBase;
@@ -37,9 +35,10 @@
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private static void ExecuteScript(string databaseName, string scriptName)
         {
-            string connectionString = string.Format(LocalDbConnectionString, databaseName);
+            string connectionString = string.Format(CultureInfo.InvariantCulture, LocalDbConnectionString, databaseName);
 
             string codeBase = Assembly.GetExecutingAssembly().CodeBase;
             UriBuilder uri = new UriBuilder(codeBase);
@@ -63,13 +62,15 @@
 
         private static bool CheckDatabaseExists(string databaseName)
         {
-            string connectionString = string.Format(LocalDbConnectionString, "master");
+            string connectionString = string.Format(CultureInfo.InvariantCulture, LocalDbConnectionString, "master");
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = connection.CreateCommand();
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT name FROM master.dbo.sysdatabases WHERE ('[' + name + ']' = '@databaseName' OR name = '@databaseName')",
+                    connection);
 
-                cmd.CommandText = string.Format("SELECT name FROM master.dbo.sysdatabases WHERE ('[' + name + ']' = '{0}' OR name = '{1}')", databaseName, databaseName);
+                cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
                 object result = cmd.ExecuteScalar();
                 if (result != null)
                 {
@@ -82,13 +83,14 @@
 
         private static void CreateDatabase(string databaseName, string databaseFileName)
         {
-            string connectionString = string.Format(LocalDbConnectionString, "master");
+            string connectionString = string.Format(CultureInfo.InvariantCulture, LocalDbConnectionString, "master");
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = connection.CreateCommand();
+                SqlCommand cmd = new SqlCommand("CREATE DATABASE {0} ON (NAME = N'@databaseName', FILENAME = '@databaseFileName')");
 
-                cmd.CommandText = string.Format("CREATE DATABASE {0} ON (NAME = N'{0}', FILENAME = '{1}')", databaseName, databaseFileName);
+                cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
+                cmd.Parameters.Add(new SqlParameter("@databaseFileName", databaseFileName));
                 cmd.ExecuteNonQuery();
             }
         }

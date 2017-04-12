@@ -266,5 +266,27 @@ namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector {
                 return ResourceManager.GetString("UnicodePerformanceCounterName", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid value for Environment.ProcessorsCount: {0}.
+        /// </summary>
+        internal static string StandardProcessorsCountReadFailed
+        {
+            get
+            {
+                return ResourceManager.GetString("StandardProcessorsCountReadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid value for NUMBER_OF_PROCESSORS: {0}.
+        /// </summary>
+        internal static string WebAppProcessorsCountReadFailed
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAppProcessorsCountReadFailed", resourceCulture);
+            }
+        }
     }
 }

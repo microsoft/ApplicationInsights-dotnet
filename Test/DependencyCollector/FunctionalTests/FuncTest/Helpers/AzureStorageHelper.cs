@@ -1,13 +1,11 @@
-﻿using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace FuncTest.Helpers
 {
@@ -35,7 +33,7 @@ namespace FuncTest.Helpers
             }
             else
             {
-                throw new Exception(string.Format("Failed to get status of Azure Storage Emulator: {0}", output));
+                throw new Exception(string.Format(CultureInfo.InvariantCulture, "Failed to get status of Azure Storage Emulator: {0}", output));
             }
         }
 
@@ -58,7 +56,7 @@ namespace FuncTest.Helpers
 
             if (p.ExitCode != 0)
             {
-                throw new Exception(string.Format("Failed to execute command {0} on Azure Storage Emulator: {1}", command, output));
+                throw new Exception(string.Format(CultureInfo.InvariantCulture, "Failed to execute command {0} on Azure Storage Emulator: {1}", command, output));
             }
             
 

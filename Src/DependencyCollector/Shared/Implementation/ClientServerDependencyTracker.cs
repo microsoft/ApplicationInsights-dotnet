@@ -2,11 +2,17 @@
 {
     using System;
     using System.Data.SqlClient;
+#if NET45
+    using System.Diagnostics;
+#endif
     using System.Net;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
 
     internal static class ClientServerDependencyTracker
     {
+        private const string DependencyActivityName = "Microsoft.AppInsights.Web.Dependency";
+
         /// <summary>
         /// Gets or sets a value indicating whether pretending the profiler is attached or not.
         /// </summary>
@@ -21,6 +27,32 @@
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
             telemetryClient.Initialize(telemetry);
+#if NET45
+            // telemetry is initialized from current Activity (but not the Id)
+            // but every operation must have it's own Activity and Id must be set accordingly
+            // basically we repeat TelemetryClientExtensions.StartOperation here
+            var activity = new Activity(DependencyActivityName);
+            activity.Start();
+            
+            telemetry.Id = activity.Id;
+
+            // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
+            if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
+            {
+                telemetry.Context.Operation.Id = activity.RootId;
+            }
+
+            activity.Stop();
+#else
+            telemetryClient.Initialize(telemetry);
+
+            // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
+            // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
+            // let's fix it
+            telemetry.Id = ApplicationInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
+            telemetry.Context.Operation.Id = ApplicationInsightsActivity.GetRootId(telemetry.Id);
+
+#endif
             PretendProfilerIsAttached = false;
             return telemetry;
         }

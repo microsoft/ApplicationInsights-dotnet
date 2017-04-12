@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Global.props'))\Global.props" />
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Signing.props'))\Signing.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -30,15 +28,21 @@
     <None Include="Package.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\ApplicationInsights.config.install.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Resources\ApplicationInsights.config.transform">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\ApplicationInsights.config.uninstall.xdt">
+    <EmbeddedResource Include="Resources\net40\ApplicationInsights.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net40\ApplicationInsights.config.uninstall.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net45\ApplicationInsights.config.install.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\net45\ApplicationInsights.config.uninstall.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="Resources\web.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

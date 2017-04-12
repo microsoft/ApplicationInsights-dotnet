@@ -1,16 +1,19 @@
 ﻿namespace FuncTest
 {
     using System;
-    using System.Linq;    
+    using System.Globalization;
+    using System.Linq;
+    using AI;
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Diagnostics;
 
     /// <summary>
-    /// Tests RDD Functionality for a ASP.NET WebApplication in DOTNET 4.5.1 and DOTNET 4.6
+    /// Tests RDD Functionality for a ASP.NET WebApplication in DOTNET 4.5.1, DOTNET 4.6,
+    /// and DOTNET Core.
     /// ASPX451 refers to the test application throughout the functional test context.
-    /// The same app is used for testsing 4.5.1 and 4.6 scenarios.
+    /// The same app is used for testing 4.5.1 4.6, and Core scenarios.
     /// </summary>
     [TestClass]
     public class HttpTests
@@ -104,7 +107,7 @@
         /// <c>http://msdn.microsoft.com/en-us/library/ms228972(v=vs.110).aspx</c>
         /// </summary>
         private const string QueryStringOutboundHttpAsyncAwait1Failed = "?type=failedhttpasyncawait1&count=";
-        
+
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
@@ -119,7 +122,7 @@
         /// Resource Name for failed at DNS request.
         /// </summary>
         private Uri ResourceNameHttpToFailedAtDnsRequest = new Uri("http://abcdefzzzzeeeeadadad.com");
-        
+
 
         /// <summary>
         /// Maximum access time for the initial call - This includes an additional 1-2 delay introduced before the very first call by Profiler V2.
@@ -130,7 +133,7 @@
         /// Maximum access time for calls after initial - This does not incur perf hit of the very first call.
         /// </summary>        
         private readonly TimeSpan AccessTimeMaxHttpNormal = TimeSpan.FromSeconds(3);
-        
+
         public TestContext TestContext { get; set; }
 
         [ClassInitialize]
@@ -164,219 +167,197 @@
 
         #region 451
 
-        [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
-        public void TestRddForSyncHttpAspx451()
+        private const string Aspx451TestAppFolder = "..\\TestApps\\ASPX451\\App\\";
+
+        private static void EnsureNet451Installed()
         {
             if (!RegistryCheck.IsNet451Installed)
             {
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
-
-            // Execute and verify calls which succeeds            
-            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");            
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
+        public void TestRddForSyncHttpAspx451()
+        {
+            EnsureNet451Installed();
+
+            // Execute and verify calls which succeeds            
+            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncHttpPostCallAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             // Execute and verify calls which succeeds            
             this.ExecuteSyncHttpPostTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForSyncHttpFailedAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             // Execute and verify calls which fails.            
-            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, "404");            
+            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, "404");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAsync1HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }            
+            EnsureNet451Installed();
+
             this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, QueryStringOutboundHttpAsync1, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForHttpAspx451WithHttpClient()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteSyncHttpClientTests(DeploymentAndValidationTools.Aspx451TestWebApplication, AccessTimeMaxHttpNormal, "404");
         }
 
         [TestMethod]
         [Description("Verify RDD is collected for failed Async Http Calls in ASPX 4.5.1 application")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForFailedAsync1HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
-            this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, QueryStringOutboundHttpAsync1Failed, "404");            
+            this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, QueryStringOutboundHttpAsync1Failed, "404");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAsync2HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
+
             this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, QueryStringOutboundHttpAsync2, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForFailedAsync2HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, QueryStringOutboundHttpAsync2Failed, "404");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAsync3HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
+
             this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, 1, AccessTimeMaxHttpNormal, QueryStringOutboundHttpAsync3, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForFailedAsync3HttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteAsyncTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, 1, AccessTimeMaxHttpInitial, QueryStringOutboundHttpAsync3Failed, "404");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAsyncWithCallBackHttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteAsyncWithCallbackTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAsyncAwaitHttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteAsyncAwaitTests(DeploymentAndValidationTools.Aspx451TestWebApplication, true, "200");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForFailedAsyncAwaitHttpAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
             this.ExecuteAsyncAwaitTests(DeploymentAndValidationTools.Aspx451TestWebApplication, false, "404");
-        }        
+        }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAzureSdkBlobAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
-            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "blob", "http://127.0.0.1:11000");           
+            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "blob", "http://127.0.0.1:11000");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAzureSdkQueueAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
-            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "queue", "http://127.0.0.1:11001");           
+            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "queue", "http://127.0.0.1:11001");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestRddForAzureSdkTableAspx451()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
 
-            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "table", "http://127.0.0.1:11002");           
+            this.ExecuteAzureSDKTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, "table", "http://127.0.0.1:11002");
         }
 
         [TestMethod]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolderWin32)]
+        [TestCategory(TestCategory.Net451)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolderWin32)]
         public void TestRddForWin32ApplicationPool()
         {
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }
+            EnsureNet451Installed();
+
             this.ExecuteSyncHttpTests(DeploymentAndValidationTools.Aspx451TestWebApplicationWin32, true, 1, AccessTimeMaxHttpInitial, "200");
         }
 
         [TestMethod]
+        [TestCategory(TestCategory.Net451)]
         [Description("Validates that DependencyModule collects telemety for outbound connections to non existent hosts. This request is expected to fail at DNS resolution stage, and hence will not contain http code in result.")]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem(Aspx451TestAppFolder, DeploymentAndValidationTools.Aspx451AppFolder)]
         public void TestDependencyCollectionForFailedRequestAtDnsResolution()
-        {            
-            if (!RegistryCheck.IsNet451Installed)
-            {
-                Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
-            }            
+        {
+            EnsureNet451Installed();
 
             var queryString = QueryStringOutboundHttpFailedAtDns;
             var resourceNameExpected = ResourceNameHttpToFailedAtDnsRequest;
@@ -397,12 +378,85 @@
             // Since the outbound request would fail at DNS resolution, there won't be any http code to collect.
             // This will be a case where success = false, but resultCode is empty            
             Assert.AreEqual(false, httpItem.data.baseData.success, "Success flag collected is wrong.");
-            Assert.AreEqual(string.Empty, httpItem.data.baseData.resultCode, "Result code collected is wrong.");
+            Assert.AreEqual("NameResolutionFailure", httpItem.data.baseData.resultCode, "Result code collected is wrong.");
             string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
         }
 
         #endregion 451
+
+        #region Core
+
+        private static void EnsureDotNetCoreInstalled()
+        {
+            string output = "";
+            string error = "";
+            DotNetCoreProcess process = new DotNetCoreProcess("--version")
+                .RedirectStandardOutputTo((string outputMessage) => output += outputMessage)
+                .RedirectStandardErrorTo((string errorMessage) => error += errorMessage)
+                .Run();
+
+            if (process.ExitCode.Value != 0 || !string.IsNullOrEmpty(error))
+            {
+                Assert.Inconclusive(".Net Core is not installed");
+            }
+            else
+            {
+                // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
+                int dashIndex = output.IndexOf('-');
+                Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));
+
+                Version minVersion = new Version("1.0.0");
+                if (version < minVersion)
+                {
+                    Assert.Inconclusive($".Net Core version ({output}) must be greater than or equal to {minVersion}.");
+                }
+            }
+        }
+
+        private static void DotNetCoreTestSetup()
+        {
+            EnsureDotNetCoreInstalled();
+            DeploymentAndValidationTools.ExpectedSDKPrefix = "rddd";
+        }
+
+        private const string AspxCoreTestAppFolder = "..\\TestApps\\AspxCore\\";
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore)]
+        [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
+        public void TestRddForSyncHttpAspxCore()
+        {
+            DotNetCoreTestSetup();
+
+            // Execute and verify calls which succeeds            
+            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+        }
+
+        [TestMethod]
+        [TestCategory(TestCategory.NetCore)]
+        [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
+        public void TestRddForSyncHttpPostCallAspxCore()
+        {
+            DotNetCoreTestSetup();
+
+            // Execute and verify calls which succeeds            
+            this.ExecuteSyncHttpPostTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, true, 1, AccessTimeMaxHttpNormal, "200");
+        }
+
+        [TestMethod]
+        [Ignore] // Don't run this test until .NET Core writes diagnostic events for failed HTTP requests
+        [TestCategory(TestCategory.NetCore)]
+        [DeploymentItem(AspxCoreTestAppFolder, DeploymentAndValidationTools.AspxCoreAppFolder)]
+        public void TestRddForSyncHttpFailedAspxCore()
+        {
+            DotNetCoreTestSetup();
+
+            // Execute and verify calls which fails.            
+            this.ExecuteSyncHttpTests(DeploymentAndValidationTools.AspxCoreTestWebApplication, false, 1, AccessTimeMaxHttpInitial, "200");
+        }
+
+        #endregion Core
 
         #region helpers
 
@@ -418,7 +472,7 @@
             TimeSpan accessTimeMax, string url, string resultCodeExpected)
         {
             var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
-            
+
             testWebApplication.DoTest(
                 application =>
                 {
@@ -437,7 +491,7 @@
                         allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     Assert.AreEqual(
-                        3*count,
+                        3 * count,
                         httpItems.Length,
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
 
@@ -455,7 +509,7 @@
         /// <param name="success">indicates if the tests should test success or failure case</param>   
         /// <param name="count">number to RDD calls to be made by the test application.  </param> 
         /// <param name="accessTimeMax">approximate maximum time taken by RDD Call.  </param> 
-        private void ExecuteSyncHttpTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax, 
+        private void ExecuteSyncHttpTests(TestWebApplication testWebApplication, bool success, int count, TimeSpan accessTimeMax,
             string resultCodeExpected)
         {
             testWebApplication.DoTest(
@@ -529,7 +583,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
                     var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
-  
+
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
                         count,
@@ -541,7 +595,7 @@
                         this.Validate(httpItem, resourceNameExpected, accessTimeMax, success, "POST", resultCodeExpected);
                     }
                 });
-        }        
+        }
 
         /// <summary>
         /// Helper to execute Async http test which uses Callbacks.
@@ -551,7 +605,7 @@
         private void ExecuteAsyncWithCallbackTests(TestWebApplication testWebApplication, bool success, string resultCodeExpected)
         {
             var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
-            
+
             testWebApplication.DoTest(
                 application =>
                 {
@@ -561,7 +615,7 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
@@ -580,7 +634,7 @@
         private void ExecuteAsyncAwaitTests(TestWebApplication testWebApplication, bool success, string resultCodeExpected)
         {
             var resourceNameExpected = success ? ResourceNameHttpToBing : ResourceNameHttpToFailedRequest;
-            
+
             testWebApplication.DoTest(
                 application =>
                 {
@@ -590,14 +644,14 @@
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured
 
                     var allItems = DeploymentAndValidationTools.SdkEventListener.ReceiveAllItemsDuringTimeOfType<TelemetryItem<RemoteDependencyData>>(DeploymentAndValidationTools.SleepTimeForSdkToSendEvents);
-                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();                    
+                    var httpItems = allItems.Where(i => i.data.baseData.type == "Http").ToArray();
 
                     // Validate the RDD Telemetry properties
                     Assert.AreEqual(
                         1,
                         httpItems.Length,
                         "Total Count of Remote Dependency items for HTTP collected is wrong.");
-                    this.Validate(httpItems[0], resourceNameExpected, AccessTimeMaxHttpInitial, success, "GET", resultCodeExpected); 
+                    this.Validate(httpItems[0], resourceNameExpected, AccessTimeMaxHttpInitial, success, "GET", resultCodeExpected);
                 });
         }
 
@@ -613,7 +667,7 @@
             testWebApplication.DoTest(
                 application =>
                 {
-                    application.ExecuteAnonymousRequest(string.Format(QueryStringOutboundAzureSdk, type, count));
+                    application.ExecuteAnonymousRequest(string.Format(CultureInfo.InvariantCulture, QueryStringOutboundAzureSdk, type, count));
 
                     //// The above request would have trigged RDD module to monitor and create RDD telemetry
                     //// Listen in the fake endpoint and see if the RDDTelemtry is captured                      
@@ -623,7 +677,7 @@
 
                     foreach (var httpItem in httpItems)
                     {
-                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration);
+                        TimeSpan accessTime = TimeSpan.Parse(httpItem.data.baseData.duration, CultureInfo.InvariantCulture);
                         Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
                         string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
@@ -633,14 +687,14 @@
                         if (url.Contains(expectedUrl))
                         {
                             countItem++;
-                        }                        
+                        }
                         else
                         {
                             Assert.Fail("ExecuteAzureSDKTests.url not matching for " + url);
                         }
                     }
 
-                    Assert.IsTrue(countItem >= count, "Azure " + type + " access captured " + countItem + " is less than " + count);                    
+                    Assert.IsTrue(countItem >= count, "Azure " + type + " access captured " + countItem + " is less than " + count);
                 });
         }
 

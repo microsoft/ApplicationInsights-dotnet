@@ -37,6 +37,8 @@
             throw new Exception("Fatal exception");
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "This forces exception to become unobserved.")]
         private static void GenerateUnobservedException(TelemetryClient client)
         {
             Task.Factory.StartNew(() => { throw new Exception(); });

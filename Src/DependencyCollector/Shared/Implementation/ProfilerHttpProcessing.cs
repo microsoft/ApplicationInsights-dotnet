@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
 #if !NET40
     using System.Web;
@@ -14,6 +15,9 @@
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation.Operation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if NET40
+    using Microsoft.ApplicationInsights.Net40;
+#endif
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
@@ -300,18 +304,18 @@
                     try
                     {
                         if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
-                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey) == null)
+                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey) == null)
                         {
                             string appId;
                             if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
                             {
-                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextSourceKey, appId);
+                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey, appId);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        CrossComponentCorrelationEventSource.Log.SetHeaderFailed(ex.ToInvariantString());
+                        AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                     }
 
                     // Add the root ID
@@ -323,9 +327,35 @@
 
                     // Add the parent ID
                     var parentId = telemetry.Id;
-                    if (!string.IsNullOrEmpty(parentId) && webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                    if (!string.IsNullOrEmpty(parentId))
                     {
-                        webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                        if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
+                        {
+                            webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
+                        }
+
+                        if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
+                        {
+                            webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
+                        }
+
+                        if (webRequest.Headers[RequestResponseHeaders.CorrelationContextHeader] == null)
+                        {
+#if NET45
+                            if (Activity.Current.Baggage.Any())
+                            {
+                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, Activity.Current.Baggage);
+                            }
+#else
+#pragma warning disable 618
+                            var correlationContext = CorrelationHelper.GetCorrelationContext();
+#pragma warning restore 618
+                            if (correlationContext != null && correlationContext.Count > 0)
+                            {
+                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, correlationContext);
+                            }
+#endif
+                        }
                     }
                 }
             }
@@ -375,8 +405,6 @@
                     this.TelemetryTable.Remove(thisObj);
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
 
-                    int statusCode = -1;
-
                     var responseObj = returnValue as HttpWebResponse;
 
                     if (responseObj == null && exception != null)
@@ -387,36 +415,51 @@
                         {
                             responseObj = webException.Response as HttpWebResponse;
                         }
-#if !NET40
-                        if (responseObj == null)
-                        {
-                            var httpException = exception as HttpException;
+                    }
 
-                            if (httpException != null)
-                            {
-                                statusCode = httpException.GetHttpCode();
-                            }
+                    if (responseObj != null)
+                    {
+                        int statusCode = -1;
+
+                        try
+                        {
+                            statusCode = (int)responseObj.StatusCode;
                         }
-#endif
+                        catch (ObjectDisposedException)
+                        {
+                            // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
+                            // on the second call to GetResponse() we cannot determine the statusCode.
+                        }
+
+                        telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                        telemetry.Success = (statusCode > 0) && (statusCode < 400);
+                    }
+                    else if (exception != null)
+                    {
+                        var webException = exception as WebException;
+                        if (webException != null)
+                        {
+                            telemetry.ResultCode = webException.Status.ToString();
+                        }
+
+                        telemetry.Success = false;
                     }
 
                     if (responseObj != null)
                     {
                         try
                         {
-                            statusCode = (int)responseObj.StatusCode;
-
                             if (responseObj.Headers != null)
                             {
                                 string targetAppId = null;
 
                                 try
                                 {
-                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetKey);
+                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrleationTargetKey);
                                 }
                                 catch (Exception ex)
                                 {
-                                    CrossComponentCorrelationEventSource.Log.GetHeaderFailed(ex.ToInvariantString());
+                                    AppMapCorrelationEventSource.Log.GetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
                                 }
 
                                 string currentComponentAppId;
@@ -429,6 +472,22 @@
                                         telemetry.Target += " | " + targetAppId;
                                     }
                                 }
+
+                                string targetRoleName = null;
+                                try
+                                {
+                                    targetRoleName = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetRoleNameKey);
+                                }
+                                catch (Exception ex)
+                                {
+                                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
+                                }
+
+                                if (!string.IsNullOrEmpty(targetRoleName))
+                                {
+                                    telemetry.Type = RemoteDependencyConstants.AI;
+                                    telemetry.Target += " | roleName:" + targetRoleName;
+                                }
                             }
                         }
                         catch (ObjectDisposedException)
@@ -437,9 +496,6 @@
                             // on the second call to GetResponse() we cannot determine the statusCode.
                         }
                     }
-                    
-                    telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
-                    telemetry.Success = (statusCode > 0) && (statusCode < 400);
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }

@@ -1,17 +1,30 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
-    using System;
     using System.Collections.Generic;
-    using System.Web;    
-    using Common;
+    using System.Diagnostics;
+    using System.Web;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.Implementation;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;    
-    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     [TestClass]
     public class OperationCorrelationTelemetryInitializerTests
     {
+        [TestCleanup]
+        public void Cleanup()
+        {
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            ActivityHelpers.CleanOperationContext();
+#endif
+        }
+
         [TestMethod]
         public void InitializeDoesNotThrowWhenHttpContextIsNull()
         {
@@ -20,118 +33,143 @@
         }
 
         [TestMethod]
-        public void InitializeSetsParentIdForTelemetryUsingIdFromRequestTelemetry()
+        public void DefaultHeadersOperationCorrelationTelemetryInitializerAreSet()
         {
-            var exceptionTelemetry = new ExceptionTelemetry();
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
-            var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
-
-            source.Initialize(exceptionTelemetry);
-
-            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
+            var initializer = new OperationCorrelationTelemetryInitializer();
+            Assert.AreEqual(RequestResponseHeaders.StandardParentIdHeader, initializer.ParentOperationIdHeaderName);
+            Assert.AreEqual(RequestResponseHeaders.StandardRootIdHeader, initializer.RootOperationIdHeaderName);
         }
 
         [TestMethod]
-        public void InitializeDoesNotOverrideCustomerParentOperationId()
+        public void CustomHeadersOperationCorrelationTelemetryInitializerAreSetProperly()
         {
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
+            var initializer = new OperationCorrelationTelemetryInitializer();
+            initializer.ParentOperationIdHeaderName = "myParentHeader";
+            initializer.RootOperationIdHeaderName = "myRootHeader";
 
-            var customerTelemetry = new TraceTelemetry("Text");
-            customerTelemetry.Context.Operation.ParentId = "CustomId";
+            Assert.AreEqual("myParentHeader", ActivityHelpers.ParentOperationIdHeaderName);
+            Assert.AreEqual("myRootHeader", ActivityHelpers.RootOperationIdHeaderName);
 
-            source.Initialize(customerTelemetry);
-
-            Assert.AreEqual("CustomId", customerTelemetry.Context.Operation.ParentId);
+            Assert.AreEqual("myParentHeader", initializer.ParentOperationIdHeaderName);
+            Assert.AreEqual("myRootHeader", initializer.RootOperationIdHeaderName);
         }
 
+#if NET40
         [TestMethod]
-        public void InitializeSetsRootOperationIdForTelemetryUsingIdFromRequestTelemetry()
+        public void OperationContextIsSetForNonRequestTelemetry()
         {
-            var exceptionTelemetry = new ExceptionTelemetry();
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
-            var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
-            requestTelemetry.Context.Operation.Id = "RootId";
+            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>
+            {
+                ["Request-Id"] = "|guid.1",
+                ["Correlation-Context"] = "k1=v1,k2=v2,k1=v3"
+            });
 
+            // simulate OnBegin behavior:
+            // create telemetry and start activity for children
+            var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
+            
+            // lost Acitivity / call context
+            ActivityHelpers.CleanOperationContext();
+
+            var exceptionTelemetry = new ExceptionTelemetry();
             source.Initialize(exceptionTelemetry);
 
             Assert.AreEqual(requestTelemetry.Context.Operation.Id, exceptionTelemetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
+
+            Assert.AreEqual(2, exceptionTelemetry.Context.Properties.Count);
+            
+            // undefined behavior for duplicates
+            Assert.IsTrue(exceptionTelemetry.Context.Properties["k1"] == "v3" || exceptionTelemetry.Context.Properties["k1"] == "v1");
+            Assert.AreEqual("v2", exceptionTelemetry.Context.Properties["k2"]);
         }
 
         [TestMethod]
-        public void InitializeDoesNotOverrideCustomerRootOperationId()
+        public void OperationContextIsNotUpdatedIfOperationIdIsSet()
         {
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
+            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>
+            {
+                ["Request-Id"] = "|guid.1",
+                ["Correaltion-Context"] = "k1=v1"
+            });
+
+            // create telemetry and immediately clean call context/activity
+            source.FakeContext.CreateRequestTelemetryPrivate();
+            ActivityHelpers.CleanOperationContext();
+
+            var exceptionTelemetry = new ExceptionTelemetry();
+            exceptionTelemetry.Context.Operation.Id = "guid";
+            source.Initialize(exceptionTelemetry);
+
+            Assert.IsNull(exceptionTelemetry.Context.Operation.ParentId);
+
+            Assert.AreEqual(0, exceptionTelemetry.Context.Properties.Count);
+        }
+#else
+        [TestMethod]
+        public void OperationContextIsSetForNonRequestTelemetry()
+        {
+            var activity = new Activity("request")
+                .SetParentId("|guid.1")
+                .AddBaggage("k1", "v1")
+                .AddBaggage("k2", "v2")
+                .AddBaggage("k1", "v3")
+                .Start();
+
+            var source = new TestableOperationCorrelationTelemetryInitializer();
+
+            // simulate OnBegin behavior:
+            // create telemetry and start activity for children
             var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
-            requestTelemetry.Context.Operation.Id = "RootId";
+            
+            // lost Acitivity / call context
+            activity.Stop();
 
-            var customerTelemetry = new TraceTelemetry("Text");
-            customerTelemetry.Context.Operation.Id = "CustomId";
+            var exceptionTelemetry = new ExceptionTelemetry();
+            source.Initialize(exceptionTelemetry);
 
-            source.Initialize(customerTelemetry);
+            Assert.AreEqual(requestTelemetry.Context.Operation.Id, exceptionTelemetry.Context.Operation.Id);
+            Assert.AreEqual(requestTelemetry.Id, exceptionTelemetry.Context.Operation.ParentId);
 
-            Assert.AreEqual("CustomId", customerTelemetry.Context.Operation.Id);
+            Assert.AreEqual(2, exceptionTelemetry.Context.Properties.Count);
+
+            // undefined behavior for duplicates
+            Assert.IsTrue(exceptionTelemetry.Context.Properties["k1"] == "v3" || exceptionTelemetry.Context.Properties["k1"] == "v1");
+            Assert.AreEqual("v2", exceptionTelemetry.Context.Properties["k2"]);
         }
 
         [TestMethod]
-        public void InitializeSetsRequestTelemetryRootOperaitonIdToOepraitonId()
+        public void OperationContextIsNotUpdatedIfOperationIdIsSet()
         {
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
-            var requestTelemetry = source.FakeContext.CreateRequestTelemetryPrivate();
+            var activity = new Activity("request")
+                .SetParentId("|guid.1")
+                .AddBaggage("k1", "v1")
+                .Start();
 
-            var customerTelemetry = new TraceTelemetry("Text");
+            var source = new TestableOperationCorrelationTelemetryInitializer();
 
-            source.Initialize(customerTelemetry);
+            // create telemetry and immediately clean call context/activity
+            source.FakeContext.CreateRequestTelemetryPrivate();
 
-            Assert.AreEqual(requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
+            activity.Stop();
+
+            var exceptionTelemetry = new ExceptionTelemetry();
+            exceptionTelemetry.Context.Operation.Id = "guid";
+            source.Initialize(exceptionTelemetry);
+
+            Assert.IsNull(exceptionTelemetry.Context.Operation.ParentId);
+
+            Assert.AreEqual(0, exceptionTelemetry.Context.Properties.Count);
         }
-
-        [TestMethod]
-        public void InitializeReadsParentIdFromCustomHeader()
-        {
-            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>() { { "headerName", "ParentId" } });
-            source.ParentOperationIdHeaderName = "headerName";
-
-            var customerTelemetry = new TraceTelemetry("Text");
-
-            source.Initialize(customerTelemetry);
-
-            var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();
-            Assert.AreEqual("ParentId", requestTelemetry.Context.Operation.ParentId);
-        }
-
-        [TestMethod]
-        public void InitializeReadsRootIdFromCustomHeader()
-        {
-            var source = new TestableOperationCorrelationTelemetryInitializer(new Dictionary<string, string>() { { "headerName", "RootId" } });
-            source.RootOperationIdHeaderName = "headerName";
-
-            var customerTelemetry = new TraceTelemetry("Text");
-
-            source.Initialize(customerTelemetry);
-            Assert.AreEqual("RootId", customerTelemetry.Context.Operation.Id);
-
-            var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();
-            Assert.AreEqual("RootId", requestTelemetry.Context.Operation.Id);
-        }
-
-        [TestMethod]
-        public void InitializeDoNotMakeRequestAParentOfItself()
-        {
-            var source = new TestableOperationCorrelationTelemetryInitializer(null);
-            var requestTelemetry = source.FakeContext.ReadOrCreateRequestTelemetryPrivate();
-
-            source.Initialize(requestTelemetry);
-            Assert.AreEqual(null, requestTelemetry.Context.Operation.ParentId);
-            Assert.AreEqual(requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
-        }
+#endif
 
         private class TestableOperationCorrelationTelemetryInitializer : OperationCorrelationTelemetryInitializer
         {
             private readonly HttpContext fakeContext;
 
-            public TestableOperationCorrelationTelemetryInitializer(IDictionary<string, string> headers)
+            public TestableOperationCorrelationTelemetryInitializer(IDictionary<string, string> headers = null)
             {
-                 this.fakeContext = HttpModuleHelper.GetFakeHttpContext(headers);
+                this.fakeContext = HttpModuleHelper.GetFakeHttpContext(headers);
             }
 
             public HttpContext FakeContext

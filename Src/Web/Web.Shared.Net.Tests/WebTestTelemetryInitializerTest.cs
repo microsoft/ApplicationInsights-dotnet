@@ -1,7 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Web
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Web;
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +11,19 @@
     [TestClass]
     public class WebTestTelemetryInitializerTests
     {
+        [TestCleanup]
+        public void Cleanup()
+        {
+#if NET45
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+#else
+            ActivityHelpers.CleanOperationContext();
+#endif
+        }
+
         [TestMethod]
         public void SyntheticSourceIsNotSetIfUserProvidedValue()
         {

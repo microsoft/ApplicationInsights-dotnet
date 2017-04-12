@@ -31,14 +31,15 @@
 
         #region Infra init - success
 
-        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}', DisableTopCpuProcesses: '{2}' ")]
+        [Event(1, Level = EventLevel.Informational, Message = @"QuickPulse infrastructure is being initialized. QuickPulseServiceEndpoint: '{0}', DisableFullTelemetryItems: '{1}', DisableTopCpuProcesses: '{2}', AuthApiKey: '{3}' ")]
         public void ModuleIsBeingInitializedEvent(
             string serviceEndpoint,
             bool disableFullTelemetryItems,
             bool disableTopCpuProcesses,
+            string authApiKey,
             string applicationName = "dummy")
         {
-            this.WriteEvent(1, serviceEndpoint ?? string.Empty, disableFullTelemetryItems, disableTopCpuProcesses, this.ApplicationName);
+            this.WriteEvent(1, serviceEndpoint ?? string.Empty, disableFullTelemetryItems, disableTopCpuProcesses, authApiKey, this.ApplicationName);
         }
 
         [Event(3, Level = EventLevel.Informational, Message = @"Performance counter {0} has been successfully registered with QuickPulse performance collector.")]
@@ -110,16 +111,22 @@
             this.WriteEvent(14, message ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(15, Message = "Sample submitted. Response: '{0}'", Level = EventLevel.Verbose)]
-        public void SampleSubmittedEvent(string response, string applicationName = "dummy")
+        [Event(21, Message = "Waited for samples to cool down. {0}", Level = EventLevel.Verbose)]
+        public void CollectionConfigurationSampleCooldownEvent(bool cooledDown, string applicationName = "dummy")
         {
-            this.WriteEvent(15, response ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(21, cooledDown, this.ApplicationName);
         }
 
-        [Event(16, Message = "Ping sent. Response: '{0}'", Level = EventLevel.Verbose)]
-        public void PingSentEvent(string response, string applicationName = "dummy")
+        [Event(15, Message = "Sample submitted. Outgoing etag: '{0}'. Incoming etag: '{1}'. Response: '{2}'", Level = EventLevel.Verbose)]
+        public void SampleSubmittedEvent(string outgoingEtag, string incomingEtag, string response, string applicationName = "dummy")
         {
-            this.WriteEvent(16, response ?? string.Empty, this.ApplicationName);
+            this.WriteEvent(15, outgoingEtag ?? string.Empty, incomingEtag ?? string.Empty, response ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(16, Message = "Ping sent. Outgoing etag: '{0}'. Incoming etag: '{1}'. Response: '{2}'", Level = EventLevel.Verbose)]
+        public void PingSentEvent(string outgoingEtag, string incomingEtag, string response, string applicationName = "dummy")
+        {
+            this.WriteEvent(16, outgoingEtag ?? string.Empty, incomingEtag ?? string.Empty, response ?? string.Empty, this.ApplicationName);
         }
 
         [Event(17, Message = "State timer tick finished: {0} ms", Level = EventLevel.Verbose)]
@@ -144,6 +151,18 @@
         public void ProcessorRegistered(string count, string applicationName = "dummy")
         {
             this.WriteEvent(7, count, this.ApplicationName);
+        }
+
+        [Event(22, Message = "Collection configuration is being updated. Old etag: '{0}'. New etag: '{1}'. Configuration: '{2}'", Level = EventLevel.Verbose)]
+        public void CollectionConfigurationUpdating(string oldEtag, string newEtag, string configuration, string applicationName = "dummy")
+        {
+            this.WriteEvent(22, oldEtag ?? string.Empty, newEtag ?? string.Empty, configuration ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(23, Message = "Collection configuration failed to update. Old etag: '{0}'. New etag: '{1}'. Configuration: '{2}'. Exception: '{3}'", Level = EventLevel.Verbose)]
+        public void CollectionConfigurationUpdateFailed(string oldEtag, string newEtag, string configuration, string e, string applicationName = "dummy")
+        {
+            this.WriteEvent(23, oldEtag ?? string.Empty, newEtag ?? string.Empty, configuration ?? string.Empty, e ?? string.Empty, this.ApplicationName);
         }
 
         #endregion
