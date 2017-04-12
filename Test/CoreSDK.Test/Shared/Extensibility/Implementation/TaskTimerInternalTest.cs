@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
     using System;
-#if CORE_PCL || NET45 || NET46 
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Linq;
@@ -16,6 +16,9 @@
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NET40
+    using TaskEx = System.Threading.Tasks.Task;
+#endif
 
     [TestClass]
     public class TaskTimerInternalTest
@@ -197,9 +200,9 @@
                     bool actionInvoked = false;
                     timer.Start(() => Task.Factory.StartNew(() => actionInvoked = true));
                     timer.Cancel();
-
-                    await Task.Delay(20);
-
+        
+                    await TaskEx.Delay(TimeSpan.FromMilliseconds(20));
+        
                     Assert.False(actionInvoked);
                 });
             }

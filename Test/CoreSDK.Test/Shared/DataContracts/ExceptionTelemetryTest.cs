@@ -42,7 +42,7 @@
         [TestMethod]
         public void ExceptionsPropertyIsInternalUntilWeSortOutPublicInterface()
         {
-            Assert.False(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetMethod.IsPublic);
+            Assert.False(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
         }
 
         [TestMethod]

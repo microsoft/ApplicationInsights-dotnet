@@ -4,7 +4,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using System.Globalization;
@@ -72,7 +72,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
                 return Activator.CreateInstance(parameter.ParameterType);
             }
 
-            throw new NotSupportedException("Complex types are not suppored");
+            throw new NotSupportedException("Complex types are not supported");
         }
 
         private static void VerifyEventId(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)

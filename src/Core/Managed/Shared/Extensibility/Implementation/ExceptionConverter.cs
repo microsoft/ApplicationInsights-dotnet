@@ -18,7 +18,6 @@
             External.ExceptionDetails exceptionDetails = External.ExceptionDetails.CreateWithoutStackInfo(
                                                                                                                 exception,
                                                                                                                 parentExceptionDetails);
-#if !CORE_PCL
             var stack = new StackTrace(exception, true);
 
             var frames = stack.GetFrames();
@@ -28,27 +27,53 @@
                                                                                         GetStackFrameLength);
             exceptionDetails.parsedStack = sanitizedTuple.Item1;
             exceptionDetails.hasFullStack = sanitizedTuple.Item2;
-#else
-            if (exception.StackTrace != null)
-            {
-                string[] lines = exception.StackTrace.Split(new string[] { "\n" }, StringSplitOptions.None);
+            return exceptionDetails;
+        }
 
-                // Adding 1 for length in lengthGetter for newline character
-                Tuple<List<string>, bool> sanitizedTuple = SanitizeStackFrame(
-                                                                            lines,
-                                                                            (input, id) => input,
-                                                                            (input) => input == null ? 0 : input.Length + 1);
-                List<string> sanitizedStackLines = sanitizedTuple.Item1;
-                exceptionDetails.hasFullStack = sanitizedTuple.Item2;
-                exceptionDetails.stack = string.Join("\n", sanitizedStackLines.ToArray());
+        /// <summary>
+        /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
+        /// </summary>
+        internal static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
+        {
+            var convertedStackFrame = new External.StackFrame()
+            {
+                level = frameId
+            };
+
+            var methodInfo = stackFrame.GetMethod();
+            string fullName;
+            if (methodInfo.DeclaringType != null)
+            {
+                fullName = methodInfo.DeclaringType.FullName + "." + methodInfo.Name;
             }
             else
             {
-                exceptionDetails.hasFullStack = true;
-                exceptionDetails.stack = string.Empty;
+                fullName = methodInfo.Name;
             }
-#endif
-            return exceptionDetails;
+
+            convertedStackFrame.method = fullName;
+            convertedStackFrame.assembly = methodInfo.Module.Assembly.FullName;
+            convertedStackFrame.fileName = stackFrame.GetFileName();
+
+            // 0 means it is unavailable
+            int line = stackFrame.GetFileLineNumber();
+            if (line != 0)
+            {
+                convertedStackFrame.line = line;
+            }
+
+            return convertedStackFrame;
+        }
+
+        /// <summary>
+        /// Gets the stack frame length for only the strings in the stack frame.
+        /// </summary>
+        internal static int GetStackFrameLength(External.StackFrame stackFrame)
+        {
+            var stackFrameLength = (stackFrame.method == null ? 0 : stackFrame.method.Length)
+                                   + (stackFrame.assembly == null ? 0 : stackFrame.assembly.Length)
+                                   + (stackFrame.fileName == null ? 0 : stackFrame.fileName.Length);
+            return stackFrameLength;
         }
 
         /// <summary>
@@ -84,53 +109,5 @@
 
             return new Tuple<List<TOutput>, bool>(orderedStackTrace, hasFullStack);
         }
-
-#if !CORE_PCL
-        /// <summary>
-        /// Converts a System.Diagnostics.StackFrame to a Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryTypes.StackFrame.
-        /// </summary>
-        private static External.StackFrame GetStackFrame(StackFrame stackFrame, int frameId)
-        {
-            var convertedStackFrame = new External.StackFrame()
-            {
-                level = frameId
-            };
-
-            var methodInfo = stackFrame.GetMethod();
-            string fullName;
-            if (methodInfo.DeclaringType != null)
-            {
-                fullName = methodInfo.DeclaringType.FullName + "." + methodInfo.Name;
-            }
-            else
-            {
-                fullName = methodInfo.Name;
-            }
-
-            convertedStackFrame.method = fullName;
-            convertedStackFrame.assembly = methodInfo.Module.Assembly.FullName;
-            convertedStackFrame.fileName = stackFrame.GetFileName();
-
-            // 0 means it is unavailable
-            int line = stackFrame.GetFileLineNumber();
-            if (line != 0)
-            {
-                convertedStackFrame.line = line;
-            }
-
-            return convertedStackFrame;
-        }
-        
-        /// <summary>
-        /// Gets the stack frame length for only the strings in the stack frame.
-        /// </summary>
-        private static int GetStackFrameLength(External.StackFrame stackFrame)
-        {
-            var stackFrameLength = (stackFrame.method == null ? 0 : stackFrame.method.Length)
-                                   + (stackFrame.assembly == null ? 0 : stackFrame.assembly.Length)
-                                   + (stackFrame.fileName == null ? 0 : stackFrame.fileName.Length);
-            return stackFrameLength;
-        }
-#endif
     }
 }

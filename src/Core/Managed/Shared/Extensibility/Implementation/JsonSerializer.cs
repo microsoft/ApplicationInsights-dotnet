@@ -292,7 +292,7 @@
             }
             else
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemtry type: {0}", telemetryItem.GetType());                
+                string msg = string.Format(CultureInfo.InvariantCulture, "Unknown telemetry type: {0}", telemetryItem.GetType());                
                 CoreEventSource.Log.LogVerbose(msg);
             }
         }
@@ -364,6 +364,7 @@
                     writer.WriteStartObject();
 
                     writer.WriteProperty("ver", exceptionTelemetry.Data.ver);
+                    writer.WriteProperty("problemId", exceptionTelemetry.Data.problemId);
                     writer.WriteProperty("properties", exceptionTelemetry.Data.properties);
                     writer.WriteProperty("measurements", exceptionTelemetry.Data.measurements);
                     writer.WritePropertyName("exceptions");

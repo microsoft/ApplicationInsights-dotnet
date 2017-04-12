@@ -29,7 +29,7 @@
             {
                 var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
-                // set up addaptive sampling that evaluates and changes sampling % frequently
+                // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
                         new SamplingPercentageEstimatorSettings()
@@ -68,7 +68,7 @@
             {
                 var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
-                // set up addaptive sampling that evaluates and changes sampling % frequently
+                // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
                         new SamplingPercentageEstimatorSettings()
@@ -131,7 +131,7 @@
             {
                 var chainBuilder = new TelemetryProcessorChainBuilder(tc);
 
-                // set up addaptive sampling that evaluates and changes sampling % frequently
+                // set up adaptive sampling that evaluates and changes sampling % frequently
                 chainBuilder
                     .UseAdaptiveSampling(
                         new SamplingPercentageEstimatorSettings()

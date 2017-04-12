@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if CORE_PCL || NET45 || NET46
+#if !NET40
     using System.Diagnostics.Tracing;
 #endif
     using Microsoft.ApplicationInsights.Channel;
@@ -52,7 +52,7 @@
                     EventId = 10,
                     Keywords = 0x20,
                     Level = EventLevel.Warning,
-                    MessageFormat = "Error occured at {0}, {1}"
+                    MessageFormat = "Error occurred at {0}, {1}"
                 },
                 Payload = new[] { "My function", "some failure" }
             };
@@ -63,7 +63,7 @@
             var trace = this.sendItems[0] as TraceTelemetry;
             Assert.IsNotNull(trace);
             Assert.AreEqual(
-                "AI (Internal): Error occured at My function, some failure", 
+                "AI (Internal): Error occurred at My function, some failure", 
                 trace.Message);
         }
 
@@ -79,7 +79,7 @@
                     EventId = 10,
                     Keywords = 0x20,
                     Level = EventLevel.Warning,
-                    MessageFormat = "Error occured at {0}, {1}"
+                    MessageFormat = "Error occurred at {0}, {1}"
                 },
                 Payload = new[] { "My function", "some failure" }
             };

@@ -55,7 +55,7 @@
             this.estimatorSettings = settings;
             this.evaluationCallback = callback;
 
-            // make estimatortelemetry processor  work after sampling was done
+            // make estimator telemetry processor  work after sampling was done
             this.estimatorProcessor = new SamplingPercentageEstimatorTelemetryProcessor(settings, this.SamplingPercentageChanged, next);
             this.samplingProcessor = new SamplingTelemetryProcessor(this.estimatorProcessor);
         }
@@ -247,9 +247,10 @@
         {
             if (disposing)
             {
-                if (this.estimatorProcessor != null)
+                IDisposable estimatorProc = this.estimatorProcessor;
+                if (estimatorProc != null)
                 {
-                    this.estimatorProcessor.Dispose();
+                    estimatorProc.Dispose();
                     this.estimatorProcessor = null;
                 }
             }

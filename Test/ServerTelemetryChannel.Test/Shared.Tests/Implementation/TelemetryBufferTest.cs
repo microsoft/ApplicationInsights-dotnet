@@ -12,9 +12,8 @@
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
     using Channel.Helpers;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
-    
 #endif
 
     public class TelemetryBufferTest
@@ -115,7 +114,7 @@
                     exceptionThrown = true;
                 }
 
-                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlogsize to 1001");                
+                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlog size to 1001");                
             }
         }
 

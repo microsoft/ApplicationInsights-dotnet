@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Channel.Helpers;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 

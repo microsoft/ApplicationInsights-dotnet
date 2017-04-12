@@ -22,7 +22,7 @@
             // Deserialize (Validates a valid JSON string)
             JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
 
-            // Validtes 2 random properties
+            // Validates 2 random properties
             Assert.NotNull(exceptionAsJson);
             Assert.Equal("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
         }

@@ -6,7 +6,7 @@
     using Microsoft.ApplicationInsights.Channel;
 
     /// <summary>
-    /// An <see cref="ITelemetryInitializer"/> that that populates <see cref="ITelemetry.Sequence"/> property for 
+    /// An <see cref="ITelemetryInitializer"/> that populates <see cref="ITelemetry.Sequence"/> property for 
     /// the Microsoft internal telemetry sent to the Vortex endpoint.
     /// </summary>
     public sealed class SequencePropertyInitializer : ITelemetryInitializer

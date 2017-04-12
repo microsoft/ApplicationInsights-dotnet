@@ -8,7 +8,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
 
-#if NET45
+#if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -196,7 +196,7 @@
             Transmission transmission = null;
             if (file.Exists)
             {
-                // The injestion service rejects anything older than 2 days.
+                // The ingestion service rejects anything older than 2 days.
                 if (file.DateCreated > DateTimeOffset.Now.AddDays(-2)) 
                 {
                     ChangeFileExtension(file, TemporaryFileExtension);

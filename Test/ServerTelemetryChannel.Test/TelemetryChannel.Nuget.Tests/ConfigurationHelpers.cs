@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Xml;
     using System.Xml.Linq;
     using Microsoft.Web.XmlTransform;
@@ -31,7 +32,8 @@
 
         public static IEnumerable<XElement> GetTelemetryProcessors(XDocument config)
         {
-            return config.Descendants(XmlNamespace + "TelemetryProcessors");
+            var processors = config.Descendants(XmlNamespace + "TelemetryProcessors");
+            return processors?.Nodes().Cast<XElement>();
         }
 
         public static string GetPartialTypeName(Type typeToFind)

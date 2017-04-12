@@ -10,6 +10,7 @@
 
     /// <summary>
     /// Represents a context for sending telemetry to the Application Insights service.
+    /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#telemetrycontext">Learn more</a>
     /// </summary>
     public sealed class TelemetryContext
     {
@@ -99,6 +100,7 @@
 
         /// <summary>
         /// Gets the object describing a operation tracked by this <see cref="TelemetryContext"/>.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#operationcontext">Learn more</a>
         /// </summary>
         public OperationContext Operation
         {
@@ -115,6 +117,7 @@
 
         /// <summary>
         /// Gets a dictionary of application-defined property values.
+        /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
         /// </summary>
         public IDictionary<string, string> Properties
         {

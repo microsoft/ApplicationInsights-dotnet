@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Tests the scenario if Delay task throws on wait after cancelation.
+        /// Tests the scenario if Delay task throws on wait after cancellation.
         /// </summary>
         [TestMethod]
         public void DelayWhichIsCanceledThrows()
@@ -115,7 +115,7 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <summary>
-        /// Tests the scenario if Delay task completes after cancelation without waiting for timeout.
+        /// Tests the scenario if Delay task completes after cancellation without waiting for timeout.
         /// </summary>
         [TestMethod]
         public void DelayWith1SecondAndCanceledDoesntWaitForASecond()
@@ -216,7 +216,9 @@ namespace Microsoft.ApplicationInsights
         public void WhenAnyReturnsFirstCompletedTaskEvenOnCanceled()
         {
             Task task1 = TaskEx.Delay(TimeSpan.FromMilliseconds(100));
-            Task task2 = TaskEx.Delay(TimeSpan.FromMilliseconds(50), new CancellationTokenSource(TimeSpan.FromMilliseconds(10)).Token);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromMilliseconds(10));
+            Task task2 = TaskEx.Delay(TimeSpan.FromMilliseconds(50), cts.Token);
 
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();
