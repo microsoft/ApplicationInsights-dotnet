@@ -136,18 +136,6 @@
                             {
                                 this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
                             }
-                            catch (AggregateException ex)
-                            {
-                                ex.Flatten();
-                                if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                                }
-                                else
-                                {
-                                    this.RegisterFailure(instrumentationKey, ex);
-                                }
-                            }
                             catch (Exception ex)
                             {
                                 this.RegisterFailure(instrumentationKey, ex);
@@ -156,21 +144,6 @@
 
                         return false;
                     }
-                }
-                catch (AggregateException ex)
-                {
-                    ex.Flatten();
-                    if (ex.InnerExceptions != null && ex.InnerExceptions.Count > 0 && ex.InnerExceptions[0] != null)
-                    {
-                        this.RegisterFailure(instrumentationKey, ex.InnerExceptions[0]);
-                    }
-                    else
-                    {
-                        this.RegisterFailure(instrumentationKey, ex);
-                    }
-
-                    correlationId = string.Empty;
-                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -258,31 +231,6 @@
                 catch (Exception ex)
                 {
                     AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
-                    return null;
-                }
-                finally
-                {
-                    SdkInternalOperationsMonitor.Exit();
-                }
-            });
-        }
-#endif
-                    Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
-
-                    WebRequest request = WebRequest.Create(appIdEndpoint);
-                    request.Method = "GET";
-
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                    {
-                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                        {
-                            return reader.ReadToEnd();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    CrossComponentCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
                     return null;
                 }
                 finally
