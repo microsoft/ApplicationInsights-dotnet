@@ -4,7 +4,6 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
 #else
     /// <summary>
-    /// Additional implementation for ExceptionDetails.
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.
     /// </summary>
 #if NET40
