@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="SDL Recommended Rules" Description="These rules focus on the most critical security problems in your code. You should include this rule set in any custom rule set you create for your projects." ToolsVersion="14.0">
+<RuleSet Name="SDL Recommended Rules" Description="These rules focus on the most critical security problems in your code. You should include this rule set in any custom rule set you create for your projects." ToolsVersion="15.0">
   <Rules AnalyzerId="Desktop.CSharp.Analyzers" RuleNamespace="Desktop.CSharp.Analyzers">
     <Rule Id="CA1001" Action="Warning" />
     <Rule Id="CA1009" Action="Warning" />

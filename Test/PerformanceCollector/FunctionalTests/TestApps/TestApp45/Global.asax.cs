@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
-using System.Web.Routing;
-using Microsoft.ApplicationInsights;
+
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace TestApp45
@@ -15,10 +10,11 @@ namespace TestApp45
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class WebApiApplication : System.Web.HttpApplication
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", Justification = "Necessary for .NET CLR Memory counters to start reporting process ID.")]
         protected void Application_Start()
         {
             // necessary for .NET CLR Memory counters to start reporting process ID
@@ -72,6 +68,7 @@ namespace TestApp45
             // set test-friendly timings
             perfModule.CollectionPeriod = TimeSpan.FromMilliseconds(10);
             perfModule.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Memory\Available Bytes", @"\Memory\Available Bytes"));
+            perfModule.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized", @"\Process(??APP_WIN32_PROC??)\% Processor Time Normalized"));
             perfModule.DefaultCounters.Add(new PerformanceCounterCollectionRequest(@"Will not parse;\Does\NotExist", @"Will not parse;\Does\NotExist"));
 
             perfModule.Counters.Add(new PerformanceCounterCollectionRequest(@"Will not parse", "Custom counter - will not parse"));

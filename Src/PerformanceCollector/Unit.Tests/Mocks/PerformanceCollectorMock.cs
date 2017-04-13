@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using Microsoft.ApplicationInsights.DataContracts;
+
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation;
 
     using CounterData = System.Tuple<Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.PerformanceCounterData, System.Collections.Generic.List<double>>;
@@ -56,9 +56,9 @@
                                 counter.Item1.UsesInstanceNamePlaceholder,
                                 counter.Item1.IsCustomCounter,
                                 counter.Item1.IsInBadState,
-                                counter.Item1.CategoryName,
-                                counter.Item1.CounterName,
-                                counter.Item1.InstanceName),
+                                counter.Item1.PerformanceCounter.CategoryName,
+                                counter.Item1.PerformanceCounter.CounterName,
+                                counter.Item1.PerformanceCounter.InstanceName),
                             value);
 
                     counter.Item2.Add(value);
@@ -95,7 +95,15 @@
             }
         }
 
-        public PerformanceCounter CreateCounter(
+        public void RemoveCounter(string perfCounter, string reportAs)
+        {
+            this.counters.RemoveAll(
+                counter =>
+                string.Equals(counter.Item1.ReportAs, reportAs, StringComparison.Ordinal)
+                && string.Equals(counter.Item1.OriginalString, perfCounter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public PerformanceCounterStructure CreateCounter(
             string perfCounterName,
             out bool usesInstanceNamePlaceholder,
             out string error)
@@ -123,7 +131,7 @@
         private void RegisterCounter(
             string originalString,
             string reportAs,
-            PerformanceCounter pc,
+            PerformanceCounterStructure pc,
             bool isCustomCounter,
             bool usesInstanceNamePlaceholder,
             out string error)

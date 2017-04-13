@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.Implementation.WebAppPerformanceCollector
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -18,14 +17,6 @@
         public IEnumerable<PerformanceCounterData> PerformanceCounters
         {
             get { return this.performanceCounters.Select(t => t.Item1).ToList(); }
-        }
-
-        /// <summary>
-        /// Loads instances that are used in performance counter computation.
-        /// </summary>
-        public void LoadDependentInstances()
-        {
-            this.factory = new CounterFactory();
         }
 
         /// <summary>
@@ -46,10 +37,7 @@
                         }
                         catch (InvalidOperationException e)
                         {
-                            if (onReadingFailure != null)
-                            {
-                                onReadingFailure(counter.Item1.OriginalString, e);
-                            }
+                            onReadingFailure?.Invoke(counter.Item1.OriginalString, e);
 
                             return new Tuple<PerformanceCounterData, double>[] { };
                         }
@@ -67,7 +55,7 @@
                 this.PerformanceCounters.Where(pc => pc.IsInBadState)
                     .ToList();
 
-            countersToRefresh.ForEach(pcd => this.RefreshPerformanceCounter(pcd));
+            countersToRefresh.ForEach(this.RefreshPerformanceCounter);
 
             PerformanceCollectorEventSource.Log.CountersRefreshedEvent(countersToRefresh.Count.ToString(CultureInfo.InvariantCulture));
         }
@@ -112,6 +100,25 @@
         }
 
         /// <summary>
+        /// Removes a counter.
+        /// </summary>
+        /// <param name="perfCounter">Name of the performance counter to remove.</param>
+        /// <param name="reportAs">ReportAs value of the performance counter to remove.</param>
+        public void RemoveCounter(string perfCounter, string reportAs)
+        {
+            Tuple<PerformanceCounterData, ICounterValue> keyToRemove =
+                this.performanceCounters.FirstOrDefault(
+                    pair =>
+                    string.Equals(pair.Item1.ReportAs, reportAs, StringComparison.Ordinal)
+                    && string.Equals(pair.Item1.OriginalString, perfCounter, StringComparison.OrdinalIgnoreCase));
+
+            if (keyToRemove != null)
+            {
+                this.performanceCounters.Remove(keyToRemove);
+            }
+        }
+
+        /// <summary>
         /// Rebinds performance counters to Windows resources.
         /// </summary>
         public void RefreshPerformanceCounter(PerformanceCounterData pcd)
@@ -125,9 +132,9 @@
             this.RegisterPerformanceCounter(
                 pcd.OriginalString,
                 pcd.ReportAs,
-                pcd.CategoryName,
-                pcd.CounterName,
-                pcd.InstanceName,
+                pcd.PerformanceCounter.CategoryName,
+                pcd.PerformanceCounter.CounterName,
+                pcd.PerformanceCounter.InstanceName,
                 pcd.UsesInstanceNamePlaceholder,
                 pcd.IsCustomCounter);
         }

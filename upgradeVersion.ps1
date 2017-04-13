@@ -7,13 +7,13 @@ $newVersion = .\NuGet.exe list "Microsoft.ApplicationInsights" -Source https://w
 
 Write-Host $newVersion
 
-$oldVersion = cat .\Global.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
+$oldVersion = cat .\Directory.Build.props | Select-String -Pattern "CoreSdkVersion" | %{$_.Line.Split("<>")} | Select -skip 2 | Select -First 1
 
 Write-Host $oldVersion
 
-(Get-Content Global.props) | 
+(Get-Content Directory.Build.props) | 
 Foreach-Object {$_ -replace $oldVersion, $newVersion} | 
-Set-Content Global.props 
+Set-Content Directory.Build.props 
 
 
 Get-ChildItem -Filter packages.config -Recurse | 

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Web.Implementation
 {
     using System;
+    using System.Collections.Specialized;
     using System.Web;
 
     /// <summary>
@@ -34,6 +35,11 @@
         public static string UnvalidatedGetPath(this HttpRequest httpRequest)
         {
             return httpRequest.Unvalidated.Path;
+        }
+
+        public static NameValueCollection UnvalidatedGetHeaders(this HttpRequest httpRequest)
+        {
+            return httpRequest.Unvalidated.Headers;
         }
     }
 }

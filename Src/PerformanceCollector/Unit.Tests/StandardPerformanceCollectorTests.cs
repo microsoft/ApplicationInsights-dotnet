@@ -36,5 +36,19 @@
         {
             this.PerformanceCollectorBadStateTest(new StandardPerformanceCollector());
         }
+
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
+        public void PerformanceCollectorAddRemoveCountersTest()
+        {
+            this.PerformanceCollectorAddRemoveCountersTest(new StandardPerformanceCollector());
+        }
+
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
+        public void PerformanceCollectorNormalizedCpuCounterTest()
+        {
+            this.PerformanceCollectorNormalizedCpuTest(new StandardPerformanceCollector());
+        }
     }
 }

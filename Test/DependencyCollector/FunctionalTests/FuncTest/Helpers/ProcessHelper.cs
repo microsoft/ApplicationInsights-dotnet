@@ -11,6 +11,7 @@ namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace FuncTest.Helpers
             {
                 throw new Exception(
                     string.Format(
+                        CultureInfo.InvariantCulture,
                         "Process {0} {1} returned {2}.\r\nOutput: {3}\r\nError: {4}.", 
                         fileName, 
                         arguments, 
@@ -94,7 +96,7 @@ namespace FuncTest.Helpers
                     if (!waitResult)
                     {
                         throw new TimeoutException(
-                            string.Format("Process wait timeout expired for {0} {1}", fileName, arguments));
+                            string.Format(CultureInfo.InvariantCulture, "Process wait timeout expired for {0} {1}", fileName, arguments));
                     }
 
                     exitCode = localProcess.ExitCode;

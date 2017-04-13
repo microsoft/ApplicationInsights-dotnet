@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4E5E951A-7E77-45B3-8041-026CBAD3693B</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Extensibility.Filtering</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AccumulatedValues.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CollectionConfigurationAccumulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FilterConjunctionGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\CollectionConfigurationInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CollectionConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\DocumentFilterConjunctionGroupInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\DocumentStreamInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Errors\CollectionConfigurationErrorType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Errors\CollectionConfigurationError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\FilterConjunctionGroupInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MetricValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DocumentStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CalculatedMetric.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Filter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\CalculatedMetricInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\FilterInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Predicate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\AggregationType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\TelemetryType.cs" />
+  </ItemGroup>
+</Project>

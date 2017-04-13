@@ -4,9 +4,10 @@ namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
+    using AI;
     using FuncTest.IIS;
     using Microsoft.Deployment.WindowsInstaller;
-    using AI;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -23,6 +24,11 @@ namespace FuncTest.Helpers
         /// Folder for ASPX 4.5.1 Win32 mode test application deployment.
         /// </summary>        
         public const string Aspx451AppFolderWin32 = ".\\Aspx451Win32";
+
+        /// <summary>
+        /// Folder for ASPX Core test application deployment.
+        /// </summary>        
+        public const string AspxCoreAppFolder = ".\\AspxCore";
 
         /// <summary>
         /// Sleep time to give SDK some time to send events.
@@ -44,17 +50,21 @@ namespace FuncTest.Helpers
 
         private const int Aspx451PortWin32 = 790;
 
+        private const int AspxCorePort = 791;
+
         private static readonly object lockObj = new object();
 
         private static bool isInitialized;
 
-        public static string ExpectedSDKPrefix { get; private set; }
+        public static string ExpectedSDKPrefix { get; internal set; }
 
         public static HttpListenerObservable SdkEventListener { get; private set; }
 
-        public static TestWebApplication Aspx451TestWebApplication { get; private set; }
+        public static IISTestWebApplication Aspx451TestWebApplication { get; private set; }
 
-        public static TestWebApplication Aspx451TestWebApplicationWin32 { get; private set; }
+        public static IISTestWebApplication Aspx451TestWebApplicationWin32 { get; private set; }
+
+        public static DotNetCoreTestWebApplication AspxCoreTestWebApplication { get; private set; }
 
         public static EtwEventSessionRdd EtwSession { get; private set; }
 
@@ -69,18 +79,24 @@ namespace FuncTest.Helpers
                 {
                     if (!isInitialized)
                     {
-                        Aspx451TestWebApplication = new TestWebApplication
+                        Aspx451TestWebApplication = new IISTestWebApplication
                         {
                             AppName = "Aspx451",
                             Port = Aspx451Port,
-                            IsRedFieldApp = false
                         };
 
-                        Aspx451TestWebApplicationWin32 = new TestWebApplication
+                        Aspx451TestWebApplicationWin32 = new IISTestWebApplication
                         {
                             AppName = "Aspx451Win32",
                             Port = Aspx451PortWin32,
-                            IsRedFieldApp = false
+                            EnableWin32Mode = true,
+                        };
+
+                        AspxCoreTestWebApplication = new DotNetCoreTestWebApplication
+                        {
+                            AppName = "AspxCore",
+                            ExternalCallPath = "external/calls",
+                            Port = AspxCorePort,
                         };
 
                         // this makes all traces have a timestamp so it's easier to troubleshoot timing issues
@@ -96,7 +112,8 @@ namespace FuncTest.Helpers
                         EtwSession.Start();
 
                         Aspx451TestWebApplication.Deploy();
-                        Aspx451TestWebApplicationWin32.Deploy(true);
+                        Aspx451TestWebApplicationWin32.Deploy();
+                        AspxCoreTestWebApplication.Deploy();
 
                         if (RegistryCheck.IsNet46Installed)
                         {
@@ -170,6 +187,7 @@ namespace FuncTest.Helpers
 
                         Aspx451TestWebApplication.Remove();
                         Aspx451TestWebApplicationWin32.Remove();
+                        AspxCoreTestWebApplication.Remove();
 
                         if (RegistryCheck.IsNet46Installed)
                         {
@@ -201,7 +219,7 @@ namespace FuncTest.Helpers
             string resultCodeExpected = "DontCheck")
         {
             string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
-            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), string.Format("Actual version: {0}, Expected prefix: {1}", actualSdkVersion, DeploymentAndValidationTools.ExpectedSDKPrefix));
 
             if (!resultCodeExpected.Equals("DontCheck"))
             {
@@ -209,7 +227,7 @@ namespace FuncTest.Helpers
             }
 
             // Validate is within expected limits
-            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration);
+            var accessTime = TimeSpan.Parse(itemToValidate.data.baseData.duration, CultureInfo.InvariantCulture);
 
             // DNS resolution may take up to 15 seconds https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.timeout(v=vs.110).aspx.
             // In future when tests will be refactored we should re-think failed http calls validation policy - need to validate resposnes that actually fails on GetResponse, 
@@ -224,7 +242,7 @@ namespace FuncTest.Helpers
                 Assert.IsTrue(accessTime.Ticks >= 0, "Access time should be zero or above for failed calls");
             }
 
-            Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format("Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
+            Assert.IsTrue(accessTime < accessTimeMaxPlusDnsResolutionTime, string.Format(CultureInfo.InvariantCulture, "Access time of {0} exceeds expected max of {1}", accessTime, accessTimeMaxPlusDnsResolutionTime));
 
             // Validate success flag
             var successFlagActual = itemToValidate.data.baseData.success;

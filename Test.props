@@ -3,5 +3,6 @@
   <Import Project="$(MSBuildThisFileDirectory)\Common.props"/>
   <PropertyGroup>
     <AssemblyName>Microsoft.ApplicationInsights.$(MSBuildProjectName)</AssemblyName>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
   </PropertyGroup>
 </Project>

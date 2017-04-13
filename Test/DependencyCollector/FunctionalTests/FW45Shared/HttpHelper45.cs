@@ -8,11 +8,12 @@
 
 namespace FW45Shared
 {
-    using FW40Shared;
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Runtime.InteropServices;
+    using FW40Shared;
 
     /// <summary>
     /// Contains static methods to help make outbound http calls
@@ -30,7 +31,7 @@ namespace FW45Shared
         {
             for (int i = 0; i < count; i++)
             {
-                Uri ourUri = new Uri(string.Format("http://www.{0}.com", hostname));
+                Uri ourUri = new Uri(string.Format(CultureInfo.InvariantCulture, "http://www.{0}.com", hostname));
                 WebRequest wr = WebRequest.Create(ourUri);
                 var response = await wr.GetResponseAsync();
                 using (var stm = response.GetResponseStream())

@@ -15,5 +15,12 @@
         {
            this.PerformanceCollectorSanityTest(new WebAppPerformanceCollector(), @"\ASP.NET Applications(??APP_W3SVC_PROC??)\Requests/Sec", "ASP.NET Applications", "Requests/Sec", null);
         }
+
+        [TestMethod]
+        [TestCategory("RequiresPerformanceCounters")]
+        public void PerformanceCollectorAddRemoveCountersForWebAppTest()
+        {
+            this.PerformanceCollectorAddRemoveCountersForWebAppTest(new WebAppPerformanceCollector());
+        }
     }
 }
