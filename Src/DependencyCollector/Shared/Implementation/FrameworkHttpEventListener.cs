@@ -42,9 +42,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         private const int EndGetRequestStreamEventId = 143;
 
-        internal FrameworkHttpEventListener(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder)
+        internal FrameworkHttpEventListener(FrameworkHttpProcessing frameworkHttpProcessing)
         {
-            this.HttpProcessingFramework = new FrameworkHttpProcessing(configuration, telemetryTupleHolder);
+            this.HttpProcessingFramework = frameworkHttpProcessing;
         }
 
         /// <summary>

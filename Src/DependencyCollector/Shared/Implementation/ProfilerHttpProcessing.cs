@@ -21,57 +21,29 @@
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
-    /// Concrete class with all processing logic to generate RDD data from the calls backs
+    /// Concrete class with all processing logic to generate RDD data from the callbacks
     /// received from Profiler instrumentation for HTTP .   
     /// </summary>
-    internal sealed class ProfilerHttpProcessing
+    internal sealed class ProfilerHttpProcessing : HttpProcessing
     {
         internal ObjectInstanceBasedOperationHolder TelemetryTable;
-        private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
-        private TelemetryClient telemetryClient;
-        private ICollection<string> correlationDomainExclusionList;
-        private bool setCorrelationHeaders;
-        private CorrelationIdLookupHelper correlationIdLookupHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProfilerHttpProcessing"/> class.
         /// </summary>
         public ProfilerHttpProcessing(TelemetryConfiguration configuration, string agentVersion, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.Profiler + ":"), agentVersion, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
             if (telemetryTupleHolder == null)
             {
                 throw new ArgumentNullException("telemetryTupleHolder");
             }
 
-            if (correlationDomainExclusionList == null)
-            {
-                throw new ArgumentNullException("correlationDomainExclusionList");
-            }
-
-            this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
             this.TelemetryTable = telemetryTupleHolder;
-            this.telemetryClient = new TelemetryClient(configuration);
-            this.correlationDomainExclusionList = correlationDomainExclusionList;
-            this.setCorrelationHeaders = setCorrelationHeaders;
-            this.correlationIdLookupHelper = new CorrelationIdLookupHelper(appIdEndpoint);
-
-            // Since dependencySource is no longer set, sdk version is prepended with information which can identify whether RDD was collected by profiler/framework
-            // For directly using TrackDependency(), version will be simply what is set by core
-            string prefix = "rdd" + RddSource.Profiler + ":";
-            this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion(prefix);
-            if (!string.IsNullOrEmpty(agentVersion))
-            {
-                this.telemetryClient.Context.GetInternalContext().AgentVersion = agentVersion;
-            }
         }
 
-#region Http callbacks
-      
+        #region Http callbacks
+
         /// <summary>
         /// On begin callback for GetResponse.
         /// </summary>
@@ -79,7 +51,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetResponse(object thisObj)
         {
-            return this.OnBegin(thisObj, false);
+            return this.OnBegin(thisObj, true);
         }
 
         /// <summary>
@@ -91,7 +63,7 @@
         /// <returns>The resulting return value.</returns>
         public object OnEndForGetResponse(object context, object returnValue, object thisObj)
         {
-            this.OnEnd(null, thisObj, returnValue);
+            this.OnEnd(null, thisObj, returnValue, true);
             return returnValue;
         }
 
@@ -103,7 +75,7 @@
         /// <param name="thisObj">This object.</param>        
         public void OnExceptionForGetResponse(object context, object exception, object thisObj)
         {
-            this.OnEnd(exception, thisObj, null);
+            this.OnEnd(exception, thisObj, null, true);
         }
         
         /// <summary>
@@ -114,7 +86,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetRequestStream(object thisObj, object transportContext)
         {
-            return this.OnBegin(thisObj, false);
+            return this.OnBegin(thisObj, true);
         }       
 
         /// <summary>
@@ -127,7 +99,7 @@
         /// <param name="transportContext">The transport context parameter.</param>
         public void OnExceptionForGetRequestStream(object context, object exception, object thisObj, object transportContext)
         {
-            this.OnEnd(exception, thisObj, null);
+            this.OnEnd(exception, thisObj, null, true);
         }
 
         /// <summary>
@@ -152,7 +124,7 @@
         /// <returns>The return value passed.</returns>
         public object OnEndForEndGetResponse(object context, object returnValue, object thisObj, object asyncResult)
         {
-            this.OnEnd(null, thisObj, returnValue);
+            this.OnEnd(null, thisObj, returnValue, true);
             return returnValue;
         }
 
@@ -165,7 +137,7 @@
         /// <param name="asyncResult">The asyncResult parameter.</param>
         public void OnExceptionForEndGetResponse(object context, object exception, object thisObj, object asyncResult)
         {
-            this.OnEnd(exception, thisObj, null);
+            this.OnEnd(exception, thisObj, null, true);
         }
 
         /// <summary>
@@ -191,319 +163,40 @@
         /// <param name="transportContext">The transportContext parameter.</param>
         public void OnExceptionForEndGetRequestStream(object context, object exception, object thisObj, object asyncResult, object transportContext)
         {
-            this.OnEnd(exception, thisObj, null);
+            this.OnEnd(exception, thisObj, null, true);
         }
 
-#endregion // Http callbacks
+        #endregion // Http callbacks
 
         /// <summary>
-        /// Gets HTTP request url.
+        /// Implemented by the derived class for adding the tuple to its specific cache.
         /// </summary>
-        /// <param name="webRequest">Represents web request.</param>
-        /// <returns>The url if possible otherwise empty string.</returns>
-        internal Uri GetUrl(WebRequest webRequest)
+        /// <param name="webRequest">The request which acts the key.</param>
+        /// <param name="telemetry">The dependency telemetry for the tuple.</param>
+        /// <param name="isCustomCreated">Boolean value that tells if the current telemetry item is being added by the customer or not.</param>
+        protected override void AddTupleForWebDependencies(WebRequest webRequest, DependencyTelemetry telemetry, bool isCustomCreated)
         {
-            Uri resource = null;
-            if (webRequest != null && webRequest.RequestUri != null)
-            {
-                resource = webRequest.RequestUri;
-            }
-
-            return resource;
+            var telemetryTuple = new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated);
+            this.TelemetryTable.Store(webRequest, telemetryTuple);
         }
 
         /// <summary>
-        /// Simple test hook, that allows for using a stub rather than the implementation that calls the original service.
+        /// Implemented by the derived class for getting the tuple from its specific cache.
         /// </summary>
-        /// <param name="correlationIdLookupHelper">Lookup header to use.</param>
-        internal void OverrideCorrelationIdLookupHelper(CorrelationIdLookupHelper correlationIdLookupHelper)
+        /// <param name="webRequest">The request which acts as the key.</param>
+        /// <returns>The tuple for the given request.</returns>
+        protected override Tuple<DependencyTelemetry, bool> GetTupleForWebDependencies(WebRequest webRequest)
         {
-            this.correlationIdLookupHelper = correlationIdLookupHelper;
+            return this.TelemetryTable.Get(webRequest);
         }
 
         /// <summary>
-        /// Common helper for all Begin Callbacks.
+        /// Implemented by the derived class for removing the tuple from its specific cache.
         /// </summary>
-        /// <param name="thisObj">This object.</param>        
-        /// <param name="isAsyncCall">Indicates if the method used is async or not.</param>        
-        /// <returns>Null object as all context is maintained in this class via weak tables.</returns>
-        private object OnBegin(object thisObj, bool isAsyncCall)
+        /// <param name="webRequest">The request which acts as the key.</param>
+        protected override void RemoveTupleForWebDependencies(WebRequest webRequest)
         {
-            try
-            {
-                if (thisObj == null)
-                {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnBeginHttp", "thisObj == null");
-                    return null;
-                }
-
-                WebRequest webRequest = thisObj as WebRequest;
-                if (webRequest == null)
-                {
-                    DependencyCollectorEventSource.Log.UnexpectedCallbackParameter("WebRequest");
-                }
-
-                var url = this.GetUrl(webRequest);
-
-                if (url == null)
-                {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(thisObj.GetHashCode(), "OnBeginHttp", "resourceName is empty");
-                    return null;
-                }
-
-                string httMethod = webRequest.Method;
-                string resourceName = url.AbsolutePath;
-
-                if (!string.IsNullOrEmpty(httMethod))
-                {
-                    resourceName = httMethod + " " + resourceName;
-                }                
-
-                DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
-
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url.ToString()))
-                {
-                    // Not logging as we will be logging for all outbound AI calls
-                    return null;
-                }
-
-                // If the object already exists, don't add again. This happens because either GetResponse or GetRequestStream could
-                // be the starting point for the outbound call.
-                var telemetryTuple = this.TelemetryTable.Get(thisObj);
-                if (telemetryTuple != null)
-                {
-                    if (telemetryTuple.Item1 != null)
-                    {
-                        DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
-                        return null;
-                    }
-                }
-
-                bool isCustomCreated = false;
-
-                var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
-
-                telemetry.Name = resourceName;
-                telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(url);
-                telemetry.Type = RemoteDependencyConstants.HTTP;
-                telemetry.Data = url.OriginalString;
-
-                this.TelemetryTable.Store(thisObj, new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated));
-
-                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
-                {
-                    // Instrumentation key is probably empty, because the context has not yet had a chance to associate the requestTelemetry to the telemetry client yet.
-                    // and get they instrumentation key from all possible sources in the process. Let's do that now.
-                    this.telemetryClient.Initialize(telemetry);
-                }
-
-                // Add the source instrumentation key header if collection is enabled, the request host is not in the excluded list and the same header doesn't already exist
-                if (this.setCorrelationHeaders
-                    && !this.correlationDomainExclusionList.Contains(url.Host))
-                {
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(telemetry.Context.InstrumentationKey)
-                            && webRequest.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey) == null)
-                        {
-                            string appId;
-                            if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out appId))
-                            {
-                                webRequest.Headers.SetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey, appId);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        AppMapCorrelationEventSource.Log.SetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
-                    }
-
-                    // Add the root ID
-                    var rootId = telemetry.Context.Operation.Id;
-                    if (!string.IsNullOrEmpty(rootId) && webRequest.Headers[RequestResponseHeaders.StandardRootIdHeader] == null)
-                    {
-                        webRequest.Headers.Add(RequestResponseHeaders.StandardRootIdHeader, rootId);
-                    }
-
-                    // Add the parent ID
-                    var parentId = telemetry.Id;
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
-                        if (webRequest.Headers[RequestResponseHeaders.StandardParentIdHeader] == null)
-                        {
-                            webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
-                        }
-
-                        if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
-                        {
-                            webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
-                        }
-
-                        if (webRequest.Headers[RequestResponseHeaders.CorrelationContextHeader] == null)
-                        {
-#if NET45
-                            if (Activity.Current.Baggage.Any())
-                            {
-                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, Activity.Current.Baggage);
-                            }
-#else
-#pragma warning disable 618
-                            var correlationContext = CorrelationHelper.GetCorrelationContext();
-#pragma warning restore 618
-                            if (correlationContext != null && correlationContext.Count > 0)
-                            {
-                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, correlationContext);
-                            }
-#endif
-                        }
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnBeginHttp", exception);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Common helper for all End Callbacks.
-        /// </summary>        
-        /// <param name="exception">The exception object if any.</param>
-        /// <param name="thisObj">This object.</param>                
-        /// <param name="returnValue">Return value of the function if any.</param>
-        private void OnEnd(object exception, object thisObj, object returnValue)
-        {
-            try
-            {  
-                if (thisObj == null)
-                {
-                    DependencyCollectorEventSource.Log.NotExpectedCallback(0, "OnBeginHttp", "thisObj == null");
-                    return;
-                }
-
-                DependencyCollectorEventSource.Log.EndCallbackCalled(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
-
-                Tuple<DependencyTelemetry, bool> telemetryTuple = this.TelemetryTable.Get(thisObj);
-
-                if (telemetryTuple == null)
-                {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
-                    return;
-                }
-
-                if (telemetryTuple.Item1 == null)
-                {
-                    DependencyCollectorEventSource.Log.EndCallbackWithNoBegin(thisObj.GetHashCode().ToString(CultureInfo.InvariantCulture));
-                    return;
-                }
-
-                // Not custom created
-                if (!telemetryTuple.Item2)
-                {
-                    this.TelemetryTable.Remove(thisObj);
-                    DependencyTelemetry telemetry = telemetryTuple.Item1;
-
-                    var responseObj = returnValue as HttpWebResponse;
-
-                    if (responseObj == null && exception != null)
-                    {
-                        var webException = exception as WebException;
-
-                        if (webException != null)
-                        {
-                            responseObj = webException.Response as HttpWebResponse;
-                        }
-                    }
-
-                    if (responseObj != null)
-                    {
-                        int statusCode = -1;
-
-                        try
-                        {
-                            statusCode = (int)responseObj.StatusCode;
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
-                            // on the second call to GetResponse() we cannot determine the statusCode.
-                        }
-
-                        telemetry.ResultCode = statusCode > 0 ? statusCode.ToString(CultureInfo.InvariantCulture) : string.Empty;
-                        telemetry.Success = (statusCode > 0) && (statusCode < 400);
-                    }
-                    else if (exception != null)
-                    {
-                        var webException = exception as WebException;
-                        if (webException != null)
-                        {
-                            telemetry.ResultCode = webException.Status.ToString();
-                        }
-
-                        telemetry.Success = false;
-                    }
-
-                    if (responseObj != null)
-                    {
-                        try
-                        {
-                            if (responseObj.Headers != null)
-                            {
-                                string targetAppId = null;
-
-                                try
-                                {
-                                    targetAppId = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationTargetKey);
-                                }
-                                catch (Exception ex)
-                                {
-                                    AppMapCorrelationEventSource.Log.GetCrossComponentCorrelationHeaderFailed(ex.ToInvariantString());
-                                }
-
-                                string currentComponentAppId;
-                                if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(telemetry.Context.InstrumentationKey, out currentComponentAppId))
-                                {
-                                    // We only add the cross component correlation key if the key does not remain the current component.
-                                    if (!string.IsNullOrEmpty(targetAppId) && targetAppId != currentComponentAppId)
-                                    {
-                                        telemetry.Type = RemoteDependencyConstants.AI;
-                                        telemetry.Target += " | " + targetAppId;
-                                    }
-                                }
-
-                                string targetRoleName = null;
-                                try
-                                {
-                                    targetRoleName = responseObj.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextTargetRoleNameKey);
-                                }
-                                catch (Exception ex)
-                                {
-                                    AppMapCorrelationEventSource.Log.GetComponentRoleNameHeaderFailed(ex.ToInvariantString());
-                                }
-
-                                if (!string.IsNullOrEmpty(targetRoleName))
-                                {
-                                    telemetry.Type = RemoteDependencyConstants.AI;
-                                    telemetry.Target += " | roleName:" + targetRoleName;
-                                }
-                            }
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            // ObjectDisposedException is expected here in the following sequence: httpWebRequest.GetResponse().Dispose() -> httpWebRequest.GetResponse()
-                            // on the second call to GetResponse() we cannot determine the statusCode.
-                        }
-                    }
-
-                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
-                }
-            }
-            catch (Exception ex)
-            {
-                DependencyCollectorEventSource.Log.CallbackError(thisObj == null ? 0 : thisObj.GetHashCode(), "OnBeginHttp", ex);
-            }                
+            this.TelemetryTable.Remove(webRequest);
         }
     }
 }

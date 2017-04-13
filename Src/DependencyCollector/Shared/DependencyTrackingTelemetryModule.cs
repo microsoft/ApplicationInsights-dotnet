@@ -21,6 +21,7 @@
 
 #if !NET40 && !NETCORE
         // Net40 does not support framework event source
+        private HttpDiagnosticSourceListener httpDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
 #endif
@@ -173,7 +174,12 @@
                 if (disposing)
                 {
 #if !NET40 && !NETCORE
-                    // Net40 does not support framework event source
+                    // Net40 does not support framework event source and diagnostic source
+                    if (this.httpDiagnosticSourceListener != null)
+                    {
+                        this.httpDiagnosticSourceListener.Dispose();
+                    }
+
                     if (this.httpEventListener != null)
                     {
                         this.httpEventListener.Dispose();
@@ -185,7 +191,7 @@
                     }
 #endif
                 }
-                
+
                 this.disposed = true;
             }
         }
@@ -197,9 +203,12 @@
         private void InitializeForFrameworkEventSource()
         {
 #if !NET40
+            FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(this.telemetryConfiguration, DependencyTableStore.Instance.WebRequestCacheHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains, this.EffectiveProfileQueryEndpoint);
+            this.httpDiagnosticSourceListener = new HttpDiagnosticSourceListener(frameworkHttpProcessing);
+
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(
-                config => new FrameworkHttpEventListener(config, DependencyTableStore.Instance.WebRequestCacheHolder),
+                config => new FrameworkHttpEventListener(frameworkHttpProcessing),
                 this.telemetryConfiguration,
                 TimeSpan.FromMilliseconds(10));
 

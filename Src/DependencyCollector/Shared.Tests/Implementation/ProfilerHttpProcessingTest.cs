@@ -238,7 +238,7 @@
         }
 
         /// <summary>
-        /// Ensures that the parent id header is added when request is sent.
+        /// Ensures that the correlation context header is added when request is sent.
         /// </summary>
         [TestMethod]
         public void RddTestHttpProcessingProfilerOnBeginAddsCorrelationContextHeader()

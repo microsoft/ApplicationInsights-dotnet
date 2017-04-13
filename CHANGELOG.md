@@ -4,6 +4,7 @@
 - Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.
 - Implemented automatic telemetry correlation: all telemetry reported within the scope of the request is correlated to RequestTelemetry reported for the request.
 - Implemented [Correlation HTTP protocol](https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md): default headers to pass Operation Root Id and Parent Id were changed. This version is backward compatible with previously supported headers. 
+- Implemented injection into the HTTP stack for .NET 4.6 to leverage DiagnosticSource to gain access to the WebRequest and WebResponse objects for header injections, without the need of using the profiler.
 - Dependency to System.Diagnostics.DiagnosticsSource package is added for Web SDK on .NET 4.5.
 - Improvements to exception statistics, e.g. 2 of each type of exception will be output via TrackException
 - New ```AspNetDiagnosticTelemetryModule``` introduced for Web SDK on .NET 4.5, it consumes events from [Microsoft.AspNet.TelemetryCorrelation package](https://github.com/aspnet/AspNetCorrelationIdTracker) about incoming Http requests.
