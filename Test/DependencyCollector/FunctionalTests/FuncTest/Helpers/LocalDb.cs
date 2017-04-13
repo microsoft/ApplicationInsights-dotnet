@@ -71,7 +71,7 @@
                     connection);
 
                 cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
-                object result = cmd.ExecuteScalar();
+                object result = cmd.ExecuteNonQuery();
                 if (result != null)
                 {
                     return true;
@@ -87,7 +87,8 @@
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand cmd = new SqlCommand("CREATE DATABASE {0} ON (NAME = N'@databaseName', FILENAME = '@databaseFileName')");
+                string commandStr = string.Format(CultureInfo.InvariantCulture, "CREATE DATABASE {0} ON (NAME = N'@databaseName', FILENAME = '@databaseFileName')", databaseName);
+                SqlCommand cmd = new SqlCommand(commandStr, connection);
 
                 cmd.Parameters.Add(new SqlParameter("@databaseName", databaseName));
                 cmd.Parameters.Add(new SqlParameter("@databaseFileName", databaseFileName));
