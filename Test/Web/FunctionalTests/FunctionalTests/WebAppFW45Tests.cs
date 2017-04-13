@@ -415,26 +415,25 @@
             
             Assert.AreEqual(HttpStatusCode.NotFound, postTask.Result.StatusCode, "Request failed with incorrect status code");
 
-            var items = Listener.ReceiveItemsOfTypes <TelemetryItem<RequestData>, TelemetryItem<ExceptionData>>(2, TimeoutInMs);
-
-            // One item is request, the other one is exception.
+            // Obtains items with web prefix only so as to eliminate firstchance exceptions.
+            var items = Listener.ReceiveItemsOfTypesWithWebPrefix<TelemetryItem<RequestData>, TelemetryItem<ExceptionData>>(2, TimeoutInMs);
             int requestItemIndex = (items[0] is TelemetryItem<RequestData>) ? 0 : 1;
             int exceptionItemIndex = (requestItemIndex == 0) ? 1 : 0;
 
             Assert.AreEqual(this.Config.IKey, items[requestItemIndex].iKey, "IKey is not the same as in config file");
             Assert.AreEqual(this.Config.IKey, items[exceptionItemIndex].iKey, "IKey is not the same as in config file");
 
-            // Check that request id is set in exception operation parentId
+            // Check that request id is set in exception operation parentId for UnhandledException
             Assert.AreEqual(
                 ((TelemetryItem<RequestData>)items[requestItemIndex]).data.baseData.id,
                 items[exceptionItemIndex].tags[new ContextTagKeys().OperationParentId],
                 "Exception ParentId is not same as Request id");
 
-            // Check that request and exception have the same operation id
+            // Check that request and exception from UnhandledException have the same operation id
             Assert.AreEqual(
                 items[requestItemIndex].tags[new ContextTagKeys().OperationId],
                 items[exceptionItemIndex].tags[new ContextTagKeys().OperationId],
-                "Exception Operation Id is not same as Request Operation Id");
+                "Exception Operation Id for exception is not same as Request Operation Id");
         }
 
         /// <summary>
