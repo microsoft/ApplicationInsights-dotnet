@@ -15,15 +15,18 @@
     internal class HostingDiagnosticListener : IApplicationInsightDiagnosticListener
     {
         private readonly TelemetryClient client;
+        private readonly ICorrelationIdLookupHelper correlationIdLookupHelper;
         private readonly string sdkVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HostingDiagnosticListener"/> class.
         /// </summary>
         /// <param name="client"><see cref="TelemetryClient"/> to post traces to.</param>
-        public HostingDiagnosticListener(TelemetryClient client)
+        /// <param name="correlationIdLookupHelper">A store for correlation ids that we don't have to query it everytime.</param>
+        public HostingDiagnosticListener(TelemetryClient client, ICorrelationIdLookupHelper correlationIdLookupHelper)
         {
             this.client = client;
+            this.correlationIdLookupHelper = correlationIdLookupHelper;
             this.sdkVersion = SdkVersionUtils.VersionPrefix + SdkVersionUtils.GetAssemblyVersion();
         }
 
@@ -45,11 +48,16 @@
                 this.client.Initialize(requestTelemetry);
                 requestTelemetry.Start(timestamp);
                 httpContext.Features.Set(requestTelemetry);
-
                 IHeaderDictionary responseHeaders = httpContext.Response?.Headers;
-                if (responseHeaders != null && !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) && !responseHeaders.ContainsKey(RequestResponseHeaders.TargetInstrumentationKeyHeader))
+                if (responseHeaders != null &&
+                    !string.IsNullOrEmpty(requestTelemetry.Context.InstrumentationKey) &&
+                    (!responseHeaders.ContainsKey(RequestResponseHeaders.RequestContextHeader) || HttpHeadersUtilities.ContainsRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey)))
                 {
-                    responseHeaders.Add(RequestResponseHeaders.TargetInstrumentationKeyHeader, new StringValues(InstrumentationKeyHashLookupHelper.GetInstrumentationKeyHash(requestTelemetry.Context.InstrumentationKey)));
+                    string correlationId = null;
+                    if (this.correlationIdLookupHelper.TryGetXComponentCorrelationId(requestTelemetry.Context.InstrumentationKey, out correlationId))
+                    {
+                        HttpHeadersUtilities.SetRequestContextKeyValue(responseHeaders, RequestResponseHeaders.RequestContextTargetKey, correlationId);
+                    }
                 }
             }
         }

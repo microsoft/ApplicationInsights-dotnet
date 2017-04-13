@@ -142,6 +142,8 @@
 #endif
             services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 
+            services.AddSingleton<ICorrelationIdLookupHelper>(provider => new CorrelationIdLookupHelper(() => provider.GetService<IOptions<TelemetryConfiguration>>().Value));
+
             services.AddSingleton<TelemetryClient>();
 
             services.AddSingleton<ApplicationInsightsInitializer, ApplicationInsightsInitializer>();
