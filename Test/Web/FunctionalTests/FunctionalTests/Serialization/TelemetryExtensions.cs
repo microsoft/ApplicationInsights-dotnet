@@ -81,6 +81,26 @@ namespace Functional.Helpers
 
             return result;
         }
+        
+        public static Envelope[] ReceiveItemsOfTypesWithWebPrefix<T1, T2>(
+            this TelemetryHttpListenerObservable listener,
+            int count,
+            int timeOut)
+        {
+            var result = listener
+                .Where(item => (((item is T1) || (item is T2))) && (item.tags[new ContextTagKeys().InternalSdkVersion].StartsWith("web")))
+                .TakeUntil(DateTimeOffset.UtcNow.AddMilliseconds(timeOut))
+                .Take(count)
+                .ToEnumerable()
+                .ToArray();
+
+            if (result.Length != count)
+            {
+                throw new InvalidDataException("Incorrect number of items. Expected: " + count + " Received: " + result.Length);
+            }
+
+            return result;
+        }
 
         public static Envelope[] ReceiveAllItemsDuringTime(
             this TelemetryHttpListenerObservable listener,
