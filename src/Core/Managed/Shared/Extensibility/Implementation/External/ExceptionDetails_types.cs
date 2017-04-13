@@ -29,45 +29,45 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-
-
+    
+    
     [System.CodeDom.Compiler.GeneratedCode("gbc", "0.4.1.0")]
     internal partial class ExceptionDetails
     {
-
-
+        
+        
         public int id { get; set; }
 
-
-
+        
+        
         public int outerId { get; set; }
 
-
-
-
+        
+        
+        
         public string typeName { get; set; }
 
-
-
-
+        
+        
+        
         public string message { get; set; }
 
-
-
+        
+        
         public bool hasFullStack { get; set; }
 
-
-
-
+        
+        
+        
         public string stack { get; set; }
 
-
-
+        
+        
         public IList<StackFrame> parsedStack { get; set; }
 
         public ExceptionDetails()
             : this("AI.ExceptionDetails", "ExceptionDetails")
-        { }
+        {}
 
         protected ExceptionDetails(string fullName, string name)
         {
