@@ -1,53 +1,21 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
-    using System.Collections.Generic;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
-    internal class PlatformImplementation : IPlatform
+    /// <summary>
+    /// The .Net standard 1.3 implementation of the <see cref="IPlatform"/> interface.
+    /// </summary>
+    internal sealed class PlatformImplementation : PlatformImplementationBase
     {
-        private IDebugOutput debugOutput = null;
-        
-        public IDictionary<string, object> GetApplicationSettings()
-        {
-            return null;
-        }
-
-        public string ReadConfigurationXml()
-        {
-            return null;
-        }
-
-        public ExceptionDetails GetExceptionDetails(Exception exception, ExceptionDetails parentExceptionDetails)
-        {
-            return ExceptionConverter.ConvertToExceptionDetails(exception, parentExceptionDetails);
-        }
-
         /// <summary>
-        /// Returns the platform specific Debugger writer to the VS output console.
+        /// The directory where the configuration file might be found.
         /// </summary>
-        public IDebugOutput GetDebugOutput()
+        protected override string ConfigurationXmlDirectory
         {
-            if (this.debugOutput == null)
+            get
             {
-                this.debugOutput = new TelemetryDebugWriter(); 
+                return AppContext.BaseDirectory;
             }
-            
-            return this.debugOutput;
-        }
-
-        public string GetEnvironmentVariable(string name)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Returns the machine name.
-        /// </summary>
-        /// <returns>The machine name.</returns>
-        public string GetMachineName()
-        {
-            return null;
         }
     }
 }
