@@ -37,7 +37,7 @@
         /// <inheritdoc />
         public bool IsEnabled(LogLevel logLevel)
         {
-            return this.filter(categoryName, logLevel) && this.telemetryClient.IsEnabled();
+            return this.filter != null && this.telemetryClient != null && this.filter(categoryName, logLevel) && this.telemetryClient.IsEnabled();
         }
 
         /// <inheritdoc />
