@@ -1,7 +1,7 @@
 Fix # .
 
 
-For significant contribution make sure you completed the list:
+For significant contributions please make sure you have completed the following items:
 
 - [ ] Design discussion issue #
 - [ ] Changes in public surface reviewed
