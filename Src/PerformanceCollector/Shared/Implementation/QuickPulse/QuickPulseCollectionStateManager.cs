@@ -29,7 +29,7 @@
 
         private readonly Func<CollectionConfigurationInfo, CollectionConfigurationError[]> onUpdatedConfiguration;
 
-        private readonly TimeSpan coolDownTimeout = TimeSpan.FromMilliseconds(50);
+        private readonly TimeSpan coolDownTimeout;
 
         private readonly List<CollectionConfigurationError> collectionConfigurationErrors = new List<CollectionConfigurationError>();
 
@@ -101,6 +101,8 @@
             this.onSubmitSamples = onSubmitSamples;
             this.onReturnFailedSamples = onReturnFailedSamples;
             this.onUpdatedConfiguration = onUpdatedConfiguration;
+
+            this.coolDownTimeout = TimeSpan.FromMilliseconds(timings.CollectionInterval.TotalMilliseconds / 20);
         }
         
         public bool IsCollectingData
