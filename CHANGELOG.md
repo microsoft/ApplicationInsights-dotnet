@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.1.0
+
+- Updated to use the new correlation headers and changed the correlationId to use appId instead of hashed ikey to match other SDKs.
+- Fixed null reference exception for unitialized ILogger.
+
 ## Version 2.1.0-beta1
 
 - Bug fixes
