@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.ApplicationInsights.Common
 {
     using System;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Threading;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     // See
     // https://github.com/lmolkova/correlation/blob/master/http_protocol_proposal_v1.md
@@ -16,11 +16,6 @@
     internal class ApplicationInsightsActivity
     {
         private const int RequestIdMaxLength = 1024;
-
-        /// <summary>
-        /// Instance unique prefix, used to generate an Id.
-        /// </summary>
-        private static string uniqPrefix;
 
         /// <summary>
         /// A unique number inside the AppDomain, randomized between AppDomains. 
@@ -140,21 +135,7 @@
 
         private static string GenerateRootId()
         {
-            if (uniqPrefix == null)
-            {
-                Interlocked.CompareExchange(ref uniqPrefix, GenerateInstancePrefix(), null);
-            }
-
-            return uniqPrefix + "-" + Interlocked.Increment(ref currentRootId).ToString("x", CultureInfo.InvariantCulture) + '.';
-        }
-
-        private static string GenerateInstancePrefix()
-        {
-            // Here we make an ID to represent the Process/AppDomain.   Ideally we use process ID but 
-            // it is unclear if we have that ID handy.   Currently we use low bits of high freq tick 
-            // as a unique random number (which is not bad, but loses randomness for startup scenarios).  
-            int uniqNum = unchecked((int)Stopwatch.GetTimestamp());
-            return string.Format(CultureInfo.InvariantCulture, "|{0}-{1:x}.", Environment.MachineName, uniqNum);
+            return string.Format(CultureInfo.InvariantCulture, "|{0}.", new RequestTelemetry().Id);
         }
 
         private static ulong GetRandomNumber()
