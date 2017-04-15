@@ -49,8 +49,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)DependencyTrackingTelemetryModule.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SanitizedHostList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TelemetryExtensionsForDependencyCollector.cs" />
-
-    <!-- Temporary, will remove once DiagnosticSource is updated with this class -->
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpHandlerDiagnosticListener.cs" />
   </ItemGroup>
 </Project>

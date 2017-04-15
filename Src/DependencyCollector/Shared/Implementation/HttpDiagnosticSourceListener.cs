@@ -2,17 +2,9 @@
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Linq;
     using System.Net;
-    using Microsoft.ApplicationInsights.Common;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;
+    using System.Reflection;
 
     /// <summary>
     /// Diagnostic listener implementation that listens for Http DiagnosticSource to see all outgoing HTTP dependency requests.
@@ -20,13 +12,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     internal class HttpDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
         private readonly FrameworkHttpProcessing httpProcessingFramework;
-        private HttpDiagnosticSourceSubscriber subscribeHelper;
+        private readonly HttpDiagnosticSourceSubscriber subscribeHelper;
+        private readonly PropertyFetcher requestFetcherRequestEvent;
+        private readonly PropertyFetcher requestFetcherResponseEvent;
+        private readonly PropertyFetcher responseFetcher;
         private bool disposed = false;
 
         internal HttpDiagnosticSourceListener(FrameworkHttpProcessing httpProcessing)
         {
             this.httpProcessingFramework = httpProcessing;
             this.subscribeHelper = new HttpDiagnosticSourceSubscriber(this);
+            this.requestFetcherRequestEvent = new PropertyFetcher("Request");
+            this.requestFetcherResponseEvent = new PropertyFetcher("Request");
+            this.responseFetcher = new PropertyFetcher("Response");
         }
 
         /// <summary>
@@ -47,15 +45,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             try
             {
-                dynamic propertyBag = value.Value;                        
                 switch (value.Key)
                 {
                     case "System.Net.Http.Request":
-                        this.httpProcessingFramework.OnRequestSend((HttpWebRequest)propertyBag.Request);
+                    {
+                        var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
+                        this.httpProcessingFramework.OnRequestSend(request);
                         break;
+                    }
+
                     case "System.Net.Http.Response":
-                        this.httpProcessingFramework.OnResponseReceive((HttpWebRequest)propertyBag.Request, (HttpWebResponse)propertyBag.Response);
+                    {
+                        var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
+                        var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
+                        this.httpProcessingFramework.OnResponseReceive(request, response);
                         break;
+                    }
                 }
             }
             catch (Exception exc)
@@ -100,6 +105,81 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.disposed = true;
             }
         }
+
+        #region PropertyFetcher
+
+        /// <summary>
+        /// Efficient implementation of fetching properties of anonymous types with reflection.
+        /// </summary>
+        private class PropertyFetcher
+        {
+            private readonly string propertyName;
+            private PropertyFetch innerFetcher;
+
+            public PropertyFetcher(string propertyName)
+            {
+                this.propertyName = propertyName;
+            }
+
+            public object Fetch(object obj)
+            {
+                if (this.innerFetcher == null)
+                {
+                    this.innerFetcher = PropertyFetch.FetcherForProperty(obj.GetType().GetTypeInfo().GetDeclaredProperty(this.propertyName));
+                }
+
+                return this.innerFetcher?.Fetch(obj);
+            }
+
+            // see https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/DiagnosticSourceEventSource.cs
+            private class PropertyFetch
+            {
+                /// <summary>
+                /// Create a property fetcher from a .NET Reflection PropertyInfo class that
+                /// represents a property of a particular type.  
+                /// </summary>
+                public static PropertyFetch FetcherForProperty(PropertyInfo propertyInfo)
+                {
+                    if (propertyInfo == null)
+                    {
+                        // returns null on any fetch.
+                        return new PropertyFetch(); 
+                    }
+
+                    var typedPropertyFetcher = typeof(TypedFetchProperty<,>);
+                    var instantiatedTypedPropertyFetcher = typedPropertyFetcher.GetTypeInfo().MakeGenericType(
+                        propertyInfo.DeclaringType, propertyInfo.PropertyType);
+                    return (PropertyFetch)Activator.CreateInstance(instantiatedTypedPropertyFetcher, propertyInfo);
+                }
+
+                /// <summary>
+                /// Given an object, fetch the property that this propertyFetch represents. 
+                /// </summary>
+                public virtual object Fetch(object obj)
+                {
+                    return null;
+                }
+
+                private class TypedFetchProperty<TObject, TProperty> : PropertyFetch
+                {
+                    private readonly Func<TObject, TProperty> propertyFetch;
+
+                    public TypedFetchProperty(PropertyInfo property)
+                    {
+                        this.propertyFetch =
+                            (Func<TObject, TProperty>)
+                            property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
+                    }
+
+                    public override object Fetch(object obj)
+                    {
+                        return this.propertyFetch((TObject)obj);
+                    }
+                }
+            }
+        }
+        
+        #endregion
     }
 }
 #endif
