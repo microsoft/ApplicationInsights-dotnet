@@ -13,7 +13,6 @@
     using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Microsoft.ApplicationInsights.Channel
 
     [TestClass]
     public class AspNetDiagnosticTelemetryModuleTest : IDisposable
