@@ -13,6 +13,16 @@
     using TestFramework;
     using Assert = Xunit.Assert;
 
+    internal class StubMetricProcessor : IMetricProcessor
+    {
+        public Action<Metric, double> OnTrack = (metric, value) => { };
+
+        public void Track(Metric metric, double value)
+        {
+            this.OnTrack(metric, value);
+        }
+    }
+
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
@@ -86,17 +96,18 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -127,13 +138,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
@@ -146,6 +157,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -172,17 +184,18 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleMarksOperationAsInternal()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -217,13 +230,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapOperationName()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             int operationId = 0;
 
@@ -238,6 +251,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -262,13 +276,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillNotDimCapTheSameOperationName()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
@@ -281,6 +295,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -305,13 +320,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapAfterCacheTimeout()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             int operationId = 0;
 
@@ -326,6 +341,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 module.DimCapTimeout = DateTime.UtcNow.Ticks - 1;
 
@@ -357,13 +373,13 @@
         public void FirstChanceExceptionStatisticsTelemetryExceptionsAreThrottled()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
@@ -376,6 +392,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 module.TargetMovingAverage = 50;
 
@@ -420,17 +437,18 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.metricManager.MetricProcessors.Add(stub);
 
                 try
                 {

@@ -32,6 +32,8 @@
         // cheap dimension capping
         internal long DimCapTimeout;
 
+        internal MetricManager metricManager;
+
         private const int LOCKED = 1;
         private const int UNLOCKED = 0;
 
@@ -53,7 +55,6 @@
         private readonly object movingAverageLockObject = new object();
 
         private TelemetryClient telemetryClient;
-        private MetricManager metricManager;
 
         private bool isInitialized = false;
 
@@ -103,7 +104,7 @@
                         this.telemetryClient = new TelemetryClient(configuration);
                         this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
 
-                        this.metricManager = new MetricManager(this.telemetryClient);
+                        this.metricManager = new MetricManager(this.telemetryClient, configuration);
 
                         this.registerAction(this.CalculateStatistics);
 
