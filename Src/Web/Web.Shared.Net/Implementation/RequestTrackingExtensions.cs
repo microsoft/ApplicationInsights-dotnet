@@ -31,9 +31,13 @@
 
             if (currentActivity == null) 
             {
-                // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity yet.
+                // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity (and will never do it).
                 currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
-                if (!currentActivity.TryParse(platformContext.Request.Headers))
+                if (currentActivity.TryParse(platformContext.Request.Headers))
+                {
+                    requestContext.ParentId = currentActivity.ParentId;
+                }
+                else
                 {
                     string rootId, parentId;
                     if (ActivityHelpers.TryParseCustomHeaders(platformContext.Request, out rootId, out parentId))
@@ -44,9 +48,35 @@
                             requestContext.ParentId = parentId;
                         }
                     }
+                    else
+                    {
+                        // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
+                        // if there is no parent Activity, ID Activity generates is not random enough to work well with 
+                        // ApplicationInsights sampling algorithm
+                        // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
+                        currentActivity.SetParentId(result.Id);
+
+                        // end of workaround
+                    }
                 }
 
                 currentActivity.Start();
+            }
+            else
+            {
+                if (ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
+                {
+                    requestContext.ParentId = currentActivity.ParentId;
+                }
+                else
+                {
+                    var parentId =
+                        platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
+                    if (!string.IsNullOrEmpty(parentId))
+                    {
+                        requestContext.ParentId = parentId;
+                    }
+                }
             }
 
             // we have Activity.Current, we need to properly initialize request telemetry and store it in HttpContext
@@ -57,22 +87,6 @@
                 {
                     result.Context.Properties[item.Key] = item.Value;
                 }
-            }
-
-            if (!ActivityHelpers.IsHierarchicalRequestId(currentActivity.ParentId))
-            {
-                var parentId =
-                    platformContext.Request.UnvalidatedGetHeader(ActivityHelpers.ParentOperationIdHeaderName);
-                if (!string.IsNullOrEmpty(parentId))
-                {
-                    requestContext.ParentId = parentId;
-                }
-            }
-
-            // ParentId could be initialized in IsEnabled if legacy/custom headers were received
-            if (string.IsNullOrEmpty(requestContext.ParentId))
-            {
-                requestContext.ParentId = currentActivity.ParentId;
             }
 
             result.Id = currentActivity.Id;
