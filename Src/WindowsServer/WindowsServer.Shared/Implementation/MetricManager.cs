@@ -782,7 +782,7 @@
         internal static string GetSdkVersion(string versionPrefix)
         {
 #if !NETSTANDARD1_3
-            string versionStr = typeof(TelemetryClient).Assembly.GetCustomAttributes(false)
+            string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false)
                     .OfType<AssemblyFileVersionAttribute>()
                     .First()
                     .Version;
