@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
 #if !NET40
     using System.Diagnostics.Tracing;
 #endif
@@ -35,13 +36,225 @@
 #endif
 
     /// <summary>
+    /// Provides functionality to process metric values prior to aggregation.
+    /// </summary>
+    internal interface IMetricProcessor
+    {
+        /// <summary>
+        /// Process metric value.
+        /// </summary>
+        /// <param name="metric">Metric definition.</param>
+        /// <param name="value">Metric value.</param>
+        void Track(Metric metric, double value);
+    }
+
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
+    internal static class MetricTerms
+    {
+        private const string MetricPropertiesNamePrefix = "_MS";
+
+        public static class Aggregation
+        {
+            public static class Interval
+            {
+                public static class Moniker
+                {
+                    public const string Key = MetricPropertiesNamePrefix + ".AggregationIntervalMs";
+                }
+            }
+        }
+
+        public static class Extraction
+        {
+            public static class ProcessedByExtractors
+            {
+                public static class Moniker
+                {
+                    public const string Key = MetricPropertiesNamePrefix + ".ProcessedByMetricExtractors";
+                    public const string ExtractorInfoTemplate = "(Name:'{0}', Ver:'{1}')";      // $"(Name:'{ExtractorName}', Ver:'{ExtractorVersion}')"
+                }
+            }
+        }
+
+        public static class Autocollection
+        {
+            public static class Moniker
+            {
+                public const string Key = MetricPropertiesNamePrefix + ".IsAutocollected";
+                public const string Value = "True";
+            }
+
+            public static class MetricId
+            {
+                public static class Moniker
+                {
+                    public const string Key = MetricPropertiesNamePrefix + ".MetricId";
+                }
+            }
+
+            public static class Metric
+            {
+                public static class RequestDuration
+                {
+                    public const string Name = "Server response time";
+                    public const string Id = "requests/duration";
+                }
+
+                public static class DependencyCallDuration
+                {
+                    public const string Name = "Dependency duration";
+                    public const string Id = "dependencies/duration";
+                }
+            }
+
+            public static class Request
+            {
+                public static class PropertyNames
+                {
+                    public const string Success = "Request.Success";
+                }
+            }
+
+            public static class DependencyCall
+            {
+                public static class PropertyNames
+                {
+                    public const string Success = "Dependency.Success";
+                    public const string TypeName = "Dependency.Type";
+                }
+
+                public static class TypeNames
+                {
+                    public const string Other = "Other";
+                    public const string Unknown = "Unknown";
+                }
+            }
+        }
+    }
+
+#if NET40
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
+    internal static class TaskEx
+    {
+        /// <summary>
+        /// Check and rethrow exception for failed task.
+        /// </summary>
+        /// <param name="task">Task to check.</param>
+        public static void RethrowIfFaulted(this Task task)
+        {
+            if (!task.IsCompleted)
+            {
+                throw new ArgumentException("Task is not yet completed");
+            }
+
+            if (task.IsFaulted)
+            {
+                throw new AggregateException(task.Exception).Flatten();
+            }
+        }
+
+        /// <summary>
+        /// Creates a task that completes after a specified time interval.
+        /// </summary>
+        /// <param name="timeout">The time span to wait before completing the returned task.</param>
+        /// <returns>A Task that represents the time delay.</returns>
+        public static Task Delay(TimeSpan timeout)
+        {
+            return Delay(timeout, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a task that completes after a specified time interval.
+        /// </summary>
+        /// <param name="timeout">The time span to wait before completing the returned task.</param>
+        /// <param name="token">The cancellation token that will interrupt delay.</param>
+        /// <returns>A Task that represents the time delay.</returns>
+        public static Task Delay(TimeSpan timeout, CancellationToken token)
+        {
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+
+            if (timeout.Ticks <= 0)
+            {
+                tcs.SetResult(null);
+                return tcs.Task;
+            }
+
+            Timer timer = null;
+            timer = new Timer(
+                state =>
+                {
+                    timer.Dispose();
+                    tcs.TrySetResult(null);
+                },
+                null,
+                timeout,
+                TimeSpan.FromMilliseconds(Timeout.Infinite));
+
+            token.Register(
+                () =>
+                {
+                    timer.Dispose();
+                    tcs.TrySetCanceled();
+                });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Creates a Task that's completed successfully with the specified result.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result returned by the task.</typeparam>
+        /// <param name="result">The result to store into the completed task.</param>
+        /// <returns>The successfully completed task.</returns>
+        public static Task<TResult> FromResult<TResult>(TResult result)
+        {
+            TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>();
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Creates a task that will complete when any of the supplied tasks have completed.
+        /// </summary>
+        /// <param name="tasks">The tasks to wait on for completion.</param>
+        /// <returns>A task that represents the completion of one of the supplied tasks. The return Task's Result is the task that completed.</returns>
+        public static Task<Task> WhenAny(params Task[] tasks)
+        {
+            if (tasks.Length == 0)
+            {
+                throw new ArgumentException("The tasks argument contains no tasks");
+            }
+
+            TaskCompletionSource<Task> taskCompletionSource = new TaskCompletionSource<Task>();
+
+            Task.Factory.ContinueWhenAny(tasks, completedTask => taskCompletionSource.SetResult(completedTask), TaskContinuationOptions.ExecuteSynchronously);
+
+            return taskCompletionSource.Task;
+        }
+    }
+#endif
+
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
+    internal static class EventSourceKeywords
+    {
+        public const long UserActionable = 0x1;
+
+        public const long Diagnostics = 0x2;
+
+        public const long VerboseFailure = 0x4;
+
+        public const long ErrorFailure = 0x8;
+
+        public const long ReservedUserKeywordBegin = 0x10;
+    }
+
+    /// <summary>
     /// Metric factory and controller. Sends metrics to Application Insights service. Pre-aggregates metrics to reduce bandwidth.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
     /// </summary>
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal sealed class MetricManager : IDisposable
     {
-        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
-
         /// <summary>
         /// Value of the property indicating 'app insights version' allowing to tell metric was built using metric manager.
         /// </summary>
@@ -61,6 +274,8 @@
         /// Telemetry config for this telemetry client.
         /// </summary>
         private readonly TelemetryConfiguration telemetryConfig;
+
+        private SnapshottingList<IMetricProcessor> metricProcessors = new SnapshottingList<IMetricProcessor>();
 
         /// <summary>
         /// Metric aggregation snapshot task.
@@ -281,6 +496,7 @@
     /// <summary>
     /// Represents mechanism to calculate basic statistical parameters of a series of numeric values.
     /// </summary>
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal class SimpleMetricStatisticsAggregator
     {
         /// <summary>
@@ -389,105 +605,10 @@
         }
     }
 
-    internal static class MetricTerms
-    {
-        private const string MetricPropertiesNamePrefix = "_MS";
-
-        public static class Aggregation
-        {
-            public static class Interval
-            {
-                public static class Moniker
-                {
-                    public const string Key = MetricPropertiesNamePrefix + ".AggregationIntervalMs";
-                }
-            }
-        }
-
-        public static class Extraction
-        {
-            public static class ProcessedByExtractors
-            {
-                public static class Moniker
-                {
-                    public const string Key = MetricPropertiesNamePrefix + ".ProcessedByMetricExtractors";
-                    public const string ExtractorInfoTemplate = "(Name:'{0}', Ver:'{1}')";      // $"(Name:'{ExtractorName}', Ver:'{ExtractorVersion}')"
-                }
-            }
-        }
-
-        public static class Autocollection
-        {
-            public static class Moniker
-            {
-                public const string Key = MetricPropertiesNamePrefix + ".IsAutocollected";
-                public const string Value = "True";
-            }
-
-            public static class MetricId
-            {
-                public static class Moniker
-                {
-                    public const string Key = MetricPropertiesNamePrefix + ".MetricId";
-                }
-            }
-
-            public static class Metric
-            {
-                public static class RequestDuration
-                {
-                    public const string Name = "Server response time";
-                    public const string Id = "requests/duration";
-                }
-
-                public static class DependencyCallDuration
-                {
-                    public const string Name = "Dependency duration";
-                    public const string Id = "dependencies/duration";
-                }
-            }
-
-            public static class Request
-            {
-                public static class PropertyNames
-                {
-                    public const string Success = "Request.Success";
-                }
-            }
-
-            public static class DependencyCall
-            {
-                public static class PropertyNames
-                {
-                    public const string Success = "Dependency.Success";
-                    public const string TypeName = "Dependency.Type";
-                }
-
-                public static class TypeNames
-                {
-                    public const string Other = "Other";
-                    public const string Unknown = "Unknown";
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Provides functionality to process metric values prior to aggregation.
-    /// </summary>
-    internal interface IMetricProcessor
-    {
-        /// <summary>
-        /// Process metric value.
-        /// </summary>
-        /// <param name="metric">Metric definition.</param>
-        /// <param name="value">Metric value.</param>
-        void Track(Metric metric, double value);
-    }
-
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.
     /// </summary>
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal class Metric : IEquatable<Metric>
     {
         /// <summary>
@@ -649,6 +770,7 @@
         }
     }
 
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal class SdkVersionUtils
     {
         /// <summary>
@@ -681,6 +803,7 @@
         }
     }
 
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal abstract class SnapshottingCollection<TItem, TCollection> : ICollection<TItem>
     where TCollection : class, ICollection<TItem>
     {
@@ -773,6 +896,7 @@
         }
     }
 
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal class SnapshottingList<T> : SnapshottingCollection<T, IList<T>>, IList<T>
     {
         public SnapshottingList()
@@ -826,110 +950,10 @@
         }
     }
 
-#if NET40
-    internal static class TaskEx
-    {
-        /// <summary>
-        /// Check and rethrow exception for failed task.
-        /// </summary>
-        /// <param name="task">Task to check.</param>
-        public static void RethrowIfFaulted(this Task task)
-        {
-            if (!task.IsCompleted)
-            {
-                throw new ArgumentException("Task is not yet completed");
-            }
-
-            if (task.IsFaulted)
-            {
-                throw new AggregateException(task.Exception).Flatten();
-            }
-        }
-
-        /// <summary>
-        /// Creates a task that completes after a specified time interval.
-        /// </summary>
-        /// <param name="timeout">The time span to wait before completing the returned task.</param>
-        /// <returns>A Task that represents the time delay.</returns>
-        public static Task Delay(TimeSpan timeout)
-        {
-            return Delay(timeout, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Creates a task that completes after a specified time interval.
-        /// </summary>
-        /// <param name="timeout">The time span to wait before completing the returned task.</param>
-        /// <param name="token">The cancellation token that will interrupt delay.</param>
-        /// <returns>A Task that represents the time delay.</returns>
-        public static Task Delay(TimeSpan timeout, CancellationToken token)
-        {
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-
-            if (timeout.Ticks <= 0)
-            {
-                tcs.SetResult(null);
-                return tcs.Task;
-            }
-
-            Timer timer = null;
-            timer = new Timer(
-                state =>
-                {
-                    timer.Dispose();
-                    tcs.TrySetResult(null);
-                },
-                null,
-                timeout,
-                TimeSpan.FromMilliseconds(Timeout.Infinite));
-
-            token.Register(
-                () =>
-                {
-                    timer.Dispose();
-                    tcs.TrySetCanceled();
-                });
-
-            return tcs.Task;
-        }
-
-        /// <summary>
-        /// Creates a Task that's completed successfully with the specified result.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result returned by the task.</typeparam>
-        /// <param name="result">The result to store into the completed task.</param>
-        /// <returns>The successfully completed task.</returns>
-        public static Task<TResult> FromResult<TResult>(TResult result)
-        {
-            TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>();
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-
-        /// <summary>
-        /// Creates a task that will complete when any of the supplied tasks have completed.
-        /// </summary>
-        /// <param name="tasks">The tasks to wait on for completion.</param>
-        /// <returns>A task that represents the completion of one of the supplied tasks. The return Task's Result is the task that completed.</returns>
-        public static Task<Task> WhenAny(params Task[] tasks)
-        {
-            if (tasks.Length == 0)
-            {
-                throw new ArgumentException("The tasks argument contains no tasks");
-            }
-
-            TaskCompletionSource<Task> taskCompletionSource = new TaskCompletionSource<Task>();
-
-            Task.Factory.ContinueWhenAny(tasks, completedTask => taskCompletionSource.SetResult(completedTask), TaskContinuationOptions.ExecuteSynchronously);
-
-            return taskCompletionSource.Task;
-        }
-    }
-#endif
-
     /// <summary>
     /// Runs a task after a certain delay and log any error.
     /// </summary>
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal class TaskTimerInternal : IDisposable
     {
         /// <summary>
@@ -1081,6 +1105,7 @@
         }
     }
 
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal sealed class ApplicationNameProvider
     {
         public ApplicationNameProvider()
@@ -1116,20 +1141,8 @@
         }
     }
 
-    internal static class EventSourceKeywords
-    {
-        public const long UserActionable = 0x1;
-
-        public const long Diagnostics = 0x2;
-
-        public const long VerboseFailure = 0x4;
-
-        public const long ErrorFailure = 0x8;
-
-        public const long ReservedUserKeywordBegin = 0x10;
-    }
-
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-Core")]
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This is a temporary private MetricManager")]
     internal sealed class WindowsServerCoreEventSource : EventSource
     {
         public static readonly WindowsServerCoreEventSource Log = new WindowsServerCoreEventSource();
