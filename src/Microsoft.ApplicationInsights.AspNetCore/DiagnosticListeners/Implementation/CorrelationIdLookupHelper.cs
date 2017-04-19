@@ -44,8 +44,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             {
                 if (endpointAddress == null)
                 {
-                    Uri endpointUri = new Uri(configurationProvider().TelemetryChannel.EndpointAddress);
-                    endpointAddress = new Uri(endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
+                    if (!string.IsNullOrEmpty(configurationProvider()?.TelemetryChannel?.EndpointAddress))
+                    {
+                        Uri endpointUri = new Uri(configurationProvider().TelemetryChannel.EndpointAddress);
+                        endpointAddress = new Uri(endpointUri.AbsoluteUri.Substring(0, endpointUri.AbsoluteUri.Length - endpointUri.LocalPath.Length));
+                    }
                 }
                 return endpointAddress;
             }
@@ -122,7 +125,14 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                         Task<string> getAppIdTask = this.provideAppId(iKeyLowered);
                         if (getAppIdTask.Wait(GetAppIdTimeout))
                         {
-                            correlationId = this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                            if (string.IsNullOrEmpty(getAppIdTask.Result))
+                            {
+                                correlationId = string.Empty;
+                            }
+                            else
+                            {
+                                correlationId = this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                            }
                             return true;
                         }
                         else
@@ -165,7 +175,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         private string GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
         {
             string correlationId = string.Format(CultureInfo.InvariantCulture, CorrelationIdFormat, appId);
-            this.knownCorrelationIds[ikey] = correlationId;
+            this.knownCorrelationIds.TryAdd(ikey, correlationId);
             return correlationId;
         }
 
@@ -179,6 +189,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
             try
             {
                 Uri appIdEndpoint = this.GetAppIdEndPointUri(instrumentationKey);
+                if (appIdEndpoint == null)
+                {
+                    return null;
+                }
+
                 string result = null;
 #if NET451
                 WebRequest request = WebRequest.Create(appIdEndpoint);
@@ -212,7 +227,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         /// <returns>Computed Uri.</returns>
         private Uri GetAppIdEndPointUri(string instrumentationKey)
         {
-            return new Uri(this.EndpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+            if (this.EndpointAddress != null)
+            {
+                return new Uri(this.EndpointAddress, string.Format(CultureInfo.InvariantCulture, AppIdQueryApiRelativeUriFormat, instrumentationKey));
+            }
+            return null;
         }
     }
 }
