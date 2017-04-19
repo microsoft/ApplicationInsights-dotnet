@@ -15,10 +15,6 @@
 
     using Assert = Xunit.Assert;
 
-#if NET45
-    using TaskEx = System.Threading.Tasks.Task;
-#endif
-
     [TestClass]
     public class UnobservedExceptionTelemetryModuleTest
     {
@@ -125,10 +121,18 @@
             {
                 for (int i = 0; i < 50; ++i)
                 {
-                    tasks[i] = TaskEx.Run(() => module.Initialize(this.moduleConfiguration));
+#if NET40
+                    tasks[i] = System.Threading.Tasks.TaskEx.Run(() => module.Initialize(this.moduleConfiguration));
+#else
+                    tasks[i] = System.Threading.Tasks.Task.Run(() => module.Initialize(this.moduleConfiguration));
+#endif
                 }
 
-                TaskEx.WhenAll(tasks).Wait();
+#if NET40
+                System.Threading.Tasks.TaskEx.WhenAll(tasks).Wait();
+#else
+                System.Threading.Tasks.Task.WhenAll(tasks).Wait();
+#endif
             }
 
             Assert.Equal(1, count);
