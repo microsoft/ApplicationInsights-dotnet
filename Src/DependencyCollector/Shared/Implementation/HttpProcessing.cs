@@ -217,9 +217,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         if (webRequest.Headers[RequestResponseHeaders.CorrelationContextHeader] == null)
                         {
 #if NET45
-                            if (Activity.Current.Baggage.Any())
+                            var currentActivity = Activity.Current;
+                            if (currentActivity != null && currentActivity.Baggage.Any())
                             {
-                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, Activity.Current.Baggage);
+                                webRequest.Headers.SetHeaderFromNameValueCollection(RequestResponseHeaders.CorrelationContextHeader, currentActivity.Baggage);
                             }
 #else
 #pragma warning disable 618

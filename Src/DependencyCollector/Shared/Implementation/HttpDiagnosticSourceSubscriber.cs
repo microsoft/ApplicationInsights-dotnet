@@ -2,17 +2,7 @@
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
-    using System.Linq;
-    using System.Net;
-    using Microsoft.ApplicationInsights.Common;
-    using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
     /// A helper subscriber class helping the parent object, which is a HttpDiagnosticSourceListener, to subscribe
@@ -21,14 +11,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal class HttpDiagnosticSourceSubscriber : IObserver<DiagnosticListener>, IDisposable
     {
-        private HttpDiagnosticSourceListener parent;
-        private IDisposable allListenersSubscription;
+        private readonly HttpDiagnosticSourceListener parent;
+        private readonly IDisposable allListenersSubscription;
         private IDisposable sourceSubscription;
         private bool disposed = false;
 
         internal HttpDiagnosticSourceSubscriber(HttpDiagnosticSourceListener parent)
         {
-            GC.KeepAlive(HttpHandlerDiagnosticListener.SingletonInstance);
             this.parent = parent;
             this.allListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
         }

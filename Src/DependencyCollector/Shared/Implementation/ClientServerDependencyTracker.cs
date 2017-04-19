@@ -32,6 +32,18 @@
             // but every operation must have it's own Activity and Id must be set accordingly
             // basically we repeat TelemetryClientExtensions.StartOperation here
             var activity = new Activity(DependencyActivityName);
+
+            // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
+            // if there is no parent Activity, ID Activity generates is not random enough to work well with 
+            // ApplicationInsights sampling algorithm
+            // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
+            if (Activity.Current == null)
+            {
+                activity.SetParentId(telemetry.Id);
+            }
+
+            //// end of workaround
+
             activity.Start();
             
             telemetry.Id = activity.Id;

@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.DependencyCollector.Net46.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net40.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ApplicationInsights.Web.Net45.Tests, PublicKey=" + AssemblyInfo.PublicKey)]
