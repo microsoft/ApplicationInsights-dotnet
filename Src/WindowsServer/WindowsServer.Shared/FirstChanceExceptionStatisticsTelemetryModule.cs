@@ -32,7 +32,7 @@
         // cheap dimension capping
         internal long DimCapTimeout;
 
-        internal MetricManager metricManager;
+        internal MetricManager MetricManager;
 
         private const int LOCKED = 1;
         private const int UNLOCKED = 0;
@@ -104,7 +104,7 @@
                         this.telemetryClient = new TelemetryClient(configuration);
                         this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
 
-                        this.metricManager = new MetricManager(this.telemetryClient, configuration);
+                        this.MetricManager = new MetricManager(this.telemetryClient, configuration);
 
                         this.registerAction(this.CalculateStatistics);
 
@@ -187,7 +187,7 @@
                 this.operationNameValues.Dispose();
                 this.problemIdValues.Dispose();
                 this.exceptionKeyValues.Dispose();
-                this.metricManager.Dispose();
+                this.MetricManager.Dispose();
             }
         }
 
@@ -345,7 +345,7 @@
 
             this.SendException(refinedOperationName, refinedProblemId, exceptionTelemetry, exception);
 
-            var metric = this.metricManager.CreateMetric("Exceptions thrown", dimensions);
+            var metric = this.MetricManager.CreateMetric("Exceptions thrown", dimensions);
 
             metric.Track(1);
         }

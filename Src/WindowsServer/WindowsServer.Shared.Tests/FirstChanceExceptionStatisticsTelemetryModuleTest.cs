@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
@@ -12,16 +13,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TestFramework;
     using Assert = Xunit.Assert;
-
-    internal class StubMetricProcessor : IMetricProcessor
-    {
-        public Action<Metric, double> OnTrack = (metric, value) => { };
-
-        public void Track(Metric metric, double value)
-        {
-            this.OnTrack(metric, value);
-        }
-    }
 
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
@@ -107,7 +98,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -157,7 +148,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -195,7 +186,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -251,7 +242,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -295,7 +286,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -341,7 +332,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 module.DimCapTimeout = DateTime.UtcNow.Ticks - 1;
 
@@ -392,7 +383,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 module.TargetMovingAverage = 50;
 
@@ -448,7 +439,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
-                module.metricManager.MetricProcessors.Add(stub);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -673,6 +664,17 @@
         private void Method3()
         {
             throw new Exception("exception from Method 3");
+        }
+    }
+
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This class is for the temporary MetricManager")]
+    internal class StubMetricProcessor : IMetricProcessor
+    {
+        public Action<Metric, double> OnTrack = (metric, value) => { };
+
+        public void Track(Metric metric, double value)
+        {
+            this.OnTrack(metric, value);
         }
     }
 }
