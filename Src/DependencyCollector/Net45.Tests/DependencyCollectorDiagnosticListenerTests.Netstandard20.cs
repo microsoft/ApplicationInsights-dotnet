@@ -28,18 +28,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             activity.AddBaggage("k", "v");
             activity.Start();
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
             // Request-Id and Correlation-Context are injected by HttpClient
             // check only legacy headers here
             Assert.AreEqual(activity.RootId, request.Headers.GetValues(RequestResponseHeaders.StandardRootIdHeader).Single());
             Assert.AreEqual(activity.Id, request.Headers.GetValues(RequestResponseHeaders.StandardParentIdHeader).Single());
-            Assert.AreEqual(mockAppId, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+            Assert.AreEqual(MockAppId, GetRequestContextKeyValue(request, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
         /// <summary>
-        /// Tests that OnStopActivity tracks telemetry
+        /// Tests that OnStopActivity tracks telemetry.
         /// </summary>
         [TestMethod]
         public void OnActivityStopTracksTelemetry()
@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             activity.SetStartTime(startTime);
             activity.Start();
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
@@ -60,9 +60,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             var telemetry = sentTelemetry.Single() as DependencyTelemetry;
 
             Assert.AreEqual("POST /", telemetry.Name);
-            Assert.AreEqual(requestUrl, telemetry.Target);
+            Assert.AreEqual(RequestUrl, telemetry.Target);
             Assert.AreEqual(RemoteDependencyConstants.HTTP, telemetry.Type);
-            Assert.AreEqual(requestUrlWithScheme, telemetry.Data);
+            Assert.AreEqual(RequestUrlWithScheme, telemetry.Data);
             Assert.AreEqual("200", telemetry.ResultCode);
             Assert.AreEqual(true, telemetry.Success);
 
@@ -83,12 +83,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             var activity = new Activity("System.Net.Http.HttpRequestOut");
             activity.Start();
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
             this.listener.OnActivityStop(null, request, TaskStatus.Canceled);
 
-            var telemetry = sentTelemetry.Single() as DependencyTelemetry;
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
 
             Assert.AreEqual("Canceled", telemetry.ResultCode);
             Assert.AreEqual(false, telemetry.Success);
@@ -103,19 +103,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             var activity = new Activity("System.Net.Http.HttpRequestOut");
             activity.Start();
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
             this.listener.OnActivityStop(null, request, TaskStatus.Faulted);
 
-            var telemetry = sentTelemetry.Single() as DependencyTelemetry;
+            var telemetry = this.sentTelemetry.Single() as DependencyTelemetry;
 
             Assert.AreEqual("Faulted", telemetry.ResultCode);
             Assert.AreEqual(false, telemetry.Success);
         }
 
         /// <summary>
-        /// Tests that exception during request processing os tracked with correct context.
+        /// Tests that exception during request processing is tracked with correct context.
         /// </summary>
         [TestMethod]
         public void OnExceptionTracksException()
@@ -123,17 +123,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             var activity = new Activity("System.Net.Http.HttpRequestOut");
             activity.Start();
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrlWithScheme);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, RequestUrlWithScheme);
             this.listener.OnActivityStart(request);
 
             var exception = new HttpRequestException("message", new Exception("The server name or address could not be resolved"));
-            this.listener.OnException(exception, request);
+            this.listener.OnException(exception);
             this.listener.OnActivityStop(null, request, TaskStatus.Faulted);
 
-            var dependencyTelemetry = sentTelemetry.Single(t => t is DependencyTelemetry) as DependencyTelemetry;
-            var exceptionTelemetry = sentTelemetry.Single(t => t is ExceptionTelemetry) as ExceptionTelemetry;
+            var dependencyTelemetry = this.sentTelemetry.Single(t => t is DependencyTelemetry) as DependencyTelemetry;
+            var exceptionTelemetry = this.sentTelemetry.Single(t => t is ExceptionTelemetry) as ExceptionTelemetry;
 
-            Assert.AreEqual(2, sentTelemetry.Count);
+            Assert.AreEqual(2, this.sentTelemetry.Count);
             Assert.AreEqual(exception, exceptionTelemetry.Exception);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);

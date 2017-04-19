@@ -1,20 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
-    /// A static class collection of assertions that operate on IEnumerables.
+    /// A static class collection of assertions that operate on IEnumerable.
     /// </summary>
     public static class EnumerableAssert
     {
         /// <summary>
-        /// Determine if the contents of the provided IEnumerables are equal and in the same order.
+        /// Determine if the contents of the provided IEnumerable are equal and in the same order.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="lhs"></param>
-        /// <param name="rhs"></param>
         public static void AreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs)
         {
             if (lhs != rhs)

@@ -21,9 +21,13 @@
 
 #if !NET40 && !NETCORE
         // Net40 does not support framework event source
-        private HttpDiagnosticSourceListener httpDiagnosticSourceListener;
+        private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
         private FrameworkSqlEventListener sqlEventListener;
+#endif
+
+#if NET45 || NETCORE
+        private HttpCoreDiagnosticSourceListener httpCoreDiagnosticSourceListener;
 #endif
 
 #if !NETCORE
@@ -112,8 +116,16 @@
                             // Net40 only supports runtime instrumentation
                             // Net45 supports either but not both to avoid duplication
                             this.InitializeForRuntimeInstrumentationOrFramework();
-#else
-                            DiagnosticListener.AllListeners.Subscribe(new DependencyCollectorDiagnosticListener(configuration, SetComponentCorrelationHttpHeaders, ExcludeComponentCorrelationHttpHeadersOnDomains));
+#endif
+
+#if NET45 || NETCORE
+                            // NET45 referencing .net core System.Net.Http supports diagnostic listener
+                            this.httpCoreDiagnosticSourceListener = new HttpCoreDiagnosticSourceListener(
+                                configuration,
+                                this.EffectiveProfileQueryEndpoint,
+                                this.SetComponentCorrelationHttpHeaders,
+                                this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
+                                null);
 #endif
                         }
                         catch (Exception exc)
@@ -173,11 +185,11 @@
             {
                 if (disposing)
                 {
-#if !NET40 && !NETCORE
+#if NET45
                     // Net40 does not support framework event source and diagnostic source
-                    if (this.httpDiagnosticSourceListener != null)
+                    if (this.httpDesktopDiagnosticSourceListener != null)
                     {
-                        this.httpDiagnosticSourceListener.Dispose();
+                        this.httpDesktopDiagnosticSourceListener.Dispose();
                     }
 
                     if (this.httpEventListener != null)
@@ -188,6 +200,17 @@
                     if (this.sqlEventListener != null)
                     {
                         this.sqlEventListener.Dispose();
+                    }
+
+                    if (this.httpDesktopDiagnosticSourceListener != null)
+                    {
+                        this.httpDesktopDiagnosticSourceListener.Dispose();
+                    }
+#endif
+#if NET45 || NETCORE
+                    if (this.httpCoreDiagnosticSourceListener != null)
+                    {
+                        this.httpCoreDiagnosticSourceListener.Dispose();
                     }
 #endif
                 }
@@ -204,7 +227,7 @@
         {
 #if !NET40
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(this.telemetryConfiguration, DependencyTableStore.Instance.WebRequestCacheHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains, this.EffectiveProfileQueryEndpoint);
-            this.httpDiagnosticSourceListener = new HttpDiagnosticSourceListener(frameworkHttpProcessing);
+            this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(frameworkHttpProcessing);
 
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(

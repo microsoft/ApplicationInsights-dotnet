@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
-    using Microsoft.ApplicationInsights.Common;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.Common;
 
     internal class MockCorrelationIdLookupHelper : ICorrelationIdLookupHelper
     {
