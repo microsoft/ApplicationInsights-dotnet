@@ -133,7 +133,7 @@
             }
             catch (Exception ex)
             {
-                CoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
+                WindowsServerCoreEventSource.Log.FailedToFlushMetricAggregators(ex.ToString());
             }
         }
 
@@ -220,7 +220,7 @@
                     }
                     catch (Exception ex)
                     {
-                        CoreEventSource.Log.FailedToSnapshotMetricAggregators(ex.ToString());
+                        WindowsServerCoreEventSource.Log.FailedToSnapshotMetricAggregators(ex.ToString());
                     }
                     finally
                     {
@@ -642,7 +642,7 @@
                     }
                     catch (Exception ex)
                     {
-                        CoreEventSource.Log.FailedToRunMetricProcessor(processor.GetType().FullName, ex.ToString());
+                        WindowsServerCoreEventSource.Log.FailedToRunMetricProcessor(processor.GetType().FullName, ex.ToString());
                     }
                 }
             }
@@ -1056,11 +1056,11 @@
                 aggregateException = aggregateException.Flatten();
                 foreach (Exception e in aggregateException.InnerExceptions)
                 {
-                    CoreEventSource.Log.LogError(e.ToInvariantString());
+                    WindowsServerCoreEventSource.Log.LogError(e.ToInvariantString());
                 }
             }
 
-            CoreEventSource.Log.LogError(exception.ToInvariantString());
+            WindowsServerCoreEventSource.Log.LogError(exception.ToInvariantString());
         }
 
         private static void CancelAndDispose(CancellationTokenSource tokenSource)
@@ -1129,10 +1129,10 @@
         public const long ReservedUserKeywordBegin = 0x10;
     }
 
-    [EventSource(Name = "Microsoft-ApplicationInsights-Core")]
-    internal sealed class CoreEventSource : EventSource
+    [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-Core")]
+    internal sealed class WindowsServerCoreEventSource : EventSource
     {
-        public static readonly CoreEventSource Log = new CoreEventSource();
+        public static readonly WindowsServerCoreEventSource Log = new WindowsServerCoreEventSource();
 
         private readonly ApplicationNameProvider nameProvider = new ApplicationNameProvider();
 
