@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Web;
     using Microsoft.ApplicationInsights.Common;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -135,7 +136,7 @@
                     }
 
                     // ParentId is null, means that there was no Request-Id header, which means we have to look for AppInsights/custom headers
-                    if (activity.ParentId == null)
+                    if (Activity.Current == null && activity.ParentId == null)
                     {
                         var context = HttpContext.Current;
                         var request = context.Request;
@@ -145,6 +146,16 @@
                             // Got legacy headers from older AppInsights version or some custom header.
                             // Let's set activity ParentId with custom root id
                             activity.SetParentId(rootId);
+                        }
+                        else
+                        {
+                            // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
+                            // if there is no parent Activity, ID Activity generates is not random enough to work well with 
+                            // ApplicationInsights sampling algorithm
+                            // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
+                            activity.SetParentId(new RequestTelemetry().Id);
+
+                            // end of workaround
                         }
                     }
                 }
