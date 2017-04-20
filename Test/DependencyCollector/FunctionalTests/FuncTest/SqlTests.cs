@@ -10,8 +10,11 @@
 
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    
 
+
+    /// <summary>
+    /// Tests Dependency Collector (SQL) Functionality for a WebApplication written in classic ASP.NET
+    /// </summary>
     [TestClass]
     public class SqlTests
     {
@@ -50,20 +53,28 @@
         /// </summary>        
         private readonly TimeSpan AccessTimeMaxSqlCallToApmdbNormal = TimeSpan.FromSeconds(5);
 
+        internal const string Aspx451AppFolder = ".\\Aspx451";
+        internal static IISTestWebApplication Aspx451TestWebApplication { get; private set; }
+
         public TestContext TestContext { get; set; }
 
         [ClassInitialize]
         public static void MyClassInitialize(TestContext testContext)
         {
-            DeploymentAndValidationTools.Initialize();
+            Aspx451TestWebApplication = new IISTestWebApplication
+            {
+                AppName = "Aspx451",
+                Port = DeploymentAndValidationTools.Aspx451Port,
+            };
+            DeploymentAndValidationTools.Initialize(new TestWebApplication[] { Aspx451TestWebApplication }, true);
 
-            LocalDb.CreateLocalDb("RDDTestDatabase", DeploymentAndValidationTools.Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
+            LocalDb.CreateLocalDb("RDDTestDatabase", Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            DeploymentAndValidationTools.CleanUp();
+            DeploymentAndValidationTools.CleanUp(new TestWebApplication[] { Aspx451TestWebApplication}, true);
         }
 
         [TestInitialize]
@@ -82,7 +93,7 @@
         #region Misc tests
         [TestMethod]
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         public void TestRddForSyncSqlAspx451()
         {
             if (!RegistryCheck.IsNet451Installed)
@@ -90,18 +101,18 @@
                 Assert.Inconclusive(".Net Framework 4.5.1 is not installed");
             }
 
-            this.ExecuteSyncSqlTests(DeploymentAndValidationTools.Aspx451TestWebApplication, 1, 1, AccessTimeMaxSqlCallToApmdbNormal);
+            this.ExecuteSyncSqlTests(Aspx451TestWebApplication, 1, 1, AccessTimeMaxSqlCallToApmdbNormal);
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestStoredProcedureNameIsCollected()
         {
             const string StoredProcedureName = "GetTopTenMessages";
             string queryString = "?type=ExecuteReaderStoredProcedureAsync&count=1&storedProcedureName=" + StoredProcedureName;
 
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
+            Aspx451TestWebApplication.DoTest(
                      application =>
                      {
                          application.ExecuteAnonymousRequest(queryString);
@@ -123,7 +134,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
         {
@@ -131,7 +142,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceInSequenceFailed()
         {
@@ -139,11 +150,11 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderTwiceWithTasks()
         {
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
+            Aspx451TestWebApplication.DoTest(
                      application =>
                      {
                          application.ExecuteAnonymousRequest("?type=TestExecuteReaderTwiceWithTasks&count=1");
@@ -160,7 +171,7 @@
         #region ExecuteReader
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsync()
         {
@@ -168,7 +179,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteReaderAsyncFailed()
         {
@@ -176,7 +187,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReader()
         {
@@ -184,7 +195,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_0Args()
         {
@@ -192,7 +203,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_1Arg()
         {
@@ -200,7 +211,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_2Arg()
         {
@@ -208,7 +219,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteReaderFailed_3Arg()
         {
@@ -216,7 +227,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReader()
         {
@@ -224,7 +235,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed_0Args()
         {
@@ -232,7 +243,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteReaderFailed_1Args()
         {
@@ -242,7 +253,7 @@
 
         #region ExecuteScalar
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsync()
         {
@@ -250,7 +261,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteScalarAsyncFailed()
         {
@@ -258,7 +269,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalar()
         {
@@ -266,7 +277,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteScalarFailed()
         {
@@ -277,7 +288,7 @@
         #region ExecuteNonQuery
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQuery()
         {
@@ -285,7 +296,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteNonQueryFailed()
         {
@@ -293,14 +304,14 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteNonQueryAsync()
         {
             this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: "0", errorMessage: null);
         }
 
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestExecuteNonQueryAsyncFailed()
@@ -308,7 +319,7 @@
             this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: "208", errorMessage: "Invalid object name 'apm.Database1212121'.");
         }
 
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg0()
@@ -316,7 +327,7 @@
             this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "0", errorMessage: null);
         }
 
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestCategory(TestCategory.Net451)]
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg2()
@@ -325,7 +336,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteNonQueryFailed()
         {
@@ -335,7 +346,7 @@
 
         #region ExecuteXmlReader
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
         {
@@ -343,7 +354,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestExecuteXmlReaderAsyncFailed()
         {
@@ -351,7 +362,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestBeginExecuteXmlReaderFailed()
         {
@@ -359,7 +370,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
@@ -367,7 +378,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlCommandExecuteXmlReaderFailed()
         {
@@ -378,7 +389,7 @@
         #region SqlConnection.Open
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenSuccess()
         {
@@ -390,7 +401,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAccountException()
         {
@@ -402,7 +413,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenServerException()
         {
@@ -414,7 +425,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncSuccess()
         {
@@ -426,7 +437,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAccountException()
         {
@@ -438,7 +449,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncServerException()
         {
@@ -450,7 +461,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitSuccess()
         {
@@ -462,7 +473,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitAccountException()
         {
@@ -474,7 +485,7 @@
         }
 
         [TestCategory(TestCategory.Net451)]
-        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", DeploymentAndValidationTools.Aspx451AppFolder)]
+        [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
         [TestMethod]
         public void TestSqlConnectionOpenAsyncAwaitServerException()
         {
@@ -487,9 +498,10 @@
 
         #endregion
 
+        #region PrivateHelpers
         private void TestSqlConnectionExecute(string type, bool success, string exceptionType, bool async)
         {
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
+            Aspx451TestWebApplication.DoTest(
                  application =>
                  {
                      string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&success=" + success + "&exceptionType=" + exceptionType);
@@ -526,7 +538,7 @@
 
         private void TestSqlCommandExecute(string type, string errorNumber, string errorMessage, string extraClauseForFailureCase = null)
         {
-            DeploymentAndValidationTools.Aspx451TestWebApplication.DoTest(
+            Aspx451TestWebApplication.DoTest(
                  application =>
                  {
                      bool success = errorNumber == "0";
@@ -682,5 +694,7 @@
 
             DeploymentAndValidationTools.Validate(itemToValidate, accessTimeMax, successFlagExpected);
         }
-    } 
+
+        #endregion
+    }
 }
