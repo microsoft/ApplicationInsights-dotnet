@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
+    using System.Threading.Tasks;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -17,6 +18,8 @@
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
+        internal static readonly string TestOperationName = "FirstChanceExceptionTestOperation";
+
         private TelemetryConfiguration configuration;
         private IList<ITelemetry> items;
 
@@ -141,7 +144,7 @@
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
@@ -168,7 +171,7 @@
             var dims = metrics[0].Key.Dimensions;
             Assert.Equal(2, dims.Count);
 
-            Assert.True(dims.Contains(new KeyValuePair<string, string>("operationName", "operationName")));
+            Assert.True(dims.Contains(new KeyValuePair<string, string>(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, TestOperationName)));
         }
 
         [TestMethod]
@@ -213,7 +216,7 @@
             Assert.Equal(2, dims.Count);
 
             string operationName;
-            Assert.True(dims.TryGetValue("operationName", out operationName));
+            Assert.True(dims.TryGetValue(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, out operationName));
             Assert.Equal("AI (Internal)", operationName);
         }
 
@@ -279,7 +282,7 @@
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
@@ -376,7 +379,7 @@
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
@@ -472,6 +475,69 @@
 
             // One of them should be 0 as re-thorwn, another - one
             // Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleThrowFromTaskAsync()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            StubMetricProcessor stub = new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            };
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    try
+                    {
+                        Task<int> task1 = Task<int>.Factory.StartNew(() => this.Method5(0));
+                        Task<int> task2 = Task<int>.Factory.StartNew(() => this.Method4(0));
+
+                        try
+                        {
+                            task1.Wait();
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+
+                        try
+                        {
+                            task2.Wait();
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+
+            Assert.Equal(30, metrics.Count);
+
+            Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
+            Assert.Equal(1, metrics[0].Value, 15);
+
+            Assert.Equal("Exceptions thrown", metrics[1].Key.Name);
+            Assert.Equal(1, metrics[1].Value, 15);
+
+            Assert.Equal("Exceptions thrown", metrics[2].Key.Name);
+            Assert.Equal(1, metrics[2].Value, 15);
+
+            // There should be 3 telemetry items and 3 metric items
+            Assert.Equal(6, this.items.Count);
         }
 
         [TestMethod]
@@ -664,6 +730,36 @@
         private void Method3()
         {
             throw new Exception("exception from Method 3");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private int Method4(int value)
+        {
+            try
+            {
+                int x = 1 / value;
+
+                return x;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private int Method5(int value)
+        {
+            try
+            {
+                int x = 1 / value;
+
+                return x;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 
