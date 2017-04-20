@@ -13,7 +13,7 @@
           
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
     
-    <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0 -v detailed" />
+    <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0\publish -v detailed" />
 
   </Target>
   <Target Name="Clean">
