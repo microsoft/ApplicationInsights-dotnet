@@ -10,15 +10,8 @@
 
         public string EndpointAddress
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public bool? DeveloperMode { get; set; }
