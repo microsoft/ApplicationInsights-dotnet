@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Reflection;
@@ -103,7 +104,10 @@
                 timer.Stop();
             }
 
-            Assert.Contains(server.BackChannel.Buffer.OfType<DependencyTelemetry>(),
+            IEnumerable<DependencyTelemetry> dependencies = server.BackChannel.Buffer.OfType<DependencyTelemetry>();
+            Assert.NotNull(dependencies);
+            Assert.NotEmpty(dependencies);
+            Assert.Contains(dependencies,
                 d => d.Name == expected.Name
                   && d.Data == expected.Data
                   && d.Success == expected.Success
@@ -122,13 +126,13 @@
                 var timer = timerField.GetValue(perfModule);
                 timerField.FieldType.InvokeMember("ScheduleNextTick", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, timer, new object[] { TimeSpan.FromMilliseconds(10) });
 
-                DateTime timeout = DateTime.Now.AddSeconds(10);
+                DateTime timeout = DateTime.UtcNow.AddMilliseconds(TestTimeoutMs);
                 int numberOfCountersSent = 0;
                 do
                 {
                     Thread.Sleep(1000);
-                    numberOfCountersSent = server.BackChannel.Buffer.OfType<MetricTelemetry>().Distinct().Count();
-                } while (numberOfCountersSent == 0 && DateTime.Now < timeout);
+                    numberOfCountersSent += server.BackChannel.Buffer.OfType<MetricTelemetry>().Distinct().Count();
+                } while (numberOfCountersSent == 0 && DateTime.UtcNow < timeout);
 
                 Assert.True(numberOfCountersSent > 0);
             }
