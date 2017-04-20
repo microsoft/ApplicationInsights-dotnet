@@ -30,7 +30,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
         // However, once it is in the cache - subsequent telemetry should contain this data. 
         private const int GetAppIdTimeout = 0; // milliseconds
 
-        private const string CorrelationIdFormat = "cid-v1:{0}";
+        internal const string CorrelationIdFormat = "cid-v1:{0}";
 
         private const string AppIdQueryApiRelativeUriFormat = "api/profiles/{0}/appId";
 
