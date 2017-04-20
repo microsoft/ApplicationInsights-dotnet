@@ -12,6 +12,9 @@
           ContinueOnError="ErrorAndStop"/>
           
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
+    
+    <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj" />
+
   </Target>
   <Target Name="Clean">
     <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
