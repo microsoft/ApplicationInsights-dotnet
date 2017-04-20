@@ -409,7 +409,14 @@
             {
                 foreach (KeyValuePair<string, string> property in metric.Dimensions)
                 {
-                    telemetry.Properties.Add(property);
+                    if (string.Compare(property.Key, "operationName") == 0)
+                    {
+                        telemetry.Context.Operation.Name = property.Value;
+                    }
+                    else
+                    {
+                        telemetry.Properties.Add(property);
+                    }
                 }
             }
 

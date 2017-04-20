@@ -38,12 +38,6 @@
         private const int UNLOCKED = 0;
 
         /// <summary>
-        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
-        /// used to indicate that the exception is being tracked.
-        /// </summary>
-        private static readonly object ExceptionIsTracked = new object();
-
-        /// <summary>
         /// This object prevents double entry into the exception callback.
         /// </summary>
         [ThreadStatic]
@@ -159,7 +153,7 @@
             if (exception.Data != null && !exception.Data.IsReadOnly)
             {
                 // mark exception as tracked
-                exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
+                exception.Data[Thread.CurrentThread.ManagedThreadId] = null; // The value is unimportant. It's just a sentinel.
             }
 
             return wasTracked;
@@ -169,7 +163,7 @@
         {
             if (exception.Data != null)
             {
-                return exception.Data.Contains(ExceptionIsTracked);
+                return exception.Data.Contains(Thread.CurrentThread.ManagedThreadId);
             }
 
             return false;
