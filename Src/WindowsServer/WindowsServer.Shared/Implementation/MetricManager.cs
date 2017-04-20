@@ -24,6 +24,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -409,9 +410,12 @@
             {
                 foreach (KeyValuePair<string, string> property in metric.Dimensions)
                 {
-                    if (string.Compare(property.Key, "operationName") == 0)
+                    if (string.Compare(property.Key, FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, StringComparison.Ordinal) == 0)
                     {
-                        telemetry.Context.Operation.Name = property.Value;
+                        if (string.IsNullOrEmpty(property.Value) == false)
+                        {
+                            telemetry.Context.Operation.Name = property.Value;
+                        }
                     }
                     else
                     {

@@ -26,6 +26,9 @@
         internal const double CurrentWeight = .7;
         internal const double NewWeight = .3;
         internal const long TicksMovingAverage = 100000000; // 10 seconds
+
+        internal static readonly string OperationNameTag = "ai.operation.name";
+
         internal long MovingAverageTimeout;
         internal double TargetMovingAverage = 5000;
 
@@ -120,7 +123,24 @@
 
         internal bool WasExceptionTracked(Exception exception)
         {
-            bool wasTracked = IsTracked(exception);
+            // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
+            // so the .Data is not writable. Also it can be null in certain cases.
+            if (exception.Data != null && !exception.Data.IsReadOnly)
+            {
+                string trackingId = "MS." + Thread.CurrentThread.ManagedThreadId.ToString(CultureInfo.InvariantCulture);
+
+                if (exception.Data.Contains(trackingId) == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    // mark exception as tracked
+                    exception.Data[trackingId] = null; // The value is unimportant. It's just a sentinel.
+                }
+            }
+
+            return false;
 
             //// This is temporarily being commented out to capture outer exceptions. It will be modified later. 
             ////if (!wasTracked)
@@ -147,26 +167,6 @@
             ////        }
             ////    }
             ////}
-
-            // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
-            // so the .Data is now writable. Also it may be null in certain cases
-            if (exception.Data != null && !exception.Data.IsReadOnly)
-            {
-                // mark exception as tracked
-                exception.Data[Thread.CurrentThread.ManagedThreadId] = null; // The value is unimportant. It's just a sentinel.
-            }
-
-            return wasTracked;
-        }
-
-        private static bool IsTracked(Exception exception)
-        {
-            if (exception.Data != null)
-            {
-                return exception.Data.Contains(Thread.CurrentThread.ManagedThreadId);
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -318,7 +318,7 @@
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
-                dimensions.Add("operationName", "AI (Internal)");
+                dimensions.Add(OperationNameTag, "AI (Internal)");
             }
             else
             {
@@ -333,7 +333,7 @@
                 {
                     refinedOperationName = this.GetDimCappedString(operationName, this.operationNameValues, OperationNameCacheSize);
 
-                    dimensions.Add("operationName", refinedOperationName);
+                    dimensions.Add(OperationNameTag, refinedOperationName);
                 }
             }
 
