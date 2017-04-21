@@ -49,7 +49,7 @@
         /// <summary>
         /// Prepare common infra for test runs like installing SM, IIS reset if required etc.
         /// </summary>
-        public static void Initialize(bool resetIIS = true)
+        public static void Initialize()
         {
             if (!isInitialized)
             {
@@ -112,13 +112,6 @@
                             {
                                 Trace.TraceInformation("StatusMonitor already installed.");
                             }
-                        }
-
-                        if(resetIIS)
-                        {
-                            Trace.TraceInformation("IIS Restart begin.");
-                            Iis.Reset();
-                            Trace.TraceInformation("IIS Restart end.");
                         }                        
 
                         isInitialized = true;

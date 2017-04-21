@@ -30,7 +30,7 @@
             };
 
             AspxCoreTestWebApplication.Deploy();
-            DeploymentAndValidationTools.Initialize(false);
+            DeploymentAndValidationTools.Initialize();
 
             Trace.TraceInformation("Aspnet core HttpTests class initialized");
         }

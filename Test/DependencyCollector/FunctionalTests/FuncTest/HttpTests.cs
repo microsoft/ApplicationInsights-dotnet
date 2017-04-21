@@ -7,6 +7,7 @@
     using FuncTest.Serialization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
+    using FuncTest.IIS;
 
     /// <summary>
     /// Tests Dependency Collector (HTTP) Functionality for a WebApplication written in classic ASP.NET
@@ -47,12 +48,17 @@
                 EnableWin32Mode = true,
             };
 
-            DeploymentAndValidationTools.Initialize(true);
+            DeploymentAndValidationTools.Initialize();
 
             AzureStorageHelper.Initialize();
 
             Aspx451TestWebApplication.Deploy();
             Aspx451TestWebApplicationWin32.Deploy();
+
+            Trace.TraceInformation("IIS Restart begin.");
+            Iis.Reset();
+            Trace.TraceInformation("IIS Restart end.");
+            
 
             Trace.TraceInformation("HttpTests class initialized");
         }
