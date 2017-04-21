@@ -389,6 +389,8 @@
                 // this property allows to differentiate examples from regular exceptions tracked using TrackException
                 exceptionTelemetry.Properties.Add("_MS.Example", "(Name: Exceptions, Ver: 1.0)");
 
+                ((ISupportSampling)exceptionTelemetry).SamplingPercentage = 100;
+
                 this.telemetryClient.TrackException(exceptionTelemetry);
             }
             else
