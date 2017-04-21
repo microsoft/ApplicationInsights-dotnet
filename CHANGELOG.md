@@ -10,6 +10,7 @@ This changelog will be used to generate documentation on [release notes page](ht
 - `Request.Success` field will not be populated based on `ResponseCode`. It needs to be set explicitly.
 - New "ProblemId" property on ExceptionTelemetry. It can be used to set a custom ProblemId value.
 - Metric Aggregation functionality (originally added in 2.3.0-beta1 but removed in 2.3.0) is re-introduced.
+- Improved exception stack trace data collection for .NET Core applications.
 
 ## Version 2.3.0
 - Includes all changes since 2.2.0 stable release.

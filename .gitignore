@@ -165,3 +165,4 @@ $RECYCLE.BIN/
 *.wrn
 *.vsix
 Web/PerformanceTests_Instrumented/
+StyleCop.Cache 
