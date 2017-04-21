@@ -318,7 +318,8 @@
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
-                dimensions.Add(OperationNameTag, "AI (Internal)");
+                refinedOperationName = "AI (Internal)";
+                dimensions.Add(OperationNameTag, refinedOperationName);
             }
             else
             {
@@ -373,6 +374,7 @@
                 if (exceptionTelemetry == null)
                 {
                     exceptionTelemetry = new ExceptionTelemetry(exception);
+                    exceptionTelemetry.Context.Operation.Name = operationName;
                     this.telemetryClient.Initialize(exceptionTelemetry);
                 }
 

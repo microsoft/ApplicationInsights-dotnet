@@ -129,6 +129,60 @@
         }
 
         [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleUsesSetsInternalOperationName()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            StubMetricProcessor stub = new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            };
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = TestOperationName;
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
+
+                SdkInternalOperationsMonitor.Enter();
+                try
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+                finally
+                {
+                    SdkInternalOperationsMonitor.Exit();
+                }
+            }
+
+            Assert.Equal(1, metrics.Count);
+            Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
+
+            var dims = metrics[0].Key.Dimensions;
+            Assert.Equal(2, dims.Count);
+
+            Assert.True(dims.Contains(new KeyValuePair<string, string>(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, "AI (Internal)")));
+        }
+
+        [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
