@@ -40,6 +40,10 @@
             }
             else
             {
+                // Every operation must have its own Activity
+                // if dependency is tracked with profiler of event source, we need to generate a proper hierarchical Id for it
+                // in case of HTTP it will be propagated into the requert header.
+                // So, we will create a new Activity for the dependency, jut to generate an Id.
                 activity = new Activity(DependencyActivityName);
 
                 // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
@@ -57,9 +61,7 @@
                 activity.Stop();
             }
 
-            // telemetry is initialized from current Activity (but not the Id)
-            // but every operation must have it's own Activity and Id must be set accordingly
-            // basically we repeat TelemetryClientExtensions.StartOperation here
+            // telemetry is initialized from current Activity (root and parent Id, but not the Id)
             telemetry.Id = activity.Id;
 
             // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
