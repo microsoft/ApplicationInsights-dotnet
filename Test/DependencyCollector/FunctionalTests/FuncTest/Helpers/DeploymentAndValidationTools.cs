@@ -47,9 +47,9 @@
         public static EtwEventSessionRdd EtwSession { get; private set; }
 
         /// <summary>
-        /// Deploy all test applications and prepera infra.
+        /// Prepare common infra for test runs like installing SM, IIS reset if required etc.
         /// </summary>
-        public static void Initialize(TestWebApplication[] applicationsToDeploy, bool resetIIS = true)
+        public static void Initialize(bool resetIIS = true)
         {
             if (!isInitialized)
             {
@@ -68,11 +68,6 @@
 
                         EtwSession = new EtwEventSessionRdd();
                         EtwSession.Start();
-
-                        foreach(var app in applicationsToDeploy)
-                        {
-                            app.Deploy();
-                        }
 
                         if (RegistryCheck.IsNet46Installed)
                         {
@@ -127,15 +122,19 @@
                         }                        
 
                         isInitialized = true;
-                    }
+                    }                    
                 }
+            }
+            else
+            {
+                Trace.TraceInformation("Already initialized!");
             }
         }
 
         /// <summary>
         /// Delete all applications and cleanup.
         /// </summary>
-        public static void CleanUp(TestWebApplication[] applicationsToRemove, bool resetIIS = true)
+        public static void CleanUp(bool resetIIS = true)
         {
             if (isInitialized)
             {
@@ -146,11 +145,6 @@
                         SdkEventListener.Dispose();
 
                         EtwSession.Stop();
-
-                        foreach (var app in applicationsToRemove)
-                        {
-                            app.Remove();
-                        }
 
                         if (RegistryCheck.IsNet46Installed)
                         {

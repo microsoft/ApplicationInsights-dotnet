@@ -5,7 +5,8 @@
     using AI;
     using FuncTest.Helpers;
     using FuncTest.Serialization;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Diagnostics;
 
     /// <summary>
     /// Tests Dependency Collector Functionality for a WebApplication written in Dotnet Core.
@@ -27,13 +28,20 @@
                 ExternalCallPath = "external/calls",
                 Port = DeploymentAndValidationTools.AspxCorePort,
             };
-            DeploymentAndValidationTools.Initialize(new TestWebApplication[] { AspxCoreTestWebApplication }, false);
+
+            AspxCoreTestWebApplication.Deploy();
+            DeploymentAndValidationTools.Initialize(false);
+
+            Trace.TraceInformation("Aspnet core HttpTests class initialized");
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {            
-            DeploymentAndValidationTools.CleanUp(new TestWebApplication[] { AspxCoreTestWebApplication }, false);
+            DeploymentAndValidationTools.CleanUp(false);
+            Trace.TraceInformation("Aspnet core HttpTests class cleaned up");
+            AspxCoreTestWebApplication.Remove();
+
         }
 
         [TestInitialize]
