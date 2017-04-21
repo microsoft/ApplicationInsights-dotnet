@@ -37,6 +37,10 @@ namespace FuncTest.Helpers
                 {
                     ACLTools.GetEveryoneAccessToPath(this.AppFolder);
                 }
+                else
+                {
+                    Trace.TraceWarning("AppFolder {0} do not exist.", this.AppFolder);
+                }
             }
             catch (Exception ex)
             {
