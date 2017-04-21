@@ -5,6 +5,7 @@
     <VersionPrefix>2.4.0-beta1</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
+    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
     <DelaySign>true</DelaySign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.DependencyCollector</AssemblyName>
@@ -19,7 +20,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\DependencyTrackingTelemetryModule.cs;..\Shared\SanitizedHostList.cs;..\Shared\Implementation\DependencyCollectorEventSource.cs;..\Shared\Implementation\ApplicationInsightsUrlFilter.cs;..\Shared\Implementation\RemoteDependencyConstants.cs;..\..\Common\CorrelationIdLookupHelper.cs;..\..\Common\CrossComponentCorrelationEventSource.cs;..\..\Common\ExceptionUtilities.cs;..\..\Common\ICorrelationIdLookupHelper.cs;..\..\Common\RequestResponseHeaders.cs;..\..\Common\HeadersUtilities.cs;..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs" Exclude="bin\**;obj\**;**\*.csproj;packages\**" />
+    <Compile Include="..\Shared\DependencyTrackingTelemetryModule.cs" Link="DependencyTrackingTelemetryModule.cs" />
+    <Compile Include="..\Shared\HttpDependenciesParsingTelemetryInitializer.cs" Link="HttpDependenciesParsingTelemetryInitializer.cs" />
+    <Compile Include="..\Shared\SanitizedHostList.cs" Link="SanitizedHostList.cs" />
+    <Compile Include="..\Shared\Implementation\DependencyCollectorEventSource.cs" Link="DependencyCollectorEventSource.cs" />
+    <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs" Link="ApplicationInsightsUrlFilter.cs" />
+    <Compile Include="..\Shared\Implementation\RemoteDependencyConstants.cs" Link="RemoteDependencyConstants.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\AzureBlobHttpParser.cs" Link="AzureBlobHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\AzureIotHubHttpParser.cs" Link="AzureIotHubHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\AzureQueueHttpParser.cs" Link="AzureQueueHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\AzureServiceBusHttpParser.cs" Link="AzureServiceBusHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\AzureTableHttpParser.cs" Link="AzureTableHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\DocumentDbHttpParser.cs" Link="DocumentDbHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\GenericServiceHttpParser.cs" Link="GenericServiceHttpParser.cs" />
+    <Compile Include="..\Shared\Implementation\HttpParsers\HttpParsingHelper.cs" Link="HttpParsingHelper.cs" />
+    <Compile Include="..\..\Common\CorrelationIdLookupHelper.cs" Link="CorrelationIdLookupHelper.cs" />
+    <Compile Include="..\..\Common\CrossComponentCorrelationEventSource.cs" Link="CrossComponentCorrelationEventSource.cs" />
+    <Compile Include="..\..\Common\ExceptionUtilities.cs" Link="ExceptionUtilities.cs" />
+    <Compile Include="..\..\Common\ICorrelationIdLookupHelper.cs" Link="ICorrelationIdLookupHelper.cs" />
+    <Compile Include="..\..\Common\RequestResponseHeaders.cs" Link="RequestResponseHeaders.cs" />
+    <Compile Include="..\..\Common\HeadersUtilities.cs" Link="HeadersUtilities.cs" />
+    <Compile Include="..\..\Web\Web.Net45\Implementation\SdkVersionUtils.cs" Link="SdkVersionUtils.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,8 +50,4 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0-preview1-25214-03" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
-  </PropertyGroup>
 </Project>

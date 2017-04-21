@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.DependencyCollector
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     using System;
     using System.Collections.Generic;
     using DataContracts;
@@ -10,7 +11,7 @@
     /// Shared DependencyTrackingTelemetryModuleTest class.
     /// </summary>
     [TestClass]
-    public partial class HttpDependenciesParsingTelemetryInitializerTest
+    public class HttpDependenciesParsingTelemetryInitializerTest
     {
         [TestMethod]
         public void HttpDependenciesParsingTelemetryInitializerDoesNotFailOnNull()
@@ -20,6 +21,7 @@
         }
 
         [TestMethod]
+
         public void HttpDependenciesParsingTelemetryInitializerDoesNotFailOnRequestTelemetry()
         {
             HttpDependenciesParsingTelemetryInitializer initializer = new HttpDependenciesParsingTelemetryInitializer();
