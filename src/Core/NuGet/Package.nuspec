@@ -15,7 +15,8 @@
     <copyright>$copyright$</copyright>
     <releaseNotes>
       You should not use this nuget package for Win Phone, WinStore and UWP applications. It is not supported starting 2.0.0.
-      For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+      For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037
+    </releaseNotes>
     <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
     <dependencies>
       <group targetFramework="net40">
@@ -32,6 +33,7 @@
       </group>
       <group targetFramework="netstandard1.3">
         <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="System.Diagnostics.StackTrace" version="4.3.0" />
         <dependency id="System.Diagnostics.DiagnosticSource" version="4.4.0-beta-25130-03" />
       </group>
     </dependencies>
