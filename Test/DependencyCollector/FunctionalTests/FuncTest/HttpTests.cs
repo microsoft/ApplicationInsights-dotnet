@@ -300,7 +300,10 @@
             // Since the outbound request would fail at DNS resolution, there won't be any http code to collect.
             // This will be a case where success = false, but resultCode is empty            
             Assert.AreEqual(false, httpItem.data.baseData.success, "Success flag collected is wrong.");
-            Assert.AreEqual("NameResolutionFailure", httpItem.data.baseData.resultCode, "Result code collected is wrong.");
+
+            // Result code is collected only in profiler case.
+            var expectedResultCode = DeploymentAndValidationTools.ExpectedSDKPrefix == "rddp" ? "NameResolutionFailure" : string.Empty;
+            Assert.AreEqual(expectedResultCode, httpItem.data.baseData.resultCode, "Result code collected is wrong.");
             string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
         }
