@@ -6,6 +6,8 @@
     using FuncTest.Helpers;
     using FuncTest.Serialization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Diagnostics;
+    using FuncTest.IIS;
 
     /// <summary>
     /// Tests Dependency Collector (HTTP) Functionality for a WebApplication written in classic ASP.NET
@@ -46,16 +48,30 @@
                 EnableWin32Mode = true,
             };
 
-            DeploymentAndValidationTools.Initialize(new TestWebApplication[] { Aspx451TestWebApplication, Aspx451TestWebApplicationWin32 }, true);
+            DeploymentAndValidationTools.Initialize();
 
             AzureStorageHelper.Initialize();
+
+            Aspx451TestWebApplication.Deploy();
+            Aspx451TestWebApplicationWin32.Deploy();
+
+            Trace.TraceInformation("IIS Restart begin.");
+            Iis.Reset();
+            Trace.TraceInformation("IIS Restart end.");
+            
+
+            Trace.TraceInformation("HttpTests class initialized");
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
             AzureStorageHelper.Cleanup();            
-            DeploymentAndValidationTools.CleanUp(new TestWebApplication[] { Aspx451TestWebApplication, Aspx451TestWebApplicationWin32 }, true);
+            DeploymentAndValidationTools.CleanUp(true);
+            Aspx451TestWebApplication.Deploy();
+            Aspx451TestWebApplicationWin32.Deploy();
+            Trace.TraceInformation("HttpTests class cleaned up");
+
         }
 
         [TestInitialize]
@@ -284,7 +300,10 @@
             // Since the outbound request would fail at DNS resolution, there won't be any http code to collect.
             // This will be a case where success = false, but resultCode is empty            
             Assert.AreEqual(false, httpItem.data.baseData.success, "Success flag collected is wrong.");
-            Assert.AreEqual("NameResolutionFailure", httpItem.data.baseData.resultCode, "Result code collected is wrong.");
+
+            // Result code is collected only in profiler case.
+            var expectedResultCode = DeploymentAndValidationTools.ExpectedSDKPrefix == "rddp" ? "NameResolutionFailure" : string.Empty;
+            Assert.AreEqual(expectedResultCode, httpItem.data.baseData.resultCode, "Result code collected is wrong.");
             string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
             Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
         }

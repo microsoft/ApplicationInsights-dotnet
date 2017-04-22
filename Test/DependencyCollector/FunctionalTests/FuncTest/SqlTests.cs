@@ -10,6 +10,8 @@
 
     using FuncTest.Helpers;
     using FuncTest.Serialization;
+    using System.Diagnostics;
+    using FuncTest.IIS;
 
 
     /// <summary>
@@ -66,15 +68,23 @@
                 AppName = "Aspx451",
                 Port = DeploymentAndValidationTools.Aspx451Port,
             };
-            DeploymentAndValidationTools.Initialize(new TestWebApplication[] { Aspx451TestWebApplication }, true);
+            DeploymentAndValidationTools.Initialize();
 
             LocalDb.CreateLocalDb("RDDTestDatabase", Aspx451TestWebApplication.AppFolder + "\\TestDatabase.sql");
+
+            Aspx451TestWebApplication.Deploy();
+            Trace.TraceInformation("IIS Restart begin.");
+            Iis.Reset();
+            Trace.TraceInformation("IIS Restart end.");
+            Trace.TraceInformation("SQlTests class initialized");
         }
 
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            DeploymentAndValidationTools.CleanUp(new TestWebApplication[] { Aspx451TestWebApplication}, true);
+            DeploymentAndValidationTools.CleanUp(true);
+            Aspx451TestWebApplication.Remove();
+            Trace.TraceInformation("SQlTests class cleaned up");
         }
 
         [TestInitialize]
