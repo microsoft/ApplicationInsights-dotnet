@@ -186,15 +186,6 @@
         }
 
         /// <summary>
-        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
-        /// before client-side metric aggregation process.
-        /// </summary>
-        public IList<IMetricProcessor> MetricProcessors     
-        {       
-             get { return this.metricProcessors; }      
-        }
-
-        /// <summary>
         /// Gets a readonly collection of TelemetryProcessors.
         /// </summary>
         public ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors
@@ -245,6 +236,15 @@
                     this.shouldDisposeChannel = false; // The new one wasn't created by us so it should be managed by whoever created it.
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
+        /// before client-side metric aggregation process.
+        /// </summary>
+        internal IList<IMetricProcessor> MetricProcessors
+        {
+            get { return this.metricProcessors; }
         }
 
         /// <summary>

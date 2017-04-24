@@ -23,11 +23,19 @@
 
 #else
             string versionStr = typeof(TelemetryClient).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
+                    .FirstOrDefault()
+                    ?.Version;
 #endif
 
-            Version version = new Version(versionStr);
+            Version version;
+
+            // this may happen when Application Insights SDK assembly was merged into another assembly 
+            // See https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/435 for details.
+            if (string.IsNullOrEmpty(versionStr) || !Version.TryParse(versionStr, out version))
+            {
+                return null;
+            }
+
             string postfix = version.Revision.ToString(CultureInfo.InvariantCulture);
 #if NET40
             postfix += "-fw4";
