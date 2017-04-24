@@ -19,7 +19,7 @@
     {
         private readonly object lockObject = new object();
 
-#if !NET40 && !NETCORE
+#if NET45
         // Net40 does not support framework event source
         private HttpDesktopDiagnosticSourceListener httpDesktopDiagnosticSourceListener;
         private FrameworkHttpEventListener httpEventListener;
@@ -202,10 +202,6 @@
                         this.sqlEventListener.Dispose();
                     }
 
-                    if (this.httpDesktopDiagnosticSourceListener != null)
-                    {
-                        this.httpDesktopDiagnosticSourceListener.Dispose();
-                    }
 #endif
 #if NET45 || NETCORE
                     if (this.httpCoreDiagnosticSourceListener != null)
