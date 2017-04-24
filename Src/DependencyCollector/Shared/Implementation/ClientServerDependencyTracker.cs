@@ -28,24 +28,40 @@
             telemetry.Start();
             telemetryClient.Initialize(telemetry);
 #if NET45
-            // telemetry is initialized from current Activity (but not the Id)
-            // but every operation must have it's own Activity and Id must be set accordingly
-            // basically we repeat TelemetryClientExtensions.StartOperation here
-            var activity = new Activity(DependencyActivityName);
+            Activity activity;
+            Activity currentActivity = Activity.Current;
 
-            // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
-            // if there is no parent Activity, ID Activity generates is not random enough to work well with 
-            // ApplicationInsights sampling algorithm
-            // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
-            if (Activity.Current == null)
+            // On .NET46 without profiler, outgoing requests are instrumented with reflection hook in DiagnosticSource 
+            //// see https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/HttpHandlerDiagnosticListener.cs
+            // it creates an Activity and injects standard 'Request-Id' and 'Correlation-Context' headers itself, so we should not start Activity in this case
+            if (currentActivity != null && currentActivity.OperationName == "System.Net.Http.Desktop.HttpRequestOut")
             {
-                activity.SetParentId(telemetry.Id);
+                activity = currentActivity;
+            }
+            else
+            {
+                // Every operation must have its own Activity
+                // if dependency is tracked with profiler of event source, we need to generate a proper hierarchical Id for it
+                // in case of HTTP it will be propagated into the requert header.
+                // So, we will create a new Activity for the dependency, jut to generate an Id.
+                activity = new Activity(DependencyActivityName);
+
+                // This is workaround for the issue https://github.com/Microsoft/ApplicationInsights-dotnet/issues/538
+                // if there is no parent Activity, ID Activity generates is not random enough to work well with 
+                // ApplicationInsights sampling algorithm
+                // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
+                if (Activity.Current == null)
+                {
+                    activity.SetParentId(telemetry.Id);
+                }
+
+                //// end of workaround
+
+                activity.Start();
+                activity.Stop();
             }
 
-            //// end of workaround
-
-            activity.Start();
-            
+            // telemetry is initialized from current Activity (root and parent Id, but not the Id)
             telemetry.Id = activity.Id;
 
             // set operation root Id in case there was no parent activity (e.g. HttpRequest in background thread)
@@ -53,15 +69,12 @@
             {
                 telemetry.Context.Operation.Id = activity.RootId;
             }
-
-            activity.Stop();
 #else
             // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
             // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
             // let's fix it
             telemetry.Id = ApplicationInsightsActivity.GenerateDependencyId(telemetry.Context.Operation.ParentId);
             telemetry.Context.Operation.Id = ApplicationInsightsActivity.GetRootId(telemetry.Id);
-
 #endif
             PretendProfilerIsAttached = false;
             return telemetry;

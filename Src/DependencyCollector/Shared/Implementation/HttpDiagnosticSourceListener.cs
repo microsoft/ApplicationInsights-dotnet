@@ -47,14 +47,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 switch (value.Key)
                 {
-                    case "System.Net.Http.Request":
+                    case "System.Net.Http.Desktop.HttpRequestOut.Start":
+
+                    // remove "System.Net.Http.Request" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Start")
+                    // event was temporarily introduced in DiagnosticSource and removed before stable release
+                    case "System.Net.Http.Request": 
                     {
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
                         this.httpProcessingFramework.OnRequestSend(request);
                         break;
                     }
 
-                    case "System.Net.Http.Response":
+                    case "System.Net.Http.Desktop.HttpRequestOut.Stop":
+
+                    // remove "System.Net.Http.Response" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Stop")
+                    // event was temporarily introduced in DiagnosticSource and removed before stable release
+                    case "System.Net.Http.Response": 
                     {
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
