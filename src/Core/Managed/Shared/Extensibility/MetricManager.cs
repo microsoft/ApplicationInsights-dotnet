@@ -20,7 +20,7 @@
     /// Metric factory and controller. Sends metrics to Application Insights service. Pre-aggregates metrics to reduce bandwidth.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#send-metrics">Learn more</a>
     /// </summary>
-    public sealed class MetricManager : IDisposable
+    internal sealed class MetricManager : IDisposable
     {
         /// <summary>
         /// Value of the property indicating 'app insights version' allowing to tell metric was built using metric manager.

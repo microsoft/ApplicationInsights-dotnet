@@ -1,40 +1,18 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
-    using System;
-    
+#if NET45
+    // .Net 4.5 has a custom implementation of RichPayloadEventSource
+#else
     /// <summary>
-    /// Additional implementation for ExceptionDetails.
+    /// Partial class to add the EventData attribute and any additional customizations to the generated type.
     /// </summary>
-#if NET46
-    [System.Diagnostics.Tracing.EventData]
-#elif NET40
+#if NET40
     [Microsoft.Diagnostics.Tracing.EventData]
+#else
+    [System.Diagnostics.Tracing.EventData]
 #endif
     internal partial class ExceptionDetails
     {
-        /// <summary>
-        /// Creates a new instance of ExceptionDetails from a System.Exception and a parent ExceptionDetails.
-        /// </summary>
-        internal static ExceptionDetails CreateWithoutStackInfo(Exception exception, ExceptionDetails parentExceptionDetails)
-        {
-            if (exception == null)
-            {
-                throw new ArgumentNullException("exception");
-            }
-
-            var exceptionDetails = new External.ExceptionDetails()
-            {
-                id = exception.GetHashCode(),
-                typeName = exception.GetType().FullName,
-                message = exception.Message
-            };
-
-            if (parentExceptionDetails != null)
-            {
-                exceptionDetails.outerId = parentExceptionDetails.id;
-            }
-
-            return exceptionDetails;
-        }
     }
+#endif
 }

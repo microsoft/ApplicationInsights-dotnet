@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.4.0-beta2
+- Removed metric aggregation functionality as there is not enough feedback on the API surface yet.
+
 ## Version 2.4.0-beta1
 - Event telemetry is set to be sampled separately from all other telemetry types. It potentially can double the bill. The reason for this change is that Events are mostly used for usage analysis and should not be subject to sampling on high load of requests and dependencies. Edit `ApplicationInsights.config` file to revert to the previous behavior.
 - Added dependency on System.Diagnostics.DiagnosticsSource package. It is still possible to use standalone Microsoft.ApplicationInsights.dll to track telemetry.

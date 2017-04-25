@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides functionality to process metric values prior to aggregation.
     /// </summary>
-    public interface IMetricProcessor
+    internal interface IMetricProcessor
     {
         /// <summary>
         /// Process metric value.
