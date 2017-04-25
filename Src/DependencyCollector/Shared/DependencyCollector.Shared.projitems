@@ -28,8 +28,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebRequestDependencyTrackingHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyCollectorEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\RemoteDependencyConstants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDiagnosticSourceListener.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDiagnosticSourceSubscriber.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpDesktopDiagnosticSourceSubscriber.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpEventListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\FrameworkHttpProcessing.cs" />

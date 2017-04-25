@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -116,9 +117,10 @@
         /// Ensure that SetHeaderKeyValue() throws an ArgumentNullException when headers is null.
         /// </summary>
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void SetHeaderKeyValueWithNullHeaders()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => HttpHeadersUtilities.SetHeaderKeyValue(null, "HEADER_NAME", "KEY_NAME", "KEY_VALUE"));
+            HttpHeadersUtilities.SetHeaderKeyValue(null, "HEADER_NAME", "KEY_NAME", "KEY_VALUE");
         }
 
         /// <summary>
@@ -177,7 +179,6 @@
         /// <summary>
         /// Create a HttpHeaders object for testing.
         /// </summary>
-        /// <returns></returns>
         private static HttpHeaders CreateHeaders()
         {
             HttpHeaders result = new HttpRequestMessage().Headers;

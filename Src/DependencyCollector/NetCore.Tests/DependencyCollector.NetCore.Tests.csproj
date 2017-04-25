@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DelaySign>true</DelaySign>
+    <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Microsoft.AI.DependencyCollector.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../../../Keys/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
@@ -15,6 +16,13 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared.Tests\Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" Link="DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" />
+    <Compile Include="..\Shared.Tests\Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" Link="DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" />
+    <Compile Include="..\Shared.Tests\Implementation\EnumerableAssert.cs" Link="EnumerableAssert.cs" />
+    <Compile Include="..\Shared.Tests\Implementation\MockCorrelationIdLookupHelper.cs" Link="MockCorrelationIdLookupHelper.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetCore\DependencyCollector.NetCore.csproj" />

@@ -1,28 +1,45 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector
+﻿namespace Microsoft.ApplicationInsights
 {
     using System;
     using System.Diagnostics;
-    using System.Net;
-
+    using System.Linq;
+    using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Web.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
-    /// DependencyTrackingTelemetryModule .Net 4.6 specific tests. 
+    /// .NET Core specific tests that verify Http Dependencies are collected for outgoing request
     /// </summary>
     [TestClass]
-    public class DependencyTrackingTelemetryModuleTestNet46
+    public class DependencyTrackingTelemetryModuleTestNetCore
     {
         private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
-        private const string FakeProfileApiEndpoint = "http://www.microsoft.com";
+        private const string FakeProfileApiEndpoint = ApplicationInsightsUrlFilter.TelemetryServiceEndpoint;
 
+        /// <summary>
+        /// Cleans up.
+        /// </summary>
+        [TestCleanup]
+        public void Cleanup()
+        {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Tests that dependency is collected properly when there is no parent activity.
+        /// </summary>
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionNoParentActivity()
+        public async Task TestDependencyCollectionNoParentActivity()
         {
             ITelemetry sentTelemetry = null;
 
@@ -38,7 +55,8 @@
                         Assert.IsNull(sentTelemetry);
                         sentTelemetry = telemetry;
                     }
-                }
+                },
+                EndpointAddress = FakeProfileApiEndpoint
             };
 
             var config = new TelemetryConfiguration
@@ -55,38 +73,42 @@
                 module.Initialize(config);
 
                 var url = new Uri("http://bing.com");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-                request.GetResponse();
 
-                Assert.IsNotNull(sentTelemetry);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                await new HttpClient().SendAsync(request);
+
+                // on netcoreapp1.0 DiagnosticSource event is fired asycronously, let's wait for it 
+                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual(url, item.Data);
                 Assert.AreEqual(url.Host, item.Target);
                 Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
                 Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type,  "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
                 Assert.IsTrue(
                     DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
-                    TimeSpan.FromMinutes(1).TotalMilliseconds, 
+                    TimeSpan.FromMinutes(1).TotalMilliseconds,
                     "timestamp < now");
                 Assert.IsTrue(
                     item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
-                    -TimeSpan.FromMinutes(1).TotalMilliseconds, 
+                    -TimeSpan.FromMinutes(1).TotalMilliseconds,
                     "now - 1 min < timestamp");
                 Assert.AreEqual("200", item.ResultCode);
 
                 var requestId = item.Id;
-                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+                Assert.AreEqual(requestId, request.Headers.GetValues("Request-Id").Single());
+                Assert.AreEqual(requestId, request.Headers.GetValues("x-ms-request-id").Single());
                 Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
-
-                Assert.IsNull(request.Headers["Correlation-Context"]);
             }
         }
 
+        /// <summary>
+        /// Tests that dependency is collected properly when there is parent activity.
+        /// </summary>
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionWithParentActivity()
+        public async Task TestDependencyCollectionWithParentActivity()
         {
             ITelemetry sentTelemetry = null;
 
@@ -102,7 +124,8 @@
                         Assert.IsNull(sentTelemetry);
                         sentTelemetry = telemetry;
                     }
-                }
+                },
+                EndpointAddress = FakeProfileApiEndpoint
             };
 
             var config = new TelemetryConfiguration
@@ -118,25 +141,28 @@
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
 
-                var url = new Uri("http://bing.com");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
                 var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-                request.GetResponse();
+
+                var url = new Uri("http://bing.com");
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                await new HttpClient().SendAsync(request);
+
+                // on netcoreapp1.0 DiagnosticSource event is fired asycronously, let's wait for it 
+                Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
+
                 parent.Stop();
 
-                Assert.IsNotNull(sentTelemetry);
                 var item = (DependencyTelemetry)sentTelemetry;
                 Assert.AreEqual("200", item.ResultCode);
 
                 var requestId = item.Id;
-                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+                Assert.AreEqual(requestId, request.Headers.GetValues("Request-Id").Single());
+                Assert.AreEqual(requestId, request.Headers.GetValues("x-ms-request-id").Single());
                 Assert.IsTrue(requestId.StartsWith(parent.Id));
                 Assert.AreNotEqual(parent.Id, requestId);
                 Assert.AreEqual("v", item.Context.Properties["k"]);
 
-                Assert.AreEqual("k=v", request.Headers["Correlation-Context"]);
+                Assert.AreEqual("k=v", request.Headers.GetValues("Correlation-Context").Single());
             }
         }
     }

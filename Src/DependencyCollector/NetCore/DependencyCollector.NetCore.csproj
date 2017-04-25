@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <Copyright>Copyright Â© Microsoft. All Rights Reserved.</Copyright>
     <VersionPrefix>2.4.0-beta2</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
@@ -26,6 +26,9 @@
     <Compile Include="..\Shared\Implementation\DependencyCollectorEventSource.cs" Link="DependencyCollectorEventSource.cs" />
     <Compile Include="..\Shared\Implementation\ApplicationInsightsUrlFilter.cs" Link="ApplicationInsightsUrlFilter.cs" />
     <Compile Include="..\Shared\Implementation\RemoteDependencyConstants.cs" Link="RemoteDependencyConstants.cs" />
+    <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs" Link="HttpCoreDiagnosticSourceListener.cs" />
+    <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs" Link="HttpHeadersUtilities.cs" />
+    <Compile Include="..\Shared\Implementation\PropertyFetcher.cs" Link="PropertyFetcher.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureBlobHttpParser.cs" Link="AzureBlobHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureIotHubHttpParser.cs" Link="AzureIotHubHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureQueueHttpParser.cs" Link="AzureQueueHttpParser.cs" />
