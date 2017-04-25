@@ -26,7 +26,7 @@
             this.CollectionConfiguration = collectionConfiguration;
 
             // prepare the accumulators based on the collection configuration
-            IEnumerable<Tuple<string, AggregationType>> allMetrics = collectionConfiguration?.TelemetryMetadata.Concat(collectionConfiguration.MetricMetrics.Select(metric => Tuple.Create(metric.Item1, metric.Item3)));
+            IEnumerable<Tuple<string, AggregationType>> allMetrics = collectionConfiguration?.TelemetryMetadata;
             foreach (Tuple<string, AggregationType> metricId in allMetrics ?? Enumerable.Empty<Tuple<string, AggregationType>>())
             {
                 var accumulatedValues = new AccumulatedValues(metricId.Item1, metricId.Item2);

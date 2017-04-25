@@ -26,20 +26,19 @@
         internal const double CurrentWeight = .7;
         internal const double NewWeight = .3;
         internal const long TicksMovingAverage = 100000000; // 10 seconds
+
+        internal static readonly string OperationNameTag = "ai.operation.name";
+
         internal long MovingAverageTimeout;
         internal double TargetMovingAverage = 5000;
 
         // cheap dimension capping
         internal long DimCapTimeout;
 
+        internal MetricManager MetricManager;
+
         private const int LOCKED = 1;
         private const int UNLOCKED = 0;
-
-        /// <summary>
-        /// A key into an <see cref="Exception"/> object's <see cref="Exception.Data"/> dictionary
-        /// used to indicate that the exception is being tracked.
-        /// </summary>
-        private static readonly object ExceptionIsTracked = new object();
 
         /// <summary>
         /// This object prevents double entry into the exception callback.
@@ -53,7 +52,6 @@
         private readonly object movingAverageLockObject = new object();
 
         private TelemetryClient telemetryClient;
-        private MetricManager metricManager;
 
         private bool isInitialized = false;
 
@@ -103,7 +101,7 @@
                         this.telemetryClient = new TelemetryClient(configuration);
                         this.telemetryClient.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("exstat:");
 
-                        this.metricManager = new MetricManager(this.telemetryClient);
+                        this.MetricManager = new MetricManager(this.telemetryClient, configuration);
 
                         this.registerAction(this.CalculateStatistics);
 
@@ -125,7 +123,24 @@
 
         internal bool WasExceptionTracked(Exception exception)
         {
-            bool wasTracked = IsTracked(exception);
+            // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
+            // so the .Data is not writable. Also it can be null in certain cases.
+            if (exception.Data != null && !exception.Data.IsReadOnly)
+            {
+                string trackingId = "MS." + Thread.CurrentThread.ManagedThreadId.ToString(CultureInfo.InvariantCulture);
+
+                if (exception.Data.Contains(trackingId) == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    // mark exception as tracked
+                    exception.Data[trackingId] = null; // The value is unimportant. It's just a sentinel.
+                }
+            }
+
+            return false;
 
             //// This is temporarily being commented out to capture outer exceptions. It will be modified later. 
             ////if (!wasTracked)
@@ -152,26 +167,6 @@
             ////        }
             ////    }
             ////}
-
-            // some exceptions like MemoryOverflow, ThreadAbort or ExecutionEngine are pre-instantiated 
-            // so the .Data is now writable. Also it may be null in certain cases
-            if (exception.Data != null && !exception.Data.IsReadOnly)
-            {
-                // mark exception as tracked
-                exception.Data[ExceptionIsTracked] = null; // The value is unimportant. It's just a sentinel.
-            }
-
-            return wasTracked;
-        }
-
-        private static bool IsTracked(Exception exception)
-        {
-            if (exception.Data != null)
-            {
-                return exception.Data.Contains(ExceptionIsTracked);
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -186,7 +181,7 @@
                 this.operationNameValues.Dispose();
                 this.problemIdValues.Dispose();
                 this.exceptionKeyValues.Dispose();
-                this.metricManager.Dispose();
+                this.MetricManager.Dispose();
             }
         }
 
@@ -323,7 +318,8 @@
 
             if (SdkInternalOperationsMonitor.IsEntered())
             {
-                dimensions.Add("operationName", "AI (Internal)");
+                refinedOperationName = "AI (Internal)";
+                dimensions.Add(OperationNameTag, refinedOperationName);
             }
             else
             {
@@ -338,13 +334,13 @@
                 {
                     refinedOperationName = this.GetDimCappedString(operationName, this.operationNameValues, OperationNameCacheSize);
 
-                    dimensions.Add("operationName", refinedOperationName);
+                    dimensions.Add(OperationNameTag, refinedOperationName);
                 }
             }
 
             this.SendException(refinedOperationName, refinedProblemId, exceptionTelemetry, exception);
 
-            var metric = this.metricManager.CreateMetric("Exceptions thrown", dimensions);
+            var metric = this.MetricManager.CreateMetric("Exceptions thrown", dimensions);
 
             metric.Track(1);
         }
@@ -378,6 +374,7 @@
                 if (exceptionTelemetry == null)
                 {
                     exceptionTelemetry = new ExceptionTelemetry(exception);
+                    exceptionTelemetry.Context.Operation.Name = operationName;
                     this.telemetryClient.Initialize(exceptionTelemetry);
                 }
 
@@ -390,7 +387,9 @@
                 }
 
                 // this property allows to differentiate examples from regular exceptions tracked using TrackException
-                exceptionTelemetry.Properties.Add("_MS.ProcessedByMetricExtractors", "(Name: Exceptions, Ver: 1.0)");
+                exceptionTelemetry.Properties.Add("_MS.Example", "(Name: Exceptions, Ver: 1.0)");
+
+                ((ISupportSampling)exceptionTelemetry).SamplingPercentage = 100;
 
                 this.telemetryClient.TrackException(exceptionTelemetry);
             }

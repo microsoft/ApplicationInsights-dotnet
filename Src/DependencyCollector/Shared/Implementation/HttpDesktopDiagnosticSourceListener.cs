@@ -4,24 +4,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Reflection;
 
     /// <summary>
     /// Diagnostic listener implementation that listens for Http DiagnosticSource to see all outgoing HTTP dependency requests.
     /// </summary>
-    internal class HttpDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
+    internal class HttpDesktopDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
         private readonly FrameworkHttpProcessing httpProcessingFramework;
-        private readonly HttpDiagnosticSourceSubscriber subscribeHelper;
+        private readonly HttpDesktopDiagnosticSourceSubscriber subscribeHelper;
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
         private readonly PropertyFetcher responseFetcher;
         private bool disposed = false;
 
-        internal HttpDiagnosticSourceListener(FrameworkHttpProcessing httpProcessing)
+        internal HttpDesktopDiagnosticSourceListener(FrameworkHttpProcessing httpProcessing)
         {
             this.httpProcessingFramework = httpProcessing;
-            this.subscribeHelper = new HttpDiagnosticSourceSubscriber(this);
+            this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
             this.responseFetcher = new PropertyFetcher("Response");
@@ -47,14 +46,22 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 switch (value.Key)
                 {
-                    case "System.Net.Http.Request":
+                    case "System.Net.Http.Desktop.HttpRequestOut.Start":
+
+                    // remove "System.Net.Http.Request" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Start")
+                    // event was temporarily introduced in DiagnosticSource and removed before stable release
+                    case "System.Net.Http.Request": 
                     {
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
                         this.httpProcessingFramework.OnRequestSend(request);
                         break;
                     }
 
-                    case "System.Net.Http.Response":
+                    case "System.Net.Http.Desktop.HttpRequestOut.Stop":
+
+                    // remove "System.Net.Http.Response" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Stop")
+                    // event was temporarily introduced in DiagnosticSource and removed before stable release
+                    case "System.Net.Http.Response": 
                     {
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
@@ -105,81 +112,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 this.disposed = true;
             }
         }
-
-        #region PropertyFetcher
-
-        /// <summary>
-        /// Efficient implementation of fetching properties of anonymous types with reflection.
-        /// </summary>
-        private class PropertyFetcher
-        {
-            private readonly string propertyName;
-            private PropertyFetch innerFetcher;
-
-            public PropertyFetcher(string propertyName)
-            {
-                this.propertyName = propertyName;
-            }
-
-            public object Fetch(object obj)
-            {
-                if (this.innerFetcher == null)
-                {
-                    this.innerFetcher = PropertyFetch.FetcherForProperty(obj.GetType().GetTypeInfo().GetDeclaredProperty(this.propertyName));
-                }
-
-                return this.innerFetcher?.Fetch(obj);
-            }
-
-            // see https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/DiagnosticSourceEventSource.cs
-            private class PropertyFetch
-            {
-                /// <summary>
-                /// Create a property fetcher from a .NET Reflection PropertyInfo class that
-                /// represents a property of a particular type.  
-                /// </summary>
-                public static PropertyFetch FetcherForProperty(PropertyInfo propertyInfo)
-                {
-                    if (propertyInfo == null)
-                    {
-                        // returns null on any fetch.
-                        return new PropertyFetch(); 
-                    }
-
-                    var typedPropertyFetcher = typeof(TypedFetchProperty<,>);
-                    var instantiatedTypedPropertyFetcher = typedPropertyFetcher.GetTypeInfo().MakeGenericType(
-                        propertyInfo.DeclaringType, propertyInfo.PropertyType);
-                    return (PropertyFetch)Activator.CreateInstance(instantiatedTypedPropertyFetcher, propertyInfo);
-                }
-
-                /// <summary>
-                /// Given an object, fetch the property that this propertyFetch represents. 
-                /// </summary>
-                public virtual object Fetch(object obj)
-                {
-                    return null;
-                }
-
-                private class TypedFetchProperty<TObject, TProperty> : PropertyFetch
-                {
-                    private readonly Func<TObject, TProperty> propertyFetch;
-
-                    public TypedFetchProperty(PropertyInfo property)
-                    {
-                        this.propertyFetch =
-                            (Func<TObject, TProperty>)
-                            property.GetMethod.CreateDelegate(typeof(Func<TObject, TProperty>));
-                    }
-
-                    public override object Fetch(object obj)
-                    {
-                        return this.propertyFetch((TObject)obj);
-                    }
-                }
-            }
-        }
-        
-        #endregion
     }
 }
 #endif

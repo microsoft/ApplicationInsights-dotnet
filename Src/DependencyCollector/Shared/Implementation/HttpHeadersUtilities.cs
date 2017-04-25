@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector
+﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +15,7 @@
             {
                 result = Enumerable.Empty<string>();
             }
+
             return result;
         }
 

@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Runtime.CompilerServices;
     using System.Runtime.ExceptionServices;
+    using System.Threading.Tasks;
     using DataContracts;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -16,6 +18,8 @@
     [TestClass]
     public class FirstChanceExceptionStatisticsTelemetryModuleTest : IDisposable
     {
+        internal static readonly string TestOperationName = "FirstChanceExceptionTestOperation";
+
         private TelemetryConfiguration configuration;
         private IList<ITelemetry> items;
 
@@ -86,17 +90,18 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleTracksMetricWithTypeAndMethodOnException()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -124,28 +129,83 @@
         }
 
         [TestMethod]
-        public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
+        public void FirstChanceExceptionStatisticsTelemetryModuleUsesSetsInternalOperationName()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
+
+                SdkInternalOperationsMonitor.Enter();
+                try
+                {
+                    try
+                    {
+                        // FirstChanceExceptionStatisticsTelemetryModule will process this exception
+                        throw new Exception("test");
+                    }
+                    catch (Exception exc)
+                    {
+                        // code to prevent profiler optimizations
+                        Assert.Equal("test", exc.Message);
+                    }
+                }
+                finally
+                {
+                    SdkInternalOperationsMonitor.Exit();
+                }
+            }
+
+            Assert.Equal(1, metrics.Count);
+            Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
+
+            var dims = metrics[0].Key.Dimensions;
+            Assert.Equal(2, dims.Count);
+
+            Assert.True(dims.Contains(new KeyValuePair<string, string>(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, "AI (Internal)")));
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleUsesOperationNameAsDimension()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            StubMetricProcessor stub = new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            };
+
+            this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
+            {
+                OnInitialize = (item) =>
+                {
+                    item.Context.Operation.Name = TestOperationName;
+                }
+            });
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -165,24 +225,25 @@
             var dims = metrics[0].Key.Dimensions;
             Assert.Equal(2, dims.Count);
 
-            Assert.True(dims.Contains(new KeyValuePair<string, string>("operationName", "operationName")));
+            Assert.True(dims.Contains(new KeyValuePair<string, string>(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, TestOperationName)));
         }
 
         [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleMarksOperationAsInternal()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -209,7 +270,7 @@
             Assert.Equal(2, dims.Count);
 
             string operationName;
-            Assert.True(dims.TryGetValue("operationName", out operationName));
+            Assert.True(dims.TryGetValue(FirstChanceExceptionStatisticsTelemetryModule.OperationNameTag, out operationName));
             Assert.Equal("AI (Internal)", operationName);
         }
 
@@ -217,13 +278,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapOperationName()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             int operationId = 0;
 
@@ -238,6 +299,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -262,25 +324,26 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillNotDimCapTheSameOperationName()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 for (int i = 0; i < 200; i++)
                 {
@@ -305,13 +368,13 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleWillDimCapAfterCacheTimeout()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             int operationId = 0;
 
@@ -326,6 +389,7 @@
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 module.DimCapTimeout = DateTime.UtcNow.Ticks - 1;
 
@@ -357,25 +421,26 @@
         public void FirstChanceExceptionStatisticsTelemetryExceptionsAreThrottled()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             this.configuration.TelemetryInitializers.Add(new StubTelemetryInitializer()
             {
                 OnInitialize = (item) =>
                 {
-                    item.Context.Operation.Name = "operationName";
+                    item.Context.Operation.Name = TestOperationName;
                 }
             });
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 module.TargetMovingAverage = 50;
 
@@ -420,17 +485,18 @@
         public void FirstChanceExceptionStatisticsTelemetryModuleDoNotIncrementOnRethrow()
         {
             var metrics = new List<KeyValuePair<Metric, double>>();
-            this.configuration.MetricProcessors.Add(new StubMetricProcessor()
+            StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
                 {
                     metrics.Add(new KeyValuePair<Metric, double>(m, v));
                 }
-            });
+            };
 
             using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
             {
                 module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
 
                 try
                 {
@@ -463,6 +529,69 @@
 
             // One of them should be 0 as re-thorwn, another - one
             // Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+        }
+
+        [TestMethod]
+        public void FirstChanceExceptionStatisticsTelemetryModuleThrowFromTaskAsync()
+        {
+            var metrics = new List<KeyValuePair<Metric, double>>();
+            StubMetricProcessor stub = new StubMetricProcessor()
+            {
+                OnTrack = (m, v) =>
+                {
+                    metrics.Add(new KeyValuePair<Metric, double>(m, v));
+                }
+            };
+
+            using (var module = new FirstChanceExceptionStatisticsTelemetryModule())
+            {
+                module.Initialize(this.configuration);
+                module.MetricManager.MetricProcessors.Add(stub);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    try
+                    {
+                        Task<int> task1 = Task<int>.Factory.StartNew(() => this.Method5(0));
+                        Task<int> task2 = Task<int>.Factory.StartNew(() => this.Method4(0));
+
+                        try
+                        {
+                            task1.Wait();
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+
+                        try
+                        {
+                            task2.Wait();
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+
+            Assert.Equal(30, metrics.Count);
+
+            Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
+            Assert.Equal(1, metrics[0].Value, 15);
+
+            Assert.Equal("Exceptions thrown", metrics[1].Key.Name);
+            Assert.Equal(1, metrics[1].Value, 15);
+
+            Assert.Equal("Exceptions thrown", metrics[2].Key.Name);
+            Assert.Equal(1, metrics[2].Value, 15);
+
+            // There should be 3 telemetry items and 3 metric items
+            Assert.Equal(6, this.items.Count);
         }
 
         [TestMethod]
@@ -655,6 +784,47 @@
         private void Method3()
         {
             throw new Exception("exception from Method 3");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private int Method4(int value)
+        {
+            try
+            {
+                int x = 1 / value;
+
+                return x;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private int Method5(int value)
+        {
+            try
+            {
+                int x = 1 / value;
+
+                return x;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+    }
+
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "This class is for the temporary MetricManager")]
+    internal class StubMetricProcessor : IMetricProcessor
+    {
+        public Action<Metric, double> OnTrack = (metric, value) => { };
+
+        public void Track(Metric metric, double value)
+        {
+            this.OnTrack(metric, value);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace FuncTest.Helpers
         {
             get
             {
-                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { base.AppFolder, "netcoreapp1.0" });
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { base.AppFolder, "netcoreapp1.0", "publish" });
             }
         }
 

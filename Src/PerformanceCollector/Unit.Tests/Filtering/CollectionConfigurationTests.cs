@@ -89,14 +89,6 @@
                     Projection = "Message",
                     Aggregation = AggregationType.Avg,
                     FilterGroups = filters
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "Metric6",
-                    TelemetryType = TelemetryType.Metric,
-                    Projection = "Value",
-                    Aggregation = AggregationType.Avg,
-                    FilterGroups = filters
                 }
             };
 
@@ -115,7 +107,6 @@
             Assert.AreEqual("Metric3", collectionConfiguration.ExceptionMetrics.Single().Id);
             Assert.AreEqual("Metric4", collectionConfiguration.EventMetrics.Single().Id);
             Assert.AreEqual("Metric5", collectionConfiguration.TraceMetrics.Single().Id);
-            Assert.AreEqual("Metric6", collectionConfiguration.MetricMetrics.Single().Item1);
         }
 
         [TestMethod]

@@ -9,14 +9,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// to the Http DiagnosticSource. That way the parent object can subscribe to the DiagnosticSource without worry
     /// about the details around subscription.
     /// </summary>
-    internal class HttpDiagnosticSourceSubscriber : IObserver<DiagnosticListener>, IDisposable
+    internal class HttpDesktopDiagnosticSourceSubscriber : IObserver<DiagnosticListener>, IDisposable
     {
-        private readonly HttpDiagnosticSourceListener parent;
+        private readonly HttpDesktopDiagnosticSourceListener parent;
         private readonly IDisposable allListenersSubscription;
         private IDisposable sourceSubscription;
         private bool disposed = false;
 
-        internal HttpDiagnosticSourceSubscriber(HttpDiagnosticSourceListener parent)
+        internal HttpDesktopDiagnosticSourceSubscriber(HttpDesktopDiagnosticSourceListener parent)
         {
             this.parent = parent;
             this.allListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);

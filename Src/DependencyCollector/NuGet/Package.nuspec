@@ -27,7 +27,6 @@
       </group>
       <group targetFramework="netstandard1.6">
         <dependency id="Microsoft.ApplicationInsights" version="[$coresdkversion$]" />
-        <dependency id="Microsoft.Extensions.DiagnosticAdapter" version="1.1.0" />
         <dependency id="Microsoft.Extensions.PlatformAbstractions" version="1.1.0" />
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="System.Diagnostics.StackTrace" version="4.3.0" />        

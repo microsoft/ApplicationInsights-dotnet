@@ -106,11 +106,14 @@
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\FakeDataPlatform.cs" />
     <Compile Include="Helpers\HttpListenerObservable.cs" />
+    <Compile Include="Helpers\HttpTestConstants.cs" />
+    <Compile Include="Helpers\HttpTestHelper.cs" />
     <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Helpers\RequestHelper.cs" />
     <Compile Include="Helpers\TelemetryItemFactory.cs" />
     <Compile Include="Helpers\IISTestWebApplication.cs" />
     <Compile Include="Helpers\TestWebApplication.cs" />
+    <Compile Include="AspNetCoreHttpTests.cs" />
     <Compile Include="IIS\Iis.cs" />
     <Compile Include="IIS\IisApplicationPool.cs" />
     <Compile Include="IIS\IisWebApplication.cs" />

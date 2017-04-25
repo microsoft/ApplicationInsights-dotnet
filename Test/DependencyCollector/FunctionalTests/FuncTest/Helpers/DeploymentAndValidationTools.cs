@@ -1,35 +1,19 @@
-﻿using Functional.Helpers;
-
-namespace FuncTest.Helpers
+﻿namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
     using System.Globalization;
     using AI;
-    using FuncTest.IIS;
+    using FuncTest.IIS;    
     using Microsoft.Deployment.WindowsInstaller;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;    
 
     /// <summary>
     /// Helper class that deploys test applications and provides commaon validation methods
     /// </summary>
     internal static class DeploymentAndValidationTools
     {
-        /// <summary>
-        /// Folder for ASPX 4.5.1 test application deployment.
-        /// </summary>        
-        public const string Aspx451AppFolder = ".\\Aspx451";
-
-        /// <summary>
-        /// Folder for ASPX 4.5.1 Win32 mode test application deployment.
-        /// </summary>        
-        public const string Aspx451AppFolderWin32 = ".\\Aspx451Win32";
-
-        /// <summary>
-        /// Folder for ASPX Core test application deployment.
-        /// </summary>        
-        public const string AspxCoreAppFolder = ".\\AspxCore";
-
+                
         /// <summary>
         /// Sleep time to give SDK some time to send events.
         /// </summary>
@@ -46,11 +30,11 @@ namespace FuncTest.Helpers
         /// </summary>
         private const string Aspx451FakeDataPlatformEndpoint = "http://localHost:8789/";
 
-        private const int Aspx451Port = 789;
+        public static int Aspx451Port = 789;
 
-        private const int Aspx451PortWin32 = 790;
+        public static int Aspx451PortWin32 = 790;
 
-        private const int AspxCorePort = 791;
+        public static int AspxCorePort = 791;
 
         private static readonly object lockObj = new object();
 
@@ -58,18 +42,12 @@ namespace FuncTest.Helpers
 
         public static string ExpectedSDKPrefix { get; internal set; }
 
-        public static HttpListenerObservable SdkEventListener { get; private set; }
-
-        public static IISTestWebApplication Aspx451TestWebApplication { get; private set; }
-
-        public static IISTestWebApplication Aspx451TestWebApplicationWin32 { get; private set; }
-
-        public static DotNetCoreTestWebApplication AspxCoreTestWebApplication { get; private set; }
+        public static HttpListenerObservable SdkEventListener { get; private set; }        
 
         public static EtwEventSessionRdd EtwSession { get; private set; }
 
         /// <summary>
-        /// Deploy all test applications and prepera infra.
+        /// Prepare common infra for test runs like installing SM, IIS reset if required etc.
         /// </summary>
         public static void Initialize()
         {
@@ -79,26 +57,6 @@ namespace FuncTest.Helpers
                 {
                     if (!isInitialized)
                     {
-                        Aspx451TestWebApplication = new IISTestWebApplication
-                        {
-                            AppName = "Aspx451",
-                            Port = Aspx451Port,
-                        };
-
-                        Aspx451TestWebApplicationWin32 = new IISTestWebApplication
-                        {
-                            AppName = "Aspx451Win32",
-                            Port = Aspx451PortWin32,
-                            EnableWin32Mode = true,
-                        };
-
-                        AspxCoreTestWebApplication = new DotNetCoreTestWebApplication
-                        {
-                            AppName = "AspxCore",
-                            ExternalCallPath = "external/calls",
-                            Port = AspxCorePort,
-                        };
-
                         // this makes all traces have a timestamp so it's easier to troubleshoot timing issues
                         // looking for the better approach...
                         foreach (TraceListener listener in Trace.Listeners)
@@ -110,10 +68,6 @@ namespace FuncTest.Helpers
 
                         EtwSession = new EtwEventSessionRdd();
                         EtwSession.Start();
-
-                        Aspx451TestWebApplication.Deploy();
-                        Aspx451TestWebApplicationWin32.Deploy();
-                        AspxCoreTestWebApplication.Deploy();
 
                         if (RegistryCheck.IsNet46Installed)
                         {
@@ -158,15 +112,15 @@ namespace FuncTest.Helpers
                             {
                                 Trace.TraceInformation("StatusMonitor already installed.");
                             }
-                        }
-
-                        Trace.TraceInformation("IIS Restart begin.");
-                        Iis.Reset();
-                        Trace.TraceInformation("IIS Restart end.");
+                        }                        
 
                         isInitialized = true;
-                    }
+                    }                    
                 }
+            }
+            else
+            {
+                Trace.TraceInformation("Already initialized!");
             }
         }
 
@@ -185,10 +139,6 @@ namespace FuncTest.Helpers
 
                         EtwSession.Stop();
 
-                        Aspx451TestWebApplication.Remove();
-                        Aspx451TestWebApplicationWin32.Remove();
-                        AspxCoreTestWebApplication.Remove();
-
                         if (RegistryCheck.IsNet46Installed)
                         {
                             // .NET 4.6 onwards, there is no need of installing agent 
@@ -196,8 +146,7 @@ namespace FuncTest.Helpers
                         else
                         {
                             string installerPath = ExecutionEnvironment.InstallerPath;
-                            Installer.InstallProduct(installerPath, "REMOVE=ALL");
-                            Iis.Reset();
+                            Installer.InstallProduct(installerPath, "REMOVE=ALL");                            
                         }
 
                         isInitialized = false;

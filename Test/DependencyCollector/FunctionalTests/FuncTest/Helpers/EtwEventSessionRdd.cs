@@ -1,4 +1,4 @@
-﻿namespace Functional.Helpers
+﻿namespace FuncTest.Helpers
 {
     using System;
     using System.Diagnostics;
