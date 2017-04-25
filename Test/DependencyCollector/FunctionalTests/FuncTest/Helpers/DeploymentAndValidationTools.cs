@@ -127,7 +127,7 @@
         /// <summary>
         /// Delete all applications and cleanup.
         /// </summary>
-        public static void CleanUp(bool resetIIS = true)
+        public static void CleanUp()
         {
             if (isInitialized)
             {
@@ -146,11 +146,7 @@
                         else
                         {
                             string installerPath = ExecutionEnvironment.InstallerPath;
-                            Installer.InstallProduct(installerPath, "REMOVE=ALL");
-                            if (resetIIS)
-                            {
-                                Iis.Reset();
-                            }
+                            Installer.InstallProduct(installerPath, "REMOVE=ALL");                            
                         }
 
                         isInitialized = false;

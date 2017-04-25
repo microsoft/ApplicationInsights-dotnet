@@ -82,8 +82,11 @@
         [ClassCleanup]
         public static void MyClassCleanup()
         {
-            DeploymentAndValidationTools.CleanUp(true);
+            DeploymentAndValidationTools.CleanUp();
             Aspx451TestWebApplication.Remove();
+            Trace.TraceInformation("IIS Restart begin.");
+            Iis.Reset();
+            Trace.TraceInformation("IIS Restart end.");
             Trace.TraceInformation("SQlTests class cleaned up");
         }
 
