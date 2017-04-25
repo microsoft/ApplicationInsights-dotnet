@@ -29,5 +29,15 @@
         /// Standard root id header.
         /// </summary>
         public const string StandardRootIdHeader = "x-ms-request-root-id";
+
+        /// <summary>
+        /// Request-Id header.
+        /// </summary>
+        public const string RequestIdHeader = "Request-Id";
+
+        /// <summary>
+        /// Correlation-Context header.
+        /// </summary>
+        public const string CorrelationContextHeader = "Correlation-Context";
     }
 }

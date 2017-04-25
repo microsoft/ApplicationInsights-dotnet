@@ -101,7 +101,8 @@
         "netstandard1.6": {
             "dependencies": {
                 "NETStandard.Library": "1.6.1",
-                "System.Net.NameResolution": "4.0.0"
+                "System.Net.NameResolution": "4.0.0",
+                "System.Diagnostics.StackTrace": "4.3.0"
             }
         }
     }

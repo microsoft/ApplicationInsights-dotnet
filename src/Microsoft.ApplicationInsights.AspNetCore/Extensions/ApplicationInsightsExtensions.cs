@@ -128,7 +128,6 @@
             services.AddSingleton<ITelemetryInitializer, DomainNameRoleInstanceTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ComponentVersionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ClientIpHeaderTelemetryInitializer>();
-            services.AddSingleton<ITelemetryInitializer, OperationIdTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, OperationNameTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, ApplicationInsights.AspNetCore.TelemetryInitializers.OperationCorrelationTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, SyntheticTelemetryInitializer>();

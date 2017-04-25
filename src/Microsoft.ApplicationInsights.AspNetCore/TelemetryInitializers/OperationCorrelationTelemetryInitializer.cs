@@ -42,27 +42,6 @@
             RequestTelemetry requestTelemetry,
             ITelemetry telemetry)
         {
-            OperationContext parentContext = requestTelemetry.Context.Operation;
-
-            // Make sure that RequestTelemetry is initialized.
-            if (string.IsNullOrEmpty(parentContext.Id))
-            {
-                parentContext.Id = requestTelemetry.Id;
-            }
-
-            if (telemetry != requestTelemetry)
-            {
-                if (string.IsNullOrEmpty(telemetry.Context.Operation.ParentId))
-                {
-                    telemetry.Context.Operation.ParentId = requestTelemetry.Id;
-                }
-
-                if (string.IsNullOrEmpty(telemetry.Context.Operation.Id))
-                {
-                    telemetry.Context.Operation.Id = parentContext.Id;
-                }
-            }
-
             HttpRequest currentRequest = platformContext.Request;
             if (currentRequest?.Headers != null && string.IsNullOrEmpty(requestTelemetry.Source))
             {

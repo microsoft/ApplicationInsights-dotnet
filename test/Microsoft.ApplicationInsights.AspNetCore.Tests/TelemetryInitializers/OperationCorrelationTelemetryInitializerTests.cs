@@ -45,31 +45,6 @@
         }
 
         [Fact]
-        public void InitializeSetsRequestOperationIdIfNotAlreadySet()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal(requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
-        }
-
-        [Fact]
-        public void InitializeSetsOperationIdAndParentIdToRequestId()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.ParentId);
-        }
-
-        [Fact]
         public void InitializeDoesNotOverrideOperationIdProvidedInline()
         {
             var requestTelemetry = new RequestTelemetry();
@@ -95,20 +70,6 @@
             initializer.Initialize(telemetry);
 
             Assert.Equal("123", telemetry.Context.Operation.ParentId);
-        }
-
-        [Fact]
-        public void InitializeSetsOperationIdToRequestOperationIdAndParentIdToRequestId()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.Operation.Id = "ABC";
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal("ABC", telemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.ParentId);
         }
 
         [Fact]

@@ -6,6 +6,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
     using Microsoft.ApplicationInsights.Channel;
@@ -76,13 +77,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry.First());
@@ -103,12 +104,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, HttpRequestPath, HttpRequestQueryString);
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
@@ -129,13 +130,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost);
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
             middleware.OnDiagnosticsUnhandledException(context, null);
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.Equal(2, sentTelemetry.Count);
             Assert.IsType<ExceptionTelemetry>(this.sentTelemetry[0]);
@@ -153,16 +154,164 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         }
 
         [Fact]
-        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest()
+        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetry()
         {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
 
             middleware.OnBeginRequest(context, 0);
 
+            Assert.NotNull(Activity.Current);
+
+            var requestTelemetry = context.Features.Get<RequestTelemetry>();
+            Assert.NotNull(requestTelemetry);
+            Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, Activity.Current.ParentId);
+            Assert.Null(requestTelemetry.Context.Operation.ParentId);
+        }
+
+        [Fact]
+        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetryFromStandardHeader()
+        {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            var standardRequestId = Guid.NewGuid().ToString();
+            var standardRequestRootId = Guid.NewGuid().ToString();
+            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
+            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
+
+            middleware.OnBeginRequest(context, 0);
+
+            Assert.NotNull(Activity.Current);
+
+            var requestTelemetry = context.Features.Get<RequestTelemetry>();
+            Assert.NotNull(requestTelemetry);
+            Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, standardRequestRootId);
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, standardRequestId);
+        }
+
+        [Fact]
+        public void OnBeginRequestCreateNewActivityAndInitializeRequestTelemetryFromRequestIdHeader()
+        {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            var requestId = Guid.NewGuid().ToString();
+            var standardRequestId = Guid.NewGuid().ToString();
+            var standardRequestRootId = Guid.NewGuid().ToString();
+            context.Request.Headers[RequestResponseHeaders.RequestIdHeader] = requestId;
+            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
+            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
+            context.Request.Headers[RequestResponseHeaders.CorrelationContextHeader] = "prop1=value1, prop2=value2";
+
+            middleware.OnBeginRequest(context, 0);
+
+            Assert.NotNull(Activity.Current);
+            Assert.NotNull(Activity.Current.Baggage.FirstOrDefault(b => b.Key == "prop1" && b.Value == "value1"));
+            Assert.NotNull(Activity.Current.Baggage.FirstOrDefault(b => b.Key == "prop2" && b.Value == "value2"));
+
+            var requestTelemetry = context.Features.Get<RequestTelemetry>();
+            Assert.NotNull(requestTelemetry);
+            Assert.Equal(requestTelemetry.Id, Activity.Current.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, Activity.Current.RootId);
+            Assert.NotEqual(requestTelemetry.Context.Operation.Id, standardRequestRootId);
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, requestId);
+            Assert.NotEqual(requestTelemetry.Context.Operation.ParentId, standardRequestId);
+            Assert.Equal(requestTelemetry.Context.Properties["prop1"], "value1");
+            Assert.Equal(requestTelemetry.Context.Properties["prop2"], "value2");
+        }
+
+        [Fact]
+        public void OnHttpRequestInStartInitializeTelemetryIfActivityParentIdIsNotNull()
+        {
+            if (!HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
+            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            var activity = new Activity("operation");
+            activity.SetParentId(Guid.NewGuid().ToString());
+            activity.AddBaggage("item1", "value1");
+            activity.AddBaggage("item2", "value2");
+
+            activity.Start();
+
+            middleware.OnHttpRequestInStart(context);
+            middleware.OnHttpRequestInStop(context);
+
+            Assert.Equal(1, sentTelemetry.Count);
+            var requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+
+            Assert.Equal(requestTelemetry.Id, activity.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, activity.RootId);
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, activity.ParentId);
+            Assert.True(requestTelemetry.Context.Properties.Count > activity.Baggage.Count());
+
+            foreach (var prop in activity.Baggage)
+            {
+                Assert.True(requestTelemetry.Context.Properties.ContainsKey(prop.Key));
+                Assert.Equal(requestTelemetry.Context.Properties[prop.Key], prop.Value);
+            }
+        }
+
+        [Fact]
+        public void OnHttpRequestInStartCreateNewActivityIfParentIdIsNullAndHasStandardHeader()
+        {
+            if (!HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
+            var context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+            var standardRequestId = Guid.NewGuid().ToString();
+            var standardRequestRootId = Guid.NewGuid().ToString();
+            context.Request.Headers[RequestResponseHeaders.StandardParentIdHeader] = standardRequestId;
+            context.Request.Headers[RequestResponseHeaders.StandardRootIdHeader] = standardRequestRootId;
+
+            var activity = new Activity("operation");
+            activity.Start();
+
+            middleware.OnHttpRequestInStart(context);
+
+            var activityInitializedByStandardHeader = Activity.Current;
+            Assert.NotEqual(activityInitializedByStandardHeader, activity);
+            Assert.Equal(activityInitializedByStandardHeader.ParentId, standardRequestRootId);
+
+            middleware.OnHttpRequestInStop(context);
+
+            Assert.Equal(1, sentTelemetry.Count);
+            var requestTelemetry = this.sentTelemetry[0] as RequestTelemetry;
+
+            Assert.Equal(requestTelemetry.Id, activityInitializedByStandardHeader.Id);
+            Assert.Equal(requestTelemetry.Context.Operation.Id, standardRequestRootId);
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, standardRequestId);
+        }
+
+        [Fact]
+        public void OnEndRequestSetsRequestNameToMethodAndPathForPostRequest()
+        {
+            HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "POST");
+
+            HandleRequestBegin(context, 0);
+
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
@@ -183,12 +332,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         {
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.NotNull(this.sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
@@ -210,13 +359,13 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
 
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.NotNull(this.sentTelemetry);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
@@ -238,12 +387,12 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             HttpContext context = CreateContext(HttpRequestScheme, HttpRequestHost, "/Test", method: "GET");
             HttpHeadersUtilities.SetRequestContextKeyValue(context.Request.Headers, RequestResponseHeaders.RequestContextSourceKey, "DIFFERENT_INSTRUMENTATION_KEY_HASH");
 
-            middleware.OnBeginRequest(context, 0);
+            HandleRequestBegin(context, 0);
 
             Assert.NotNull(context.Features.Get<RequestTelemetry>());
             Assert.Equal(HttpHeadersUtilities.GetRequestContextKeyValue(context.Response.Headers, RequestResponseHeaders.RequestContextTargetKey), CorrelationIdLookupHelperStub.AppId);
 
-            middleware.OnEndRequest(context, 0);
+            HandleRequestEnd(context, 0);
 
             Assert.Equal(1, sentTelemetry.Count);
             Assert.IsType<RequestTelemetry>(this.sentTelemetry[0]);
@@ -260,7 +409,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         }
 
         [Fact]
-        public void SimultaneousRequestsGetDifferentIds()
+        public async void SimultaneousRequestsGetDifferentIds()
         {
             var context1 = new DefaultHttpContext();
             context1.Request.Scheme = HttpRequestScheme;
@@ -274,22 +423,38 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             context2.Request.Method = "GET";
             context2.Request.Path = "/Test?id=2";
 
-            middleware.OnBeginRequest(context1, 0);
-            middleware.OnBeginRequest(context2, 0);
-            middleware.OnEndRequest(context1, 0);
-            middleware.OnEndRequest(context2, 0);
+            var task1 = Task.Run(() =>
+            {
+                var act = new Activity("operation1");
+                act.Start();
+                HandleRequestBegin(context1, 0);
+                HandleRequestEnd(context1, 0);
+            });
+
+            var task2 = Task.Run(() =>
+            {
+                var act = new Activity("operation2");
+                act.Start();
+                HandleRequestBegin(context2, 0);
+                HandleRequestEnd(context2, 0);
+            });
+
+            await Task.WhenAll(task1, task2);
 
             Assert.Equal(2, sentTelemetry.Count);
             var id1 = ((RequestTelemetry)sentTelemetry[0]).Id;
             var id2 = ((RequestTelemetry)sentTelemetry[1]).Id;
-            Assert.Equal(context1.TraceIdentifier, id1);
-            Assert.Equal(context2.TraceIdentifier, id2);
             Assert.NotEqual(id1, id2);
         }
 
         [Fact]
         public void SimultaneousRequestsGetCorrectDurations()
         {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
             var context1 = new DefaultHttpContext();
             context1.Request.Scheme = HttpRequestScheme;
             context1.Request.Host = HttpRequestHost;
@@ -305,10 +470,10 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             long startTime = Stopwatch.GetTimestamp();
             long simulatedSeconds = Stopwatch.Frequency;
 
-            middleware.OnBeginRequest(context1, timestamp: startTime);
-            middleware.OnBeginRequest(context2, timestamp: startTime + simulatedSeconds);
-            middleware.OnEndRequest(context1, timestamp: startTime + simulatedSeconds * 5);
-            middleware.OnEndRequest(context2, timestamp: startTime + simulatedSeconds * 10);
+            HandleRequestBegin(context1, startTime);
+            HandleRequestBegin(context2, startTime + simulatedSeconds);
+            HandleRequestEnd(context1, startTime + simulatedSeconds * 5);
+            HandleRequestEnd(context2, startTime + simulatedSeconds * 10);
 
             Assert.Equal(2, sentTelemetry.Count);
             Assert.Equal(TimeSpan.FromSeconds(5), ((RequestTelemetry)sentTelemetry[0]).Duration);
@@ -318,6 +483,11 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
         [Fact]
         public void OnEndRequestSetsPreciseDurations()
         {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                return;
+            }
+
             var context = new DefaultHttpContext();
             context.Request.Scheme = HttpRequestScheme;
             context.Request.Host = HttpRequestHost;
@@ -325,15 +495,44 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             context.Request.Path = "/Test?id=1";
 
             long startTime = Stopwatch.GetTimestamp();
-            middleware.OnBeginRequest(context, timestamp: startTime);
+            HandleRequestBegin(context, startTime);
 
             var expectedDuration = TimeSpan.Parse("00:00:01.2345670");
             double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
 
-            middleware.OnEndRequest(context, timestamp: startTime + (long)durationInStopwatchTicks);
+            HandleRequestEnd(context, startTime + (long)durationInStopwatchTicks);
 
             Assert.Equal(1, sentTelemetry.Count);
             Assert.Equal(Math.Round(expectedDuration.TotalMilliseconds, 3), Math.Round(((RequestTelemetry)sentTelemetry[0]).Duration.TotalMilliseconds, 3));
+        }
+
+        private void HandleRequestBegin(HttpContext context, long timestamp)
+        {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                if (Activity.Current == null)
+                {
+                    var activity = new Activity("operation");
+                    activity.Start();
+                }
+                middleware.OnHttpRequestInStart(context);
+            }
+            else
+            {
+                middleware.OnBeginRequest(context, timestamp);
+            }
+        }
+
+        private void HandleRequestEnd(HttpContext context, long timestamp)
+        {
+            if (HostingDiagnosticListener.IsAspNetCore20)
+            {
+                middleware.OnHttpRequestInStop(context);
+            }
+            else
+            {
+                middleware.OnEndRequest(context, timestamp);
+            }
         }
     }
 }

@@ -119,6 +119,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         }
 
         /// <summary>
+        /// Logs an event for the HostingDiagnosticListener OnHttpRequestInStart method when the current activity is null.
+        /// </summary>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(9, Message = "HostingDiagnosticListener.OnHttpRequestInStart - Activity.Current is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(9, this.ApplicationName);
+        }
+
+        /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>
         public sealed class Keywords
