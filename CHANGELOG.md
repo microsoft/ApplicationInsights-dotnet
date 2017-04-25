@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.4.0-beta2
+- [Handle breaking changes from DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
+- [Exceptions statistics metrics uses `.Context.Operation.Name` instead of custom property `operationName`](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/394)
+
 ## Version 2.4.0-beta1
 - Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.
 - Implemented automatic telemetry correlation: all telemetry reported within the scope of the request is correlated to RequestTelemetry reported for the request.
