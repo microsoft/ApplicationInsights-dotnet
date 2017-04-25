@@ -70,8 +70,6 @@
 
         private CollectionConfiguration collectionConfiguration;
 
-        private QuickPulseMetricProcessor metricProcessor;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="QuickPulseTelemetryModule"/> class.
         /// </summary>
@@ -177,9 +175,6 @@
                             out errors,
                             this.timeProvider);
                         this.dataAccumulatorManager = this.dataAccumulatorManager ?? new QuickPulseDataAccumulatorManager(this.collectionConfiguration);
-
-                        this.metricProcessor = new QuickPulseMetricProcessor();
-                        this.config.MetricProcessors.Add(this.metricProcessor);
 
                         this.InitializeServiceClient(configuration);
                         
@@ -599,8 +594,6 @@
                 }
             }
 
-            this.metricProcessor.StartCollection(this.dataAccumulatorManager);
-
             this.CreateCollectionThread();
         }
 
@@ -632,8 +625,6 @@
                     telemetryProcessor.StopCollection();
                 }
             }
-
-            this.metricProcessor.StopCollection();
 
             lock (this.collectedSamplesLock)
             {
