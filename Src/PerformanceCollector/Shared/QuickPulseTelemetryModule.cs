@@ -308,12 +308,7 @@
             if (configuration.TelemetryProcessors == null)
             {
                 throw new ArgumentNullException(nameof(configuration.TelemetryProcessors));
-            }
-
-            if (configuration.MetricProcessors == null)
-            {
-                throw new ArgumentNullException(nameof(configuration.MetricProcessors));
-            }
+            }            
         }
 
         private void CreateStateThread()
