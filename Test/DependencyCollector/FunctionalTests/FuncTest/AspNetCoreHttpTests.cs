@@ -38,7 +38,7 @@
         [ClassCleanup]
         public static void MyClassCleanup()
         {            
-            DeploymentAndValidationTools.CleanUp(false);
+            DeploymentAndValidationTools.CleanUp();
             Trace.TraceInformation("Aspnet core HttpTests class cleaned up");
             AspxCoreTestWebApplication.Remove();
 

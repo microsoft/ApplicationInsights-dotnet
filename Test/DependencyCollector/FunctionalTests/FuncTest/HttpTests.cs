@@ -67,9 +67,12 @@
         public static void MyClassCleanup()
         {
             AzureStorageHelper.Cleanup();            
-            DeploymentAndValidationTools.CleanUp(true);
-            Aspx451TestWebApplication.Deploy();
-            Aspx451TestWebApplicationWin32.Deploy();
+            DeploymentAndValidationTools.CleanUp();
+            Aspx451TestWebApplication.Remove();
+            Aspx451TestWebApplicationWin32.Remove();
+            Trace.TraceInformation("IIS Restart begin.");
+            Iis.Reset();
+            Trace.TraceInformation("IIS Restart end.");
             Trace.TraceInformation("HttpTests class cleaned up");
 
         }
