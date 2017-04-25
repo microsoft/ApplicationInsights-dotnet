@@ -196,14 +196,6 @@
                     Projection = "Id",
                     Aggregation = AggregationType.Avg,
                     FilterGroups = filter1
-                },
-                new CalculatedMetricInfo()
-                {
-                    Id = "Metric1",
-                    TelemetryType = TelemetryType.Metric,
-                    Projection = "Metric1",
-                    Aggregation = AggregationType.Sum,
-                    FilterGroups = new FilterConjunctionGroupInfo[0]
                 }
             };
             var serviceClient = new QuickPulseServiceClientMock { ReturnValueFromPing = true, ReturnValueFromSubmitSample = true };
@@ -223,15 +215,10 @@
             var telemetryConfiguration = new TelemetryConfiguration() { InstrumentationKey = "some ikey" };
             module.Initialize(telemetryConfiguration);
 
-            QuickPulseMetricProcessor metricProcessor = (QuickPulseMetricProcessor)telemetryConfiguration.MetricProcessors.Single();
-            Metric metric = new MetricManager().CreateMetric("Metric1");
-
             Thread.Sleep(pause);
 
             telemetryProcessor.Process(new RequestTelemetry() { Id = "1", Name = "Request1", Context = { InstrumentationKey = "some ikey" } });
             telemetryProcessor.Process(new DependencyTelemetry() { Context = { InstrumentationKey = "some ikey" } });
-
-            metricProcessor.Track(metric, 5.0d);
 
             Thread.Sleep(pause);
 
@@ -257,12 +244,6 @@
                     s =>
                     s.CollectionConfigurationAccumulator.MetricAccumulators.Any(
                         a => a.Value.MetricId == "Metric0" && a.Value.CalculateAggregation(out long count) == 1.0d && count == 1)));
-
-            Assert.IsTrue(
-                serviceClient.SnappedSamples.Any(
-                    s =>
-                    s.CollectionConfigurationAccumulator.MetricAccumulators.Any(
-                        a => a.Value.MetricId == "Metric1" && a.Value.CalculateAggregation(out long count) == 5.0d && count == 1)));
         }
 
         [TestMethod]

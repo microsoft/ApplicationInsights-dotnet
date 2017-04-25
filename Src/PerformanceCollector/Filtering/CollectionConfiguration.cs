@@ -43,9 +43,6 @@
         private readonly List<Tuple<string, AggregationType>> telemetryMetadata = new List<Tuple<string, AggregationType>>();
 
         private readonly List<Tuple<string, string>> performanceCounters = new List<Tuple<string, string>>();
-
-        // (id, metricName, AggregationType)
-        private readonly List<Tuple<string, string, AggregationType>> metricMetrics = new List<Tuple<string, string, AggregationType>>();
         #endregion
 
         public CollectionConfiguration(
@@ -64,9 +61,6 @@
             // create metrics based on descriptions in info
             this.CreateTelemetryMetrics(info, out CollectionConfigurationError[] metricErrors);
 
-            // create Metric metrics
-            this.CreateMetricMetrics(out CollectionConfigurationError[] metricMetricsErrors);
-
             // maintain a separate collection of all (Id, AggregationType) pairs with some additional data - to allow for uniform access to all types of metrics
             // this includes both telemetry metrics and Metric metrics
             this.CreateMetadata();
@@ -77,7 +71,7 @@
             // create performance counters
             this.CreatePerformanceCounters(out CollectionConfigurationError[] performanceCounterErrors);
             
-            errors = metricErrors.Concat(documentStreamErrors).Concat(performanceCounterErrors).Concat(metricMetricsErrors).ToArray();
+            errors = metricErrors.Concat(documentStreamErrors).Concat(performanceCounterErrors).ToArray();
 
             foreach (var error in errors)
             {
@@ -112,15 +106,7 @@
         /// Performance counter name is stored in CalculatedMetricInfo.Projection.
         /// </remarks>
         public IEnumerable<Tuple<string, string>> PerformanceCounters => this.performanceCounters;
-
-        /// <summary>
-        /// Gets a list of Metric metrics.
-        /// </summary>
-        /// <remarks>
-        /// Metric name is stored in CalculatedMetricInfo.Projection.
-        /// </remarks>
-        public IEnumerable<Tuple<string, string, AggregationType>> MetricMetrics => this.metricMetrics;
-
+        
         public string ETag => this.info.ETag;
 
         private static void AddMetric<TTelemetry>(
@@ -178,34 +164,7 @@
 
             errors = errorList.ToArray();
         }
-
-        private void CreateMetricMetrics(out CollectionConfigurationError[] errors)
-        {
-            var errorList = new List<CollectionConfigurationError>();
-
-            CalculatedMetricInfo[] metrics = (this.info.Metrics ?? new CalculatedMetricInfo[0]).Where(metric => metric.TelemetryType == TelemetryType.Metric).ToArray();
-
-            this.metricMetrics.AddRange(metrics.GroupBy(metric => metric.Id, StringComparer.Ordinal)
-                .Select(group => group.First())
-                .Select(m => Tuple.Create(m.Id, m.Projection, m.Aggregation)));
-
-            IEnumerable<string> duplicateMetricIds = metrics.GroupBy(m => m.Id, StringComparer.Ordinal)
-                .Where(group => group.Count() > 1)
-                .Select(group => group.Key);
-
-            foreach (var duplicateMetricId in duplicateMetricIds)
-            {
-                errorList.Add(
-                    CollectionConfigurationError.CreateError(
-                        CollectionConfigurationErrorType.MetricDuplicateIds,
-                        string.Format(CultureInfo.InvariantCulture, "Duplicate metric id '{0}'", duplicateMetricId),
-                        null,
-                        Tuple.Create("MetricId", duplicateMetricId)));
-            }
-
-            errors = errorList.ToArray();
-        }
-
+        
         private void CreateDocumentStreams(
             out CollectionConfigurationError[] errors,
             Clock timeProvider,
@@ -320,10 +279,6 @@
                     case TelemetryType.Event:
                         CollectionConfiguration.AddMetric(metricInfo, this.eventTelemetryMetrics, out localErrors);
                         break;
-                   case TelemetryType.Metric:
-                       // no need to create a wrapper, we rely on the underlying CollectionConfigurationInfo to provide data about Metric metrics
-                       // move on to the next metric
-                       continue;
                     case TelemetryType.PerformanceCounter:
                         // no need to create a wrapper, we rely on the underlying CollectionConfigurationInfo to provide data about performance counters
                         // move on to the next metric

@@ -10,8 +10,6 @@
 
         Event = 3,
 
-        Metric = 4,
-
         PerformanceCounter = 5,
 
         Trace = 6
