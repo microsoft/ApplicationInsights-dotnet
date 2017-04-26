@@ -37,15 +37,9 @@ namespace SampleWebAppIntegration.FunctionalTest
             try
             {
                 Assert.True(telemetries.Count >= 2);
-                Assert.Equal(2, telemetries.Count(t => t.Context?.Operation?.Name != null && t.Context.Operation.Name.Contains(path)));
-                var dependency = (DependencyTelemetry)telemetries.Single(t =>
-                {
-                    var dt = t as DependencyTelemetry;
-                    return dt?.Context?.Operation?.Name != null && dt.Context.Operation.Name.Contains(path);
-                });
-
-                var request = (RequestTelemetry)telemetries.Single(t => t is RequestTelemetry);
-                Assert.Equal(request.Context.Operation.Id, dependency.Context.Operation.Id);
+                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
+                var dependencyTelemetry = telemetries.OfType<DependencyTelemetry>().First(t => t.Name == "MyDependency");
+                Assert.Equal(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             }
             catch (Exception e)
             {
@@ -75,12 +69,9 @@ namespace SampleWebAppIntegration.FunctionalTest
             try
             {
                 Assert.NotNull(telemetries);
-                Assert.Equal(2, telemetries.Count());
-                DependencyTelemetry dependency = telemetries.OfType<DependencyTelemetry>().FirstOrDefault();
-                Assert.NotNull(dependency);
-                RequestTelemetry request = telemetries.OfType<RequestTelemetry>().FirstOrDefault();
-                Assert.NotNull(request);
-                Assert.Equal(request.Id, dependency.Context.Operation.ParentId);
+                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
+                var dependencyTelemetry = telemetries.First(t => t is DependencyTelemetry && (t as DependencyTelemetry).Name == "MyDependency");
+                Assert.Equal(requestTelemetry.Id, dependencyTelemetry.Context.Operation.ParentId);
             }
             catch (Exception e)
             {

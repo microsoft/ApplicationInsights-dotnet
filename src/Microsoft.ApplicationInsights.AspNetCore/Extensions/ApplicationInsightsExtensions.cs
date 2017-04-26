@@ -9,6 +9,7 @@
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -18,7 +19,6 @@
     using Microsoft.Extensions.Options;
 
 #if NET451
-    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
@@ -134,10 +134,11 @@
             services.AddSingleton<ITelemetryInitializer, WebSessionTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
+            services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
+            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 
 #if NET451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
-            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
 #endif
             services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);
 

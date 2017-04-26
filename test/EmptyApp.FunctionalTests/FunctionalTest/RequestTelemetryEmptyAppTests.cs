@@ -60,6 +60,8 @@
             var telemetries = server.BackChannel.Buffer;
 #if NET451
             Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "/Mixed");
+#else
+            Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "GET /Mixed");
 #endif
 
             Assert.True(telemetries.Count >= 4);

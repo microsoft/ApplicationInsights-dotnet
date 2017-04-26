@@ -80,13 +80,16 @@
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
 
-#if NET451
         public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             DependencyTelemetry expected = new DependencyTelemetry();
             expected.ResultCode = "200";
             expected.Success = true;
+#if NET451
             expected.Name = requestPath;
+#else
+            expected.Name = "GET " + requestPath;
+#endif
 
             InProcessServer server;
             using (server = new InProcessServer(assemblyName, configureHost))
@@ -107,14 +110,20 @@
             IEnumerable<DependencyTelemetry> dependencies = server.BackChannel.Buffer.OfType<DependencyTelemetry>();
             Assert.NotNull(dependencies);
             Assert.NotEmpty(dependencies);
-            Assert.Contains(dependencies,
-                d => d.Name == expected.Name
+
+            var dependencyTelemetry = dependencies.FirstOrDefault(d => d.Name == expected.Name
                   && d.Data == expected.Data
                   && d.Success == expected.Success
-                  && d.ResultCode == expected.ResultCode
-                );
+                  && d.ResultCode == expected.ResultCode);
+            Assert.NotNull(dependencyTelemetry);
+
+#if !NET451
+            var requestTelemetry = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
+#endif
         }
 
+#if NET451
         public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             using (var server = new InProcessServer(assemblyName, configureHost))
