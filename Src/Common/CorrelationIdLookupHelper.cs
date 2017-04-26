@@ -39,6 +39,8 @@
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
 
+        private ConcurrentDictionary<string, int> FetchTasks = new ConcurrentDictionary<string, int>();
+
         // Stores failed instrumentation keys along with the time we tried to retrieve them.
         private ConcurrentDictionary<string, FailedResult> failingInstrumenationKeys = new ConcurrentDictionary<string, FailedResult>();
 
@@ -119,29 +121,49 @@
                         }
                     }
 
-                    // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
-                    // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());           
-                    if (getAppIdTask.Wait(GetAppIdTimeout))
+                    // We only want one task to be there to fetch the ikey. If initial requests come in a bunch, only one of them gets to take responsibility of creating the fetch task. Rest return.
+                    if (this.FetchTasks.TryAdd(instrumentationKey, int.MinValue))
                     {
-                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
-                        correlationId = this.knownCorrelationIds[instrumentationKey];
-                        return true;
+                        try
+                        {
+                            // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
+                            // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
+                            Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());
+                            this.FetchTasks[instrumentationKey] = getAppIdTask.Id;
+
+                            if (getAppIdTask.Wait(GetAppIdTimeout))
+                            {
+                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
+                                correlationId = this.knownCorrelationIds[instrumentationKey];
+                                return true;
+                            }
+                            else
+                            {
+                                getAppIdTask.ContinueWith((appId) =>
+                                {
+                                    try
+                                    {
+                                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        this.RegisterFailure(instrumentationKey, ex);
+                                    }
+                                });
+
+                                return false;
+                            }
+                        }
+                        finally
+                        {
+                            int taskId;
+                            this.FetchTasks.TryRemove(instrumentationKey, out taskId);
+                        }
                     }
                     else
                     {
-                        getAppIdTask.ContinueWith((appId) =>
-                        {
-                            try
-                            {
-                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
-                            }
-                            catch (Exception ex)
-                            {
-                                this.RegisterFailure(instrumentationKey, ex);
-                            }
-                        });
-
+                        // Fetch tasks are scheduled - don't queue a task.
+                        correlationId = string.Empty;
                         return false;
                     }
                 }
@@ -227,11 +249,6 @@
                             return reader.ReadToEnd();
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
-                    return null;
                 }
                 finally
                 {
