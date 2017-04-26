@@ -129,7 +129,6 @@
                             // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
                             // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
                             Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());
-                            this.FetchTasks[instrumentationKey] = getAppIdTask.Id;
 
                             if (getAppIdTask.Wait(GetAppIdTimeout))
                             {
