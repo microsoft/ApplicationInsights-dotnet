@@ -112,6 +112,22 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
             this.WriteEvent(7, this.ApplicationName);
         }
 
+        [Event(8, Message = "Failed to retrieve App ID for the current application insights resource. Make sure the configured instrumentation key is valid. Error: {0}", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogFetchAppIdFailed(string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(8, exception, this.ApplicationName);
+        }
+
+        /// <summary>
+        /// Logs an event for the HostingDiagnosticListener OnHttpRequestInStart method when the current activity is null.
+        /// </summary>
+        /// <param name="appDomainName">An ignored placeholder to make EventSource happy.</param>
+        [Event(9, Message = "HostingDiagnosticListener.OnHttpRequestInStart - Activity.Current is null, returning.", Level = EventLevel.Warning, Keywords = Keywords.Diagnostics)]
+        public void LogHostingDiagnosticListenerOnHttpRequestInStartActivityNull(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(9, this.ApplicationName);
+        }
+
         /// <summary>
         /// Keywords for the AspNetEventSource.
         /// </summary>

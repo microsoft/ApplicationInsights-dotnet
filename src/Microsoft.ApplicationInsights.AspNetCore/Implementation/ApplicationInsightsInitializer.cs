@@ -43,7 +43,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore
         /// </summary>
         public void Start()
         {
-            DiagnosticListener.AllListeners.Subscribe(this);
+            this.subscriptions.Add(DiagnosticListener.AllListeners.Subscribe(this));
         }
 
         /// <inheritdoc />

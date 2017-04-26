@@ -12,6 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.AspNetCore.Hosting;
@@ -22,7 +23,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Options;
 
 #if NET451
-    using ApplicationInsights.DependencyCollector;
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
     using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -52,7 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
-            [InlineData(typeof(ITelemetryInitializer), typeof(OperationIdTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(SyntheticTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
             [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
@@ -78,7 +77,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is OperationIdTelemetryInitializer);
+                Assert.Contains(telemetryConfiguration.TelemetryInitializers, t => t is OperationNameTelemetryInitializer);
             }
 
             /// <summary>
@@ -298,7 +297,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 }
             }
 
-#if NET451
+
             [Fact]
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithModulesFromContainer()
             {
@@ -306,15 +305,20 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
+
+#if NET451
                 Assert.Equal(2, modules.Count());
+                var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
+                Assert.NotNull(perfCounterModule);
+#else
+                Assert.Equal(1, modules.Count());
+#endif
 
                 var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModule);
-
-                var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
-                Assert.NotNull(perfCounterModule);
             }
 
+#if NET451
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
             {

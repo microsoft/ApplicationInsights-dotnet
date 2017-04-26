@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Reflection;
@@ -79,13 +80,16 @@
             Assert.NotEmpty(actual.Context.Operation.Id);
         }
 
-#if NET451
         public void ValidateBasicDependency(string assemblyName, string requestPath, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             DependencyTelemetry expected = new DependencyTelemetry();
             expected.ResultCode = "200";
             expected.Success = true;
+#if NET451
             expected.Name = requestPath;
+#else
+            expected.Name = "GET " + requestPath;
+#endif
 
             InProcessServer server;
             using (server = new InProcessServer(assemblyName, configureHost))
@@ -103,14 +107,23 @@
                 timer.Stop();
             }
 
-            Assert.Contains(server.BackChannel.Buffer.OfType<DependencyTelemetry>(),
-                d => d.Name == expected.Name
+            IEnumerable<DependencyTelemetry> dependencies = server.BackChannel.Buffer.OfType<DependencyTelemetry>();
+            Assert.NotNull(dependencies);
+            Assert.NotEmpty(dependencies);
+
+            var dependencyTelemetry = dependencies.FirstOrDefault(d => d.Name == expected.Name
                   && d.Data == expected.Data
                   && d.Success == expected.Success
-                  && d.ResultCode == expected.ResultCode
-                );
+                  && d.ResultCode == expected.ResultCode);
+            Assert.NotNull(dependencyTelemetry);
+
+#if !NET451
+            var requestTelemetry = server.BackChannel.Buffer.OfType<RequestTelemetry>().Single();
+            Assert.Equal(requestTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
+#endif
         }
 
+#if NET451
         public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             using (var server = new InProcessServer(assemblyName, configureHost))
@@ -122,13 +135,13 @@
                 var timer = timerField.GetValue(perfModule);
                 timerField.FieldType.InvokeMember("ScheduleNextTick", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, timer, new object[] { TimeSpan.FromMilliseconds(10) });
 
-                DateTime timeout = DateTime.Now.AddSeconds(10);
+                DateTime timeout = DateTime.UtcNow.AddMilliseconds(TestTimeoutMs);
                 int numberOfCountersSent = 0;
                 do
                 {
                     Thread.Sleep(1000);
-                    numberOfCountersSent = server.BackChannel.Buffer.OfType<MetricTelemetry>().Distinct().Count();
-                } while (numberOfCountersSent == 0 && DateTime.Now < timeout);
+                    numberOfCountersSent += server.BackChannel.Buffer.OfType<MetricTelemetry>().Distinct().Count();
+                } while (numberOfCountersSent == 0 && DateTime.UtcNow < timeout);
 
                 Assert.True(numberOfCountersSent > 0);
             }

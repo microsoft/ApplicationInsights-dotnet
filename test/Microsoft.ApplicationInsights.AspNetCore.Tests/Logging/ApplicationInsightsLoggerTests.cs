@@ -27,5 +27,15 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             logger.LogTrace("This is a test.", new object[] { });
             Assert.True(isCorrectVersion);
         }
+
+        /// <summary>
+        /// Tests that an incorrectly constructed or uninitialized Application Insights ILogger does not throw exceptions.
+        /// </summary>
+        [Fact]
+        public void TestUninitializedLoggerDoesNotThrowExceptions()
+        {
+            ILogger logger = new ApplicationInsightsLogger("test", null, null);
+            logger.LogTrace("This won't do anything.", new object[] { });
+        }
     }
 }

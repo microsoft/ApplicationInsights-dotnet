@@ -79,6 +79,8 @@ namespace SampleWebAppIntegration.FunctionalTest
             var telemetries = server.BackChannel.Buffer;
 #if NET451
             Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "/Home/Contact");
+#else
+            Assert.Contains(telemetries.OfType<DependencyTelemetry>(), t => t.Name == "GET /Home/Contact");
 #endif
 
             Assert.True(telemetries.Count >= 4);

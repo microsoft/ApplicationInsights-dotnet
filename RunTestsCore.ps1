@@ -27,6 +27,8 @@ Function Execute-DotnetProcess {
 	}
 }
 
+Push-Location
+
 [PSObject[]]$global:failed = @();
 $global:WorkingDirectory = (pwd).Path;
 
@@ -47,6 +49,8 @@ $TestProjects |% {
 	-Arguments $arguments `
 	-WorkingDirectory $currentWorkingDirectory;
 }
+
+Pop-Location
 
 If ($global:failed.Count -gt 0) {
 	Throw "Test execution failed";

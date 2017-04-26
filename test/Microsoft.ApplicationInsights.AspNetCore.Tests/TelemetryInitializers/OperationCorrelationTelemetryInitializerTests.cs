@@ -9,9 +9,9 @@
 
     public class OperationCorrelationTelemetryInitializerTests
     {
-        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry, string sourceInstrumentationKey = null)
+        private static OperationCorrelationTelemetryInitializer CreateInitializer(RequestTelemetry requestTelemetry, string appId = null)
         {
-            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry, sourceInstrumentationKey: sourceInstrumentationKey));
+            return CreateInitializer(HttpContextAccessorHelper.CreateHttpContextAccessor(requestTelemetry, httpContextCorrelationId: appId));
         }
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(HttpContext httpContext)
@@ -21,7 +21,7 @@
 
         private static OperationCorrelationTelemetryInitializer CreateInitializer(IHttpContextAccessor contextAccessor)
         {
-            return new OperationCorrelationTelemetryInitializer(contextAccessor);
+            return new OperationCorrelationTelemetryInitializer(contextAccessor, CommonMocks.MockCorrelationIdLookupHelper());
         }
 
         [Fact]
@@ -42,31 +42,6 @@
         {
             var initializer = CreateInitializer(new DefaultHttpContext());
             initializer.Initialize(new EventTelemetry());
-        }
-
-        [Fact]
-        public void InitializeSetsRequestOperationIdIfNotAlreadySet()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal(requestTelemetry.Id, requestTelemetry.Context.Operation.Id);
-        }
-
-        [Fact]
-        public void InitializeSetsOperationIdAndParentIdToRequestId()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.ParentId);
         }
 
         [Fact]
@@ -98,20 +73,6 @@
         }
 
         [Fact]
-        public void InitializeSetsOperationIdToRequestOperationIdAndParentIdToRequestId()
-        {
-            var requestTelemetry = new RequestTelemetry();
-            requestTelemetry.Context.Operation.Id = "ABC";
-            var initializer = CreateInitializer(requestTelemetry);
-
-            var telemetry = new EventTelemetry();
-            initializer.Initialize(telemetry);
-
-            Assert.Equal("ABC", telemetry.Context.Operation.Id);
-            Assert.Equal(requestTelemetry.Id, telemetry.Context.Operation.ParentId);
-        }
-
-        [Fact]
         public void InitializeDoesNotOverrideSourceProvidedInline()
         {
             var requestTelemetry = new RequestTelemetry();
@@ -129,7 +90,7 @@
         {
             var requestTelemetry = new RequestTelemetry();
             var initializer = CreateInitializer(requestTelemetry, "TEST_SOURCE");
-            
+
             var telemetry = new EventTelemetry();
             initializer.Initialize(telemetry);
 
