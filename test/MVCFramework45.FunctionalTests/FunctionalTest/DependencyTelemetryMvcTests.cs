@@ -1,4 +1,6 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿using System.Diagnostics;
+
+namespace SampleWebAppIntegration.FunctionalTest
 {
     using System;
     using System.Collections.Generic;
@@ -21,6 +23,7 @@
             // Verify operation of OperationIdTelemetryInitializer
             string path = "Home/Dependency";
             InProcessServer server;
+
             using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
             {
                 using (var httpClient = new HttpClient())
@@ -34,8 +37,15 @@
             try
             {
                 Assert.True(telemetries.Count >= 2);
-                Assert.Equal(2, telemetries.Where((t) => t.Context?.Operation?.Name != null && t.Context.Operation.Name.Contains(path)).Count());
-                Assert.Equal(telemetries[0].Context.Operation.Id, telemetries[1].Context.Operation.Id);
+                Assert.Equal(2, telemetries.Count(t => t.Context?.Operation?.Name != null && t.Context.Operation.Name.Contains(path)));
+                var dependency = (DependencyTelemetry)telemetries.Single(t =>
+                {
+                    var dt = t as DependencyTelemetry;
+                    return dt?.Context?.Operation?.Name != null && dt.Context.Operation.Name.Contains(path);
+                });
+
+                var request = (RequestTelemetry)telemetries.Single(t => t is RequestTelemetry);
+                Assert.Equal(request.Context.Operation.Id, dependency.Context.Operation.Id);
             }
             catch (Exception e)
             {
