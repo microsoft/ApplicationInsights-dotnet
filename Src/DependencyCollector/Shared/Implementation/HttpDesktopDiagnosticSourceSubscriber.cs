@@ -48,6 +48,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 if (value.Name == "System.Net.Http.Desktop")
                 {
                     this.sourceSubscription = value.Subscribe(this.parent, (Predicate<string>)null);
+                    DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
                 }
             }
         }

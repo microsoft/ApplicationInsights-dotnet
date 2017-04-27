@@ -1,4 +1,4 @@
-#if !NET40
+#if NET45
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
@@ -10,14 +10,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal class HttpDesktopDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
-        private readonly FrameworkHttpProcessing httpProcessingFramework;
+        private readonly DesktopDiagnosticSourceHttpProcessing httpProcessingFramework;
         private readonly HttpDesktopDiagnosticSourceSubscriber subscribeHelper;
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
         private readonly PropertyFetcher responseFetcher;
         private bool disposed = false;
 
-        internal HttpDesktopDiagnosticSourceListener(FrameworkHttpProcessing httpProcessing)
+        internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing)
         {
             this.httpProcessingFramework = httpProcessing;
             this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);

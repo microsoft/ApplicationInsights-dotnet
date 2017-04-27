@@ -221,9 +221,23 @@
         /// </summary>
         private void InitializeForFrameworkEventSource()
         {
+#if NET45
+            DesktopDiagnosticSourceHttpProcessing desktopHttpProcessing = new DesktopDiagnosticSourceHttpProcessing(
+                this.telemetryConfiguration, 
+                DependencyTableStore.Instance.WebRequestConditionalHolder,
+                this.SetComponentCorrelationHttpHeaders,
+                this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                this.EffectiveProfileQueryEndpoint);
+            this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+#endif
+
 #if !NET40
-            FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(this.telemetryConfiguration, DependencyTableStore.Instance.WebRequestCacheHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains, this.EffectiveProfileQueryEndpoint);
-            this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(frameworkHttpProcessing);
+            FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
+                this.telemetryConfiguration,
+                DependencyTableStore.Instance.WebRequestCacheHolder, 
+                this.SetComponentCorrelationHttpHeaders, 
+                this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
+                this.EffectiveProfileQueryEndpoint);
 
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(

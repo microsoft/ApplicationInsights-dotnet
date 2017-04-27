@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\AppMapCorrelationEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTracker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureQueueHttpParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureIotHubHttpParser.cs" />

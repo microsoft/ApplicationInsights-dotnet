@@ -12,15 +12,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     /// <summary>
-    /// Concrete class with all processing logic to generate RDD data from the callbacks
-    /// received from framework events for HTTP. This class receives and uses two types of events, which
-    /// are EventSource from FrameworkHttpEventListener, and DiagnosticSource from
-    /// HttpDiagnosticSourceListener. The challenge is, the diagnostic source events have the WebRequest
-    /// object which we need for header injection, but the events can be fired multiple times. So you won't
-    /// know if it's the first request, or if it's the last response. The event source events fire at the right
-    /// locations and just once, but they don't have the rich information. This class coordinates both events,
-    /// store information in DependencyTelemetry properly, and fire the telemetry only on the EventSource
-    /// response receive to guarantee it's done just once and at the right time.
+    /// Concrete class with all processing logic to generate RDD data from the callbacks received from FrameworkHttpEventListener.
     /// </summary>
     internal sealed class FrameworkHttpProcessing : HttpProcessing
     {
@@ -49,6 +41,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             try
             {
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(id, resourceName);
+                if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
+                {
+                    // request is handled by Desktop DiagnosticSource Listener
+                    DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
+                    return;
+                }
 
                 if (string.IsNullOrEmpty(resourceName))
                 {
@@ -111,7 +109,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         public void OnEndHttpCallback(long id, bool? success, bool synchronous, int? statusCode)
         {
             DependencyCollectorEventSource.Log.EndCallbackCalled(id.ToString(CultureInfo.InvariantCulture));
-
             var telemetryTuple = this.TelemetryTable.Get(id);
 
             if (telemetryTuple == null)
@@ -124,13 +121,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 this.TelemetryTable.Remove(id);
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
-
-                // If this telemetry was processed via the DiagnosticSource path, we should record that fact in the
-                // SdkVersion field
-                if (this.HasTouchedByDiagnosticSource(telemetry))
-                {
-                    telemetry.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.FrameworkAndDiagnostic + ":");
-                }
 
                 if (statusCode.HasValue)
                 {
@@ -150,44 +140,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // So starting with 2.1.0-beta4 we are cutting support for HTTP dependencies in .NET 4.5.2.
                 }
             }
-        }
-
-        /// <summary>
-        /// On request send callback from Http diagnostic source.
-        /// </summary>
-        /// <param name="request">The WebRequest object.</param>
-        public void OnRequestSend(WebRequest request)
-        {
-            // At this point, we need to determine if this is the first time we are examining this request.
-            // There are 3 possibilities
-            // 1. This is the very first time
-            // 2. This is the first time via OnRequestSend, but it's been processed by OnBeginHttpCallback already
-            // 3. This is not the first time it's processed by OnRequestSend.
-            // We need to determine which case. If the telemetry object is not found, then it's case 1. If the
-            // telemetry object exists, but it's never processed via DiagnosticSource, then it's case 2.
-            // Otherwise, it's case 3. In both case 1 and 2, we need OnBegin to add all properties.
-            Tuple<DependencyTelemetry, bool> tuple = this.GetTupleForWebDependencies(request);
-            DependencyTelemetry telemetry = tuple?.Item1;
-
-            if (this.HasTouchedByDiagnosticSource(telemetry))
-            {
-                // This is case 3, so make sure we skip update if it already exists.
-                this.OnBegin(request, true /*skipIfNotNew*/);
-            }
-            else
-            {            
-                this.OnBegin(request, false /*skipIfNotNew*/);
-            }
-        }
-
-        /// <summary>
-        /// On request send callback from Http diagnostic source.
-        /// </summary>
-        /// <param name="request">The WebRequest object.</param>
-        /// <param name="response">The WebResponse object.</param>
-        public void OnResponseReceive(WebRequest request, HttpWebResponse response)
-        {
-            this.OnEnd(null, request, response, false);
         }
 
         /// <summary>
@@ -219,23 +171,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected override void RemoveTupleForWebDependencies(WebRequest webRequest)
         {
             this.TelemetryTable.Remove(ClientServerDependencyTracker.GetIdForRequestObject(webRequest));
-        }
-
-        /// <summary>
-        /// Detects if the telemetry object has been processed via the DiagnosticSource path.
-        /// </summary>
-        /// <param name="telemetry">The DependencyTelemetry object to examine.</param>
-        private bool HasTouchedByDiagnosticSource(DependencyTelemetry telemetry)
-        {
-            // If it was ever processed via the DiagnosticSource path, then telemetry.Name
-            // must have the HTTP method name at the front, so first character is not a '/'.
-            string name = telemetry?.Name;
-            if (!string.IsNullOrEmpty(name) && !name.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

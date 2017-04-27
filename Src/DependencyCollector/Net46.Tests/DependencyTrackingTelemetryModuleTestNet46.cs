@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Net;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -54,9 +55,13 @@
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
 
-                var url = new Uri("http://bing.com");
+                var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
-                request.GetResponse();
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    reader.ReadToEnd();
+                }
 
                 Assert.IsNotNull(sentTelemetry);
                 var item = (DependencyTelemetry)sentTelemetry;
@@ -118,11 +123,16 @@
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(config);
 
-                var url = new Uri("http://bing.com");
+                var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
                 var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-                request.GetResponse();
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    reader.ReadToEnd();
+                }
+
                 parent.Stop();
 
                 Assert.IsNotNull(sentTelemetry);
