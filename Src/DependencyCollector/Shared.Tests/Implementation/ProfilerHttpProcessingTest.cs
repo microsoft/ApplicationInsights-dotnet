@@ -897,6 +897,21 @@
 
         private void SimulateWebRequestResponseWithAppId(string appId)
         {
+            if (appId != this.configuration.InstrumentationKey)
+            {
+                this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string>
+                {
+                    {
+                        appId,
+                        "cid-v1:" + appId
+                    },
+                    {
+                        this.configuration.InstrumentationKey,
+                        "cid-v1:" + this.configuration.InstrumentationKey
+                    }
+                }));
+            }
+
             this.SimulateWebRequestWithGivenRequestContextHeaderValue(this.GetCorrelationIdHeaderValue(appId));
         }
 
@@ -938,12 +953,12 @@
                 new List<string>(),
                 RandomAppIdEndpoint);
 
-            var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
+            var correlationIdLookupHelper = new CorrelationIdLookupHelper(new Dictionary<string, string>
             {
-                // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
+                {
+                    instrumentationKey,
+                    "cid-v1:" + instrumentationKey
+                }
             });
 
             this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
