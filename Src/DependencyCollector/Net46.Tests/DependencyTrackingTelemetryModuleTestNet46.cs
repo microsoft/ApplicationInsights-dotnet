@@ -91,6 +91,54 @@
 
         [TestMethod]
         [Timeout(5000)]
+        public void TestNoDependencyCollectionNoResponseStreamReading()
+        {
+            ITelemetry sentTelemetry = null;
+
+            var channel = new StubTelemetryChannel
+            {
+                OnSend = telemetry =>
+                {
+                    // The correlation id lookup service also makes http call, just make sure we skip that
+                    DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
+                    if (depTelemetry != null &&
+                        !depTelemetry.Data.StartsWith(FakeProfileApiEndpoint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Assert.IsNull(sentTelemetry);
+                        sentTelemetry = telemetry;
+                    }
+                }
+            };
+
+            var config = new TelemetryConfiguration
+            {
+                InstrumentationKey = IKey,
+                TelemetryChannel = channel
+            };
+
+            config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
+
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(config);
+
+                var url = new Uri("https://www.bing.com/");
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                Assert.IsNull(sentTelemetry);
+                var requestId = request.Headers["Request-Id"];
+                var rootId = request.Headers["x-ms-request-root-id"];
+                Assert.IsNotNull(requestId);
+                Assert.IsNotNull(rootId);
+                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+                Assert.IsTrue(requestId.StartsWith('|' + rootId + '.'));
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
         public void TestDependencyCollectionWithParentActivity()
         {
             ITelemetry sentTelemetry = null;

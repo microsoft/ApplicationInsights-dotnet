@@ -64,14 +64,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [TestMethod]
         public void RddTestHttpProcessingFrameworkUpdateTelemetryName()
         {
-            var stopwatch = Stopwatch.StartNew();
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
+
+            var stopwatch = Stopwatch.StartNew();
             this.httpProcessingFramework.OnRequestSend(request);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             var response = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
-            stopwatch.Stop();
             this.httpProcessingFramework.OnResponseReceive(request, response);
+            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "200");
@@ -85,11 +86,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [TestMethod]
         public void RddTestHttpProcessingFrameworkNoDuplication()
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var redirectResponse = TestUtils.GenerateHttpWebResponse(HttpStatusCode.Redirect);
             var successResponse = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
             this.httpProcessingFramework.OnRequestSend(request);  
             this.httpProcessingFramework.OnRequestSend(request);  
             this.httpProcessingFramework.OnRequestSend(request);  
@@ -98,11 +99,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             this.httpProcessingFramework.OnResponseReceive(request, redirectResponse);
+            stopwatch.Stop();
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
 
             this.httpProcessingFramework.OnResponseReceive(request, redirectResponse);
             this.httpProcessingFramework.OnResponseReceive(request, successResponse);
-            stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "302");
