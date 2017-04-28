@@ -37,8 +37,9 @@
     <Compile Include="..\Shared\Implementation\HttpParsers\DocumentDbHttpParser.cs" Link="DocumentDbHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\GenericServiceHttpParser.cs" Link="GenericServiceHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\HttpParsingHelper.cs" Link="HttpParsingHelper.cs" />
+    <Compile Include="..\Shared\Implementation\AppMapCorrelationEventSource.cs" Link="Dependency\AppMapCorrelationEventSource.cs" />
     <Compile Include="..\..\Common\CorrelationIdLookupHelper.cs" Link="CorrelationIdLookupHelper.cs" />
-    <Compile Include="..\..\Common\CrossComponentCorrelationEventSource.cs" Link="CrossComponentCorrelationEventSource.cs" />
+    <Compile Include="..\..\Common\AppMapCorrelationEventSource.cs" Link="AppMapCorrelationEventSource.cs" />
     <Compile Include="..\..\Common\ExceptionUtilities.cs" Link="ExceptionUtilities.cs" />
     <Compile Include="..\..\Common\ICorrelationIdLookupHelper.cs" Link="ICorrelationIdLookupHelper.cs" />
     <Compile Include="..\..\Common\RequestResponseHeaders.cs" Link="RequestResponseHeaders.cs" />
