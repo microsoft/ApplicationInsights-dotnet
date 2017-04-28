@@ -7,6 +7,7 @@
     using FuncTest.Serialization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Diagnostics;
+    using System.Globalization;
 
     /// <summary>
     /// Tests Dependency Collector Functionality for a WebApplication written in Dotnet Core.
@@ -72,13 +73,15 @@
                     .RedirectStandardOutputTo((string outputMessage) => output += outputMessage)
                     .RedirectStandardErrorTo((string errorMessage) => error += errorMessage)
                     .Run();
-
+                
                 if (process.ExitCode.Value != 0 || !string.IsNullOrEmpty(error))
                 {
                     Assert.Inconclusive(".Net Core is not installed");
                 }
                 else
                 {
+                    Trace.TraceInformation(string.Format(CultureInfo.InvariantCulture, "Dotnet.exe process output:", output));
+
                     // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
                     int dashIndex = output.IndexOf('-');
                     Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));

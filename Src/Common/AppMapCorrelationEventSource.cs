@@ -15,8 +15,8 @@
     /// <summary>
     /// ETW EventSource tracing class.
     /// </summary>
-    [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation")]
-    internal sealed class AppMapCorrelationEventSource : EventSource
+    //// [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation")] - EVERY COMPONENT SHOULD DEFINE IT"S OWN NAME
+    internal sealed partial class AppMapCorrelationEventSource : EventSource
     {
         public static readonly AppMapCorrelationEventSource Log = new AppMapCorrelationEventSource();
 
