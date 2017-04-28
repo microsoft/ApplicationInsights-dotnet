@@ -8,6 +8,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -36,11 +37,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly PropertyFetcher deprecatedResponseFetcher = new PropertyFetcher("Response");
         private readonly PropertyFetcher deprecatedRequestGuidFetcher = new PropertyFetcher("LoggingRequestId");
         private readonly PropertyFetcher deprecatedResponseGuidFetcher = new PropertyFetcher("LoggingRequestId");
-        
+
         #endregion
 
-        private readonly ConcurrentDictionary<string, IOperationHolder<DependencyTelemetry>> pendingTelemetry =
-            new ConcurrentDictionary<string, IOperationHolder<DependencyTelemetry>>();
+        private readonly ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> pendingTelemetry = 
+            new ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>>();
 
         private readonly ConcurrentDictionary<string, Exception> pendingExceptions =
             new ConcurrentDictionary<string, Exception>();
@@ -67,7 +68,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <summary>
         /// Get the DependencyTelemetry objects that are still waiting for a response from the dependency. This will most likely only be used for testing purposes.
         /// </summary>
-        internal IEnumerable<IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry => this.pendingTelemetry.Values;
+        internal ConditionalWeakTable<HttpRequestMessage, IOperationHolder<DependencyTelemetry>> PendingDependencyTelemetry => this.pendingTelemetry;
 
         /// <summary>
         /// Notifies the observer that the provider has finished sending push-based notifications.
@@ -254,7 +255,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 dependency.Telemetry.Target = requestUri.Host;
                 dependency.Telemetry.Type = RemoteDependencyConstants.HTTP;
                 dependency.Telemetry.Data = requestUri.OriginalString;
-                this.pendingTelemetry.TryAdd(loggingRequestId.ToString(), dependency);
+                this.pendingTelemetry.Add(request, dependency);
 
                 this.InjectRequestHeaders(request, dependency.Telemetry.Context.InstrumentationKey, true);
             }
@@ -270,11 +271,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (response != null)
             {
+                var request = response.RequestMessage;
                 IOperationHolder<DependencyTelemetry> dependency;
-                if (this.pendingTelemetry.TryRemove(loggingRequestId.ToString(), out dependency))
+                if (request != null && this.pendingTelemetry.TryGetValue(request, out dependency))
                 {
                     this.ParseResponse(response, dependency.Telemetry);
                     this.client.StopOperation(dependency);
+                    this.pendingTelemetry.Remove(request);
                 }
             }
         }
