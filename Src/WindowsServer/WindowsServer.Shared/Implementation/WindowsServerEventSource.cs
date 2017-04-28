@@ -120,7 +120,7 @@
         [Event(
             12,
             Message = "FirstChance exception statistics callback failed with the exception {0}.",
-            Level = EventLevel.Warning)]
+            Level = EventLevel.Error)]
         public void FirstChanceExceptionCallbackException(string exception, string appDomainName = "Incorrect")
         {
             this.WriteEvent(12, exception, this.ApplicationName);
