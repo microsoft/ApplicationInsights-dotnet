@@ -152,8 +152,7 @@
                                 }
                                 finally
                                 {
-                                    int taskId;
-                                    this.fetchTasks.TryRemove(instrumentationKey, out taskId);
+                                    this.fetchTasks.TryRemove(instrumentationKey, out int taskId);
                                 }
                             });
 

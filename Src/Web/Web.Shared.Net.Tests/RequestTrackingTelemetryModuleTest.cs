@@ -29,7 +29,7 @@
         {
             // Pretend App Id is the same as Ikey
             var tcs = new TaskCompletionSource<string>();
-            tcs.SetResult(ikey);
+            tcs.SetResult(ikey + "-appId");
             return tcs.Task;
         });
 
@@ -346,8 +346,9 @@
         [TestMethod]
         public void OnEndAddsSourceFieldForRequestWithCorrelationId()
         {
-            // ARRANGE                       
-            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            // ARRANGE  
+            string instrumentationKey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string appId = instrumentationKey + "-appId";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
             headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(appId));
@@ -363,11 +364,11 @@
             {
                 {
                     config.InstrumentationKey,
-                    config.InstrumentationKey
+                    config.InstrumentationKey + "-appId"
                 },
                 {
-                    appId,
-                    appId
+                    instrumentationKey,
+                    appId + "-appId"
                 }
             });
 
@@ -412,7 +413,8 @@
         public void OnEndAddsSourceFieldForRequestWithCorrelationIdAndRoleName()
         {
             // ARRANGE                       
-            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string ikey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string appId = ikey + "-appId";
             string roleName = "SomeRoleName";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
@@ -431,10 +433,10 @@
             {
                 {
                     config.InstrumentationKey,
-                    config.InstrumentationKey
+                    config.InstrumentationKey + "-appId"
                 },
                 {
-                    appId,
+                    ikey,
                     appId
                 }
             });
