@@ -14,7 +14,8 @@
             "Microsoft-ApplicationInsights-Core",
             "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel",
             "Microsoft-ApplicationInsights-Extensibility-WindowsServer",
-            "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation",
+            "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Web",
+            "Microsoft-ApplicationInsights-Extensibility-AppMapCorrelation-Dependency",
         };
 
         private const string SessionName = "RequestTelemetryFunctionalTest";
