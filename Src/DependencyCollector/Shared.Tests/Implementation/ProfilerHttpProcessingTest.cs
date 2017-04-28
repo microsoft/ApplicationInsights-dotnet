@@ -120,7 +120,20 @@
         {
             // Here is a sample App ID, since the test initialize method adds a random ikey and our mock getAppId method pretends that the appId for a given ikey is the same as the ikey.
             // This will not match the current component's App ID. Hence represents an external component.
-            string appId = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
+            string ikey = "0935FC42-FE1A-4C67-975C-0C9D5CBDEE8E";
+            string appId = ikey + "-appId";
+
+            this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string>
+            {
+                {
+                    ikey,
+                    "cid-v1:" + appId
+                },
+                {
+                    this.configuration.InstrumentationKey,
+                    "cid-v1:" + this.configuration.InstrumentationKey + "-appId"
+                }
+            }));
 
             this.SimulateWebRequestResponseWithAppId(appId);
 
@@ -160,10 +173,7 @@
         [Description("Validates DependencyTelemetry does not send correlation ID if the IKey is from the same component")]
         public void RddTestHttpProcessingProfilerOnEndDoesNotAddAppIdToTargetFieldForInternalComponents()
         {
-            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
-
-            // Initialize the test with a given instrumentation key.
-            this.Initialize(appId);
+            string appId = this.configuration.InstrumentationKey + "-appId";
 
             this.SimulateWebRequestResponseWithAppId(appId);
 
@@ -938,12 +948,12 @@
                 new List<string>(),
                 RandomAppIdEndpoint);
 
-            var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
+            var correlationIdLookupHelper = new CorrelationIdLookupHelper(new Dictionary<string, string>
             {
-                // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
+                {
+                    instrumentationKey,
+                    "cid-v1:" + instrumentationKey + "-appId"
+                }
             });
 
             this.httpProcessingProfiler.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);

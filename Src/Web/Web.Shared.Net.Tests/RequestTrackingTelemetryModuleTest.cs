@@ -29,7 +29,7 @@
         {
             // Pretend App Id is the same as Ikey
             var tcs = new TaskCompletionSource<string>();
-            tcs.SetResult(ikey);
+            tcs.SetResult(ikey + "-appId");
             return tcs.Task;
         });
 
@@ -346,20 +346,34 @@
         [TestMethod]
         public void OnEndAddsSourceFieldForRequestWithCorrelationId()
         {
-            // ARRANGE                       
-            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            // ARRANGE  
+            string instrumentationKey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string appId = instrumentationKey + "-appId";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
             headers.Add(RequestResponseHeaders.RequestContextHeader, this.GetCorrelationIdHeaderValue(appId));
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = this.RequestTrackingTelemetryModuleFactory();
-            var config = TelemetryConfiguration.CreateDefault();
-
             // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
+            var config = TelemetryConfiguration.CreateDefault();
             config.InstrumentationKey = Guid.NewGuid().ToString();
 
+            // Add ikey -> app Id mappings in correlation helper
+            var correlationHelper = new CorrelationIdLookupHelper(new Dictionary<string, string>()
+            {
+                {
+                    config.InstrumentationKey,
+                    config.InstrumentationKey + "-appId"
+                },
+                {
+                    instrumentationKey,
+                    appId + "-appId"
+                }
+            });
+
+            var module = this.RequestTrackingTelemetryModuleFactory(null /*use default*/, correlationHelper);
+            
             // ACT
             module.Initialize(config);
             module.OnBeginRequest(context);
@@ -399,7 +413,8 @@
         public void OnEndAddsSourceFieldForRequestWithCorrelationIdAndRoleName()
         {
             // ARRANGE                       
-            string appId = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string ikey = "b3eb14d6-bb32-4542-9b93-473cd94aaedf";
+            string appId = ikey + "-appId";
             string roleName = "SomeRoleName";
 
             Dictionary<string, string> headers = new Dictionary<string, string>();
@@ -409,11 +424,24 @@
 
             var context = HttpModuleHelper.GetFakeHttpContext(headers);
 
-            var module = this.RequestTrackingTelemetryModuleFactory();
             var config = TelemetryConfiguration.CreateDefault();
 
             // My instrumentation key and hence app id is random / newly generated. The appId header is different - hence a different component.
             config.InstrumentationKey = Guid.NewGuid().ToString();
+
+            var correlationHelper = new CorrelationIdLookupHelper(new Dictionary<string, string>()
+            {
+                {
+                    config.InstrumentationKey,
+                    config.InstrumentationKey + "-appId"
+                },
+                {
+                    ikey,
+                    appId
+                }
+            });
+
+            var module = this.RequestTrackingTelemetryModuleFactory(null /*use default config*/, correlationHelper);
 
             // ACT
             module.Initialize(config);
@@ -495,10 +523,10 @@
             return telemetryId.Substring(1, telemetryId.IndexOf('.') - 1);
         }
 
-        private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory(TelemetryConfiguration config = null)
+        private RequestTrackingTelemetryModule RequestTrackingTelemetryModuleFactory(TelemetryConfiguration config = null, CorrelationIdLookupHelper correlationHelper = null)
         {
             var module = new RequestTrackingTelemetryModule();
-            module.OverrideCorrelationIdLookupHelper(this.correlationIdLookupHelper);
+            module.OverrideCorrelationIdLookupHelper(correlationHelper ?? this.correlationIdLookupHelper);
             module.Initialize(config ?? this.CreateDefaultConfig(HttpModuleHelper.GetFakeHttpContext()));
             return module;
         }
