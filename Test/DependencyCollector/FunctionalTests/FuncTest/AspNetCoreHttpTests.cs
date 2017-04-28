@@ -80,7 +80,7 @@
                 }
                 else
                 {
-                    Trace.TraceInformation(string.Format(CultureInfo.InvariantCulture, "Dotnet.exe process output:",output));
+                    Trace.TraceInformation(string.Format(CultureInfo.InvariantCulture, "Dotnet.exe process output:", output));
 
                     // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
                     int dashIndex = output.IndexOf('-');
