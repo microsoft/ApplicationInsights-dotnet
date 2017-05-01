@@ -135,7 +135,16 @@
             services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
             services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
+            services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(provider => {
+                var module = new DependencyTrackingTelemetryModule();
+                var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                excludedDomains.Add("core.windows.net");
+                excludedDomains.Add("core.chinacloudapi.cn");
+                excludedDomains.Add("core.cloudapi.de");
+                excludedDomains.Add("core.usgovcloudapi.net");
+
+                return module;
+            });
 
 #if NET451
             services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();

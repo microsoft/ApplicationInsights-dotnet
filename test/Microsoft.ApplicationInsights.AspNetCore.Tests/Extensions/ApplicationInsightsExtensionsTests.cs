@@ -314,7 +314,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(1, modules.Count());
 #endif
 
-                var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
                 Assert.NotNull(dependencyModule);
             }
 
