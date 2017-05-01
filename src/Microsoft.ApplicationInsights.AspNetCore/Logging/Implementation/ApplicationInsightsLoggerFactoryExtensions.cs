@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.Logging
             IServiceProvider serviceProvider,
             LogLevel minLevel)
         {
-            factory.AddApplicationInsights(serviceProvider, (category, logLevel) => logLevel >= minLevel);
+            factory.AddApplicationInsights(serviceProvider, (category, logLevel) => logLevel >= minLevel, () => { });
             return factory;
         }
 
@@ -50,11 +50,27 @@ namespace Microsoft.Extensions.Logging
             IServiceProvider serviceProvider,
             Func<string, LogLevel, bool> filter)
         {
+            return factory.AddApplicationInsights(serviceProvider, filter, () => { });
+        }
+
+        /// <summary>
+        /// Adds an ApplicationInsights logger that is enabled as defined by the filter function.
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <param name="filter"></param>
+        /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
+        /// <param name="loggerAddedCallback">The callback that get's executed when another ApplicationInsights logger is added.</param>
+        public static ILoggerFactory AddApplicationInsights(
+            this ILoggerFactory factory,
+            IServiceProvider serviceProvider,
+            Func<string, LogLevel, bool> filter,
+            Action loggerAddedCallback)
+        {
             var client = serviceProvider.GetService<TelemetryClient>();
-            var debugLoggerControl = serviceProvider.GetService<DebugLoggerControl>();
-            if (debugLoggerControl != null)
+            if (loggerAddedCallback != null)
             {
-                debugLoggerControl.EnableDebugLogger = false;
+                var debugLoggerControl = serviceProvider.GetService<ApplicationInsightsLoggerCallbacks>();
+                debugLoggerControl?.AddLoggerCallback(loggerAddedCallback);
             }
 
             factory.AddProvider(new ApplicationInsightsLoggerProvider(client, filter));
