@@ -42,19 +42,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
-            var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
-            {
-                // Pretend App Id is the same as Ikey
-                var tcs = new TaskCompletionSource<string>();
-                tcs.SetResult(ikey);
-                return tcs.Task;
-            });
-            this.httpDesktopProcessingFramework.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
+            this.httpDesktopProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
+            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestCleanup]
         public void Cleanup()
         {
+            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
         }
         #endregion //TestInitiliaze
 
