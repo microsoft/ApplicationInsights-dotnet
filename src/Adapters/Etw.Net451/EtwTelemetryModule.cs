@@ -15,6 +15,7 @@ namespace Microsoft.ApplicationInsights.EtwCollector
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
     using Microsoft.Diagnostics.Tracing;
     using Microsoft.Diagnostics.Tracing.Session;
 
@@ -241,7 +242,12 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         private void OnEvent(TraceEvent traceEvent)
         {
-            traceEvent.Track(this.client);
+            // Suppress events from TplEventSource--they are mostly interesting for debugging task processing and interaction,
+            // and not that useful for production tracing. However, TPL EventSource must be enabled to get hierarchical activity IDs.
+            if (!TplActivities.TplEventSourceGuid.Equals(traceEvent.ProviderGuid))
+            {
+                traceEvent.Track(this.client);
+            }
         }
     }
 }
