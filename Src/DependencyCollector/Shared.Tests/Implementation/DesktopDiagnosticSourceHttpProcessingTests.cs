@@ -29,7 +29,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private int sleepTimeMsecBetweenBeginAndEnd = 100;
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
-        private DesktopDiagnosticSourceHttpProcessing httpProcessingFramework;
+        private DesktopDiagnosticSourceHttpProcessing httpDesktopProcessingFramework;
         #endregion //Fields
 
         #region TestInitialize
@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
+            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
             var correlationIdLookupHelper = new CorrelationIdLookupHelper((string ikey) =>
             {
                 // Pretend App Id is the same as Ikey
@@ -49,7 +49,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 tcs.SetResult(ikey);
                 return tcs.Task;
             });
-            this.httpProcessingFramework.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
+            this.httpDesktopProcessingFramework.OverrideCorrelationIdLookupHelper(correlationIdLookupHelper);
         }
 
         [TestCleanup]
@@ -62,16 +62,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// Validates that OnRequestSend and OnResponseReceive sends valid telemetry.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingFrameworkUpdateTelemetryName()
+        public void RddTestHttpDesktopProcessingFrameworkUpdateTelemetryName()
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
 
             var stopwatch = Stopwatch.StartNew();
-            this.httpProcessingFramework.OnRequestSend(request);
+            this.httpDesktopProcessingFramework.OnRequestSend(request);
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
             var response = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
-            this.httpProcessingFramework.OnResponseReceive(request, response);
+            this.httpDesktopProcessingFramework.OnResponseReceive(request, response);
             stopwatch.Stop();
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
@@ -84,26 +84,26 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// to OnResponseReceive.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingFrameworkNoDuplication()
+        public void RddTestHttpDesktopProcessingFrameworkNoDuplication()
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var redirectResponse = TestUtils.GenerateHttpWebResponse(HttpStatusCode.Redirect);
             var successResponse = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK);
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            this.httpProcessingFramework.OnRequestSend(request);  
-            this.httpProcessingFramework.OnRequestSend(request);  
-            this.httpProcessingFramework.OnRequestSend(request);  
-            this.httpProcessingFramework.OnRequestSend(request);  
-            this.httpProcessingFramework.OnRequestSend(request);  
+            this.httpDesktopProcessingFramework.OnRequestSend(request);  
+            this.httpDesktopProcessingFramework.OnRequestSend(request);  
+            this.httpDesktopProcessingFramework.OnRequestSend(request);  
+            this.httpDesktopProcessingFramework.OnRequestSend(request);  
+            this.httpDesktopProcessingFramework.OnRequestSend(request);  
             Thread.Sleep(this.sleepTimeMsecBetweenBeginAndEnd);
             Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be processed without calling End");
-            this.httpProcessingFramework.OnResponseReceive(request, redirectResponse);
+            this.httpDesktopProcessingFramework.OnResponseReceive(request, redirectResponse);
             stopwatch.Stop();
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
 
-            this.httpProcessingFramework.OnResponseReceive(request, redirectResponse);
-            this.httpProcessingFramework.OnResponseReceive(request, successResponse);
+            this.httpDesktopProcessingFramework.OnResponseReceive(request, redirectResponse);
+            this.httpDesktopProcessingFramework.OnResponseReceive(request, successResponse);
 
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             ValidateTelemetryPacketForOnRequestSend(this.sendItems[0] as DependencyTelemetry, this.testUrl, RemoteDependencyConstants.HTTP, true, stopwatch.Elapsed.TotalMilliseconds, "302");
@@ -114,7 +114,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Validates if DependencyTelemetry sent contains the cross component correlation ID.")]
-        public void RddTestHttpProcessingFrameworkOnEndAddsAppIdToTargetField()
+        public void RddTestHttpDesktopProcessingFrameworkOnEndAddsAppIdToTargetField()
         {
             // Here is a sample App ID, since the test initialize method adds a random ikey and our mock getAppId method pretends that the appId for a given ikey is the same as the ikey.
             // This will not match the current component's App ID. Hence represents an external component.
@@ -129,8 +129,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             var response = TestUtils.GenerateHttpWebResponse(HttpStatusCode.OK, headers);
 
-            this.httpProcessingFramework.OnRequestSend(request);
-            this.httpProcessingFramework.OnResponseReceive(request, response);
+            this.httpDesktopProcessingFramework.OnRequestSend(request);
+            this.httpDesktopProcessingFramework.OnResponseReceive(request, response);
             Assert.AreEqual(1, this.sendItems.Count, "Only one telemetry item should be sent");
             Assert.AreEqual(this.testUrl.Host + " | " + this.GetCorrelationIdValue(appId), ((DependencyTelemetry)this.sendItems[0]).Target);
         }
@@ -140,13 +140,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is added when request is sent.")]
-        public void RddTestHttpProcessingFrameworkOnBeginAddsSourceHeader()
+        public void RddTestHttpDesktopProcessingFrameworkOnBeginAddsSourceHeader()
         {
             var request = WebRequest.Create(this.testUrl);
 
             Assert.IsNull(request.Headers[RequestResponseHeaders.RequestContextHeader]);
 
-            this.httpProcessingFramework.OnRequestSend(request);
+            this.httpDesktopProcessingFramework.OnRequestSend(request);
             Assert.IsNotNull(request.Headers.GetNameValueHeaderValue(RequestResponseHeaders.RequestContextHeader, RequestResponseHeaders.RequestContextCorrelationSourceKey));
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// Ensures that the parent id header is added when request is sent.
         /// </summary>
         [TestMethod]
-        public void RddTestHttpProcessingFrameworkOnBeginAddsParentIdHeader()
+        public void RddTestHttpDesktopProcessingFrameworkOnBeginAddsParentIdHeader()
         {
             var request = WebRequest.Create(this.testUrl);
 
@@ -163,7 +163,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var client = new TelemetryClient(this.configuration);
             using (var op = client.StartOperation<RequestTelemetry>("request"))
             {
-                this.httpProcessingFramework.OnRequestSend(request);
+                this.httpDesktopProcessingFramework.OnRequestSend(request);
 
                 var actualParentIdHeader = request.Headers[RequestResponseHeaders.StandardParentIdHeader];
                 var actualRequestIdHeader = request.Headers[RequestResponseHeaders.RequestIdHeader];
@@ -202,7 +202,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not added when the config commands as such")]
-        public void RddTestHttpProcessingFrameworkOnBeginSkipsAddingSourceHeaderPerConfig()
+        public void RddTestHttpDesktopProcessingFrameworkOnBeginSkipsAddingSourceHeaderPerConfig()
         {
             string hostnamepart = "partofhostname";
             string url = string.Format(CultureInfo.InvariantCulture, "http://hostnamestart{0}hostnameend.com/path/to/something?param=1", hostnamepart);
@@ -239,14 +239,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         [TestMethod]
         [Description("Ensures that the source request header is not overwritten if already provided by the user.")]
-        public void RddTestHttpProcessingFrameworkOnBeginDoesNotOverwriteExistingSource()
+        public void RddTestHttpDesktopProcessingFrameworkOnBeginDoesNotOverwriteExistingSource()
         {
             string sampleHeaderValueWithAppId = RequestResponseHeaders.RequestContextCorrelationSourceKey + "=HelloWorld";
             var request = WebRequest.Create(this.testUrl);
 
             request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithAppId);
 
-            this.httpProcessingFramework.OnRequestSend(request);
+            this.httpDesktopProcessingFramework.OnRequestSend(request);
             var actualHeaderValue = request.Headers[RequestResponseHeaders.RequestContextHeader];
 
             Assert.IsNotNull(actualHeaderValue);
@@ -257,7 +257,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             request.Headers.Add(RequestResponseHeaders.RequestContextHeader, sampleHeaderValueWithoutAppId);
 
-            this.httpProcessingFramework.OnRequestSend(request);
+            this.httpDesktopProcessingFramework.OnRequestSend(request);
             actualHeaderValue = request.Headers[RequestResponseHeaders.RequestContextHeader];
 
             Assert.IsNotNull(actualHeaderValue);
