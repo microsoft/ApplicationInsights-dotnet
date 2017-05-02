@@ -229,9 +229,7 @@
                 this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                 this.EffectiveProfileQueryEndpoint);
             this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
-#endif
 
-#if !NET40
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
                 this.telemetryConfiguration,
                 DependencyTableStore.Instance.WebRequestCacheHolder, 

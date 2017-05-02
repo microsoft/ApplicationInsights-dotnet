@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal class HttpDesktopDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
-        private readonly DesktopDiagnosticSourceHttpProcessing httpProcessingFramework;
+        private readonly DesktopDiagnosticSourceHttpProcessing httpDesktopProcessingFramework;
         private readonly HttpDesktopDiagnosticSourceSubscriber subscribeHelper;
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
@@ -19,7 +19,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing)
         {
-            this.httpProcessingFramework = httpProcessing;
+            this.httpDesktopProcessingFramework = httpProcessing;
             this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     case "System.Net.Http.Request": 
                     {
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
-                        this.httpProcessingFramework.OnRequestSend(request);
+                        this.httpDesktopProcessingFramework.OnRequestSend(request);
                         break;
                     }
 
@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
-                        this.httpProcessingFramework.OnResponseReceive(request, response);
+                        this.httpDesktopProcessingFramework.OnResponseReceive(request, response);
                         break;
                     }
                 }
