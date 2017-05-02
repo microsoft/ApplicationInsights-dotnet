@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Microsoft.ApplicationInsights.AspNetCore.Logging
+﻿namespace Microsoft.ApplicationInsights.AspNetCore.Logging
 {
-    using Microsoft.Extensions.Logging;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Class to control default debug logger and disable it if logger was added to <see cref="ILoggerFactory"/> explicetely.

@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.Logging
             IServiceProvider serviceProvider,
             LogLevel minLevel)
         {
-            factory.AddApplicationInsights(serviceProvider, (category, logLevel) => logLevel >= minLevel, () => { });
+            factory.AddApplicationInsights(serviceProvider, (category, logLevel) => logLevel >= minLevel);
             return factory;
         }
 
