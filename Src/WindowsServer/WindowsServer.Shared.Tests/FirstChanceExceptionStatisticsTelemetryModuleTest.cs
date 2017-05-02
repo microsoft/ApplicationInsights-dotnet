@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
@@ -21,12 +22,12 @@
         internal static readonly string TestOperationName = "FirstChanceExceptionTestOperation";
 
         private TelemetryConfiguration configuration;
-        private IList<ITelemetry> items;
+        private ConcurrentBag<ITelemetry> items;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.items = new List<ITelemetry>();
+            this.items = new ConcurrentBag<ITelemetry>();
 
             this.configuration = new TelemetryConfiguration();
 
@@ -42,7 +43,7 @@
         public void TestCleanup()
         {
             this.configuration = null;
-            this.items.Clear();
+            this.items = new ConcurrentBag<ITelemetry>();
         }
 
         [TestMethod]
@@ -525,16 +526,21 @@
 
             Assert.Equal(2, this.items.Count);
 
-            Assert.Equal(1, ((MetricTelemetry)this.items[1]).Count);
+            ITelemetry[] testItems = this.items.ToArray();
 
-            // One of them should be 0 as re-thorwn, another - one
-            // Assert.Equal(0, Math.Min(((MetricTelemetry)this.items[0]).Sum, ((MetricTelemetry)this.items[1]).Sum), 15);
+            foreach (ITelemetry i in testItems)
+            {
+                if (i is MetricTelemetry)
+                {
+                    Assert.Equal(1, ((MetricTelemetry)i).Count);
+                }
+            }
         }
 
         [TestMethod]
         public void FirstChanceExceptionStatisticsTelemetryModuleThrowFromTaskAsync()
         {
-            var metrics = new List<KeyValuePair<Metric, double>>();
+            var metrics = new ConcurrentBag<KeyValuePair<Metric, double>>();
             StubMetricProcessor stub = new StubMetricProcessor()
             {
                 OnTrack = (m, v) =>
@@ -581,17 +587,33 @@
 
             Assert.Equal(30, metrics.Count);
 
-            Assert.Equal("Exceptions thrown", metrics[0].Key.Name);
-            Assert.Equal(1, metrics[0].Value, 15);
-
-            Assert.Equal("Exceptions thrown", metrics[1].Key.Name);
-            Assert.Equal(1, metrics[1].Value, 15);
-
-            Assert.Equal("Exceptions thrown", metrics[2].Key.Name);
-            Assert.Equal(1, metrics[2].Value, 15);
+            foreach (KeyValuePair<Metric, double> m in metrics)
+            {
+                Assert.Equal("Exceptions thrown", m.Key.Name);
+                Assert.Equal(1, m.Value, 15);
+            }
 
             // There should be 3 telemetry items and 3 metric items
             Assert.Equal(6, this.items.Count);
+
+            int numMetricTelemetry = 0;
+            int numExceptionTelemetry = 0;
+
+            foreach (var i in this.items)
+            {
+                if (i is MetricTelemetry)
+                {
+                    numMetricTelemetry++;
+                }
+
+                if (i is ExceptionTelemetry)
+                {
+                    numExceptionTelemetry++;
+                }
+            }
+
+            Assert.Equal(3, numMetricTelemetry);
+            Assert.Equal(3, numExceptionTelemetry);
         }
 
         [TestMethod]
