@@ -426,6 +426,43 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             }
         }
 
+        [TestMethod]
+        [TestCategory("EtwTelemetryModule")]
+        public async Task DoNotReportTplEvents()
+        {
+            using (var module = new EtwTelemetryModule())
+            {
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                for (int i = 0; i < 10; i += 2)
+                {
+                    Parallel.For(0, 2, (idx) =>
+                    {
+                        PerformActivityAsync(i + idx).GetAwaiter().GetResult();
+                    });
+
+                }
+
+                // Wait 2 seconds to see if any events arrive asynchronously through the ETW module.
+                // This is a long time but unfortunately there is no good way to make ETW infrastructure "go faster"
+                // and we want to make sure that no TPL events sneak through.
+                await this.WaitForEventsArrive(this.adapterHelper.Channel, 1, TimeSpan.FromSeconds(2));
+
+                Assert.AreEqual(0, this.adapterHelper.Channel.SentItems.Length);
+            }
+        }
+
+        private async Task PerformActivityAsync(int requestId)
+        {
+            await Task.Run(async () =>
+            {
+                TestProvider.Log.RequestStart(requestId);
+                await Task.Delay(50).ConfigureAwait(false);
+                TestProvider.Log.RequestStop(requestId);
+
+            });
+        }
+
         /// <summary>
         /// Wait until SendItem is hit for given times or timeout in <see cref="CustomTelemetryChannel" />.
         /// </summary>
