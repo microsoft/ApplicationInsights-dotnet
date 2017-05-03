@@ -174,6 +174,15 @@ namespace Microsoft.ApplicationInsights.EtwCollector
 
         private void EnableProviders()
         {
+            // Enable TPL provider to get hierarchical activity IDs
+            var tplProviderRequest = new EtwListeningRequest()
+            {
+                ProviderGuid = TplActivities.TplEventSourceGuid,
+                Level = TraceEventLevel.Always,
+                Keywords = TplActivities.TaskFlowActivityIdsKeyword
+            };
+            this.EnableProvider(tplProviderRequest);
+
             foreach (EtwListeningRequest request in this.Sources)
             {
                 this.EnableProvider(request);

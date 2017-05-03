@@ -12,6 +12,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.EtwCollector;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -153,7 +154,8 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     Level = Diagnostics.Tracing.TraceEventLevel.Always
                 });
                 module.Initialize(GetTestTelemetryConfiguration());
-                Assert.AreEqual(1, listener.EventsReceived.Count);
+                // There will be 2 events because we also enable TPL EventSource to get hierarchical activity IDs.
+                Assert.AreEqual(2, listener.EventsReceived.Count);
                 Assert.AreEqual(AccessDeniedEventId, listener.EventsReceived[0].EventId);
                 Assert.AreEqual("Access Denied.", listener.EventsReceived[0].Payload[1].ToString());
             }
@@ -211,8 +213,9 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     Level = Diagnostics.Tracing.TraceEventLevel.Always
                 });
                 module.Initialize(GetTestTelemetryConfiguration());
-                Assert.AreEqual(1, traceEventSession.EnabledProviderGuids.Count);
-                Assert.AreEqual(guid.ToString(), traceEventSession.EnabledProviderGuids[0].ToString());
+                Assert.AreEqual(2, traceEventSession.EnabledProviderGuids.Count);
+                // First enabled provider is the TPL provider
+                Assert.AreEqual(guid.ToString(), traceEventSession.EnabledProviderGuids[1].ToString());
             }
         }
 
@@ -231,7 +234,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                     Level = Diagnostics.Tracing.TraceEventLevel.Always
                 });
                 module.Initialize(GetTestTelemetryConfiguration());
-                Assert.AreEqual(0, traceEventSession.EnabledProviderGuids.Count);
+                Assert.IsFalse(traceEventSession.EnabledProviderGuids.Any(g => Guid.Empty.Equals(g)));
             }
         }
 
@@ -249,7 +252,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hello!");
                 int expectedEventCount = 2;
-                await WaitForEventsArrive(adapterHelper.Channel, expectedEventCount);
+                await WaitForItems(adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -274,7 +277,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Info("World!");
 
                 int expectedEventCount = 3;
-                await WaitForEventsArrive(adapterHelper.Channel, expectedEventCount);
+                await WaitForItems(adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -304,7 +307,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 // There's going to be a delay around 2000ms before the events reaches the channel.
                 int expectedEventCount = 2;
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
 
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry actual = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
@@ -340,7 +343,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Warning(1, 2);
 
                 int expectedEventCount = 3;
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
 
                 // The very 1st event is for the manifest.
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
@@ -364,7 +367,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.Tricky(7, "TrickyEvent", "Actual message");
 
                 int expectedEventCount = 2;
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, expectedEventCount);
+                await this.WaitForItems(this.adapterHelper.Channel, expectedEventCount);
 
                 Assert.AreEqual(expectedEventCount, this.adapterHelper.Channel.SentItems.Length);
                 TraceTelemetry telemetry = (TraceTelemetry)this.adapterHelper.Channel.SentItems[1];
@@ -393,7 +396,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hey!");
                 TestProvider.Log.Warning(1, 2);
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, 3);
+                await this.WaitForItems(this.adapterHelper.Channel, 3);
 
                 // Now request reporting events only with certain keywords
                 listeningRequest.Keywords = (ulong)TestProvider.Keywords.NonRoutine;
@@ -402,7 +405,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
 
                 TestProvider.Log.Info("Hey again!");
                 TestProvider.Log.Warning(3, 4);
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, 2);
+                await this.WaitForItems(this.adapterHelper.Channel, 5);
 
                 List<TraceTelemetry> expectedTelemetry = new List<TraceTelemetry>();
                 TraceTelemetry traceTelemetry = new TraceTelemetry("Hey!", SeverityLevel.Information);
@@ -446,9 +449,41 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 // Wait 2 seconds to see if any events arrive asynchronously through the ETW module.
                 // This is a long time but unfortunately there is no good way to make ETW infrastructure "go faster"
                 // and we want to make sure that no TPL events sneak through.
-                await this.WaitForEventsArrive(this.adapterHelper.Channel, 1, TimeSpan.FromSeconds(2));
+                await this.WaitForItems(this.adapterHelper.Channel, 1, TimeSpan.FromSeconds(2));
 
                 Assert.AreEqual(0, this.adapterHelper.Channel.SentItems.Length);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("EtwTelemetryModule")]
+        public async Task ReportsHierarchicalActivities()
+        {
+            using (var module = new EtwTelemetryModule())
+            {
+                var listeningRequest = new EtwListeningRequest();
+                listeningRequest.ProviderName = TestProvider.ProviderName;
+                module.Sources.Add(listeningRequest);
+
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                for (int i = 0; i < 6; i += 2)
+                {
+                    Parallel.For(0, 2, (idx) =>
+                    {
+                        PerformActivityAsync(i + idx).GetAwaiter().GetResult();
+                    });
+                }
+
+                await this.WaitForItems(this.adapterHelper.Channel, 12);
+
+                ITelemetry[] capturedItems = this.adapterHelper.Channel.SentItems;
+                TraceTelemetry requestStopEvent = capturedItems.OfType<TraceTelemetry>().FirstOrDefault((i) =>
+                    i.Properties.TryGetValue("EventName", out string eventName)
+                    && eventName == "Request/Stop");
+                Assert.IsNotNull(requestStopEvent, "Request/Stop event not found");
+                Assert.IsTrue(requestStopEvent.Properties.TryGetValue("ActivityID", out string activityID), "Event does not have ActivityID property");
+                Assert.IsTrue(activityID.StartsWith("//"), "The activity ID is not a hierarchical one");
             }
         }
 
@@ -459,27 +494,38 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
                 TestProvider.Log.RequestStart(requestId);
                 await Task.Delay(50).ConfigureAwait(false);
                 TestProvider.Log.RequestStop(requestId);
-
             });
         }
 
         /// <summary>
-        /// Wait until SendItem is hit for given times or timeout in <see cref="CustomTelemetryChannel" />.
+        /// Wait until we caputred <paramref name="count"/> telemetry items or timeout in <see cref="CustomTelemetryChannel" />.
         /// </summary>
         /// <param name="channel">Custom telemtry channel.</param>
-        /// <param name="count">Specify times of hit before the task is finished.</param>
-        /// <param name="timeout">Timeout for waiting on each hit.</param>
-        /// <returns>A task, which fulfills when given number of SendItem is called.</returns>
-        private Task WaitForEventsArrive(CustomTelemetryChannel channel, int count = 1, TimeSpan? timeout = null)
+        /// <param name="count">Number of telemetry items to wait for</param>
+        /// <param name="timeout">Timeout for waiting on the desired number of items.</param>
+        /// <returns>A task, which fulfills when given number of items is captured.</returns>
+        private async Task WaitForItems(CustomTelemetryChannel channel, int count = 1, TimeSpan? timeout = null)
         {
             // Use 30 seconds by default in case the expected event didn't arrive to avoid hanging on the test execution.
             timeout = timeout ?? TimeSpan.FromSeconds(30);
-            List<Task> tasks = new List<Task>();
-            for (int i = 0; i < count; i++)
+            DateTime start = DateTime.Now;
+            int? itemsCaptured;
+
+            do
             {
-                tasks.Add(channel.WaitOneItemAsync(timeout.Value));
-            }
-            return Task.WhenAll(tasks);
+                if (DateTime.Now - start > timeout)
+                {
+                    // Exceeded allocated time.
+                    return;
+                }
+
+                itemsCaptured = await channel.WaitForItemsCaptured(timeout.Value);
+                if (itemsCaptured == null)
+                {
+                    // Timed out waiting for new events to arrive.
+                    return;
+                }                
+            } while (itemsCaptured.Value < count);
         }
 
         [TestCleanup]
