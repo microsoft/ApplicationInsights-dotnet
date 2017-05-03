@@ -139,7 +139,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(context => {
+                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(provider => {
                     var module = new DependencyTrackingTelemetryModule();
                     var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
                     excludedDomains.Add("core.windows.net");
