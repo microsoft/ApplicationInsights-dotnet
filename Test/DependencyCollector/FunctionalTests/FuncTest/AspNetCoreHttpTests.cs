@@ -82,14 +82,22 @@
                 {
                     Trace.TraceInformation(string.Format(CultureInfo.InvariantCulture, "Dotnet.exe process output:", output));
 
-                    // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
-                    int dashIndex = output.IndexOf('-');
-                    Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));
-
-                    Version minVersion = new Version("1.0.0");
-                    if (version < minVersion)
+                    // We now know dotnet core is installed. Attemping to validate version is flaky as --version sometimes dont redirect all 
+                    // messages. Catch the exception and move on for now.
+                    try
                     {
-                        Assert.Inconclusive($".Net Core version ({output}) must be greater than or equal to {minVersion}.");
+                        // Look for first dash to get semantic version. (for example: 1.0.0-preview2-003156)
+                        int dashIndex = output.IndexOf('-');
+                        Version version = new Version(dashIndex == -1 ? output : output.Substring(0, dashIndex));
+
+                        Version minVersion = new Version("1.0.0");
+                        if (version < minVersion)
+                        {
+                            Assert.Inconclusive($".Net Core version ({output}) must be greater than or equal to {minVersion}.");
+                        }
+                    } catch(Exception ex)
+                    {
+                        Trace.TraceInformation(string.Format(CultureInfo.InvariantCulture, "DotNetCore version check failed with exception : {0}. Test will still continue.", ex.Message));
                     }
                 }
             }
