@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
                 {
                     // request is handled by Desktop DiagnosticSource Listener
-                    DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
+                    DependencyCollectorEventSource.Log.SkipTrackingTelemetryItemWithEventSource(id);
                     return;
                 }
 
@@ -119,17 +119,25 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             if (!telemetryTuple.Item2)
             {
-                this.TelemetryTable.Remove(id);
                 DependencyTelemetry telemetry = telemetryTuple.Item1;
 
                 if (statusCode.HasValue)
                 {
+                    if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated && statusCode.Value > 0)
+                    {
+                        // HttpDesktopDiagnosticSourceListener do not get notifications about exceptions during requests processing.
+                        // We will report them here, and we will let HttpDesktopDiagnosticSourceListener track the dependency for successful response
+                        DependencyCollectorEventSource.Log.SkipTrackingTelemetryItemWithEventSource(id);
+                        return;
+                    }
+
                     // We calculate success on the base of http code and do not use the 'success' method argument
                     // because framework returns true all the time if you use HttpClient to create a request
                     // statusCode == -1 if there is no Response
                     telemetry.Success = (statusCode > 0) && (statusCode < 400);
                     telemetry.ResultCode = statusCode.Value > 0 ? statusCode.Value.ToString(CultureInfo.InvariantCulture) : string.Empty;
 
+                    this.TelemetryTable.Remove(id);
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
                 else

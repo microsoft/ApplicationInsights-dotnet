@@ -106,7 +106,7 @@
 
             Tuple<DependencyTelemetry, bool> telemetryTuple = null;
 
-            if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated || DependencyTableStore.Instance.IsProfilerActivated || PretendProfilerIsAttached)
+            if (DependencyTableStore.Instance.IsProfilerActivated || PretendProfilerIsAttached)
             {
                 telemetryTuple = DependencyTableStore.Instance.WebRequestConditionalHolder.Get(webRequest);
             }
@@ -139,7 +139,7 @@
             }
 
             var telemetryTuple = new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated);
-            if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated || DependencyTableStore.Instance.IsProfilerActivated || PretendProfilerIsAttached)
+            if (DependencyTableStore.Instance.IsProfilerActivated || PretendProfilerIsAttached)
             {
                 DependencyTableStore.Instance.WebRequestConditionalHolder.Store(webRequest, telemetryTuple);
             }

@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.sendItems = new List<ITelemetry>();
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new ObjectInstanceBasedOperationHolder(), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
+            this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
             this.httpDesktopProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
             DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
         }
@@ -208,7 +208,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             var localHttpProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
                 this.configuration, 
-                new ObjectInstanceBasedOperationHolder(),  
+                new CacheBasedOperationHolder("testCache", 100 * 1000),  
                 false, 
                 new List<string>(),
                 RandomAppIdEndpoint);
@@ -220,7 +220,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             ICollection<string> exclusionList = new SanitizedHostList() { "randomstringtoexclude", hostnamepart };
             localHttpProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(
                 this.configuration,
-                new ObjectInstanceBasedOperationHolder(),
+                new CacheBasedOperationHolder("testCache", 100 * 1000), 
                 true, 
                 exclusionList,
                 RandomAppIdEndpoint);
