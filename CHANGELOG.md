@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.4.0
+- Exceptions statistics feature is not enabled by default
+
 ## Version 2.4.0-beta2
 - [Handle breaking changes from DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
 - [Exceptions statistics metrics uses `.Context.Operation.Name` instead of custom property `operationName`](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/394)
