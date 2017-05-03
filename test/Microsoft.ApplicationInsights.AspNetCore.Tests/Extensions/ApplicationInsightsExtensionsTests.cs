@@ -314,8 +314,11 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Equal(1, modules.Count());
 #endif
 
-                var dependencyModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
-                Assert.NotNull(dependencyModule);
+                var dependencyModuleDescriptor = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationFactory?.GetMethodInfo().ReturnType == typeof(DependencyTrackingTelemetryModule));
+                Assert.NotNull(dependencyModuleDescriptor);
+
+                var dependencyModule = modules.OfType<DependencyTrackingTelemetryModule>().Single();
+                Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
             }
 
 #if NET451

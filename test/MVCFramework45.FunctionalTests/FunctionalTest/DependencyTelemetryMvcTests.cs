@@ -11,10 +11,47 @@ namespace SampleWebAppIntegration.FunctionalTest
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.Extensions.DependencyInjection;
 
     public class DependencyTelemetryMvcTests : TelemetryTestsBase
     {
         private const string assemblyName = "MVCFramework45.FunctionalTests";
+
+        [Fact]
+        public void CorrelationInfoIsNotAddedToRequestHeaderIfUserAddDomainToExcludedList()
+        {
+#if !NET451 // Correlation is not supported in NET451. It works with NET46 and .Net core.
+            InProcessServer server;
+
+            using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))
+            {
+                var dependencyCollectorModule = server.ApplicationServices.GetServices<ITelemetryModule>().OfType<DependencyTrackingTelemetryModule>().Single();
+                dependencyCollectorModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add(server.BaseHost);
+
+                using (var httpClient = new HttpClient())
+                {
+                    var task = httpClient.GetAsync(server.BaseHost + "/");
+                    task.Wait(TestTimeoutMs);
+                }
+            }
+
+            var telemetries = server.BackChannel.Buffer;
+            try
+            {
+                Assert.True(telemetries.Count >= 2);
+                var requestTelemetry = telemetries.OfType<RequestTelemetry>().Single();
+                var dependencyTelemetry = telemetries.OfType<DependencyTelemetry>().Single();
+                Assert.NotEqual(requestTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
+            }
+            catch (Exception e)
+            {
+                string data = DebugTelemetryItems(telemetries);
+                throw new Exception(data, e);
+            }
+#endif
+        }
 
         [Fact]
         public void OperationIdOfRequestIsPropagatedToChildDependency()
