@@ -47,7 +47,7 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
             WriteEvent(TrickyEventId, EventId, EventName, Message);
         }
 
-                [Event(RequestStartEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
+        [Event(RequestStartEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
         public void RequestStart(int requestId)
         {
             WriteEvent(RequestStartEventId, requestId);
