@@ -169,7 +169,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
                 services.AddSingleton<JavaScriptSnippet>();
-                services.AddSingleton<ApplicationInsightsLoggerCallbacks>();
+                services.AddSingleton<ApplicationInsightsLoggerEvents>();
 
             services.AddOptions();
                 services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
@@ -286,7 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static bool IsApplicationInsightsAdded(IServiceCollection services)
         {
-            // We treat ApplicationInsightsInitializer as a marker that AI services were addede to service collection
+            // We treat ApplicationInsightsInitializer as a marker that AI services were added to service collection
             return services.Any(service => service.ServiceType == typeof(ApplicationInsightsInitializer));
     }
 }

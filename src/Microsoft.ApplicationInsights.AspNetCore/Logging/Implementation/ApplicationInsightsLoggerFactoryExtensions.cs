@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.Logging
             IServiceProvider serviceProvider,
             Func<string, LogLevel, bool> filter)
         {
-            return factory.AddApplicationInsights(serviceProvider, filter, () => { });
+            return factory.AddApplicationInsights(serviceProvider, filter, null);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.Logging
         /// <param name="factory"></param>
         /// <param name="filter"></param>
         /// <param name="serviceProvider">The instance of <see cref="IServiceProvider"/> to use for service resolution.</param>
-        /// <param name="loggerAddedCallback">The callback that get's executed when another ApplicationInsights logger is added.</param>
+        /// <param name="loggerAddedCallback">The callback that gets executed when another ApplicationInsights logger is added.</param>
         public static ILoggerFactory AddApplicationInsights(
             this ILoggerFactory factory,
             IServiceProvider serviceProvider,
@@ -67,10 +67,16 @@ namespace Microsoft.Extensions.Logging
             Action loggerAddedCallback)
         {
             var client = serviceProvider.GetService<TelemetryClient>();
-            if (loggerAddedCallback != null)
+            var debugLoggerControl = serviceProvider.GetService<ApplicationInsightsLoggerEvents>();
+
+            if (debugLoggerControl != null)
             {
-                var debugLoggerControl = serviceProvider.GetService<ApplicationInsightsLoggerCallbacks>();
-                debugLoggerControl?.AddLoggerCallback(loggerAddedCallback);
+                debugLoggerControl.OnLoggerAdded();
+
+                if (loggerAddedCallback != null)
+                {
+                    debugLoggerControl.LoggerAdded += loggerAddedCallback;
+                }
             }
 
             factory.AddProvider(new ApplicationInsightsLoggerProvider(client, filter));
