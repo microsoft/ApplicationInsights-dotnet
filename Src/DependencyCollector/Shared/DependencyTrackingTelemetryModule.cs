@@ -219,7 +219,7 @@
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
-        private void InitializeForFrameworkEventSource()
+        private void InitializeForDiagnosticAndFrameworkEventSource()
         {
 #if NET45
             DesktopDiagnosticSourceHttpProcessing desktopHttpProcessing = new DesktopDiagnosticSourceHttpProcessing(
@@ -267,21 +267,21 @@
                     }
                     catch (Exception exp)
                     {
-                        this.InitializeForFrameworkEventSource();
+                        this.InitializeForDiagnosticAndFrameworkEventSource();
                         DependencyCollectorEventSource.Log.ProfilerFailedToAttachError(exp.ToInvariantString());
                     }
                 }
                 else
                 {
                     // if config is set to disable runtime instrumentation then default to framework event source
-                    this.InitializeForFrameworkEventSource();
+                    this.InitializeForDiagnosticAndFrameworkEventSource();
                     DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Runtime instrumentation is set to disabled. Initialize with framework event source instead.");
                 }
             }
             else
             {
                 // if profiler is not attached then default to framework event source
-                this.InitializeForFrameworkEventSource();
+                this.InitializeForDiagnosticAndFrameworkEventSource();
 
                 // Log a message to indicate the profiler is not attached
                 DependencyCollectorEventSource.Log.RemoteDependencyModuleProfilerNotAttached();
