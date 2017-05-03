@@ -8,7 +8,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Logging;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
@@ -449,6 +451,38 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 return telemetryConfiguration.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
             }
+
+            [Fact]
+            public static void LoggerCallbackIsInvoked()
+            {
+                var services = new ServiceCollection();
+                services.AddSingleton<ApplicationInsightsLoggerEvents>();
+                var serviceProvider = services.BuildServiceProvider();
+
+                var loggerProvider = new MockLoggingFactory();
+
+                bool firstLoggerCallback = false;
+                bool secondLoggerCallback = false;
+
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => firstLoggerCallback = true);
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => secondLoggerCallback = true);
+
+                Assert.True(firstLoggerCallback);
+                Assert.False(secondLoggerCallback);
+            }
+
+            [Fact]
+            public static void NullLoggerCallbackAlowed()
+            {
+                var services = new ServiceCollection();
+                services.AddSingleton<ApplicationInsightsLoggerEvents>();
+                var serviceProvider = services.BuildServiceProvider();
+
+                var loggerProvider = new MockLoggingFactory();
+
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+            }
         }
 
         public static class AddApplicationInsightsSettings
@@ -523,6 +557,22 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.Configure(serviceOptions);
             }
             return services;
+        }
+
+        private class MockLoggingFactory : ILoggerFactory
+        {
+            public void Dispose()
+            {
+            }
+
+            public ILogger CreateLogger(string categoryName)
+            {
+                return null;
+            }
+
+            public void AddProvider(ILoggerProvider provider)
+            {
+            }
         }
     }
 }
