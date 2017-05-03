@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.1.0-beta3
+
+- [Removed the use of Platform Abstractions](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/410)
+- [Correlation header injection disabled for standard Azure storage calls](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/416)
+- UseAI and AddAI calls made idempotent
+
 ## Version 2.1.0-beta2
 
 - Updated to use the new correlation headers and changed the correlationId to use appId instead of hashed ikey to match other SDKs.
