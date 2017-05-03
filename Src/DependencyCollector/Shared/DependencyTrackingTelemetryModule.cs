@@ -47,6 +47,11 @@
         public bool DisableRuntimeInstrumentation { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to disable runtime instrumentation.
+        /// </summary>
+        public bool EnableDiagnosticSourceInstrumentation { get; set; }
+
+        /// <summary>
         /// Gets the component correlation configuration.
         /// </summary>
         public ICollection<string> ExcludeComponentCorrelationHttpHeadersOnDomains
@@ -222,13 +227,16 @@
         private void InitializeForDiagnosticAndFrameworkEventSource()
         {
 #if NET45
-            DesktopDiagnosticSourceHttpProcessing desktopHttpProcessing = new DesktopDiagnosticSourceHttpProcessing(
-                this.telemetryConfiguration, 
-                DependencyTableStore.Instance.WebRequestConditionalHolder,
-                this.SetComponentCorrelationHttpHeaders,
-                this.ExcludeComponentCorrelationHttpHeadersOnDomains,
-                this.EffectiveProfileQueryEndpoint);
-            this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+            if (this.EnableDiagnosticSourceInstrumentation)
+            {
+                DesktopDiagnosticSourceHttpProcessing desktopHttpProcessing = new DesktopDiagnosticSourceHttpProcessing(
+                    this.telemetryConfiguration,
+                    DependencyTableStore.Instance.WebRequestConditionalHolder,
+                    this.SetComponentCorrelationHttpHeaders,
+                    this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                    this.EffectiveProfileQueryEndpoint);
+                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+            }
 
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
                 this.telemetryConfiguration,

@@ -3,6 +3,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Net;
 
     /// <summary>
@@ -52,7 +53,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // event was temporarily introduced in DiagnosticSource and removed before stable release
                     case "System.Net.Http.Request": 
                     {
+                        // request is never null
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
                         this.httpDesktopProcessingFramework.OnRequestSend(request);
                         break;
                     }
@@ -63,9 +66,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // event was temporarily introduced in DiagnosticSource and removed before stable release
                     case "System.Net.Http.Response": 
                     {
+                        // request is never null
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.EndCallbackCalled(request.GetHashCode().ToString(CultureInfo.InvariantCulture));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
                         this.httpDesktopProcessingFramework.OnResponseReceive(request, response);
+                        break;
+                    }
+
+                    default:
+                    {
+                        DependencyCollectorEventSource.Log.NotExpectedCallback(value.GetHashCode(), value.Key, "unknown key");
                         break;
                     }
                 }
