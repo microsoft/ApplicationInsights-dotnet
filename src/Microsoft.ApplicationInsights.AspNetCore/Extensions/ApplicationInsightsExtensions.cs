@@ -139,16 +139,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ITelemetryInitializer, WebUserTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, AspNetCoreEnvironmentTelemetryInitializer>();
                 services.AddSingleton<ITelemetryInitializer, HttpDependenciesParsingTelemetryInitializer>();
-                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>();
-                var module = new DependencyTrackingTelemetryModule();
-                var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
-                excludedDomains.Add("core.windows.net");
-                excludedDomains.Add("core.chinacloudapi.cn");
-                excludedDomains.Add("core.cloudapi.de");
-                excludedDomains.Add("core.usgovcloudapi.net");
+                services.AddSingleton<ITelemetryModule, DependencyTrackingTelemetryModule>(context => {
+                    var module = new DependencyTrackingTelemetryModule();
+                    var excludedDomains = module.ExcludeComponentCorrelationHttpHeadersOnDomains;
+                    excludedDomains.Add("core.windows.net");
+                    excludedDomains.Add("core.chinacloudapi.cn");
+                    excludedDomains.Add("core.cloudapi.de");
+                    excludedDomains.Add("core.usgovcloudapi.net");
 
-                return module;
-            });
+                    return module;
+                });
 
 #if NET451
                 services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
@@ -163,15 +163,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<IApplicationInsightDiagnosticListener, HostingDiagnosticListener>();
                 services.AddSingleton<IApplicationInsightDiagnosticListener, MvcDiagnosticsListener>();
 
-            // Using startup filter instead of starting DiagnosticListeners directly because
-            // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
-            // that requires IOptions infrastructure to run and initialize
+                // Using startup filter instead of starting DiagnosticListeners directly because
+                // AspNetCoreHostingDiagnosticListener injects TelemetryClient that injects TelemetryConfiguration
+                // that requires IOptions infrastructure to run and initialize
                 services.AddSingleton<IStartupFilter, ApplicationInsightsStartupFilter>();
 
                 services.AddSingleton<JavaScriptSnippet>();
                 services.AddSingleton<ApplicationInsightsLoggerEvents>();
 
-            services.AddOptions();
+                services.AddOptions();
                 services.AddSingleton<IOptions<TelemetryConfiguration>, TelemetryConfigurationOptions>();
                 services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
             }
