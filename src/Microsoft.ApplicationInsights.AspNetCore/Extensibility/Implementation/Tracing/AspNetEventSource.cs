@@ -27,8 +27,8 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.
         private AspNetCoreEventSource() : base()
         {
             try
-            {
-                this.ApplicationName = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName;
+            {                
+                this.ApplicationName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception exp)
             {

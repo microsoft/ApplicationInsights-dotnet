@@ -164,9 +164,12 @@
         <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
-        <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />
+    <Target Name="ClearNugetCache">
         <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
+    </Target>
+    
+    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+        <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />        
         <Exec Command='"$(CliToolsPath)\dotnet.exe" restore' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
         <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" build %(TestProject.Identity) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
