@@ -8,7 +8,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Logging;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
     using Microsoft.ApplicationInsights.Channel;
@@ -60,6 +62,26 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersExpectedServices(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
             {
                 var services = CreateServicesAndAddApplicationinsightsTelemetry(null, null);
+                ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
+                Assert.Equal(lifecycle, service.Lifetime);
+            }
+
+            [Theory]
+            [InlineData(typeof(ITelemetryInitializer), typeof(AzureWebAppRoleEnvironmentTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(DomainNameRoleInstanceTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ComponentVersionTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(ClientIpHeaderTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(OperationNameTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(SyntheticTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebSessionTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(ITelemetryInitializer), typeof(WebUserTelemetryInitializer), ServiceLifetime.Singleton)]
+            [InlineData(typeof(TelemetryConfiguration), null, ServiceLifetime.Singleton)]
+            [InlineData(typeof(TelemetryClient), typeof(TelemetryClient), ServiceLifetime.Singleton)]
+            public static void RegistersExpectedServicesOnlyOnce(Type serviceType, Type implementationType, ServiceLifetime lifecycle)
+            {
+                var services = GetServiceCollectionWithContextAccessor();
+                services.AddApplicationInsightsTelemetry();
+                services.AddApplicationInsightsTelemetry();
                 ServiceDescriptor service = services.Single(s => s.ServiceType == serviceType && s.ImplementationType == implementationType);
                 Assert.Equal(lifecycle, service.Lifetime);
             }
@@ -429,6 +451,38 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             {
                 return telemetryConfiguration.TelemetryProcessors.Where(processor => processor.GetType() == typeof(T)).Count();
             }
+
+            [Fact]
+            public static void LoggerCallbackIsInvoked()
+            {
+                var services = new ServiceCollection();
+                services.AddSingleton<ApplicationInsightsLoggerEvents>();
+                var serviceProvider = services.BuildServiceProvider();
+
+                var loggerProvider = new MockLoggingFactory();
+
+                bool firstLoggerCallback = false;
+                bool secondLoggerCallback = false;
+
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => firstLoggerCallback = true);
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, () => secondLoggerCallback = true);
+
+                Assert.True(firstLoggerCallback);
+                Assert.False(secondLoggerCallback);
+            }
+
+            [Fact]
+            public static void NullLoggerCallbackAlowed()
+            {
+                var services = new ServiceCollection();
+                services.AddSingleton<ApplicationInsightsLoggerEvents>();
+                var serviceProvider = services.BuildServiceProvider();
+
+                var loggerProvider = new MockLoggingFactory();
+
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+                loggerProvider.AddApplicationInsights(serviceProvider, (s, level) => true, null);
+            }
         }
 
         public static class AddApplicationInsightsSettings
@@ -503,6 +557,22 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 services.Configure(serviceOptions);
             }
             return services;
+        }
+
+        private class MockLoggingFactory : ILoggerFactory
+        {
+            public void Dispose()
+            {
+            }
+
+            public ILogger CreateLogger(string categoryName)
+            {
+                return null;
+            }
+
+            public void AddProvider(ILoggerProvider provider)
+            {
+            }
         }
     }
 }
