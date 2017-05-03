@@ -41,14 +41,32 @@ namespace Microsoft.ApplicationInsights
             }
         }
 
-        public Task WaitOneItemAsync(TimeSpan timeout)
+        public Task<int?> WaitForItemsCaptured(TimeSpan timeout)
         {
             // Pattern for Wait Handles from: https://msdn.microsoft.com/en-us/library/hh873178%28v=vs.110%29.aspx#WaitHandles
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<int?>();
+
             var rwh = ThreadPool.RegisterWaitForSingleObject(
-                this.waitHandle, delegate { tcs.TrySetResult(true); }, null, -1, true);
+                this.waitHandle, 
+                (state, timedOut) => {
+                    if (timedOut)
+                    {
+                        tcs.SetResult(null);
+                    }
+                    else
+                    {
+                        lock (this)
+                        {
+                            tcs.SetResult(this.SentItems.Length);
+                        }
+                    }
+                }, 
+                state: null, 
+                millisecondsTimeOutInterval: Convert.ToUInt32(timeout.TotalMilliseconds), 
+                executeOnlyOnce: true);
+
             var t = tcs.Task;
-            t.ContinueWith((antecdent) => rwh.Unregister(null));
+            t.ContinueWith((previousTask) => rwh.Unregister(null));
             return t;
         }
 

@@ -16,15 +16,13 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Implementation;
     using Microsoft.ApplicationInsights.TraceEvent.Shared.Implementation;
+    using Microsoft.ApplicationInsights.TraceEvent.Shared.Utilities;
 
     /// <summary>
     /// A module to trace data submitted via .NET framework <seealso cref="System.Diagnostics.Tracing.EventSource" /> class.
     /// </summary>
     public class EventSourceTelemetryModule : EventListener, ITelemetryModule
     {
-        private static readonly Guid TplEventSourceGuid = new Guid("2e5dba47-a3d2-4d16-8ee0-6671ffdcd7b5");
-        private static readonly long TaskFlowActivityIds = 0x80;
-
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
         // The following does not really need to be a ConcurrentQueue, but the ConcurrentQueue has a very convenient-to-use TryDequeue method.
@@ -107,7 +105,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         /// <param name="eventData">Event to process.</param>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            if (this.initialized)
+            // Suppress events from TplEventSource--they are mostly interesting for debugging task processing and interaction,
+            // and not that useful for production tracing. However, TPL EventSource must be enabled to get hierarchical activity IDs.
+            if (this.initialized && !TplActivities.TplEventSourceGuid.Equals(eventData.EventSource.Guid))
             {
                 eventData.Track(this.client);
             }
@@ -154,9 +154,9 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         private void EnableAsNecessary(EventSource eventSource)
         {
             // Special case: enable TPL activity flow for better tracing of nested activities.
-            if (eventSource.Guid == EventSourceTelemetryModule.TplEventSourceGuid)
+            if (eventSource.Guid == TplActivities.TplEventSourceGuid)
             {
-                this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)EventSourceTelemetryModule.TaskFlowActivityIds);
+                this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords) TplActivities.TaskFlowActivityIdsKeyword);
                 this.enabledEventSources.Add(eventSource);
             }
             else if (eventSource.Name == EventSourceListenerEventSource.ProviderName)

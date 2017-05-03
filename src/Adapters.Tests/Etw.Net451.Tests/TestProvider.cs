@@ -16,6 +16,8 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public const int InfoEventId = 1;
         public const int WarningEventId = 2;
         public const int ComplexEventId = 4;
+        public const int RequestStartEventId = 5;
+        public const int RequestStopEventId = 6;
         public const int TrickyEventId = 7;
 
         public static readonly TestProvider Log = new TestProvider();
@@ -43,6 +45,18 @@ namespace Microsoft.ApplicationInsights.EtwTelemetryCollector.Tests
         public void Tricky(int EventId, string EventName, string Message)
         {
             WriteEvent(TrickyEventId, EventId, EventName, Message);
+        }
+
+        [Event(RequestStartEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
+        public void RequestStart(int requestId)
+        {
+            WriteEvent(RequestStartEventId, requestId);
+        }
+
+        [Event(RequestStopEventId, Level = EventLevel.Informational, ActivityOptions = EventActivityOptions.Recursive)]
+        public void RequestStop(int requestId)
+        {
+            WriteEvent(RequestStopEventId, requestId);
         }
 
         public class Keywords

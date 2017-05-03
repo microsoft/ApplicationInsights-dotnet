@@ -10,6 +10,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.CommonTestShared;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -239,6 +240,38 @@ namespace Microsoft.ApplicationInsights.EventSourceListener.Tests
         {
             string activityPath = ActivityPathDecoder.GetActivityPathString(Guid.Empty);
             Assert.AreEqual(Guid.Empty.ToString(), activityPath);
+        }
+
+        [TestMethod]
+        [TestCategory("EventSourceListener")]
+        public void DoNotReportTplEvents()
+        {
+            using (var module = new EventSourceTelemetryModule())
+            {
+                module.Initialize(GetTestTelemetryConfiguration());
+
+                for (int i = 0; i < 10; i += 2)
+                {
+                    Parallel.For(0, 2, (idx) =>
+                    {
+                        PerformActivityAsync(i + idx).GetAwaiter().GetResult();
+                    });
+
+                }
+
+                Assert.AreEqual(0, this.adapterHelper.Channel.SentItems.Length);
+            }
+        }
+
+        private async Task PerformActivityAsync(int requestId)
+        {
+            await Task.Run(async () =>
+            {
+                TestEventSource.Default.RequestStart(requestId);
+                await Task.Delay(50).ConfigureAwait(false);
+                TestEventSource.Default.RequestStop(requestId);
+
+            });
         }
 
         private TelemetryConfiguration GetTestTelemetryConfiguration(bool resetChannel = true)
