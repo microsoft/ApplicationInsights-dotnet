@@ -17,7 +17,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly ObjectInstanceBasedOperationHolder telemetryTable;
 
         internal DesktopDiagnosticSourceHttpProcessing(TelemetryConfiguration configuration, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
-            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.FrameworkAndDiagnostic + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
+            : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceDesktop + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
         {
             if (telemetryTupleHolder == null)
             {

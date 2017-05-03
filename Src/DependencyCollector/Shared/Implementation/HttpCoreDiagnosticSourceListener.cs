@@ -54,7 +54,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             ICorrelationIdLookupHelper correlationIdLookupHelper)
         {
             this.client = new TelemetryClient(configuration);
-            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rddd");
+            this.client.Context.GetInternalContext().SdkVersion = SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceCore + ":");
 
             this.configuration = configuration;
             this.applicationInsightsUrlFilter = new ApplicationInsightsUrlFilter(configuration);
