@@ -10,6 +10,8 @@
     using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
 #else
     using Microsoft.Extensions.PlatformAbstractions;
+    using System.Reflection;
+    using System.Runtime.Versioning;
 #endif
 
     /// <summary>
@@ -131,8 +133,8 @@
                         catch (Exception exc)
                         {
                             string clrVersion;
-#if NETCORE
-                            clrVersion = PlatformServices.Default.Application.RuntimeFramework.FullName;
+#if NETCORE                            
+                            clrVersion = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
 #else
                             clrVersion = Environment.Version.ToString();
 #endif
