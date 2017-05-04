@@ -28,25 +28,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         }
 
         /// <summary>
-        /// On request send callback from Http diagnostic source.
-        /// </summary>
-        /// <param name="request">The WebRequest object.</param>
-        public void OnRequestSend(WebRequest request)
-        {
-            this.OnBegin(request, true);
-        }
-
-        /// <summary>
-        /// On request send callback from Http diagnostic source.
-        /// </summary>
-        /// <param name="request">The WebRequest object.</param>
-        /// <param name="response">The WebResponse object.</param>
-        public void OnResponseReceive(WebRequest request, HttpWebResponse response)
-        {
-            this.OnEnd(null, request, response);
-        }
-
-        /// <summary>
         /// Implemented by the derived class for adding the tuple to its specific cache.
         /// </summary>
         /// <param name="webRequest">The request which acts the key.</param>

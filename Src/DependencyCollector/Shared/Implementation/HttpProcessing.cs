@@ -88,12 +88,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <summary>
         /// Common helper for all Begin Callbacks.
         /// </summary>
-        /// <param name="thisObj">This object.</param>        
-        /// <param name="skipIfNotNew">Whether to skip updating properties on the DependencyTelemetry object if it
-        /// already exists. If this is false, OnBegin wouldn't update properties on the telemetry object even if
-        /// has existed in the telemetry table.</param>        
+        /// <param name="thisObj">This object.</param>
+        /// <param name="injectCorrelationHeaders">Flag that enables Request-Id and Correlation-Context headers injection.
+        /// Should be set to true only for profiler and old versions of DiagnosticSource Http hook events.</param>
         /// <returns>Null object as all context is maintained in this class via weak tables.</returns>
-        internal object OnBegin(object thisObj, bool skipIfNotNew)
+        internal object OnBegin(object thisObj, bool injectCorrelationHeaders = true)
         {
             try
             {
@@ -143,10 +142,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         telemetry = telemetryTuple.Item1;
                         DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
-                        if (skipIfNotNew)
-                        {
-                            return null;
-                        }
+                        return null;
                     }
                 }
 
@@ -208,7 +204,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
                         }
+                    }
 
+                    // ApplicationInsights only need to inject Request-Id and Correlation-Context headers 
+                    // for profiler instrumentation, in case of Http Desktop DiagnosticSourceListener
+                    // they are injected in DiagnosticSource (with the System.Net.Http.Desktop.HttpRequestOut.Start event)
+                    if (injectCorrelationHeaders)
+                    {
                         if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);

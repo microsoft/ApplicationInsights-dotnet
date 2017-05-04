@@ -51,7 +51,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetResponse(object thisObj)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetRequestStream(object thisObj, object transportContext)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }       
 
         /// <summary>
@@ -111,7 +111,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForBeginGetResponse(object thisObj, object callback, object state)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForBeginGetRequestStream(object thisObj, object callback, object state)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>

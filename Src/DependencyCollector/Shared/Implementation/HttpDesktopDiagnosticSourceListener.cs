@@ -48,6 +48,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 switch (value.Key)
                 {
                     case "System.Net.Http.Desktop.HttpRequestOut.Start":
+                    {
+                        var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
+
+                        // With this event, DiagnosticSource injects headers himself (after the event)
+                        // ApplicationInsights must not do this
+                        this.httpDesktopProcessing.OnBegin(request, false);
+                        break;
+                    }
 
                     // remove "System.Net.Http.Request" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Start")
                     // event was temporarily introduced in DiagnosticSource and removed before stable release
@@ -56,7 +65,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         // request is never null
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
-                        this.httpDesktopProcessing.OnRequestSend(request);
+                        this.httpDesktopProcessing.OnBegin(request);
                         break;
                     }
 
@@ -70,7 +79,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.EndCallbackCalled(request.GetHashCode().ToString(CultureInfo.InvariantCulture));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
-                        this.httpDesktopProcessing.OnResponseReceive(request, response);
+                        this.httpDesktopProcessing.OnEnd(null, request, response);
                         break;
                     }
 
