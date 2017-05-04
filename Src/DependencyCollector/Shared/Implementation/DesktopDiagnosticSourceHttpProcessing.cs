@@ -14,9 +14,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal sealed class DesktopDiagnosticSourceHttpProcessing : HttpProcessing
     {
-        private readonly ObjectInstanceBasedOperationHolder telemetryTable;
+        private readonly CacheBasedOperationHolder telemetryTable;
 
-        internal DesktopDiagnosticSourceHttpProcessing(TelemetryConfiguration configuration, ObjectInstanceBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
+        internal DesktopDiagnosticSourceHttpProcessing(TelemetryConfiguration configuration, CacheBasedOperationHolder telemetryTupleHolder, bool setCorrelationHeaders, ICollection<string> correlationDomainExclusionList, string appIdEndpoint)
             : base(configuration, SdkVersionUtils.GetSdkVersion("rdd" + RddSource.DiagnosticSourceDesktop + ":"), null, setCorrelationHeaders, correlationDomainExclusionList, appIdEndpoint)
         {
             if (telemetryTupleHolder == null)
@@ -55,7 +55,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         protected override void AddTupleForWebDependencies(WebRequest webRequest, DependencyTelemetry telemetry, bool isCustomCreated)
         {
             var telemetryTuple = new Tuple<DependencyTelemetry, bool>(telemetry, isCustomCreated);
-            this.telemetryTable.Store(webRequest, telemetryTuple);
+            this.telemetryTable.Store(ClientServerDependencyTracker.GetIdForRequestObject(webRequest), telemetryTuple);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <returns>The tuple for the given request.</returns>
         protected override Tuple<DependencyTelemetry, bool> GetTupleForWebDependencies(WebRequest webRequest)
         {
-            return this.telemetryTable.Get(webRequest);
+            return this.telemetryTable.Get(ClientServerDependencyTracker.GetIdForRequestObject(webRequest));
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="webRequest">The request which acts as the key.</param>
         protected override void RemoveTupleForWebDependencies(WebRequest webRequest)
         {
-            this.telemetryTable.Remove(webRequest);
+            this.telemetryTable.Remove(ClientServerDependencyTracker.GetIdForRequestObject(webRequest));
         }
     }
 }

@@ -67,7 +67,6 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
                 Assert.IsTrue(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
@@ -78,30 +77,7 @@
                 {
                 }
 
-                var item = this.sentTelemetry.Single();
-                Assert.AreEqual(url, item.Data);
-                Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
-                Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type,  "HttpAny has to be dependency kind as it includes http and azure calls");
-                Assert.IsTrue(
-                    DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
-                    TimeSpan.FromMinutes(1).TotalMilliseconds, 
-                    "timestamp < now");
-                Assert.IsTrue(
-                    item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
-                    -TimeSpan.FromMinutes(1).TotalMilliseconds, 
-                    "now - 1 min < timestamp");
-                Assert.AreEqual("200", item.ResultCode);
-                Assert.AreEqual(
-                    SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsd:"),
-                    item.Context.GetInternalContext().SdkVersion);
-
-                var requestId = item.Id;
-                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
-                Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
-
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
                 Assert.IsNull(request.Headers["Correlation-Context"]);
             }
         }
@@ -112,6 +88,7 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
+                module.DisableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
                 Assert.IsFalse(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
@@ -153,7 +130,6 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
@@ -177,7 +153,6 @@
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
-                module.EnableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
@@ -191,18 +166,88 @@
 
                 parent.Stop();
 
-                var item = this.sentTelemetry.Single();
-                Assert.AreEqual("200", item.ResultCode);
-
-                var requestId = item.Id;
-                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
-                Assert.IsTrue(requestId.StartsWith(parent.Id));
-                Assert.AreNotEqual(parent.Id, requestId);
-                Assert.AreEqual("v", item.Context.Properties["k"]);
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
 
                 Assert.AreEqual("k=v", request.Headers["Correlation-Context"]);
             }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionFailedRequestDiagnosticSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri($"http://{Guid.NewGuid()}/");
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+                try
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+                catch (WebException)
+                {
+                }
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, false, string.Empty);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionCanceledRequestDiagnosticSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri("https://bing.com/");
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+                request.Timeout = 5;
+                try
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+                catch (WebException)
+                {
+                }
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, false, string.Empty);
+            }
+        }
+
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
+        {
+            Assert.AreEqual(url, item.Data);
+            Assert.AreEqual(url.Host, item.Target);
+            Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
+            Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
+            Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
+            Assert.IsTrue(
+                DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
+                TimeSpan.FromMinutes(1).TotalMilliseconds,
+                "timestamp < now");
+            Assert.IsTrue(
+                item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
+                -TimeSpan.FromMinutes(1).TotalMilliseconds,
+                "now - 1 min < timestamp");
+            Assert.AreEqual(resultCode, item.ResultCode);
+            Assert.AreEqual(success, item.Success);
+            Assert.AreEqual(
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsd:"),
+                item.Context.GetInternalContext().SdkVersion);
+
+            var requestId = item.Id;
+            Assert.AreEqual(requestId, request.Headers["Request-Id"]);
+            Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+            Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
         }
     }
 }
