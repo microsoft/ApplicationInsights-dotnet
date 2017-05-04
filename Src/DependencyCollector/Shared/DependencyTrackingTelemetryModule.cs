@@ -47,7 +47,7 @@
         public bool DisableRuntimeInstrumentation { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to enable Http Desktop DiagnosticSource instrumentation
+        /// Gets or sets a value indicating whether to enable Http Desktop DiagnosticSource instrumentation.
         /// </summary>
         public bool EnableDiagnosticSourceInstrumentation { get; set; }
 

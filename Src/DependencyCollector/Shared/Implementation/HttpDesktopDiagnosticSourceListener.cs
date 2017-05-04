@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal class HttpDesktopDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
-        private readonly DesktopDiagnosticSourceHttpProcessing httpDesktopProcessingFramework;
+        private readonly DesktopDiagnosticSourceHttpProcessing httpDesktopProcessing;
         private readonly HttpDesktopDiagnosticSourceSubscriber subscribeHelper;
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
@@ -20,7 +20,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing)
         {
-            this.httpDesktopProcessingFramework = httpProcessing;
+            this.httpDesktopProcessing = httpProcessing;
             this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
@@ -56,7 +56,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         // request is never null
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
-                        this.httpDesktopProcessingFramework.OnRequestSend(request);
+                        this.httpDesktopProcessing.OnRequestSend(request);
                         break;
                     }
 
@@ -70,7 +70,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
                         DependencyCollectorEventSource.Log.EndCallbackCalled(request.GetHashCode().ToString(CultureInfo.InvariantCulture));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
-                        this.httpDesktopProcessingFramework.OnResponseReceive(request, response);
+                        this.httpDesktopProcessing.OnResponseReceive(request, response);
                         break;
                     }
 
