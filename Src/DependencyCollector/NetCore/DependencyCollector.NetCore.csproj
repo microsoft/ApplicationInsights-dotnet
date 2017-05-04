@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
@@ -29,6 +29,7 @@
     <Compile Include="..\Shared\Implementation\HttpCoreDiagnosticSourceListener.cs" Link="HttpCoreDiagnosticSourceListener.cs" />
     <Compile Include="..\Shared\Implementation\HttpHeadersUtilities.cs" Link="HttpHeadersUtilities.cs" />
     <Compile Include="..\Shared\Implementation\PropertyFetcher.cs" Link="PropertyFetcher.cs" />
+    <Compile Include="..\Shared\Implementation\RDDSource.cs" Link="RDDSource.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureBlobHttpParser.cs" Link="AzureBlobHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureIotHubHttpParser.cs" Link="AzureIotHubHttpParser.cs" />
     <Compile Include="..\Shared\Implementation\HttpParsers\AzureQueueHttpParser.cs" Link="AzureQueueHttpParser.cs" />

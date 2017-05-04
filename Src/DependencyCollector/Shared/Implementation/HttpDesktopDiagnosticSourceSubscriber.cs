@@ -48,6 +48,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 if (value.Name == "System.Net.Http.Desktop")
                 {
                     this.sourceSubscription = value.Subscribe(this.parent, (Predicate<string>)null);
+                    DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
+                    DependencyCollectorEventSource.Log.HttpDesktopDiagnosticSourceListenerIsActivated();
                 }
             }
         }
@@ -89,6 +91,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         this.allListenersSubscription.Dispose();
                     }
                 }
+
+                DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+                DependencyCollectorEventSource.Log.HttpDesktopDiagnosticSourceListenerIsDeactivated();
 
                 this.disposed = true;
             }

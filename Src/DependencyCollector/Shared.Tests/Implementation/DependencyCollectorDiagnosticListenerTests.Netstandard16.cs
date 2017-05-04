@@ -12,6 +12,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
 #if !NETCORE
     using Microsoft.ApplicationInsights.Web.TestFramework;
 #endif
@@ -203,6 +205,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(RequestUrl, telemetry.Target);
             Assert.AreEqual(HttpOkResultCode, telemetry.ResultCode);
             Assert.AreEqual(true, telemetry.Success);
+
+            string expectedVersion =
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
 
         /// <summary>

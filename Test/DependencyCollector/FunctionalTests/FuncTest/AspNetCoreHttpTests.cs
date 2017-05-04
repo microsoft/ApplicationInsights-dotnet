@@ -107,7 +107,7 @@
         {
             EnsureDotNetCoreInstalled();
 
-            return new ExpectedSDKPrefixChanger("rddd");
+            return new ExpectedSDKPrefixChanger("rdddsc");
         }
 
         private const string AspxCoreTestAppFolder = "..\\TestApps\\AspxCore\\";

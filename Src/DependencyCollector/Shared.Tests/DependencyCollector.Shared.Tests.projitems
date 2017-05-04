@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpDependenciesParsingTelemetryInitializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\ClientServerDependencyTrackerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\DependencyTargetNameHelperTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\DesktopDiagnosticSourceHttpProcessingTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureBlobHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\AzureServiceBusHttpParserTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\HttpParsers\DocumentDbHttpParserTests.cs" />

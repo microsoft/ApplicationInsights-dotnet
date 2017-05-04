@@ -249,8 +249,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="exception">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>                
         /// <param name="returnValue">Return value of the function if any.</param>
-        /// <param name="endTracking">Whether this method should end the tracking or not.</param>
-        internal void OnEnd(object exception, object thisObj, object returnValue, bool endTracking)
+        internal void OnEnd(object exception, object thisObj, object returnValue)
         {
             try
             {
@@ -284,12 +283,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // Not custom created
                 if (!telemetryTuple.Item2)
                 {
-                    // Remove it from the tracker only if the caller thinks tracking should end here. If not, the caller
-                    // may want to end tracking outside of this function
-                    if (endTracking)
-                    {
-                        this.RemoveTupleForWebDependencies(webRequest);
-                    }
+                    this.RemoveTupleForWebDependencies(webRequest);
 
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
 
@@ -385,10 +379,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
                     }
 
-                    if (endTracking)
-                    {
-                        ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
-                    }
+                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
             }
             catch (Exception ex)

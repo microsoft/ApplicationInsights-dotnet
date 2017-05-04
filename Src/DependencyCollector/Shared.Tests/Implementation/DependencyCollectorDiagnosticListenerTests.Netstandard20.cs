@@ -11,6 +11,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     /// <summary>
@@ -72,6 +74,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(activity.ParentId, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(activity.Id, telemetry.Id);
             Assert.AreEqual("v", telemetry.Context.Properties["k"]);
+
+            string expectedVersion =
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), prefix: "rdddsc:");
+            Assert.AreEqual(expectedVersion, telemetry.Context.GetInternalContext().SdkVersion);
         }
 
         /// <summary>
