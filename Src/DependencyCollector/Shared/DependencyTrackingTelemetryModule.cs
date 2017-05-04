@@ -47,7 +47,7 @@
         public bool DisableRuntimeInstrumentation { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to disable runtime instrumentation.
+        /// Gets or sets a value indicating whether to enable Http Desktop DiagnosticSource instrumentation
         /// </summary>
         public bool EnableDiagnosticSourceInstrumentation { get; set; }
 
@@ -288,7 +288,7 @@
             }
             else
             {
-                // if profiler is not attached then default to framework event source
+                // if profiler is not attached then default to diagnositics and framework event source
                 this.InitializeForDiagnosticAndFrameworkEventSource();
 
                 // Log a message to indicate the profiler is not attached

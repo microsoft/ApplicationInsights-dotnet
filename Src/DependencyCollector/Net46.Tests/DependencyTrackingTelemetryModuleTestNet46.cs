@@ -55,6 +55,12 @@
             DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
+        [TestCleanup]
+        public void Cleanup()
+        {
+            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+        }
+
         [TestMethod]
         [Timeout(5000)]
         public void TestDependencyCollectionDiagnosticSourceNoParentActivity()
@@ -64,6 +70,7 @@
                 module.EnableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
+                Assert.IsTrue(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
 
                 var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -107,6 +114,7 @@
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
+                Assert.IsFalse(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
 
                 var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
