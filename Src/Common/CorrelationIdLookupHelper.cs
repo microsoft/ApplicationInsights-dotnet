@@ -2,15 +2,16 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
     using System.Net;
-    using System.Threading.Tasks;
-    using Extensibility;
-    using Extensibility.Implementation.Tracing;
 #if NETCORE
     using System.Net.Http;
 #endif
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// A store for instrumentation App Ids. This makes sure we don't query the public endpoint to find an app Id for the same instrumentation key more than once.
@@ -21,11 +22,6 @@
         /// Max number of app ids to cache.
         /// </summary>
         private const int MAXSIZE = 100;
-
-        // For now we have decided to go with not waiting to retrieve the app Id, instead we just cache it on retrieval.
-        // This means the initial few attempts to get correlation id might fail and the initial telemetry sent might be missing such data.
-        // However, once it is in the cache - subsequent telemetry should contain this data. 
-        private const int GetAppIdTimeout = 0; // milliseconds
 
         private const string CorrelationIdFormat = "cid-v1:{0}";
 
@@ -38,6 +34,8 @@
         private Uri endpointAddress;
 
         private ConcurrentDictionary<string, string> knownCorrelationIds = new ConcurrentDictionary<string, string>();
+
+        private ConcurrentDictionary<string, int> fetchTasks = new ConcurrentDictionary<string, int>();
 
         // Stores failed instrumentation keys along with the time we tried to retrieve them.
         private ConcurrentDictionary<string, FailedResult> failingInstrumenationKeys = new ConcurrentDictionary<string, FailedResult>();
@@ -56,6 +54,25 @@
             }
 
             this.provideAppId = appIdProviderMethod;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CorrelationIdLookupHelper" /> class mostly to be used by the test classes to seed the instrumentation key -> app Id relationship.
+        /// </summary>
+        /// <param name="mapSeed">A dictionary that contains known instrumentation key - app id relationship.</param>
+        public CorrelationIdLookupHelper(Dictionary<string, string> mapSeed)
+        {
+            if (mapSeed == null)
+            {
+                throw new ArgumentNullException(nameof(mapSeed));
+            }
+
+            this.provideAppId = this.FetchAppIdFromService;
+
+            foreach (var entry in mapSeed)
+            {
+                this.knownCorrelationIds[entry.Key] = entry.Value;
+            }
         }
 
         /// <summary>
@@ -119,29 +136,32 @@
                         }
                     }
 
-                    // We wait for <getAppIdTimeout> seconds (which is 0 at this point) to retrieve the appId. If retrieved during that time, we return success setting the correlation id.
-                    // If we are still waiting on the result beyond the timeout - for this particular call we return the failure but queue a task continuation for it to be cached for next time.
-                    Task<string> getAppIdTask = this.provideAppId(instrumentationKey.ToLowerInvariant());           
-                    if (getAppIdTask.Wait(GetAppIdTimeout))
+                    // We only want one task to be there to fetch the ikey. If initial requests come in a bunch, only one of them gets to take responsibility of creating the fetch task. Rest return.
+                    if (this.fetchTasks.TryAdd(instrumentationKey, int.MinValue))
                     {
-                        this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, getAppIdTask.Result);
-                        correlationId = this.knownCorrelationIds[instrumentationKey];
-                        return true;
+                        this.provideAppId(instrumentationKey.ToLowerInvariant())
+                            .ContinueWith((appId) =>
+                            {
+                                try
+                                {
+                                    this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.RegisterFailure(instrumentationKey, ex);
+                                }
+                                finally
+                                {
+                                    this.fetchTasks.TryRemove(instrumentationKey, out int taskId);
+                                }
+                            });
+
+                        return false;
                     }
                     else
                     {
-                        getAppIdTask.ContinueWith((appId) =>
-                        {
-                            try
-                            {
-                                this.GenerateCorrelationIdAndAddToDictionary(instrumentationKey, appId.Result);
-                            }
-                            catch (Exception ex)
-                            {
-                                this.RegisterFailure(instrumentationKey, ex);
-                            }
-                        });
-
+                        // Fetch tasks are scheduled - don't queue a task.
+                        correlationId = string.Empty;
                         return false;
                     }
                 }
@@ -153,6 +173,16 @@
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// This method is purely a test helper at this point. It checks whether the task to get app ID is still running.
+        /// </summary>
+        /// <returns>True if fetch task is still in progress, false otherwise.</returns>
+        public bool IsFetchAppInProgress(string ikey)
+        {
+            int value;
+            return this.fetchTasks.TryGetValue(ikey, out value);
         }
 
         private void GenerateCorrelationIdAndAddToDictionary(string ikey, string appId)
@@ -227,11 +257,6 @@
                             return reader.ReadToEnd();
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    AppMapCorrelationEventSource.Log.FetchAppIdFailed(this.GetExceptionDetailString(ex));
-                    return null;
                 }
                 finally
                 {

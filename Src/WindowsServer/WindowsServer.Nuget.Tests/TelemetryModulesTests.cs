@@ -42,6 +42,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void InstallAddsFirstChanceExceptionTelemetryModule()
         {
             string emptyConfig = ConfigurationHelpers.GetEmptyConfig();
@@ -64,7 +65,7 @@
 
             Type typeToFind = typeof(FirstChanceExceptionStatisticsTelemetryModule);
 
-            Assert.AreEqual(4, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
+            Assert.AreEqual(3, ConfigurationHelpers.GetTelemetryModules(configAfterTransform).Descendants().Count());
         }
 
         [TestMethod]

@@ -1,8 +1,9 @@
-#if !NET40
+#if NET45
 namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Net;
 
     /// <summary>
@@ -10,16 +11,16 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     /// </summary>
     internal class HttpDesktopDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
-        private readonly FrameworkHttpProcessing httpProcessingFramework;
+        private readonly DesktopDiagnosticSourceHttpProcessing httpDesktopProcessing;
         private readonly HttpDesktopDiagnosticSourceSubscriber subscribeHelper;
         private readonly PropertyFetcher requestFetcherRequestEvent;
         private readonly PropertyFetcher requestFetcherResponseEvent;
         private readonly PropertyFetcher responseFetcher;
         private bool disposed = false;
 
-        internal HttpDesktopDiagnosticSourceListener(FrameworkHttpProcessing httpProcessing)
+        internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing)
         {
-            this.httpProcessingFramework = httpProcessing;
+            this.httpDesktopProcessing = httpProcessing;
             this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
@@ -47,13 +48,24 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 switch (value.Key)
                 {
                     case "System.Net.Http.Desktop.HttpRequestOut.Start":
+                    {
+                        var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
+
+                        // With this event, DiagnosticSource injects headers himself (after the event)
+                        // ApplicationInsights must not do this
+                        this.httpDesktopProcessing.OnBegin(request, false);
+                        break;
+                    }
 
                     // remove "System.Net.Http.Request" in 2.5.0 (but keep the same code for "System.Net.Http.Desktop.HttpRequestOut.Start")
                     // event was temporarily introduced in DiagnosticSource and removed before stable release
                     case "System.Net.Http.Request": 
                     {
+                        // request is never null
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
-                        this.httpProcessingFramework.OnRequestSend(request);
+                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
+                        this.httpDesktopProcessing.OnBegin(request);
                         break;
                     }
 
@@ -63,9 +75,17 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // event was temporarily introduced in DiagnosticSource and removed before stable release
                     case "System.Net.Http.Response": 
                     {
+                        // request is never null
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
+                        DependencyCollectorEventSource.Log.EndCallbackCalled(request.GetHashCode().ToString(CultureInfo.InvariantCulture));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
-                        this.httpProcessingFramework.OnResponseReceive(request, response);
+                        this.httpDesktopProcessing.OnEnd(null, request, response);
+                        break;
+                    }
+
+                    default:
+                    {
+                        DependencyCollectorEventSource.Log.NotExpectedCallback(value.GetHashCode(), value.Key, "unknown key");
                         break;
                     }
                 }

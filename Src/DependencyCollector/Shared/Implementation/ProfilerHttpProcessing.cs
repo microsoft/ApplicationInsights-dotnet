@@ -51,7 +51,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetResponse(object thisObj)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@
         /// <returns>The resulting return value.</returns>
         public object OnEndForGetResponse(object context, object returnValue, object thisObj)
         {
-            this.OnEnd(null, thisObj, returnValue, true);
+            this.OnEnd(null, thisObj, returnValue);
             return returnValue;
         }
 
@@ -75,7 +75,7 @@
         /// <param name="thisObj">This object.</param>        
         public void OnExceptionForGetResponse(object context, object exception, object thisObj)
         {
-            this.OnEnd(exception, thisObj, null, true);
+            this.OnEnd(exception, thisObj, null);
         }
         
         /// <summary>
@@ -86,7 +86,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForGetRequestStream(object thisObj, object transportContext)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }       
 
         /// <summary>
@@ -99,7 +99,7 @@
         /// <param name="transportContext">The transport context parameter.</param>
         public void OnExceptionForGetRequestStream(object context, object exception, object thisObj, object transportContext)
         {
-            this.OnEnd(exception, thisObj, null, true);
+            this.OnEnd(exception, thisObj, null);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForBeginGetResponse(object thisObj, object callback, object state)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@
         /// <returns>The return value passed.</returns>
         public object OnEndForEndGetResponse(object context, object returnValue, object thisObj, object asyncResult)
         {
-            this.OnEnd(null, thisObj, returnValue, true);
+            this.OnEnd(null, thisObj, returnValue);
             return returnValue;
         }
 
@@ -137,7 +137,7 @@
         /// <param name="asyncResult">The asyncResult parameter.</param>
         public void OnExceptionForEndGetResponse(object context, object exception, object thisObj, object asyncResult)
         {
-            this.OnEnd(exception, thisObj, null, true);
+            this.OnEnd(exception, thisObj, null);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@
         /// <returns>The context for end callback.</returns>
         public object OnBeginForBeginGetRequestStream(object thisObj, object callback, object state)
         {
-            return this.OnBegin(thisObj, true);
+            return this.OnBegin(thisObj);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@
         /// <param name="transportContext">The transportContext parameter.</param>
         public void OnExceptionForEndGetRequestStream(object context, object exception, object thisObj, object asyncResult, object transportContext)
         {
-            this.OnEnd(exception, thisObj, null, true);
+            this.OnEnd(exception, thisObj, null);
         }
 
         #endregion // Http callbacks

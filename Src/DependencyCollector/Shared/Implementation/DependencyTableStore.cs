@@ -12,6 +12,7 @@
         internal ObjectInstanceBasedOperationHolder SqlRequestConditionalHolder;
 
         internal bool IsProfilerActivated = false;
+        internal bool IsDesktopHttpDiagnosticSourceActivated = false;
         private static DependencyTableStore instance;
 
         private DependencyTableStore() 

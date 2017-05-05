@@ -260,6 +260,33 @@
             this.WriteEvent(23, this.ApplicationName);
         }
 
+        [Event(
+            24,
+            Message = "HttpDesktopDiagnosticSourceListener is activated.",
+            Level = EventLevel.Verbose)]
+        public void HttpDesktopDiagnosticSourceListenerIsActivated(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(24, this.ApplicationName);
+        }
+
+        [Event(
+            25,
+            Message = "HttpDesktopDiagnosticSourceListener is deactivated.",
+            Level = EventLevel.Verbose)]
+        public void HttpDesktopDiagnosticSourceListenerIsDeactivated(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(25, this.ApplicationName);
+        }
+
+        [Event(
+            26,
+            Message = "Telemetry for id = '{0}' is tracked with HttpDesktopDiagnosticSourceListener.",
+            Level = EventLevel.Verbose)]
+        public void SkipTrackingTelemetryItemWithEventSource(long id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(26, id, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

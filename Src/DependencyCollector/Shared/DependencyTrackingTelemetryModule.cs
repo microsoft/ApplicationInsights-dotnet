@@ -10,6 +10,8 @@
     using Microsoft.Diagnostics.Instrumentation.Extensions.Intercept;
 #else
     using Microsoft.Extensions.PlatformAbstractions;
+    using System.Reflection;
+    using System.Runtime.Versioning;
 #endif
 
     /// <summary>
@@ -45,6 +47,11 @@
         /// Gets or sets a value indicating whether to disable runtime instrumentation.
         /// </summary>
         public bool DisableRuntimeInstrumentation { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to disable Http Desktop DiagnosticSource instrumentation.
+        /// </summary>
+        public bool DisableDiagnosticSourceInstrumentation { get; set; }
 
         /// <summary>
         /// Gets the component correlation configuration.
@@ -131,8 +138,8 @@
                         catch (Exception exc)
                         {
                             string clrVersion;
-#if NETCORE
-                            clrVersion = PlatformServices.Default.Application.RuntimeFramework.FullName;
+#if NETCORE                            
+                            clrVersion = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
 #else
                             clrVersion = Environment.Version.ToString();
 #endif
@@ -219,11 +226,26 @@
         /// <summary>
         /// Initialize for framework event source (not supported for Net40).
         /// </summary>
-        private void InitializeForFrameworkEventSource()
+        private void InitializeForDiagnosticAndFrameworkEventSource()
         {
-#if !NET40
-            FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(this.telemetryConfiguration, DependencyTableStore.Instance.WebRequestCacheHolder, this.SetComponentCorrelationHttpHeaders, this.ExcludeComponentCorrelationHttpHeadersOnDomains, this.EffectiveProfileQueryEndpoint);
-            this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(frameworkHttpProcessing);
+#if NET45
+            if (!this.DisableDiagnosticSourceInstrumentation)
+            {
+                DesktopDiagnosticSourceHttpProcessing desktopHttpProcessing = new DesktopDiagnosticSourceHttpProcessing(
+                    this.telemetryConfiguration,
+                    DependencyTableStore.Instance.WebRequestCacheHolder,
+                    this.SetComponentCorrelationHttpHeaders,
+                    this.ExcludeComponentCorrelationHttpHeadersOnDomains,
+                    this.EffectiveProfileQueryEndpoint);
+                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+            }
+
+            FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
+                this.telemetryConfiguration,
+                DependencyTableStore.Instance.WebRequestCacheHolder, 
+                this.SetComponentCorrelationHttpHeaders, 
+                this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
+                this.EffectiveProfileQueryEndpoint);
 
             // In 4.5 EventListener has a race condition issue in constructor so we retry to create listeners
             this.httpEventListener = RetryPolicy.Retry<InvalidOperationException, TelemetryConfiguration, FrameworkHttpEventListener>(
@@ -255,21 +277,21 @@
                     }
                     catch (Exception exp)
                     {
-                        this.InitializeForFrameworkEventSource();
+                        this.InitializeForDiagnosticAndFrameworkEventSource();
                         DependencyCollectorEventSource.Log.ProfilerFailedToAttachError(exp.ToInvariantString());
                     }
                 }
                 else
                 {
                     // if config is set to disable runtime instrumentation then default to framework event source
-                    this.InitializeForFrameworkEventSource();
+                    this.InitializeForDiagnosticAndFrameworkEventSource();
                     DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Runtime instrumentation is set to disabled. Initialize with framework event source instead.");
                 }
             }
             else
             {
-                // if profiler is not attached then default to framework event source
-                this.InitializeForFrameworkEventSource();
+                // if profiler is not attached then default to diagnositics and framework event source
+                this.InitializeForDiagnosticAndFrameworkEventSource();
 
                 // Log a message to indicate the profiler is not attached
                 DependencyCollectorEventSource.Log.RemoteDependencyModuleProfilerNotAttached();

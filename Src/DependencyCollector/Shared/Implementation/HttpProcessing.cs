@@ -88,12 +88,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <summary>
         /// Common helper for all Begin Callbacks.
         /// </summary>
-        /// <param name="thisObj">This object.</param>        
-        /// <param name="skipIfNotNew">Whether to skip updating properties on the DependencyTelemetry object if it
-        /// already exists. If this is false, OnBegin wouldn't update properties on the telemetry object even if
-        /// has existed in the telemetry table.</param>        
+        /// <param name="thisObj">This object.</param>
+        /// <param name="injectCorrelationHeaders">Flag that enables Request-Id and Correlation-Context headers injection.
+        /// Should be set to true only for profiler and old versions of DiagnosticSource Http hook events.</param>
         /// <returns>Null object as all context is maintained in this class via weak tables.</returns>
-        internal object OnBegin(object thisObj, bool skipIfNotNew)
+        internal object OnBegin(object thisObj, bool injectCorrelationHeaders = true)
         {
             try
             {
@@ -143,10 +142,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         telemetry = telemetryTuple.Item1;
                         DependencyCollectorEventSource.Log.TrackingAnExistingTelemetryItemVerbose();
-                        if (skipIfNotNew)
-                        {
-                            return null;
-                        }
+                        return null;
                     }
                 }
 
@@ -208,7 +204,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.StandardParentIdHeader, parentId);
                         }
+                    }
 
+                    // ApplicationInsights only need to inject Request-Id and Correlation-Context headers 
+                    // for profiler instrumentation, in case of Http Desktop DiagnosticSourceListener
+                    // they are injected in DiagnosticSource (with the System.Net.Http.Desktop.HttpRequestOut.Start event)
+                    if (injectCorrelationHeaders)
+                    {
                         if (webRequest.Headers[RequestResponseHeaders.RequestIdHeader] == null)
                         {
                             webRequest.Headers.Add(RequestResponseHeaders.RequestIdHeader, telemetry.Id);
@@ -249,8 +251,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// <param name="exception">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>                
         /// <param name="returnValue">Return value of the function if any.</param>
-        /// <param name="endTracking">Whether this method should end the tracking or not.</param>
-        internal void OnEnd(object exception, object thisObj, object returnValue, bool endTracking)
+        internal void OnEnd(object exception, object thisObj, object returnValue)
         {
             try
             {
@@ -284,12 +285,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 // Not custom created
                 if (!telemetryTuple.Item2)
                 {
-                    // Remove it from the tracker only if the caller thinks tracking should end here. If not, the caller
-                    // may want to end tracking outside of this function
-                    if (endTracking)
-                    {
-                        this.RemoveTupleForWebDependencies(webRequest);
-                    }
+                    this.RemoveTupleForWebDependencies(webRequest);
 
                     DependencyTelemetry telemetry = telemetryTuple.Item1;
 
@@ -385,10 +381,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         }
                     }
 
-                    if (endTracking)
-                    {
-                        ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
-                    }
+                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
             }
             catch (Exception ex)
