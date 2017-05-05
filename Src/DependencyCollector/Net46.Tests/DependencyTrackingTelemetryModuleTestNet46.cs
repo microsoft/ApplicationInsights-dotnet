@@ -77,8 +77,10 @@
                 {
                 }
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                var dependency = this.sentTelemetry.Single();
+                this.ValidateTelemetryForDiagnosticSource(dependency, url, request, true, "200");
                 Assert.IsNull(request.Headers["Correlation-Context"]);
+                Assert.AreEqual(null, dependency.Context.Operation.ParentId);
             }
         }
 
