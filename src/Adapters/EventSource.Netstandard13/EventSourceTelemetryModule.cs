@@ -156,7 +156,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             // Special case: enable TPL activity flow for better tracing of nested activities.
             if (eventSource.Guid == TplActivities.TplEventSourceGuid)
             {
-                this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords) TplActivities.TaskFlowActivityIdsKeyword);
+                this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)TplActivities.TaskFlowActivityIdsKeyword);
                 this.enabledEventSources.Add(eventSource);
             }
             else if (eventSource.Name == EventSourceListenerEventSource.ProviderName)
