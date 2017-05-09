@@ -237,7 +237,7 @@
                     this.SetComponentCorrelationHttpHeaders,
                     this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                     this.EffectiveProfileQueryEndpoint);
-                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing, new ApplicationInsightsUrlFilter(this.telemetryConfiguration));
             }
 
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(

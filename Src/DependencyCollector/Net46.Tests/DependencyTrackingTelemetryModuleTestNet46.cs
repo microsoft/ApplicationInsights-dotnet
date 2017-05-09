@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.Tracing;
     using System.Linq;
     using System.Net;
 
@@ -21,7 +22,7 @@
     public class DependencyTrackingTelemetryModuleTestNet46
     {
         private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
-        private const string FakeProfileApiEndpoint = "http://www.microsoft.com";
+        private const string FakeProfileApiEndpoint = "https://dc.services.visualstudio.com/v2/track";
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
@@ -37,12 +38,12 @@
                 {
                     // The correlation id lookup service also makes http call, just make sure we skip that
                     DependencyTelemetry depTelemetry = telemetry as DependencyTelemetry;
-                    if (depTelemetry != null &&
-                        !depTelemetry.Data.StartsWith(FakeProfileApiEndpoint, StringComparison.OrdinalIgnoreCase))
+                    if (depTelemetry != null)
                     {
                         this.sentTelemetry.Add(depTelemetry);
                     }
-                }
+                },
+                EndpointAddress = FakeProfileApiEndpoint
             };
 
             this.config = new TelemetryConfiguration
@@ -220,6 +221,41 @@
                 }
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, false, string.Empty);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        [Ignore] // enable with DiagnosticSource version 4.4.0-preview2*
+        public void OnBeginOnEndAreNotCalledForAppInsightsUrl()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                using (var listener = new TestEventListener())
+                {
+                    listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, DependencyCollectorEventSource.Keywords.RddEventKeywords);
+
+                    HttpWebRequest request = WebRequest.CreateHttp(FakeProfileApiEndpoint);
+                    try
+                    {
+                        using (request.GetResponse())
+                        {
+                        }
+                    }
+                    catch (WebException)
+                    {
+                    }
+
+                    foreach (var message in listener.Messages)
+                    {
+                        Assert.IsFalse(message.EventId == 27 || message.EventId == 28);
+                        Assert.IsFalse(message.Message.Contains("HttpDesktopDiagnosticSourceListener: Begin callback called for id"));
+                        Assert.IsFalse(message.Message.Contains("HttpDesktopDiagnosticSourceListener: End callback called for id"));
+                    }
+                }
             }
         }
 
