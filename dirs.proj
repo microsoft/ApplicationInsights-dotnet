@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Imported here to generate version file before compilation starts. Same props are imported by projects. -->
-  <Import Project=".\GlobalStaticVersion.props" />
-  <Import Project=".\Global.props" />
-  <PropertyGroup>
-    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalMinutes), 5).ToString('F0'))</PreReleaseVersion>
-  </PropertyGroup>
-
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project=".\Directory.Build.props" />
+  
   <ItemGroup>
     <Solution Include="Logging.sln" />
-      </ItemGroup>
+  </ItemGroup>
   <Target Name="Build">
     <!-- Generate build version -->
     <WriteLinesToFile File="$(PreReleaseVersionFileName)" Lines="$(PreReleaseVersion)" Overwrite="true" Encoding="Unicode"/>

@@ -10,5 +10,5 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SdkVersionUtils.cs" />
-  </ItemGroup>
+  </ItemGroup>  
 </Project>

@@ -24,18 +24,16 @@ namespace Microsoft.ApplicationInsights.TraceListener
     public sealed class ApplicationInsightsTraceListener : TraceListener
     {
         /// <summary>
-        /// Initializes a new instance of the ApplicationInsightsTraceListener class, without specifying a
-        /// component ID.
+        /// Initializes a new instance of the ApplicationInsightsTraceListener class, without specifying
+        /// an instrumentation key.
         /// </summary>
         public ApplicationInsightsTraceListener() : this(string.Empty)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the ApplicationInsightsTraceListener class, and validates the component
-        /// id passed as the initialize-data.
-        /// An empty or null Component ID is acceptable because the event source will fall back to the one
-        /// set in ApplicationInsights.config, however an invalid Component ID will throw an exception.
+        /// Initializes a new instance of the ApplicationInsightsTraceListener class.
+        /// If empty or null instrumentation key is passed, it will fall back to the one specified in ApplicationInsights.config file.
         /// </summary>
         /// <param name="instrumentationKey">Instrumentation Key of your application.</param>
         public ApplicationInsightsTraceListener(string instrumentationKey)

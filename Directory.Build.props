@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- This file (Global.props) must be included into all projects in all solutions of this product.                    -->
+    <!-- This file (Directory.Build.props) is automatically included by MSBuild into all projects in this solution.       -->
     <!-- It defines common build paths and infrastructure.                                                                -->
     <!-- Other products / repositories using the same build pattern will have an own copy of copy this file               -->
-
-    <!-- Project file location for the Import statement:                                                                  -->
-    <!--  * You MUST include this file towards the bottom of each respective project file, *                              -->
-    <!--  * BELOW all local definitions, RIGHT ABOVE the targets import.                   *                              -->
-    <!--  * For example, right above this line:                                            *                              -->
-    <!--  *     <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />            *                              -->
     
-    <!-- There are two easy ways to import this file. The shortest way is to write something  like:                       -->
-    <!--     <Import Project="..\..\Global.props" />                                                                      -->
-    <!-- However, you will need to match the number of "..\" segments to the respective location of each project file in  -->
-    <!-- your sourcce tree. A more robust approach is to include the following code. It can stay the same regardless of   -->
-    <!-- your project file location:                                                                                      -->
-    <!--
-        <PropertyGroup Label="Include_Common_Build_Properties">
-            <CommonBuildPropsLocation>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'EnlistmentRoot.marker'))</CommonBuildPropsLocation>
-        </PropertyGroup>
-        <ImportGroup Label="Include_Common_Build_Properties">
-            <Import Project="$(CommonBuildPropsLocation)\Global.props" />
-        </ImportGroup>
-     -->
-
+    <Import Project=".\GlobalStaticVersion.props" />
+    
     <PropertyGroup>
         <!--  The common project structure looks like this:                                                               -->
         <!--  d:\DDGit\                                                                                                   -->
@@ -65,10 +47,10 @@
         <BinRoot>$([System.IO.Path]::GetFullPath( $(BinRoot) ))</BinRoot>
                 
         <RelativeOutputPathBase>$(MSBuildProjectDirectory.Substring($(EnlistmentRoot.Length)))</RelativeOutputPathBase>
-        
-        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj</BaseIntermediateOutputPath>
-        <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
 
+        <BaseIntermediateOutputPath>$(EnlistmentRoot)\..\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+        <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath( $(BaseIntermediateOutputPath) ))</BaseIntermediateOutputPath>
+        
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         
         <OutputPath>$(BinRoot)\$(Configuration)\$(RelativeOutputPathBase)</OutputPath>
@@ -87,7 +69,7 @@
         <PackagesDir>$(EnlistmentRoot)\..\packages</PackagesDir>
         <PackagesDir>$([System.IO.Path]::GetFullPath( $(PackagesDir) ))</PackagesDir>
         
-        <CoreSdkVersion>2.2.0</CoreSdkVersion>                
+        <CoreSdkVersion>2.4.0-beta3</CoreSdkVersion>                
     </PropertyGroup>
    
     <PropertyGroup>
@@ -120,6 +102,13 @@
     </AssemblyAttributes>
     <AssemblyAttributes Include="AssemblyFileVersion">
       <_Parameter1>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</_Parameter1>
-    </AssemblyAttributes>
+    </AssemblyAttributes>    
   </ItemGroup>
+
+  <PropertyGroup>
+    <!-- MSBuild 15 apparently uses slightly different properties for the task of generating assembly/file version. -->
+    <AssemblyVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).0</AssemblyVersion>
+    <FileVersion>$(SemanticVersionMajor).$(SemanticVersionMinor).$(SemanticVersionPatch).$(PreReleaseVersion)</FileVersion>
+  </PropertyGroup>
+  
 </Project>

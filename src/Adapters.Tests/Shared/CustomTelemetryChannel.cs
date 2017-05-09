@@ -7,14 +7,19 @@
 
 namespace Microsoft.ApplicationInsights
 {
+    using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-
     internal class CustomTelemetryChannel : ITelemetryChannel
     {
+        private EventWaitHandle waitHandle;
+
         public CustomTelemetryChannel()
         {
+            this.waitHandle = new AutoResetEvent(false);
             this.SentItems = new ITelemetry[0];
         }
 
@@ -32,7 +37,37 @@ namespace Microsoft.ApplicationInsights
                 List<ITelemetry> temp = new List<ITelemetry>(current);
                 temp.Add(item);
                 this.SentItems = temp.ToArray();
+                this.waitHandle.Set();
             }
+        }
+
+        public Task<int?> WaitForItemsCaptured(TimeSpan timeout)
+        {
+            // Pattern for Wait Handles from: https://msdn.microsoft.com/en-us/library/hh873178%28v=vs.110%29.aspx#WaitHandles
+            var tcs = new TaskCompletionSource<int?>();
+
+            var rwh = ThreadPool.RegisterWaitForSingleObject(
+                this.waitHandle, 
+                (state, timedOut) => {
+                    if (timedOut)
+                    {
+                        tcs.SetResult(null);
+                    }
+                    else
+                    {
+                        lock (this)
+                        {
+                            tcs.SetResult(this.SentItems.Length);
+                        }
+                    }
+                }, 
+                state: null, 
+                millisecondsTimeOutInterval: Convert.ToUInt32(timeout.TotalMilliseconds), 
+                executeOnlyOnce: true);
+
+            var t = tcs.Task;
+            t.ContinueWith((previousTask) => rwh.Unregister(null));
+            return t;
         }
 
         public void Flush()
@@ -42,6 +77,16 @@ namespace Microsoft.ApplicationInsights
 
         public void Dispose()
         {
+        }
+
+        public CustomTelemetryChannel Reset()
+        {
+            lock (this)
+            {
+                this.SentItems = new ITelemetry[0];
+            }
+
+            return this;
         }
     }
 }

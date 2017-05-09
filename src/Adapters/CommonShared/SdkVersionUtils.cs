@@ -15,10 +15,11 @@ namespace Microsoft.ApplicationInsights.Implementation
     {
         internal static string GetSdkVersion(string versionPrefix)
         {
-            string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false)
-                    .OfType<AssemblyFileVersionAttribute>()
-                    .First()
-                    .Version;
+#if NET40 || NET45 || NET46
+            string versionStr = typeof(SdkVersionUtils).Assembly.GetCustomAttributes(false).OfType<AssemblyFileVersionAttribute>().First().Version;
+#else
+            string versionStr = typeof(SdkVersionUtils).GetTypeInfo().Assembly.GetCustomAttributes<AssemblyFileVersionAttribute>().First().Version;
+#endif
 
             Version version = new Version(versionStr);
             return (versionPrefix ?? string.Empty) + version.ToString(3) + "-" + version.Revision;

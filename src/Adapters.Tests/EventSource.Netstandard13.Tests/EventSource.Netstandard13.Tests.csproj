@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7030CAC6-4B94-4735-B146-C0FC3097ACA6}</ProjectGuid>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <FileAlignment>512</FileAlignment>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta1-build06467" />
+    <PackageReference Include="Microbuild.Core" Version="0.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Identifies the project as test project -->
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
+  <Import Project="..\CommonTestShared\CommonTestShared.projitems" Label="Shared" Condition="Exists('..\CommonTestShared\CommonTestShared.projitems')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+
+</Project>

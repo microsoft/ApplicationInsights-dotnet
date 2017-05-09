@@ -54,6 +54,26 @@ namespace Xdt.Tests
                ".Log4Net.TestDataSet.xml");
         }
 
+        [TestMethod]
+        [TestCategory("XdtTests")]
+        public void EventSourceListenerTest()
+        {
+            this.ValidateTransform(
+               ".EventSourceListener.ApplicationInsights.config.install.xdt",
+               ".EventSourceListener.ApplicationInsights.config.uninstall.xdt",
+               ".EventSourceListener.TestDataSet.xml");
+        }
+
+        [TestMethod]
+        [TestCategory("XdtTests")]
+        public void EtwCollectorTest()
+        {
+            this.ValidateTransform(
+               ".EtwCollector.ApplicationInsights.config.install.xdt",
+               ".EtwCollector.ApplicationInsights.config.uninstall.xdt",
+               ".EtwCollector.TestDataSet.xml");
+        }
+
         private static string GetInnerXml(XElement element)
         {
             XmlReader reader = element.CreateReader();
