@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             {
                                 // request is never null
                                 var request = (HttpWebRequest)r;
-                                return !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString());
+                                return !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri);
                             }
 
                             return true;

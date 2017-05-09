@@ -62,14 +62,41 @@
         /// </summary>
         /// <param name="url">HTTP URL.</param>
         /// <returns>True if URL is application insights url, otherwise false.</returns>
+        internal bool IsApplicationInsightsUrl(Uri url)
+        {
+            // first check that it's not active internal SDK operation 
+            if (SdkInternalOperationsMonitor.IsEntered())
+            {
+                return true;
+            }
+
+            return this.IsApplicationInsightsUrlImpl(url?.ToString());
+        }
+
+        /// <summary>
+        /// Determines whether an URL is application insights URL.
+        /// </summary>
+        /// <param name="url">HTTP URL.</param>
+        /// <returns>True if URL is application insights url, otherwise false.</returns>
         internal bool IsApplicationInsightsUrl(string url)
+        {
+            // first check that it's not active internal SDK operation 
+            if (SdkInternalOperationsMonitor.IsEntered())
+            {
+                return true;
+            }
+
+            return this.IsApplicationInsightsUrlImpl(url);
+        }
+
+        private bool IsApplicationInsightsUrlImpl(string url)
         {
             bool result = false;
             if (!string.IsNullOrEmpty(url))
             {
                 // Check if url matches default values for service endpoint/quick pulse.
                 result = url.StartsWith(ApplicationInsightsUrlFilter.TelemetryServiceEndpoint, StringComparison.OrdinalIgnoreCase)
-                    || url.StartsWith(ApplicationInsightsUrlFilter.QuickPulseServiceEndpoint, StringComparison.OrdinalIgnoreCase);
+                         || url.StartsWith(ApplicationInsightsUrlFilter.QuickPulseServiceEndpoint, StringComparison.OrdinalIgnoreCase);
 
                 if (!result)
                 {
@@ -79,14 +106,10 @@
                     {
                         result = url.StartsWith(endpointUrl, StringComparison.OrdinalIgnoreCase);
                     }
-                }   
-                             
-                return result;
+                }
             }
-            else
-            {
-                return result;
-            }
+
+            return result;
         }
     }
 }
