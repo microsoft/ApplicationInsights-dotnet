@@ -14,10 +14,9 @@
         internal bool IsProfilerActivated = false;
         internal bool IsDesktopHttpDiagnosticSourceActivated = false;
 
-        private static readonly object SyncRoot = new object();
-        private static DependencyTableStore instance;
+        private static readonly DependencyTableStore instance = new DependencyTableStore();
 
-        private DependencyTableStore() 
+        private DependencyTableStore()
         {
 #if !NET40
             this.WebRequestCacheHolder = new CacheBasedOperationHolder("aisdkwebrequests", 100 * 1000);
@@ -29,25 +28,14 @@
 
         internal static DependencyTableStore Instance
         {
-           get 
-           {
-               if (instance == null)
-               {
-                   lock (SyncRoot)
-                   {
-                       if (instance == null)
-                       {
-                           instance = new DependencyTableStore();
-                       }
-                   }
-               }
-
-               return instance;
-           }
+            get
+            {
+                return instance;
+            }
         }
 
         public void Dispose()
-        {            
+        {
             this.WebRequestCacheHolder.Dispose();
             this.SqlRequestCacheHolder.Dispose();
             GC.SuppressFinalize(this);
