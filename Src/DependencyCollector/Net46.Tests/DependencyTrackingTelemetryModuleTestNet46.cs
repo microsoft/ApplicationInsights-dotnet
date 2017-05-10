@@ -6,6 +6,7 @@
     using System.Diagnostics.Tracing;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
@@ -53,13 +54,13 @@
             };
 
             this.config.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestMethod]
@@ -70,7 +71,7 @@
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
-                Assert.IsTrue(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
+                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 
                 var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -92,7 +93,7 @@
                 module.DisableDiagnosticSourceInstrumentation = true;
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
-                Assert.IsFalse(DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated);
+                Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 
                 var url = new Uri("https://www.bing.com/");
                 HttpWebRequest request = WebRequest.CreateHttp(url);
@@ -122,6 +123,60 @@
                 Assert.IsNull(request.Headers["Request-Id"]);
                 Assert.IsNull(request.Headers["x-ms-request-id"]);
                 Assert.IsNull(request.Headers["Correlation-Context"]);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionEventSource404()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+                Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
+
+                var url = new Uri("http://google.com/404");
+                HttpClient httpClient = new HttpClient();
+                httpClient.GetStringAsync(url).ContinueWith(t => { }).Wait();
+
+                var item = this.sentTelemetry.Single();
+                Assert.AreEqual(url, item.Data);
+                Assert.AreEqual(url.Host, item.Target);
+                Assert.AreEqual(url.AbsolutePath, item.Name);
+                Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
+                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
+                Assert.IsTrue(
+                    DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
+                    TimeSpan.FromMinutes(1).TotalMilliseconds,
+                    "timestamp < now");
+                Assert.IsTrue(
+                    item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
+                    -TimeSpan.FromMinutes(1).TotalMilliseconds,
+                    "now - 1 min < timestamp");
+                Assert.IsFalse(item.Success.Value);
+                Assert.AreEqual("404", item.ResultCode);
+                Assert.AreEqual(
+                    SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rddf:"),
+                    item.Context.GetInternalContext().SdkVersion);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSource404()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri("http://google.com/404");
+                HttpClient httpClient = new HttpClient();
+                httpClient.GetStringAsync(url).ContinueWith(t => { }).Wait();
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, "404");
             }
         }
 
@@ -281,9 +336,12 @@
                 item.Context.GetInternalContext().SdkVersion);
 
             var requestId = item.Id;
-            Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-            Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
             Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
+            if (request != null)
+            {
+                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
+                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+            }
         }
     }
 }

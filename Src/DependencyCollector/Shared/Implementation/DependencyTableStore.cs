@@ -6,13 +6,13 @@
 
     internal class DependencyTableStore : IDisposable
     {
+        internal static bool IsDesktopHttpDiagnosticSourceActivated = false;
         internal CacheBasedOperationHolder WebRequestCacheHolder;
         internal CacheBasedOperationHolder SqlRequestCacheHolder;
         internal ObjectInstanceBasedOperationHolder WebRequestConditionalHolder;
         internal ObjectInstanceBasedOperationHolder SqlRequestConditionalHolder;
 
         internal bool IsProfilerActivated = false;
-        internal bool IsDesktopHttpDiagnosticSourceActivated = false;
 
         private static readonly object SyncRoot = new object();
         private static DependencyTableStore instance;

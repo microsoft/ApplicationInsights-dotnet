@@ -66,7 +66,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                             return true;
                         });
 
-                    DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
+                    DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
                     DependencyCollectorEventSource.Log.HttpDesktopDiagnosticSourceListenerIsActivated();
                 }
             }
@@ -110,7 +110,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     }
                 }
 
-                DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+                DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
                 DependencyCollectorEventSource.Log.HttpDesktopDiagnosticSourceListenerIsDeactivated();
 
                 this.disposed = true;

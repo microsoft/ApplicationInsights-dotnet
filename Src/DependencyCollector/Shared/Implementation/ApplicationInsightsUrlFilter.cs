@@ -9,6 +9,7 @@
         internal const string TelemetryServiceEndpoint = "https://dc.services.visualstudio.com/v2/track";
         internal const string QuickPulseServiceEndpoint = "https://rt.services.visualstudio.com/QuickPulseService.svc";
 
+        internal readonly Uri TelemetryServiceEndpointUri = new Uri(TelemetryServiceEndpoint);
         private readonly TelemetryConfiguration telemetryConfiguration;
 
         private KeyValuePair<string, string> cachedEndpointLeftPart = new KeyValuePair<string, string>();
@@ -16,45 +17,9 @@
         public ApplicationInsightsUrlFilter(TelemetryConfiguration telemetryConfiguration)
         {
             this.telemetryConfiguration = telemetryConfiguration;
-        }
 
-        private string EndpointLeftPart
-        {
-            get
-            {
-                string currentEndpointAddressValue = null;
-
-                // Cache AI endpoint URI
-                if (this.telemetryConfiguration != null)
-                {
-                    string endpoint = this.telemetryConfiguration.TelemetryChannel.EndpointAddress;
-                    if (!string.IsNullOrEmpty(endpoint))
-                    {
-                        // The TelemetryChannel is used which defines the production endpoint in ApplicationInsights.config.
-                        currentEndpointAddressValue = endpoint;
-                    }
-                }
-
-                if (this.cachedEndpointLeftPart.Key != currentEndpointAddressValue)
-                {
-                    Uri uri = new Uri(ApplicationInsightsUrlFilter.TelemetryServiceEndpoint);
-
-                    if (currentEndpointAddressValue != null)
-                    {
-                        uri = new Uri(currentEndpointAddressValue);
-                    }
-
-                    // we are using Authority to include the port number
-                    // if it is not the same as the default port of the Uri.
-                    // especially required for Functional Tests which host applciation
-                    // and telemetry service at the same host localhost but are using different ports.
-                    var endpointLeftPart = uri.Scheme + "://" + uri.Authority;
-
-                    this.cachedEndpointLeftPart = new KeyValuePair<string, string>(currentEndpointAddressValue, endpointLeftPart);
-                }
-
-                return this.cachedEndpointLeftPart.Value;
-            }
+            // cache EndpointLeftPart ahaed, before first dependency call
+            this.GetEndpointLeftPart();
         }
 
         /// <summary>
@@ -101,7 +66,7 @@
                 if (!result)
                 {
                     // Check if the url is a user-configured service endpoint.
-                    var endpointUrl = this.EndpointLeftPart;
+                    var endpointUrl = this.GetEndpointLeftPart();
                     if (!string.IsNullOrEmpty(endpointUrl))
                     {
                         result = url.StartsWith(endpointUrl, StringComparison.OrdinalIgnoreCase);
@@ -110,6 +75,42 @@
             }
 
             return result;
+        }
+
+        private string GetEndpointLeftPart()
+        {
+            string currentEndpointAddressValue = null;
+
+            // Cache AI endpoint URI
+            if (this.telemetryConfiguration != null)
+            {
+                string endpoint = this.telemetryConfiguration.TelemetryChannel.EndpointAddress;
+                if (!string.IsNullOrEmpty(endpoint))
+                {
+                    // The TelemetryChannel is used which defines the production endpoint in ApplicationInsights.config.
+                    currentEndpointAddressValue = endpoint;
+                }
+            }
+
+            if (this.cachedEndpointLeftPart.Key != currentEndpointAddressValue)
+            {
+                Uri uri = this.TelemetryServiceEndpointUri;
+
+                if (currentEndpointAddressValue != null)
+                {
+                    uri = new Uri(currentEndpointAddressValue);
+                }
+
+                // we are using Authority to include the port number
+                // if it is not the same as the default port of the Uri.
+                // especially required for Functional Tests which host applciation
+                // and telemetry service at the same host localhost but are using different ports.
+                var endpointLeftPart = uri.Scheme + "://" + uri.Authority;
+
+                this.cachedEndpointLeftPart = new KeyValuePair<string, string>(currentEndpointAddressValue, endpointLeftPart);
+            }
+
+            return this.cachedEndpointLeftPart.Value;
         }
     }
 }
