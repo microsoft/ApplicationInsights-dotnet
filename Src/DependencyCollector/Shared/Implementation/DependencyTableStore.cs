@@ -13,6 +13,8 @@
 
         internal bool IsProfilerActivated = false;
         internal bool IsDesktopHttpDiagnosticSourceActivated = false;
+
+        private static readonly object SyncRoot = new object();
         private static DependencyTableStore instance;
 
         private DependencyTableStore() 
@@ -29,8 +31,18 @@
         {
            get 
            {
-              Interlocked.CompareExchange<DependencyTableStore>(ref instance, new DependencyTableStore(), null);
-              return instance;
+               if (instance == null)
+               {
+                   lock (SyncRoot)
+                   {
+                       if (instance == null)
+                       {
+                           instance = new DependencyTableStore();
+                       }
+                   }
+               }
+
+               return instance;
            }
         }
 
