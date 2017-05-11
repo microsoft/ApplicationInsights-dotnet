@@ -41,12 +41,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             try
             {
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(id, resourceName);
-                if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
-                {
-                    // request is handled by Desktop DiagnosticSource Listener
-                    DependencyCollectorEventSource.Log.SkipTrackingTelemetryItemWithEventSource(id);
-                    return;
-                }
 
                 if (string.IsNullOrEmpty(resourceName))
                 {
