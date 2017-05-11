@@ -41,6 +41,11 @@
             return this.memoryCache.Remove(id.ToString(CultureInfo.InvariantCulture)) != null;
         }
 
+        /// <summary>
+        /// Adds telemetry tuple to MemoryCache. DO NOT call it for the id that already exists in the cache.
+        /// This is a known Memory Cache race-condition issue when items with same id are added concurrently
+        /// and MemoryCache leaks memory. It should be fixed sometime AFTER .NET 4.7.1.
+        /// </summary>
         public void Store(long id, Tuple<DependencyTelemetry, bool> telemetryTuple)
         {
             if (telemetryTuple == null)
