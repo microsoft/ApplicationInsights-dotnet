@@ -95,7 +95,7 @@
         /// <summary>
         /// Stops telemetry operation. Doesn't track the telemetry item.
         /// </summary>
-        /// <param name="telemetry">Telemetry item to compute the duration and track.</param>
+        /// <param name="telemetry">Telemetry item to stop.</param>
         internal static void EndOperation(DependencyTelemetry telemetry)
         {
             telemetry.Stop();
