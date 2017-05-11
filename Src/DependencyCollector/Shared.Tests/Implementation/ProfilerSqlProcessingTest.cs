@@ -143,6 +143,22 @@
         }
 
         [TestMethod]
+        public void OnEndStopActivityOnlyDoesNotSendTelemetry_1ArgumentOverride()
+        {
+            var command = GetSqlCommandTestForStoredProc();
+            var returnObjectPassed = new object();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var context = this.sqlCommandProcessingProfiler.OnBeginForOneParameter(command);
+            var objectReturned = this.sqlCommandProcessingProfiler.OnEndStopActivityOnlyForOneParameter(context, returnObjectPassed, command);
+            stopwatch.Stop();
+
+            Assert.AreSame(returnObjectPassed, objectReturned, "Object returned is not the same as expected return object");
+            Assert.AreEqual(0, this.sendItems.Count, "No telemetry item should be sent");
+        }
+
+        [TestMethod]
         public void OnEndSendsCorrectTelemetry_2ArgumentsOverride()
         {
             var command = GetSqlCommandTestForStoredProc();

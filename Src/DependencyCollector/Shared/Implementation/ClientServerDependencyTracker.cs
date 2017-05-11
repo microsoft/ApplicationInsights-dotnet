@@ -93,6 +93,15 @@
         }
 
         /// <summary>
+        /// Stops telemetry operation. Doesn't track the telemetry item.
+        /// </summary>
+        /// <param name="telemetry">Telemetry item to compute the duration and track.</param>
+        internal static void EndOperation(DependencyTelemetry telemetry)
+        {
+            telemetry.Stop();
+        }
+
+        /// <summary>
         /// Gets the tuple from either conditional weak table or cache (based on the framework for the input web request).
         /// </summary>
         /// <param name="webRequest">Target web request.</param>
