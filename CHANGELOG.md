@@ -1,10 +1,15 @@
 # Changelog
 
+## Version 2.1.0-beta4
+
+- [Made package meta-data URLs use HTTPS](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/390)
+- Updated SDK version dependency to 2.4.0-beta3.
+
 ## Version 2.1.0-beta3
 
 - [Removed the use of Platform Abstractions](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/410)
 - [Correlation header injection disabled for standard Azure storage calls](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/416)
-- UseAI and AddAI calls made idempotent
+- [Made UseApplicationInsights and AddApplicationInsightsTelemetry calls idempotent](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/419)
 
 ## Version 2.1.0-beta2
 
