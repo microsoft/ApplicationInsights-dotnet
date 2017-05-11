@@ -61,6 +61,12 @@
     <EmbeddedResource Include="..\..\NuGet\NLogTarget\config.uninstall.xdt">
       <Link>Resources\NLog\config.uninstall.xdt</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.install.xdt">
+      <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.install.xdt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\NuGet\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt">
+      <Link>Resources\DiagnosticSourceListener\ApplicationInsights.config.uninstall.xdt</Link>
+    </EmbeddedResource>
     <EmbeddedResource Include="..\..\NuGet\EventSourceListener\ApplicationInsights.config.install.xdt">
       <Link>Resources\EventSourceListener\ApplicationInsights.config.install.xdt</Link>
     </EmbeddedResource>
@@ -79,6 +85,7 @@
     <EmbeddedResource Include="Resources\Log4Net\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\NLog\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\TraceListener\TestDataSet.xml" />
+    <EmbeddedResource Include="Resources\DiagnosticSourceListener\TestDataSet.xml" />
     <EmbeddedResource Include="Resources\EventSourceListener\TestDataSet.xml" />
   </ItemGroup>
   <ItemGroup>

@@ -56,6 +56,16 @@ namespace Xdt.Tests
 
         [TestMethod]
         [TestCategory("XdtTests")]
+        public void DiagnosticSourceListenerTest()
+        {
+            this.ValidateTransform(
+               ".DiagnosticSourceListener.ApplicationInsights.config.install.xdt",
+               ".DiagnosticSourceListener.ApplicationInsights.config.uninstall.xdt",
+               ".DiagnosticSourceListener.TestDataSet.xml");
+        }
+
+        [TestMethod]
+        [TestCategory("XdtTests")]
         public void EventSourceListenerTest()
         {
             this.ValidateTransform(
