@@ -8,6 +8,7 @@
     using System.Net;
     using System.Net.Http;
 
+    using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -80,7 +81,7 @@
                 }
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
-                Assert.IsNull(request.Headers["Correlation-Context"]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
             }
         }
 
@@ -101,28 +102,7 @@
                 {
                 }
 
-                var item = this.sentTelemetry.Single();
-                Assert.AreEqual(url, item.Data);
-                Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual(url.AbsolutePath, item.Name);
-                Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
-                Assert.IsTrue(
-                    DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
-                    TimeSpan.FromMinutes(1).TotalMilliseconds,
-                    "timestamp < now");
-                Assert.IsTrue(
-                    item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
-                    -TimeSpan.FromMinutes(1).TotalMilliseconds,
-                    "now - 1 min < timestamp");
-                Assert.AreEqual("200", item.ResultCode);
-                Assert.AreEqual(
-                    SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rddf:"),
-                    item.Context.GetInternalContext().SdkVersion);
-
-                Assert.IsNull(request.Headers["Request-Id"]);
-                Assert.IsNull(request.Headers["x-ms-request-id"]);
-                Assert.IsNull(request.Headers["Correlation-Context"]);
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
             }
         }
 
@@ -141,25 +121,7 @@
                 HttpClient httpClient = new HttpClient();
                 httpClient.GetStringAsync(url).ContinueWith(t => { }).Wait();
 
-                var item = this.sentTelemetry.Single();
-                Assert.AreEqual(url, item.Data);
-                Assert.AreEqual(url.Host, item.Target);
-                Assert.AreEqual(url.AbsolutePath, item.Name);
-                Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-                Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
-                Assert.IsTrue(
-                    DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
-                    TimeSpan.FromMinutes(1).TotalMilliseconds,
-                    "timestamp < now");
-                Assert.IsTrue(
-                    item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
-                    -TimeSpan.FromMinutes(1).TotalMilliseconds,
-                    "now - 1 min < timestamp");
-                Assert.IsFalse(item.Success.Value);
-                Assert.AreEqual("404", item.ResultCode);
-                Assert.AreEqual(
-                    SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rddf:"),
-                    item.Context.GetInternalContext().SdkVersion);
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, null, false, "404");
             }
         }
 
@@ -194,11 +156,11 @@
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 Assert.IsFalse(this.sentTelemetry.Any());
-                var requestId = request.Headers["Request-Id"];
-                var rootId = request.Headers["x-ms-request-root-id"];
+                var requestId = request.Headers[RequestResponseHeaders.RequestIdHeader];
+                var rootId = request.Headers[RequestResponseHeaders.StandardRootIdHeader];
                 Assert.IsNotNull(requestId);
                 Assert.IsNotNull(rootId);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 Assert.IsTrue(requestId.StartsWith('|' + rootId + '.'));
             }
         }
@@ -224,7 +186,7 @@
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
 
-                Assert.AreEqual("k=v", request.Headers["Correlation-Context"]);
+                Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
             }
         }
 
@@ -293,16 +255,7 @@
                 {
                     listener.EnableEvents(DependencyCollectorEventSource.Log, EventLevel.Verbose, DependencyCollectorEventSource.Keywords.RddEventKeywords);
 
-                    HttpWebRequest request = WebRequest.CreateHttp(FakeProfileApiEndpoint);
-                    try
-                    {
-                        using (request.GetResponse())
-                        {
-                        }
-                    }
-                    catch (WebException)
-                    {
-                    }
+                    new HttpClient().GetAsync(FakeProfileApiEndpoint).ContinueWith(t => { }).Wait();
 
                     foreach (var message in listener.Messages)
                     {
@@ -322,13 +275,12 @@
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
             Assert.IsTrue(
-                DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
-                TimeSpan.FromMinutes(1).TotalMilliseconds,
+                item.Timestamp.UtcDateTime < DateTime.UtcNow.AddMilliseconds(20), // DateTime.UtcNow precesion is ~16ms
                 "timestamp < now");
             Assert.IsTrue(
-                item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
-                -TimeSpan.FromMinutes(1).TotalMilliseconds,
-                "now - 1 min < timestamp");
+                item.Timestamp.UtcDateTime > DateTime.UtcNow.AddSeconds(-5), 
+                "timestamp > now - 5 sec");
+
             Assert.AreEqual(resultCode, item.ResultCode);
             Assert.AreEqual(success, item.Success);
             Assert.AreEqual(
@@ -339,8 +291,40 @@
             Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
             if (request != null)
             {
-                Assert.AreEqual(requestId, request.Headers["Request-Id"]);
-                Assert.AreEqual(requestId, request.Headers["x-ms-request-id"]);
+                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.RequestIdHeader]);
+                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.AreEqual(item.Context.Operation.Id, request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+            }
+        }
+
+        private void ValidateTelemetryForEventSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
+        {
+            Assert.AreEqual(url, item.Data);
+            Assert.AreEqual(url.Host, item.Target);
+            Assert.AreEqual(url.AbsolutePath, item.Name);
+            Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
+            Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
+            Assert.IsTrue(
+                DateTime.UtcNow.Subtract(item.Timestamp.UtcDateTime).TotalMilliseconds <
+                TimeSpan.FromMinutes(1).TotalMilliseconds,
+                "timestamp < now");
+            Assert.IsTrue(
+                item.Timestamp.Subtract(DateTime.UtcNow).TotalMilliseconds >
+                -TimeSpan.FromMinutes(1).TotalMilliseconds,
+                "now - 1 min < timestamp");
+            Assert.AreEqual(resultCode, item.ResultCode);
+            Assert.AreEqual(success, item.Success);
+            Assert.AreEqual(
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rddf:"),
+                item.Context.GetInternalContext().SdkVersion);
+
+            var requestId = item.Id;
+            Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
+            if (request != null)
+            {
+                Assert.IsNull(request.Headers[RequestResponseHeaders.RequestIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
             }
         }
     }
