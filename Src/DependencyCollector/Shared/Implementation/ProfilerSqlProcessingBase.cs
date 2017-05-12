@@ -336,15 +336,12 @@
                     {
                         Exception exceptionObj = null;
                         if (t.IsFaulted)
-                        {
-                            // track item only in case of failure
+                        {                            
                             exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
-                            this.OnEndInternal(exceptionObj, thisObj);
                         }
-                        else
-                        {
-                            this.TelemetryTable.Remove(thisObj);
-                        }
+
+                        // track item only in case of failure
+                        this.OnEndInternal(exceptionObj, thisObj, t.IsFaulted);
                     }
                     catch (Exception ex)
                     {
@@ -363,12 +360,12 @@
         /// </summary>
         /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
-        /// <param name="processTelemetryItem">True if telemetry item should be processed.</param>
-        private void OnEnd(object exceptionObj, object thisObj, bool processTelemetryItem = true)
+        /// <param name="sendTelemetryItem">True if telemetry item should be sent, otherwise it only stops the telemetry item.</param>
+        private void OnEnd(object exceptionObj, object thisObj, bool sendTelemetryItem = true)
         {
             try
             {
-                this.OnEndInternal(exceptionObj, thisObj, processTelemetryItem);            
+                this.OnEndInternal(exceptionObj, thisObj, sendTelemetryItem);            
             }
             catch (Exception ex)
             {
@@ -381,8 +378,8 @@
         /// </summary>
         /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
-        /// <param name="processTelemetryItem">True if telemetry item should be processed.</param>
-        private void OnEndInternal(object exceptionObj, object thisObj, bool processTelemetryItem = true)
+        /// <param name="sendTelemetryItem">True if telemetry item should be sent, otherwise it only stops the telemetry item.</param>
+        private void OnEndInternal(object exceptionObj, object thisObj, bool sendTelemetryItem = true)
         {
             if (thisObj == null)
             {
@@ -413,7 +410,7 @@
             {
                 this.TelemetryTable.Remove(thisObj);
 
-                if (processTelemetryItem)
+                if (sendTelemetryItem)
                 {
                     var exception = exceptionObj as Exception;
                     if (exception != null)
@@ -427,7 +424,6 @@
                     else
                     {
                         telemetry.Success = true;
-                        telemetry.ResultCode = "0";
                     }
 
                     ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
