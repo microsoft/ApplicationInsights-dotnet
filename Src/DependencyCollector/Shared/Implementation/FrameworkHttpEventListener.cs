@@ -78,7 +78,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 switch (eventData.EventId)
                 {
                     case BeginGetResponseEventId:
-                        if (!DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
+                        if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
                         {
                             // request is handled by Desktop DiagnosticSource Listener
                             this.OnBeginGetResponse(eventData);
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         this.OnEndGetResponse(eventData);
                         break;
                     case BeginGetRequestStreamEventId:
-                        if (!DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
+                        if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
                         {
                             // request is handled by Desktop DiagnosticSource Listener
                             this.OnBeginGetRequestStream(eventData);

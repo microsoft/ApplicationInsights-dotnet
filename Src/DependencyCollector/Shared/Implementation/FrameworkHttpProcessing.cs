@@ -79,7 +79,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 bool isCustomCreated = false;
 
                 var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
-
                 telemetry.Type = RemoteDependencyConstants.HTTP;
                 telemetry.Name = url.AbsolutePath;
                 telemetry.Target = DependencyTargetNameHelper.GetDependencyTargetName(url);
@@ -117,7 +116,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 if (statusCode.HasValue)
                 {
-                    if (DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated && statusCode.Value > 0)
+                    if (DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated && statusCode.Value > 0)
                     {
                         // HttpDesktopDiagnosticSourceListener do not get notifications about exceptions during requests processing.
                         // We will report them here, and we will let HttpDesktopDiagnosticSourceListener track the dependency for successful response

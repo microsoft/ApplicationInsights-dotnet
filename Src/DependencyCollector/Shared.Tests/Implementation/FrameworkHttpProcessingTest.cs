@@ -47,13 +47,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
             this.httpProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 #endregion //TestInitiliaze
 
@@ -210,7 +210,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [TestMethod]
         public void FrameworkHttpProcessingIsDisabledWhenHttpDesktopDiagSourceIsEnabled()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
