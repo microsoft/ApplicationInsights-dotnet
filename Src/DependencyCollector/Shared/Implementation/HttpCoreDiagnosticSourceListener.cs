@@ -161,6 +161,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
+
             this.pendingExceptions.TryAdd(currentActivity.Id, exception);
             this.client.TrackException(exception);
         }
@@ -172,11 +174,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         internal void OnActivityStart(HttpRequestMessage request)
         {
-            if (Activity.Current == null)
+            var currentActivity = Activity.Current;
+            if (currentActivity == null)
             {
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull();
                 return;
             }
+
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
             this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
         }
@@ -194,6 +199,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull();
                 return;
             }
+
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
 
             Uri requestUri = request.RequestUri;
             var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
@@ -248,6 +255,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             if (request != null && request.RequestUri != null &&
                 !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
+                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerRequest(loggingRequestId);
+
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
@@ -271,6 +280,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (response != null)
             {
+                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerResponse(loggingRequestId);
                 var request = response.RequestMessage;
                 IOperationHolder<DependencyTelemetry> dependency;
                 if (request != null && this.pendingTelemetry.TryGetValue(request, out dependency))
