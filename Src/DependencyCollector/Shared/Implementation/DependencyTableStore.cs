@@ -14,7 +14,7 @@
         internal bool IsProfilerActivated = false;
         internal bool IsDesktopHttpDiagnosticSourceActivated = false;
 
-        private static readonly DependencyTableStore instance = new DependencyTableStore();
+        private static readonly DependencyTableStore SingletonInstance = new DependencyTableStore();
 
         private DependencyTableStore()
         {
@@ -30,7 +30,7 @@
         {
             get
             {
-                return instance;
+                return SingletonInstance;
             }
         }
 
