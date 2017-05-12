@@ -18,7 +18,9 @@
     {
         private readonly RequestTrackingTelemetryModule requestModule;
         private readonly ExceptionTrackingTelemetryModule exceptionModule;
-
+        private MethodInfo addOnSendingHeadersMethod;
+        private bool? addOnSendingHeadersMethodExists;
+        object[] paramsForReflectiveCall;
         /// <summary>
         /// Indicates if module initialized successfully.
         /// </summary>
@@ -47,6 +49,27 @@
                         }
                     }
                 }
+
+                this.addOnSendingHeadersMethod = null;
+                this.addOnSendingHeadersMethodExists = null;
+
+                this.paramsForReflectiveCall = new object[]
+                        {
+                            new Action<HttpContext>((httpContext) =>
+                            {
+                                try
+                                {
+                                    if (this.requestModule != null)
+                                    {
+                                        this.requestModule.AddTargetHashForResponseHeader(httpContext);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
+                                }
+                            })
+                        };
             }
             catch (Exception exc)
             {
@@ -121,29 +144,15 @@
                 {
                     // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
                     // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
-                    MethodInfo addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
-
-                    if (addOnSendingHeadersMethod != null)
+                    if(this.addOnSendingHeadersMethodExists == null)
                     {
-                        var parameters = new object[]
-                        {
-                            new Action<HttpContext>((httpContext) =>
-                            {
-                                try
-                                {
-                                    if (this.requestModule != null)
-                                    {
-                                        this.requestModule.AddTargetHashForResponseHeader(httpApplication.Context);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
-                                }
-                            })
-                        };
-
-                        addOnSendingHeadersMethod.Invoke(httpApplication.Response, parameters);
+                        this.addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
+                        this.addOnSendingHeadersMethodExists = (this.addOnSendingHeadersMethod != null);
+                    }
+                    
+                    if (this.addOnSendingHeadersMethod != null)
+                    {                        
+                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.paramsForReflectiveCall);
                     }
                 }
             }
