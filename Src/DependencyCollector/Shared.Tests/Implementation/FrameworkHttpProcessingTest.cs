@@ -253,7 +253,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
             Assert.IsNotNull(this.cache.Get(100));
 
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
             this.httpProcessingFramework.OnEndHttpCallback(100, null, false, null);
 
             Assert.AreEqual(0, this.sendItems.Count, "Telemetry item should not be sent");
