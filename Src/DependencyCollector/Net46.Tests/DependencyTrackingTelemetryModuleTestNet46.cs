@@ -7,6 +7,8 @@
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
@@ -25,6 +27,8 @@
     {
         private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
         private const string FakeProfileApiEndpoint = "https://dc.services.visualstudio.com/v2/track";
+        private const string LocalhostUrl = "http://localhost:8088/";
+
         private StubTelemetryChannel channel;
         private TelemetryConfiguration config;
         private List<DependencyTelemetry> sentTelemetry;
@@ -74,10 +78,14 @@
                 module.Initialize(this.config);
                 Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 
-                var url = new Uri("https://www.bing.com/");
+                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
-                using (request.GetResponse())
+
+                using (new LocalServer(LocalhostUrl))
                 {
+                    using (request.GetResponse())
+                    {
+                    }
                 }
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
@@ -96,10 +104,14 @@
                 module.Initialize(this.config);
                 Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 
-                var url = new Uri("https://www.bing.com/");
+                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
-                using (request.GetResponse())
+
+                using (new LocalServer(LocalhostUrl))
                 {
+                    using (request.GetResponse())
+                    {
+                    }
                 }
 
                 this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
@@ -108,7 +120,7 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionEventSource404()
+        public async Task TestDependencyCollectionEventSource404()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
@@ -117,28 +129,42 @@
                 module.Initialize(this.config);
                 Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
 
-                var url = new Uri("http://google.com/404");
                 HttpClient httpClient = new HttpClient();
-                httpClient.GetStringAsync(url).ContinueWith(t => { }).Wait();
+                using (new LocalServer(
+                    LocalhostUrl, 
+                    ctx => 
+                    {
+                        // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                        // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
+                        // first begin may take a while because of lazy initializations and jit compiling
+                        // let's wait a bit here.
+                        Thread.Sleep(20);
+                        ctx.Response.StatusCode = 404;
+                    }))
+                {
+                    await httpClient.GetAsync(LocalhostUrl).ContinueWith(t => { });
+                }
 
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, null, false, "404");
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), new Uri(LocalhostUrl), null, false, "404");
             }
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionDiagnosticSource404()
+        public async Task TestDependencyCollectionDiagnosticSource404()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri("http://google.com/404");
                 HttpClient httpClient = new HttpClient();
-                httpClient.GetStringAsync(url).ContinueWith(t => { }).Wait();
+                using (new LocalServer(LocalhostUrl, ctx => ctx.Response.StatusCode = 404))
+                {
+                    await httpClient.GetStringAsync(LocalhostUrl).ContinueWith(t => { });
+                }
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, "404");
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), new Uri(LocalhostUrl), null, false, "404");
             }
         }
 
@@ -151,9 +177,13 @@
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri("https://www.bing.com/");
+                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                using (new LocalServer(LocalhostUrl))
+                {
+                    request.GetResponse();
+                }
 
                 Assert.IsFalse(this.sentTelemetry.Any());
                 var requestId = request.Headers[RequestResponseHeaders.RequestIdHeader];
@@ -173,13 +203,16 @@
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
+                var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
 
-                var url = new Uri("https://www.bing.com/");
+                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
-                var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-                using (request.GetResponse())
+                using (new LocalServer(LocalhostUrl))
                 {
+                    using (request.GetResponse())
+                    {
+                    }
                 }
 
                 parent.Stop();
@@ -192,52 +225,91 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionFailedRequestDiagnosticSource()
+        public async Task TestDependencyCollectionFailedRequestDiagnosticSource()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri($"http://{Guid.NewGuid()}/");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-                try
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-                catch (WebException)
-                {
-                }
+                var url = new Uri($"http://{Guid.NewGuid()}:123/");
+                HttpClient client = new HttpClient();
+                await client.GetAsync(url).ContinueWith(t => { });
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, false, string.Empty);
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
             }
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionCanceledRequestDiagnosticSource()
+        public async Task TestDependencyCollectionFailedRequestEventSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri($"http://{Guid.NewGuid()}:123/");
+                HttpClient client = new HttpClient();
+                await client.GetAsync(url).ContinueWith(t => { });
+
+                // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                // End is fired before Begin, so EventSource doesn't track telemetry
+                Assert.IsFalse(this.sentTelemetry.Any());
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestDependencyCollectionCanceledRequestDiagnosticSource()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri("https://bing.com/");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-                request.Timeout = 5;
-                try
+                var url = new Uri(LocalhostUrl);
+                CancellationTokenSource cts = new CancellationTokenSource();
+                HttpClient httpClient = new HttpClient();
+                using (new LocalServer(LocalhostUrl, ctx => cts.Cancel()))
                 {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-                catch (WebException)
-                {
+                    await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
                 }
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, false, string.Empty);
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestDependencyCollectionCanceledRequestEventSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri(LocalhostUrl);
+                CancellationTokenSource cts = new CancellationTokenSource();
+                HttpClient httpClient = new HttpClient();
+                using (new LocalServer(
+                    LocalhostUrl,
+                    ctx =>
+                    {
+                        // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                        // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
+                        // first begin may take a while because of lazy initializations and jit compiling
+                        // let's wait a bit here.
+                        Thread.Sleep(20);
+                        cts.Cancel();
+                    }))
+                {
+                    await httpClient.GetAsync(LocalhostUrl, cts.Token).ContinueWith(t => { });
+                }
+
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
             }
         }
 
@@ -270,7 +342,7 @@
         private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
-            Assert.AreEqual(url.Host, item.Target);
+            Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
             Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
@@ -300,7 +372,7 @@
         private void ValidateTelemetryForEventSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
-            Assert.AreEqual(url.Host, item.Target);
+            Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
             Assert.AreEqual(url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
@@ -325,6 +397,46 @@
                 Assert.IsNull(request.Headers[RequestResponseHeaders.RequestIdHeader]);
                 Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+            }
+        }
+
+        private class LocalServer : IDisposable
+        {
+            private readonly HttpListener listener;
+            private readonly CancellationTokenSource cts;
+
+            public LocalServer(string url, Action<HttpListenerContext> onRequest = null)
+            {
+                this.listener = new HttpListener();
+                this.listener.Prefixes.Add(url);
+                this.listener.Start();
+                this.cts = new CancellationTokenSource();
+
+                Task.Run(
+                    () =>
+                    {
+                        while (!this.cts.IsCancellationRequested)
+                        {
+                            HttpListenerContext context = this.listener.GetContext();
+                            if (onRequest != null)
+                            {
+                                onRequest(context);
+                            }
+                            else
+                            {
+                                context.Response.StatusCode = 200;
+                            }
+
+                            context.Response.Close();
+                        }
+                    },
+                    this.cts.Token);
+            }
+
+            public void Dispose()
+            {
+                this.cts.Cancel(false);
+                this.listener.Stop();
             }
         }
     }
