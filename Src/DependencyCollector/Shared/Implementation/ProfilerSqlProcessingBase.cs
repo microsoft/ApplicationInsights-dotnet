@@ -91,6 +91,15 @@
         }
 
         /// <summary>
+        /// On end callback for methods with 1 parameter. Doesn't track the telemetry item, just stops activity and removes object from the table.
+        /// </summary>
+        public object OnEndStopActivityOnlyForOneParameter(object context, object returnValue, object thisObj)
+        {
+            this.OnEnd(null, thisObj, false);
+            return returnValue;
+        }
+
+        /// <summary>
         /// On end async callback for methods with 1 parameter.
         /// </summary>
         public object OnEndAsyncForOneParameter(object context, object returnValue, object thisObj)
@@ -327,15 +336,12 @@
                     {
                         Exception exceptionObj = null;
                         if (t.IsFaulted)
-                        {
-                            // track item only in case of failure
+                        {                            
                             exceptionObj = t.Exception.InnerException != null ? t.Exception.InnerException : t.Exception;
-                            this.OnEndInternal(exceptionObj, thisObj);
                         }
-                        else
-                        {
-                            this.TelemetryTable.Remove(thisObj);
-                        }
+
+                        // track item only in case of failure
+                        this.OnEndInternal(exceptionObj, thisObj, t.IsFaulted);
                     }
                     catch (Exception ex)
                     {
@@ -354,11 +360,12 @@
         /// </summary>
         /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
-        private void OnEnd(object exceptionObj, object thisObj)
+        /// <param name="sendTelemetryItem">True if telemetry item should be sent, otherwise it only stops the telemetry item.</param>
+        private void OnEnd(object exceptionObj, object thisObj, bool sendTelemetryItem = true)
         {
             try
             {
-                this.OnEndInternal(exceptionObj, thisObj);            
+                this.OnEndInternal(exceptionObj, thisObj, sendTelemetryItem);            
             }
             catch (Exception ex)
             {
@@ -371,7 +378,8 @@
         /// </summary>
         /// <param name="exceptionObj">The exception object if any.</param>
         /// <param name="thisObj">This object.</param>
-        private void OnEndInternal(object exceptionObj, object thisObj)
+        /// <param name="sendTelemetryItem">True if telemetry item should be sent, otherwise it only stops the telemetry item.</param>
+        private void OnEndInternal(object exceptionObj, object thisObj, bool sendTelemetryItem = true)
         {
             if (thisObj == null)
             {
@@ -402,22 +410,28 @@
             {
                 this.TelemetryTable.Remove(thisObj);
 
-                var exception = exceptionObj as Exception;
-                if (exception != null)
+                if (sendTelemetryItem)
                 {
-                    telemetry.Success = false;
-                    telemetry.Properties.Add("ErrorMessage", exception.Message);
+                    var exception = exceptionObj as Exception;
+                    if (exception != null)
+                    {
+                        telemetry.Success = false;
+                        telemetry.Properties.Add("ErrorMessage", exception.Message);
 
-                    var sqlEx = exception as SqlException;
-                    telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
+                        var sqlEx = exception as SqlException;
+                        telemetry.ResultCode = sqlEx != null ? sqlEx.Number.ToString(CultureInfo.InvariantCulture) : "0";
+                    }
+                    else
+                    {
+                        telemetry.Success = true;
+                    }
+
+                    ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
                 }
                 else
                 {
-                    telemetry.Success = true;
-                    telemetry.ResultCode = "0";
+                    ClientServerDependencyTracker.EndOperation(telemetry);
                 }
-
-                ClientServerDependencyTracker.EndTracking(this.telemetryClient, telemetry);
             }
         }
     }
