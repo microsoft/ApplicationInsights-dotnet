@@ -55,10 +55,10 @@
                     {
                         // We expect customers to configure telemetry initializer before they add it to active configuration
                         // So we will not protect fiterPatterns array with locks (to improve perf)
-                        foreach (string pattern in this.filterPatterns)
+                        string userAgent = request.UserAgent;
+                        for (int i = 0; i < this.filterPatterns.Length; i++)
                         {
-                            if (!string.IsNullOrWhiteSpace(pattern) &&
-                                request.UserAgent.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1)
+                            if (userAgent.IndexOf(this.filterPatterns[i], StringComparison.OrdinalIgnoreCase) != -1)
                             {
                                 telemetry.Context.Operation.SyntheticSource = "Bot";
                                 return;
