@@ -20,7 +20,8 @@
         private readonly ExceptionTrackingTelemetryModule exceptionModule;
         private MethodInfo addOnSendingHeadersMethod;
         private bool? addOnSendingHeadersMethodExists;
-        object[] paramsForReflectiveCall;
+        private object[] paramsForReflectiveCall;
+
         /// <summary>
         /// Indicates if module initialized successfully.
         /// </summary>
@@ -144,10 +145,10 @@
                 {
                     // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
                     // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
-                    if(this.addOnSendingHeadersMethodExists == null)
+                    if (this.addOnSendingHeadersMethodExists == null)
                     {
                         this.addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
-                        this.addOnSendingHeadersMethodExists = (this.addOnSendingHeadersMethod != null);
+                        this.addOnSendingHeadersMethodExists = this.addOnSendingHeadersMethod != null;
                     }
                     
                     if (this.addOnSendingHeadersMethod != null)
