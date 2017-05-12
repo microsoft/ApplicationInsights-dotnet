@@ -140,7 +140,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // We also had duplicates if runtime is also 4.5.2 (4.6 runtime has no such problem)
                     // So starting with 2.1.0-beta4 we are cutting support for HTTP dependencies in .NET 4.5.2.
                     // But we will let DesktopDiagnosticSourceListener collect dependency if it is activated 
-                    if (!DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated)
+                    if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
                     {
                         this.TelemetryTable.Remove(id);
                     }
