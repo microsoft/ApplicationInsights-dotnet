@@ -11,8 +11,8 @@
     /// </summary>
     public class SyntheticUserAgentTelemetryInitializer : WebTelemetryInitializerBase
     {
-        private const string syntheticSourceNameKey = "operationsyntheticsource";
-        private const string syntheticSourceName = "Bot";
+        private const string SyntheticSourceNameKey = "Microsoft.ApplicationInsights.RequestTelemetry.SyntheticSource";
+        private const string SyntheticSourceName = "Bot";
         private string filters = string.Empty;
         private string[] filterPatterns;        
 
@@ -51,9 +51,9 @@
             {
                 if (platformContext != null)
                 {
-                    if (platformContext.Items.Contains(syntheticSourceNameKey))
+                    if (platformContext.Items.Contains(SyntheticSourceNameKey))
                     {
-                        telemetry.Context.Operation.SyntheticSource = platformContext.Items[syntheticSourceNameKey].ToString();
+                        telemetry.Context.Operation.SyntheticSource = platformContext.Items[SyntheticSourceNameKey].ToString();
                     }
                     else
                     {
@@ -67,8 +67,8 @@
                             {
                                 if (userAgent.IndexOf(this.filterPatterns[i], StringComparison.OrdinalIgnoreCase) != -1)
                                 {
-                                    telemetry.Context.Operation.SyntheticSource = syntheticSourceName;
-                                    platformContext.Items.Add(syntheticSourceNameKey, syntheticSourceName);
+                                    telemetry.Context.Operation.SyntheticSource = SyntheticSourceName;
+                                    platformContext.Items.Add(SyntheticSourceNameKey, SyntheticSourceName);
                                     return;
                                 }
                             }

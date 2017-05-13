@@ -125,7 +125,6 @@
             Assert.AreEqual("Bot", eventTelemetry2.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
         }
 
-
         private void AssertSyntheticSourceIsSet(string userAgent)
         {
             var eventTelemetry = new EventTelemetry("name");
