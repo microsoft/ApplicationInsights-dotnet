@@ -156,10 +156,12 @@
                 if (httpApplication != null && httpApplication.Response != null)
                 {                                     
                     if (this.addOnSendingHeadersMethodExists)
-                    {
-                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParams);
+                    {                        
 #if !NET40
+                        // Faster delegate based invocation.
                         this.openDelegateForInvokingAddOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParam);
+#else
+                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParams);
 #endif
                     }
                 }
