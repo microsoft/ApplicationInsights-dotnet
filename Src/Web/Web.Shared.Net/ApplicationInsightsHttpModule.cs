@@ -18,9 +18,15 @@
     {
         private readonly RequestTrackingTelemetryModule requestModule;
         private readonly ExceptionTrackingTelemetryModule exceptionModule;
-        private MethodInfo addOnSendingHeadersMethod;
-        private bool? addOnSendingHeadersMethodExists;
-        private object[] paramsForReflectiveCall;
+
+#if !NET40
+        // Delegate preferred over Invoke to gain performance, only in NET45 or above as ISubscriptionToken is not available in Net40
+        private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> openDelegateForInvokingAddOnSendingHeadersMethod;
+#endif
+        private MethodInfo addOnSendingHeadersMethod;                
+        private bool addOnSendingHeadersMethodExists;
+        private Action<HttpContext> addOnSendingHeadersMethodParam;
+        private object[] addOnSendingHeadersMethodParams;
 
         /// <summary>
         /// Indicates if module initialized successfully.
@@ -50,13 +56,15 @@
                         }
                     }
                 }
+                
+                // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
+                // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
+                this.addOnSendingHeadersMethod = typeof(HttpResponse).GetMethod("AddOnSendingHeaders");
+                this.addOnSendingHeadersMethodExists = this.addOnSendingHeadersMethod != null;
 
-                this.addOnSendingHeadersMethod = null;
-                this.addOnSendingHeadersMethodExists = null;
-
-                this.paramsForReflectiveCall = new object[]
-                        {
-                            new Action<HttpContext>((httpContext) =>
+                if (this.addOnSendingHeadersMethodExists)
+                {
+                    this.addOnSendingHeadersMethodParam = new Action<HttpContext>((httpContext) =>
                             {
                                 try
                                 {
@@ -69,8 +77,12 @@
                                 {
                                     WebEventSource.Log.AddTargetHeaderFailedWarning(ex.ToInvariantString());
                                 }
-                            })
-                        };
+                            });
+                    this.addOnSendingHeadersMethodParams = new object[] { this.addOnSendingHeadersMethodParam };
+#if !NET40
+                    this.openDelegateForInvokingAddOnSendingHeadersMethod = this.CreateOpenDelegate(this.addOnSendingHeadersMethod);
+#endif
+                }
             }
             catch (Exception exc)
             {
@@ -142,18 +154,13 @@
             try
             {
                 if (httpApplication != null && httpApplication.Response != null)
-                {
-                    // We use reflection here because 'AddOnSendingHeaders' is only available post .net framework 4.5.2. Hence we call it if we can find it.
-                    // Not using reflection would result in MissingMethodException when 4.5 or 4.5.1 is present. 
-                    if (this.addOnSendingHeadersMethodExists == null)
+                {                                     
+                    if (this.addOnSendingHeadersMethodExists)
                     {
-                        this.addOnSendingHeadersMethod = httpApplication.Response.GetType().GetMethod("AddOnSendingHeaders");
-                        this.addOnSendingHeadersMethodExists = this.addOnSendingHeadersMethod != null;
-                    }
-                    
-                    if (this.addOnSendingHeadersMethod != null)
-                    {                        
-                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.paramsForReflectiveCall);
+                        this.addOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParams);
+#if !NET40
+                        this.openDelegateForInvokingAddOnSendingHeadersMethod.Invoke(httpApplication.Response, this.addOnSendingHeadersMethodParam);
+#endif
                     }
                 }
             }
@@ -162,6 +169,23 @@
                 WebEventSource.Log.HookAddOnSendingHeadersFailedWarning(ex.ToInvariantString());
             }
         }
+
+#if !NET40
+        /// <summary>
+        /// Creates open delegate for faster invocation than regular Invoke.        
+        /// </summary>
+        /// <param name="mi">MethodInfo for which open delegate is to be created.</param>
+        private Func<HttpResponse, Action<HttpContext>, ISubscriptionToken> CreateOpenDelegate(MethodInfo mi)
+        {
+            var openDelegate = Delegate.CreateDelegate(
+                typeof(Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>),
+                null,
+                mi,
+                true);
+
+            return (Func<HttpResponse, Action<HttpContext>, ISubscriptionToken>)openDelegate;
+        }
+#endif
 
 #if NET40
         private void OnPreRequestHandlerExecute(object sender, EventArgs eventArgs)
