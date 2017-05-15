@@ -53,16 +53,17 @@
                 {
                     if (platformContext.Items.Contains(SyntheticSourceNameKey))
                     {
-                        telemetry.Context.Operation.SyntheticSource = platformContext.Items[SyntheticSourceNameKey].ToString();
+                        // The value does not really matter.
+                        telemetry.Context.Operation.SyntheticSource = SyntheticSourceName;
                     }
                     else
                     {
                         var request = platformContext.GetRequest();
-                        if (request != null && !string.IsNullOrEmpty(request.UserAgent))
+                        string userAgent = request.UserAgent;
+                        if (request != null && !string.IsNullOrEmpty(userAgent))
                         {
                             // We expect customers to configure telemetry initializer before they add it to active configuration
-                            // So we will not protect fiterPatterns array with locks (to improve perf)
-                            string userAgent = request.UserAgent;
+                            // So we will not protect filterPatterns array with locks (to improve perf)                            
                             for (int i = 0; i < this.filterPatterns.Length; i++)
                             {
                                 if (userAgent.IndexOf(this.filterPatterns[i], StringComparison.OrdinalIgnoreCase) != -1)
