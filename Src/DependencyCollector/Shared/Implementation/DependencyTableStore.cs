@@ -6,16 +6,17 @@
 
     internal class DependencyTableStore : IDisposable
     {
+        internal static bool IsDesktopHttpDiagnosticSourceActivated = false;
         internal CacheBasedOperationHolder WebRequestCacheHolder;
         internal CacheBasedOperationHolder SqlRequestCacheHolder;
         internal ObjectInstanceBasedOperationHolder WebRequestConditionalHolder;
         internal ObjectInstanceBasedOperationHolder SqlRequestConditionalHolder;
 
         internal bool IsProfilerActivated = false;
-        internal bool IsDesktopHttpDiagnosticSourceActivated = false;
-        private static DependencyTableStore instance;
 
-        private DependencyTableStore() 
+        private static readonly DependencyTableStore SingletonInstance = new DependencyTableStore();
+
+        private DependencyTableStore()
         {
 #if !NET40
             this.WebRequestCacheHolder = new CacheBasedOperationHolder("aisdkwebrequests", 100 * 1000);
@@ -27,15 +28,14 @@
 
         internal static DependencyTableStore Instance
         {
-           get 
-           {
-              Interlocked.CompareExchange<DependencyTableStore>(ref instance, new DependencyTableStore(), null);
-              return instance;
-           }
+            get
+            {
+                return SingletonInstance;
+            }
         }
 
         public void Dispose()
-        {            
+        {
             this.WebRequestCacheHolder.Dispose();
             this.SqlRequestCacheHolder.Dispose();
             GC.SuppressFinalize(this);

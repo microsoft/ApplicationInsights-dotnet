@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
@@ -146,6 +147,10 @@
                             DependencyCollectorEventSource.Log.RemoteDependencyModuleError(exc.ToInvariantString(), clrVersion);
                         }
 
+#if !NET40
+                        this.PrepareActivity();
+#endif
+
                         this.isInitialized = true;
                     }
                 }
@@ -237,7 +242,7 @@
                     this.SetComponentCorrelationHttpHeaders,
                     this.ExcludeComponentCorrelationHttpHeadersOnDomains,
                     this.EffectiveProfileQueryEndpoint);
-                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing);
+                this.httpDesktopDiagnosticSourceListener = new HttpDesktopDiagnosticSourceListener(desktopHttpProcessing, new ApplicationInsightsUrlFilter(this.telemetryConfiguration));
             }
 
             FrameworkHttpProcessing frameworkHttpProcessing = new FrameworkHttpProcessing(
@@ -297,6 +302,20 @@
                 DependencyCollectorEventSource.Log.RemoteDependencyModuleProfilerNotAttached();
             }
         }
+#endif
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
+        private void PrepareActivity()
+        {
+            // when the first Activity is created in the process (on .NET Framework), it syncronizes DateTime.UtcNow 
+            // in order to make it's StartTime and duration precise, it may take up to 16ms. 
+            // Let's create the first Activity ever here, so we will not miss those 16ms on the first dependency tracking
+            var activity = new Activity("Microsoft.ApplicationInights.Init");
+            activity.Start();
+            activity.Stop();
+        }
+
 #endif
     }
 }

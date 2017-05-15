@@ -324,7 +324,7 @@
                 "System.Data.dll",
                 "System.Data.SqlClient.SqlConnection.Open",
                 sqlCallbacks.OnBeginForOneParameter,
-                null,
+                sqlCallbacks.OnEndStopActivityOnlyForOneParameter,
                 sqlCallbacks.OnExceptionForOneParameter,
                 isStatic: false);
 

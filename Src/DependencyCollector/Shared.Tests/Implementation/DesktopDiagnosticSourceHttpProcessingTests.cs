@@ -42,13 +42,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
             this.httpDesktopProcessingFramework = new DesktopDiagnosticSourceHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
             this.httpDesktopProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
         #endregion //TestInitiliaze
 

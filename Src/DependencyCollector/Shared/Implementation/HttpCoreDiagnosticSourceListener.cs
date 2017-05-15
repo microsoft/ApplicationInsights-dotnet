@@ -171,7 +171,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             if (request != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
                 this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
             }
@@ -192,7 +192,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             if (request != null && request.RequestUri != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
@@ -246,7 +246,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal void OnRequest(HttpRequestMessage request, Guid loggingRequestId)
         {
             if (request != null && request.RequestUri != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;

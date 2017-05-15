@@ -67,7 +67,7 @@
                 // if there is no parent Activity, ID Activity generates is not random enough to work well with 
                 // ApplicationInsights sampling algorithm
                 // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
-                if (Activity.Current == null)
+                if (currentActivity == null)
                 {
                     activity.SetParentId(telemetry.Id);
                 }
@@ -109,6 +109,15 @@
         {
             telemetry.Stop();
             telemetryClient.Track(telemetry);
+        }
+
+        /// <summary>
+        /// Stops telemetry operation. Doesn't track the telemetry item.
+        /// </summary>
+        /// <param name="telemetry">Telemetry item to stop.</param>
+        internal static void EndOperation(DependencyTelemetry telemetry)
+        {
+            telemetry.Stop();
         }
 
         /// <summary>

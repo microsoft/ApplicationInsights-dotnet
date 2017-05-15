@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 DependencyCollectorEventSource.Log.BeginCallbackCalled(thisObj.GetHashCode(), resourceName);
 
-                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url.ToString()))
+                if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(url))
                 {
                     // Not logging as we will be logging for all outbound AI calls
                     return null;

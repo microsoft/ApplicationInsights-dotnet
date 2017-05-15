@@ -33,10 +33,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private int sleepTimeMsecBetweenBeginAndEnd = 100;       
         private TelemetryConfiguration configuration;
         private List<ITelemetry> sendItems;
-        private FrameworkHttpProcessing httpProcessingFramework;        
-#endregion //Fields
+        private FrameworkHttpProcessing httpProcessingFramework;
+        private CacheBasedOperationHolder cache = new CacheBasedOperationHolder("testCache", 100 * 1000);
+        #endregion //Fields
 
-#region TestInitialize
+        #region TestInitialize
 
         [TestInitialize]
         public void TestInitialize()
@@ -45,15 +46,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.sendItems = new List<ITelemetry>(); 
             this.configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
             this.configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, new CacheBasedOperationHolder("testCache", 100 * 1000), /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
+            this.httpProcessingFramework = new FrameworkHttpProcessing(this.configuration, this.cache, /*setCorrelationHeaders*/ true, new List<string>(), RandomAppIdEndpoint);
             this.httpProcessingFramework.OverrideCorrelationIdLookupHelper(new CorrelationIdLookupHelper(new Dictionary<string, string> { { this.configuration.InstrumentationKey, "cid-v1:" + this.configuration.InstrumentationKey } }));
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = false;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 #endregion //TestInitiliaze
 
@@ -210,7 +211,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         [TestMethod]
         public void FrameworkHttpProcessingIsDisabledWhenHttpDesktopDiagSourceIsEnabled()
         {
-            DependencyTableStore.Instance.IsDesktopHttpDiagnosticSourceActivated = true;
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.testUrl);
             var id = ClientServerDependencyTracker.GetIdForRequestObject(request);
@@ -232,6 +233,31 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             var actual = this.sendItems[0] as DependencyTelemetry;
 
             Assert.IsFalse(actual.Success.Value);
+        }
+
+        [TestMethod]
+        public void OnEndHttpCallbackWithoutStatusCodeRemovesTelemetryFromCache()
+        {
+            this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
+            Assert.IsNotNull(this.cache.Get(100));
+
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, null);
+
+            Assert.AreEqual(0, this.sendItems.Count, "Telemetry item should not be sent");
+            Assert.IsNull(DependencyTableStore.Instance.WebRequestCacheHolder.Get(100));
+        }
+
+        [TestMethod]
+        public void OnEndHttpCallbackWithoutStatusCodeDoesNotRemoveTelemetryFromCacheWhenDiagnosticSourceIsActivated()
+        {
+            this.httpProcessingFramework.OnBeginHttpCallback(100, this.testUrl.OriginalString);
+            Assert.IsNotNull(this.cache.Get(100));
+
+            DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = true;
+            this.httpProcessingFramework.OnEndHttpCallback(100, null, false, null);
+
+            Assert.AreEqual(0, this.sendItems.Count, "Telemetry item should not be sent");
+            Assert.IsNotNull(this.cache.Get(100));
         }
 
         [TestMethod]

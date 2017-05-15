@@ -78,13 +78,23 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 switch (eventData.EventId)
                 {
                     case BeginGetResponseEventId:
-                        this.OnBeginGetResponse(eventData);
+                        if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
+                        {
+                            // request is handled by Desktop DiagnosticSource Listener
+                            this.OnBeginGetResponse(eventData);
+                        }
+
                         break;
                     case EndGetResponseEventId:
                         this.OnEndGetResponse(eventData);
                         break;
                     case BeginGetRequestStreamEventId:
-                        this.OnBeginGetRequestStream(eventData);
+                        if (!DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated)
+                        {
+                            // request is handled by Desktop DiagnosticSource Listener
+                            this.OnBeginGetRequestStream(eventData);
+                        }
+
                         break;
                     case EndGetRequestStreamEventId:
                         break;
