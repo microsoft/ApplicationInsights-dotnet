@@ -96,7 +96,7 @@
                     await new HttpClient().SendAsync(request);
                 }
 
-                // on netcoreapp1.0 DiagnosticSource event is fired asycronously, let's wait for it 
+                // on netcoreapp1.0 DiagnosticSource event is fired asychronously, let's wait for it 
                 Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
@@ -123,7 +123,7 @@
                     await new HttpClient().SendAsync(request);
                 }
 
-                // on netcoreapp1.0 DiagnosticSource event is fired asycronously, let's wait for it 
+                // on netcoreapp1.0 DiagnosticSource event is fired asychronously, let's wait for it 
                 Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 parent.Stop();
@@ -131,6 +131,27 @@
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
 
                 Assert.AreEqual("k=v", request.Headers.GetValues("Correlation-Context").Single());
+            }
+        }
+
+
+        /// <summary>
+        /// Tests dependency collection when request procession causes exception (DNS issue).
+        /// On .netcore1.1 and before, such dependencies are ot collected
+        /// On .netcore2.0 they are collected, but there is no build infra to support it (https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/572)
+        /// TODO: add tests for 2.0
+        /// </summary>
+        [TestMethod]
+        [Timeout(5000)]
+        public async Task TestDependencyCollectionDnsIssue()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.Initialize(this.config);
+
+                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{Guid.NewGuid()}");
+                await new HttpClient().SendAsync(request).ContinueWith(t => { });
+                Assert.IsFalse(this.sentTelemetry.Any());
             }
         }
 
@@ -167,20 +188,23 @@
         private sealed class LocalServer : IDisposable
         {
             private readonly IWebHost host;
+            private readonly CancellationTokenSource cts;
 
             public LocalServer(string url)
             {
+                this.cts = new CancellationTokenSource();
                 this.host = new WebHostBuilder()
                     .UseKestrel()
                     .UseStartup<Startup>()
                     .UseUrls(url)
                     .Build();
 
-                Task.Run( () => this.host.Run());
+                Task.Run( () => this.host.Run(cts.Token));
             }
 
             public void Dispose()
             {
+                this.cts.Cancel(false);
                 this.host.Dispose();
             }
 
