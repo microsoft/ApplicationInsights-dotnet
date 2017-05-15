@@ -120,7 +120,7 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionEventSource404()
+        public async Task TestDependencyCollectionEventSourceNonSuccessStatusCode()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
@@ -151,7 +151,7 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionDiagnosticSource404()
+        public async Task TestDependencyCollectionDiagnosticSourceNonSuccessStatusCode()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
@@ -185,6 +185,7 @@
                     request.GetResponse();
                 }
 
+                // HttpDesktopDiagnosticListener cannot collect dependencies if HttpWebResponse was not closed/disposed
                 Assert.IsFalse(this.sentTelemetry.Any());
                 var requestId = request.Headers[RequestResponseHeaders.RequestIdHeader];
                 var rootId = request.Headers[RequestResponseHeaders.StandardRootIdHeader];
@@ -225,24 +226,27 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionFailedRequestDiagnosticSource()
+        public async Task TestDependencyCollectionDnsIssueRequestDiagnosticSource()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri($"http://{Guid.NewGuid()}:123/");
+                var url = new Uri($"http://{Guid.NewGuid()}/");
                 HttpClient client = new HttpClient();
                 await client.GetAsync(url).ContinueWith(t => { });
 
+                // here the start of dependency is tracked with HttpDesktopDiagnosticSourceListener, 
+                // so the expected SDK version should have DiagnosticSource 'rdddsd' prefix. 
+                // however the end is tracked by FrameworkHttpEventListener
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
             }
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionFailedRequestEventSource()
+        public async Task TestDependencyCollectionDnsIssueRequestEventSource()
         {
             using (var module = new DependencyTrackingTelemetryModule())
             {
@@ -250,7 +254,7 @@
                 module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
                 module.Initialize(this.config);
 
-                var url = new Uri($"http://{Guid.NewGuid()}:123/");
+                var url = new Uri($"http://{Guid.NewGuid()}/");
                 HttpClient client = new HttpClient();
                 await client.GetAsync(url).ContinueWith(t => { });
 
@@ -342,7 +346,16 @@
         private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
-            Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
+
+            if (url.Port == 80 || url.Port == 443)
+            {
+                Assert.AreEqual($"{url.Host}", item.Target);
+            }
+            else
+            {
+                Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
+            }
+
             Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
@@ -372,7 +385,16 @@
         private void ValidateTelemetryForEventSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
-            Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
+
+            if (url.Port == 80 || url.Port == 443)
+            {
+                Assert.AreEqual($"{url.Host}", item.Target);
+            }
+            else
+            {
+                Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
+            }
+
             Assert.AreEqual(url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
