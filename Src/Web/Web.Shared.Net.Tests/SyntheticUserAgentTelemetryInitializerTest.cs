@@ -107,6 +107,24 @@
             this.AssertSyntheticSourceIsSet("Innovazion Crawler 123");
         }
 
+        [TestMethod]
+        public void SyntheticSourceIsSetForMultipleItemsFromSameContext()
+        {
+            string userAgent = "YottaaMonitor 123";
+
+            var eventTelemetry1 = new EventTelemetry("name1");
+            var eventTelemetry2 = new EventTelemetry("name2");
+            var source = new TestableSyntheticUserAgentTelemetryInitializer(new Dictionary<string, string>
+                {
+                    { "User-Agent", userAgent }
+                });
+            source.Filters = this.botSubstrings;            
+            source.Initialize(eventTelemetry1);
+            source.Initialize(eventTelemetry2);
+            Assert.AreEqual("Bot", eventTelemetry2.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
+            Assert.AreEqual("Bot", eventTelemetry2.Context.Operation.SyntheticSource, "Incorrect result for " + userAgent);
+        }
+
         private void AssertSyntheticSourceIsSet(string userAgent)
         {
             var eventTelemetry = new EventTelemetry("name");
