@@ -30,8 +30,5 @@
     <!-- XDT transformations -->
     <file src="$configuration$\src\Nuget\EventSourceListener\netstandard1.3\ApplicationInsights.config.install.xdt" target="content"/>
     <file src="$configuration$\src\Nuget\EventSourceListener\netstandard1.3\ApplicationInsights.config.uninstall.xdt" target="content"/>
-
-    <!-- Custom targets -->
-    <file src="$configuration$\src\Nuget\EventSourceListener\netstandard1.3\build\Microsoft.ApplicationInsights.EventSourceListener.targets" target="build"/>
   </files>
 </package>

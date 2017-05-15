@@ -1,19 +1,17 @@
 ﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
-  
+
   <PropertyGroup>
-    <ProjectGuid>{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}</ProjectGuid>
-    <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener</AssemblyName>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener</AssemblyName>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  
+
   <!-- Import is done after first property group becuase Product.props use AssemblyName property. -->
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
 
@@ -23,15 +21,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta3" />
-    <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0" /> 
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
     <PackageReference Include="Microbuild.Core" Version="0.2.0" />
-    <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" /> 
+    <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.3.0" />
   </ItemGroup>
 
   <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
-
-  <Import Project="..\EventSource.Shared\EventSource.Shared\EventSource.Shared.projitems" Label="Shared" />
 
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -43,6 +39,6 @@
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
-   <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" /> 
+  <Import Project="..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets" Condition="Exists('..\..\..\..\packages\StyleCop.MSBuild.4.7.55.0\build\StyleCop.MSBuild.Targets')" />
 
 </Project>

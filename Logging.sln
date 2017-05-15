@@ -103,6 +103,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtwCollector.NuGet", "src\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSource.Netstandard13", "src\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiagnosticSource", "src\Adapters\DiagnosticSource\DiagnosticSource.csproj", "{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.NuGet", "src\NuGet\DiagnosticSourceListener\DiagnosticSourceListener.NuGet.csproj", "{9748B531-F7A8-4F35-8C8A-2B2916C5582E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF} = {57F41D53-A8D1-42D6-AFBE-406436CFA7DF}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiagnosticSource.Tests", "src\Adapters.Tests\DiagnosticSource.Tests\DiagnosticSource.Tests.csproj", "{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Adapters\CommonShared\CommonShared.projitems*{065795ea-516f-4eab-8c1b-13989e343645}*SharedItemsImports = 4
@@ -247,6 +256,18 @@ Global
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9748B531-F7A8-4F35-8C8A-2B2916C5582E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9748B531-F7A8-4F35-8C8A-2B2916C5582E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9748B531-F7A8-4F35-8C8A-2B2916C5582E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9748B531-F7A8-4F35-8C8A-2B2916C5582E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -284,5 +305,8 @@ Global
 		{15FA58D1-F397-4808-831C-7AE65EE640AF} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 		{F371663D-99DB-4722-BC38-55EC178A84EB} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
 		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF} = {EE933574-C82B-4E59-A0D1-05328197B937}
+		{9748B531-F7A8-4F35-8C8A-2B2916C5582E} = {4765948E-1A4D-4F8E-974C-6078C746ABEC}
+		{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5} = {2FCC45B3-D820-405D-87FA-467C96465BB1}
 	EndGlobalSection
 EndGlobal

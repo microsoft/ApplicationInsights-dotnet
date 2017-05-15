@@ -1,19 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7030CAC6-4B94-4735-B146-C0FC3097ACA6}</ProjectGuid>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.ApplicationInsights.EventSourceListener.Tests</RootNamespace>
-    <AssemblyName>Microsoft.ApplicationInsights.EventSourceListener.Tests</AssemblyName>
+    <RootNamespace>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</RootNamespace>
+    <AssemblyName>Microsoft.ApplicationInsights.DiagnosticSourceListener.Tests</AssemblyName>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <FileAlignment>512</FileAlignment>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
@@ -29,7 +24,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Test.props'))\Test.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj" />
+    <ProjectReference Include="..\..\Adapters\DiagnosticSource\DiagnosticSource.csproj" />
   </ItemGroup>
 
   <Import Project="..\Shared\Adapters.Shared.Tests.projitems" Label="Shared" Condition="Exists('..\Shared\Adapters.Shared.Tests.projitems')" />
