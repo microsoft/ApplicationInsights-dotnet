@@ -1,5 +1,9 @@
 # Changelog 
 
+### Version 2.4.0-beta1/2
+Update Application Insights API reference to [2.4.0-beta3]
+Added support for logs from EventSource, ETW and Diagnostic Source.
+
 ### Version 2.1.1
 
 - Update NLog reference to [4.3.8](https://github.com/NLog/NLog/releases/tag/4.3.8)
