@@ -87,6 +87,32 @@
             var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
             Assert.AreEqual(parentActivity.Id, telemetry.Context.Operation.ParentId);
             Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+            Assert.IsTrue(telemetry.Id.StartsWith(parentActivity.Id, StringComparison.Ordinal));
+            Assert.AreNotEqual(parentActivity.Id, telemetry.Id);
+
+            var properties = telemetry.Context.Properties;
+            Assert.AreEqual(1, properties.Count);
+            Assert.AreEqual("v", properties["k"]);
+            parentActivity.Stop();
+        }
+
+        /// <summary>
+        /// Tests if BeginWebTracking() returns operation with associated telemetry item (with operation context)
+        /// when dependency is tracked by HttpDesktop DiagnosticSource.
+        /// </summary>
+        [TestMethod]
+        public void BeginWebTrackingWithDesktopParentActivityReturnsOperationItemWithTelemetryItem()
+        {
+            var parentActivity = new Activity("System.Net.Http.Desktop.HttpRequestOut");
+            parentActivity.SetParentId("|guid.1234_");
+            parentActivity.AddBaggage("k", "v");
+
+            parentActivity.Start();
+
+            var telemetry = ClientServerDependencyTracker.BeginTracking(this.telemetryClient);
+            Assert.AreEqual(parentActivity.Id, telemetry.Id);
+            Assert.AreEqual(parentActivity.RootId, telemetry.Context.Operation.Id);
+            Assert.AreEqual(parentActivity.ParentId, telemetry.Context.Operation.ParentId);
 
             var properties = telemetry.Context.Properties;
             Assert.AreEqual(1, properties.Count);
