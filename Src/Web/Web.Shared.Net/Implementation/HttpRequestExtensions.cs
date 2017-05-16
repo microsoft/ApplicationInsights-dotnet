@@ -9,7 +9,7 @@
     /// </summary>
     internal static partial class HttpRequestExtensions
     {
-        public static string GetUserHostAddress(this HttpRequestBase httpRequest)
+        public static string GetUserHostAddress(this HttpRequest httpRequest)
         {
             if (httpRequest == null)
             {

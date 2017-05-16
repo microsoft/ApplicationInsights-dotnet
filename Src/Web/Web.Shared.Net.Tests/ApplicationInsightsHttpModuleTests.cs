@@ -38,8 +38,9 @@
             ((IHttpModule)this.module2.Target).Dispose();
         }
 
+#if NET40
         [TestMethod]
-        public void OnEndAddsFladInHttpContext()
+        public void OnEndAddsFlagInHttpContext()
         {
             var httpApplication = HttpModuleHelper.GetFakeHttpApplication();
 
@@ -47,5 +48,6 @@
 
             Assert.IsNotNull(httpApplication.Context.Items[RequestTrackingConstants.EndRequestCallFlag]);
         }
+#endif
     }
 }
