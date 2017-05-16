@@ -33,7 +33,7 @@
             {
                 // if there was no BeginRequest, ASP.NET HttpModule did not have a chance to set current activity (and will never do it).
                 currentActivity = new Activity(ActivityHelpers.RequestActivityItemName);
-                if (currentActivity.TryParse(platformContext.Request.Headers))
+                if (currentActivity.Extract(platformContext.Request.Headers))
                 {
                     requestContext.ParentId = currentActivity.ParentId;
                 }
