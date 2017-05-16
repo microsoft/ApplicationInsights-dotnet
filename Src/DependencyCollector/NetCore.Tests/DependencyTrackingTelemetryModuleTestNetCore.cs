@@ -96,7 +96,8 @@
                     await new HttpClient().SendAsync(request);
                 }
 
-                // on netcoreapp1.0 DiagnosticSource event is fired asychronously, let's wait for it 
+                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
+                // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
@@ -123,14 +124,15 @@
                     await new HttpClient().SendAsync(request);
                 }
 
-                // on netcoreapp1.0 DiagnosticSource event is fired asychronously, let's wait for it 
+                // DiagnosticSource Response event is fired after SendAsync returns on netcoreapp1.*
+                // let's wait until dependency is collected
                 Assert.IsTrue(SpinWait.SpinUntil(() => sentTelemetry != null, TimeSpan.FromSeconds(1)));
 
                 parent.Stop();
 
                 this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
 
-                Assert.AreEqual("k=v", request.Headers.GetValues("Correlation-Context").Single());
+                Assert.AreEqual("k=v", request.Headers.GetValues(RequestResponseHeaders.CorrelationContextHeader).Single());
             }
         }
 
