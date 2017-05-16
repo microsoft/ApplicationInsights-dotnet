@@ -160,9 +160,6 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
         [TestMethod]
         public void OnResponseWithResponseEventButNoMatchingRequest()
         {
-            this.listener.OnResponse(new HttpResponseMessage(), Guid.NewGuid());
-            Assert.AreEqual(0, this.sentTelemetry.Count);
-
             var response = new HttpResponseMessage
             {
                 RequestMessage = new HttpRequestMessage(HttpMethod.Get, RequestUrlWithScheme)

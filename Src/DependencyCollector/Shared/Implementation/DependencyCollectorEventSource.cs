@@ -307,6 +307,56 @@
             this.WriteEvent(28, id, this.ApplicationName);
         }
 
+        [Event(
+            29,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.HttpRequestOut.Start id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerStart(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(29, id, this.ApplicationName);
+        }
+
+        [Event(
+            30,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.HttpRequestOut.Stop id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerStop(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(30, id, this.ApplicationName);
+        }
+
+        [Event(
+            31,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Request id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerRequest(Guid id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(31, id, this.ApplicationName);
+        }
+
+        [Event(
+            32,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Response id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerResponse(Guid id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(32, id, this.ApplicationName);
+        }
+
+        [Event(
+            33,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Exception id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerException(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(33, id, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
