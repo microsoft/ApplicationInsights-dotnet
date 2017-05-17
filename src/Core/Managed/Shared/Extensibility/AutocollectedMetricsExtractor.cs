@@ -239,6 +239,13 @@
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
+            //// Workaround: There is a suspected but unconfirmed issue around Extractor performance with telemetry from which no metrics need to be extracted.
+            //// Putting this IF as a temporary workaround until this can be investigated. 
+            if (!((fromItem is RequestTelemetry) || (fromItem is DependencyTelemetry)))
+            {
+                return;
+            }
+
             if (!this.EnsureItemNotSampled(fromItem))
             {
                 return;
