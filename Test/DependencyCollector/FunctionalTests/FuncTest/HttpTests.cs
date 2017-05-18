@@ -305,10 +305,10 @@
             Assert.AreEqual(false, httpItem.data.baseData.success, "Success flag collected is wrong.");
 
             // Result code is collected only in profiler case.
-            var expectedResultCode = DeploymentAndValidationTools.ExpectedSDKPrefix == "rddp" ? "NameResolutionFailure" : string.Empty;
+            var expectedResultCode = DeploymentAndValidationTools.ExpectedHttpSDKPrefix == "rddp" ? "NameResolutionFailure" : string.Empty;
             Assert.AreEqual(expectedResultCode, httpItem.data.baseData.resultCode, "Result code collected is wrong.");
             string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
-            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedHttpSDKPrefix), "Actual version:" + actualSdkVersion);
         }
 
         #endregion 451        

@@ -23,7 +23,7 @@
     /// DependencyTrackingTelemetryModule .Net 4.6 specific tests. 
     /// </summary>
     [TestClass]
-    public class DependencyTrackingTelemetryModuleTestNet46
+    public class DependencyTrackingTelemetryModuleHttpTest
     {
         private const string IKey = "F8474271-D231-45B6-8DD4-D344C309AE69";
         private const string FakeProfileApiEndpoint = "https://dc.services.visualstudio.com/v2/track";
@@ -321,7 +321,6 @@
 
         [TestMethod]
         [Timeout(5000)]
-        [Ignore] // enable with DiagnosticSource version 4.4.0-preview2*
         public void OnBeginOnEndAreNotCalledForAppInsightsUrl()
         {
             using (var module = new DependencyTrackingTelemetryModule())
@@ -345,6 +344,196 @@
             }
         }
 
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectorPostRequestsAreCollectedDiagnosticSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
+
+                var url = new Uri(LocalhostUrl);
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+                request.Method = "POST";
+                request.ContentLength = 1;
+
+                using (new LocalServer(LocalhostUrl))
+                {
+                    using (var stream = request.GetRequestStream())
+                    {
+                        stream.Write(new byte[1], 0, 1);
+                    }
+
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
+        [TestMethod]
+        [Timeout(500000)]
+        public void TestDependencyCollectorPostRequestsAreCollectedEventSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri(LocalhostUrl);
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+                request.Method = "POST";
+                request.ContentLength = 1;
+
+                using (new LocalServer(LocalhostUrl))
+                {
+                    using (var stream = request.GetRequestStream())
+                    {
+                        stream.Write(new byte[1], 0, 1);
+                    }
+
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestHttpRequestsWithQueryStringAreCollectedDiagnosticSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
+
+                var url = new Uri(LocalhostUrl + "123?q=123");
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+
+                using (new LocalServer(LocalhostUrl))
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestHttpRequestsWithQueryStringAreCollectedEventSource()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri(LocalhostUrl + "123?q=123");
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+
+                using (new LocalServer(LocalhostUrl))
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSourceRedirect()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
+
+                var url = new Uri(LocalhostUrl);
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+
+                int count = 0;
+                Action<HttpListenerContext> onRequest = (context) =>
+                {
+                    if (count == 0)
+                    {
+                        context.Response.StatusCode = 302;
+                        context.Response.RedirectLocation = LocalhostUrl;
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 200;
+                    }
+
+                    count++;
+                };
+
+                using (new LocalServer(LocalhostUrl, onRequest))
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionEventSourceRedirect()
+        {
+            using (var module = new DependencyTrackingTelemetryModule())
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+                module.Initialize(this.config);
+
+                var url = new Uri(LocalhostUrl);
+                HttpWebRequest request = WebRequest.CreateHttp(url);
+
+                int count = 0;
+                Action<HttpListenerContext> onRequest = (context) =>
+                {
+                    if (count == 0)
+                    {
+                        context.Response.StatusCode = 302;
+                        context.Response.RedirectLocation = LocalhostUrl;
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 200;
+                    }
+
+                    count++;
+                };
+
+                using (new LocalServer(LocalhostUrl, onRequest))
+                {
+                    using (request.GetResponse())
+                    {
+                    }
+                }
+
+                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
+            }
+        }
+
         private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
@@ -358,7 +547,8 @@
                 Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
             }
 
-            Assert.AreEqual("GET " + url.AbsolutePath, item.Name);
+            var expectedMethod = request != null ? request.Method : "GET";
+            Assert.AreEqual(expectedMethod + " " + url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
             Assert.IsTrue(

@@ -243,7 +243,7 @@ namespace FuncTest.Helpers
                         Assert.IsTrue(accessTime.TotalMilliseconds >= 0, "Access time should be above zero for azure calls");
 
                         string actualSdkVersion = httpItem.tags[new ContextTagKeys().InternalSdkVersion];
-                        Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), "Actual version:" + actualSdkVersion);
+                        Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedHttpSDKPrefix), "Actual version:" + actualSdkVersion);
 
                         var url = httpItem.data.baseData.data;
                         if (url.Contains(expectedUrl))
@@ -267,7 +267,7 @@ namespace FuncTest.Helpers
             string verb,
             string resultCodeExpected)
         {
-            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
+            if ("rddf" != DeploymentAndValidationTools.ExpectedHttpSDKPrefix)
             {
                 Assert.AreEqual(verb + " " + expectedUrl.AbsolutePath, itemToValidate.data.baseData.name, "For StatusMonitor implementation we expect verb to be collected.");
                 Assert.AreEqual(expectedUrl.Host, itemToValidate.data.baseData.target);
