@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
 
     using Microsoft.ApplicationInsights.Channel;
@@ -37,7 +36,7 @@
         /// We have dedicated instance variables to refer to each individual extractors because we are exposing some of their properties to the config subsystem here.
         /// However, for calling common methods for all of them, we also group them together.
         /// </summary>
-        private readonly IEnumerable<ExtractorWithInfo> extractors;
+        private readonly ExtractorWithInfo[] extractors;
 
         /// <summary>
         /// Gets the metric manager that owns all extracted metric data series.
@@ -239,20 +238,21 @@
         /// <param name="fromItem">The item from which to extract metrics.</param>
         private void ExtractMetrics(ITelemetry fromItem)
         {
-            //// Workaround: There is a suspected but unconfirmed issue around Extractor performance with telemetry from which no metrics need to be extracted.
-            //// Putting this IF as a temporary workaround until this can be investigated. 
-            if (!((fromItem is RequestTelemetry) || (fromItem is DependencyTelemetry)))
+            //// If this item has been sampled, log an error and do not extract metrics:
+            ISupportSampling potentiallySampledItem = fromItem as ISupportSampling;
+
+            if (potentiallySampledItem != null
+                    && potentiallySampledItem.SamplingPercentage.HasValue
+                    && potentiallySampledItem.SamplingPercentage.Value < (100.0 - 1.0E-12))
             {
+                this.LogMetricExtractorAfterSamplingError();
                 return;
             }
 
-            if (!this.EnsureItemNotSampled(fromItem))
+            //// Loop through all extractors and allow them to process the item and exytract their metrics:
+            for (int i = 0; i < this.extractors.Length; i++)
             {
-                return;
-            }
-
-            foreach (ExtractorWithInfo participant in this.extractors)
-            {
+                ExtractorWithInfo participant = this.extractors[i];
                 try
                 {
                     bool isItemProcessed;
@@ -265,34 +265,23 @@
                 }
                 catch (Exception ex)
                 {
-                    CoreEventSource.Log.LogError("Error in " + typeof(RequestMetricsExtractor).Name + ": " + ex.ToString());
+                    CoreEventSource.Log.LogError("Error in Metrics Extractor \"" + participant.Info + "\": " + ex.ToString());
                 }
             }
         }
 
-        private bool EnsureItemNotSampled(ITelemetry item)
+        private void LogMetricExtractorAfterSamplingError()
         {
-            ISupportSampling potentiallySampledItem = item as ISupportSampling;
-
-            if (potentiallySampledItem != null
-                    && potentiallySampledItem.SamplingPercentage.HasValue
-                    && potentiallySampledItem.SamplingPercentage.Value < (100.0 - 1.0E-12))
+            if (!this.isMetricExtractorAfterSamplingLogged)  
             {
-                if (!this.isMetricExtractorAfterSamplingLogged)  
-                {
-                    //// benign race
-                    this.isMetricExtractorAfterSamplingLogged = true;
-                    CoreEventSource.Log.MetricExtractorAfterSamplingError();
-                }
-                else
-                {
-                    CoreEventSource.Log.MetricExtractorAfterSamplingVerbose();
-                }
-
-                return false;
+                //// benign race
+                this.isMetricExtractorAfterSamplingLogged = true;
+                CoreEventSource.Log.MetricExtractorAfterSamplingError();
             }
-
-            return true;
+            else
+            {
+                CoreEventSource.Log.MetricExtractorAfterSamplingVerbose();
+            }
         }
 
         /// <summary>
