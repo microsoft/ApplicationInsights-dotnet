@@ -353,7 +353,9 @@ namespace Microsoft.Extensions.DependencyInjection.Test
 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
-                Assert.Contains(telemetryConfiguration.TelemetryProcessors, (processor) => processor is FakeTelemetryProcessor);
+                FakeTelemetryProcessor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessor>().FirstOrDefault();
+                Assert.NotNull(telemetryProcessor);
+                Assert.True(telemetryProcessor.IsInitialized);
             }
 
 #if NET451

@@ -4,7 +4,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
 
-    internal class FakeTelemetryProcessor : ITelemetryProcessor
+    internal class FakeTelemetryProcessor : ITelemetryProcessor, ITelemetryModule
     {
         private readonly ITelemetryProcessor next;
 
@@ -16,6 +16,14 @@
             }
 
             this.next = next;
+            this.IsInitialized = false;
+        }
+
+        public bool IsInitialized { get; private set; }
+
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            this.IsInitialized = true;
         }
 
         public void Process(ITelemetry item)

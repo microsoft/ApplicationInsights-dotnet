@@ -81,6 +81,15 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 module.Initialize(configuration);
             }
+
+            foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
+            {
+                ITelemetryModule module = processor as ITelemetryModule;
+                if (module != null)
+                {
+                    module.Initialize(configuration);
+                }
+            }
         }
 
         private void AddTelemetryChannelAndProcessorsForFullFramework(TelemetryConfiguration configuration)
