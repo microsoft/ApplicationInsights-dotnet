@@ -249,6 +249,14 @@
                 return;
             }
 
+            if (this.metricManager == null)
+            {
+                CoreEventSource.Log.LogError("Cannot ExtractMetrics becasue this "
+                                           + nameof(AutocollectedMetricsExtractor)
+                                           + " has not been initialized or it has already been disposed.");
+                return;
+            }
+
             //// Loop through all extractors and allow them to process the item and exytract their metrics:
             for (int i = 0; i < this.extractors.Length; i++)
             {

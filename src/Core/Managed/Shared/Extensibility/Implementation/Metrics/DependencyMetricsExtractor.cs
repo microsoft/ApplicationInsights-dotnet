@@ -124,7 +124,8 @@
             //// If there is no MetricManager, then this extractor has not been properly initialized yet:
             if (thisMetricManager == null)
             {
-                //// This will be caught and properly logged by the base class:
+                //// Note that this should not be thrown in practice becasue AutocollectedMetricsExtractor verifies propper initialization before calling this method.
+                //// However, it is better to be defensive here. This exception be caught and properly logged by the AutocollectedMetricsExtractor class:
                 throw new InvalidOperationException("Cannot execute ExtractMetrics because this metrics extractor has not been initialized (no metrics manager).");
             }
 
@@ -246,9 +247,9 @@
                                     : typeMetrics.Success;
                         }
                     }   // else OF if (previouslyDiscovered)
-                }
-            }
-            
+                }   // else OF if (dependency type is not set)
+            }   // else OF if (auto-discovering dependency types is disabled)
+
             //// Now that we selected the right metric, track the value:
             isItemProcessed = true;
             metricToTrack.Track(dependencyCall.Duration.TotalMilliseconds);
