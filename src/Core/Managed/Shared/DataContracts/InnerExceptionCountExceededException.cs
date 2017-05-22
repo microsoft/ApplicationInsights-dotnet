@@ -1,7 +1,7 @@
 namespace Microsoft.ApplicationInsights.DataContracts
 {
     using System;
-#if !NETSTANDARD1_3 
+#if !NETSTANDARD1_3
     using System.Runtime.Serialization;
 #endif
 
@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
 #if !NETSTANDARD1_3
     [Serializable]
 #endif
-    internal class InnerExceptionCountExceededException : 
+    internal class InnerExceptionCountExceededException :
         Exception
     {
         /// <summary>

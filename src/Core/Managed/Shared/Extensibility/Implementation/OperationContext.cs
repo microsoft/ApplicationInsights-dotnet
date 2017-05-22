@@ -2,18 +2,16 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).  
+    /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).
     /// </summary>
     public sealed class OperationContext
     {
-        private readonly IDictionary<string, string> tags;
-
-        internal OperationContext(IDictionary<string, string> tags)
+        internal OperationContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -21,8 +19,8 @@
         /// </summary>
         public string Id
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationId, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -30,8 +28,8 @@
         /// </summary>
         public string ParentId
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationParentId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationParentId, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -40,8 +38,8 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string CorrelationVector
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationCorrelationVector); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationCorrelationVector, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -49,8 +47,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationName); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationName, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -58,8 +56,27 @@
         /// </summary>
         public string SyntheticSource
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationSyntheticSource); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationSyntheticSource, value); }
+            get;
+            set;
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationId, this.Id);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationParentId, this.ParentId);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationCorrelationVector, this.CorrelationVector);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationName, this.Name);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
+        }
+
+        internal void CopyTo(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Operation;
+            target.Id = Tags.CopyTagValue(target.Id, this.Id);
+            target.ParentId = Tags.CopyTagValue(target.ParentId, this.ParentId);
+            target.CorrelationVector = Tags.CopyTagValue(target.CorrelationVector, this.CorrelationVector);
+            target.Name = Tags.CopyTagValue(target.Name, this.Name);
+            target.SyntheticSource = Tags.CopyTagValue(target.SyntheticSource, this.SyntheticSource);
         }
     }
 }

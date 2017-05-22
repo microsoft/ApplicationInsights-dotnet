@@ -9,11 +9,8 @@
     /// </summary>
     public sealed class SessionContext
     {
-        private readonly IDictionary<string, string> tags;
-
-        internal SessionContext(IDictionary<string, string> tags)
+        internal SessionContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -21,17 +18,30 @@
         /// </summary>
         public string Id
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.SessionId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.SessionId, value); }
+            get;
+            set;
         }
 
         /// <summary>
         /// Gets or sets the IsFirst Session for the user.
         /// </summary>
-        public bool? IsFirst 
+        public bool? IsFirst
         {
-            get { return this.tags.GetTagBoolValueOrNull(ContextTagKeys.Keys.SessionIsFirst); }
-            set { this.tags.SetTagValueOrRemove<bool?>(ContextTagKeys.Keys.SessionIsFirst, value); }
+            get;
+            set;
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.SessionId, this.Id);
+            tags.UpdateTagValue(ContextTagKeys.Keys.SessionIsFirst, this.IsFirst);
+        }
+
+        internal void CopyTo(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Session;
+            target.Id = Tags.CopyTagValue(target.Id, this.Id);
+            target.IsFirst = Tags.CopyTagValue(target.IsFirst, this.IsFirst);
         }
     }
 }

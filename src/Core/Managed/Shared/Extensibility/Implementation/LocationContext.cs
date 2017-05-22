@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
-{    
+{
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
@@ -8,11 +9,8 @@
     /// </summary>
     public sealed class LocationContext
     {
-        private readonly IDictionary<string, string> tags;
-
-        internal LocationContext(IDictionary<string, string> tags)
+        internal LocationContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -20,18 +18,19 @@
         /// </summary>
         public string Ip
         {
-            get 
-            { 
-                return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.LocationIp); 
-            }
+            get;
+            set;
+        }
 
-            set 
-            {
-                if (value != null)
-                {
-                    this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.LocationIp, value);
-                }
-            }
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.LocationIp, this.Ip);
+        }
+
+        internal void CopyTo(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Location;
+            target.Ip = Tags.CopyTagValue(target.Ip, this.Ip);
         }
     }
 }

@@ -18,14 +18,14 @@
         [TestMethod]
         public void IpIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var context = new LocationContext(new Dictionary<string, string>());
+            var context = new LocationContext();
             Assert.Null(context.Ip);
         }
 
         [TestMethod]
         public void IpCanBeChangedByUserToSpecifyACustomValue()
         {
-            var context = new LocationContext(new Dictionary<string, string>());
+            var context = new LocationContext();
             context.Ip = "192.168.1.1";
             Assert.Equal("192.168.1.1", context.Ip);
         }

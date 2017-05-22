@@ -224,7 +224,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_RequestData = new
                         {
                             data.ver,
@@ -279,7 +279,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_MessageData = new
                         {
                             data.ver,
@@ -328,7 +328,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_EventData = new
                         {
                             data.ver,
@@ -384,7 +384,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_RemoteDependencyData = new
                         {
                             data.ver,
@@ -453,7 +453,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_MetricData = new
                         {
                             data.ver,
@@ -538,7 +538,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_ExceptionData = new
                         {
                             data.ver,
@@ -620,7 +620,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_MetricData = new
                         {
                             data.ver,
@@ -679,7 +679,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_PageViewPerfData = new
                         {
                             data.url,
@@ -732,7 +732,7 @@
                     {
                         // The properties and layout should be the same as the anonymous type in the above MakeGenericMethod
                         PartA_iKey = telemetryItem.Context.InstrumentationKey,
-                        PartA_Tags = telemetryItem.Context.Tags,
+                        PartA_Tags = telemetryItem.Context.SanitizedTags,
                         PartB_EventData = new
                         {
                             data.ver,

@@ -11,8 +11,8 @@
     /// Encapsulates information about a web request handled by the application.
     /// </summary>
     /// <remarks>
-    /// You can send information about requests processed by your web application to Application Insights by 
-    /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/> 
+    /// You can send information about requests processed by your web application to Application Insights by
+    /// passing an instance of the <see cref="RequestTelemetry"/> class to the <see cref="TelemetryClient.TrackRequest(RequestTelemetry)"/>
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
@@ -38,7 +38,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestTelemetry"/> class with the given <paramref name="name"/>, 
+        /// Initializes a new instance of the <see cref="RequestTelemetry"/> class with the given <paramref name="name"/>,
         /// <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="responseCode"/> and <paramref name="success"/> property values.
         /// </summary>
         public RequestTelemetry(string name, DateTimeOffset startTime, TimeSpan duration, string responseCode, bool success)
@@ -69,13 +69,13 @@
             get { return this.context; }
         }
 
-        /// <summary>  
+        /// <summary>
         /// Gets or sets Request ID.
-        /// </summary>  
-        public override string Id  
-        {  
-            get { return this.Data.id; }  
-            set { this.Data.id = value; }  
+        /// </summary>
+        public override string Id
+        {
+            get { return this.Data.id; }
+            set { this.Data.id = value; }
         }
 
         /// <summary>
@@ -159,12 +159,12 @@
                 return new Uri(this.Data.url, UriKind.RelativeOrAbsolute);
             }
 
-            set 
+            set
             {
                 this.Data.url = value?.ToString();
             }
         }
-        
+
         /// <summary>
         /// Gets a dictionary of application-defined request metrics.
         /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#properties">Learn more</a>
@@ -212,7 +212,7 @@
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
 
-            // Set for backward compatibility:  
+            // Set for backward compatibility:
             this.Data.id = this.Data.id.SanitizeName();
             this.Data.id = Utils.PopulateRequiredStringValue(this.Data.id, "id", typeof(RequestTelemetry).FullName);
 
@@ -222,8 +222,6 @@
                 this.ResponseCode = "200";
                 this.Success = true;
             }
-
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

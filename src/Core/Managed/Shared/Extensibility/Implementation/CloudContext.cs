@@ -9,20 +9,17 @@
     /// </summary>
     public sealed class CloudContext
     {
-        private readonly IDictionary<string, string> tags;
-
-        internal CloudContext(IDictionary<string, string> tags)
+        internal CloudContext()
         {
-            this.tags = tags;
         }
-        
+
         /// <summary>
         /// Gets or sets the role name.
         /// </summary>
         public string RoleName
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.CloudRole); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.CloudRole, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -30,8 +27,21 @@
         /// </summary>
         public string RoleInstance
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.CloudRoleInstance); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.CloudRoleInstance, value); }
+            get;
+            set;
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.CloudRole, this.RoleName);
+            tags.UpdateTagValue(ContextTagKeys.Keys.CloudRoleInstance, this.RoleInstance);
+        }
+
+        internal void CopyTo(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Cloud;
+            target.RoleName = Tags.CopyTagValue(target.RoleName, this.RoleName);
+            target.RoleInstance = Tags.CopyTagValue(target.RoleInstance, this.RoleInstance);
         }
     }
 }

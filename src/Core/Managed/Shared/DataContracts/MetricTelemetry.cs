@@ -19,9 +19,9 @@
 
         internal readonly MetricData Data;
         internal readonly DataPoint Metric;
-        
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty 
+        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class with empty
         /// properties.
         /// </summary>
         public MetricTelemetry()
@@ -37,7 +37,7 @@
         }
 
         /// <summary>
-        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the 
+        /// Obsolete - use MetricTelemetry(name,count,sum,min,max,standardDeviation). Initializes a new instance of the <see cref="MetricTelemetry"/> class with the
         /// specified <paramref name="metricName"/> and <paramref name="metricValue"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="metricName"/> is null or empty string.</exception>
@@ -196,8 +196,6 @@
             {
                 this.StandardDeviation = Utils.SanitizeNanAndInfinity(this.StandardDeviation.Value);
             }
-
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

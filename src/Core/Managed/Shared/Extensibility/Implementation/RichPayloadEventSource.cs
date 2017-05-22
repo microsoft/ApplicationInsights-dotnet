@@ -28,7 +28,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     {
         /// <summary>RichPayloadEventSource instance.</summary>
         public static readonly RichPayloadEventSource Log = new RichPayloadEventSource();
-        
+
         /// <summary>Event source.</summary>
         internal readonly EventSource EventSourceInternal;
 
@@ -63,8 +63,8 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     RequestTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
-                    telemetryItem.Data, 
+                    telemetryItem.Context.SanitizedTags,
+                    telemetryItem.Data,
                     Keywords.Requests);
             }
             else if (item is TraceTelemetry)
@@ -79,7 +79,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     TraceTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Traces);
             }
@@ -95,7 +95,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Events);
             }
@@ -111,7 +111,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     DependencyTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.InternalData,
                     Keywords.Dependencies);
             }
@@ -127,7 +127,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Metrics);
             }
@@ -143,7 +143,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     ExceptionTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Exceptions);
             }
@@ -160,7 +160,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     MetricTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Metrics);
             }
@@ -177,7 +177,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     PageViewTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.PageViews);
             }
@@ -194,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     EventTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Events);
             }
@@ -210,7 +210,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 this.WriteEvent(
                     AvailabilityTelemetry.TelemetryName,
                     telemetryItem.Context.InstrumentationKey,
-                    telemetryItem.Context.Tags,
+                    telemetryItem.Context.SanitizedTags,
                     telemetryItem.Data,
                     Keywords.Availability);
             }

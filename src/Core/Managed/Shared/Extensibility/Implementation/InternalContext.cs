@@ -12,11 +12,8 @@
     /// </summary>
     public sealed class InternalContext
     {
-        private readonly IDictionary<string, string> tags;
-
-        internal InternalContext(IDictionary<string, string> tags)
+        internal InternalContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -24,8 +21,8 @@
         /// </summary>
         public string SdkVersion
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalSdkVersion); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalSdkVersion, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -33,8 +30,8 @@
         /// </summary>
         public string AgentVersion
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalAgentVersion); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalAgentVersion, value); }
+            get;
+            set;
         }
 
         /// <summary>
@@ -42,8 +39,23 @@
         /// </summary>
         public string NodeName
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.InternalNodeName); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.InternalNodeName, value); }
+            get;
+            set;
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.InternalSdkVersion, this.SdkVersion);
+            tags.UpdateTagValue(ContextTagKeys.Keys.InternalAgentVersion, this.AgentVersion);
+            tags.UpdateTagValue(ContextTagKeys.Keys.InternalNodeName, this.NodeName);
+        }
+
+        internal void CopyTo(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Internal;
+            target.SdkVersion = Tags.CopyTagValue(target.SdkVersion, this.SdkVersion);
+            target.AgentVersion = Tags.CopyTagValue(target.AgentVersion, this.AgentVersion);
+            target.NodeName = Tags.CopyTagValue(target.NodeName, this.NodeName);
         }
     }
 }

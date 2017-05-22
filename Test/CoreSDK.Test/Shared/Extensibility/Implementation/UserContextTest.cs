@@ -21,7 +21,7 @@
         [TestMethod]
         public void IdCanBeChangedByUserToSpecifyACustomValue()
         {
-            var context = new UserContext(new Dictionary<string, string>());
+            var context = new UserContext();
             context.Id = "test value";
             Assert.Equal("test value", context.Id);
         }
@@ -29,14 +29,14 @@
         [TestMethod]
         public void UserAgentIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var context = new UserContext(new Dictionary<string, string>());
+            var context = new UserContext();
             Assert.Null(context.UserAgent);
         }
 
         [TestMethod]
         public void UserAgentCanBeChangedByUserToSpecifyACustomValue()
         {
-            var context = new UserContext(new Dictionary<string, string>());
+            var context = new UserContext();
             context.UserAgent = "test value";
             Assert.Equal("test value", context.UserAgent);
         }
@@ -44,15 +44,15 @@
         [TestMethod]
         public void AccountIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var context = new UserContext(new Dictionary<string, string>());
+            var context = new UserContext();
             Assert.Null(context.AccountId);
         }
 
         [TestMethod]
         public void AccountIdCanBeChangedByUserToSpecifyACustomValue()
         {
-            var context = new UserContext(new Dictionary<string, string>());
-            context.AccountId = "test value";            
+            var context = new UserContext();
+            context.AccountId = "test value";
             Assert.Equal("test value", context.AccountId);
         }
     }

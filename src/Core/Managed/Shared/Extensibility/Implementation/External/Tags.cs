@@ -24,17 +24,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             return bool.Parse(tagValue);
         }
 
-        internal static bool GetTagBoolValueOrDefault(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return default(bool);
-            }
-
-            return bool.Parse(tagValue);
-        }
-
         internal static DateTimeOffset? GetTagDateTimeOffsetValueOrNull(this IDictionary<string, string> tags, string tagKey)
         {
             string tagValue = GetTagValueOrNull(tags, tagKey);
@@ -57,78 +46,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             return int.Parse(tagValue, CultureInfo.InvariantCulture);
         }
 
-        internal static int GetTagIntValueOrDefault(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return default(int);
-            }
-
-            return int.Parse(tagValue, CultureInfo.InvariantCulture);
-        }
-
-        internal static long GetTagLongValueOrDefault(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return default(long);
-            }
-
-            return long.Parse(tagValue, CultureInfo.InvariantCulture);
-        }
-
-        internal static Guid GetTagGuidValueOrDefault(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return new Guid();
-            }
-
-            return new Guid(tagValue);
-        }
-
-        internal static void SetBoolValueOrRemove(this IDictionary<string, string> tags, string tagKey, bool? tagValue)
-        {
-            if (tagValue == null)
-            {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
-            }
-            else
-            {
-                string tagStringValue = tagValue.Value.ToString();
-                SetTagValueOrRemove(tags, tagKey, tagStringValue);
-            }
-        }
-
-        internal static void SetIntValueOrRemove(this IDictionary<string, string> tags, string tagKey, int? tagValue)
-        {
-            if (tagValue == null)
-            {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
-            }
-            else
-            {
-                string tagStringValue = tagValue.Value.ToString(CultureInfo.InvariantCulture);
-                SetTagValueOrRemove(tags, tagKey, tagStringValue);
-            }
-        }
-
-        internal static void SetLongValueOrRemove(this IDictionary<string, string> tags, string tagKey, long? tagValue)
-        {
-            if (tagValue == null)
-            {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
-            }
-            else
-            {
-                string tagStringValue = tagValue.Value.ToString(CultureInfo.InvariantCulture);
-                SetTagValueOrRemove(tags, tagKey, tagStringValue);
-            }
-        }
-
         internal static void SetStringValueOrRemove(this IDictionary<string, string> tags, string tagKey, string tagValue)
         {
             SetTagValueOrRemove(tags, tagKey, tagValue);
@@ -147,38 +64,29 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             }
         }
 
-        internal static void SetGuidValueOrRemove(this IDictionary<string, string> tags, string tagKey, Guid? tagValue)
-        {
-            if (tagValue == null)
-            {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
-            }
-            else
-            {
-                string tagValueString = tagValue.Value.ToString();
-                SetTagValueOrRemove(tags, tagKey, tagValueString);
-            }
-        }
-
         internal static void SetTagValueOrRemove<T>(this IDictionary<string, string> tags, string tagKey, T tagValue)
         {
             SetTagValueOrRemove(tags, tagKey, Convert.ToString(tagValue, CultureInfo.InvariantCulture));
         }
 
-        internal static void InitializeTagValue<T>(this IDictionary<string, string> tags, string tagKey, T tagValue)
+        internal static string CopyTagValue(string sourceValue, string targetValue)
         {
-            if (!tags.ContainsKey(tagKey))
+            if (string.IsNullOrEmpty(sourceValue) && !string.IsNullOrEmpty(targetValue))
             {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
+                return targetValue;
             }
+
+            return sourceValue;
         }
 
-        internal static void InitializeTagDateTimeOffsetValue(this IDictionary<string, string> tags, string tagKey, DateTimeOffset? tagValue)
+        internal static bool? CopyTagValue(bool? sourceValue, bool? targetValue)
         {
-            if (!tags.ContainsKey(tagKey))
+            if (!sourceValue.HasValue && targetValue.HasValue)
             {
-                SetDateTimeOffsetValueOrRemove(tags, tagKey, tagValue);
+                return targetValue;
             }
+
+            return sourceValue;
         }
 
         internal static string GetTagValueOrNull(this IDictionary<string, string> tags, string tagKey)
@@ -190,6 +98,28 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             }
 
             return null;
+        }
+
+        internal static void UpdateTagValue(this IDictionary<string, string> tags, string tagKey, string tagValue)
+        {
+            if (!string.IsNullOrEmpty(tagValue))
+            {
+                int limit;
+                if (Property.TagSizeLimits.TryGetValue(tagKey, out limit) && tagValue.Length > limit)
+                {
+                    tagValue = Property.TrimAndTruncate(tagValue, limit);
+                }
+
+                tags.Add(tagKey, tagValue);
+            }
+        }
+
+        internal static void UpdateTagValue(this IDictionary<string, string> tags, string tagKey, bool? tagValue)
+        {
+            if (tagValue.HasValue)
+            {
+                tags.Add(tagKey, tagValue.Value.ToString());
+            }
         }
 
         private static void SetTagValueOrRemove(this IDictionary<string, string> tags, string tagKey, string tagValue)
