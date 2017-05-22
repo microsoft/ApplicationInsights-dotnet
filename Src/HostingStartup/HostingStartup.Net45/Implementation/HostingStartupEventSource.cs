@@ -1,0 +1,134 @@
+﻿namespace Microsoft.ApplicationInsights.Extensibility.HostingStartup
+{
+    using System;
+    using System.Diagnostics.Tracing;
+
+    /// <summary>
+    /// ETW EventSource tracing class.
+    /// </summary>
+    [EventSource(Name = "Microsoft-ApplicationInsights-Extensibility-HostingStartup")]
+    internal sealed class HostingStartupEventSource : EventSource
+    {
+        /// <summary>
+        /// Instance of the PlatformEventSource class.
+        /// </summary>
+        public static readonly HostingStartupEventSource Log = new HostingStartupEventSource();
+
+        private HostingStartupEventSource()
+        {
+            this.ApplicationName = this.GetApplicationName();
+        }
+
+        public string ApplicationName { [NonEvent]get; [NonEvent]private set; }
+
+        [Event(1, Message = "Logs file name: {0}.", Level = EventLevel.Verbose)]
+        public void LogsFileName(string fileName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(1, fileName ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(
+            2,
+            Keywords = Keywords.UserActionable,
+            Message = "Access to the logs folder was denied (User: {1}). Error message: {0}.",
+            Level = EventLevel.Error)]
+        public void LogStorageAccessDeniedError(string error, string user, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                2,
+                error ?? string.Empty,
+                user ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+           3,
+           Message = "Trying to load http module type from assembly: {0}, type name: {1}.",
+           Level = EventLevel.Verbose)]
+        public void HttpModuleLoadingStart(string assemblyName, string moduleName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                3,
+                assemblyName ?? string.Empty,
+                moduleName ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+           4,
+           Message = "Http module type from assembly: {0}, type name: {1} loaded sucessfully",
+           Level = EventLevel.Verbose)]
+        public void HttpModuleLoadingEnd(string assemblyName, string moduleName, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                4,
+                assemblyName ?? string.Empty,
+                moduleName ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+           5,
+           Keywords = Keywords.UserActionable,
+           Message = "Error loading http module type from assembly {0}, type name {1}, exception: {2}.",
+           Level = EventLevel.Error)]
+        public void HttpModuleLoadingError(string assemblyName, string moduleName, string exception, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                5,
+                assemblyName ?? string.Empty,
+                moduleName ?? string.Empty,
+                exception ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [Event(
+           6,
+           Message = "Call to WindowsIdentity.Current failed with the exception: {0}.",
+           Level = EventLevel.Warning)]
+        public void LogWindowsIdentityAccessSecurityException(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(
+                6,
+                error ?? string.Empty,
+                this.ApplicationName);
+        }
+
+        [NonEvent]
+        private string GetApplicationName()
+        {
+            string name;
+            try
+            {
+                name = AppDomain.CurrentDomain.FriendlyName;
+            }
+            catch (Exception exp)
+            {
+                name = "Undefined " + exp.Message;
+            }
+
+            return name;
+        }
+
+        /// <summary>
+        /// Keywords for the PlatformEventSource. Those keywords should match keywords in Core.
+        /// </summary>
+        public sealed class Keywords
+        {
+            /// <summary>
+            /// Key word for user actionable events.
+            /// </summary>
+            public const EventKeywords UserActionable = (EventKeywords)0x1;
+
+            /// <summary>
+            /// Diagnostics tracing keyword.
+            /// </summary>
+            public const EventKeywords Diagnostics = (EventKeywords)0x2;
+
+            /// <summary>
+            /// Keyword for errors that trace at Verbose level.
+            /// </summary>
+            public const EventKeywords VerboseFailure = (EventKeywords)0x4;
+        }
+    }
+}

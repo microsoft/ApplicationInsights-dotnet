@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.AspNet.ApplicationInsights.HostingStartup</id>
+    <version>$version$</version>
+    <title>Application Insights Hosting Startup for Web Applications</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</projectUrl>
+    <iconUrl>$image$</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <summary>Application Insights Hosting Startup for .NET web applications.</summary>
+    <description>Application Insights Hosting Startup for .NET web applications. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</description>
+    <copyright>$copyright$</copyright>
+    <releaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</releaseNotes>
+    <tags>Analytics ApplicationInsights Telemetry AppInsights</tags>
+    <dependencies>
+        <dependency id="Microsoft.ApplicationInsights.Web" version="$version$" />
+        <dependency id="Microsoft.Web.Infrastructure" version="1.0.0.0"/>
+    </dependencies>
+  </metadata>
+  <files>    
+    <file src="$configuration$\Src\HostingStartup\HostingStartup.Nuget\web.config.install.xdt" target="content\net45" />
+
+    <file src="$configuration$\Src\HostingStartup\HostingStartup.Net45\Microsoft.AspNet.ApplicationInsights.HostingStartup.dll" target="lib\net45" />
+  </files>
+</package>
