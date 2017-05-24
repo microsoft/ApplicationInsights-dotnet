@@ -15,6 +15,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
@@ -406,10 +407,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 this.httpDiagnosticListener = listener;
                 this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
-                this.listenerSubscription = DiagnosticListener.AllListeners.Subscribe(this);
 
                 var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
                 this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
+
+                try
+                {
+                    this.listenerSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+                }
+                catch (Exception ex)
+                {
+                    DependencyCollectorEventSource.Log.HttpCoreDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
+                }
             }
 
             /// <summary>

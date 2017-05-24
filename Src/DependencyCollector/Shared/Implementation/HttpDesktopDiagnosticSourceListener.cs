@@ -3,8 +3,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Net;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Diagnostic listener implementation that listens for Http DiagnosticSource to see all outgoing HTTP dependency requests.
@@ -80,6 +80,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                         DependencyCollectorEventSource.Log.HttpDesktopEndCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
                         this.httpDesktopProcessing.OnEnd(null, request, response);
+                        break;
+                    }
+
+                    case "System.Net.Http.InitializationFailed":
+                    {
+                        DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
+
+                        Exception ex = (Exception)value.Value.GetType().GetProperty("Exception")?.GetValue(value.Value);
+                        DependencyCollectorEventSource.Log.HttpHandlerDiagnosticListenerFailedToInitialize(ex?.ToInvariantString());
                         break;
                     }
 

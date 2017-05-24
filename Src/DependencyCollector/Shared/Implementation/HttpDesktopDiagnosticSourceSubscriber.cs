@@ -4,6 +4,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System;
     using System.Diagnostics;
     using System.Net;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// A helper subscriber class helping the parent object, which is a HttpDiagnosticSourceListener, to subscribe
@@ -24,7 +25,14 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             this.parent = parent;
             this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
-            this.allListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+            try
+            {
+                this.allListenersSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+            }
+            catch (Exception ex)
+            {
+                DependencyCollectorEventSource.Log.HttpDesktopDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
+            }
         }
 
         /// <summary>

@@ -357,6 +357,36 @@
             this.WriteEvent(33, id, this.ApplicationName);
         }
 
+        [Event(
+            34,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpCoreDiagnosticSubscriber failed to subscribe. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpCoreDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(34, error, this.ApplicationName);
+        }
+
+        [Event(
+            35,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpDesktopDiagnosticSubscriber failed to subscribe. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpDesktopDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(35, error, this.ApplicationName);
+        }
+
+        [Event(
+            36,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpHandlerDiagnosticListener failed to initialize. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpHandlerDiagnosticListenerFailedToInitialize(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {
