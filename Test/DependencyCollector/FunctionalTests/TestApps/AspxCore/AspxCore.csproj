@@ -10,6 +10,7 @@
     <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;portable-net45+win8</PackageTargetFallback>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <DoNotSign>true</DoNotSign>
   </PropertyGroup>
 
   <ItemGroup>

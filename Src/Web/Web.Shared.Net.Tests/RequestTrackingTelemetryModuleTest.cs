@@ -318,7 +318,7 @@
             module.OnEndRequest(context);
 
             Assert.Equal(expectedVersion, context.GetRequestTelemetry().Context.GetInternalContext().SdkVersion);
-        }
+        }       
 
         [TestMethod]
         public void OnEndDoesNotAddSourceFieldForRequestForSameComponent()

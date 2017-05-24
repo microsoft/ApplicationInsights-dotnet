@@ -15,6 +15,7 @@
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <DoNotSign>true</DoNotSign>
   </PropertyGroup>
 
   <ItemGroup>
