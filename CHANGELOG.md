@@ -2,6 +2,11 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.4.0-beta4
+- Made Metric class private and fixed various metrics related issues.
+
+## Version 2.4.0-beta3
+
 ## Version 2.4.0-beta2
 - Removed metric aggregation functionality as there is not enough feedback on the API surface yet.
 
