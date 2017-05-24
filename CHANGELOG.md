@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.4.0-beta4
+- Bug fixes.
+
 ## Version 2.4.0-beta3
 - Exceptions statistics feature is not enabled by default
 - [Parse AppId from HTTP response headers when dependency collection is facilitated with Http Desktop DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/509)
@@ -15,7 +18,6 @@
 - [Exceptions statistics metrics uses `.Context.Operation.Name` instead of custom property `operationName`](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/394)
 - [Separate event source names for Web and Dependency Modules to fix the bug](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/508)
 - [Fix DependencyCollector memory leak on netcoreapp1.1 and prior](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/514)
-
 
 ## Version 2.4.0-beta1
 - Report status code for the dependencies failed with non-protocol issue like DNS resolution or SSL shakeup problems.

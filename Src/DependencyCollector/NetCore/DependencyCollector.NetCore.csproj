@@ -13,8 +13,8 @@
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.4.0-beta3</VersionPrefix>
+    <Copyright>Copyright Â© Microsoft. All Rights Reserved.</Copyright>
+    <VersionPrefix>2.4.0-beta4</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
