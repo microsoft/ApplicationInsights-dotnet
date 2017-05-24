@@ -40,6 +40,18 @@
         }
 
         /// <summary>
+        /// Uses given factory to add TelemetryProcessor at the start of the chain of processors. The processors
+        /// in the chain will be invoked in the same order in which they are chained.
+        /// </summary>
+        /// <param name="telemetryProcessorFactory">A delegate that returns a <see cref="ITelemetryProcessor"/>
+        /// , given the next <see cref="ITelemetryProcessor"/> in the call chain.</param>
+        public TelemetryProcessorChainBuilder UseFirst(Func<ITelemetryProcessor, ITelemetryProcessor> telemetryProcessorFactory)
+        {
+            this.factories.Insert(0, telemetryProcessorFactory);
+            return this;
+        }
+
+        /// <summary>
         /// Builds the chain of linked <see cref="ITelemetryProcessor" /> instances and sets the same in configuration object passed.
         /// A special telemetry processor for handling Transmission is always appended as the last
         /// processor in the chain.
