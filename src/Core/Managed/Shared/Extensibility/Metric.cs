@@ -12,7 +12,7 @@
     /// <summary>
     /// Represents aggregator for a single time series of a given metric.
     /// </summary>
-    public class Metric : IEquatable<Metric>
+    internal class Metric : IEquatable<Metric>
     {
         /// <summary>
         /// Aggregator manager for the aggregator.
