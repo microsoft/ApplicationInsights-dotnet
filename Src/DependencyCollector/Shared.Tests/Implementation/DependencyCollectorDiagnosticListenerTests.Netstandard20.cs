@@ -133,7 +133,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             this.listener.OnActivityStart(request);
 
             var exception = new HttpRequestException("message", new Exception("The server name or address could not be resolved"));
-            this.listener.OnException(exception);
+            this.listener.OnException(exception, request);
             this.listener.OnActivityStop(null, request, TaskStatus.Faulted);
 
             var dependencyTelemetry = this.sentTelemetry.Single(t => t is DependencyTelemetry) as DependencyTelemetry;
@@ -144,6 +144,30 @@ namespace Microsoft.ApplicationInsights.DependencyCollector
             Assert.AreEqual(exceptionTelemetry.Context.Operation.Id, dependencyTelemetry.Context.Operation.Id);
             Assert.AreEqual(exceptionTelemetry.Context.Operation.ParentId, dependencyTelemetry.Id);
             Assert.AreEqual("The server name or address could not be resolved", dependencyTelemetry.Context.Properties["Error"]);
+        }
+
+        /// <summary>
+        /// Tests HTTP dependencies and exceptions are NOT tracked for ApplicationInsights URL.
+        /// </summary>
+        [TestMethod]
+        public void ApplicationInsightsUrlAreNotTracked()
+        {
+            var activity = new Activity("System.Net.Http.HttpRequestOut");
+            activity.Start();
+
+            var appInsightsUrl = TelemetryConfiguration.Active.TelemetryChannel.EndpointAddress;
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, appInsightsUrl);
+            this.listener.OnActivityStart(request);
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestContextCorrelationSourceKey));
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.RequestIdHeader));
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.StandardParentIdHeader));
+            Assert.IsNull(HttpHeadersUtilities.GetRequestContextKeyValue(request.Headers, RequestResponseHeaders.StandardRootIdHeader));
+
+            var exception = new HttpRequestException("message", new Exception("The server name or address could not be resolved"));
+            this.listener.OnException(exception, request);
+            this.listener.OnActivityStop(null, request, TaskStatus.Faulted);
+
+            Assert.IsFalse(this.sentTelemetry.Any());
         }
 
         /// <summary>

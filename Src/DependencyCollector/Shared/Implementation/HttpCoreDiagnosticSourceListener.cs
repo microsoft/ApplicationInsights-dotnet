@@ -39,7 +39,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
         private readonly PropertyFetcher stopRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptiontFetcher = new PropertyFetcher("Exception");
+        private readonly PropertyFetcher exceptionRequestFetcher = new PropertyFetcher("Request");
+        private readonly PropertyFetcher exceptionFetcher = new PropertyFetcher("Exception");
         private readonly PropertyFetcher stopResponseFetcher = new PropertyFetcher("Response");
         private readonly PropertyFetcher stopRequestStatusFetcher = new PropertyFetcher("RequestTaskStatus");
         private readonly PropertyFetcher deprecatedRequestFetcher = new PropertyFetcher("Request");
@@ -117,7 +118,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
                 case HttpExceptionEventName:
                 {
-                    this.OnException((Exception)this.exceptiontFetcher.Fetch(evnt.Value));
+                    this.OnException(
+                        (Exception)this.exceptionFetcher.Fetch(evnt.Value),
+                        (HttpRequestMessage)this.exceptionRequestFetcher.Fetch(evnt.Value));
                     break;
                 }
 
@@ -153,7 +156,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues)
         /// Stop event will be sent anyway with null response.
         /// </summary>
-        internal void OnException(Exception exception)
+        internal void OnException(Exception exception, HttpRequestMessage request)
         {
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
@@ -164,8 +167,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
 
-            this.pendingExceptions.TryAdd(currentActivity.Id, exception);
-            this.client.TrackException(exception);
+            // Even though we have the IsEnabled filter, to reject ApplicationInsights URLs before any events are fired,
+            // Exceptions are special and fired even if request instrumentation is disabled.
+            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                this.pendingExceptions.TryAdd(currentActivity.Id, exception);
+                this.client.TrackException(exception);
+            }
         }
 
         //// netcoreapp 2.0 event
@@ -184,7 +192,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
 
-            this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
+            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
+            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
+            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
+            }
         }
 
         //// netcoreapp 2.0 event
@@ -202,6 +215,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             }
 
             DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
+
+            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
+            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
+            if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                return;
+            }
 
             Uri requestUri = request.RequestUri;
             var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
