@@ -343,6 +343,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.True(dependencyModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Count > 0);
             }
 
+            [Fact]
+            public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryProcessorFactoriesFromContainer()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddSingleton<Func<ITelemetryProcessor, ITelemetryProcessor>>((next) => new FakeTelemetryProcessor(next));
+
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                FakeTelemetryProcessor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessor>().FirstOrDefault();
+                Assert.NotNull(telemetryProcessor);
+                Assert.True(telemetryProcessor.IsInitialized);
+            }
+
 #if NET451
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
