@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.1.0-beta5
+
+- Added support for adding telemetry processors through dependency injection; see #344, #445, #447
+- [Added support for environment specifc appsettings under default configuration](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/449)
+- Updated SDK version dependency to 2.4.0-beta4.
+
 ## Version 2.1.0-beta4
 
 - [Made package meta-data URLs use HTTPS](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/390)
