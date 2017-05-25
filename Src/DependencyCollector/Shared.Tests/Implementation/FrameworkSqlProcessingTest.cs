@@ -45,7 +45,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
         }
 
-        #region ExecuteReader
+#region ExecuteReader
 
         /// <summary>
         /// Validates SQLProcessingFramework sends correct telemetry for non stored procedure in async call.
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 RemoteDependencyConstants.SQL,
                 true,
                 stopwatch.Elapsed.TotalMilliseconds,
-                "0");
+                string.Empty);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 RemoteDependencyConstants.SQL,
                 true,
                 stopwatch.Elapsed.TotalMilliseconds,
-                "0");
+                string.Empty);
         }
 
         /// <summary>
@@ -166,19 +166,19 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 RemoteDependencyConstants.SQL,
                 true,
                 stopwatch.Elapsed.TotalMilliseconds, 
-                "0");
+                string.Empty);
         }
-        #endregion
+#endregion
 
-        #region Disposable
+#region Disposable
         public void Dispose()
         {
             this.configuration.Dispose();            
             GC.SuppressFinalize(this);
         }
-        #endregion Disposable
+#endregion Disposable
 
-        #region Helpers
+#region Helpers
 
         private static void ValidateTelemetryPacket(
             DependencyTelemetry remoteDependencyTelemetryActual, string target, string name, string type, bool success, double valueMin, string errorCode)
@@ -203,7 +203,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             Assert.AreEqual(expectedVersion, remoteDependencyTelemetryActual.Context.GetInternalContext().SdkVersion);
         }
 
-        #endregion Helpers
+#endregion Helpers
     }
 }
 #endif

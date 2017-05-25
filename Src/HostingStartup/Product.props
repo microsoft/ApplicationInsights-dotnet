@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)\..', 'Product.props'))\Product.props" /> 
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ApplicationInsights.Extensibility.HostingStartup</RootNamespace>
+    <AssemblyName>Microsoft.AspNet.ApplicationInsights.HostingStartup</AssemblyName>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
+  </PropertyGroup>
+</Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Net45", "Web\Web.Net45\Web.Net45.csproj", "{FE97E6BB-7C7E-4503-AF35-EBBBEDEB850A}"
 EndProject
@@ -20,8 +20,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFramework", "TestFramew
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyCollector", "DependencyCollector", "{DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}"
 	ProjectSection(SolutionItems) = preProject
+		HostingStartup\HostingStartup.Nuget.Tests\DiagnosticsTelemetryModuleTest.cs = HostingStartup\HostingStartup.Nuget.Tests\DiagnosticsTelemetryModuleTest.cs
+		HostingStartup\HostingStartup.Nuget.Tests\InMemoryTraceListener.cs = HostingStartup\HostingStartup.Nuget.Tests\InMemoryTraceListener.cs
 		DependencyCollector\Product.props = DependencyCollector\Product.props
 		DependencyCollector\Test.props = DependencyCollector\Test.props
+		HostingStartup\HostingStartup.Nuget.Tests\TraceSourceForEventSourceTest.cs = HostingStartup\HostingStartup.Nuget.Tests\TraceSourceForEventSourceTest.cs
+		HostingStartup\HostingStartup.Nuget.Tests\WebConfigTransformTest.cs = HostingStartup\HostingStartup.Nuget.Tests\WebConfigTransformTest.cs
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WindowsServer", "WindowsServer", "{D87119AF-CD35-46F2-84A6-ED54CC42027E}"
@@ -127,6 +131,19 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyCollector.Net46.Tests", "DependencyCollector\Net46.Tests\DependencyCollector.Net46.Tests.csproj", "{FB1B1F48-9107-4A45-8868-213D5C8DF20B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyCollector.NetCore.Tests", "DependencyCollector\NetCore.Tests\DependencyCollector.NetCore.Tests.csproj", "{D831194B-6283-4F53-B351-D9C72FC03629}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HostingStartup", "HostingStartup", "{701D2D4F-B581-45A2-AF29-4F34EC5F047B}"
+	ProjectSection(SolutionItems) = preProject
+		HostingStartup\Product.props = HostingStartup\Product.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.Net45", "HostingStartup\HostingStartup.Net45\HostingStartup.Net45.csproj", "{D90A51E3-949C-4304-ADF9-25F6CB59F298}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.NuGet", "HostingStartup\HostingStartup.Nuget\HostingStartup.NuGet.csproj", "{6F167A87-55EA-4E8B-AFAF-91E1A1604446}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.Nuget.Tests", "HostingStartup\HostingStartup.Nuget.Tests\HostingStartup.Nuget.Tests.csproj", "{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostingStartup.Net45.Tests", "HostingStartup\HostingStartup.Net45.Tests\HostingStartup.Net45.Tests.csproj", "{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -394,6 +411,38 @@ Global
 		{D831194B-6283-4F53-B351-D9C72FC03629}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D831194B-6283-4F53-B351-D9C72FC03629}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D831194B-6283-4F53-B351-D9C72FC03629}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -436,5 +485,9 @@ Global
 		{4E5E951A-7E77-45B3-8041-026CBAD3693B} = {A318CC6C-51C8-4BD6-BC85-2B4F35123BE7}
 		{FB1B1F48-9107-4A45-8868-213D5C8DF20B} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
 		{D831194B-6283-4F53-B351-D9C72FC03629} = {DF56FBAD-8745-404B-94A1-E83BFC4AD7CB}
+		{D90A51E3-949C-4304-ADF9-25F6CB59F298} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
+		{6F167A87-55EA-4E8B-AFAF-91E1A1604446} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
+		{AEB17FC1-6C66-468B-9D08-334F0E1AE7CB} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
+		{9AB6BDFD-253C-4C97-8BB8-7234ADFCB601} = {701D2D4F-B581-45A2-AF29-4F34EC5F047B}
 	EndGlobalSection
 EndGlobal

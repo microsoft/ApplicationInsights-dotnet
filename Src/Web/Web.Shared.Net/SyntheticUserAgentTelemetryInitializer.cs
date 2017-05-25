@@ -11,8 +11,10 @@
     /// </summary>
     public class SyntheticUserAgentTelemetryInitializer : WebTelemetryInitializerBase
     {
+        private const string SyntheticSourceNameKey = "Microsoft.ApplicationInsights.RequestTelemetry.SyntheticSource";
+        private const string SyntheticSourceName = "Bot";
         private string filters = string.Empty;
-        private string[] filterPatterns;
+        private string[] filterPatterns;        
 
         /// <summary>
         /// Gets or sets the configured patterns for matching synthetic traffic filters through user agent string.
@@ -49,19 +51,27 @@
             {
                 if (platformContext != null)
                 {
-                    var request = platformContext.GetRequest();
-
-                    if (request != null && !string.IsNullOrEmpty(request.UserAgent))
+                    if (platformContext.Items.Contains(SyntheticSourceNameKey))
                     {
-                        // We expect customers to configure telemetry initializer before they add it to active configuration
-                        // So we will not protect fiterPatterns array with locks (to improve perf)
-                        foreach (string pattern in this.filterPatterns)
+                        // The value does not really matter.
+                        telemetry.Context.Operation.SyntheticSource = SyntheticSourceName;
+                    }
+                    else
+                    {
+                        var request = platformContext.GetRequest();
+                        string userAgent = request.UserAgent;
+                        if (request != null && !string.IsNullOrEmpty(userAgent))
                         {
-                            if (!string.IsNullOrWhiteSpace(pattern) &&
-                                request.UserAgent.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) != -1)
+                            // We expect customers to configure telemetry initializer before they add it to active configuration
+                            // So we will not protect filterPatterns array with locks (to improve perf)                            
+                            for (int i = 0; i < this.filterPatterns.Length; i++)
                             {
-                                telemetry.Context.Operation.SyntheticSource = "Bot";
-                                return;
+                                if (userAgent.IndexOf(this.filterPatterns[i], StringComparison.OrdinalIgnoreCase) != -1)
+                                {
+                                    telemetry.Context.Operation.SyntheticSource = SyntheticSourceName;
+                                    platformContext.Items.Add(SyntheticSourceNameKey, SyntheticSourceName);
+                                    return;
+                                }
                             }
                         }
                     }

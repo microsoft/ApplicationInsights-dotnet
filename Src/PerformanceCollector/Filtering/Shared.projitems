@@ -19,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Errors\CollectionConfigurationErrorType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\Errors\CollectionConfigurationError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\Service contract\FilterConjunctionGroupInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MetricValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DocumentStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CalculatedMetric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Filter.cs" />

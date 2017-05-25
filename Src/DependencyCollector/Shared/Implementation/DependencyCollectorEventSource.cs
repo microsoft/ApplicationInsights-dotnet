@@ -287,6 +287,106 @@
             this.WriteEvent(26, id, this.ApplicationName);
         }
 
+        [Event(
+            27,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpDesktopDiagnosticSourceListener: Begin callback called for id = '{0}', name= '{1}'",
+            Level = EventLevel.Verbose)]
+        public void HttpDesktopBeginCallbackCalled(long id, string name, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(27, id, name ?? string.Empty, this.ApplicationName);
+        }
+
+        [Event(
+            28,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpDesktopDiagnosticSourceListener: End callback called for id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpDesktopEndCallbackCalled(long id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(28, id, this.ApplicationName);
+        }
+
+        [Event(
+            29,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.HttpRequestOut.Start id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerStart(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(29, id, this.ApplicationName);
+        }
+
+        [Event(
+            30,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.HttpRequestOut.Stop id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerStop(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(30, id, this.ApplicationName);
+        }
+
+        [Event(
+            31,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Request id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerRequest(Guid id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(31, id, this.ApplicationName);
+        }
+
+        [Event(
+            32,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Response id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerResponse(Guid id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(32, id, this.ApplicationName);
+        }
+
+        [Event(
+            33,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "System.Net.Http.Exception id = '{0}'",
+            Level = EventLevel.Verbose)]
+        public void HttpCoreDiagnosticSourceListenerException(string id, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(33, id, this.ApplicationName);
+        }
+
+        [Event(
+            34,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpCoreDiagnosticSubscriber failed to subscribe. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpCoreDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(34, error, this.ApplicationName);
+        }
+
+        [Event(
+            35,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpDesktopDiagnosticSubscriber failed to subscribe. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpDesktopDiagnosticSubscriberFailedToSubscribe(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(35, error, this.ApplicationName);
+        }
+
+        [Event(
+            36,
+            Keywords = Keywords.RddEventKeywords,
+            Message = "HttpHandlerDiagnosticListener failed to initialize. Error details '{0}'",
+            Level = EventLevel.Error)]
+        public void HttpHandlerDiagnosticListenerFailedToInitialize(string error, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(36, error ?? string.Empty, this.ApplicationName);
+        }
+
         [NonEvent]
         private string GetApplicationName()
         {

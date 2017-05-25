@@ -2,6 +2,7 @@
 {
     using System;
     using System.Web;
+    using Microsoft.ApplicationInsights.Web.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -10,34 +11,24 @@
         [TestMethod]
         public void GetUserHostAddressReturnsNullIfRequestIsNull()
         {
-            HttpRequestWrapper wr = null;
+            HttpRequest wr = null;
             Assert.IsNull(wr.GetUserHostAddress());
         }
 
         [TestMethod]
         public void GetUserHostAddressReturnsNullInCaseOfArgumentException()
         {
-            var hr = new TestableHttpRequest { OnUserHostAddress = () => { throw new ArgumentException(); } };
+            var ctx = HttpModuleHelper.GetFakeHttpContext(null, () => { throw new ArgumentException(); });
 
-            Assert.IsNull(hr.GetUserHostAddress());
+            Assert.IsNull(ctx.Request.GetUserHostAddress());
         }
 
         [TestMethod]
         public void GetUserHostAddressReturnsUserHostAddress()
         {
-            var hr = new TestableHttpRequest { OnUserHostAddress = () => { return "123"; } };
+            var ctx = HttpModuleHelper.GetFakeHttpContext(null, () => { return "123"; });
 
-            Assert.AreEqual("123", hr.GetUserHostAddress());
-        }
-
-        internal class TestableHttpRequest : HttpRequestBase
-        {
-            public Func<string> OnUserHostAddress { get; set; }
-
-            public override string UserHostAddress
-            {
-                get { return this.OnUserHostAddress(); }
-            }
+            Assert.AreEqual("123", ctx.Request.GetUserHostAddress());
         }
     }
 }

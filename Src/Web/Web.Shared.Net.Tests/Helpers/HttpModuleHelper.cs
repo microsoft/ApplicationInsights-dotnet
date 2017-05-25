@@ -60,12 +60,12 @@
             return (HttpApplication)httpApplicationWrapper.Target;
         }
 
-        public static HttpContext GetFakeHttpContext(IDictionary<string, string> headers = null)
+        public static HttpContext GetFakeHttpContext(IDictionary<string, string> headers = null, Func<string> remoteAddr = null)
         {
             Thread.GetDomain().SetData(".appPath", string.Empty);
             Thread.GetDomain().SetData(".appVPath", string.Empty);
 
-            var workerRequest = new SimpleWorkerRequestWithHeaders(UrlPath, UrlQueryString, new StringWriter(CultureInfo.InvariantCulture), headers);
+            var workerRequest = new SimpleWorkerRequestWithHeaders(UrlPath, UrlQueryString, new StringWriter(CultureInfo.InvariantCulture), headers, remoteAddr);
             
             var context = new HttpContext(workerRequest);
             HttpContext.Current = context;
@@ -115,7 +115,9 @@
         {
             private readonly IDictionary<string, string> headers;
 
-            public SimpleWorkerRequestWithHeaders(string page, string query, TextWriter output, IDictionary<string, string> headers)
+            private readonly Func<string> getRemoteAddress;
+
+            public SimpleWorkerRequestWithHeaders(string page, string query, TextWriter output, IDictionary<string, string> headers, Func<string> getRemoteAddress = null)
                 : base(page, query, output)
             {
                 if (headers != null)
@@ -126,6 +128,8 @@
                 {
                     this.headers = new Dictionary<string, string>();
                 }
+
+                this.getRemoteAddress = getRemoteAddress;
             }
 
             public override string[][] GetUnknownRequestHeaders()
@@ -166,6 +170,16 @@
                 }
 
                 return base.GetKnownRequestHeader(index);
+            }
+
+            public override string GetRemoteAddress()
+            {
+                if (this.getRemoteAddress != null)
+                {
+                    return this.getRemoteAddress();
+                }
+
+                return base.GetRemoteAddress();
             }
         }
     }

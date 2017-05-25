@@ -3,8 +3,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Net;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
     /// Diagnostic listener implementation that listens for Http DiagnosticSource to see all outgoing HTTP dependency requests.
@@ -18,10 +18,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private readonly PropertyFetcher responseFetcher;
         private bool disposed = false;
 
-        internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing)
+        internal HttpDesktopDiagnosticSourceListener(DesktopDiagnosticSourceHttpProcessing httpProcessing, ApplicationInsightsUrlFilter applicationInsightsUrlFilter)
         {
             this.httpDesktopProcessing = httpProcessing;
-            this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this);
+            this.subscribeHelper = new HttpDesktopDiagnosticSourceSubscriber(this, applicationInsightsUrlFilter);
             this.requestFetcherRequestEvent = new PropertyFetcher("Request");
             this.requestFetcherResponseEvent = new PropertyFetcher("Request");
             this.responseFetcher = new PropertyFetcher("Response");
@@ -50,7 +50,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     case "System.Net.Http.Desktop.HttpRequestOut.Start":
                     {
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
-                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
+                        DependencyCollectorEventSource.Log.HttpDesktopBeginCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request), request.RequestUri.ToString());
 
                         // With this event, DiagnosticSource injects headers himself (after the event)
                         // ApplicationInsights must not do this
@@ -64,7 +64,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         // request is never null
                         var request = (HttpWebRequest)this.requestFetcherRequestEvent.Fetch(value.Value);
-                        DependencyCollectorEventSource.Log.BeginCallbackCalled(request.GetHashCode(), value.Key);
+                        DependencyCollectorEventSource.Log.HttpDesktopBeginCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request), request.RequestUri.ToString());
                         this.httpDesktopProcessing.OnBegin(request);
                         break;
                     }
@@ -77,9 +77,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     {
                         // request is never null
                         var request = (HttpWebRequest)this.requestFetcherResponseEvent.Fetch(value.Value);
-                        DependencyCollectorEventSource.Log.EndCallbackCalled(request.GetHashCode().ToString(CultureInfo.InvariantCulture));
+                        DependencyCollectorEventSource.Log.HttpDesktopEndCallbackCalled(ClientServerDependencyTracker.GetIdForRequestObject(request));
                         var response = (HttpWebResponse)this.responseFetcher.Fetch(value.Value);
                         this.httpDesktopProcessing.OnEnd(null, request, response);
+                        break;
+                    }
+
+                    case "System.Net.Http.InitializationFailed":
+                    {
+                        DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
+
+                        Exception ex = (Exception)value.Value.GetType().GetProperty("Exception")?.GetValue(value.Value);
+                        DependencyCollectorEventSource.Log.HttpHandlerDiagnosticListenerFailedToInitialize(ex?.ToInvariantString());
                         break;
                     }
 

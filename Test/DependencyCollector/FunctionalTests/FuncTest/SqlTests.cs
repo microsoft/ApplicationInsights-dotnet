@@ -141,7 +141,7 @@
                              StoredProcedureName, 
                              TimeSpan.FromSeconds(10), 
                              successFlagExpected: true,
-                             sqlErrorCodeExpected: "0",
+                             sqlErrorCodeExpected: string.Empty,
                              sqlErrorMessageExpected: null);
                      });           
         }
@@ -151,7 +151,7 @@
         [TestMethod]
         public void TestExecuteReaderTwiceInSequence()
         {
-            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("TestExecuteReaderTwiceInSequence", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -188,7 +188,7 @@
         [TestMethod]
         public void TestExecuteReaderAsync()
         {
-            this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("ExecuteReaderAsync", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -204,7 +204,7 @@
         [TestMethod]
         public void TestBeginExecuteReader()
         {
-            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteReader1", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -244,7 +244,7 @@
         [TestMethod]
         public void TestSqlCommandExecuteReader()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("SqlCommandExecuteReader1", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -270,7 +270,7 @@
         [TestMethod]
         public void TestExecuteScalarAsync()
         {
-            this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("ExecuteScalarAsync", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -286,7 +286,7 @@
         [TestMethod]
         public void TestSqlCommandExecuteScalar()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("SqlCommandExecuteScalar", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -305,7 +305,7 @@
         [TestMethod]
         public void TestSqlCommandExecuteNonQuery()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("SqlCommandExecuteNonQuery", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -321,7 +321,7 @@
         [TestMethod]
         public void TestExecuteNonQueryAsync()
         {
-            this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("ExecuteNonQueryAsync", errorNumber: string.Empty, errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
@@ -337,7 +337,7 @@
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg0()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery0", errorNumber: string.Empty, errorMessage: null);
         }
 
         [DeploymentItem("..\\TestApps\\ASPX451\\App\\", Aspx451AppFolder)]
@@ -345,7 +345,7 @@
         [TestMethod]
         public void TestBeginExecuteNonQuery_Arg2()
         {
-            this.TestSqlCommandExecute("BeginExecuteNonQuery2", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("BeginExecuteNonQuery2", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -363,7 +363,7 @@
         [TestMethod]
         public void TestExecuteXmlReaderAsync()
         {
-            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("ExecuteXmlReaderAsync", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -387,7 +387,7 @@
         [TestMethod]
         public void TestSqlCommandExecuteXmlReader()
         {
-            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: "0", errorMessage: null);
+            this.TestSqlCommandExecute("SqlCommandExecuteXmlReader", errorNumber: string.Empty, errorMessage: null);
         }
 
         [TestCategory(TestCategory.Net451)]
@@ -554,7 +554,7 @@
             Aspx451TestWebApplication.DoTest(
                  application =>
                  {
-                     bool success = errorNumber == "0";
+                     bool success = string.IsNullOrEmpty(errorNumber);
                      string responseForQueryValidation = application.ExecuteAnonymousRequest("?type=" + type + "&count=1" + "&success=" + success);
 
                      //// The above request would have trigged RDD module to monitor and create RDD telemetry
@@ -617,7 +617,7 @@
                             ResourceNameSQLToDevApm, 
                             spName, 
                             accessTimeMax, successFlagExpected: true,
-                            sqlErrorCodeExpected: "0",
+                            sqlErrorCodeExpected: string.Empty,
                             sqlErrorMessageExpected: null);
                     }
                 });

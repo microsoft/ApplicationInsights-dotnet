@@ -26,7 +26,6 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
-            telemetryClient.Initialize(telemetry);
 #if NET45
             Activity activity;
             Activity currentActivity = Activity.Current;
@@ -37,9 +36,27 @@
             if (currentActivity != null && currentActivity.OperationName == "System.Net.Http.Desktop.HttpRequestOut")
             {
                 activity = currentActivity;
+
+                // OperationCorrelationTelemetryInitializer will initialize telemetry as a child of current activity:
+                // But we need to initialize dependency telemetry from the current Activity:
+                // Activity was created for this dependency in the Http Desktop DiagnosticSource
+                var context = telemetry.Context;
+                context.Operation.Id = currentActivity.RootId;
+                context.Operation.ParentId = currentActivity.ParentId;
+                foreach (var item in currentActivity.Baggage)
+                {
+                    if (!context.Properties.ContainsKey(item.Key))
+                    {
+                        context.Properties.Add(item);
+                    }
+                }
+
+                telemetryClient.Initialize(telemetry);
             }
             else
             {
+                telemetryClient.Initialize(telemetry);
+
                 // Every operation must have its own Activity
                 // if dependency is tracked with profiler of event source, we need to generate a proper hierarchical Id for it
                 // in case of HTTP it will be propagated into the requert header.
@@ -50,7 +67,7 @@
                 // if there is no parent Activity, ID Activity generates is not random enough to work well with 
                 // ApplicationInsights sampling algorithm
                 // This code should go away when Activity is fixed: https://github.com/dotnet/corefx/issues/18418
-                if (Activity.Current == null)
+                if (currentActivity == null)
                 {
                     activity.SetParentId(telemetry.Id);
                 }
@@ -70,6 +87,8 @@
                 telemetry.Context.Operation.Id = activity.RootId;
             }
 #else
+            telemetryClient.Initialize(telemetry);
+
             // telemetry is initialized by Base SDK OperationCorrealtionTelemetryInitializer
             // however it does not know about Activity on .NET40 and does not know how to properly generate Ids
             // let's fix it
@@ -90,6 +109,15 @@
         {
             telemetry.Stop();
             telemetryClient.Track(telemetry);
+        }
+
+        /// <summary>
+        /// Stops telemetry operation. Doesn't track the telemetry item.
+        /// </summary>
+        /// <param name="telemetry">Telemetry item to stop.</param>
+        internal static void EndOperation(DependencyTelemetry telemetry)
+        {
+            telemetry.Stop();
         }
 
         /// <summary>

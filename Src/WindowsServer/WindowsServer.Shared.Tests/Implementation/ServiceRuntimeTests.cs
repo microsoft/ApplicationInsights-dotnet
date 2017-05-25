@@ -14,10 +14,11 @@
     /// as if the tests are running inside a cloud service environment.
     /// Read ServiceRuntimeHelper.cs to see how the actual calls are intercepted.
     /// </summary>
-    [TestClass]
+    [TestClass]    
     public class ServiceRuntimeTests
     {
         [TestMethod]
+        [Ignore]
         public void RoleEnvironmentIsAvailableReturnsFalseIfServiceRuntimeDoesntExit()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -28,6 +29,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void ServiceRuntimeProducesARoleEnvironmentObject()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -37,6 +39,7 @@
         } 
 
         [TestMethod]
+        [Ignore]
         public void RoleEnvironmentReturnsCorrectAvailabilityState()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -51,6 +54,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void RoleEnvironmentReturnsCorrectDeploymentId()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -65,6 +69,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void RoleEnvironmentReturnsTheCurrentRoleInstanceWhichIsNotNull()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -76,6 +81,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void RoleInstanceReturnAnInstanceIdThatMatchesAnAzureInstanceId()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -107,6 +113,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void RoleInstanceReturnsARollWhichIsNotNull()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);
@@ -121,6 +128,7 @@
         }
 
         [TestMethod]
+        [Ignore]
         public void RoleReturnsCorrectName()
         {
             ServiceRuntime serviceRuntime = new ServiceRuntime(typeof(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment).Assembly);

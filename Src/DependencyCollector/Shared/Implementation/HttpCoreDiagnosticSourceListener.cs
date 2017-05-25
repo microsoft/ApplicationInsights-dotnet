@@ -8,17 +8,26 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Common;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
+    using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Web.Implementation;
 
     internal class HttpCoreDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
         private const string DependencyErrorPropertyKey = "Error";
+        private const string HttpOutEventName = "System.Net.Http.HttpRequestOut";
+        private const string HttpOutStartEventName = "System.Net.Http.HttpRequestOut.Start";
+        private const string HttpOutStopEventName = "System.Net.Http.HttpRequestOut.Stop";
+        private const string HttpExceptionEventName = "System.Net.Http.Exception";
+        private const string DeprecatedRequestEventName = "System.Net.Http.Request";
+        private const string DeprecatedResponseEventName = "System.Net.Http.Response";
+
         private readonly IEnumerable<string> correlationDomainExclusionList;
         private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
         private readonly bool setComponentCorrelationHttpHeaders;
@@ -30,7 +39,8 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         private readonly PropertyFetcher startRequestFetcher = new PropertyFetcher("Request");
         private readonly PropertyFetcher stopRequestFetcher = new PropertyFetcher("Request");
-        private readonly PropertyFetcher exceptiontFetcher = new PropertyFetcher("Exception");
+        private readonly PropertyFetcher exceptionRequestFetcher = new PropertyFetcher("Request");
+        private readonly PropertyFetcher exceptionFetcher = new PropertyFetcher("Exception");
         private readonly PropertyFetcher stopResponseFetcher = new PropertyFetcher("Response");
         private readonly PropertyFetcher stopRequestStatusFetcher = new PropertyFetcher("RequestTaskStatus");
         private readonly PropertyFetcher deprecatedRequestFetcher = new PropertyFetcher("Request");
@@ -62,7 +72,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.correlationIdLookupHelper = correlationIdLookupHelper ?? new CorrelationIdLookupHelper(effectiveProfileQueryEndpoint);
             this.correlationDomainExclusionList = correlationDomainExclusionList ?? Enumerable.Empty<string>();
 
-            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this);
+            this.subscriber = new HttpCoreDiagnosticSourceSubscriber(this, this.applicationInsightsUrlFilter);
         }
 
         /// <summary>
@@ -91,13 +101,13 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             switch (evnt.Key)
             {
-                case "System.Net.Http.HttpRequestOut.Start":
+                case HttpOutStartEventName:
                 {
                     this.OnActivityStart((HttpRequestMessage)this.startRequestFetcher.Fetch(evnt.Value));
                     break;
                 }
 
-                case "System.Net.Http.HttpRequestOut.Stop":
+                case HttpOutStopEventName:
                 {
                     this.OnActivityStop(
                         (HttpResponseMessage)this.stopResponseFetcher.Fetch(evnt.Value),
@@ -106,13 +116,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     break;
                 }
 
-                case "System.Net.Http.Exception":
+                case HttpExceptionEventName:
                 {
-                    this.OnException((Exception)this.exceptiontFetcher.Fetch(evnt.Value));
+                    this.OnException(
+                        (Exception)this.exceptionFetcher.Fetch(evnt.Value),
+                        (HttpRequestMessage)this.exceptionRequestFetcher.Fetch(evnt.Value));
                     break;
                 }
 
-                case "System.Net.Http.Request":
+                case DeprecatedRequestEventName:
                 {
                     this.OnRequest(
                         (HttpRequestMessage)this.deprecatedRequestFetcher.Fetch(evnt.Value),
@@ -120,7 +132,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     break;
                 }
 
-                case "System.Net.Http.Response":
+                case DeprecatedResponseEventName:
                 {
                     this.OnResponse(
                         (HttpResponseMessage)this.deprecatedResponseFetcher.Fetch(evnt.Value),
@@ -144,7 +156,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// Handler for Exception event, it is sent when request processing cause an exception (e.g. because of DNS or network issues)
         /// Stop event will be sent anyway with null response.
         /// </summary>
-        internal void OnException(Exception exception)
+        internal void OnException(Exception exception, HttpRequestMessage request)
         {
             Activity currentActivity = Activity.Current;
             if (currentActivity == null)
@@ -153,8 +165,15 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            this.pendingExceptions.TryAdd(currentActivity.Id, exception);
-            this.client.TrackException(exception);
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerException(currentActivity.Id);
+
+            // Even though we have the IsEnabled filter, to reject ApplicationInsights URLs before any events are fired,
+            // Exceptions are special and fired even if request instrumentation is disabled.
+            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
+            {
+                this.pendingExceptions.TryAdd(currentActivity.Id, exception);
+                this.client.TrackException(exception);
+            }
         }
 
         //// netcoreapp 2.0 event
@@ -164,14 +183,18 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         /// </summary>
         internal void OnActivityStart(HttpRequestMessage request)
         {
-            if (Activity.Current == null)
+            var currentActivity = Activity.Current;
+            if (currentActivity == null)
             {
                 DependencyCollectorEventSource.Log.CurrentActivityIsNull();
                 return;
             }
 
-            if (request != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStart(currentActivity.Id);
+
+            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
+            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
+            if (!this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
                 this.InjectRequestHeaders(request, this.configuration.InstrumentationKey);
             }
@@ -191,51 +214,56 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            if (request != null && request.RequestUri != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
+
+            // Even though we have the IsEnabled filter to reject ApplicationInsights URLs before any events are fired, if there
+            // are multiple subscribers and one subscriber returns true to IsEnabled then all subscribers will receive the event.
+            if (this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
-                Uri requestUri = request.RequestUri;
-                var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
-
-                DependencyTelemetry telemetry = new DependencyTelemetry();
-
-                // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
-                telemetry.Context.Operation.Id = currentActivity.RootId;
-                telemetry.Context.Operation.ParentId = currentActivity.ParentId;
-                telemetry.Id = currentActivity.Id;
-                foreach (var item in currentActivity.Baggage)
-                {
-                    if (!telemetry.Context.Properties.ContainsKey(item.Key))
-                    {
-                        telemetry.Context.Properties[item.Key] = item.Value;
-                    }
-                }
-
-                this.client.Initialize(telemetry);
-
-                telemetry.Name = resourceName;
-                telemetry.Target = requestUri.Host;
-                telemetry.Type = RemoteDependencyConstants.HTTP;
-                telemetry.Data = requestUri.OriginalString;
-                telemetry.Duration = currentActivity.Duration;
-                if (response != null)
-                {
-                    this.ParseResponse(response, telemetry);
-                }
-                else
-                {
-                    Exception exception;
-                    if (this.pendingExceptions.TryRemove(currentActivity.Id, out exception))
-                    {
-                        telemetry.Context.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
-                    }
-
-                    telemetry.ResultCode = requestTaskStatus.ToString();
-                    telemetry.Success = false;
-                }
-
-                this.client.Track(telemetry);
+                return;
             }
+
+            Uri requestUri = request.RequestUri;
+            var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
+
+            DependencyTelemetry telemetry = new DependencyTelemetry();
+
+            // properly fill dependency telemetry operation context: OperationCorrelationTelemetryInitializer initializes child telemetry
+            telemetry.Context.Operation.Id = currentActivity.RootId;
+            telemetry.Context.Operation.ParentId = currentActivity.ParentId;
+            telemetry.Id = currentActivity.Id;
+            foreach (var item in currentActivity.Baggage)
+            {
+                if (!telemetry.Context.Properties.ContainsKey(item.Key))
+                {
+                    telemetry.Context.Properties[item.Key] = item.Value;
+                }
+            }
+
+            this.client.Initialize(telemetry);
+
+            telemetry.Name = resourceName;
+            telemetry.Target = requestUri.Host;
+            telemetry.Type = RemoteDependencyConstants.HTTP;
+            telemetry.Data = requestUri.OriginalString;
+            telemetry.Duration = currentActivity.Duration;
+            if (response != null)
+            {
+                this.ParseResponse(response, telemetry);
+            }
+            else
+            {
+                Exception exception;
+                if (this.pendingExceptions.TryRemove(currentActivity.Id, out exception))
+                {
+                    telemetry.Context.Properties[DependencyErrorPropertyKey] = exception.GetBaseException().Message;
+                }
+
+                telemetry.ResultCode = requestTaskStatus.ToString();
+                telemetry.Success = false;
+            }
+
+            this.client.Track(telemetry);
         }
 
         //// netcoreapp1.1 and prior event. See https://github.com/dotnet/corefx/blob/release/1.0.0-rc2/src/Common/src/System/Net/Http/HttpHandlerDiagnosticListenerExtensions.cs.
@@ -246,8 +274,10 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         internal void OnRequest(HttpRequestMessage request, Guid loggingRequestId)
         {
             if (request != null && request.RequestUri != null &&
-                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri.ToString()))
+                !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri))
             {
+                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerRequest(loggingRequestId);
+
                 Uri requestUri = request.RequestUri;
                 var resourceName = request.Method.Method + " " + requestUri.AbsolutePath;
 
@@ -271,6 +301,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         {
             if (response != null)
             {
+                DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerResponse(loggingRequestId);
                 var request = response.RequestMessage;
                 IOperationHolder<DependencyTelemetry> dependency;
                 if (request != null && this.pendingTelemetry.TryGetValue(request, out dependency))
@@ -386,13 +417,28 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
         private class HttpCoreDiagnosticSourceSubscriber : IObserver<DiagnosticListener>, IDisposable
         {
             private readonly HttpCoreDiagnosticSourceListener httpDiagnosticListener;
-            private IDisposable listenerSubscription;
+            private readonly IDisposable listenerSubscription;
+            private readonly ApplicationInsightsUrlFilter applicationInsightsUrlFilter;
+            private readonly bool isNetCore20HttpClient;
+
             private IDisposable eventSubscription;
 
-            internal HttpCoreDiagnosticSourceSubscriber(HttpCoreDiagnosticSourceListener listener)
+            internal HttpCoreDiagnosticSourceSubscriber(HttpCoreDiagnosticSourceListener listener, ApplicationInsightsUrlFilter applicationInsightsUrlFilter)
             {
                 this.httpDiagnosticListener = listener;
-                this.listenerSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+                this.applicationInsightsUrlFilter = applicationInsightsUrlFilter;
+
+                var httpClientVersion = typeof(HttpClient).GetTypeInfo().Assembly.GetName().Version;
+                this.isNetCore20HttpClient = httpClientVersion.CompareTo(new Version(4, 2)) >= 0;
+
+                try
+                {
+                    this.listenerSubscription = DiagnosticListener.AllListeners.Subscribe(this);
+                }
+                catch (Exception ex)
+                {
+                    DependencyCollectorEventSource.Log.HttpCoreDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
+                }
             }
 
             /// <summary>
@@ -412,7 +458,31 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                     // Comes from https://github.com/dotnet/corefx/blob/master/src/System.Net.Http/src/System/Net/Http/DiagnosticsHandlerLoggingStrings.cs#L12
                     if (value.Name == "HttpHandlerDiagnosticListener")
                     {
-                        this.eventSubscription = value.Subscribe(this.httpDiagnosticListener);
+                        this.eventSubscription = value.Subscribe(
+                            this.httpDiagnosticListener,
+                            (evnt, r, _) =>
+                            {
+                                if (isNetCore20HttpClient)
+                                {
+                                    if (evnt == HttpExceptionEventName)
+                                    {
+                                        return true;
+                                    }
+
+                                    if (!evnt.StartsWith(HttpOutEventName, StringComparison.Ordinal))
+                                    {
+                                        return false;
+                                    }
+
+                                    if (evnt == HttpOutEventName && r != null)
+                                    {
+                                        var request = (HttpRequestMessage)r;
+                                        return !this.applicationInsightsUrlFilter.IsApplicationInsightsUrl(request.RequestUri);
+                                    }
+                                }
+
+                                return true;
+                            });
                     }
                 }
             }
