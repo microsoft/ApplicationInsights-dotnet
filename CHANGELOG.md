@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.1.0-beta5
+
+- Added support for adding telemetry processors through dependency injection; see #344, #445, #447
+- [Added support for environment specifc appsettings under default configuration](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/449)
+- Updated SDK version dependency to 2.4.0-beta4.
+
+## Version 2.1.0-beta4
+
+- [Made package meta-data URLs use HTTPS](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/390)
+- Updated SDK version dependency to 2.4.0-beta3.
+
+## Version 2.1.0-beta3
+
+- [Removed the use of Platform Abstractions](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/410)
+- [Correlation header injection disabled for standard Azure storage calls](https://github.com/Microsoft/ApplicationInsights-aspnetcore/issues/416)
+- [Made UseApplicationInsights and AddApplicationInsightsTelemetry calls idempotent](https://github.com/Microsoft/ApplicationInsights-aspnetcore/pull/419)
+
 ## Version 2.1.0-beta2
 
 - Updated to use the new correlation headers and changed the correlationId to use appId instead of hashed ikey to match other SDKs.

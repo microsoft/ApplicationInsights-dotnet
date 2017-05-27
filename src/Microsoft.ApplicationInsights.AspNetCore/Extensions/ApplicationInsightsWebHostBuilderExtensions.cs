@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.AspNetCore.Hosting
 {
-    using System;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
 
     /// <summary>
@@ -20,7 +20,7 @@
             webHostBuilder.ConfigureServices(collection =>
             {
                 collection.AddApplicationInsightsTelemetry();
-                collection.AddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
+                collection.TryAddSingleton<IConfigureOptions<ApplicationInsightsServiceOptions>, DefaultApplicationInsightsServiceConfigureOptions>();
             });
 
             return webHostBuilder;

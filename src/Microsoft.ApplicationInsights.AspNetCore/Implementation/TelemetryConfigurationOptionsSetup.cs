@@ -1,6 +1,7 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
@@ -21,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryInitializer> initializers;
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
+        private readonly IEnumerable<Func<ITelemetryProcessor, ITelemetryProcessor>> telemetryProcessorFactories;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -29,11 +31,13 @@ namespace Microsoft.Extensions.DependencyInjection
             IServiceProvider serviceProvider,
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
             IEnumerable<ITelemetryInitializer> initializers,
-            IEnumerable<ITelemetryModule> modules)
+            IEnumerable<ITelemetryModule> modules,
+            IEnumerable<Func<ITelemetryProcessor, ITelemetryProcessor>> telemetryProcessorFactories)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
             this.modules = modules;
+            this.telemetryProcessorFactories = telemetryProcessorFactories;
             this.telemetryChannel = serviceProvider.GetService<ITelemetryChannel>();
         }
 
@@ -43,6 +47,15 @@ namespace Microsoft.Extensions.DependencyInjection
             if (this.applicationInsightsServiceOptions.InstrumentationKey != null)
             {
                 configuration.InstrumentationKey = this.applicationInsightsServiceOptions.InstrumentationKey;
+            }
+
+            if (this.telemetryProcessorFactories.Any())
+            {
+                foreach (Func<ITelemetryProcessor, ITelemetryProcessor> processorFactory in this.telemetryProcessorFactories)
+                {
+                    configuration.TelemetryProcessorChainBuilder.Use(processorFactory);
+                }
+                configuration.TelemetryProcessorChainBuilder.Build();
             }
 
             this.AddTelemetryChannelAndProcessorsForFullFramework(configuration);
@@ -67,6 +80,15 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (ITelemetryModule module in this.modules)
             {
                 module.Initialize(configuration);
+            }
+
+            foreach (ITelemetryProcessor processor in configuration.TelemetryProcessors)
+            {
+                ITelemetryModule module = processor as ITelemetryModule;
+                if (module != null)
+                {
+                    module.Initialize(configuration);
+                }
             }
         }
 

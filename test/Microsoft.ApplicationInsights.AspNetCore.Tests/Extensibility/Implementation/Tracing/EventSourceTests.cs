@@ -144,7 +144,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Extensibility.Implement
             string expectedApplicationName;
             try
             {
-                expectedApplicationName = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName;
+                expectedApplicationName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception exp)
             {
