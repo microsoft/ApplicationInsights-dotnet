@@ -75,6 +75,7 @@
         //    "version": "1.2.0-beta2",
         //    "type": "build"
         //},
+        "System.Text.Encodings.Web": "4.3.1",
         "System.Threading.Tasks.Analyzers": {
             "version": "1.2.0-beta2",
             "type": "build"
