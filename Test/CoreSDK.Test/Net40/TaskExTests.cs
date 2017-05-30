@@ -171,7 +171,7 @@ namespace Microsoft.ApplicationInsights
         public void WhenAnyReturnsFirstCompletedTask()
         {
             Task task1 = TaskEx.Delay(TimeSpan.FromMilliseconds(50));
-            Task task2 = TaskEx.Delay(TimeSpan.FromMilliseconds(100));
+            Task task2 = TaskEx.Delay(TimeSpan.FromMilliseconds(500));
 
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();

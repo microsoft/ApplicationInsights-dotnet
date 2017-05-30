@@ -11,7 +11,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
     /// The class that represents information about the collected dependency.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=839889">Learn more.</a>
     /// </summary>
-    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class DependencyTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IDeepCloneable<DependencyTelemetry>
     {
         internal new const string TelemetryName = "RemoteDependency";
 
@@ -76,6 +76,20 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Duration = duration;
             this.ResultCode = resultCode;
             this.Success = success;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="DependencyTelemetry"/> to clone from.</param>
+        private DependencyTelemetry(DependencyTelemetry source)
+        {
+            this.InternalData = source.InternalData.DeepClone();
+            this.context = source.context.DeepClone(this.InternalData.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+            this.GenerateId();
         }
 
         /// <summary>
@@ -232,6 +246,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="DependencyTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public DependencyTelemetry DeepClone()
+        {
+            return new DependencyTelemetry(this);
         }
 
         /// <summary>

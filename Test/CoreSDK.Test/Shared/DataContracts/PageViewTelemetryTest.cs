@@ -12,7 +12,8 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+    using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+
 
     [TestClass]
     public class PageViewTelemetryTest
@@ -132,6 +133,22 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(telemetry);
 
             Assert.Equal(10, item.sampleRate);
+        }
+
+        [TestMethod]
+        public void PageViewTelemetryDeepCloneCopiesAllProperties()
+        {
+            var pageView = new PageViewTelemetry("My Page");
+            pageView.Url = new Uri("http://temp.org/page1");
+            pageView.Duration = TimeSpan.FromSeconds(123);
+            pageView.Metrics.Add("Metric1", 30);
+            pageView.Properties.Add("Property1", "Value1");
+
+            PageViewTelemetry other = pageView.DeepClone();
+
+            CompareLogic deepComparator = new CompareLogic();
+            var result = deepComparator.Compare(pageView, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
     }
 }

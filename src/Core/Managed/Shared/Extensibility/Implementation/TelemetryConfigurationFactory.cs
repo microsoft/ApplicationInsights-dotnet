@@ -83,13 +83,18 @@
                     configuration.InstrumentationKey = environmentIKey;
                 }
 
-                // Creating the default channel if no channel configuration supplied
-                configuration.TelemetryChannel = configuration.TelemetryChannel ?? new InMemoryChannel();
-
                 // Creating the processor chain with default processor (transmissionprocessor) if none configured
                 if (configuration.TelemetryProcessors == null)
                 {
                     configuration.TelemetryProcessorChainBuilder.Build();
+                }
+
+                foreach (var telemetrySink in configuration.TelemetrySinks)
+                {
+                    if (telemetrySink.TelemetryProcessorChain == null)
+                    {
+                        telemetrySink.TelemetryProcessorChainBuilder.Build();
+                    }
                 }
 
                 InitializeComponents(configuration, modules);

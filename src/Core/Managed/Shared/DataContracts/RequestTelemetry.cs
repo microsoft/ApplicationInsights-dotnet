@@ -16,7 +16,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IDeepCloneable<RequestTelemetry>
     {
         internal new const string TelemetryName = "Request";
 
@@ -49,6 +49,20 @@
             this.Duration = duration;
             this.ResponseCode = responseCode;
             this.Success = success;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RequestTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="RequestTelemetry"/> to clone from.</param>
+        private RequestTelemetry(RequestTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.successFieldSet = source.successFieldSet;
+            this.GenerateId();
         }
 
         /// <summary>
@@ -200,6 +214,15 @@
         {
             get { return this.Data.source; }
             set { this.Data.source = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="RequestTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public RequestTelemetry DeepClone()
+        {
+            return new RequestTelemetry(this);
         }
 
         /// <summary>

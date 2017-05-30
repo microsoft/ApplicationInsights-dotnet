@@ -17,7 +17,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
-    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class PageViewTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IDeepCloneable<PageViewTelemetry>
     {
         internal const string TelemetryName = "PageView";
 
@@ -45,6 +45,16 @@
         public PageViewTelemetry(string pageName) : this()
         {
             this.Name = pageName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PageViewTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="PageViewTelemetry"/> to clone from.</param>
+        private PageViewTelemetry(PageViewTelemetry source)
+        {
+            this.Data = ((IDeepCloneable<PageViewData>)source.Data).DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
         }
 
         /// <summary>
@@ -137,6 +147,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="PageViewTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public PageViewTelemetry DeepClone()
+        {
+            return new PageViewTelemetry(this);
         }
 
         /// <summary>

@@ -419,6 +419,22 @@
             this.WriteEvent(34, this.nameProvider.Name);
         }
 
+        [Event(35,
+            Message = "At least one telemetry channel cannot consume incoming telemetry fast enough. Some telemetry was dropped to prevent out of memory condition.",
+            Level = EventLevel.Warning)]
+        public void TelemetryDroppedToPreventQueueOverflow(string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(35, this.nameProvider.Name);
+        }
+
+        [Event(36,
+            Message = "Telemetry type '{0}' is not cloneable. Data corruption may occur when telemetry of this type is sent to multiple channels.",
+            Level = EventLevel.Warning)]
+        public void TelemetryNotCloneable(string telemetryType, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(36, telemetryType, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

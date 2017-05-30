@@ -12,7 +12,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IDeepCloneable<AvailabilityTelemetry>
     {
         internal const string TelemetryName = "Availability";
 
@@ -43,6 +43,19 @@
             this.Data.runLocation = runLocation;
             this.Data.message = message;
             this.Timestamp = timeStamp;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="AvailabilityTelemetry"/> to clone from.</param>
+        private AvailabilityTelemetry(AvailabilityTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.Data.id = Convert.ToBase64String(BitConverter.GetBytes(WeakConcurrentRandom.Instance.Next()));
         }
 
         /// <summary>
@@ -143,6 +156,15 @@
         public DateTimeOffset Timestamp
         {
             get; set;
+        }
+
+        /// <summary>
+        /// Deeply clones an  <see cref="AvailabilityTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public AvailabilityTelemetry DeepClone()
+        {
+            return new AvailabilityTelemetry(this);
         }
 
         /// <summary>

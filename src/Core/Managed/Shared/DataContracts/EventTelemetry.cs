@@ -11,7 +11,7 @@
     /// Telemetry type used to track custom events.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackevent">Learn more</a>
     /// </summary>
-    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
+    public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics, IDeepCloneable<EventTelemetry>
     {
         internal const string TelemetryName = "Event";
 
@@ -37,6 +37,15 @@
         public EventTelemetry(string name) : this()
         {
             this.Name = name;
+        }
+
+        private EventTelemetry(EventTelemetry source)
+        {
+            this.Data = ((IDeepCloneable<EventData>)source.Data).DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
         }
 
         /// <summary>
@@ -92,6 +101,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="EventTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public EventTelemetry DeepClone()
+        {
+            return new EventTelemetry(this);
         }
 
         /// <summary>

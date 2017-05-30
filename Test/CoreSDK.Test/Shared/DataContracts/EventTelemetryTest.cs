@@ -1,18 +1,13 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using Microsoft.ApplicationInsights.Channel;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+    using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
     [TestClass]
     public class EventTelemetryTest
@@ -126,6 +121,21 @@
             var telemetry = new EventTelemetry();
 
             Assert.NotNull(telemetry as ISupportSampling);
+        }
+
+        [TestMethod]
+        public void EventTelemetryDeepCloneCopiesAllProperties()
+        {
+            var eventTelemetry = new EventTelemetry();
+            eventTelemetry.Name = "Test Event";
+            eventTelemetry.Properties["Test Property"] = "Test Value";
+            eventTelemetry.Metrics["Test Property"] = 4.2;
+            EventTelemetry other = eventTelemetry.DeepClone();
+
+            CompareLogic deepComparator = new CompareLogic();
+
+            var result = deepComparator.Compare(eventTelemetry, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
 
         [TestMethod]

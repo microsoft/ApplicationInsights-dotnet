@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+    using KellermanSoftware.CompareNetObjects;    
     
     [TestClass]
     public class RequestTelemetryTest
@@ -85,16 +85,7 @@
         [TestMethod]
         public void RequestTelemetrySerializesToJson()
         {
-            var expected = new RequestTelemetry();
-            expected.Timestamp = DateTimeOffset.Now;
-            expected.Id = "a1b2c3d4e5f6h7h8i9j10";
-            expected.Name = "GET /WebForm.aspx";
-            expected.Duration = TimeSpan.FromSeconds(4);
-            expected.ResponseCode = "200";
-            expected.Success = true;
-            expected.Url = new Uri("http://localhost/myapp/MyPage.aspx");
-            expected.Metrics.Add("Metric1", 30);
-            expected.Properties.Add("userHostAddress", "::1");
+            var expected = CreateTestTelemetry();
 
             ((ITelemetry)expected).Sanitize();
 
@@ -223,6 +214,36 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);
 
             Assert.Equal(10, item.sampleRate);
+        }
+
+        [TestMethod]
+        public void RequestTelemetryDeepCloneCopiesAllProperties()
+        {
+            RequestTelemetry request = CreateTestTelemetry();
+            RequestTelemetry other = request.DeepClone();
+
+            ComparisonConfig comparisonConfig = new ComparisonConfig();
+            comparisonConfig.MembersToIgnore.Add("Id");
+            comparisonConfig.MembersToIgnore.Add("HttpMethod");
+            CompareLogic deepComparator = new CompareLogic(comparisonConfig);
+
+            var result = deepComparator.Compare(request, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
+        }
+
+        private RequestTelemetry CreateTestTelemetry()
+        {
+            var request = new RequestTelemetry();
+            request.Timestamp = DateTimeOffset.Now;
+            request.Id = "a1b2c3d4e5f6h7h8i9j10";
+            request.Name = "GET /WebForm.aspx";
+            request.Duration = TimeSpan.FromSeconds(4);
+            request.ResponseCode = "200";
+            request.Success = true;
+            request.Url = new Uri("http://localhost/myapp/MyPage.aspx");
+            request.Metrics.Add("Metric1", 30);
+            request.Properties.Add("userHostAddress", "::1");
+            return request;
         }
     }
 }

@@ -115,6 +115,8 @@
             set { this.buffer.BacklogSize = value; }
         }
 
+        internal bool IsDisposed => this.isDisposed;
+
         /// <summary>
         /// Sends an instance of ITelemetry through the channel.
         /// </summary>

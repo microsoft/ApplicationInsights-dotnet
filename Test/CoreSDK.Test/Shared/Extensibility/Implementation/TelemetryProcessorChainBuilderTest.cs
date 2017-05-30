@@ -52,7 +52,7 @@
             var config = new TelemetryConfiguration();
             var builder = new TelemetryProcessorChainBuilder(config);            
             builder.Build();
-            Assert.IsType<TransmissionProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType<TransmissionProcessor>(config.DefaultTelemetrySink.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]

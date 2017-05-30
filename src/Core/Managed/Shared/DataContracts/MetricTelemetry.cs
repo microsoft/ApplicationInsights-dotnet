@@ -11,7 +11,7 @@
     /// Telemetry type used to track metrics. Represents a sample set of values with a specified count, sum, max, min, and standard deviation.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackmetric">Learn more</a>
     /// </summary>
-    public sealed class MetricTelemetry : ITelemetry, ISupportProperties
+    public sealed class MetricTelemetry : ITelemetry, ISupportProperties, IDeepCloneable<MetricTelemetry>
     {
         internal const string TelemetryName = "Metric";
 
@@ -77,6 +77,19 @@
             this.Min = min;
             this.Max = max;
             this.StandardDeviation = standardDeviation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MetricTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="MetricTelemetry"/> to clone from.</param>
+        private MetricTelemetry(MetricTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.Metric = source.Metric.DeepClone();
+            this.Context = source.Context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
         }
 
         /// <summary>
@@ -165,6 +178,15 @@
         public IDictionary<string, string> Properties
         {
             get { return this.Data.properties; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="MetricTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public MetricTelemetry DeepClone()
+        {
+            return new MetricTelemetry(this);
         }
 
         /// <summary>

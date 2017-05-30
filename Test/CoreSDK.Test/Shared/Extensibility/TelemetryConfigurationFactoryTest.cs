@@ -10,6 +10,7 @@
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Platform;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
+    using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -423,10 +424,18 @@
             Assert.True(configuration.TelemetryProcessors != null);
             Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->stub2->transmission
+            //validate the chain linking stub1->stub2->pass through->sink
             var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
             var tp2 = (StubTelemetryProcessor2) tp1.next;
-            var tpLast = (TransmissionProcessor) tp2.next;
+            var passThroughProcessor = tp2.next as PassThroughProcessor;
+            Assert.NotNull(passThroughProcessor);
+
+            // The sink has only a transmission processor and a default channel.
+            var sink = passThroughProcessor.Next as TelemetrySink;
+            Assert.NotNull(sink);
+            Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+            Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType(typeof(InMemoryChannel), sink.TelemetryChannel);
         }
 
         [TestMethod]
@@ -445,10 +454,18 @@
             Assert.True(configuration.TelemetryProcessors != null);
             Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->stub2->transmission
+            //validate the chain linking stub1->stub2->pass through->sink
             var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
             var tp2 = (StubTelemetryProcessor2)tp1.next;
-            var tpLast = (TransmissionProcessor)tp2.next;
+            var passThroughProcessor = tp2.next as PassThroughProcessor;
+            Assert.NotNull(passThroughProcessor);
+
+            // The sink has only a transmission processor and a default channel.
+            var sink = passThroughProcessor.Next as TelemetrySink;
+            Assert.NotNull(sink);
+            Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+            Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType(typeof(InMemoryChannel), sink.TelemetryChannel);
         }
 
         [TestMethod]
@@ -466,9 +483,17 @@
             Assert.True(configuration.TelemetryProcessors != null);
             Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
-            //validate the chain linking stub1->transmission
+            // The next telemetry processor should be the PassThroughProcessor that terminates the common telemetry processor chain and feeds into the sink.
             var stub1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
-            var transmission = (TransmissionProcessor) stub1.next;
+            var passThroughProcessor = stub1.next as PassThroughProcessor;
+            Assert.NotNull(passThroughProcessor);
+
+            // The sink has only a transmission processor and a default channel.
+            var sink = passThroughProcessor.Next as TelemetrySink;
+            Assert.NotNull(sink);
+            Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+            Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType(typeof(InMemoryChannel), sink.TelemetryChannel);
         }
 
         [TestMethod]
@@ -504,7 +529,15 @@
 
             // Assume that LoadFromXml method is called, tested separately
             Assert.True(configuration.TelemetryProcessors != null);
-            Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
+            var passThroughProcessor = configuration.TelemetryProcessorChain.FirstTelemetryProcessor as PassThroughProcessor;
+            Assert.NotNull(passThroughProcessor);
+
+            // The sink has only a transmission processor and a default channel.
+            var sink = passThroughProcessor.Next as TelemetrySink;
+            Assert.NotNull(sink);
+            Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+            Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType(typeof(InMemoryChannel), sink.TelemetryChannel);
         }
 
         [TestMethod]
@@ -525,7 +558,15 @@
 
             // Assume that LoadFromXml method is called, tested separately
             Assert.True(configuration.TelemetryProcessors != null);
-            Assert.IsType<TransmissionProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
+            var passThroughProcessor = configuration.TelemetryProcessorChain.FirstTelemetryProcessor as PassThroughProcessor;
+            Assert.NotNull(passThroughProcessor);
+
+            // The sink has only a transmission processor and a default channel.
+            var sink = passThroughProcessor.Next as TelemetrySink;
+            Assert.NotNull(sink);
+            Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
+            Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            Assert.IsType(typeof(InMemoryChannel), sink.TelemetryChannel);
         }
 
         [TestMethod]

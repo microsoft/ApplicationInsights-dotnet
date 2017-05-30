@@ -11,7 +11,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IDeepCloneable<TraceTelemetry>
     {
         internal const string TelemetryName = "Message";
 
@@ -44,6 +44,19 @@
         public TraceTelemetry(string message, SeverityLevel severityLevel) : this(message)
         {
             this.SeverityLevel = severityLevel;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TraceTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="TraceTelemetry"/> to clone from.</param>
+        private TraceTelemetry(TraceTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
         }
 
         /// <summary>
@@ -99,6 +112,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="TraceTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public TraceTelemetry DeepClone()
+        {
+            return new TraceTelemetry(this);
         }
 
         /// <summary>

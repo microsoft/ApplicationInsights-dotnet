@@ -220,7 +220,7 @@
                 buffer.MaxTransmissionDelay = TimeSpan.FromMilliseconds(1);
                 buffer.Process(new StubTelemetry());
 
-                Assert.True(telemetrySerialized.Wait(50));
+                Assert.True(telemetrySerialized.Wait(1000));
             }
 
             [TestMethod]
