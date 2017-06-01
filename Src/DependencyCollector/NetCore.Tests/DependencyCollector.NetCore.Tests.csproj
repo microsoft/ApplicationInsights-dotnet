@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Include="..\Shared.Tests\Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" Link="DependencyCollectorDiagnosticListenerTests.Netstandard16.cs" />
     <Compile Include="..\Shared.Tests\Implementation\DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" Link="DependencyCollectorDiagnosticListenerTests.Netstandard20.cs" />
+    <Compile Include="..\Shared.Tests\Implementation\SqlClientDiagnosticSourceListenerTests.cs" Link="SqlClientDiagnosticSourceListenerTests.cs" />
     <Compile Include="..\Shared.Tests\Implementation\EnumerableAssert.cs" Link="EnumerableAssert.cs" />
     <Compile Include="..\Shared.Tests\Implementation\MockCorrelationIdLookupHelper.cs" Link="MockCorrelationIdLookupHelper.cs" />
     <Compile Include="..\..\TestFramework\Shared\SdkVersionHelper.cs" Link="SdkVersionHelper.cs" />
