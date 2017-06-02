@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -65,109 +66,58 @@
         [TestCleanup]
         public void Cleanup()
         {
+            while (Activity.Current != null)
+            {
+                Activity.Current.Stop();
+            }
+
             DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated = false;
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionDiagnosticSourceNoParentActivity()
+        public void TestBasicDependencyCollectionDiagnosticSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
-                var url = new Uri(LocalhostUrl);
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                var dependency = this.sentTelemetry.Single();
-                this.ValidateTelemetryForDiagnosticSource(dependency, url, request, true, "200");
-                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
-                Assert.AreEqual(null, dependency.Context.Operation.ParentId);
-            }
+            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 200);
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionEventSource()
+        public void TestDependencyCollectionDiagnosticSourceWithParentActivity()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
-                var url = new Uri(LocalhostUrl);
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
-            }
+            var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
+            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 200);
+            parent.Stop();
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionEventSourceNonSuccessStatusCode()
+        public void TestDependencyCollectionEventSourceWithParentActivity()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsFalse(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
-                HttpClient httpClient = new HttpClient();
-                using (new LocalServer(
-                    LocalhostUrl, 
-                    ctx => 
-                    {
-                        // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
-                        // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
-                        // first begin may take a while because of lazy initializations and jit compiling
-                        // let's wait a bit here.
-                        Thread.Sleep(20);
-                        ctx.Response.StatusCode = 404;
-                    }))
-                {
-                    await httpClient.GetAsync(LocalhostUrl).ContinueWith(t => { });
-                }
-
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), new Uri(LocalhostUrl), null, false, "404");
-            }
+            var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
+            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 200);
+            parent.Stop();
         }
 
         [TestMethod]
         [Timeout(5000)]
-        public async Task TestDependencyCollectionDiagnosticSourceNonSuccessStatusCode()
+        public void TestBasicDependencyCollectionEventSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
+            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 200);
+        }
 
-                HttpClient httpClient = new HttpClient();
-                using (new LocalServer(LocalhostUrl, ctx => ctx.Response.StatusCode = 404))
-                {
-                    await httpClient.GetStringAsync(LocalhostUrl).ContinueWith(t => { });
-                }
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionEventSourceNonSuccessStatusCode()
+        {
+            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl), 404);
+        }
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), new Uri(LocalhostUrl), null, false, "404");
-            }
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSourceNonSuccessStatusCode()
+        {
+            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl), 404);
         }
 
         [TestMethod]
@@ -200,123 +150,30 @@
 
         [TestMethod]
         [Timeout(5000)]
-        public void TestDependencyCollectionDiagnosticSourceWithParentActivity()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                var parent = new Activity("parent").AddBaggage("k", "v").SetParentId("|guid.").Start();
-
-                var url = new Uri(LocalhostUrl);
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                parent.Stop();
-
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
-
-                Assert.AreEqual("k=v", request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
-            }
-        }
-
-        [TestMethod]
-        [Timeout(5000)]
         public async Task TestDependencyCollectionDnsIssueRequestDiagnosticSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri($"http://{Guid.NewGuid()}/");
-                HttpClient client = new HttpClient();
-                await client.GetAsync(url).ContinueWith(t => { });
-
-                // here the start of dependency is tracked with HttpDesktopDiagnosticSourceListener, 
-                // so the expected SDK version should have DiagnosticSource 'rdddsd' prefix. 
-                // however the end is tracked by FrameworkHttpEventListener
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
-            }
+            await this.TestCollectionDnsIssue(true);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public async Task TestDependencyCollectionDnsIssueRequestEventSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri($"http://{Guid.NewGuid()}/");
-                HttpClient client = new HttpClient();
-                await client.GetAsync(url).ContinueWith(t => { });
-
-                // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
-                // End is fired before Begin, so EventSource doesn't track telemetry
-                Assert.IsFalse(this.sentTelemetry.Any());
-            }
+            await this.TestCollectionDnsIssue(false);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public async Task TestDependencyCollectionCanceledRequestDiagnosticSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri(LocalhostUrl);
-                CancellationTokenSource cts = new CancellationTokenSource();
-                HttpClient httpClient = new HttpClient();
-                using (new LocalServer(LocalhostUrl, ctx => cts.Cancel()))
-                {
-                    await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
-                }
-
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
-            }
+            await this.TestCollectionCanceledRequest(true);
         }
 
         [TestMethod]
         [Timeout(5000)]
         public async Task TestDependencyCollectionCanceledRequestEventSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri(LocalhostUrl);
-                CancellationTokenSource cts = new CancellationTokenSource();
-                HttpClient httpClient = new HttpClient();
-                using (new LocalServer(
-                    LocalhostUrl,
-                    ctx =>
-                    {
-                        // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
-                        // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
-                        // first begin may take a while because of lazy initializations and jit compiling
-                        // let's wait a bit here.
-                        Thread.Sleep(20);
-                        cts.Cancel();
-                    }))
-                {
-                    await httpClient.GetAsync(LocalhostUrl, cts.Token).ContinueWith(t => { });
-                }
-
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, null, false, string.Empty);
-            }
+            await this.TestCollectionCanceledRequest(false);
         }
 
         [TestMethod]
@@ -348,43 +205,48 @@
         [Timeout(5000)]
         public void TestDependencyCollectorPostRequestsAreCollectedDiagnosticSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
-                var url = new Uri(LocalhostUrl);
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-                request.Method = "POST";
-                request.ContentLength = 1;
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (var stream = request.GetRequestStream())
-                    {
-                        stream.Write(new byte[1], 0, 1);
-                    }
-
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
-            }
+            this.TestCollectionPostRequests(true);
         }
 
         [TestMethod]
         [Timeout(500000)]
         public void TestDependencyCollectorPostRequestsAreCollectedEventSource()
         {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
+            this.TestCollectionPostRequests(false);
+        }
 
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestHttpRequestsWithQueryStringAreCollectedDiagnosticSource()
+        {
+            this.TestCollectionSuccessfulResponse(true, new Uri(LocalhostUrl + "123?q=123"), 200);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestHttpRequestsWithQueryStringAreCollectedEventSource()
+        {
+            this.TestCollectionSuccessfulResponse(false, new Uri(LocalhostUrl + "123?q=123"), 200);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionDiagnosticSourceRedirect()
+        {
+            this.TestCollectionResponseWithRedirects(true);
+        }
+
+        [TestMethod]
+        [Timeout(5000)]
+        public void TestDependencyCollectionEventSourceRedirect()
+        {
+            this.TestCollectionResponseWithRedirects(false);
+        }
+
+        private void TestCollectionPostRequests(bool enableDiagnosticSource)
+        {
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            {
                 var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 request.Method = "POST";
@@ -402,68 +264,14 @@
                     }
                 }
 
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, true, "200");
             }
         }
 
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestHttpRequestsWithQueryStringAreCollectedDiagnosticSource()
+        private void TestCollectionResponseWithRedirects(bool enableDiagnosticSource)
         {
-            using (var module = new DependencyTrackingTelemetryModule())
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
-                var url = new Uri(LocalhostUrl + "123?q=123");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
-            }
-        }
-
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestHttpRequestsWithQueryStringAreCollectedEventSource()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri(LocalhostUrl + "123?q=123");
-                HttpWebRequest request = WebRequest.CreateHttp(url);
-
-                using (new LocalServer(LocalhostUrl))
-                {
-                    using (request.GetResponse())
-                    {
-                    }
-                }
-
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
-            }
-        }
-
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestDependencyCollectionDiagnosticSourceRedirect()
-        {
-            using (var module = new DependencyTrackingTelemetryModule())
-            {
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-                Assert.IsTrue(DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
-
                 var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
@@ -490,51 +298,104 @@
                     }
                 }
 
-                this.ValidateTelemetryForDiagnosticSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, true, "200");
             }
         }
 
-        [TestMethod]
-        [Timeout(5000)]
-        public void TestDependencyCollectionEventSourceRedirect()
+        private void TestCollectionSuccessfulResponse(bool enableDiagnosticSource, Uri url, int statusCode)
         {
-            using (var module = new DependencyTrackingTelemetryModule())
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
             {
-                module.DisableDiagnosticSourceInstrumentation = true;
-                module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
-                module.Initialize(this.config);
-
-                var url = new Uri(LocalhostUrl);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
 
-                int count = 0;
-                Action<HttpListenerContext> onRequest = (context) =>
-                {
-                    if (count == 0)
+                using (new LocalServer(
+                    LocalhostUrl,
+                    ctx =>
                     {
-                        context.Response.StatusCode = 302;
-                        context.Response.RedirectLocation = LocalhostUrl;
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 200;
-                    }
+                        if (!enableDiagnosticSource && statusCode != 200)
+                        {
+                            // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                            // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
+                            // first begin may take a while because of lazy initializations and jit compiling
+                            // let's wait a bit here.
+                            Thread.Sleep(20);
+                        }
 
-                    count++;
-                };
-
-                using (new LocalServer(LocalhostUrl, onRequest))
+                        ctx.Response.StatusCode = statusCode;
+                    }))
                 {
-                    using (request.GetResponse())
+                    try
                     {
+                        using (request.GetResponse())
+                        {
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        // ignore and let ValidateTelemetry method check status code
                     }
                 }
 
-                this.ValidateTelemetryForEventSource(this.sentTelemetry.Single(), url, request, true, "200");
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, request, statusCode >= 200 && statusCode < 300, statusCode.ToString(CultureInfo.InvariantCulture));
             }
         }
 
-        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
+        private async Task TestCollectionCanceledRequest(bool enableDiagnosticSource)
+        {
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            {
+                CancellationTokenSource cts = new CancellationTokenSource();
+                HttpClient httpClient = new HttpClient();
+
+                var url = new Uri(LocalhostUrl);
+                using (new LocalServer(
+                    LocalhostUrl,
+                    ctx =>
+                    {
+                        if (!enableDiagnosticSource)
+                        {
+                            // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                            // for quick unsuccesfull response OnEnd is fired too fast after begin (before it's completed)
+                            // first begin may take a while because of lazy initializations and jit compiling
+                            // let's wait a bit here.
+                            Thread.Sleep(20);
+                        }
+
+                        cts.Cancel();
+                    }))
+                {
+                    await httpClient.GetAsync(url, cts.Token).ContinueWith(t => { });
+                }
+
+                this.ValidateTelemetry(enableDiagnosticSource, this.sentTelemetry.Single(), url, null, false, string.Empty);
+            }
+        }
+
+        private async Task TestCollectionDnsIssue(bool enableDiagnosticSource)
+        {
+            using (this.CreateDependencyTrackingModule(enableDiagnosticSource))
+            {
+                var url = new Uri($"http://{Guid.NewGuid()}/");
+                HttpClient client = new HttpClient();
+                await client.GetAsync(url).ContinueWith(t => { });
+
+                if (enableDiagnosticSource)
+                {
+                    // here the start of dependency is tracked with HttpDesktopDiagnosticSourceListener, 
+                    // so the expected SDK version should have DiagnosticSource 'rdddsd' prefix. 
+                    // however the end is tracked by FrameworkHttpEventListener
+                    this.ValidateTelemetry(true, this.sentTelemetry.Single(), url, null, false, string.Empty);
+                }
+                else
+                {
+                    // https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/548
+                    // End is fired before Begin, so EventSource doesn't track telemetry
+                    Assert.IsFalse(this.sentTelemetry.Any());
+                }
+            }
+        }
+
+        private void ValidateTelemetry(bool diagnosticSource, DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
         {
             Assert.AreEqual(url, item.Data);
 
@@ -547,47 +408,6 @@
                 Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
             }
 
-            var expectedMethod = request != null ? request.Method : "GET";
-            Assert.AreEqual(expectedMethod + " " + url.AbsolutePath, item.Name);
-            Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
-            Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
-            Assert.IsTrue(
-                item.Timestamp.UtcDateTime < DateTime.UtcNow.AddMilliseconds(20), // DateTime.UtcNow precesion is ~16ms
-                "timestamp < now");
-            Assert.IsTrue(
-                item.Timestamp.UtcDateTime > DateTime.UtcNow.AddSeconds(-5), 
-                "timestamp > now - 5 sec");
-
-            Assert.AreEqual(resultCode, item.ResultCode);
-            Assert.AreEqual(success, item.Success);
-            Assert.AreEqual(
-                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsd:"),
-                item.Context.GetInternalContext().SdkVersion);
-
-            var requestId = item.Id;
-            Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
-            if (request != null)
-            {
-                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.RequestIdHeader]);
-                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
-                Assert.AreEqual(item.Context.Operation.Id, request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
-            }
-        }
-
-        private void ValidateTelemetryForEventSource(DependencyTelemetry item, Uri url, WebRequest request, bool success, string resultCode)
-        {
-            Assert.AreEqual(url, item.Data);
-
-            if (url.Port == 80 || url.Port == 443)
-            {
-                Assert.AreEqual($"{url.Host}", item.Target);
-            }
-            else
-            {
-                Assert.AreEqual($"{url.Host}:{url.Port}", item.Target);
-            }
-
-            Assert.AreEqual(url.AbsolutePath, item.Name);
             Assert.IsTrue(item.Duration > TimeSpan.FromMilliseconds(0), "Duration has to be positive");
             Assert.AreEqual(RemoteDependencyConstants.HTTP, item.Type, "HttpAny has to be dependency kind as it includes http and azure calls");
             Assert.IsTrue(
@@ -600,18 +420,88 @@
                 "now - 1 min < timestamp");
             Assert.AreEqual(resultCode, item.ResultCode);
             Assert.AreEqual(success, item.Success);
+
+            Assert.AreEqual(Activity.Current?.Id, item.Context.Operation.ParentId);
+            Assert.IsTrue(item.Id.StartsWith('|' + item.Context.Operation.Id + '.'));
+
+            if (diagnosticSource)
+            {
+                this.ValidateTelemetryForDiagnosticSource(item, url, request);
+            }
+            else
+            {
+                this.ValidateTelemetryForEventSource(item, url, request);
+            }
+        }
+
+        private void ValidateTelemetryForDiagnosticSource(DependencyTelemetry item, Uri url, WebRequest request)
+        {
+            var expectedMethod = request != null ? request.Method : "GET";
+            Assert.AreEqual(expectedMethod + " " + url.AbsolutePath, item.Name);
+
+            Assert.AreEqual(
+                SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rdddsd:"),
+                item.Context.GetInternalContext().SdkVersion);
+
+            var requestId = item.Id;
+
+            if (request != null)
+            {
+                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.RequestIdHeader]);
+                Assert.AreEqual(requestId, request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
+                Assert.AreEqual(item.Context.Operation.Id, request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+
+                if (Activity.Current != null)
+                {
+                    var correlationContextHeader = request.Headers[RequestResponseHeaders.CorrelationContextHeader]
+                        .Split(',');
+
+                    var baggage = Activity.Current.Baggage.Select(kvp => $"{kvp.Key}={kvp.Value}").ToArray();
+                    Assert.AreEqual(baggage.Length, correlationContextHeader.Length);
+
+                    foreach (var baggageItem in baggage)
+                    {
+                        Assert.IsTrue(correlationContextHeader.Contains(baggageItem));
+                    }
+                }
+                else
+                {
+                    Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
+                }
+            }
+        }
+
+        private void ValidateTelemetryForEventSource(DependencyTelemetry item, Uri url, WebRequest request)
+        {
+            Assert.AreEqual(url.AbsolutePath, item.Name);
+
             Assert.AreEqual(
                 SdkVersionHelper.GetExpectedSdkVersion(typeof(DependencyTrackingTelemetryModule), "rddf:"),
                 item.Context.GetInternalContext().SdkVersion);
 
-            var requestId = item.Id;
-            Assert.IsTrue(requestId.StartsWith('|' + item.Context.Operation.Id + '.'));
             if (request != null)
             {
                 Assert.IsNull(request.Headers[RequestResponseHeaders.RequestIdHeader]);
                 Assert.IsNull(request.Headers[RequestResponseHeaders.StandardParentIdHeader]);
                 Assert.IsNull(request.Headers[RequestResponseHeaders.StandardRootIdHeader]);
+                Assert.IsNull(request.Headers[RequestResponseHeaders.CorrelationContextHeader]);
             }
+        }
+
+        private DependencyTrackingTelemetryModule CreateDependencyTrackingModule(bool enableDiagnosticSource)
+        {
+            var module = new DependencyTrackingTelemetryModule();
+
+            if (!enableDiagnosticSource)
+            {
+                module.DisableDiagnosticSourceInstrumentation = true;
+            }
+
+            module.ProfileQueryEndpoint = FakeProfileApiEndpoint;
+            module.Initialize(this.config);
+            Assert.AreEqual(enableDiagnosticSource, DependencyTableStore.IsDesktopHttpDiagnosticSourceActivated);
+
+            return module;
         }
 
         private class LocalServer : IDisposable
