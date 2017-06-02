@@ -40,7 +40,8 @@
 
         private static bool isInitialized;
 
-        public static string ExpectedSDKPrefix { get; internal set; }
+        public static string ExpectedSqlSDKPrefix { get; internal set; }
+        public static string ExpectedHttpSDKPrefix { get; internal set; }
 
         public static HttpListenerObservable SdkEventListener { get; private set; }        
 
@@ -76,19 +77,22 @@
                             if(RegistryCheck.IsStatusMonitorInstalled)
                             {
                                 Trace.TraceInformation("Detected Status Monitor as installed, ExpectedPrefix: rddp");
-                                ExpectedSDKPrefix = "rddp";
+                                ExpectedSqlSDKPrefix = "rddp";
+                                ExpectedHttpSDKPrefix = "rddp";
                             }
                             else
                             {
-                                Trace.TraceInformation("Detected Status Monitor as not installed, ExpectedPrefix: rddf");
-                                ExpectedSDKPrefix = "rddf";
+                                Trace.TraceInformation("Detected Status Monitor as not installed, ExpectedSqlPrefix: rddf, ExpectedHttpPrefix: rdddsd");
+                                ExpectedSqlSDKPrefix = "rddf";
+                                ExpectedHttpSDKPrefix = "rdddsd";
                             }                                                        
                         }
                         else
                         {
                             Trace.TraceInformation("Detected DotNet46 as not installed. Will install StatusMonitor if not already installed.");
                             Trace.TraceInformation("Tests against StatusMonitor instrumentation.");
-                            ExpectedSDKPrefix = "rddp";
+                            ExpectedSqlSDKPrefix = "rddp";
+                            ExpectedHttpSDKPrefix = "rddp";
 
                             if (!RegistryCheck.IsStatusMonitorInstalled)
                             {
@@ -167,8 +171,11 @@
             bool successFlagExpected,
             string resultCodeExpected = "DontCheck")
         {
+            var expectedPrefix = itemToValidate.data.baseData.type == "SQL"
+                ? DeploymentAndValidationTools.ExpectedSqlSDKPrefix
+                : DeploymentAndValidationTools.ExpectedHttpSDKPrefix;
             string actualSdkVersion = itemToValidate.tags[new ContextTagKeys().InternalSdkVersion];
-            Assert.IsTrue(actualSdkVersion.Contains(DeploymentAndValidationTools.ExpectedSDKPrefix), string.Format("Actual version: {0}, Expected prefix: {1}", actualSdkVersion, DeploymentAndValidationTools.ExpectedSDKPrefix));
+            Assert.IsTrue(actualSdkVersion.Contains(expectedPrefix), string.Format("Actual version: {0}, Expected prefix: {1}", actualSdkVersion, expectedPrefix));
 
             if (!resultCodeExpected.Equals("DontCheck"))
             {
