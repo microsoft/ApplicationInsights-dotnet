@@ -123,7 +123,7 @@
             }
 
             // ParentId is not valid Request-Id, let's generate proper one.
-            if (trimPosition == 0)
+            if (trimPosition == 1)
             {
                 return GenerateRootId();
             }
