@@ -8,10 +8,13 @@
 - [Parse AppId from HTTP response headers when dependency collection is facilitated with Http Desktop DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/509)
 - [Fix double correlation header injection with latest DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/530)
 - `DisableDiagnosticSourceInstrumentation` configuration flag was added to `DependencyTrackingTelemetryModule`.
-  * By default `DisableDiagnosticSourceInstrumentation` is set to false, that enables correlation of telemetry items and [application map](http://aka.ms/AiAppMapPreview) in multi-tier applications. 
-  * When `DisableDiagnosticSourceInstrumentation` is set to true (so the instrumentation if off), correlation between requests, dependencies and other telemetry items is limited; telemetry correlation between multiple services involved in the operation processing is not possible; cross-component correlation feature and application map experience is limited.
-  * **Note**: applications that run in Azure Web Application with [ApplicationInsights site extension](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-azure-web-apps) or have [runtime instrumentation](https://github.com/Microsoft/ApplicationInsights-Home/tree/master/Samples/AzureEmailService/WorkerRoleA#report-dependencies), this configuration option has no effect.
-  - [Fix memory leak in Dependency collector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/554)
+  * By default `DisableDiagnosticSourceInstrumentation` is set to false, this enables correlation of telemetry items and [application map](http://aka.ms/AiAppMapPreview) in multi-tier applications.
+  * When `DisableDiagnosticSourceInstrumentation` is set to true (so that the instrumentation is off)
+    * correlation between requests, dependencies, and other telemetry items is limited,
+    * telemetry correlation between multiple services involved in the operation processing is not possible,
+    * and the cross-component correlation feature and application map experience is limited.
+  * **Note**: this configuration option has no effect for applications that run in an Azure Web Application with the [ApplicationInsights site extension](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-azure-web-apps) or have [runtime instrumentation](https://github.com/Microsoft/ApplicationInsights-Home/tree/master/Samples/AzureEmailService/WorkerRoleA#report-dependencies).
+- [Fix memory leak in Dependency collector](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/554)
 
 ## Version 2.4.0-beta2
 - [Handle breaking changes from DiagnosticSource](https://github.com/Microsoft/ApplicationInsights-dotnet-server/issues/480)
