@@ -639,7 +639,7 @@
             Assert.AreEqual(sqlErrorCodeExpected, itemToValidate.data.baseData.resultCode);
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
-            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSqlSDKPrefix)
             {
                 // Additional checks for profiler collection
                 if (!string.IsNullOrEmpty(sqlErrorMessageExpected))
@@ -676,7 +676,7 @@
             Assert.IsTrue(sqlErrorCodesExpected.Contains(itemToValidate.data.baseData.resultCode));
 
             //If the command name is expected to be empty, the deserializer will make the CommandName null
-            if ("rddp" == DeploymentAndValidationTools.ExpectedSDKPrefix)
+            if ("rddp" == DeploymentAndValidationTools.ExpectedSqlSDKPrefix)
             {
                 // Additional checks for profiler collection
                 if (sqlErrorMessagesExpected != null)
