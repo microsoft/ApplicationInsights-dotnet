@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 2.1.0-beta5
+## Version 2.1.0-beta6
 
 - Updated SDK version dependency to 2.4.0-beta5.
 
