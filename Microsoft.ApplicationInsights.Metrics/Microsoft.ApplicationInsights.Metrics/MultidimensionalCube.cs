@@ -8,14 +8,18 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
 
     /// <summary>
-    /// Represents a multi-dimensional, discrete cube.
+    /// Represents a multi-dimensional, discrete data cube.
     /// An N-dimensional discrete cube is a data structure containing elements of type TPoint.
     /// Each point can be addressed using a coordinate-vector containing N entries of type TDimensionValue.
+    /// <br />
+    /// For example, the elements in the cube may be colors, space vectors or a sold item (with its properties as coordinates).
+    /// However, the key usage in this library are multidimensional metrics. In such usage the coordinates are metric
+    /// dimensions (TDimensionValue is String) and the cube elements (TPoint) are metric data series.
     /// <p>
-    /// The cube refers to dimensions using their index: 0th, 1st, 2nd dimension and so on. For each dimension, the cube has a DimensionValuesCountLimit
-    /// parameter. This limits the number of distinct values that may be specified for that specific dimension. Once the DimensionValuesCountLimit for
+    /// The cube refers to dimensions using their index: 0th, 1st, 2nd dimension and so on. For each dimension, the cube has a <c>DimensionValuesCountLimit</c>
+    /// parameter. This limits the number of distinct values that may be specified for that specific dimension. Once the <c>DimensionValuesCountLimit</c> for
     /// some particular dimension is reached, the cube will no longer be able to create points whose coordinate vectors contains values for that particular
-    /// dimension that do not occur in coordinate vectors for points already in the cube. The cube also has a TotalPointsCountLimit parameter that values
+    /// dimension that do not occur in coordinate vectors for points already in the cube. The cube also has a <c>TotalPointsCountLimit</c> parameter that limits
     /// the total number of points in the cube.
     /// </p>
     /// <p>
@@ -33,14 +37,15 @@ namespace Microsoft.ApplicationInsights.Metrics
     ///   <item><description>The <c>TryGetOrCreatePoint(..)</c> may return <c>false</c>, and then return <c>true</c> moments later when called with the
     ///     same parameters. This is becasue in order to avoid locking the cube pre-books dimension value counts (and total points counts) and later
     ///     frees them up if the creation of a new point did not complete.
-    ///     To avoid this, use <c>TryGetOrCreatePointAsync(..)</c> overloads.
+    ///     Notably, this artefact does not represent any probems in practice: It occurs only in cuncurrent races when the number of values of a
+    ///     dimension (or the total number of points) is close to the limit, where applications should not rely on a particular outcome of adding a
+    ///     point anyway. In common cases one can assume that the result of <c>TryGetOrCreatePoint(..)</c> is, indeed, stable.
+    ///     In order to control potential instability use <c>TryGetOrCreatePointAsync(..)</c> overloads.
     ///     Note, however, that those overloads do not guarantee that the result of requesting a new point is completely stable. They merely make it
     ///     very unlikely for it to change by re-trying the oprtation several times.
-    ///     Nevertheless, this artefact does not represent any probems in practice: It occurs only in cuncurrent races when the number of values of a
-    ///     dimension is close to the limit, where applications should not rely on a particular outcome of adding a point anyway. </description></item>
+    ///     Nevertheless,  </description></item>
     /// </list>
     /// <p>
-    /// 
     /// The cube is designed to work in concurrent scenarios while minimizing the number, the duration and the scope of locks taken. However, some locks are
     /// necessary to correctly impose the DimensionValuesCountLimits and the TotalPointsCountLimit constrains.
     /// </p>
@@ -69,14 +74,14 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// We can now address specific color objects we follows:
     /// </p>
     /// <code>
-    /// Color green;
-    /// bool canCreateGreen = colorCube.TryGetOrCreatePoint(out green, 0, 255, 0);
+    /// MultidimensionalPointResult{Color} greenResult = colorCube.TryGetOrCreatePoint(0, 255, 0);
+    /// Color green = greenResult.Point;
     /// 
-    /// Color yellow;
-    /// bool canCreateYellow = colorCube.TryGetOrCreatePoint(out yellow, 255, 255, 0);
+    /// MultidimensionalPointResult{Color} yellowResult = colorCube.TryGetOrCreatePoint(255, 255, 0);
+    /// Color yellow = yellowResult.Point;
     /// 
-    /// Color azure;
-    /// bool canCreateAzure = colorCube.TryGetOrCreatePoint(out azure, 0, 127, 255);
+    /// MultidimensionalPointResult{Color} azureResult = colorCube.TryGetOrCreatePoint(0, 127, 255);
+    /// Color azure = azureResult.Point;
     /// </code>
     /// 
     /// <p>** Metrics Example: **</p>
@@ -86,7 +91,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// We collect that metric according to a number of possible groupings:
     /// </p>
     /// <list type="number">
-    ///   <item><description>By the type of the request(the string “synthetic” (i.e.created by a test) or “organic” (created by a legitimate client)).</description></item>
+    ///   <item><description>By the type of the request(the string “synthetic” (i.e.created by a test) or “organic” (created by a legitimate client).</description></item>
     ///   <item><description>By the response generated(an HTTP response code encoded as a string).</description></item>
     ///   <item><description>By the name of the instance that executed the request(in case of a web service scaled over multiple instances).</description></item>
     ///   <item><description>By the name of the API invoked(any URL string).</description></item>
@@ -120,13 +125,24 @@ namespace Microsoft.ApplicationInsights.Metrics
     ///                                                                                                              url:          dimValues[3]);
     /// MultidimensionalCube{string, ResponseTimeMetricDataSeries} metricsCube = new MultidimensionalCube{string, ResponseTimeMetricDataSeries}(metricFactory, 2, 50, 100, 1000);
     /// 
-    /// bool canCreate;
+    /// MultidimensionalPointResult{ResponseTimeMetricDataSeries} result;
     /// 
-    /// ResponseTimeMetricDataSeries responseSeries01;
-    /// canCreate = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "200", "Instance_01", "http://myservice.com/API1?paramA=X");
+    /// result = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "200", "Instance_01", "http://myservice.com/API1?paramA=X");
+    /// if (! result.Success)
+    /// {
+    ///     throw new SomeAppropriateException("Cannot create metric data series. Dimension cap is potentially reached.");
+    /// }
     /// 
-    /// ResponseTimeMetricDataSeries responseSeries02;
-    /// canCreate = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "500", "Instance_01", "http://myservice.com/API2?paramB=Y");
+    /// ResponseTimeMetricDataSeries responseSeries01 = result.Point;
+    /// 
+    /// 
+    /// result = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "500", "Instance_01", "http://myservice.com/API2?paramB=Y");
+    /// if (! result.Success)
+    /// {
+    ///     throw new SomeAppropriateException("Cannot create metric data series. Dimension cap is potentially reached.");
+    /// }
+    /// 
+    /// ResponseTimeMetricDataSeries responseSeries02 = result.Point;
     /// </code>
     /// </remarks>
     /// <typeparam name="TDimensionValue"></typeparam>
@@ -141,7 +157,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         public const int DimensionsCountLimit = 50;
 
         private readonly int[] _dimensionValuesCountLimits;
-        private readonly CubeDimension<TDimensionValue, TPoint> _points;
+        private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;
         private readonly Func<TDimensionValue[], TPoint> _pointsFactory;
         private readonly int _totalPointsCountLimit;
 
@@ -238,7 +254,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _totalPointsCountLimit = totalPointsCountLimit;
 
             _dimensionValuesCountLimits = dimensionValuesCountLimits;
-            _points = new CubeDimension<TDimensionValue, TPoint>(this, dimensionValuesCountLimits[0]);
+            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, dimensionValuesCountLimits[0]);
             _pointsFactory = pointsFactory;
         }
 
@@ -280,9 +296,9 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="coordinates"></param>
         /// <returns></returns>
-        public GetPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
+        public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
         {
-            GetPointResult<TPoint> result = _points.TryGetOrAddVector(coordinates);
+            MultidimensionalPointResult<TPoint> result = _points.TryGetOrAddVector(coordinates);
             return result;
         }
 
@@ -291,7 +307,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="coordinates"></param>
         /// <returns></returns>
-        public Task<GetPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
+        public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
             return TryGetOrCreatePointAsync(timeout:        TimeSpan.FromMilliseconds(11),
                                             cancelToken:    CancellationToken.None,
@@ -307,7 +323,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="sleepDuration"></param>
         /// <param name="coordinates"></param>
         /// <returns></returns>
-        public async Task<GetPointResult<TPoint>> TryGetOrCreatePointAsync(TimeSpan timeout, CancellationToken cancelToken, TimeSpan sleepDuration, params TDimensionValue[] coordinates)
+        public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(TimeSpan timeout, CancellationToken cancelToken, TimeSpan sleepDuration, params TDimensionValue[] coordinates)
         {
             if (Math.Round(timeout.TotalMilliseconds) > (double) Int32.MaxValue)
             {
@@ -329,7 +345,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 cancelToken.ThrowIfCancellationRequested();
 
-                GetPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
+                MultidimensionalPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
                 if (result.IsSuccess)
                 {
                     return result;
