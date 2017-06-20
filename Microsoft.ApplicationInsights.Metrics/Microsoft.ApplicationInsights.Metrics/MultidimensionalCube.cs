@@ -278,13 +278,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="point"></param>
         /// <param name="coordinates"></param>
         /// <returns></returns>
-        public bool TryGetOrCreatePoint(out TPoint point, params TDimensionValue[] coordinates)
+        public GetPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
         {
-            bool hasPoint = _points.TryGetOrAddVector(out point, coordinates);
-            return hasPoint;
+            GetPointResult<TPoint> result = _points.TryGetOrAddVector(coordinates);
+            return result;
         }
 
         /// <summary>
@@ -330,11 +329,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 cancelToken.ThrowIfCancellationRequested();
 
-                TPoint point;
-                bool hasPoint = this.TryGetOrCreatePoint(out point, coordinates);
-                if (hasPoint)
+                GetPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
+                if (result.IsSuccess)
                 {
-                    return new GetPointResult<TPoint>(true, point);
+                    return result;
                 }
 
                 int currentMillis = Environment.TickCount;
@@ -343,7 +341,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (delayMillis < 0)
                 {
-                    return new GetPointResult<TPoint>(true, default(TPoint));
+                    result.SetAsyncTimeoutReachedFailure();
+                    return result;
                 }
 
                 await Task.Delay(delayMillis, cancelToken);

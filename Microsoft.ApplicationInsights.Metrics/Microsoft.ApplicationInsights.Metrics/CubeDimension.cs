@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return newSubdimensionsCount;
         }
 
-        public bool TryGetOrAddVector(out TPoint point, TDimensionValue[] coordinates)
+        public GetPointResult<TPoint> TryGetOrAddVector(TDimensionValue[] coordinates)
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
 
@@ -50,11 +50,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                             nameof(coordinates));
             }
 
-            bool result = this.TryGetOrAddVectorInternal(out point, coordinates, currentDim: 0, createIfNotExists: true);
+            GetPointResult<TPoint> result = this.TryGetOrAddVectorInternal(coordinates, currentDim: 0, createIfNotExists: true);
             return result;
         }
 
-        public bool TryGetVector(out TPoint point, TDimensionValue[] coordinates)
+        public GetPointResult<TPoint> TryGetVector(TDimensionValue[] coordinates)
         {
             Util.ValidateNotNull(coordinates, nameof(coordinates));
 
@@ -66,11 +66,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                             nameof(coordinates));
             }
 
-            bool result = this.TryGetOrAddVectorInternal(out point, coordinates, currentDim: 0, createIfNotExists: false);
+            GetPointResult<TPoint> result = this.TryGetOrAddVectorInternal(coordinates, currentDim: 0, createIfNotExists: false);
             return result;
         }
 
-        private bool TryGetOrAddVectorInternal(out TPoint point, TDimensionValue[] coordinates, int currentDim, bool createIfNotExists)
+        private GetPointResult<TPoint> TryGetOrAddVectorInternal(TDimensionValue[] coordinates, int currentDim, bool createIfNotExists)
         {
             TDimensionValue subElementKey = coordinates[currentDim];
             bool isLastDimensionLevel = (currentDim == coordinates.Length - 1);
@@ -84,36 +84,36 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 if (isLastDimensionLevel)
                 {
-                    point = (TPoint) subElement;
-                    return true;
+                    var result = new GetPointResult<TPoint>(GetPointResultCode.Success_NewPointCreated, (TPoint) subElement);
+                    return result;
                 }
                 else
                 {
                     CubeDimension<TDimensionValue, TPoint> subDim = (CubeDimension<TDimensionValue, TPoint>) subElement;
-                    bool hasPoint = subDim.TryGetOrAddVectorInternal(out point, coordinates, currentDim + 1, createIfNotExists);
-                    return hasPoint;
+                    GetPointResult<TPoint> result = subDim.TryGetOrAddVectorInternal(coordinates, currentDim + 1, createIfNotExists);
+                    return result;
                 }
             }
-            else // so - subElementExists does NOT exist: 
+            else // so - subElement does NOT exist: 
             {
                 // If we are not to create new elements, we are done:
                 if (! createIfNotExists)
                 {
-                    point = default(TPoint);
-                    return false;
+                    var result = new GetPointResult<TPoint>(GetPointResultCode.Failure_PointDoesntExistCreationNotRequested, currentDim);
+                    return result;
                 }
-
-                bool hasPoint = isLastDimensionLevel
-                                    ? this.TryAddPoint(out point, coordinates, currentDim)
-                                    : this.TryAddSubvector(out point, coordinates, currentDim);
-                return hasPoint;
+                else
+                {
+                    GetPointResult<TPoint> result = isLastDimensionLevel
+                                                        ? this.TryAddPoint(coordinates, currentDim)
+                                                        : this.TryAddSubvector(coordinates, currentDim);
+                    return result;
+                }
             }
         }
 
-        private bool TryAddPoint(out TPoint point, TDimensionValue[] coordinates, int currentDim)
+        private GetPointResult<TPoint> TryAddPoint(TDimensionValue[] coordinates, int currentDim)
         {
-            point = default(TPoint);
-
             // We need to create a new sub-element, but we need to make sure that we do not exceed max dimension count in a concurrent situation.
             // To avoid locking as much as possible (it will be inevitable in some situations inside of the concurrent dictionary), we use an
             // interlocked increment of the dimension count early in the process to pre-book the new element. If all creation steps do not
@@ -125,7 +125,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return false;
+                return new GetPointResult<TPoint>(GetPointResultCode.Failure_DimensionValuesCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
@@ -135,7 +135,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // count limit using the same pattern as the dimension values limit:
                 if (! _ownerCube.TryIncTotalPointsCount())
                 {
-                    return false;
+                    return new GetPointResult<TPoint>(GetPointResultCode.Failure_TotalPointsCountLimitReached, currentDim);
                 }
 
                 bool mustRestoreTotalPointsCount = true;
@@ -149,17 +149,16 @@ namespace Microsoft.ApplicationInsights.Metrics
                     // There is a race on someone calling GetOrAddVector(..) with the same coordinates. So point may or may not already be in the list.
                     if (couldInsert)
                     {
-                        point = newPoint;
                         mustRestoreTotalPointsCount = false;
                         mustRestoreSubdimensionsCount = false;
+                        return new GetPointResult<TPoint>(GetPointResultCode.Success_NewPointCreated, newPoint);
                     }
                     else
                     {
-                        // If the point was already in the list, then that point created by the race winner is the one we want.
-                        point = (TPoint) _elements[subElementKey];
+                        // If the point was already in the list, then that other point created by the race winner is the one we want.
+                        TPoint existingPoint = (TPoint) _elements[subElementKey];
+                        return new GetPointResult<TPoint>(GetPointResultCode.Success_ExistingPointRetrieved, existingPoint);
                     }
-
-                    return true;
                 }
                 finally
                 {
@@ -178,42 +177,38 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private bool TryAddSubvector(out TPoint point, TDimensionValue[] coordinates, int currentDim)
+        private GetPointResult<TPoint> TryAddSubvector(TDimensionValue[] coordinates, int currentDim)
         {
-            point = default(TPoint);
-
             // Note the comment near the top if TryAddPoint(..) about the applied minimal locking strategy.
 
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return false;
+                return new GetPointResult<TPoint>(GetPointResultCode.Failure_DimensionValuesCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
             try
             {
                 TDimensionValue subElementKey = coordinates[currentDim];
-                point = default(TPoint);
 
                 // Do a soft-check to see if we reached the total points limit. If we do, there is no need to bother:
                 // (We will do a hard check and pre-booking later when we actually about to create the point.)
                 if (_ownerCube.TotalPointsCount >= _ownerCube.TotalPointsCountLimit)
                 {
-                    return false;
+                    return new GetPointResult<TPoint>(GetPointResultCode.Failure_TotalPointsCountLimitReached, currentDim);
                 }
 
                 // We are not at the last level. Create the subdimension. Note, we are not under lock, so someone might be creating the same dimention concurrently:
-                TPoint newPoint;
                 CubeDimension<TDimensionValue, TPoint> newSubDim = new CubeDimension<TDimensionValue, TPoint>(_ownerCube, _ownerCube.GetDimensionValuesCountLimit(currentDim + 1));
-                bool hasNewPoint = newSubDim.TryGetOrAddVectorInternal(out newPoint, coordinates, currentDim + 1, createIfNotExists: true);
+                GetPointResult<TPoint> newSubDimResult = newSubDim.TryGetOrAddVectorInternal(coordinates, currentDim + 1, createIfNotExists: true);
 
                 // Becasue we have not yet inserted newSubDim into _elements, any operations on newSubDim are not under concurrency.
                 // There are no point-vectors yet pointing to the sub-space of newSubDim, so no DimensionValuesCountLimit can be reached.
                 // So, hasNewPoint can be false only if TotalPointsCountLimit was reached. We just bail out:
-                if (! hasNewPoint)
+                if (! newSubDimResult.IsSuccess)
                 {
-                    return false;
+                    return newSubDimResult;
                 }
 
                 // The new point has been created and we need to add its sub-space to the list.
@@ -223,9 +218,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 if (couldInsert)
                 {
                     // Success. We created and inserted a new sub-space:
-                    point = newPoint;
                     mustRestoreSubdimensionsCount = false;
-                    return true;
+                    return newSubDimResult;
                 }
                 else
                 {
@@ -243,8 +237,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
 
-            bool hasPoint = this.TryGetOrAddVectorInternal(out point, coordinates, currentDim, createIfNotExists: true);
-            return hasPoint;
+            GetPointResult<TPoint> retryResult = this.TryGetOrAddVectorInternal(coordinates, currentDim, createIfNotExists: true);
+            return retryResult;
         }
     }
 }
