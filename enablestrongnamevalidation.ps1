@@ -1,12 +1,1 @@
-Set-Location HKLM:
-$registryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework"
-$Name = "AllowStrongNameBypass"
-$s = Get-ItemProperty -Path $registryPath -Name $name
-if($s -ne $null)
-{
-    Remove-ItemProperty -Path $registryPath -Name $name -Force -ErrorAction SilentlyContinue
-}
-else
-{
-    Write-Host "Nothing to remove"
-}
+& "C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vu *,31bf3856ad364e35

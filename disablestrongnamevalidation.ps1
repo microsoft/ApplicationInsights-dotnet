@@ -1,5 +1,1 @@
-Set-Location HKLM:
-$registryPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework"
-$Name = "AllowStrongNameBypass"
-$value = "1"
-New-ItemProperty -Path $registryPath -Name $name -Value $value -PropertyType DWORD -Force
+& "C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\sn.exe" -Vr *,31bf3856ad364e35
