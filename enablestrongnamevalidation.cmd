@@ -1,2 +1,2 @@
-set VsDevCmd ="C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
-%VsDevCmd% sn -Vu *,31bf3856ad364e35
+set SNEXE ="C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6 Tools"
+%SNEXE% -Vu *,31bf3856ad364e35
