@@ -2,6 +2,9 @@
 
 This changelog will be used to generate documentation on [release notes page](http://azure.microsoft.com/en-us/documentation/articles/app-insights-release-notes-dotnet/).
 
+## Version 2.4.0
+- Updated version of DiagnosticSource to 4.4.0 stable
+
 ## Version 2.4.0-beta5
 - Updated version of DiagnosticSource referenced.
 
