@@ -93,7 +93,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
             Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("", requestTelemetry.HttpMethod);
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -119,7 +118,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.True(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
             Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("", requestTelemetry.HttpMethod);
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost, HttpRequestPath, HttpRequestQueryString), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
@@ -147,7 +145,6 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests
             Assert.False(requestTelemetry.Success);
             Assert.Equal(CommonMocks.InstrumentationKey, requestTelemetry.Context.InstrumentationKey);
             Assert.Equal("", requestTelemetry.Source);
-            Assert.Equal("", requestTelemetry.HttpMethod);
             Assert.Equal(CreateUri(HttpRequestScheme, HttpRequestHost), requestTelemetry.Url);
             Assert.NotEmpty(requestTelemetry.Context.GetInternalContext().SdkVersion);
             Assert.Contains(SdkVersionTestUtils.VersionPrefix, requestTelemetry.Context.GetInternalContext().SdkVersion);
