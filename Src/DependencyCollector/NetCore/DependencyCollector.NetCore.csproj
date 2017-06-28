@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Signing.props'))\Signing.props" Condition="'$(DoNotSign)' == ''" />
 
@@ -13,8 +13,8 @@
   <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
 
   <PropertyGroup>
-    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
-    <VersionPrefix>2.4.0-beta5</VersionPrefix>
+    <Copyright>Copyright � Microsoft. All Rights Reserved.</Copyright>
+    <VersionPrefix>2.4.0</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
@@ -61,10 +61,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta5" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
     <PackageReference Include="Microsoft.Extensions.DiagnosticAdapter" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0" developmentDependency="true" />
 
