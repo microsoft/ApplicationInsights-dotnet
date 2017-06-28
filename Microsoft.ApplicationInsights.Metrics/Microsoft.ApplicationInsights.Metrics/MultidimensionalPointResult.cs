@@ -30,13 +30,13 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public bool IsPointCreatedNew { get { return (this.ResultCode | MultidimensionalPointResultCode.Success_NewPointCreated) != 0; } }
+        public bool IsPointCreatedNew { get { return (this.ResultCode & MultidimensionalPointResultCode.Success_NewPointCreated) != 0; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public bool IsSuccess { get { return ((this.ResultCode | MultidimensionalPointResultCode.Success_NewPointCreated) != 0) 
-                                                || ((this.ResultCode | MultidimensionalPointResultCode.Success_ExistingPointRetrieved) != 0); } }
+        public bool IsSuccess { get { return ((this.ResultCode & MultidimensionalPointResultCode.Success_NewPointCreated) != 0) 
+                                                || ((this.ResultCode & MultidimensionalPointResultCode.Success_ExistingPointRetrieved) != 0); } }
 
         internal MultidimensionalPointResult(MultidimensionalPointResultCode failureCode, int failureCoordinateIndex)
         {
