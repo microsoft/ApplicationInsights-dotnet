@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 2.4.0
+- Updated version of DiagnosticSource to 4.4.0
+
 ## Version 2.4.0-beta5
 - Updated version of DiagnosticSource referenced.
 
