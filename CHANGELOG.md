@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.1.0
+
+- Updated SDK version dependency to 2.4.0.
+- Fixed a minor logging message issue.
+- Fixed unit test reliability issues.
+
 ## Version 2.1.0-beta6
 
 - Updated SDK version dependency to 2.4.0-beta5.

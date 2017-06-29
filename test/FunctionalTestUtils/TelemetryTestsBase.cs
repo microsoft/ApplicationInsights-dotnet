@@ -85,11 +85,7 @@
             DependencyTelemetry expected = new DependencyTelemetry();
             expected.ResultCode = "200";
             expected.Success = true;
-#if NET451
-            expected.Name = requestPath;
-#else
             expected.Name = "GET " + requestPath;
-#endif
 
             InProcessServer server;
             using (server = new InProcessServer(assemblyName, configureHost))
