@@ -1,7 +1,7 @@
-using System;
-
 namespace Microsoft.Extensions.Logging
 {
+    using System;
+
     /// <summary>
     /// Controls logger provider alias used for configuration
     /// </summary>
