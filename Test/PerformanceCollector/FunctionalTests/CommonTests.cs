@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -183,8 +185,25 @@
             Assert.IsTrue(samples.Count > 0);
 
             Assert.IsTrue(samples.Any(s => s.TopCpuProcesses.Length > 0));
-            Assert.IsFalse(
-                samples.Any(s => s.TopCpuProcesses.Any(p => string.IsNullOrWhiteSpace(p.ProcessName) || p.CpuPercentage < 0 || p.CpuPercentage > 100)));
+
+            try
+            {
+                Assert.IsFalse(
+                    samples.Any(s => s.TopCpuProcesses.Any(p => string.IsNullOrWhiteSpace(p.ProcessName) || p.CpuPercentage < 0 || p.CpuPercentage > 100)));
+            }
+            catch
+            {
+                var weirdSample = samples.First(s => s.TopCpuProcesses.Any(p => string.IsNullOrWhiteSpace(p.ProcessName) || p.CpuPercentage < 0 || p.CpuPercentage > 100));
+
+                Trace.WriteLine("Top CPU test failed, weird sample found. Processes:");
+
+                foreach (var proc in weirdSample.TopCpuProcesses)
+                {
+                    Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "ProcessName: {0}, CpuPercentage: {1}", proc.ProcessName, proc.CpuPercentage));
+                }
+
+                throw;
+            }
         }
 
         private static void AssertSingleSampleWithNonZeroMetric(List<MonitoringDataPoint> samples, string metricName)
