@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.Extensions.Logging;
@@ -45,22 +46,38 @@
         {
             if (this.IsEnabled(logLevel))
             {
-                TraceTelemetry traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
-                IDictionary<string, string> dict = traceTelemetry.Context.Properties;
-                dict["CategoryName"] = this.categoryName;
-                dict["Exception"] = exception?.ToString();
-                IReadOnlyList<KeyValuePair<string, object>> stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
-                if (stateDictionary != null)
+                var stateDictionary = state as IReadOnlyList<KeyValuePair<string, object>>;
+                if (exception == null)
                 {
-                    foreach (KeyValuePair<string, object> item in stateDictionary)
-                    {
-                        dict[item.Key] = Convert.ToString(item.Value);
-                    }
+                    var traceTelemetry = new TraceTelemetry(formatter(state, exception), this.GetSeverityLevel(logLevel));
+                    PopulateTelemetry(traceTelemetry, stateDictionary);
+                    this.telemetryClient.TrackTrace(traceTelemetry);
                 }
-
-                traceTelemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
-                this.telemetryClient.TrackTrace(traceTelemetry);
+                else
+                {
+                    var exceptionTelemetry = new ExceptionTelemetry(exception);
+                    exceptionTelemetry.Message = formatter(state, exception);
+                    exceptionTelemetry.SeverityLevel = this.GetSeverityLevel(logLevel);
+                    exceptionTelemetry.Context.Properties["Exception"] = exception.ToString();
+                    PopulateTelemetry(exceptionTelemetry, stateDictionary);
+                    this.telemetryClient.TrackException(exceptionTelemetry);
+                }
             }
+        }
+
+        private void PopulateTelemetry(ITelemetry telemetry, IReadOnlyList<KeyValuePair<string, object>> stateDictionary)
+        {
+            IDictionary<string, string> dict = telemetry.Context.Properties;
+            dict["CategoryName"] = this.categoryName;
+            if (stateDictionary != null)
+            {
+                foreach (KeyValuePair<string, object> item in stateDictionary)
+                {
+                    dict[item.Key] = Convert.ToString(item.Value);
+                }
+            }
+
+            telemetry.Context.GetInternalContext().SdkVersion = this.sdkVersion;
         }
 
         private SeverityLevel GetSeverityLevel(LogLevel logLevel)
