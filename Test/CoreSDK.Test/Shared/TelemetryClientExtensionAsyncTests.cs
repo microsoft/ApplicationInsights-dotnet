@@ -112,9 +112,11 @@
             {
                 Thread.Sleep(10);
             }
-
+            
             Assert.NotEqual(id1, id2);
 
+            // Sleep some time to ensure items are sent.
+            Thread.Sleep(100);
             Assert.Equal(3, this.sendItems.Count);
             var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
             Assert.False(string.IsNullOrEmpty(id));
