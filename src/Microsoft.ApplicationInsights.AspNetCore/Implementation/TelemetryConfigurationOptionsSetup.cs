@@ -3,6 +3,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Linq;
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -22,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private readonly IEnumerable<ITelemetryInitializer> initializers;
         private readonly IEnumerable<ITelemetryModule> modules;
         private readonly ITelemetryChannel telemetryChannel;
-        private readonly IEnumerable<Func<ITelemetryProcessor, ITelemetryProcessor>> telemetryProcessorFactories;
+        private readonly IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:TelemetryConfigurationOptionsSetup"/> class.
@@ -32,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
             IEnumerable<ITelemetryInitializer> initializers,
             IEnumerable<ITelemetryModule> modules,
-            IEnumerable<Func<ITelemetryProcessor, ITelemetryProcessor>> telemetryProcessorFactories)
+            IEnumerable<ITelemetryProcessorFactory> telemetryProcessorFactories)
         {
             this.applicationInsightsServiceOptions = applicationInsightsServiceOptions.Value;
             this.initializers = initializers;
@@ -51,9 +52,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (this.telemetryProcessorFactories.Any())
             {
-                foreach (Func<ITelemetryProcessor, ITelemetryProcessor> processorFactory in this.telemetryProcessorFactories)
+                foreach (ITelemetryProcessorFactory processorFactory in this.telemetryProcessorFactories)
                 {
-                    configuration.TelemetryProcessorChainBuilder.Use(processorFactory);
+                    configuration.TelemetryProcessorChainBuilder.Use(processorFactory.Create);
                 }
                 configuration.TelemetryProcessorChainBuilder.Build();
             }
