@@ -2,6 +2,7 @@
 {
 #if NET40 || NET45
     using System;
+    using System.Globalization;
     using System.Runtime.Remoting; 
     using System.Runtime.Remoting.Messaging;
 
@@ -10,7 +11,7 @@
         /// <summary>
         /// Name of the operation context store item present in the context. Domain specific to avoid deserialization problems in other domain.
         /// </summary>
-        private static readonly string FieldKey = $"Microsoft.ApplicationInsights.Operation.OperationContextStore_{AppDomain.CurrentDomain.Id}"; 
+        private static readonly string FieldKey = string.Format(CultureInfo.InvariantCulture, "Microsoft.ApplicationInsights.Operation.OperationContextStore_{0}", AppDomain.CurrentDomain.Id); 
 
         /// <summary>
         /// Saves the context store to the call context.
@@ -32,6 +33,7 @@
             {
                 return (OperationContextForCallContext)handle.Unwrap();
             }
+
             return null;
         }
 
