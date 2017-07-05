@@ -76,8 +76,8 @@ namespace E2ETestApp
 
         private void CallHttp()
         {
-            Uri perftext1 = new Uri("http://webapi:80/api/values");
-            Uri perftext2 = new Uri("http://webapi:80/api/values/3");
+            Uri perftext1 = new Uri("http://e2etestwebapi:80/api/values");
+            Uri perftext2 = new Uri("http://e2etestwebapi:80/api/values/3");
             HttpClient client = new HttpClient();
             Task[] tasks = new Task[2];
 

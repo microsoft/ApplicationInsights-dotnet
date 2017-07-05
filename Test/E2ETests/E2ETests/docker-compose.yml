@@ -1,13 +1,13 @@
 version: '3'
 
 services:
-    webapi:
-        build: ./../TestApps/Net452/E2ETestApp
+    e2etestwebapi:
+        build: ./../TestApps/Net452/E2ETestApp/Publish
        
-    webapp:
-        build: ./../TestApps/Net452/E2ETestWebApi
+    e2etestwebapp:
+        build: ./../TestApps/Net452/E2ETestWebApi/Publish
         depends_on:
-            - webapi
+            - e2etestwebapi
             - sql-server
     sql-server:
         image: microsoft/mssql-server-windows-express
