@@ -1,14 +1,17 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
 #if NET40 || NET45
+    using System;
+    using System.Globalization;
+    using System.Runtime.Remoting; 
     using System.Runtime.Remoting.Messaging;
 
     internal static class CallContextHelpers
     {
         /// <summary>
-        /// Name of the operation context store item present in the context.
+        /// Name of the operation context store item present in the context. Domain specific to avoid deserialization problems in other domain.
         /// </summary>
-        internal const string OperationContextSlotName = "Microsoft.ApplicationInsights.Operation.OperationContextStore";
+        private static readonly string FieldKey = string.Format(CultureInfo.InvariantCulture, "Microsoft.ApplicationInsights.Operation.OperationContextStore_{0}", AppDomain.CurrentDomain.Id); 
 
         /// <summary>
         /// Saves the context store to the call context.
@@ -16,8 +19,8 @@
         /// <param name="operationContext">Operation context store instance.</param>
         internal static void SaveOperationContext(OperationContextForCallContext operationContext)
         {
-            CallContext.FreeNamedDataSlot(OperationContextSlotName);
-            CallContext.LogicalSetData(OperationContextSlotName, operationContext);
+            CallContext.FreeNamedDataSlot(FieldKey);
+            CallContext.LogicalSetData(FieldKey, new ObjectHandle(operationContext));
         }
 
         /// <summary>
@@ -25,7 +28,13 @@
         /// </summary>
         internal static OperationContextForCallContext GetCurrentOperationContext()
         {
-            return CallContext.LogicalGetData(OperationContextSlotName) as OperationContextForCallContext;
+            var handle = CallContext.LogicalGetData(FieldKey) as ObjectHandle;
+            if (handle != null)
+            {
+                return (OperationContextForCallContext)handle.Unwrap();
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -34,10 +43,10 @@
         /// <param name="parentContext">Parent operation context store to replace child operation context store.</param>
         internal static void RestoreOperationContext(OperationContextForCallContext parentContext)
         {
-            CallContext.FreeNamedDataSlot(OperationContextSlotName);
+            CallContext.FreeNamedDataSlot(FieldKey);
             if (parentContext != null)
             {
-                CallContext.LogicalSetData(OperationContextSlotName, parentContext);
+                CallContext.LogicalSetData(FieldKey, new ObjectHandle(parentContext));
             }
         }
     }
