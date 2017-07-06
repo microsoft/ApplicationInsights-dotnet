@@ -2,10 +2,10 @@ version: '3'
 
 services:
     e2etestwebapi:
-        build: ./../TestApps/Net452/E2ETestApp/Publish
+        build: ./../TestApps/Net452/E2ETestWebApi/Publish
        
     e2etestwebapp:
-        build: ./../TestApps/Net452/E2ETestWebApi/Publish
+        build: ./../TestApps/Net452/E2ETestApp/Publish
         depends_on:
             - e2etestwebapi
             - sql-server
