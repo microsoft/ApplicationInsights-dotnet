@@ -243,7 +243,7 @@
         {
             EnsureNet451Installed();
 
-            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "blob", "http://127.0.0.1:11000", HttpTestConstants.QueryStringOutboundAzureSdk);
+            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "blob", "http://127.0.0.1:11000", HttpTestConstants.QueryStringOutboundAzureSdk, true);
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@
         {
             EnsureNet451Installed();
 
-            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "queue", "http://127.0.0.1:11001", HttpTestConstants.QueryStringOutboundAzureSdk);
+            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "queue", "http://127.0.0.1:11001", HttpTestConstants.QueryStringOutboundAzureSdk, false);
         }
 
         [TestMethod]
@@ -263,7 +263,7 @@
         {
             EnsureNet451Installed();
 
-            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "table", "http://127.0.0.1:11002", HttpTestConstants.QueryStringOutboundAzureSdk);
+            HttpTestHelper.ExecuteAzureSDKTests(Aspx451TestWebApplication, 1, "table", "http://127.0.0.1:11002", HttpTestConstants.QueryStringOutboundAzureSdk, true);
         }
 
         [TestMethod]
