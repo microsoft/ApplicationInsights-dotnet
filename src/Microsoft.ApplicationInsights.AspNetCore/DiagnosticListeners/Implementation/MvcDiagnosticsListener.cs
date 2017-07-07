@@ -78,6 +78,16 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                         }
                     }
                 }
+                else
+                {
+                    object page;
+                    routeValues.TryGetValue("page", out page);
+                    string pageString = (page == null) ? string.Empty : page.ToString();
+                    if (!string.IsNullOrEmpty(pageString))
+                    {
+                        name = pageString;
+                    }
+                }
             }
 
             return name;

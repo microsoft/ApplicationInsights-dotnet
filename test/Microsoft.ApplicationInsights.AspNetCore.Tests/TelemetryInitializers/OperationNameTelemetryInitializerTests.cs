@@ -117,6 +117,26 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.TelemetryInitializers
         }
 
         [Fact]
+        public void InitializeSetsTelemetryOperationNameToPageFromActionContext()
+        {
+            var actionContext = new ActionContext();
+            actionContext.RouteData = new RouteData();
+            actionContext.RouteData.Values.Add("page", "/Index");
+
+            var contextAccessor = HttpContextAccessorHelper.CreateHttpContextAccessor(new RequestTelemetry(), actionContext);
+
+            var telemetryListener = new DiagnosticListener(TestListenerName);
+            var initializer = new MvcDiagnosticsListener();
+            telemetryListener.SubscribeWithAdapter(initializer);
+            telemetryListener.Write("Microsoft.AspNetCore.Mvc.BeforeAction",
+                new { httpContext = contextAccessor.HttpContext, routeData = actionContext.RouteData });
+
+            var telemetry = contextAccessor.HttpContext.Features.Get<RequestTelemetry>();
+
+            Assert.Equal("GET /Index", telemetry.Name);
+        }
+
+        [Fact]
         public void InitializeSetsTelemetryOperationNameToControllerAndActionAndParameterFromActionContext()
         {
             var actionContext = new ActionContext();
