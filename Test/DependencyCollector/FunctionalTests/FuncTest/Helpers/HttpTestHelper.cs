@@ -254,6 +254,10 @@ namespace FuncTest.Helpers
                         {
                             Assert.Fail("ExecuteAzureSDKTests.url not matching for " + url);
                         }
+
+                        var successFlagActual = httpItem.data.baseData.success;
+                        Assert.AreEqual(true, successFlagActual, "Success flag collected is wrong.It is expected to be true for all azure sdk calls.");
+
                     }
 
                     Assert.IsTrue(countItem >= count, "Azure " + type + " access captured " + countItem + " is less than " + count);
