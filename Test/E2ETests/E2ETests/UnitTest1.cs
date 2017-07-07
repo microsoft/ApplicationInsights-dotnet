@@ -50,6 +50,7 @@ namespace E2ETests
         public async Task TestMethod1()
         {
             var startTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+            Thread.Sleep(5000);
 
             HttpClient client = new HttpClient();
             string url = "http://" + testappip + "/Default";
@@ -59,10 +60,17 @@ namespace E2ETests
             response = await client.GetAsync(url);
             Trace.WriteLine(response.StatusCode);
 
-            Thread.Sleep(15000);
+            Thread.Sleep(5000);
             var endTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
 
-            var requests = aiClientForWebApp.GetRequests(string.Format("{0}/{1}",startTime, endTime));
+
+            Thread.Sleep(300000);
+            string queryWindow = string.Format("{0}/{1}", startTime, endTime);
+            Trace.WriteLine("QueryWindow:" + queryWindow);
+            var requests = aiClientForWebApp.GetRequests(queryWindow);
+
+            Trace.WriteLine("RequestCount:"+requests.Count);
+            Assert.IsTrue(requests.Count == 2);
 
             Assert.IsTrue(true);
         }
