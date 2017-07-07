@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Net.Http;
 using System.Threading.Tasks;
+using E2ETests.Helpers;
 
 namespace E2ETests
 {
@@ -12,6 +13,9 @@ namespace E2ETests
     public class UnitTest1
     {
         internal static string testappip;
+        internal static AppInsightsRestClient aiClientForWebApp;
+        internal static AppInsightsRestClient aiClientForWebApi;
+
         static string outputs = "";
 
         [ClassInitialize]
@@ -37,24 +41,34 @@ namespace E2ETests
             testappip = output.Trim();
             Trace.WriteLine(output);
             process.WaitForExit();
+
+            aiClientForWebApp = new AppInsightsRestClient("0d6d8edc-754f-46d9-9ca3-4d5c7ae8346d", "feftgddgxfvxmrhxi1etwjjo1z2k01lc1qgi3p8s");
+            aiClientForWebApi = new AppInsightsRestClient("d376981c-e63a-4701-ac97-3773ad9d67a6", "ed41a1npbikkpawi82yeztynnzzgsjn3kgbecx21");
         }
 
         [TestMethod]        
         public async Task TestMethod1()
         {
+            var startTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+
             HttpClient client = new HttpClient();
-            string url = "http://" + testappip + "/Default.aspx";
+            string url = "http://" + testappip + "/Default";
             Trace.WriteLine(url);
             var response =await client.GetAsync(url);           
             Trace.WriteLine(response.StatusCode);
             response = await client.GetAsync(url);
             Trace.WriteLine(response.StatusCode);
 
+            Thread.Sleep(15000);
+            var endTime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+
+            var requests = aiClientForWebApp.GetRequests(string.Format("{0}/{1}",startTime, endTime));
+
             Assert.IsTrue(true);
         }
 
 
-        [ClassCleanup]
+        
         public static void MyClassCleanup()
         {
             Assert.IsTrue(File.Exists(".\\docker-compose.yml"));
