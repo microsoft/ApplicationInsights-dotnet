@@ -224,7 +224,7 @@ namespace FuncTest.Helpers
         /// <param name="count">number to RDD calls to be made by the test application.</param> 
         /// <param name="type"> type of azure call.</param> 
         /// <param name="expectedUrl">expected url for azure call.</param> 
-        public static void ExecuteAzureSDKTests(TestWebApplication testWebApplication, int count, string type, string expectedUrl, string queryString)
+        public static void ExecuteAzureSDKTests(TestWebApplication testWebApplication, int count, string type, string expectedUrl, string queryString, bool checkStatus)
         {
             testWebApplication.DoTest(
                 application =>
@@ -256,8 +256,10 @@ namespace FuncTest.Helpers
                         }
 
                         var successFlagActual = httpItem.data.baseData.success;
-                        Assert.AreEqual(true, successFlagActual, "Success flag collected is wrong.It is expected to be true for all azure sdk calls.");
-
+                        if (checkStatus)
+                        {
+                            Assert.AreEqual(true, successFlagActual, "Success flag collected is wrong.It is expected to be true for all azure sdk calls.");
+                        }
                     }
 
                     Assert.IsTrue(countItem >= count, "Azure " + type + " access captured " + countItem + " is less than " + count);
