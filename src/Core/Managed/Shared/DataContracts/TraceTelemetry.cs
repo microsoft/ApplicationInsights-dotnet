@@ -109,7 +109,6 @@
             this.Data.message = this.Data.message.SanitizeMessage();
             this.Data.message = Utils.PopulateRequiredStringValue(this.Data.message, "message", typeof(TraceTelemetry).FullName);
             this.Data.properties.SanitizeProperties();
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

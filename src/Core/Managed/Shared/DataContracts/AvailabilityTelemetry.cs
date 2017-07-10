@@ -48,8 +48,8 @@
         /// <summary>
         /// Gets or sets the test run id.
         /// </summary>
-        public string Id  
-        {  
+        public string Id
+        {
             get { return this.Data.id; }
             set { this.Data.id = value; }
         }
@@ -69,7 +69,7 @@
         public TimeSpan Duration
         {
             get
-            {                
+            {
                 return Utils.ValidateDuration(this.Data.duration);
             }
 
@@ -161,8 +161,6 @@
 
             this.Data.properties.SanitizeProperties();
             this.Data.measurements.SanitizeMeasurements();
-
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

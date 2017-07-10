@@ -21,16 +21,14 @@
         [TestMethod]
         public void VersionIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var tags = new Dictionary<string, string>();
-            var component = new ComponentContext(tags);
+            var component = new ComponentContext();
             Assert.Null(component.Version);
         }
 
         [TestMethod]
         public void VersionCanBeChangedByUserToSpecifyVersionOfTheirApplication()
         {
-            var tags = new Dictionary<string, string>();
-            var component = new ComponentContext(tags);
+            var component = new ComponentContext();
             component.Version = "4.2";
             Assert.Equal("4.2", component.Version);
         }
@@ -39,11 +37,12 @@
         public void VersionSetsCorrectTagKeyAndValue()
         {
             IDictionary<string, string> tags = new Dictionary<string, string>();
-            var component = new ComponentContext(tags);
+            var component = new ComponentContext();
 
             string componentVersion = "fakeVersion";
             component.Version = componentVersion;
 
+            component.UpdateTags(tags);
             Assert.True(tags.Contains(new KeyValuePair<string, string>(ContextTagKeys.Keys.ApplicationVersion, componentVersion)));
         }
     }

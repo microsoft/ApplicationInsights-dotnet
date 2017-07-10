@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="ApplicationInsights SDK Rules" Description="These rules focus on the most critical problems in your code, including potential security holes, application crashes, and other important logic and design errors. It is recommended to include this rule set in any custom rule set you create for your projects. These include a combination of Microsoft Managed Recommended Rules and DevDivRuleSet for Microbuild." ToolsVersion="14.0">
+<RuleSet Name="ApplicationInsights SDK Rules" Description="These rules focus on the most critical problems in your code, including potential security holes, application crashes, and other important logic and design errors. It is recommended to include this rule set in any custom rule set you create for your projects. These include a combination of Microsoft Managed Recommended Rules and DevDivRuleSet for Microbuild." ToolsVersion="15.0">
   <Localization ResourceAssembly="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.dll" ResourceBaseName="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.Localized">
     <Name Resource="ApplicationInsightsSDKRules_Name" />
     <Description Resource="ApplicationInsightsSDKRules_Description" />
@@ -448,5 +448,15 @@
     <Rule Id="C6993" Action="Warning" />
     <Rule Id="C6995" Action="Warning" />
     <Rule Id="C6997" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SA1113" Action="None" />
+    <Rule Id="SA1124" Action="None" />
+    <Rule Id="SA1129" Action="None" />
+    <Rule Id="SA1131" Action="None" />
+    <Rule Id="SA1132" Action="None" />
+    <Rule Id="SA1600" Action="None" />
+    <Rule Id="SA1615" Action="None" />
+    <Rule Id="SA1642" Action="None" />
   </Rules>
 </RuleSet>

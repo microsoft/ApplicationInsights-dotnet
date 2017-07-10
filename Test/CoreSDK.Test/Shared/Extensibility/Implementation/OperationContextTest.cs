@@ -17,42 +17,42 @@
         [TestMethod]
         public void IdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.Id);
         }
 
         [TestMethod]
         public void NameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.Name);
         }
 
         [TestMethod]
         public void SyntheticSourceIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.SyntheticSource);
         }
 
         [TestMethod]
         public void ParentIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.ParentId);
         }
 
         [TestMethod]
         public void RootIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.Id);
         }
 
         [TestMethod]
         public void CorrelationVectorIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             Assert.Null(operation.CorrelationVector);
         }
 
@@ -60,7 +60,7 @@
         [TestMethod]
         public void IdCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             operation.Id = "42";
             Assert.Equal("42", operation.Id);
         }
@@ -68,7 +68,7 @@
         [TestMethod]
         public void NameCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             operation.Name = "SampleOperationName";
             Assert.Equal("SampleOperationName", operation.Name);
         }
@@ -76,7 +76,7 @@
         [TestMethod]
         public void SyntheticSourceCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             operation.SyntheticSource = "Sample";
             Assert.Equal("Sample", operation.SyntheticSource);
         }
@@ -84,7 +84,7 @@
         [TestMethod]
         public void ParentIdCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             operation.ParentId = "ParentId";
             Assert.Equal("ParentId", operation.ParentId);
         }
@@ -92,7 +92,7 @@
         [TestMethod]
         public void CorrelationVectorCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var operation = new OperationContext(new Dictionary<string, string>());
+            var operation = new OperationContext();
             operation.CorrelationVector = "CorrelationVector";
             Assert.Equal("CorrelationVector", operation.CorrelationVector);
         }

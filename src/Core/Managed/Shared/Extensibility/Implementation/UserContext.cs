@@ -10,23 +10,25 @@
     /// </summary>
     public sealed class UserContext
     {
-        private readonly IDictionary<string, string> tags;
+        private string id;
+        private string accountId;
+        private string userAgent;
+        private string authenticatedUserId;
 
-        internal UserContext(IDictionary<string, string> tags)
+        internal UserContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
         /// Gets or sets the ID of user accessing the application.
         /// </summary>
         /// <remarks>
-        /// Unique user ID is automatically generated in default Application Insights configuration. 
+        /// Unique user ID is automatically generated in default Application Insights configuration.
         /// </remarks>
-        public string Id 
+        public string Id
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserId, value); }
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -34,8 +36,8 @@
         /// </summary>
         public string AccountId
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAccountId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAccountId, value); }
+            get { return this.accountId == string.Empty ? null : this.accountId; }
+            set { this.accountId = value; }
         }
 
         /// <summary>
@@ -43,18 +45,35 @@
         /// </summary>
         public string UserAgent
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAgent); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAgent, value); }
+            get { return this.userAgent == string.Empty ? null : this.userAgent; }
+            set { this.userAgent = value; }
         }
-        
+
         /// <summary>
         /// Gets or sets the authenticated user id.
         /// Authenticated user id should be a persistent string that uniquely represents each authenticated user in the application or service.
         /// </summary>
         public string AuthenticatedUserId
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.UserAuthUserId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.UserAuthUserId, value); }
+            get { return this.authenticatedUserId == string.Empty ? null : this.authenticatedUserId; }
+            set { this.authenticatedUserId = value; }
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.UserId, this.Id);
+            tags.UpdateTagValue(ContextTagKeys.Keys.UserAccountId, this.AccountId);
+            tags.UpdateTagValue(ContextTagKeys.Keys.UserAgent, this.UserAgent);
+            tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
+        }
+
+        internal void CopyFrom(TelemetryContext telemetryContext)
+        {
+            var source = telemetryContext.User;
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.AccountId, ref this.accountId);
+            Tags.CopyTagValue(source.UserAgent, ref this.userAgent);
+            Tags.CopyTagValue(source.AuthenticatedUserId, ref this.authenticatedUserId);
         }
     }
 }

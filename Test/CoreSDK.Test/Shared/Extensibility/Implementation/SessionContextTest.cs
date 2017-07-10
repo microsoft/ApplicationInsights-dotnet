@@ -17,14 +17,14 @@
         [TestMethod]
         public void IdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var session = new SessionContext(new Dictionary<string, string>());
+            var session = new SessionContext();
             Assert.Null(session.Id);
         }
 
         [TestMethod]
         public void IdCanBeChangedByUserToSupplyApplicationDefinedValue()
         {
-            var session = new SessionContext(new Dictionary<string, string>());
+            var session = new SessionContext();
             session.Id = "42";
             Assert.Equal("42", session.Id);
         }
@@ -32,14 +32,14 @@
         [TestMethod]
         public void IsFirstIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
-            var session = new SessionContext(new Dictionary<string, string>());
+            var session = new SessionContext();
             Assert.Null(session.IsFirst);
         }
 
         [TestMethod]
         public void IsFirstCanBeSetByUserToSupplyCustomValue()
         {
-            var session = new SessionContext(new Dictionary<string, string>());
+            var session = new SessionContext();
             session.IsFirst = true;
             Assert.Equal(true, session.IsFirst);
         }
@@ -47,7 +47,7 @@
         [TestMethod]
         public void IsFirstCanBeSetToNullToRemoveItFromJsonPayload()
         {
-            var session = new SessionContext(new Dictionary<string, string>()) { IsFirst = true };
+            var session = new SessionContext() { IsFirst = true };
             session.IsFirst = null;
             Assert.Null(session.IsFirst);
         }

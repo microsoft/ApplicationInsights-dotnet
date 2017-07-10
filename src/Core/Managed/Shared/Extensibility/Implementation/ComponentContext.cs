@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
@@ -8,17 +9,16 @@
     /// Encapsulates information describing an Application Insights component.
     /// </summary>
     /// <remarks>
-    /// This class matches the "Application" schema concept. We are intentionally calling it "Component" for consistency 
-    /// with terminology used by our portal and services and to encourage standardization of terminology within our 
+    /// This class matches the "Application" schema concept. We are intentionally calling it "Component" for consistency
+    /// with terminology used by our portal and services and to encourage standardization of terminology within our
     /// organization. Once a consensus is reached, we will change type and property names to match.
     /// </remarks>
     public sealed class ComponentContext
     {
-        private readonly IDictionary<string, string> tags;
+        private string version;
 
-        internal ComponentContext(IDictionary<string, string> tags)
+        internal ComponentContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -26,8 +26,19 @@
         /// </summary>
         public string Version
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.ApplicationVersion); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.ApplicationVersion, value); }
+            get { return this.version == string.Empty ? null : this.version; }
+            set { this.version = value; }
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.ApplicationVersion, this.Version);
+        }
+
+        internal void CopyFrom(TelemetryContext telemetryContext)
+        {
+            var target = telemetryContext.Component;
+            Tags.CopyTagValue(target.Version, ref this.version);
         }
     }
 }

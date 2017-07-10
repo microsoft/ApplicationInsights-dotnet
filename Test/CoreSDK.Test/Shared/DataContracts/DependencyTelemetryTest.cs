@@ -19,7 +19,7 @@
             Assert.Equal<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.Equal(expected.Sequence, item.seq);
             Assert.Equal(expected.Context.InstrumentationKey, item.iKey);
-            Assert.Equal(expected.Context.Tags.ToArray(), item.tags.ToArray());
+            Assert.Equal(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
             Assert.Equal(typeof(AI.RemoteDependencyData).Name, item.data.baseType);
 
             Assert.Equal(expected.Id, item.data.baseData.id);

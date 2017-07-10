@@ -105,19 +105,19 @@
                 this.Properties["handledAt"] = value.ToString();
             }
         }
-        
+
         /// <summary>
         /// Gets or sets the original exception tracked by this <see cref="ITelemetry"/>.
         /// </summary>
         public Exception Exception
         {
-            get 
+            get
             {
                 return this.exception;
             }
 
-            set 
-            { 
+            set
+            {
                 this.exception = value;
                 this.UpdateExceptions(value);
             }
@@ -234,7 +234,6 @@
             // Sanitize on the ExceptionDetails stack information for raw stack and parsed stack is done while creating the object in ExceptionConverter.cs
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
-            this.Context.SanitizeTelemetryContext();
         }
 
         private void ConvertExceptionTree(Exception exception, ExceptionDetails parentExceptionDetails, List<ExceptionDetails> exceptions)
@@ -288,11 +287,11 @@
 
                 // remove all but the first N exceptions
                 exceptions.RemoveRange(Constants.MaxExceptionCountToSave, exceptions.Count - Constants.MaxExceptionCountToSave);
-                
+
                 // we'll add our new exception and parent it to the root exception (first one in the list)
-                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0])); 
+                exceptions.Add(ExceptionConverter.ConvertToExceptionDetails(countExceededException, exceptions[0]));
             }
-            
+
             this.Data.exceptions = exceptions;
         }
     }

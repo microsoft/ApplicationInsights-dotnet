@@ -2,18 +2,22 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
 
     /// <summary>
-    /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).  
+    /// Encapsulates information about an operation. Operation normally reflects an end to end scenario that starts from a user action (e.g. button click).
     /// </summary>
     public sealed class OperationContext
     {
-        private readonly IDictionary<string, string> tags;
+        private string id;
+        private string parentId;
+        private string correlationVector;
+        private string syntheticSource;
+        private string name;
 
-        internal OperationContext(IDictionary<string, string> tags)
+        internal OperationContext()
         {
-            this.tags = tags;
         }
 
         /// <summary>
@@ -21,8 +25,8 @@
         /// </summary>
         public string Id
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationId, value); }
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -30,8 +34,8 @@
         /// </summary>
         public string ParentId
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationParentId); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationParentId, value); }
+            get { return this.parentId == string.Empty ? null : this.parentId; }
+            set { this.parentId = value; }
         }
 
         /// <summary>
@@ -40,8 +44,8 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string CorrelationVector
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationCorrelationVector); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationCorrelationVector, value); }
+            get { return this.correlationVector == string.Empty ? null : this.correlationVector; }
+            set { this.correlationVector = value; }
         }
 
         /// <summary>
@@ -49,8 +53,8 @@
         /// </summary>
         public string Name
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationName); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationName, value); }
+            get { return this.name == string.Empty ? null : this.name; }
+            set { this.name = value; }
         }
 
         /// <summary>
@@ -58,8 +62,27 @@
         /// </summary>
         public string SyntheticSource
         {
-            get { return this.tags.GetTagValueOrNull(ContextTagKeys.Keys.OperationSyntheticSource); }
-            set { this.tags.SetStringValueOrRemove(ContextTagKeys.Keys.OperationSyntheticSource, value); }
+            get { return this.syntheticSource == string.Empty ? null : this.syntheticSource; }
+            set { this.syntheticSource = value; }
+        }
+
+        internal void UpdateTags(IDictionary<string, string> tags)
+        {
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationId, this.Id);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationParentId, this.ParentId);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationCorrelationVector, this.CorrelationVector);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationName, this.Name);
+            tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
+        }
+
+        internal void CopyFrom(TelemetryContext telemetryContext)
+        {
+            var source = telemetryContext.Operation;
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.ParentId, ref this.parentId);
+            Tags.CopyTagValue(source.CorrelationVector, ref this.correlationVector);
+            Tags.CopyTagValue(source.Name, ref this.name);
+            Tags.CopyTagValue(source.SyntheticSource, ref this.syntheticSource);
         }
     }
 }

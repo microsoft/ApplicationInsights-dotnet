@@ -14,7 +14,7 @@
     public sealed class EventTelemetry : ITelemetry, ISupportProperties, ISupportSampling, ISupportMetrics
     {
         internal const string TelemetryName = "Event";
-         
+
         internal readonly string BaseType = typeof(EventData).Name;
         internal readonly EventData Data;
         private readonly TelemetryContext context;
@@ -48,7 +48,7 @@
         /// Gets or sets the value that defines absolute order of the telemetry item.
         /// </summary>
         public string Sequence { get; set; }
-        
+
         /// <summary>
         /// Gets the context associated with the current telemetry item.
         /// </summary>
@@ -56,7 +56,7 @@
         {
             get { return this.context; }
         }
-        
+
         /// <summary>
         /// Gets or sets the name of the event.
         /// </summary>
@@ -103,7 +103,6 @@
             this.Name = Utils.PopulateRequiredStringValue(this.Name, "name", typeof(EventTelemetry).FullName);
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

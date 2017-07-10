@@ -21,7 +21,6 @@
             this.SerializeWritesTimestampAsExpectedByEndpoint();
             this.SerializeWritesSequenceAsExpectedByEndpoint();
             this.SerializeWritesInstrumentationKeyAsExpectedByEndpoint();
-            this.SerializeWritesTagsAsExpectedByEndpoint();
             this.SerializeWritesTelemetryNameAsExpectedByEndpoint();
             this.SerializeWritesDataBaseTypeAsExpectedByEndpoint();
         }
@@ -192,17 +191,6 @@
 
             string expectedBaseType = ExtractTelemetryNameFromType(typeof(TTelemetry)) + "Data";
             Assert.AreEqual(expectedBaseType, envelope.data.baseType);
-        }
-
-        private void SerializeWritesTagsAsExpectedByEndpoint()
-        {
-            var expected = new TTelemetry();
-            expected.Context.Tags["Test Key"] = "Test Value";
-            expected.Sanitize();
-
-            TelemetryItem<TEndpointData> actual = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TTelemetry, TEndpointData>(expected);
-            
-            Assert.AreEqual("Test Value", actual.tags["Test Key"]);
         }
 
         private void SerializeWritesTelemetryNameAsExpectedByEndpoint()

@@ -26,13 +26,6 @@
         }
 
         [TestMethod]
-        public void ConstructorInitializesTagsWithThreadSafeDictionaryObjects()
-        {
-            var context = new TelemetryContext();
-            Assert.IsType<ConcurrentDictionary<string, string>>(context.Tags);
-        }
-
-        [TestMethod]
         public void InstrumentationKeyIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
@@ -93,31 +86,6 @@
         {
             TelemetryContext context = new TelemetryContext();
             Assert.NotNull(context.Internal);
-        }
-
-        [TestMethod]
-        public void InitializeCopiesTags()
-        {
-            string tagName = "TestTag";
-            string tagValue = "TestValue";
-            var source = new TelemetryContext { Tags = { { tagName, tagValue } } };
-            var target = new TelemetryContext();
-
-            target.Initialize(source, source.InstrumentationKey);
-
-            Assert.Equal(tagValue, target.Tags[tagName]);
-        }
-
-        [TestMethod]
-        public void InitializeDoesNotOverwriteTags()
-        {
-            string tagName = "TestTag";
-            var source = new TelemetryContext { Tags = { { tagName, "Source Value" } } };
-            var target = new TelemetryContext { Tags = { { tagName, "Target Value" } } };
-
-            target.Initialize(source, source.InstrumentationKey);
-
-            Assert.Equal("Target Value", target.Tags[tagName]);
         }
 
         [TestMethod]

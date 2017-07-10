@@ -15,7 +15,7 @@
 
             if (samplingSupportingTelemetry != null
                 && samplingSupportingTelemetry.SamplingPercentage.HasValue
-                && (samplingSupportingTelemetry.SamplingPercentage.Value > 0.0 + 1.0E-12) 
+                && (samplingSupportingTelemetry.SamplingPercentage.Value > 0.0 + 1.0E-12)
                 && (samplingSupportingTelemetry.SamplingPercentage.Value < 100.0 - 1.0E-12))
             {
                 json.WriteProperty("sampleRate", samplingSupportingTelemetry.SamplingPercentage.Value);
@@ -52,7 +52,7 @@
             if (context != null)
             {
                 json.WriteProperty("iKey", context.InstrumentationKey);
-                json.WriteProperty("tags", context.Tags);
+                json.WriteProperty("tags", context.SanitizedTags);
             }
         }
 

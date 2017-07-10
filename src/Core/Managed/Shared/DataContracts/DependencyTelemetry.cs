@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>, 
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="data"/>,
         /// <paramref name="startTime"/>, <paramref name="duration"/> and <paramref name="success"/> property values.
         /// </summary>
         [Obsolete("Use other constructors which allows to define dependency call with all the properties.")]
@@ -48,7 +48,7 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>, 
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
         /// <paramref name="dependencyName"/>, <paramref name="data"/> property values.
         /// </summary>
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data)
@@ -61,8 +61,8 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>, 
-        /// <paramref name="dependencyName"/>, <paramref name="data"/>, <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="resultCode"/> 
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class with the given <paramref name="dependencyName"/>, <paramref name="target"/>,
+        /// <paramref name="dependencyName"/>, <paramref name="data"/>, <paramref name="startTime"/>, <paramref name="duration"/>, <paramref name="resultCode"/>
         /// and <paramref name="success"/> and  property values.
         /// </summary>
         public DependencyTelemetry(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
@@ -96,9 +96,9 @@ namespace Microsoft.ApplicationInsights.DataContracts
             get { return this.context; }
         }
 
-        /// <summary>  
+        /// <summary>
         /// Gets or sets Dependency ID.
-        /// </summary>  
+        /// </summary>
         public override string Id
         {
             get { return this.InternalData.id; }
@@ -246,7 +246,6 @@ namespace Microsoft.ApplicationInsights.DataContracts
             this.Type = this.Type.SanitizeDependencyType();
             this.Data = this.Data.SanitizeData();
             this.Properties.SanitizeProperties();
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

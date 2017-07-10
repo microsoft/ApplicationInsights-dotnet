@@ -10,7 +10,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
     using System.Linq;
     using External;
     using Microsoft.ApplicationInsights.DataContracts;
-    
+
     /// <summary>
     /// A helper class for implementing properties of telemetry and context classes.
     /// </summary>
@@ -52,9 +52,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             { ContextTagKeys.Keys.CloudRoleInstance, 256 },
             { ContextTagKeys.Keys.InternalSdkVersion, 64 },
             { ContextTagKeys.Keys.InternalAgentVersion, 64 },
-            { ContextTagKeys.Keys.InternalNodeName, 256 }                                                            
+            { ContextTagKeys.Keys.InternalNodeName, 256 }
         };
-        
+
         public static void Set<T>(ref T property, T value) where T : class
         {
             if (value == default(T))
@@ -126,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 {
                     url = url.Substring(0, MaxUrlLength);
 
-                    // in case that the truncated string is invalid 
+                    // in case that the truncated string is invalid
                     // URI we will not do nothing and let the Endpoint to drop the property
                     Uri temp;
                     if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out temp) == true)
@@ -152,20 +152,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         public static string SanitizeAvailabilityMessage(this string value)
         {
             return TrimAndTruncate(value, Property.MaxAvailabilityMessageLength);
-        }
-
-        public static void SanitizeTelemetryContext(this TelemetryContext telemetryContext)
-        {
-            var tags = telemetryContext.Tags;
-            int limit;
-
-            foreach (KeyValuePair<string, string> tag in tags)
-            {
-                if (TagSizeLimits.TryGetValue(tag.Key, out limit) && tag.Value != null && tag.Value.Length > limit)
-                {
-                    tags[tag.Key] = TrimAndTruncate(tag.Value, limit);
-                }
-            }
         }
 
         public static void SanitizeProperties(this IDictionary<string, string> dictionary)
@@ -226,7 +212,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        private static string TrimAndTruncate(string value, int maxLength)
+        public static string TrimAndTruncate(string value, int maxLength)
         {
             if (value != null)
             {
@@ -269,6 +255,6 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
 
             return key;
-        }        
+        }
     }
 }

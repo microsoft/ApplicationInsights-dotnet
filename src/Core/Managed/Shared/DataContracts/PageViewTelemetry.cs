@@ -12,8 +12,8 @@
     /// Telemetry type used to track page views.
     /// </summary>
     /// <remarks>
-    /// You can send information about pages viewed by your application to Application Insights by 
-    /// passing an instance of the <see cref="PageViewTelemetry"/> class to the <see cref="TelemetryClient.TrackPageView(PageViewTelemetry)"/> 
+    /// You can send information about pages viewed by your application to Application Insights by
+    /// passing an instance of the <see cref="PageViewTelemetry"/> class to the <see cref="TelemetryClient.TrackPageView(PageViewTelemetry)"/>
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#page-views">Learn more</a>
     /// </remarks>
@@ -38,7 +38,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PageViewTelemetry"/> class with the 
+        /// Initializes a new instance of the <see cref="PageViewTelemetry"/> class with the
         /// specified <paramref name="pageName"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="pageName"/> is null or empty string.</exception>
@@ -85,7 +85,7 @@
                 {
                     return null;
                 }
-                
+
                 return new Uri(this.Data.url, UriKind.RelativeOrAbsolute);
             }
 
@@ -105,7 +105,7 @@
         /// <summary>
         /// Gets or sets the page view duration.
         /// </summary>
-        public TimeSpan Duration 
+        public TimeSpan Duration
         {
             get { return Utils.ValidateDuration(this.Data.duration); }
             set { this.Data.duration = value.ToString(); }
@@ -149,7 +149,6 @@
             this.Properties.SanitizeProperties();
             this.Metrics.SanitizeMeasurements();
             this.Url = this.Url.SanitizeUri();
-            this.Context.SanitizeTelemetryContext();
         }
     }
 }

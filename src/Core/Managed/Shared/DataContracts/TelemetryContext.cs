@@ -15,7 +15,6 @@
     public sealed class TelemetryContext
     {
         private readonly IDictionary<string, string> properties;
-        private readonly IDictionary<string, string> tags;
 
         private string instrumentationKey;
 
@@ -26,7 +25,7 @@
         private UserContext user;
         private OperationContext operation;
         private LocationContext location;
-        private InternalContext internalContext;
+        private InternalContext internalContext = new InternalContext();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryContext"/> class.
@@ -40,7 +39,6 @@
         {
             Debug.Assert(properties != null, "properties");
             this.properties = properties;
-            this.tags = new ConcurrentDictionary<string, string>();
         }
 
         /// <summary>
@@ -48,8 +46,8 @@
         /// </summary>
         /// <remarks>
         /// By default, this property is initialized with the <see cref="TelemetryConfiguration.InstrumentationKey"/> value
-        /// of the <see cref="TelemetryConfiguration.Active"/> instance of <see cref="TelemetryConfiguration"/>. You can specify it 
-        /// for all telemetry tracked via a particular <see cref="TelemetryClient"/> or for a specific <see cref="ITelemetry"/> 
+        /// of the <see cref="TelemetryConfiguration.Active"/> instance of <see cref="TelemetryConfiguration"/>. You can specify it
+        /// for all telemetry tracked via a particular <see cref="TelemetryClient"/> or for a specific <see cref="ITelemetry"/>
         /// instance.
         /// </remarks>
         public string InstrumentationKey
@@ -57,13 +55,13 @@
             get { return this.instrumentationKey ?? string.Empty; }
             set { Property.Set(ref this.instrumentationKey, value); }
         }
-        
+
         /// <summary>
         /// Gets the object describing the component tracked by this <see cref="TelemetryContext"/>.
         /// </summary>
-        public ComponentContext Component 
+        public ComponentContext Component
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.component, () => new ComponentContext()); }
         }
 
         /// <summary>
@@ -71,7 +69,7 @@
         /// </summary>
         public DeviceContext Device
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Tags, this.Properties)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.device, () => new DeviceContext(this.Properties)); }
         }
 
         /// <summary>
@@ -79,7 +77,7 @@
         /// </summary>
         public CloudContext Cloud
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.cloud, () => new CloudContext()); }
         }
 
         /// <summary>
@@ -87,7 +85,7 @@
         /// </summary>
         public SessionContext Session
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.session, () => new SessionContext()); }
         }
 
         /// <summary>
@@ -95,7 +93,7 @@
         /// </summary>
         public UserContext User
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.user, () => new UserContext()); }
         }
 
         /// <summary>
@@ -104,7 +102,7 @@
         /// </summary>
         public OperationContext Operation
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.operation, () => new OperationContext()); }
         }
 
         /// <summary>
@@ -112,7 +110,7 @@
         /// </summary>
         public LocationContext Location
         {
-            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext(this.Tags)); }
+            get { return LazyInitializer.EnsureInitialized(ref this.location, () => new LocationContext()); }
         }
 
         /// <summary>
@@ -124,27 +122,40 @@
             get { return this.properties; }
         }
 
-        internal InternalContext Internal
-        {
-            get { return LazyInitializer.EnsureInitialized(ref this.internalContext, () => new InternalContext(this.Tags)); }
-        }
+        internal InternalContext Internal => this.internalContext;
 
         /// <summary>
         /// Gets a dictionary of context tags.
         /// </summary>
-        internal IDictionary<string, string> Tags
+        internal IDictionary<string, string> SanitizedTags
         {
-            get { return this.tags; }
+            get
+            {
+                var result = new Dictionary<string, string>();
+                this.component?.UpdateTags(result);
+                this.device?.UpdateTags(result);
+                this.cloud?.UpdateTags(result);
+                this.session?.UpdateTags(result);
+                this.user?.UpdateTags(result);
+                this.operation?.UpdateTags(result);
+                this.location?.UpdateTags(result);
+                this.Internal.UpdateTags(result);
+                return result;
+            }
         }
 
         internal void Initialize(TelemetryContext source, string instrumentationKey)
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
 
-            if (source.tags != null && source.tags.Count > 0)
-            {
-                Utils.CopyDictionary(source.tags, this.Tags);
-            }
+            this.component?.CopyFrom(source);
+            this.device?.CopyFrom(source);
+            this.cloud?.CopyFrom(source);
+            this.session?.CopyFrom(source);
+            this.user?.CopyFrom(source);
+            this.operation?.CopyFrom(source);
+            this.location?.CopyFrom(source);
+            this.Internal.CopyFrom(source);
         }
     }
 }
