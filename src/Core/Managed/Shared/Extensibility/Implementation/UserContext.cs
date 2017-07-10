@@ -36,7 +36,7 @@
         /// </summary>
         public string AccountId
         {
-            get { return this.accountId== string.Empty ? null : this.accountId; }
+            get { return this.accountId == string.Empty ? null : this.accountId; }
             set { this.accountId = value; }
         }
 
