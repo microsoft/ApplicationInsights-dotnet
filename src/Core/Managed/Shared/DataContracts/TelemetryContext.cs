@@ -148,14 +148,14 @@
         {
             Property.Initialize(ref this.instrumentationKey, instrumentationKey);
 
-            source.component?.CopyTo(this);
-            source.device?.CopyTo(this);
-            source.cloud?.CopyTo(this);
-            source.session?.CopyTo(this);
-            source.user?.CopyTo(this);
-            source.operation?.CopyTo(this);
-            source.location?.CopyTo(this);
-            source.Internal.CopyTo(this);
+            this.component?.CopyFrom(source);
+            this.device?.CopyFrom(source);
+            this.cloud?.CopyFrom(source);
+            this.session?.CopyFrom(source);
+            this.user?.CopyFrom(source);
+            this.operation?.CopyFrom(source);
+            this.location?.CopyFrom(source);
+            this.Internal.CopyFrom(source);
         }
     }
 }

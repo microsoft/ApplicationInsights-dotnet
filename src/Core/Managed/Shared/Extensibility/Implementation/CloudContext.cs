@@ -9,6 +9,9 @@
     /// </summary>
     public sealed class CloudContext
     {
+        private string roleName;
+        private string roleInstance;
+
         internal CloudContext()
         {
         }
@@ -18,8 +21,8 @@
         /// </summary>
         public string RoleName
         {
-            get;
-            set;
+            get { return this.roleName == string.Empty ? null : this.roleName; }
+            set { this.roleName = value; }
         }
 
         /// <summary>
@@ -27,8 +30,8 @@
         /// </summary>
         public string RoleInstance
         {
-            get;
-            set;
+            get { return this.roleInstance == string.Empty ? null : this.roleInstance; }
+            set { this.roleInstance = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -37,11 +40,11 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.CloudRoleInstance, this.RoleInstance);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Cloud;
-            target.RoleName = Tags.CopyTagValue(target.RoleName, this.RoleName);
-            target.RoleInstance = Tags.CopyTagValue(target.RoleInstance, this.RoleInstance);
+            var source = telemetryContext.Cloud;
+            Tags.CopyTagValue(source.RoleName, ref this.roleName);
+            Tags.CopyTagValue(source.RoleInstance, ref this.roleInstance);
         }
     }
 }

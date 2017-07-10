@@ -10,6 +10,12 @@
     /// </summary>
     public sealed class OperationContext
     {
+        private string id;
+        private string parentId;
+        private string correlationVector;
+        private string syntheticSource;
+        private string name;
+
         internal OperationContext()
         {
         }
@@ -19,8 +25,8 @@
         /// </summary>
         public string Id
         {
-            get;
-            set;
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -28,8 +34,8 @@
         /// </summary>
         public string ParentId
         {
-            get;
-            set;
+            get { return this.parentId == string.Empty ? null : this.parentId; }
+            set { this.parentId = value; }
         }
 
         /// <summary>
@@ -38,8 +44,8 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string CorrelationVector
         {
-            get;
-            set;
+            get { return this.correlationVector == string.Empty ? null : this.correlationVector; }
+            set { this.correlationVector = value; }
         }
 
         /// <summary>
@@ -47,8 +53,8 @@
         /// </summary>
         public string Name
         {
-            get;
-            set;
+            get { return this.name == string.Empty ? null : this.name; }
+            set { this.name = value; }
         }
 
         /// <summary>
@@ -56,8 +62,8 @@
         /// </summary>
         public string SyntheticSource
         {
-            get;
-            set;
+            get { return this.syntheticSource == string.Empty ? null : this.syntheticSource; }
+            set { this.syntheticSource = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -69,14 +75,14 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.OperationSyntheticSource, this.SyntheticSource);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Operation;
-            target.Id = Tags.CopyTagValue(target.Id, this.Id);
-            target.ParentId = Tags.CopyTagValue(target.ParentId, this.ParentId);
-            target.CorrelationVector = Tags.CopyTagValue(target.CorrelationVector, this.CorrelationVector);
-            target.Name = Tags.CopyTagValue(target.Name, this.Name);
-            target.SyntheticSource = Tags.CopyTagValue(target.SyntheticSource, this.SyntheticSource);
+            var source = telemetryContext.Operation;
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.ParentId, ref this.parentId);
+            Tags.CopyTagValue(source.CorrelationVector, ref this.correlationVector);
+            Tags.CopyTagValue(source.Name, ref this.name);
+            Tags.CopyTagValue(source.SyntheticSource, ref this.syntheticSource);
         }
     }
 }

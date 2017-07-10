@@ -15,6 +15,8 @@
     /// </remarks>
     public sealed class ComponentContext
     {
+        private string version;
+
         internal ComponentContext()
         {
         }
@@ -22,17 +24,21 @@
         /// <summary>
         /// Gets or sets the application version.
         /// </summary>
-        public string Version { get; set; }
+        public string Version
+        {
+            get { return this.version == string.Empty ? null : this.version; }
+            set { this.version = value; }
+        }
 
         internal void UpdateTags(IDictionary<string, string> tags)
         {
             tags.UpdateTagValue(ContextTagKeys.Keys.ApplicationVersion, this.Version);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
             var target = telemetryContext.Component;
-            target.Version = Tags.CopyTagValue(target.Version, this.Version);
+            Tags.CopyTagValue(target.Version, ref this.version);
         }
     }
 }

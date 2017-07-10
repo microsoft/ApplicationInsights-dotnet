@@ -10,6 +10,11 @@
     /// </summary>
     public sealed class UserContext
     {
+        private string id;
+        private string accountId;
+        private string userAgent;
+        private string authenticatedUserId;
+
         internal UserContext()
         {
         }
@@ -22,8 +27,8 @@
         /// </remarks>
         public string Id
         {
-            get;
-            set;
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -31,8 +36,8 @@
         /// </summary>
         public string AccountId
         {
-            get;
-            set;
+            get { return this.accountId== string.Empty ? null : this.accountId; }
+            set { this.accountId = value; }
         }
 
         /// <summary>
@@ -40,8 +45,8 @@
         /// </summary>
         public string UserAgent
         {
-            get;
-            set;
+            get { return this.userAgent == string.Empty ? null : this.userAgent; }
+            set { this.userAgent = value; }
         }
 
         /// <summary>
@@ -50,8 +55,8 @@
         /// </summary>
         public string AuthenticatedUserId
         {
-            get;
-            set;
+            get { return this.authenticatedUserId == string.Empty ? null : this.authenticatedUserId; }
+            set { this.authenticatedUserId = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -62,13 +67,13 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.UserAuthUserId, this.AuthenticatedUserId);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.User;
-            target.Id = Tags.CopyTagValue(target.Id, this.Id);
-            target.AccountId = Tags.CopyTagValue(target.AccountId, this.AccountId);
-            target.UserAgent = Tags.CopyTagValue(target.UserAgent, this.UserAgent);
-            target.AuthenticatedUserId = Tags.CopyTagValue(target.AuthenticatedUserId, this.AuthenticatedUserId);
+            var source = telemetryContext.User;
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.AccountId, ref this.accountId);
+            Tags.CopyTagValue(source.UserAgent, ref this.userAgent);
+            Tags.CopyTagValue(source.AuthenticatedUserId, ref this.authenticatedUserId);
         }
     }
 }

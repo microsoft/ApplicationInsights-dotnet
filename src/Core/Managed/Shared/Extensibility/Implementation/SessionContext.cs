@@ -9,6 +9,9 @@
     /// </summary>
     public sealed class SessionContext
     {
+        private string id;
+        private bool? isFirst;
+
         internal SessionContext()
         {
         }
@@ -18,8 +21,8 @@
         /// </summary>
         public string Id
         {
-            get;
-            set;
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -27,8 +30,8 @@
         /// </summary>
         public bool? IsFirst
         {
-            get;
-            set;
+            get { return this.isFirst; }
+            set { this.isFirst = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -37,11 +40,11 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.SessionIsFirst, this.IsFirst);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Session;
-            target.Id = Tags.CopyTagValue(target.Id, this.Id);
-            target.IsFirst = Tags.CopyTagValue(target.IsFirst, this.IsFirst);
+            var source = telemetryContext.Session;
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.IsFirst, ref this.isFirst);
         }
     }
 }

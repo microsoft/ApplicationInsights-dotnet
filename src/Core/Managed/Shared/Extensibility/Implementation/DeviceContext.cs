@@ -12,6 +12,12 @@
     {
         private readonly IDictionary<string, string> properties;
 
+        private string type;
+        private string id;
+        private string operatingSystem;
+        private string oemName;
+        private string model;
+
         internal DeviceContext(IDictionary<string, string> properties)
         {
             this.properties = properties;
@@ -20,15 +26,19 @@
         /// <summary>
         /// Gets or sets the type for the current device.
         /// </summary>
-        public string Type { get; set; }
+        public string Type
+        {
+            get { return this.type == string.Empty ? null : this.type; }
+            set { this.type = value; }
+        }
 
         /// <summary>
         /// Gets or sets a device unique ID.
         /// </summary>
         public string Id
         {
-            get;
-            set;
+            get { return this.id == string.Empty ? null : this.id; }
+            set { this.id = value; }
         }
 
         /// <summary>
@@ -36,8 +46,8 @@
         /// </summary>
         public string OperatingSystem
         {
-            get;
-            set;
+            get { return this.operatingSystem == string.Empty ? null : this.operatingSystem; }
+            set { this.operatingSystem = value; }
         }
 
         /// <summary>
@@ -45,8 +55,8 @@
         /// </summary>
         public string OemName
         {
-            get;
-            set;
+            get { return this.oemName == string.Empty ? null : this.oemName; }
+            set { this.oemName = value; }
         }
 
         /// <summary>
@@ -54,8 +64,8 @@
         /// </summary>
         public string Model
         {
-            get;
-            set;
+            get { return this.model == string.Empty ? null : this.model; }
+            set { this.model = value; }
         }
 
         /// <summary>
@@ -98,14 +108,14 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.DeviceModel, this.Model);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Device;
-            target.Type = Tags.CopyTagValue(target.Type, this.Type);
-            target.Id = Tags.CopyTagValue(target.Id, this.Id);
-            target.OperatingSystem = Tags.CopyTagValue(target.OperatingSystem, this.OperatingSystem);
-            target.OemName = Tags.CopyTagValue(target.OemName, this.OemName);
-            target.Model = Tags.CopyTagValue(target.Model, this.Model);
+            var source = telemetryContext.Device;
+            Tags.CopyTagValue(source.Type, ref this.type);
+            Tags.CopyTagValue(source.Id, ref this.id);
+            Tags.CopyTagValue(source.OperatingSystem, ref this.operatingSystem);
+            Tags.CopyTagValue(source.OemName, ref this.oemName);
+            Tags.CopyTagValue(source.Model, ref this.model);
         }
     }
 }

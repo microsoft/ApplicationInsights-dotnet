@@ -12,6 +12,10 @@
     /// </summary>
     public sealed class InternalContext
     {
+        private string sdkVersion;
+        private string agentVersion;
+        private string nodeName;
+
         internal InternalContext()
         {
         }
@@ -21,8 +25,8 @@
         /// </summary>
         public string SdkVersion
         {
-            get;
-            set;
+            get { return this.sdkVersion == string.Empty ? null : this.sdkVersion; }
+            set { this.sdkVersion = value; }
         }
 
         /// <summary>
@@ -30,8 +34,8 @@
         /// </summary>
         public string AgentVersion
         {
-            get;
-            set;
+            get { return this.agentVersion == string.Empty ? null : this.agentVersion; }
+            set { this.agentVersion = value; }
         }
 
         /// <summary>
@@ -39,8 +43,8 @@
         /// </summary>
         public string NodeName
         {
-            get;
-            set;
+            get { return this.nodeName == string.Empty ? null : this.nodeName; }
+            set { this.nodeName = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -50,12 +54,12 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.InternalNodeName, this.NodeName);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
             var target = telemetryContext.Internal;
-            target.SdkVersion = Tags.CopyTagValue(target.SdkVersion, this.SdkVersion);
-            target.AgentVersion = Tags.CopyTagValue(target.AgentVersion, this.AgentVersion);
-            target.NodeName = Tags.CopyTagValue(target.NodeName, this.NodeName);
+            Tags.CopyTagValue(target.SdkVersion, ref this.sdkVersion);
+            Tags.CopyTagValue(target.AgentVersion, ref this.agentVersion);
+            Tags.CopyTagValue(target.NodeName, ref this.nodeName);
         }
     }
 }

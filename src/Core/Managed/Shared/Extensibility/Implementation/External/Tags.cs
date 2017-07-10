@@ -13,55 +13,9 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
     /// </summary>
     internal static class Tags
     {
-        internal static bool? GetTagBoolValueOrNull(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return null;
-            }
-
-            return bool.Parse(tagValue);
-        }
-
-        internal static DateTimeOffset? GetTagDateTimeOffsetValueOrNull(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return null;
-            }
-
-            return DateTimeOffset.Parse(tagValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-        }
-
-        internal static int? GetTagIntValueOrNull(this IDictionary<string, string> tags, string tagKey)
-        {
-            string tagValue = GetTagValueOrNull(tags, tagKey);
-            if (string.IsNullOrEmpty(tagValue))
-            {
-                return null;
-            }
-
-            return int.Parse(tagValue, CultureInfo.InvariantCulture);
-        }
-
         internal static void SetStringValueOrRemove(this IDictionary<string, string> tags, string tagKey, string tagValue)
         {
             SetTagValueOrRemove(tags, tagKey, tagValue);
-        }
-
-        internal static void SetDateTimeOffsetValueOrRemove(this IDictionary<string, string> tags, string tagKey, DateTimeOffset? tagValue)
-        {
-            if (tagValue == null)
-            {
-                SetTagValueOrRemove(tags, tagKey, tagValue);
-            }
-            else
-            {
-                string tagValueString = tagValue.Value.ToString("O", CultureInfo.InvariantCulture);
-                SetTagValueOrRemove(tags, tagKey, tagValueString);
-            }
         }
 
         internal static void SetTagValueOrRemove<T>(this IDictionary<string, string> tags, string tagKey, T tagValue)
@@ -69,24 +23,12 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
             SetTagValueOrRemove(tags, tagKey, Convert.ToString(tagValue, CultureInfo.InvariantCulture));
         }
 
-        internal static string CopyTagValue(string sourceValue, string targetValue)
+        internal static void CopyTagValue(bool? sourceValue, ref bool? targetValue)
         {
-            if (string.IsNullOrEmpty(sourceValue) && !string.IsNullOrEmpty(targetValue))
+            if (sourceValue.HasValue && !targetValue.HasValue)
             {
-                return targetValue;
+                targetValue = sourceValue;
             }
-
-            return sourceValue;
-        }
-
-        internal static bool? CopyTagValue(bool? sourceValue, bool? targetValue)
-        {
-            if (!sourceValue.HasValue && targetValue.HasValue)
-            {
-                return targetValue;
-            }
-
-            return sourceValue;
         }
 
         internal static string GetTagValueOrNull(this IDictionary<string, string> tags, string tagKey)
@@ -111,6 +53,14 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
                 }
 
                 tags.Add(tagKey, tagValue);
+            }
+        }
+
+        internal static void CopyTagValue(string sourceValue, ref string targetValue)
+        {
+            if (!string.IsNullOrEmpty(sourceValue) && string.IsNullOrEmpty(targetValue))
+            {
+                targetValue = sourceValue;
             }
         }
 

@@ -26,14 +26,6 @@
         }
 
         [TestMethod]
-        [Ignore]
-        public void ConstructorInitializesTagsWithThreadSafeDictionaryObjects()
-        {
-            var context = new TelemetryContext();
-            Assert.IsType<ConcurrentDictionary<string, string>>(context.SanitizedTags);
-        }
-
-        [TestMethod]
         public void InstrumentationKeyIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();

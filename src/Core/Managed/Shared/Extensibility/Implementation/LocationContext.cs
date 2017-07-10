@@ -9,6 +9,8 @@
     /// </summary>
     public sealed class LocationContext
     {
+        private string ip;
+
         internal LocationContext()
         {
         }
@@ -18,8 +20,8 @@
         /// </summary>
         public string Ip
         {
-            get;
-            set;
+            get { return this.ip == string.Empty ? null : this.ip; }
+            set { this.ip = value; }
         }
 
         internal void UpdateTags(IDictionary<string, string> tags)
@@ -27,10 +29,10 @@
             tags.UpdateTagValue(ContextTagKeys.Keys.LocationIp, this.Ip);
         }
 
-        internal void CopyTo(TelemetryContext telemetryContext)
+        internal void CopyFrom(TelemetryContext telemetryContext)
         {
-            var target = telemetryContext.Location;
-            target.Ip = Tags.CopyTagValue(target.Ip, this.Ip);
+            var source = telemetryContext.Location;
+            Tags.CopyTagValue(source.Ip, ref this.ip);
         }
     }
 }
