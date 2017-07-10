@@ -31,7 +31,8 @@
         public InProcessServer(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             this.configureHost = configureHost;
-            this.url = "http://localhost:" + random.Next(5000, 14000).ToString();
+            var machineName = Environment.GetEnvironmentVariable("COMPUTERNAME");
+            this.url = "http://" + machineName + ":" + random.Next(5000, 14000).ToString();
             this.backChannel = this.Start(assemblyName);
         }
 
