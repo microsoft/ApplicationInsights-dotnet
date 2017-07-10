@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics;
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.

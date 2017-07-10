@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.External
 {
-    using Microsoft.ApplicationInsights.Channel;
+    using Microsoft.ApplicationInsights.DataContracts;
 
     /// <summary>
     /// Partial class to add the EventData attribute and any additional customizations to the generated type.

@@ -218,8 +218,10 @@
 
             set
             {
-                this.EnsureNotDisposed();
-                this.telemetrySinks[DefaultSinkIndex].TelemetryChannel = value;
+                if (!this.isDisposed)
+                {
+                    this.telemetrySinks[DefaultSinkIndex].TelemetryChannel = value;
+                }
             }
         }
 

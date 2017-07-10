@@ -223,8 +223,7 @@
             RequestTelemetry other = request.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
-            comparisonConfig.MembersToIgnore.Add("Id");
-            comparisonConfig.MembersToIgnore.Add("HttpMethod");
+            comparisonConfig.MembersToIgnore.Add("HttpMethod"); // Obsolete
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             var result = deepComparator.Compare(request, other);

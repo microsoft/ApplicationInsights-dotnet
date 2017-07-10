@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.Channel
+﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
     /// <summary>
     /// Indicates that an object support deep cloning.

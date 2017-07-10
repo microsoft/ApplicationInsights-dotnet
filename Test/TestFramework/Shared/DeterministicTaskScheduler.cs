@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// TaskScheduker for executing tasks on the same thread that calls RunTasksUntilIdle() or RunPendingTasks().
+    /// TaskScheduler for executing tasks on the same thread that calls RunTasksUntilIdle() or RunPendingTasks().
     /// </summary>
     public class DeterministicTaskScheduler : TaskScheduler
     {

@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
+    using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System;
     using Assert = Xunit.Assert;
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 

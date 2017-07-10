@@ -50,8 +50,7 @@
         {
             get
             {
-                LazyInitializer.EnsureInitialized(ref this.telemetryProcessorChainBuilder, () => new TelemetryProcessorChainBuilder(this.telemetryConfiguration, this));
-                return this.telemetryProcessorChainBuilder;
+                return LazyInitializer.EnsureInitialized(ref this.telemetryProcessorChainBuilder, () => new TelemetryProcessorChainBuilder(this.telemetryConfiguration, this));
             }
 
             set

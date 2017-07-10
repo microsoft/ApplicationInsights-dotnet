@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using Microsoft.ApplicationInsights.Channel;
     using AI;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
     using KellermanSoftware.CompareNetObjects;

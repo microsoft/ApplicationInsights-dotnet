@@ -62,7 +62,6 @@
             this.Sequence = source.Sequence;
             this.Timestamp = source.Timestamp;
             this.successFieldSet = source.successFieldSet;
-            this.GenerateId();
         }
 
         /// <summary>

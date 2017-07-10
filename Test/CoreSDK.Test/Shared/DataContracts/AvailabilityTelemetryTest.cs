@@ -119,8 +119,6 @@
             AvailabilityTelemetry other = telemetry.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
-            comparisonConfig.MembersToIgnore.Add("Data.id");
-            comparisonConfig.MembersToIgnore.Add("Id");
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             ComparisonResult result = deepComparator.Compare(telemetry, other);            
