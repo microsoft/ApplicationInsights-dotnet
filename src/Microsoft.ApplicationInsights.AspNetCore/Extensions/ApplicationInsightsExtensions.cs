@@ -146,6 +146,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     excludedDomains.Add("core.chinacloudapi.cn");
                     excludedDomains.Add("core.cloudapi.de");
                     excludedDomains.Add("core.usgovcloudapi.net");
+                    excludedDomains.Add("localhost");
+                    excludedDomains.Add("127.0.0.1");
 
                     return module;
                 });
