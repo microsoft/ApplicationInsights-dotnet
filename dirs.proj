@@ -170,7 +170,7 @@
     
     <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
         <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />        
-        <Exec Command='"$(CliToolsPath)\dotnet.exe" restore' ContinueOnError="ErrorAndStop" />
+        <Exec Command='"nuget.exe" restore' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
         <Exec Condition="$(RunTests) != '' And $(RunTests)" Command='"$(CliToolsPath)\dotnet.exe" build %(TestProject.Identity) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
         <Message Condition="$(RunTests) != '' And $(RunTests)" Importance="high" Text="Running tests..."></Message>
