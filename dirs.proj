@@ -6,7 +6,7 @@
         <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip</CliZipFile>
         <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest</CliToolsPath>
         <!-- Library -->
-        <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\project.json</ProjectToBuild>
+        <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj</ProjectToBuild>
     </PropertyGroup>
 
     <ItemGroup>
