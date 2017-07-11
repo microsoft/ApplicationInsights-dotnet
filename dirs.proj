@@ -3,8 +3,8 @@
     <Import Project="Signing.props"/>
 
     <PropertyGroup>
-        <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip</CliZipFile>
-        <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest</CliToolsPath>
+        <CliZipFile>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.zip</CliZipFile>
+        <CliToolsPath>$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.latest</CliToolsPath>
         <!-- Library -->
         <ProjectToBuild>.\src\Microsoft.ApplicationInsights.AspNetCore\Microsoft.ApplicationInsights.AspNetCore.csproj</ProjectToBuild>
     </PropertyGroup>
@@ -160,7 +160,7 @@
     </Target>
 
     <Target Name="DownloadCLI">
-        <DownloadFile Address="https://dotnetcli.blob.core.windows.net/dotnet/preview/Binaries/Latest/dotnet-dev-win-x64.latest.zip" FileName="$(CliZipFile)" />
+        <DownloadFile Address="https://download.microsoft.com/download/E/7/8/E782433E-7737-4E6C-BFBF-290A0A81C3D7/dotnet-dev-win-x64.1.0.4.zip" FileName="$(CliZipFile)" />
         <ExtractZipArchive InputFiles="$(CliZipFile)" OutputPath="$(CliToolsPath)" ArchiveFileNameAsRootFolder="false" Overwrite="true" />
     </Target>
 
@@ -180,8 +180,8 @@
     <Target Name="Clean">
         <RemoveDir Directories="$(BinRoot)\$(Configuration)" />
         <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-        <RemoveDir Directories="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest" />
-        <Delete Files="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.latest.zip" />
+        <RemoveDir Directories="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.latest" />
+        <Delete Files="$(BUILD_ARTIFACTSTAGINGDIRECTORY)\dotnet-dev-win-x64.1.0.4.zip" />
     </Target>
 
     <Target Name="AfterBuild" AfterTargets="Build" DependsOnTargets="Build">
