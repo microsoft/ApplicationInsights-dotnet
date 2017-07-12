@@ -15,6 +15,7 @@
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.1.1</RuntimeFrameworkVersion>
 	<RuntimeIdentifier>win7-x86</RuntimeIdentifier>
     <BaseNuGetRuntimeIdentifier>win7-x86</BaseNuGetRuntimeIdentifier>
+	<OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
