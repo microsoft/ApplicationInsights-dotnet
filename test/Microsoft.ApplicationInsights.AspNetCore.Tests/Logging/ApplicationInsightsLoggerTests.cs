@@ -1,5 +1,7 @@
-﻿using Microsoft.ApplicationInsights.AspNetCore.Logging;
+﻿using System;
+using Microsoft.ApplicationInsights.AspNetCore.Logging;
 using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -26,6 +28,26 @@ namespace Microsoft.ApplicationInsights.AspNetCore.Tests.Logging
             ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
             logger.LogTrace("This is a test.", new object[] { });
             Assert.True(isCorrectVersion);
+        }
+
+        /// <summary>
+        /// Tests that logging an exception results in tracking an <see cref="ExceptionTelemetry"/> instance.
+        /// </summary>
+        [Fact]
+        public void TestLoggerCreatesExceptionTelemetryOnLoggedError()
+        {
+            TelemetryClient client = CommonMocks.MockTelemetryClient((t) =>
+            {
+                Assert.IsType<ExceptionTelemetry>(t);
+                var exceptionTelemetry = (ExceptionTelemetry)t;
+                Assert.Equal("Error: This is an error", exceptionTelemetry.Message);
+                Assert.Equal("System.Exception: This is an error", exceptionTelemetry.Properties["Exception"]);
+                Assert.Equal(SeverityLevel.Error, exceptionTelemetry.SeverityLevel);
+            });
+
+            ILogger logger = new ApplicationInsightsLogger("test", client, (s, l) => { return true; });
+            var exception = new Exception("This is an error");
+            logger.LogError(0, exception, "Error: " + exception.Message);
         }
 
         /// <summary>

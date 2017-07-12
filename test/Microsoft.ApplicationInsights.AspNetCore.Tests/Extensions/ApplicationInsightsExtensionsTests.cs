@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using System.Reflection;
     using Logging;
     using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Logging;
     using Microsoft.ApplicationInsights.AspNetCore.TelemetryInitializers;
     using Microsoft.ApplicationInsights.AspNetCore.Tests;
@@ -347,7 +348,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryProcessorFactoriesFromContainer()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddSingleton<Func<ITelemetryProcessor, ITelemetryProcessor>>((next) => new FakeTelemetryProcessor(next));
+                services.AddSingleton<ITelemetryProcessorFactory>(new MockTelemetryProcessorFactory((next) => new FakeTelemetryProcessor(next)));
 
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
@@ -588,6 +589,18 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public void AddProvider(ILoggerProvider provider)
             {
             }
+        }
+
+        private class MockTelemetryProcessorFactory: ITelemetryProcessorFactory
+        {
+            public Func<ITelemetryProcessor, ITelemetryProcessor> Factory { get; set; }
+
+            public MockTelemetryProcessorFactory(Func<ITelemetryProcessor, ITelemetryProcessor> factory)
+            {
+                this.Factory = factory;
+            }
+
+            public ITelemetryProcessor Create(ITelemetryProcessor next) => Factory(next);
         }
     }
 }

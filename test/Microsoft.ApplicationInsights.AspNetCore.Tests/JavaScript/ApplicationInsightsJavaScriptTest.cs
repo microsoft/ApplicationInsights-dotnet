@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.Framework.DependencyInjection.Test
 {
     using System.Security.Principal;
+    using System.Text.Encodings.Web;
+    using System.Text.Unicode;
     using Microsoft.ApplicationInsights.AspNetCore;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.AspNetCore.Tests.Helpers;
@@ -11,11 +13,13 @@
 
     public static class ApplicationInsightsJavaScriptTest
     {
+        private static JavaScriptEncoder encoder = JavaScriptEncoder.Create(new UnicodeRange[] { UnicodeRanges.BasicLatin });
+
         [Fact]
         public static void SnippetWillBeEmptyWhenInstrumentationKeyIsNotDefined()
         {
             var telemetryConfigurationWithNullKey = new TelemetryConfiguration();
-            var snippet = new JavaScriptSnippet(telemetryConfigurationWithNullKey, GetOptions(false), null);
+            var snippet = new JavaScriptSnippet(telemetryConfigurationWithNullKey, GetOptions(false), null, encoder);
             Assert.Equal(string.Empty, snippet.FullScript);
         }
 
@@ -23,7 +27,7 @@
         public static void SnippetWillBeEmptyWhenInstrumentationKeyIsEmpty()
         {
             var telemetryConfigurationWithEmptyKey = new TelemetryConfiguration {InstrumentationKey = string.Empty};
-            var snippet = new JavaScriptSnippet(telemetryConfigurationWithEmptyKey, GetOptions(false), null);
+            var snippet = new JavaScriptSnippet(telemetryConfigurationWithEmptyKey, GetOptions(false), null, encoder);
             Assert.Equal(string.Empty, snippet.FullScript);
         }
 
@@ -35,7 +39,7 @@
                 InstrumentationKey = "NonEmpty",
                 DisableTelemetry = true
             };
-            var snippet = new JavaScriptSnippet(telemetryConfigurationWithEmptyKey, GetOptions(false), null);
+            var snippet = new JavaScriptSnippet(telemetryConfigurationWithEmptyKey, GetOptions(false), null, encoder);
             Assert.Equal(string.Empty, snippet.FullScript);
         }
 
@@ -43,8 +47,8 @@
         public static void SnippetWillIncludeInstrumentationKeyAsSubstring()
         {
             string unittestkey = "unittestkey";
-            var telemetryConfiguration = new TelemetryConfiguration {InstrumentationKey = unittestkey};
-            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(false), null);
+            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(false), null, encoder);
             Assert.Contains("instrumentationKey: '" + unittestkey + "'", snippet.FullScript);
         }
 
@@ -53,7 +57,7 @@
         {
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
-            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("username", true));
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("username", true), encoder);
             Assert.Contains("setAuthenticatedUserContext(\"username\")", snippet.FullScript);
         }
 
@@ -62,7 +66,7 @@
         {
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
-            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("username", false));
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("username", false), encoder);
             Assert.DoesNotContain("setAuthenticatedUserContext", snippet.FullScript);
         }
 
@@ -71,10 +75,18 @@
         {
             string unittestkey = "unittestkey";
             var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
-            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("user\\name", true));
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("user\\name", true), encoder);
             Assert.Contains("setAuthenticatedUserContext(\"user\\\\name\")", snippet.FullScript);
         }
 
+        [Fact]
+        public static void CrossSiteScriptingIsBlockedByEncoding()
+        {
+            string unittestkey = "unittestkey";
+            var telemetryConfiguration = new TelemetryConfiguration { InstrumentationKey = unittestkey };
+            var snippet = new JavaScriptSnippet(telemetryConfiguration, GetOptions(true), GetHttpContextAccessor("<script>alert('hack');</script>", true), encoder);
+            Assert.Contains("setAuthenticatedUserContext(\"\\u003Cscript\\u003Ealert(\\u0027hack\\u0027);", snippet.FullScript);
+        }
 
         private static IOptions<ApplicationInsightsServiceOptions> GetOptions(bool enableAuthSnippet)
         {
@@ -102,12 +114,12 @@
         {
             /// <inheritdoc />
             public string AuthenticationType { get; set; }
+
             /// <inheritdoc />
             public bool IsAuthenticated { get; set; }
+
             /// <inheritdoc />
-            public string Name { get; set;  }
+            public string Name { get; set; }
         }
     }
-
 }
-

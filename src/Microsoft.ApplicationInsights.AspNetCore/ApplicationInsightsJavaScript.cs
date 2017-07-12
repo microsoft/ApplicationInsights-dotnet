@@ -2,6 +2,7 @@
 {
     using System.Globalization;
     using System.Security.Principal;
+    using System.Text.Encodings.Web;
     using Microsoft.ApplicationInsights.AspNetCore.Extensions;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.AspNetCore.Http;
@@ -27,6 +28,8 @@
         /// <summary> Weather to print authenticated user tracking snippet.</summary>
         private bool enableAuthSnippet;
 
+        private JavaScriptEncoder encoder;
+
         /// <summary>
         /// Initializes a new instance of the JavaScriptSnippet class.
         /// </summary>
@@ -35,11 +38,13 @@
         /// <param name="httpContextAccessor">Http context accessor to use.</param>
         public JavaScriptSnippet(TelemetryConfiguration telemetryConfiguration,
             IOptions<ApplicationInsightsServiceOptions> serviceOptions,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            JavaScriptEncoder encoder)
         {
             this.telemetryConfiguration = telemetryConfiguration;
             this.httpContextAccessor = httpContextAccessor;
             this.enableAuthSnippet = serviceOptions.Value.EnableAuthenticationTrackingJavaScript;
+            this.encoder = encoder;
         }
 
         /// <summary>
@@ -59,7 +64,7 @@
                         identity != null &&
                         identity.IsAuthenticated)
                     {
-                        string escapedUserName = identity.Name.Replace("\\", "\\\\");
+                        string escapedUserName = encoder.Encode(identity.Name);
                         additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
                     }
                     return string.Format(CultureInfo.InvariantCulture, Snippet, this.telemetryConfiguration.InstrumentationKey, additionalJS);

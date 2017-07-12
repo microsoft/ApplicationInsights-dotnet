@@ -33,15 +33,18 @@
                 return;
             }
 
-            var request = context.Features.Get<RequestTelemetry>();
-
-            if (request == null)
+            lock (context)
             {
-                AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
-                return;
-            }
+                var request = context.Features.Get<RequestTelemetry>();
 
-            this.OnInitializeTelemetry(context, request, telemetry);
+                if (request == null)
+                {
+                    AspNetCoreEventSource.Instance.LogTelemetryInitializerBaseInitializeRequestNull();
+                    return;
+                }
+
+                this.OnInitializeTelemetry(context, request, telemetry);
+            }
         }
 
         protected abstract void OnInitializeTelemetry(

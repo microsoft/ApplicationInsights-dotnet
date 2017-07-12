@@ -6,6 +6,7 @@
     /// <summary>
     /// <see cref="ILoggerProvider"/> implementation that creates returns instances of <see cref="ApplicationInsightsLogger"/>
     /// </summary>
+    [ProviderAlias("ApplicationInsights")]
     internal class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
         private readonly TelemetryClient telemetryClient;
