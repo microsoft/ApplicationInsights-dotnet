@@ -33,7 +33,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <list type="bullet">
     ///   <item><description>The specified <c>PointsFactory</c> delegate may be executed more than once for a particular coordinates vector.
     ///     However, once a point for the specified coordinates-vector has been actually returned to the caller, always the same instance of
-    ///     that point will be returned by the cube. This behaviour is consistent with the ConcurrentDictionaly in the .NET Framework.</description></item>
+    ///     that point will be returned by the cube. This behaviour is consistent with the ConcurrentDictionary in the .NET Framework.</description></item>
     ///   <item><description>The <c>TryGetOrCreatePoint(..)</c> may return <c>false</c>, and then return <c>true</c> moments later when called with the
     ///     same parameters. This is becasue in order to avoid locking the cube pre-books dimension value counts (and total points counts) and later
     ///     frees them up if the creation of a new point did not complete.
