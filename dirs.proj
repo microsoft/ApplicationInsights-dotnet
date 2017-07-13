@@ -168,7 +168,7 @@
         <Exec Command=".\nuget.exe locals all -clear" ContinueOnError="ErrorAndStop" />
     </Target>
     
-    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI">
+    <Target Name="Build" DependsOnTargets="CheckBuildParameters;DownloadCLI;ClearNugetCache">
         <Exec Command='"$(CliToolsPath)\dotnet.exe" --version' />        
         <Exec Command='"nuget.exe" restore' ContinueOnError="ErrorAndStop" />
         <Exec Command='"$(CliToolsPath)\dotnet.exe" build $(ProjectToBuild) -c $(Configuration)' ContinueOnError="ErrorAndStop" />
