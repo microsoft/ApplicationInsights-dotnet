@@ -97,7 +97,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     ///   <item><description>By the name of the API invoked(any URL string).</description></item>
     /// </list>
     /// <p>
-    /// Each view represents a desperate dimension.There is a distinct data time series for each combination of dimension-values. For example:
+    /// Each view represents a separate dimension. There is a distinct data time series for each combination of dimension-values. For example:
     /// </p>
     /// <list type="bullet">
     ///   <item><description>Type=<c>"Organic"</c>, Response=<c>"200"</c>, Instance=<c>"Instance_01"</c>, API=<c>"http://myservice.com/API1?paramA=X"</c>.</description></item>
