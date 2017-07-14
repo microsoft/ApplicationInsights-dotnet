@@ -36,5 +36,12 @@
         /// Sanitizes the properties of the telemetry item based on DP constraints.
         /// </summary>
         void Sanitize();
+
+        /// <summary>
+        /// Clones the telemetry object deeply, so that the original object and the clone share no state 
+        /// and can be modified independently.
+        /// </summary>
+        /// <returns>The cloned object.</returns>
+        ITelemetry DeepClone();
     }
 }

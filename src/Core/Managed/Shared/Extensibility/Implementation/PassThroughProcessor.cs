@@ -5,27 +5,27 @@
     using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>
-    /// An <see cref="ITelemetryProcessor"/> that just passes data to its downstream processor.
+    /// An <see cref="ITelemetryProcessor"/> that just passes data to its downstream telemetry sink.
     /// </summary>
     internal class PassThroughProcessor : ITelemetryProcessor
     {
-        private ITelemetryProcessor next;
+        private TelemetrySink sink;
 
-        public PassThroughProcessor(ITelemetryProcessor next)
+        public PassThroughProcessor(TelemetrySink sink)
         {
-            if (next == null)
+            if (sink == null)
             {
-                throw new ArgumentNullException(nameof(next));
+                throw new ArgumentNullException(nameof(sink));
             }
 
-            this.next = next;
+            this.sink = sink;
         }
 
-        internal ITelemetryProcessor Next => this.next;
+        internal TelemetrySink Sink => this.sink;
 
         public void Process(ITelemetry item)
         {
-            this.next.Process(item);
+            this.sink.Process(item);
         }
     }
 }

@@ -144,7 +144,7 @@
             pageView.Metrics.Add("Metric1", 30);
             pageView.Properties.Add("Property1", "Value1");
 
-            PageViewTelemetry other = pageView.DeepClone();
+            PageViewTelemetry other = (PageViewTelemetry)pageView.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var result = deepComparator.Compare(pageView, other);

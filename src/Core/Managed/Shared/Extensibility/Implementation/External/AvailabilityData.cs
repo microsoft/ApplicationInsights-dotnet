@@ -13,7 +13,7 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_AvailabilityData")]
 #endif
-    internal partial class AvailabilityData : IDeepCloneable<AvailabilityData>
+    internal partial class AvailabilityData
     {
         public AvailabilityData DeepClone()
         {

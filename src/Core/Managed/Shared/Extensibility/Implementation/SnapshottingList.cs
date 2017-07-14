@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
         {
         }
 
-        public T this[int index]
+        public virtual T this[int index]
         {
             get
             {
@@ -35,7 +35,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             return this.GetSnapshot().IndexOf(item);
         }
 
-        public void Insert(int index, T item)
+        public virtual void Insert(int index, T item)
         {
             lock (this.Collection)
             {
@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        public void RemoveAt(int index)
+        public virtual void RemoveAt(int index)
         {
             lock (this.Collection)
             {

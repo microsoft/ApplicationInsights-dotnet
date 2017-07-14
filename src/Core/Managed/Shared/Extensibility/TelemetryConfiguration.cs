@@ -20,13 +20,11 @@
     /// </remarks>
     public sealed class TelemetryConfiguration : IDisposable
     {
-        private const int DefaultSinkIndex = 0;
-
         private static object syncRoot = new object();
         private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
-        private readonly SnapshottingList<TelemetrySink> telemetrySinks = new SnapshottingList<TelemetrySink>();
+        private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
@@ -69,7 +67,6 @@
             this.instrumentationKey = instrumentationKey;
             var defaultSink = new TelemetrySink(this, channel);
             this.telemetrySinks.Add(defaultSink);
-            Debug.Assert(object.ReferenceEquals(this.telemetrySinks[DefaultSinkIndex], defaultSink), "Default sink should be the first on the list");
         }
 
         /// <summary>
@@ -213,33 +210,27 @@
             get
             {
                 // We do not ensure not disposed here because TelemetryChannel is accessed during configuration disposal.
-                return this.telemetrySinks[DefaultSinkIndex].TelemetryChannel;
+                return this.telemetrySinks.DefaultSink.TelemetryChannel;
             }
 
             set
             {
                 if (!this.isDisposed)
                 {
-                    this.telemetrySinks[DefaultSinkIndex].TelemetryChannel = value;
+                    this.telemetrySinks.DefaultSink.TelemetryChannel = value;
                 }
             }
         }
 
         /// <summary>
-        /// Gets a read-only collection of telemetry sinks.
+        /// Gets a list of telemetry sinks associated with the configuration.
         /// </summary>
-        public ReadOnlyCollection<TelemetrySink> TelemetrySinks
-        {
-            get
-            {
-                return new ReadOnlyCollection<TelemetrySink>(this.telemetrySinks);
-            }
-        }
+        public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
 
         /// <summary>
         /// Gets the default telemetry sink.
         /// </summary>
-        public TelemetrySink DefaultTelemetrySink => this.telemetrySinks[DefaultSinkIndex];
+        public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
         /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
@@ -316,43 +307,6 @@
         }
 
         /// <summary>
-        /// Adds a new telemetry sink to the configuration.
-        /// </summary>
-        /// <param name="sink">Sink to add.</param>
-        public void AddSink(TelemetrySink sink)
-        {
-            if (sink == null)
-            {
-                throw new ArgumentNullException(nameof(sink));
-            }
-
-            this.EnsureNotDisposed();
-            this.telemetrySinks.Add(sink);
-        }
-
-        /// <summary>
-        /// Removes given sink from the configuration.
-        /// </summary>
-        /// <param name="sink">Sink to remove.</param>
-        /// <returns>True, if sink was removed successfully, otherwise false.</returns>
-        /// <remarks>Default sink (with index zero in the <see cref="TelemetrySinks"/> collection) cannot be removed.</remarks>
-        public bool RemoveSink(TelemetrySink sink)
-        {
-            if (sink == null)
-            {
-                throw new ArgumentNullException(nameof(sink));
-            }
-
-            if (this.IsDefaultSink(sink))
-            {
-                throw new InvalidOperationException("Default sink cannot be removed");
-            }
-
-            this.EnsureNotDisposed();
-            return this.telemetrySinks.Remove(sink);
-        }
-
-        /// <summary>
         /// Disposes of resources.
         /// </summary>
         /// <param name="disposing">Indicates if managed code is being disposed.</param>
@@ -372,18 +326,12 @@
                 foreach (TelemetrySink sink in this.telemetrySinks)
                 {
                     sink.Dispose();
-                    if (!this.IsDefaultSink(sink))
+                    if (!object.ReferenceEquals(sink, this.telemetrySinks.DefaultSink))
                     {
                         this.telemetrySinks.Remove(sink);
                     }
                 }
             }
-        }
-
-        private bool IsDefaultSink(TelemetrySink sink)
-        {
-            Debug.Assert(sink != null, "The 'sink' parameter value should not be null");
-            return object.ReferenceEquals(sink, this.telemetrySinks[DefaultSinkIndex]);
         }
 
         private void EnsureNotDisposed()

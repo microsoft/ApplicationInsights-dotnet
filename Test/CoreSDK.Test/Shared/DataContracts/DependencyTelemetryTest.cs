@@ -157,7 +157,7 @@
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
         {
             DependencyTelemetry telemetry = CreateRemoteDependencyTelemetry();
-            DependencyTelemetry other = telemetry.DeepClone();
+            DependencyTelemetry other = (DependencyTelemetry)telemetry.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);

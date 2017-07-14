@@ -9,7 +9,7 @@
     /// The class that represents information about performance counters.
     /// </summary>
     [Obsolete("Use MetricTelemetry instead.")]
-    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties, IDeepCloneable<PerformanceCounterTelemetry>
+    public sealed class PerformanceCounterTelemetry : ITelemetry, ISupportProperties
     {
         internal readonly MetricTelemetry Data;
 
@@ -46,7 +46,7 @@
         /// <param name="source">Source instance of <see cref="PerformanceCounterTelemetry"/> to clone from.</param>
         private PerformanceCounterTelemetry(PerformanceCounterTelemetry source)
         {
-            this.Data = source.Data.DeepClone();
+            this.Data = (MetricTelemetry)source.Data.DeepClone();
             this.categoryName = source.categoryName;
             this.counterName = source.counterName;
         }
@@ -178,7 +178,7 @@
         /// Deeply clones a <see cref="PerformanceCounterTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public PerformanceCounterTelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new PerformanceCounterTelemetry(this);
         }

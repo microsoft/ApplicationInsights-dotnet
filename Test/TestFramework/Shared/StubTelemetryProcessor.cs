@@ -22,6 +22,7 @@ namespace Microsoft.ApplicationInsights.TestFramework
         {
             this.next = next;
             this.OnDispose = () => { };
+            this.OnProcess = (unusedTelemetry) => { };
         }
 
         /// <summary>

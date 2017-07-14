@@ -220,7 +220,7 @@
         public void RequestTelemetryDeepCloneCopiesAllProperties()
         {
             RequestTelemetry request = CreateTestTelemetry();
-            RequestTelemetry other = request.DeepClone();
+            RequestTelemetry other = (RequestTelemetry)request.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
             comparisonConfig.MembersToIgnore.Add("HttpMethod"); // Obsolete

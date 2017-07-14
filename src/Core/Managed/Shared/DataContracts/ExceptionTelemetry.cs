@@ -208,7 +208,7 @@
         /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public ExceptionTelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new ExceptionTelemetry(this);
         }

@@ -13,7 +13,7 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_RemoteDependencyData")]
 #endif
-    internal partial class RemoteDependencyData : IDeepCloneable<RemoteDependencyData>
+    internal partial class RemoteDependencyData
     {
         public RemoteDependencyData DeepClone()
         {

@@ -11,7 +11,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#tracktrace">Learn more</a>
     /// </summary>
-    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling, IDeepCloneable<TraceTelemetry>
+    public sealed class TraceTelemetry : ITelemetry, ISupportProperties, ISupportSampling
     {
         internal const string TelemetryName = "Message";
 
@@ -118,7 +118,7 @@
         /// Deeply clones a <see cref="TraceTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public TraceTelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new TraceTelemetry(this);
         }

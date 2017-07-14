@@ -427,14 +427,6 @@
             this.WriteEvent(35, this.nameProvider.Name);
         }
 
-        [Event(36,
-            Message = "Telemetry type '{0}' is not cloneable. Data corruption may occur when telemetry of this type is sent to multiple channels.",
-            Level = EventLevel.Warning)]
-        public void TelemetryNotCloneable(string telemetryType, string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(36, telemetryType, this.nameProvider.Name);
-        }
-
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

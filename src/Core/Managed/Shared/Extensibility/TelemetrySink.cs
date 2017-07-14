@@ -9,7 +9,7 @@
     /// <summary>
     /// Represents a destination for telemetry, consisting of a set of telemetry processors and a channel.
     /// </summary>
-    public sealed class TelemetrySink : IDisposable, ITelemetryProcessor
+    public sealed class TelemetrySink : IDisposable
     {
         private TelemetryConfiguration telemetryConfiguration;
         private ITelemetryChannel telemetryChannel;

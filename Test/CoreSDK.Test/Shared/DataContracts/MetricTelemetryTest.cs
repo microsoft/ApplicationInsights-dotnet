@@ -285,7 +285,7 @@
             metric.StandardDeviation = 0.5;
             metric.Properties.Add("Property1", "Value1");
 
-            MetricTelemetry other = metric.DeepClone();
+            MetricTelemetry other = (MetricTelemetry)metric.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
             var comparisonResult = deepComparator.Compare(metric, other);

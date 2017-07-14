@@ -130,7 +130,7 @@
             eventTelemetry.Name = "Test Event";
             eventTelemetry.Properties["Test Property"] = "Test Value";
             eventTelemetry.Metrics["Test Property"] = 4.2;
-            EventTelemetry other = eventTelemetry.DeepClone();
+            EventTelemetry other = (EventTelemetry)eventTelemetry.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
 

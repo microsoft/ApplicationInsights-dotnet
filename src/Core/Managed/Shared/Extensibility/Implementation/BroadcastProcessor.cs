@@ -10,15 +10,13 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
     /// <summary>
-    /// An <see cref="ITelemetryProcessor"/> that asynchronously sends the data to multiple child telemetry processors.
+    /// An <see cref="ITelemetryProcessor"/> that asynchronously sends the data to multiple child telemetry sinks.
     /// </summary>
-    internal class BroadcastProcessor : ITelemetryProcessor, IDisposable
+    internal class BroadcastProcessor : ITelemetryProcessor
     {
-        private List<TelemetryDispatcher> childrenDispatchers;
-        private bool isDisposed;
-        private object disposeLock;
+        private TelemetryDispatcher[] childrenDispatchers;
 
-        public BroadcastProcessor(IEnumerable<ITelemetryProcessor> children, AsyncCallOptions asyncCallOptions = null)
+        public BroadcastProcessor(IEnumerable<TelemetrySink> children)
         {
             if (children == null)
             {
@@ -31,116 +29,67 @@
                 throw new ArgumentException("BroadcastProcessor requires two or more children", nameof(children));
             }
 
-            this.isDisposed = false;
-            this.disposeLock = new object();
-
-            if (asyncCallOptions == null)
-            {
-                asyncCallOptions = new AsyncCallOptions();
-                asyncCallOptions.MaxDegreeOfParallelism = 1;  // Do not assume that telemetry processors or channels are thread-safe.
-            }
-
-            this.childrenDispatchers = new List<TelemetryDispatcher>(childrenCount);
+            this.childrenDispatchers = new TelemetryDispatcher[childrenCount];
             bool firstChild = true;
-            foreach (ITelemetryProcessor child in children)
+            int i = 0;
+            foreach (TelemetrySink child in children)
             {
-                this.childrenDispatchers.Add(new TelemetryDispatcher(child, !firstChild, asyncCallOptions));
+                this.childrenDispatchers[i++] = new TelemetryDispatcher(child, !firstChild);
                 firstChild = false;
             }
         }
 
         public void Process(ITelemetry item)
         {
-            foreach (TelemetryDispatcher dispatcher in this.childrenDispatchers)
+            // The assumptions we are making here are that:
+            //   1. TelemetryProcessors are reliable and fast.
+            //   2. Channels are reliable and process data asynchronously (ITelemetryChannel.Send() just queues up the telemetry and returns quickly).
+            // As a result of these assumptions we can just let each sink process the data synchronously, with acceptable performance.
+            // But it is also true that a misbehaving telemetry processor or channel in one of the sinks will affect other sinks.
+            for (int i = 0; i < this.childrenDispatchers.Length; i++)
             {
-                dispatcher.Process(item);
-            }
-        }
-
-        public void Dispose()
-        {
-            if (this.isDisposed)
-            {
-                return;
+                this.childrenDispatchers[i].Offer(item);
             }
 
-            lock (this.disposeLock)
+            for (int i = 0; i < this.childrenDispatchers.Length; i++)
             {
-                if (this.isDisposed)
-                {
-                    return;
-                }
-
-                this.isDisposed = true;
-
-                foreach (TelemetryDispatcher dispatcher in this.childrenDispatchers)
-                {
-                    dispatcher.Dispose();
-                }
+                this.childrenDispatchers[i].ProcessOffered();
             }
         }
 
         /// <summary>
-        /// Utility class that clones incoming telemetry as necessary and sends it to one of the telemetry processor chains 
+        /// Utility class that clones incoming telemetry as necessary and sends it to one of the telemetry sinks 
         /// handled by the parent BroadcastProcessor.
         /// </summary>
-        private class TelemetryDispatcher : IDisposable
+        private class TelemetryDispatcher
         {
-            private AsyncCall<ITelemetry> processorCall;
             private bool cloneBeforeDispatch;
-            private bool isDisposed;
-            private ITelemetryProcessor processor;
+            private TelemetrySink sink;
+            private ITelemetry nextTelemetryToProcess;
 
-            public TelemetryDispatcher(ITelemetryProcessor processor, bool cloneBeforeDispatch, AsyncCallOptions asyncCallOptions)
+            public TelemetryDispatcher(TelemetrySink sink, bool cloneBeforeDispatch)
             {
-                Debug.Assert(processor != null, "Telemetry processor should not be null");
-                this.processor = processor;
+                Debug.Assert(sink != null, "Telemetry sink should not be null");
+                this.sink = sink;
                 this.cloneBeforeDispatch = cloneBeforeDispatch;
-                this.processorCall = new AsyncCall<ITelemetry>(this.ProcessTelemetry, asyncCallOptions);
-                this.isDisposed = false;
+                this.nextTelemetryToProcess = null;
             }
 
-            public void Dispose()
+            public void Offer(ITelemetry telemetry)
             {
-                this.isDisposed = true;
-                this.processorCall.CompleteAsync();
+                this.nextTelemetryToProcess = this.cloneBeforeDispatch ? telemetry.DeepClone() : telemetry;
             }
 
-            public void Process(ITelemetry telemetry)
+            public void ProcessOffered()
             {
-                if (this.isDisposed)
+                if (this.nextTelemetryToProcess != null)
                 {
-                    // Do not throw ObjectDisposedException here in case there is some residual pipeline activity going on.
-                    // Just ignore telemetry that comes in past disposal time.
-                    return;
+                    this.sink.Process(this.nextTelemetryToProcess);
+                    this.nextTelemetryToProcess = null;
                 }
-
-                if (this.cloneBeforeDispatch)
+                else
                 {
-                    var cloneable = telemetry as IDeepCloneable<ITelemetry>;
-                    if (cloneable != null)
-                    {
-                        telemetry = cloneable.DeepClone();
-                    }
-                    else
-                    {
-                        CoreEventSource.Log.TelemetryNotCloneable(telemetry.GetType().FullName);
-                    }
-                }
-
-                this.processorCall.Post(telemetry);
-            }
-
-            private void ProcessTelemetry(ITelemetry telemetry)
-            {
-                try
-                {
-                    this.processor.Process(telemetry);
-                }
-                catch (Exception e)
-                {
-                    CoreEventSource.Log.FailedToSend(e.ToString());
-                    throw;
+                    Debug.Fail("We should not be asked to process a telemetry item if none was offered");
                 }
             }
         }

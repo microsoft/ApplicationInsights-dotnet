@@ -16,7 +16,7 @@
     /// method.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=525722#trackrequest">Learn more</a>
     /// </remarks>
-    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling, IDeepCloneable<RequestTelemetry>
+    public sealed class RequestTelemetry : OperationTelemetry, ITelemetry, ISupportProperties, ISupportMetrics, ISupportSampling
     {
         internal new const string TelemetryName = "Request";
 
@@ -219,7 +219,7 @@
         /// Deeply clones a <see cref="RequestTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public RequestTelemetry DeepClone()
+        public override ITelemetry DeepClone()
         {
             return new RequestTelemetry(this);
         }

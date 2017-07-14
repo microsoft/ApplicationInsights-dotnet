@@ -14,7 +14,7 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_ExceptionData")]
 #endif
-    internal partial class ExceptionData : IDeepCloneable<ExceptionData>
+    internal partial class ExceptionData
     {
         public ExceptionData DeepClone()
         {

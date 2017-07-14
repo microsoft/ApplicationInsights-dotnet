@@ -12,7 +12,7 @@
     /// Contains a time and message and optionally some additional metadata.
     /// <a href="https://go.microsoft.com/fwlink/?linkid=517889">Learn more</a>
     /// </summary>
-    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics, IDeepCloneable<AvailabilityTelemetry>
+    public sealed class AvailabilityTelemetry : ITelemetry, ISupportProperties, ISupportMetrics
     {
         internal const string TelemetryName = "Availability";
 
@@ -161,7 +161,7 @@
         /// Deeply clones an  <see cref="AvailabilityTelemetry"/> object.
         /// </summary>
         /// <returns>A cloned instance.</returns>
-        public AvailabilityTelemetry DeepClone()
+        public ITelemetry DeepClone()
         {
             return new AvailabilityTelemetry(this);
         }

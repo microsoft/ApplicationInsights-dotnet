@@ -13,7 +13,7 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_RequestData")]
 #endif
-    internal partial class RequestData : IDeepCloneable<RequestData>
+    internal partial class RequestData
     {
         public RequestData DeepClone()
         {

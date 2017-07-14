@@ -14,7 +14,6 @@
         private readonly List<Func<ITelemetryProcessor, ITelemetryProcessor>> factories;
         private readonly TelemetryConfiguration configuration;
         private readonly TelemetrySink telemetrySink;
-        private readonly AsyncCallOptions asyncCallOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
@@ -30,7 +29,6 @@
             this.configuration = configuration;
             this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
             this.telemetrySink = null;
-            this.asyncCallOptions = null;
         }
 
         /// <summary>
@@ -39,32 +37,6 @@
         /// <param name="configuration">Configuration instance to use for constructing the processor chain.</param>
         /// <param name="telemetrySink">Telemetry sink the processor chain will be assigned to.</param>
         public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink) : this(configuration)
-        {
-            if (telemetrySink == null)
-            {
-                throw new ArgumentNullException(nameof(telemetrySink));
-            }
-
-            this.telemetrySink = telemetrySink;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
-        /// </summary>
-        /// <param name="configuration">Configuration instance to use for constructing the processor chain.</param>
-        /// <param name="asyncCallOptions">Options for scheduling asynchronous telemetry processing by the sink(s).</param>
-        internal TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, AsyncCallOptions asyncCallOptions) : this(configuration)
-        {
-            this.asyncCallOptions = asyncCallOptions;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
-        /// </summary>
-        /// <param name="configuration">Configuration instance to use for constructing the processor chain.</param>
-        /// <param name="telemetrySink">Telemetry sink the processor chain will be assigned to.</param>
-        /// <param name="asyncCallOptions">Options for scheduling asynchronous telemetry processing by the sink(s).</param>
-        internal TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink, AsyncCallOptions asyncCallOptions) : this(configuration, asyncCallOptions)
         {
             if (telemetrySink == null)
             {
@@ -108,7 +80,7 @@
                 }
                 else
                 {
-                    linkedTelemetryProcessor = new BroadcastProcessor(this.configuration.TelemetrySinks, this.asyncCallOptions);
+                    linkedTelemetryProcessor = new BroadcastProcessor(this.configuration.TelemetrySinks);
                 }
             }
             else

@@ -126,31 +126,29 @@
         [TestMethod]
         public void TelemetryIsDeliveredToMultipleSinks()
         {
-            var taskScheduler = new DeterministicTaskScheduler();
             var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
 
             var firstChannelTelemetry = new List<ITelemetry>();
             var firstChannel = new StubTelemetryChannel();
             firstChannel.OnSend = (telemetry) => firstChannelTelemetry.Add(telemetry);
             configuration.DefaultTelemetrySink.TelemetryChannel = firstChannel;
-            var chainBuilder = new TelemetryProcessorChainBuilder(configuration, new AsyncCallOptions() { TaskScheduler = taskScheduler });
+            var chainBuilder = new TelemetryProcessorChainBuilder(configuration);
             configuration.TelemetryProcessorChainBuilder = chainBuilder;
 
             var secondChannelTelemetry = new List<ITelemetry>();
             var secondChannel = new StubTelemetryChannel();
             secondChannel.OnSend = (telemetry) => secondChannelTelemetry.Add(telemetry);
             var secondSink = new TelemetrySink(configuration, secondChannel);
-            configuration.AddSink(secondSink);
+            configuration.TelemetrySinks.Add(secondSink);
 
             var thirdChannelTelemetry = new List<ITelemetry>();
             var thirdChannel = new StubTelemetryChannel();
             thirdChannel.OnSend = (telemetry) => thirdChannelTelemetry.Add(telemetry);
             var thirdSink = new TelemetrySink(configuration, thirdChannel);
-            configuration.AddSink(thirdSink);
+            configuration.TelemetrySinks.Add(thirdSink);
 
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
-            taskScheduler.RunTasksUntilIdle();
 
             Assert.Equal(1, firstChannelTelemetry.Count);
             Assert.Equal("t1", ((TraceTelemetry)firstChannelTelemetry[0]).Message);
@@ -163,10 +161,9 @@
         [TestMethod]
         public void MultipleSinkTelemetryProcessorsAreInvoked()
         {
-            var taskScheduler = new DeterministicTaskScheduler();
             var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
 
-            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration, new AsyncCallOptions() { TaskScheduler = taskScheduler });
+            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
             configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
             commonChainBuilder.Use((next) =>
             {
@@ -193,7 +190,7 @@
             var secondChannel = new StubTelemetryChannel();
             secondChannel.OnSend = (telemetry) => secondChannelTelemetry.Add(telemetry);
             var secondSink = new TelemetrySink(configuration, secondChannel);
-            configuration.AddSink(secondSink);
+            configuration.TelemetrySinks.Add(secondSink);
 
             var secondSinkChainBuilder = new TelemetryProcessorChainBuilder(configuration, secondSink);
             secondSinkChainBuilder.Use((next) =>
@@ -206,7 +203,6 @@
 
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
-            taskScheduler.RunTasksUntilIdle();
 
             Assert.Equal(1, firstChannelTelemetry.Count);
             Assert.True(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
@@ -220,106 +216,10 @@
         }
 
         [TestMethod]
-        public void FailingChannelDoesNotAffectOtherChannels()
-        {
-            var taskScheduler = new DeterministicTaskScheduler();
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
-            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration, new AsyncCallOptions() { TaskScheduler = taskScheduler });
-            configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
-
-            var firstChannelTelemetry = new List<ITelemetry>();
-            var firstChannel = new StubTelemetryChannel();
-            firstChannel.OnSend = (telemetry) => firstChannelTelemetry.Add(telemetry);
-            configuration.DefaultTelemetrySink.TelemetryChannel = firstChannel;
-
-            var secondChannelTelemetry = new List<ITelemetry>();
-            var secondChannel = new StubTelemetryChannel();
-            secondChannel.OnSend = (telemetry) => secondChannelTelemetry.Add(telemetry);
-            var secondSink = new TelemetrySink(configuration, secondChannel);
-            configuration.AddSink(secondSink);
-
-            var client = new TelemetryClient(configuration);
-
-            client.TrackTrace("t1");
-            taskScheduler.RunTasksUntilIdle();
-
-            firstChannel.ThrowError = true;
-            client.TrackTrace("t2");
-            taskScheduler.RunTasksUntilIdle();
-
-            firstChannel.ThrowError = false;
-            client.TrackTrace("t3");
-            taskScheduler.RunTasksUntilIdle();
-
-            // We should have gotten 2 traces through the first channel (t1 and t3) and 3 traces through the second channel.
-            Assert.Equal(2, firstChannelTelemetry.Count);
-            Assert.Equal(3, secondChannelTelemetry.Count);
-        }
-
-        [TestMethod, Timeout(1000)]
-        public void SlowChannelDoesNotAffectOtherChannels()
-        {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
-            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration, new AsyncCallOptions() { MaxDegreeOfParallelism = 2, MaxItemsPerTask = 2 });
-            configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
-
-            var telemetryWaitObj = new object();
-
-            var firstChannelTelemetry = new ConcurrentQueue<ITelemetry>();
-            var firstChannel = new StubTelemetryChannel();
-            firstChannel.OnSend = (telemetry) =>
-            {
-                lock (telemetryWaitObj)
-                {
-                    firstChannelTelemetry.Enqueue(telemetry);
-                    Monitor.Pulse(telemetryWaitObj);
-                }
-            };
-            configuration.DefaultTelemetrySink.TelemetryChannel = firstChannel;
-
-            var secondChannelTelemetry = new ConcurrentQueue<ITelemetry>();
-            var secondChannel = new StubTelemetryChannel();
-            secondChannel.OnSend = (telemetry) =>
-            {
-                // Make it artificially slow
-                Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-                secondChannelTelemetry.Enqueue(telemetry);
-            };
-            var secondSink = new TelemetrySink(configuration, secondChannel);
-            configuration.AddSink(secondSink);
-
-            var client = new TelemetryClient(configuration);
-
-            // Rapidly send a bunch of traces. We expect the second channel to not receive all traces
-            const int ExpectedTelemetryCount = 20;
-            for (int i = 0; i < ExpectedTelemetryCount; i++)
-            {
-                client.TrackTrace(i.ToString());
-            }
-
-            do
-            {
-                lock (telemetryWaitObj)
-                {
-                    if (firstChannelTelemetry.Count < ExpectedTelemetryCount)
-                    {
-                        Monitor.Wait(telemetryWaitObj); // We rely on the overall test timeout to break the wait in case of failure.
-                    }
-                }
-            } while (firstChannelTelemetry.Count < ExpectedTelemetryCount);
-
-            Assert.True(secondChannelTelemetry.Count < ExpectedTelemetryCount);
-
-            configuration.Dispose();
-        }
-
-        [TestMethod]
         public void ConfigurationDisposesAllSinks()
         {
-            var taskScheduler = new DeterministicTaskScheduler();
             var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
-            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration, new AsyncCallOptions() { TaskScheduler = taskScheduler });
+            var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
             configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
 
             var firstChannel = new StubTelemetryChannel();
@@ -349,13 +249,11 @@
                 return secondSinkTelemetryProcessor;
             });
             secondSink.TelemetryProcessorChainBuilder = secondSinkChainBuilder;
-            configuration.AddSink(secondSink);
+            configuration.TelemetrySinks.Add(secondSink);
 
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
-            taskScheduler.RunTasksUntilIdle();
             configuration.Dispose();
-            taskScheduler.RunTasksUntilIdle();
 
             // We expect the channels to not be disposed (because they were created externally to sinks), but the processors should be disposed.
             Assert.True(firstSinkTelemetryProcessorDisposed);

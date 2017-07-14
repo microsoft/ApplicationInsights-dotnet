@@ -89,6 +89,12 @@
         }
 
         /// <summary>
+        /// Deeply clones a <see cref="OperationTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public abstract ITelemetry DeepClone();
+
+        /// <summary>
         /// Sets operation Id.
         /// </summary>
         internal void GenerateId()

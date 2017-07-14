@@ -431,7 +431,7 @@
             Assert.NotNull(passThroughProcessor);
 
             // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Next as TelemetrySink;
+            var sink = passThroughProcessor.Sink;
             Assert.NotNull(sink);
             Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
             Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
@@ -461,7 +461,7 @@
             Assert.NotNull(passThroughProcessor);
 
             // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Next as TelemetrySink;
+            var sink = passThroughProcessor.Sink;
             Assert.NotNull(sink);
             Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
             Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
@@ -489,7 +489,7 @@
             Assert.NotNull(passThroughProcessor);
 
             // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Next as TelemetrySink;
+            var sink = passThroughProcessor.Sink;
             Assert.NotNull(sink);
             Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
             Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
@@ -533,7 +533,7 @@
             Assert.NotNull(passThroughProcessor);
 
             // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Next as TelemetrySink;
+            var sink = passThroughProcessor.Sink;
             Assert.NotNull(sink);
             Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
             Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);
@@ -562,7 +562,7 @@
             Assert.NotNull(passThroughProcessor);
 
             // The sink has only a transmission processor and a default channel.
-            var sink = passThroughProcessor.Next as TelemetrySink;
+            var sink = passThroughProcessor.Sink;
             Assert.NotNull(sink);
             Assert.Equal(1, sink.TelemetryProcessorChain.TelemetryProcessors.Count);
             Assert.IsType(typeof(TransmissionProcessor), sink.TelemetryProcessorChain.FirstTelemetryProcessor);

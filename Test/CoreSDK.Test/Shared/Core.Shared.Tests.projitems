@@ -29,7 +29,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TelemetryItemTestHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataContracts\TraceTelemetryTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\AsyncCallTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\OperationHolderTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\JsonSerializerTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensibility\Implementation\TelemetryProcessorChainBuilderTest.cs" />

@@ -41,7 +41,7 @@
             item.Timestamp = DateTimeOffset.Now;
             item.Properties.Add("p1", "p1Val");
 
-            PerformanceCounterTelemetry other = item.DeepClone();
+            PerformanceCounterTelemetry other = (PerformanceCounterTelemetry)item.DeepClone();
 
             CompareLogic deepComparator = new CompareLogic();
 

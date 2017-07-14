@@ -11,9 +11,9 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_PageViewData")]
 #endif
-    internal partial class PageViewData : IDeepCloneable<PageViewData>
+    internal partial class PageViewData
     {
-        PageViewData IDeepCloneable<PageViewData>.DeepClone()
+        public new PageViewData DeepClone()
         {
             var other = new PageViewData();
             this.ApplyProperties(other);

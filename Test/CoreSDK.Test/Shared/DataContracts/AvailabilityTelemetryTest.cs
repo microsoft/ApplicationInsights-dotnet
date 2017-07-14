@@ -116,7 +116,7 @@
         public void AvailabilityTelemetryDeepCloneCopiesAllProperties()
         {
             AvailabilityTelemetry telemetry = CreateAvailabilityTelemetry();
-            AvailabilityTelemetry other = telemetry.DeepClone();
+            AvailabilityTelemetry other = (AvailabilityTelemetry)telemetry.DeepClone();
 
             ComparisonConfig comparisonConfig = new ComparisonConfig();
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);

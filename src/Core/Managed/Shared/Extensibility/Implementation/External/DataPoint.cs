@@ -11,7 +11,7 @@
     // .Net 4.5 has a custom implementation of RichPayloadEventSource
     [System.Diagnostics.Tracing.EventData(Name = "PartB_DataPoint")]
 #endif
-    internal partial class DataPoint : IDeepCloneable<DataPoint>
+    internal partial class DataPoint
     {
         public DataPoint DeepClone()
         {
