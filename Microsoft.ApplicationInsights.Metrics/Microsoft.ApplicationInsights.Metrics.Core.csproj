@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
-    <RootNamespace />
+    <TargetFramework>netstandard1.5</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp1.1\Microsoft.ApplicationInsights.Metrics.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard1.4\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

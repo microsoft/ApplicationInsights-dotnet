@@ -3,6 +3,7 @@ using System.Threading;
 
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -134,7 +135,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                     if (spinWait.Count % 100 == 0)
                     {
-                        Thread.Sleep(10);
+                        //Thread.Sleep(10);
+                        Task.Delay(10).GetAwaiter().GetResult();
                     }
 
                     prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);

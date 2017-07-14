@@ -75,7 +75,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 DateTimeOffset now = DateTimeOffset.Now;
                 TimeSpan waitPeriod = GetNextCycleTargetTime(now) - now;
 
-                Thread.Sleep(waitPeriod);
+                //Thread.Sleep(waitPeriod);
+                Task.Delay(waitPeriod).GetAwaiter().GetResult();
 
                 int shouldBeRunning = Volatile.Read(ref _runningState);
                 if (shouldBeRunning != RunningState_Running)
