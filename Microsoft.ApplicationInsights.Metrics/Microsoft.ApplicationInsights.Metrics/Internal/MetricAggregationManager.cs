@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorsForDefaultPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
-        public bool StartAggregators(MetricConsumerKind consumerKind, IMetricDataSeriesFilter filter, DateTimeOffset tactTimestamp)
+        public bool StartAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter filter)
         {
             switch (consumerKind)
             {
