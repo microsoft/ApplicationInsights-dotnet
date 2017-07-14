@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleDoubleDataSeriesAggregator : DataSeriesAggregatorBase, IMetricDataSeriesAggregator
+    internal class SimpleDoubleDataSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private int _count;
         private double _min;
@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private double _sum;
         private double _sumOfSquares;
 
-        public SimpleDoubleDataSeriesAggregator(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
+        public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
             RecycleUnsafe();

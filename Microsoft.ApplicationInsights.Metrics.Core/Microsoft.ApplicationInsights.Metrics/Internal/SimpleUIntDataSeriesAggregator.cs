@@ -8,7 +8,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleUIntDataSeriesAggregator : DataSeriesAggregatorBase, IMetricDataSeriesAggregator
+    internal class SimpleUIntDataSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private const double MicroOne = 0.000001;
 
@@ -18,7 +18,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         private long _sum;                  // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
         private long _sumOfSquares;         // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
 
-        public SimpleUIntDataSeriesAggregator(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
+        public SimpleUIntDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
             RecycleUnsafe();

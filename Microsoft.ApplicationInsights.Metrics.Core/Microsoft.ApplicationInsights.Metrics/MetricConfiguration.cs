@@ -5,8 +5,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     public static class MetricConfiguration
     {
-        public static readonly IMetricConfiguration SimpleUIntMeasurement       = new SimpleMeasurementMetricConfiguration(lifetimeCounter: false, supportDoubleValues: false);
-        public static readonly IMetricConfiguration SimpleDoubleMeasurement     = new SimpleMeasurementMetricConfiguration(lifetimeCounter: false, supportDoubleValues: true);
-        public static readonly IMetricConfiguration SimpleUIntLifetimeCounter   = new SimpleMeasurementMetricConfiguration(lifetimeCounter: true, supportDoubleValues: false);
+        public static readonly IMetricSeriesConfiguration SimpleUIntMeasurement       = new SimpleMeasurementMetricSeriesConfiguration(lifetimeCounter: false, supportDoubleValues: false);
+        public static readonly IMetricSeriesConfiguration SimpleDoubleMeasurement     = new SimpleMeasurementMetricSeriesConfiguration(lifetimeCounter: false, supportDoubleValues: true);
+        public static readonly IMetricSeriesConfiguration SimpleUIntLifetimeCounter   = new SimpleMeasurementMetricSeriesConfiguration(lifetimeCounter: true, supportDoubleValues: false);
     }
 }

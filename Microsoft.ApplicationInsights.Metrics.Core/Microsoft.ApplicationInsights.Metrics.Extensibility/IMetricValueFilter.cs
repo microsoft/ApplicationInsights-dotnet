@@ -2,8 +2,8 @@
 {
     public interface IMetricValueFilter
     {
-        bool WillConsume(MetricDataSeries metricDataSeries, uint metricValue);
-        bool WillConsume(MetricDataSeries metricDataSeries, double metricValue);
-        bool WillConsume(MetricDataSeries metricDataSeries, object metricValue);
+        bool WillConsume(MetricSeries dataSeries, uint metricValue);
+        bool WillConsume(MetricSeries dataSeries, double metricValue);
+        bool WillConsume(MetricSeries dataSeries, object metricValue);
     }
 }

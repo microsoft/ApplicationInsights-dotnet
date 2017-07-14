@@ -107,9 +107,9 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// So a data series representation might look like this:
     /// </p>
     /// <code>
-    /// class ResponseTimeMetricDataSeries
+    /// class ResponseTimeMetricSeries
     /// {
-    ///     public ResponseTimeMetricDataSeries(string kind, string responseCode, string instanceName, string url) { }
+    ///     public ResponseTimeMetricSeries(string kind, string responseCode, string instanceName, string url) { }
     ///     //...
     /// }
     /// </code>
@@ -119,13 +119,13 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// usage. We can create a cube as follows.Note how we used different max dimension values counts that are appropriate for each respective dimension.
     /// </p>
     /// <code>
-    /// Func{string[], ResponseTimeMetricDataSeries} metricFactory = (dimValues) =} new ResponseTimeMetricDataSeries(kind:         dimValues[0],
-    ///                                                                                                              responseCode: dimValues[1],
-    ///                                                                                                              instanceName: dimValues[2],
+    /// Func{string[], ResponseTimeMetricSeries} metricFactory = (dimValues) =} new ResponseTimeMetricSeries(kind:         dimValues[0],
+    ///                                                                                                      responseCode: dimValues[1],
+    ///                                                                                                      instanceName: dimValues[2],
     ///                                                                                                              url:          dimValues[3]);
-    /// MultidimensionalCube{string, ResponseTimeMetricDataSeries} metricsCube = new MultidimensionalCube{string, ResponseTimeMetricDataSeries}(metricFactory, 2, 50, 100, 1000);
+    /// MultidimensionalCube{string, ResponseTimeMetricSeries} metricsCube = new MultidimensionalCube{string, ResponseTimeMetricSeries}(metricFactory, 2, 50, 100, 1000);
     /// 
-    /// MultidimensionalPointResult{ResponseTimeMetricDataSeries} result;
+    /// MultidimensionalPointResult{ResponseTimeMetricSeries} result;
     /// 
     /// result = metricsCube.TryGetOrCreatePoint(out responseSeries01, "Organic", "200", "Instance_01", "http://myservice.com/API1?paramA=X");
     /// if (! result.Success)
@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     ///     throw new SomeAppropriateException("Cannot create metric data series. Dimension cap is potentially reached.");
     /// }
     /// 
-    /// ResponseTimeMetricDataSeries responseSeries02 = result.Point;
+    /// ResponseTimeMetricSeries responseSeries02 = result.Point;
     /// </code>
     /// </remarks>
     /// <typeparam name="TDimensionValue"></typeparam>

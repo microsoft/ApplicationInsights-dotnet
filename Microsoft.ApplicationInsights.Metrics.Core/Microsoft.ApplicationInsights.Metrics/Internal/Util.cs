@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
-using Microsoft.ApplicationInsights.DataContracts;
 using System.Threading;
 using System.Collections.Generic;
+
+using Microsoft.ApplicationInsights.DataContracts;
+
 
 namespace Microsoft.ApplicationInsights.Metrics
 {

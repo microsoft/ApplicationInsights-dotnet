@@ -31,12 +31,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             var fireAndForget = this.StopAsync();
         }
 
-        public MetricDataSeries CreateNewDataSeries(string metricId, IMetricConfiguration config)
+        public MetricSeries CreateNewDataSeries(string metricId, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricId, nameof(metricId));
             Util.ValidateNotNull(config, nameof(config));
 
-            var dataSeries = new MetricDataSeries(_aggregationManager, metricId, config);
+            var dataSeries = new MetricSeries(_aggregationManager, metricId, config);
             return dataSeries;
         }
 

@@ -3,12 +3,12 @@ using Microsoft.ApplicationInsights.Channel;
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    public interface IMetricDataSeriesAggregator
+    public interface IMetricSeriesAggregator
     {
         DateTimeOffset PeriodStart { get; }
         DateTimeOffset PeriodEnd { get; }
         bool IsCompleted { get; }
-        MetricDataSeries DataSeries { get; }
+        MetricSeries DataSeries { get; }
 
         bool SupportsRecycle { get; }
         bool TryRecycle();

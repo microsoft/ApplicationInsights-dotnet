@@ -13,14 +13,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             public DateTimeOffset PeriodStart { get; }
             public DateTimeOffset PeriodEnd { get; private set; }
-            public GrowingCollection<IMetricDataSeriesAggregator> Aggregators { get; }
-            public IMetricDataSeriesFilter Filter { get; }
+            public GrowingCollection<IMetricSeriesAggregator> Aggregators { get; }
+            public IMetricSeriesFilter Filter { get; }
 
-            public AggregatorCollection(DateTimeOffset periodStart, IMetricDataSeriesFilter filter)
+            public AggregatorCollection(DateTimeOffset periodStart, IMetricSeriesFilter filter)
             {
                 this.PeriodStart = periodStart;
                 this.PeriodEnd = DateTimeOffset.MinValue;
-                this.Aggregators = new GrowingCollection<IMetricDataSeriesAggregator>();
+                this.Aggregators = new GrowingCollection<IMetricSeriesAggregator>();
                 this.Filter = Filter;
             }
         }
@@ -46,7 +46,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorsForDefaultPersistent = new AggregatorCollection(timestamp, filter: null);
         }
 
-        public bool StartAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter filter)
+        public bool StartAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         {
             switch (consumerKind)
             {
@@ -84,7 +84,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        internal bool IsConsumerActive(MetricConsumerKind consumerKind, out IMetricDataSeriesFilter filter)
+        internal bool IsConsumerActive(MetricConsumerKind consumerKind, out IMetricSeriesFilter filter)
         {
             switch (consumerKind)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        internal bool AddAggregator(IMetricDataSeriesAggregator aggregator, MetricConsumerKind consumerKind)
+        internal bool AddAggregator(IMetricSeriesAggregator aggregator, MetricConsumerKind consumerKind)
         {
             Util.ValidateNotNull(aggregator, nameof(aggregator));
 
@@ -128,7 +128,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private bool AddAggregator(IMetricDataSeriesAggregator aggregator, AggregatorCollection aggregatorCollection)
+        private bool AddAggregator(IMetricSeriesAggregator aggregator, AggregatorCollection aggregatorCollection)
         {
             if (aggregatorCollection == null)
             {
@@ -147,7 +147,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             return true;
         }
 
-        public AggregationPeriodSummary CycleAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter updatedFilter)
+        public AggregationPeriodSummary CycleAggregators(MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
         {
             switch (consumerKind)
             {
@@ -169,7 +169,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter updatedFilter, bool stopAggregators)
+        private AggregationPeriodSummary CycleAggregators(ref AggregatorCollection aggregators, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter, bool stopAggregators)
         {
             // For non-persistent aggregators: create empty holder for the next aggregation period and swap for the previous holder:
             AggregatorCollection nextAggregators = stopAggregators
@@ -177,19 +177,19 @@ namespace Microsoft.ApplicationInsights.Metrics
                                                             : new AggregatorCollection(tactTimestamp, updatedFilter);
 
             AggregatorCollection prevAggregators = Interlocked.Exchange(ref aggregators, nextAggregators);
-            IMetricDataSeriesFilter prevFilter = prevAggregators.Filter;
+            IMetricSeriesFilter prevFilter = prevAggregators.Filter;
 
             // Complete each persistent aggregator:
             // The Enumerator of GrowingCollection is a thread-safe lock-free implementation that operates on a "snapshot" of a collection taken at the
             // time when the enumerator is created. We expand the foreach statement (like the compiler normally does) so that we can use the typed
             // enumerator's Count property which is constsent with the data in the snapshot.
-            GrowingCollection<IMetricDataSeriesAggregator>.Enumerator unfilteredValsAggregators = _aggregatorsForDefaultPersistent.Aggregators.GetEnumerator(); 
+            GrowingCollection<IMetricSeriesAggregator>.Enumerator unfilteredValsAggregators = _aggregatorsForDefaultPersistent.Aggregators.GetEnumerator(); 
             List<ITelemetry> unfilteredValsAggregations = new List<ITelemetry>(capacity: unfilteredValsAggregators.Count);
             try
             {
                 while(unfilteredValsAggregators.MoveNext())
                 {
-                    IMetricDataSeriesAggregator aggregator = unfilteredValsAggregators.Current;
+                    IMetricSeriesAggregator aggregator = unfilteredValsAggregators.Current;
                     if (aggregator != null)
                     {
                         // Persistent aggregators are always active, regardless of filters for a particular consumer. But we can apply the cunsumer's filters to determine
@@ -214,7 +214,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Complete each non-persistent aggregator:
             // (we snapshotted the entire collection, so Count is stable)
             List<ITelemetry> filteredAggregations = new List<ITelemetry>(capacity: prevAggregators.Aggregators.Count);
-            foreach (IMetricDataSeriesAggregator aggregator in prevAggregators.Aggregators)
+            foreach (IMetricSeriesAggregator aggregator in prevAggregators.Aggregators)
             {
                 if (aggregator != null)
                 {

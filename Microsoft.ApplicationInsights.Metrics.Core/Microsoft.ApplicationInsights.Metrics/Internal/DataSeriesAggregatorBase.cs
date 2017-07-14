@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal abstract class DataSeriesAggregatorBase : IMetricDataSeriesAggregator
+    internal abstract class DataSeriesAggregatorBase : IMetricSeriesAggregator
     {
         private const int InternalExecutionState_Completed = -10000;
         private const int InternalExecutionState_Ready = 0;
 
-        private readonly IMetricConfiguration _configuration;
-        private readonly MetricDataSeries _dataSeries;
+        private readonly IMetricSeriesConfiguration _configuration;
+        private readonly MetricSeries _dataSeries;
         private readonly MetricConsumerKind _consumerKind;
         private readonly bool _isPersistent;
         
@@ -24,7 +24,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         private ITelemetry _completedAggregate;
 
-        public DataSeriesAggregatorBase(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
+        public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
             _configuration = configuration;
             _dataSeries = dataSeries;
@@ -38,7 +38,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public DateTimeOffset PeriodEnd { get { return _periodEnd; } }
 
-        public MetricDataSeries DataSeries { get { return _dataSeries; } }
+        public MetricSeries DataSeries { get { return _dataSeries; } }
 
         public bool IsCompleted {
             get

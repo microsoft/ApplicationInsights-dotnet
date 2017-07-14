@@ -5,7 +5,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    internal class SimpleMeasurementMetricConfiguration : IMetricConfiguration
+    internal class SimpleMeasurementMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
         private readonly bool _lifetimeCounter;
         private readonly bool _supportDoubleValues;
@@ -23,22 +23,22 @@ namespace Microsoft.ApplicationInsights.Metrics
             get { return _supportDoubleValues; }
         }
 
-        public SimpleMeasurementMetricConfiguration(bool lifetimeCounter, bool supportDoubleValues)
+        public SimpleMeasurementMetricSeriesConfiguration(bool lifetimeCounter, bool supportDoubleValues)
         {
             _lifetimeCounter = lifetimeCounter;
             _supportDoubleValues = supportDoubleValues;
         }
 
-        public IMetricDataSeriesAggregator CreateNewAggregator(MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
+        public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
             if (_supportDoubleValues)
             {
-                IMetricDataSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleDoubleDataSeriesAggregator(this, dataSeries, consumerKind);
                 return aggregator;
             }
             else
             {
-                IMetricDataSeriesAggregator aggregator = new SimpleUIntDataSeriesAggregator(this, dataSeries, consumerKind);
+                IMetricSeriesAggregator aggregator = new SimpleUIntDataSeriesAggregator(this, dataSeries, consumerKind);
                 return aggregator;
             }
         }

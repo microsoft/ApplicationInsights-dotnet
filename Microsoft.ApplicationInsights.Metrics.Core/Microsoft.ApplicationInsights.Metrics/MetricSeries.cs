@@ -9,30 +9,30 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
-    public sealed class MetricDataSeries
+    public sealed class MetricSeries
     {
         private readonly MetricAggregationManager _aggregationManager;
-        private readonly IMetricConfiguration _configuration;
+        private readonly IMetricSeriesConfiguration _configuration;
         private readonly bool _requiresPersistentAggregator;
         private readonly string _metricId;
         private readonly TelemetryContext _context;
 
-        private IMetricDataSeriesAggregator _aggregatorPersistent;
-        private WeakReference<IMetricDataSeriesAggregator> _aggregatorDefault;
-        private WeakReference<IMetricDataSeriesAggregator> _aggregatorQuickPulse;
-        private WeakReference<IMetricDataSeriesAggregator> _aggregatorCustom;
+        private IMetricSeriesAggregator _aggregatorPersistent;
+        private WeakReference<IMetricSeriesAggregator> _aggregatorDefault;
+        private WeakReference<IMetricSeriesAggregator> _aggregatorQuickPulse;
+        private WeakReference<IMetricSeriesAggregator> _aggregatorCustom;
 
-        private IMetricDataSeriesAggregator _aggregatorRecycleCacheDefault;
-        private IMetricDataSeriesAggregator _aggregatorRecycleCacheQuickPulse;
-        private IMetricDataSeriesAggregator _aggregatorRecycleCacheCustom;
+        private IMetricSeriesAggregator _aggregatorRecycleCacheDefault;
+        private IMetricSeriesAggregator _aggregatorRecycleCacheQuickPulse;
+        private IMetricSeriesAggregator _aggregatorRecycleCacheCustom;
 
-        public IMetricConfiguration Configuration { get { return _configuration; } }
+        public IMetricSeriesConfiguration Configuration { get { return _configuration; } }
 
         public TelemetryContext Context { get { return _context; } }
 
         public string MetricId { get { return _metricId; } }
 
-        internal MetricDataSeries(MetricAggregationManager aggregationManager, string metricId, IMetricConfiguration configuration)
+        internal MetricSeries(MetricAggregationManager aggregationManager, string metricId, IMetricSeriesConfiguration configuration)
         {
             Util.ValidateNotNull(aggregationManager, nameof(aggregationManager));
             Util.ValidateNotNull(metricId, nameof(metricId));
@@ -50,9 +50,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorCustom = null;
         }
 
-        public IMetricDataSeriesAggregator GetCurrentAggregator()
+        public IMetricSeriesAggregator GetCurrentAggregator()
         {
-            IMetricDataSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
+            IMetricSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
                                                             ? _aggregatorPersistent
                                                             : UnwrapAggregator(_aggregatorDefault);
             return aggregator;
@@ -142,7 +142,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackValue(IMetricDataSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
+        private void TrackValue(IMetricSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {
@@ -157,7 +157,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackValue(IMetricDataSeriesAggregator aggregator, double metricValue, ref List<Exception> errors)
+        private void TrackValue(IMetricSeriesAggregator aggregator, double metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {
@@ -172,7 +172,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackValue(IMetricDataSeriesAggregator aggregator, object metricValue, ref List<Exception> errors)
+        private void TrackValue(IMetricSeriesAggregator aggregator, object metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {
@@ -187,14 +187,14 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private IMetricDataSeriesAggregator GetOrCreatePersistentAggregator()
+        private IMetricSeriesAggregator GetOrCreatePersistentAggregator()
         {
-            IMetricDataSeriesAggregator aggregator = _aggregatorPersistent;
+            IMetricSeriesAggregator aggregator = _aggregatorPersistent;
 
             if (aggregator == null)
             {
                 aggregator = _configuration.CreateNewAggregator(this, MetricConsumerKind.Default);
-                IMetricDataSeriesAggregator prevAggregator = Interlocked.CompareExchange(ref _aggregatorPersistent, aggregator, null);
+                IMetricSeriesAggregator prevAggregator = Interlocked.CompareExchange(ref _aggregatorPersistent, aggregator, null);
 
                 if (prevAggregator == null)
                 {
@@ -214,11 +214,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IMetricDataSeriesAggregator UnwrapAggregator(WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef)
+        private static IMetricSeriesAggregator UnwrapAggregator(WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
         {
             if (aggregatorWeakRef != null)
             {
-                IMetricDataSeriesAggregator aggregatorHardRef = null;
+                IMetricSeriesAggregator aggregatorHardRef = null;
                 if (aggregatorWeakRef.TryGetTarget(out aggregatorHardRef))
                 {
                     return aggregatorHardRef;
@@ -228,15 +228,15 @@ namespace Microsoft.ApplicationInsights.Metrics
             return null;
         }
 
-        private IMetricDataSeriesAggregator GetOrCreateAggregator(MetricConsumerKind consumerKind, ref WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef)
+        private IMetricSeriesAggregator GetOrCreateAggregator(MetricConsumerKind consumerKind, ref WeakReference<IMetricSeriesAggregator> aggregatorWeakRef)
         {
             while (true)
             {
                 // Local cache for the reference in case of concurrnet updates:
-                WeakReference<IMetricDataSeriesAggregator> currentAggregatorWeakRef = aggregatorWeakRef;
+                WeakReference<IMetricSeriesAggregator> currentAggregatorWeakRef = aggregatorWeakRef;
 
                 // Try to dereference the weak reference:
-                IMetricDataSeriesAggregator aggregatorHardRef = UnwrapAggregator(currentAggregatorWeakRef);
+                IMetricSeriesAggregator aggregatorHardRef = UnwrapAggregator(currentAggregatorWeakRef);
                 if (aggregatorHardRef != null)
                 {
                     return aggregatorHardRef;
@@ -248,7 +248,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 if (consumerKind != MetricConsumerKind.Default)
                 { 
-                    IMetricDataSeriesFilter dataSeriesFilter;
+                    IMetricSeriesFilter dataSeriesFilter;
                     if (! _aggregationManager.IsConsumerActive(consumerKind, out dataSeriesFilter))
                     {
                         return null;
@@ -266,18 +266,18 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
                     catch
                     {
-                        // Protect against errors in user's implemenmtation of IMetricDataSeriesFilter.IsInterestedIn(..).
+                        // Protect against errors in user's implemenmtation of IMetricSeriesFilter.IsInterestedIn(..).
                         return null;
                     }
                 }
 
                 // Ok, they want to consume us. Create new aggregator and a weak reference to it:
 
-                IMetricDataSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(consumerKind);
-                WeakReference<IMetricDataSeriesAggregator> newAggregatorWeakRef = new WeakReference<IMetricDataSeriesAggregator>(newAggregator, trackResurrection: false);
+                IMetricSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(consumerKind);
+                WeakReference<IMetricSeriesAggregator> newAggregatorWeakRef = new WeakReference<IMetricSeriesAggregator>(newAggregator, trackResurrection: false);
 
                 // Store the weak reference to the aggregator. However, there is a race on doing it, so check for it:
-                WeakReference<IMetricDataSeriesAggregator> prevAggregatorWeakRef = Interlocked.CompareExchange(ref aggregatorWeakRef, newAggregatorWeakRef, currentAggregatorWeakRef);
+                WeakReference<IMetricSeriesAggregator> prevAggregatorWeakRef = Interlocked.CompareExchange(ref aggregatorWeakRef, newAggregatorWeakRef, currentAggregatorWeakRef);
                 if (prevAggregatorWeakRef == currentAggregatorWeakRef)
                 {
                     // We won the race and stored the aggregator. Now tell the manager about it and go on using it.
@@ -308,9 +308,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private IMetricDataSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        private IMetricSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricConsumerKind consumerKind)
         {
-            IMetricDataSeriesAggregator aggregator = GetRecycledAggregatorInstance(consumerKind);
+            IMetricSeriesAggregator aggregator = GetRecycledAggregatorInstance(consumerKind);
             return (aggregator ?? _configuration.CreateNewAggregator(this, consumerKind));
         }
 
@@ -323,14 +323,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="consumerKind"></param>
         /// <returns></returns>
-        private IMetricDataSeriesAggregator GetRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        private IMetricSeriesAggregator GetRecycledAggregatorInstance(MetricConsumerKind consumerKind)
         {
             if (_requiresPersistentAggregator)
             {
                 return null;
             }
 
-            IMetricDataSeriesAggregator aggregator = null;
+            IMetricSeriesAggregator aggregator = null;
             switch (consumerKind)
             {
                 case MetricConsumerKind.Default:
@@ -371,7 +371,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return;
             }
 
-            WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef;
+            WeakReference<IMetricSeriesAggregator> aggregatorWeakRef;
             switch (consumerKind)
             {
                 case MetricConsumerKind.Default:

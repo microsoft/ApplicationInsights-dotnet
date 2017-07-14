@@ -12,11 +12,11 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// This class is intended for internal verification only.
     /// It computes distinct counts in a manner that is very resource intensive and its aggregates cannot be combined across machines.
     /// </summary>
-    internal class NaiveDistinctCountMetricDataSeriesAggregator : DataSeriesAggregatorBase, IMetricDataSeriesAggregator
+    internal class NaiveDistinctCountMetricSeriesAggregator : DataSeriesAggregatorBase, IMetricSeriesAggregator
     {
         private readonly GrowingCollection<string> _values = new GrowingCollection<string>();
 
-        public NaiveDistinctCountMetricDataSeriesAggregator(NaiveDistinctCountMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
+        public NaiveDistinctCountMetricSeriesAggregator(NaiveDistinctCountMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
         }

@@ -9,7 +9,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// </summary>
     public static class MetricManagerExtensions
     {
-        public static bool StartAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter filter)
+        public static bool StartAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             return metricManager.AggregationManager.StartAggregators(consumerKind, tactTimestamp, filter);
@@ -21,7 +21,7 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return metricManager.AggregationManager.StopAggregators(consumerKind, tactTimestamp);
         }
 
-        public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricDataSeriesFilter updatedFilter)
+        public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             return metricManager.AggregationManager.CycleAggregators(consumerKind, tactTimestamp, updatedFilter);
