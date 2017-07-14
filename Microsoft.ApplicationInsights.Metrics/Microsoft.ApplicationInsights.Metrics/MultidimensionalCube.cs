@@ -159,8 +159,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly int[] _dimensionValuesCountLimits;
         private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;
         private readonly Func<TDimensionValue[], TPoint> _pointsFactory;
+        private readonly int _totalPointsCountLimit;
 
-        private int _totalPointsCountLimit;
         private int _totalPointsCount;
 
 
@@ -172,7 +172,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public int TotalPointsCountLimit { get { return Volatile.Read(ref _totalPointsCountLimit); } }
+        public int TotalPointsCountLimit { get { return _totalPointsCountLimit; } }
 
         /// <summary>
         /// 
@@ -261,51 +261,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="newLimit"></param>
-        /// <returns></returns>
-        public int TrySetTotalPointsCountLimit(int newLimit)
-        {
-            if (newLimit < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(newLimit), $"{nameof(newLimit)} must be 1 or larger. Typically much larger.");
-            }
-
-            int origLimit = TotalPointsCountLimit;
-            if (origLimit == newLimit)
-            {
-                return origLimit;
-            }
-
-            if (origLimit < newLimit)
-            {
-                Interlocked.Exchange(ref _totalPointsCountLimit, newLimit);
-                return newLimit;
-            }
-
-            int actualNewLimit = newLimit;
-
-            do
-            {
-                if (actualNewLimit < TotalPointsCount)
-                {
-                    actualNewLimit = TotalPointsCount;
-
-                    if (actualNewLimit >= origLimit)
-                    {
-                        return TotalPointsCountLimit;
-                    }
-                }
-
-                Interlocked.Exchange(ref _totalPointsCountLimit, actualNewLimit);
-            }
-            while (TotalPointsCount >= TotalPointsCountLimit);
-
-            return TotalPointsCountLimit;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="dimension"></param>
         /// <returns></returns>
         public int GetDimensionValuesCountLimit(int dimension)
@@ -321,7 +276,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             int newTotalPointsCount = Interlocked.Increment(ref _totalPointsCount);
 
-            if (newTotalPointsCount <= TotalPointsCountLimit)
+            if (newTotalPointsCount <= _totalPointsCountLimit)
             {
                 return true;
             }
