@@ -1,7 +1,7 @@
 ﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace SampleWebAppIntegration.FunctionalTest
+namespace MVCFramework45.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;

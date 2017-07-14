@@ -1,4 +1,4 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿namespace WebApiShimFw46.FunctionalTests.FunctionalTest
 {
     using System;
     using FunctionalTestUtils;

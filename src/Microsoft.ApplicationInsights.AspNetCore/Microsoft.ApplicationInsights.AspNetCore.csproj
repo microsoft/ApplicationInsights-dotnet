@@ -4,7 +4,7 @@
     <Description>Application Insights for ASP.NET Core web applications. See https://azure.microsoft.com/documentation/articles/app-insights-asp-net-five/ for more information. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
     <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
     <AssemblyTitle>Application Insights for ASP.NET Core Web Applications</AssemblyTitle>
-    <VersionPrefix>2.1.1</VersionPrefix>
+    <VersionPrefix>2.2.0-beta1</VersionPrefix>
     <Authors>Microsoft</Authors>
     <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
     <DelaySign>true</DelaySign>
