@@ -12,15 +12,27 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private const double MicroOne = 0.000001;
 
-        private int _count = 0;
-        private long _min = UInt32.MaxValue;
-        private long _max = UInt32.MinValue;
-        private long _sum = 0;                  // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
-        private long _sumOfSquares = 0;         // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
+        private int _count;
+        private long _min;
+        private long _max;
+        private long _sum;                  // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
+        private long _sumOfSquares;         // Int64 in order to use with Interlocked, but always use casts to get UInt64 semantics.
 
         public SimpleUIntDataSeriesAggregator(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
+            RecycleUnsafe();
+        }
+
+        protected override bool RecycleUnsafe()
+        {
+            _count = 0;
+            _min = UInt32.MaxValue;
+            _max = UInt32.MinValue;
+            _sum = 0;
+            _sumOfSquares = 0;
+
+            return true;
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)

@@ -9,8 +9,11 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         DateTimeOffset PeriodEnd { get; }
         bool IsCompleted { get; }
         MetricDataSeries DataSeries { get; }
+
+        bool SupportsRecycle { get; }
+        bool TryRecycle();
         
-        void Initialize(DateTimeOffset periodEnd, IMetricValueFilter valueFilter);
+        void Initialize(DateTimeOffset periodStart, IMetricValueFilter valueFilter);
         ITelemetry CompleteAggregation(DateTimeOffset periodEnd);
         ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 

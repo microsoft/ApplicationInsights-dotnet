@@ -15,11 +15,13 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MetricDataSeries _dataSeries;
         private readonly MetricConsumerKind _consumerKind;
         private readonly bool _isPersistent;
-
-        private IMetricValueFilter _valueFilter;
+        
         private DateTimeOffset _periodStart;
         private DateTimeOffset _periodEnd;
+        private IMetricValueFilter _valueFilter;
         private int _ongoingUpdates;
+
+        private ITelemetry _completedAggregate;
 
         public DataSeriesAggregatorBase(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
         {
@@ -28,10 +30,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _consumerKind = consumerKind;
             _isPersistent = configuration.RequiresPersistentAggregation;
 
-            _valueFilter = null;
-            _periodStart = default(DateTimeOffset);
-            _periodEnd = default(DateTimeOffset);
-            _ongoingUpdates = InternalExecutionState_Ready;
+            Initialize(default(DateTimeOffset), default(IMetricValueFilter));
         }
 
         public DateTimeOffset PeriodStart { get { return _periodStart; } }
@@ -64,14 +63,26 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        public virtual bool SupportsRecycle { get { return (! _isPersistent); } }
+
         public void Initialize(DateTimeOffset periodStart, IMetricValueFilter valueFilter)
         {
             _periodStart = periodStart;
+            _periodEnd = default(DateTimeOffset);
             _valueFilter = valueFilter;
+            _ongoingUpdates = InternalExecutionState_Ready;
+
+            _completedAggregate = null;
         }
 
         public virtual ITelemetry CompleteAggregation(DateTimeOffset periodEnd)
         {
+            ITelemetry completedAggregate = _completedAggregate;
+            if (completedAggregate != null)
+            {
+                return completedAggregate;
+            }
+
             // Aggregators may transiently have inconsistent state in order to avoid locking.
             // We wait until ongoing updates are complete and then prevent the aggregator from further updating.
             // However, we do NOT do this for persistent aggregators, so they may transinetly inconsistent aggregates.
@@ -83,12 +94,33 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 EnsureUpdatesComplete(periodEnd);
             }
+
             ITelemetry aggregate = CreateAggregateUnsafe(periodEnd);
-            return aggregate;
+            ITelemetry prevCompletedAggregate = Interlocked.CompareExchange(ref _completedAggregate, aggregate, null);
+            return (prevCompletedAggregate ?? aggregate);
+        }
+
+        public bool TryRecycle()
+        {
+            if (_isPersistent)
+            {
+                return false;
+            }
+
+            ITelemetry prevCompletedAgregate = Interlocked.Exchange(ref _completedAggregate, null);
+            if (prevCompletedAgregate == null)
+            {
+                return false;
+            }
+
+            Initialize(default(DateTimeOffset), default(IMetricValueFilter));
+            return RecycleUnsafe();
         }
 
         private void EnsureUpdatesComplete(DateTimeOffset periodEnd)
         {
+            DataSeries.ClearAggregator(_consumerKind);
+
             int prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
 
             if (prevState > InternalExecutionState_Ready)
@@ -112,7 +144,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             if (prevState == InternalExecutionState_Ready)
             {
                 _periodEnd = periodEnd;
-                DataSeries.ClearAggregator(_consumerKind);
             }
         }
 
@@ -244,6 +275,8 @@ namespace Microsoft.ApplicationInsights.Metrics
                 }
             }
         }
+
+        protected abstract bool RecycleUnsafe();
 
         public abstract ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd);
 

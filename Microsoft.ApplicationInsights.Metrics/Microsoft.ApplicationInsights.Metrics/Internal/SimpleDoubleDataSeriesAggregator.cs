@@ -10,15 +10,27 @@ namespace Microsoft.ApplicationInsights.Metrics
 {
     internal class SimpleDoubleDataSeriesAggregator : DataSeriesAggregatorBase, IMetricDataSeriesAggregator
     {
-        private int _count = 0;
-        private double _min = Double.MaxValue;
-        private double _max = Double.MinValue;
-        private double _sum = 0;
-        private double _sumOfSquares = 0;
+        private int _count;
+        private double _min;
+        private double _max;
+        private double _sum;
+        private double _sumOfSquares;
 
         public SimpleDoubleDataSeriesAggregator(IMetricConfiguration configuration, MetricDataSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
+            RecycleUnsafe();
+        }
+
+        protected override bool RecycleUnsafe()
+        {
+            _count = 0;
+            _min = Double.MaxValue;
+            _max = Double.MinValue;
+            _sum = 0.0;
+            _sumOfSquares = 0.0;
+
+            return true;
         }
 
         public override ITelemetry CreateAggregateUnsafe(DateTimeOffset periodEnd)

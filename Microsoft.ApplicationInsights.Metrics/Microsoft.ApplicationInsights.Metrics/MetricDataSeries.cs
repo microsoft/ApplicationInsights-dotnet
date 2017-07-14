@@ -22,6 +22,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         private WeakReference<IMetricDataSeriesAggregator> _aggregatorQuickPulse;
         private WeakReference<IMetricDataSeriesAggregator> _aggregatorCustom;
 
+        private IMetricDataSeriesAggregator _aggregatorRecycleCacheDefault;
+        private IMetricDataSeriesAggregator _aggregatorRecycleCacheQuickPulse;
+        private IMetricDataSeriesAggregator _aggregatorRecycleCacheCustom;
+
         public IMetricConfiguration Configuration { get { return _configuration; } }
 
         public TelemetryContext Context { get { return _context; } }
@@ -210,7 +214,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IMetricDataSeriesAggregator UnwrapAggregator(WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef)
+        private static IMetricDataSeriesAggregator UnwrapAggregator(WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef)
         {
             if (aggregatorWeakRef != null)
             {
@@ -269,7 +273,7 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 // Ok, they want to consume us. Create new aggregator and a weak reference to it:
 
-                IMetricDataSeriesAggregator newAggregator = _configuration.CreateNewAggregator(this, consumerKind);
+                IMetricDataSeriesAggregator newAggregator = GetNewOrRecycledAggregatorInstance(consumerKind);
                 WeakReference<IMetricDataSeriesAggregator> newAggregatorWeakRef = new WeakReference<IMetricDataSeriesAggregator>(newAggregator, trackResurrection: false);
 
                 // Store the weak reference to the aggregator. However, there is a race on doing it, so check for it:
@@ -304,6 +308,62 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        private IMetricDataSeriesAggregator GetNewOrRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        {
+            IMetricDataSeriesAggregator aggregator = GetRecycledAggregatorInstance(consumerKind);
+            return (aggregator ?? _configuration.CreateNewAggregator(this, consumerKind));
+        }
+
+        /// <summary>
+        /// The lifetime of an aggragator can easily be a minute or so. So, it is a relatively small object that can easily get into Gen-2 GC heap,
+        /// but then will need to be reclaimed from there relatively quickly. This can lead to a fragmentation of Gen-2 heap. To avoid this we employ
+        /// a simple form of object pooling: Each data series keeps an instance of a past aggregator and tries to reuse it.
+        /// Aggregator implementations which believe that they are too expensive to recycle for this, can opt out of this strategy by returning FALSE from
+        /// their CanRecycle property.
+        /// </summary>
+        /// <param name="consumerKind"></param>
+        /// <returns></returns>
+        private IMetricDataSeriesAggregator GetRecycledAggregatorInstance(MetricConsumerKind consumerKind)
+        {
+            if (_requiresPersistentAggregator)
+            {
+                return null;
+            }
+
+            IMetricDataSeriesAggregator aggregator = null;
+            switch (consumerKind)
+            {
+                case MetricConsumerKind.Default:
+                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheDefault, null);
+                    break;
+
+                case MetricConsumerKind.QuickPulse:
+                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheQuickPulse, null);
+                    break;
+
+                case MetricConsumerKind.Custom:
+                    aggregator = Interlocked.Exchange(ref _aggregatorRecycleCacheCustom, null);
+                    break;
+            }
+
+            if (aggregator == null)
+            {
+                return null;
+            }
+
+            if (! aggregator.SupportsRecycle)
+            {
+                return null;
+            }
+
+            if (aggregator.TryRecycle())
+            {
+                return aggregator;
+            }
+
+            return null;
+        }
+
         internal void ClearAggregator(MetricConsumerKind consumerKind)
         {
             if (_requiresPersistentAggregator)
@@ -311,18 +371,22 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return;
             }
 
+            WeakReference<IMetricDataSeriesAggregator> aggregatorWeakRef;
             switch (consumerKind)
             {
                 case MetricConsumerKind.Default:
-                    Interlocked.Exchange(ref _aggregatorDefault, null);
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorDefault, null);
+                    _aggregatorRecycleCacheDefault = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 case MetricConsumerKind.QuickPulse:
-                    Interlocked.Exchange(ref _aggregatorQuickPulse, null);
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorQuickPulse, null);
+                    _aggregatorRecycleCacheQuickPulse = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 case MetricConsumerKind.Custom:
-                    Interlocked.Exchange(ref _aggregatorCustom, null);
+                    aggregatorWeakRef = Interlocked.Exchange(ref _aggregatorCustom, null);
+                    _aggregatorRecycleCacheCustom = UnwrapAggregator(aggregatorWeakRef);
                     break;
 
                 default:

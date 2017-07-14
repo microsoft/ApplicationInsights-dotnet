@@ -32,6 +32,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregate;
         }
 
+        public override bool SupportsRecycle { get { return false; } }
+
+        protected override bool RecycleUnsafe()
+        {
+            throw new NotSupportedException();
+        }
+
         protected override void TrackFilteredValue(uint metricValue)
         {
             TrackFilteredValue(metricValue.ToString());
