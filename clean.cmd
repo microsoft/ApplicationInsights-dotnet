@@ -1,3 +1,2 @@
-rmdir /q/s %TEMP%\VisualStudioTestExplorerExtensions\
-rmdir /S /Q ..\bin
-rmdir /S /Q ..\obj
+del /q %TEMP%\VisualStudioTestExplorerExtensions\*
+for /d %%x in (%TEMP%\VisualStudioTestExplorerExtensions\*) do @rd /s /q "%%x"
