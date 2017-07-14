@@ -1,4 +1,4 @@
-﻿namespace SampleWebAppIntegration.FunctionalTest
+﻿namespace MVCFramework45.FunctionalTests.FunctionalTest
 {
     using FunctionalTestUtils;
     using Xunit;

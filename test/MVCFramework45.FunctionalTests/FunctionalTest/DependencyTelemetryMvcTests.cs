@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace SampleWebAppIntegration.FunctionalTest
+namespace MVCFramework45.FunctionalTests.FunctionalTest
 {
     using System;
     using System.Collections.Generic;
