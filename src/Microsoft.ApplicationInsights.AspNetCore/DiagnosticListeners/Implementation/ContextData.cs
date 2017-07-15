@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
 {
-#if NET451
+#if NET451 || NET46
     using System.Runtime.Remoting.Messaging;
     using System.Runtime.Remoting;
 #else
@@ -12,7 +12,7 @@
     /// <typeparam name="T">The type of the ambient data. </typeparam>
     internal class ContextData<T>
     {
-#if NET451
+#if NET451 || NET46
         private static readonly string Key = typeof(ContextData<T>).FullName;
 
 

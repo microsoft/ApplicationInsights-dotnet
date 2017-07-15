@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
     using Microsoft.ApplicationInsights.AspNetCore.Extensibility.Implementation.Tracing;
     using Microsoft.ApplicationInsights.Extensibility;
 
-#if NET451
+#if NET451 || NET46
     using System.IO;
     using System.Net;
 #else
@@ -195,7 +195,7 @@ namespace Microsoft.ApplicationInsights.AspNetCore.DiagnosticListeners
                 }
 
                 string result = null;
-#if NET451
+#if NET451 || NET46
                 WebRequest request = WebRequest.Create(appIdEndpoint);
                 request.Method = "GET";
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false))
