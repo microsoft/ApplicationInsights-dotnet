@@ -181,6 +181,19 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Adds an Application Insights Telemetry Processor into a service collection via a <see cref="ITelemetryProcessorFactory"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the telemetry processor to add.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetryProcessor<T>(this IServiceCollection services) where T : ITelemetryProcessor
+        {
+            return services.AddSingleton<ITelemetryProcessorFactory>(new TelemetryProcessorFactory<T>());
+        }
+
+        /// <summary>
         /// Adds Application Insight specific configuration properties to <see cref="IConfigurationBuilder"/>.
         /// </summary>
         /// <param name="configurationSourceRoot">The <see cref="IConfigurationBuilder"/> instance.</param>
