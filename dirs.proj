@@ -79,7 +79,7 @@
                                     directoryInfo.Create();
                                 }
 
-                                Log.LogMessage("Extracting entry to path:{0}", path);
+                                //Log.LogMessage("Extracting entry to path:{0}", path);
                                 entry.ExtractToFile(path, Overwrite);
                             }
                         }
