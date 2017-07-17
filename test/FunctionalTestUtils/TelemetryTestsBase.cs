@@ -13,7 +13,7 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
-#if NET451
+#if NET451 || NET46
     using System.Net;
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
     using Microsoft.ApplicationInsights.Extensibility;
@@ -119,7 +119,7 @@
 #endif
         }
 
-#if NET451
+#if NET451 || NET46
         public void ValidatePerformanceCountersAreCollected(string assemblyName, Func<IWebHostBuilder, IWebHostBuilder> configureHost = null)
         {
             using (var server = new InProcessServer(assemblyName, configureHost))

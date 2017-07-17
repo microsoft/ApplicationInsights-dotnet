@@ -75,11 +75,11 @@
                                 DirectoryInfo directoryInfo = new DirectoryInfo(fileInfo.DirectoryName);
                                 if (false == directoryInfo.Exists)
                                 {
-                                    Log.LogMessage ("Creating directory for archive entry, path:{0}", directoryInfo.FullName);
+                                    //Log.LogMessage ("Creating directory for archive entry, path:{0}", directoryInfo.FullName);
                                     directoryInfo.Create();
                                 }
 
-                                Log.LogMessage("Extracting entry to path:{0}", path);
+                                //Log.LogMessage("Extracting entry to path:{0}", path);
                                 entry.ExtractToFile(path, Overwrite);
                             }
                         }
