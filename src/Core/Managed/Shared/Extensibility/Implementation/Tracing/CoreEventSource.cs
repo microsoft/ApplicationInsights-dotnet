@@ -419,14 +419,6 @@
             this.WriteEvent(34, this.nameProvider.Name);
         }
 
-        [Event(35,
-            Message = "At least one telemetry channel cannot consume incoming telemetry fast enough. Some telemetry was dropped to prevent out of memory condition.",
-            Level = EventLevel.Warning)]
-        public void TelemetryDroppedToPreventQueueOverflow(string appDomainName = "Incorrect")
-        {
-            this.WriteEvent(35, this.nameProvider.Name);
-        }
-
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>
