@@ -9,6 +9,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     {
         private readonly bool _lifetimeCounter;
         private readonly bool _supportDoubleValues;
+        private readonly int _hashCode;
 
         
         public bool RequiresPersistentAggregation
@@ -27,6 +28,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             _lifetimeCounter = lifetimeCounter;
             _supportDoubleValues = supportDoubleValues;
+
+            unchecked
+            {
+                _hashCode = (17 * 23 + _lifetimeCounter.GetHashCode()) * 23 + _supportDoubleValues.GetHashCode();
+            }
         }
 
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
@@ -74,7 +80,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                 return true;
             }
 
-            return (this.RequiresPersistentAggregation == other.RequiresPersistentAggregation);
+            return (this.RequiresPersistentAggregation == other.RequiresPersistentAggregation)
+                || (this.SupportDoubleValues == other.SupportDoubleValues);
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
         }
     }
 }

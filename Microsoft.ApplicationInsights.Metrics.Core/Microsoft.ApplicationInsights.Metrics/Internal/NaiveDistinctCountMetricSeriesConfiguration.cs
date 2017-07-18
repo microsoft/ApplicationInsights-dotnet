@@ -53,5 +53,10 @@ namespace Microsoft.ApplicationInsights.Metrics
 
             return (this.RequiresPersistentAggregation == other.RequiresPersistentAggregation);
         }
+
+        public override int GetHashCode()
+        {
+            return (17 * 23 + RequiresPersistentAggregation.GetHashCode());
+        }
     }
 }
