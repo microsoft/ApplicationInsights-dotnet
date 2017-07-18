@@ -206,6 +206,35 @@ namespace Microsoft.ApplicationInsights.Metrics
             return series;
         }
 
+        public bool TryGetDataSeries(out MetricSeries series)
+        {
+            series = _zeroDimSeries;
+            return true;
+        }
+
+        public bool TryGetDataSeries(out MetricSeries series, string dimension1Value)
+        {
+            return TryGetDataSeries(out series, dimension1Value, createIfNotExists: true);
+        }
+
+        public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, bool createIfNotExists)
+        {
+            series = GetMetricSeries(createIfNotExists, dimension1Value);
+            return (series != null);
+        }
+
+        public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value)
+        {
+            return TryGetDataSeries(out series, dimension1Value, dimension2Value, createIfNotExists: true);
+        }
+
+        public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value, bool createIfNotExists)
+        {
+            series = GetMetricSeries(createIfNotExists, dimension1Value, dimension2Value);
+            return (series != null);
+        }
+
+
         public void TrackValue(uint metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
@@ -223,57 +252,85 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public bool TryTrackValue(uint metricValue, string dimension1Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
         public bool TryTrackValue(double metricValue, string dimension1Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
         public bool TryTrackValue(object metricValue, string dimension1Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
         public bool TryTrackValue(uint metricValue, string dimension1Value, string dimension2Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value, dimension2Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value, dimension2Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
-            MetricSeries series = GetOrCreateMetricSeries(dimension1Value, dimension2Value);
+            MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
             series?.TrackValue(metricValue);
             return (series != null);
         }
 
-        private MetricSeries GetOrCreateMetricSeries(params string[] dimensionValues)
+        private MetricSeries GetMetricSeries(bool createIfNotExists, params string[] dimensionValues)
         {
-            Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(Configuration.NewSeriesCreationTimeout,
-                                                                                                       CancellationToken.None,
-                                                                                                       Configuration.NewSeriesCreationRetryDelay,
-                                                                                                       dimensionValues);
-            MultidimensionalPointResult<MetricSeries> result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+            if (dimensionValues == null || dimensionValues.Length == 0)
+            {
+                return _zeroDimSeries;
+            }
+
+            if (DimensionsCount != 1)
+            {
+                throw new InvalidOperationException($"Attempted to get a metric series by specifying {dimensionValues.Length} dimension(s),"
+                                                  + $" but this metric has {DimensionsCount} dimensions.");
+            }
+
+            for (int d = 0; d < dimensionValues.Length; d++)
+            {
+                Util.ValidateNotNullOrWhitespace(dimensionValues[d], $"{nameof(dimensionValues)}[{d}]");
+            }
+
+            MultidimensionalPointResult<MetricSeries> result;
+            if (createIfNotExists)
+            {
+                Task<MultidimensionalPointResult<MetricSeries>> t = _metricSeries.TryGetOrCreatePointAsync(Configuration.NewSeriesCreationTimeout,
+                                                                                                           CancellationToken.None,
+                                                                                                           Configuration.NewSeriesCreationRetryDelay,
+                                                                                                           dimensionValues);
+                result = t.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = _metricSeries.TryGetPoint(dimensionValues);
+            }
             return result.IsSuccess ? result.Point : null;
         }
 
-       
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (obj == null)

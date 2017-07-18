@@ -338,6 +338,17 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// </summary>
         /// <param name="coordinates"></param>
         /// <returns></returns>
+        public MultidimensionalPointResult<TPoint> TryGetPoint(params TDimensionValue[] coordinates)
+        {
+            MultidimensionalPointResult<TPoint> result = _points.TryGetVector(coordinates);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
         public Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(params TDimensionValue[] coordinates)
         {
             return TryGetOrCreatePointAsync(timeout:        TimeSpan.FromMilliseconds(11),
