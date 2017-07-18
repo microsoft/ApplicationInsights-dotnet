@@ -3,20 +3,44 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SimpleMeasurementMetricConfiguration : IMetricConfiguration
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int SeriesCountLimit { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int ValuesPerDimensionLimit { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TimeSpan NewSeriesCreationTimeout { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TimeSpan NewSeriesCreationRetryDelay { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
         private readonly int _hashCode;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="seriesCountLimit"></param>
+        /// <param name="valuesPerDimensionLimit"></param>
+        /// <param name="seriesConfig"></param>
         public SimpleMeasurementMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
             : this(seriesCountLimit,
                   valuesPerDimensionLimit,
@@ -26,6 +50,14 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="seriesCountLimit"></param>
+        /// <param name="valuesPerDimensionLimit"></param>
+        /// <param name="newSeriesCreationTimeout"></param>
+        /// <param name="newSeriesCreationRetryDelay"></param>
+        /// <param name="seriesConfig"></param>
         public SimpleMeasurementMetricConfiguration(int seriesCountLimit,
                                                     int valuesPerDimensionLimit,
                                                     TimeSpan newSeriesCreationTimeout,
@@ -77,6 +109,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public override bool Equals(object other)
         {
             if (other != null)
@@ -91,11 +128,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(IMetricConfiguration other)
         {
             return Equals((object) other);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(SimpleMeasurementMetricConfiguration other)
         {
             if (other == null)
@@ -115,6 +162,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                 && (this.SeriesConfig.Equals(other.SeriesConfig));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return _hashCode;

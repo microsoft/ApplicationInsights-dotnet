@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Metric : IEquatable<Metric>, IComparable<Metric>
     {
         private const string NullMetricObjectId = "null";
@@ -113,12 +116,34 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly string[] _dimensionNames;
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string MetricId { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public int DimensionsCount { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Dimension1Name { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Dimension2Name { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public IMetricConfiguration Configuration { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int SeriesCount { get { return 1 + (_metricSeries?.TotalPointsCount ?? 0); } }
 
         internal Metric(MetricManager metricManager, string metricId, string dimension1Name, string dimension2Name, IMetricConfiguration configuration)
@@ -197,6 +222,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             return series;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IReadOnlyCollection<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
 
@@ -206,50 +235,101 @@ namespace Microsoft.ApplicationInsights.Metrics
             return series;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="series"></param>
+        /// <returns></returns>
         public bool TryGetDataSeries(out MetricSeries series)
         {
             series = _zeroDimSeries;
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="dimension1Value"></param>
+        /// <returns></returns>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value)
         {
             return TryGetDataSeries(out series, dimension1Value, createIfNotExists: true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="createIfNotExists"></param>
+        /// <returns></returns>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, bool createIfNotExists)
         {
             series = GetMetricSeries(createIfNotExists, dimension1Value);
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="dimension2Value"></param>
+        /// <returns></returns>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value)
         {
             return TryGetDataSeries(out series, dimension1Value, dimension2Value, createIfNotExists: true);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="series"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="dimension2Value"></param>
+        /// <param name="createIfNotExists"></param>
+        /// <returns></returns>
         public bool TryGetDataSeries(out MetricSeries series, string dimension1Value, string dimension2Value, bool createIfNotExists)
         {
             series = GetMetricSeries(createIfNotExists, dimension1Value, dimension2Value);
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
 
         public void TrackValue(uint metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(double metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(object metricValue)
         {
             _zeroDimSeries.TrackValue(metricValue);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(uint metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
@@ -257,6 +337,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(double metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
@@ -264,6 +350,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(object metricValue, string dimension1Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value);
@@ -271,6 +363,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="dimension2Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(uint metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
@@ -278,6 +377,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="dimension2Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(double metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
@@ -285,6 +391,13 @@ namespace Microsoft.ApplicationInsights.Metrics
             return (series != null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
+        /// <param name="dimension1Value"></param>
+        /// <param name="dimension2Value"></param>
+        /// <returns></returns>
         public bool TryTrackValue(object metricValue, string dimension1Value, string dimension2Value)
         {
             MetricSeries series = GetMetricSeries(true, dimension1Value, dimension2Value);
@@ -342,6 +455,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             return Equals(otherMetric);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(Metric other)
         {
             if (other == null)
@@ -352,11 +470,20 @@ namespace Microsoft.ApplicationInsights.Metrics
             return _objectId.Equals(other._objectId);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         int IComparable<Metric>.CompareTo(Metric other)
         {
             return _objectId.CompareTo(other?._objectId);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return _hashCode;

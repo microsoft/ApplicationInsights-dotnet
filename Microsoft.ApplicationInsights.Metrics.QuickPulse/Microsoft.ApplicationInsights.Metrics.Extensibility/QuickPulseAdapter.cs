@@ -17,6 +17,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
         //public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp)
         //public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <param name="metricSeriesFilter"></param>
+        /// <returns></returns>
         public static
                     bool
                     StartAggregators(object metricManager,
@@ -35,6 +43,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <returns></returns>
         public static
                     Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
                     StopAggregators(object metricManager,
@@ -50,6 +65,14 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <param name="updatedMetricSeriesFilter"></param>
+        /// <returns></returns>
         public static
                     Tuple<IReadOnlyCollection<ITelemetry>, IReadOnlyCollection<ITelemetry>>
                     CycleAggregators(object metricManager,

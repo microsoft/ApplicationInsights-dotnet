@@ -6,15 +6,30 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Microsoft.ApplicationInsights
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class TelemetryClientExtensions
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                        string metricId)
         {
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name: null, dimension2Name: null, metricConfiguration: null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="metricConfiguration"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                       string metricId,
                                       IMetricConfiguration metricConfiguration)
@@ -22,6 +37,13 @@ namespace Microsoft.ApplicationInsights
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name: null, dimension2Name: null, metricConfiguration: metricConfiguration);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="dimension1Name"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                        string metricId,
                                        string dimension1Name)
@@ -31,6 +53,14 @@ namespace Microsoft.ApplicationInsights
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name, dimension2Name: null, metricConfiguration: null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="dimension1Name"></param>
+        /// <param name="metricConfiguration"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                        string metricId,
                                        string dimension1Name,
@@ -41,6 +71,14 @@ namespace Microsoft.ApplicationInsights
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name, dimension2Name: null, metricConfiguration: metricConfiguration);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="dimension1Name"></param>
+        /// <param name="dimension2Name"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                        string metricId,
                                        string dimension1Name,
@@ -52,6 +90,15 @@ namespace Microsoft.ApplicationInsights
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name, dimension2Name, metricConfiguration: null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="dimension1Name"></param>
+        /// <param name="dimension2Name"></param>
+        /// <param name="metricConfiguration"></param>
+        /// <returns></returns>
         public static Metric GetMetric(this TelemetryClient telemetryClient,
                                        string metricId,
                                        string dimension1Name,
@@ -64,6 +111,15 @@ namespace Microsoft.ApplicationInsights
             return GetOrCreateMetric(telemetryClient, metricId, dimension1Name, dimension2Name, metricConfiguration);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryClient"></param>
+        /// <param name="metricId"></param>
+        /// <param name="dimension1Name"></param>
+        /// <param name="dimension2Name"></param>
+        /// <param name="metricConfiguration"></param>
+        /// <returns></returns>
         private static Metric GetOrCreateMetric(TelemetryClient telemetryClient,
                                                 string metricId,
                                                 string dimension1Name,
