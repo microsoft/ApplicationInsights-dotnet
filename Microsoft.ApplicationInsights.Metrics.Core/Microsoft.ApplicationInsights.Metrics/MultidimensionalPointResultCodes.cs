@@ -5,8 +5,9 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008", Justification = "Memory optimized values.")]
     [Flags]
-    public enum MultidimensionalPointResultCode : byte
+    public enum MultidimensionalPointResultCodes : byte
     {
         /// <summary>
         /// 
@@ -31,7 +32,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        Failure_PointDoesntExistCreationNotRequested = 32,
+        Failure_PointDoesNotExistCreationNotRequested = 32,
 
         /// <summary>
         /// 

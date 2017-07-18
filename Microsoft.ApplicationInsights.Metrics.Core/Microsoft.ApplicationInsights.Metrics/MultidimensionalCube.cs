@@ -154,7 +154,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// In practice this is unlikely to be ever reached.
         /// If it nevertheless becomes an issue, we can change the implementation to be iterative and increase this limit.
         /// </summary>
-        public const int DimensionsCountLimit = 50;
+        private const int DimensionsCountLimit = 50;
 
         private readonly int[] _dimensionValuesCountLimits;
         private readonly MultidimensionalCubeDimension<TDimensionValue, TPoint> _points;

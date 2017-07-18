@@ -72,13 +72,13 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            if (other != null)
+            if (obj != null)
             {
-                var otherConfig = other as SimpleMeasurementMetricSeriesConfiguration;
+                var otherConfig = obj as SimpleMeasurementMetricSeriesConfiguration;
                 if (otherConfig != null)
                 {
                     return Equals(otherConfig);

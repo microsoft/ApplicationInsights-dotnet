@@ -12,7 +12,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private const int InternalExecutionState_Completed = -10000;
         private const int InternalExecutionState_Ready = 0;
 
-        private readonly IMetricSeriesConfiguration _configuration;
         private readonly MetricSeries _dataSeries;
         private readonly MetricConsumerKind _consumerKind;
         private readonly bool _isPersistent;
@@ -26,7 +25,6 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public DataSeriesAggregatorBase(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
-            _configuration = configuration;
             _dataSeries = dataSeries;
             _consumerKind = consumerKind;
             _isPersistent = configuration.RequiresPersistentAggregation;

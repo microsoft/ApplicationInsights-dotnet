@@ -4,6 +4,7 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812", Justification = "Needed for internal verification.")]
     internal class NaiveDistinctCountMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
 

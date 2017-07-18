@@ -21,17 +21,21 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleUIntDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
-            RecycleUnsafe();
+            Reset();
         }
 
-        protected override bool RecycleUnsafe()
+        private void Reset()
         {
             _count = 0;
             _min = UInt32.MaxValue;
             _max = UInt32.MinValue;
             _sum = 0;
             _sumOfSquares = 0;
+        }
 
+        protected override bool RecycleUnsafe()
+        {
+            Reset();
             return true;
         }
 

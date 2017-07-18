@@ -99,7 +99,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private DateTimeOffset GetNextCycleTargetTime(DateTimeOffset periodStart)
+        private static DateTimeOffset GetNextCycleTargetTime(DateTimeOffset periodStart)
         {
             // Next tick: (current time rounded down to MINUTE start) + (1 minute) + (small sub-minute offset).
             // The strategy here is to always "tick" at the same offset within a minute.

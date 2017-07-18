@@ -66,12 +66,15 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <returns></returns>
-        public IMetricSeriesAggregator GetCurrentAggregator()
+        public IMetricSeriesAggregator CurrentAggregator
         {
-            IMetricSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
-                                                            ? _aggregatorPersistent
-                                                            : UnwrapAggregator(_aggregatorDefault);
-            return aggregator;
+            get
+            {
+                IMetricSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
+                                                                ? _aggregatorPersistent
+                                                                : UnwrapAggregator(_aggregatorDefault);
+                return aggregator;
+            }
         }
 
         /// <summary>
@@ -176,7 +179,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <param name="aggregator"></param>
         /// <param name="metricValue"></param>
         /// <param name="errors"></param>
-        private void TrackValue(IMetricSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
+        private static void TrackValue(IMetricSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {
@@ -191,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackValue(IMetricSeriesAggregator aggregator, double metricValue, ref List<Exception> errors)
+        private static void TrackValue(IMetricSeriesAggregator aggregator, double metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {
@@ -206,7 +209,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private void TrackValue(IMetricSeriesAggregator aggregator, object metricValue, ref List<Exception> errors)
+        private static void TrackValue(IMetricSeriesAggregator aggregator, object metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)
             {

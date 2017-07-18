@@ -12,14 +12,12 @@ namespace Microsoft.ApplicationInsights.Metrics
         private class AggregatorCollection
         {
             public DateTimeOffset PeriodStart { get; }
-            public DateTimeOffset PeriodEnd { get; private set; }
             public GrowingCollection<IMetricSeriesAggregator> Aggregators { get; }
             public IMetricSeriesFilter Filter { get; }
 
             public AggregatorCollection(DateTimeOffset periodStart, IMetricSeriesFilter filter)
             {
                 this.PeriodStart = periodStart;
-                this.PeriodEnd = DateTimeOffset.MinValue;
                 this.Aggregators = new GrowingCollection<IMetricSeriesAggregator>();
                 this.Filter = Filter;
             }
@@ -128,7 +126,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
-        private bool AddAggregator(IMetricSeriesAggregator aggregator, AggregatorCollection aggregatorCollection)
+        private static bool AddAggregator(IMetricSeriesAggregator aggregator, AggregatorCollection aggregatorCollection)
         {
             if (aggregatorCollection == null)
             {

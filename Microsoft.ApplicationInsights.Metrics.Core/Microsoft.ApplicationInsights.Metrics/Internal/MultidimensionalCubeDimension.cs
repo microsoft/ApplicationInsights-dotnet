@@ -10,7 +10,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MultidimensionalCube<TDimensionValue, TPoint> _ownerCube;
         private readonly int _subdimensionsCountLimit;
         private readonly bool _isLastDimensionLevel;
-        private readonly object _subElementCreationLock = new object();
         private ConcurrentDictionary<TDimensionValue, object> _elements = new ConcurrentDictionary<TDimensionValue, object>();
 
         private int _subdimensionsCount = 0;
@@ -117,7 +116,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 if (_isLastDimensionLevel)
                 {
-                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Success_ExistingPointRetrieved, (TPoint) subElement);
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, (TPoint) subElement);
                     return result;
                 }
                 else
@@ -132,7 +131,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // If we are not to create new elements, we are done:
                 if (! createIfNotExists)
                 {
-                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Failure_PointDoesntExistCreationNotRequested, currentDim);
+                    var result = new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_PointDoesNotExistCreationNotRequested, currentDim);
                     return result;
                 }
                 else
@@ -158,7 +157,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Failure_DimensionValuesCountLimitReached, currentDim);
+                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
@@ -168,7 +167,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // count limit using the same pattern as the dimension values limit:
                 if (! _ownerCube.TryIncTotalPointsCount())
                 {
-                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Failure_TotalPointsCountLimitReached, currentDim);
+                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, currentDim);
                 }
 
                 bool mustRestoreTotalPointsCount = true;
@@ -184,13 +183,13 @@ namespace Microsoft.ApplicationInsights.Metrics
                     {
                         mustRestoreTotalPointsCount = false;
                         mustRestoreSubdimensionsCount = false;
-                        return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Success_NewPointCreated, newPoint);
+                        return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_NewPointCreated, newPoint);
                     }
                     else
                     {
                         // If the point was already in the list, then that other point created by the race winner is the one we want.
                         TPoint existingPoint = (TPoint) _elements[subElementKey];
-                        return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Success_ExistingPointRetrieved, existingPoint);
+                        return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Success_ExistingPointRetrieved, existingPoint);
                     }
                 }
                 finally
@@ -217,7 +216,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             // Check if we reached the dimensions count limit. If we did, we give up. Otherwise we start tracking whether we need to undo the increment later:
             if (! this.TryIncSubdimensionsCount())
             {
-                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Failure_DimensionValuesCountLimitReached, currentDim);
+                return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_DimensionValuesCountLimitReached, currentDim);
             }
 
             bool mustRestoreSubdimensionsCount = true;
@@ -229,7 +228,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                 // (We will do a hard check and pre-booking later when we actually about to create the point.)
                 if (_ownerCube.TotalPointsCount >= _ownerCube.TotalPointsCountLimit)
                 {
-                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCode.Failure_TotalPointsCountLimitReached, currentDim);
+                    return new MultidimensionalPointResult<TPoint>(MultidimensionalPointResultCodes.Failure_TotalPointsCountLimitReached, currentDim);
                 }
 
                 // We are not at the last level. Create the subdimension. Note, we are not under lock, so someone might be creating the same dimention concurrently:

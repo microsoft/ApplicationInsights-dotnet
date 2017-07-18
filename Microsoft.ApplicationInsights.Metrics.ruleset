@@ -17,7 +17,6 @@
     <Rule Id="CA1016" Action="Warning" />
     <Rule Id="CA1018" Action="Warning" />
     <Rule Id="CA1024" Action="Warning" />
-    <Rule Id="CA1028" Action="Warning" />
     <Rule Id="CA1030" Action="Warning" />
     <Rule Id="CA1032" Action="Warning" />
     <Rule Id="CA1033" Action="Warning" />
@@ -44,7 +43,6 @@
     <Rule Id="CA1065" Action="Warning" />
     <Rule Id="CA1302" Action="Warning" />
     <Rule Id="CA1304" Action="Warning" />
-    <Rule Id="CA1305" Action="Warning" />
     <Rule Id="CA1306" Action="Warning" />
     <Rule Id="CA1307" Action="Warning" />
     <Rule Id="CA1308" Action="Warning" />
@@ -143,10 +141,8 @@
     <Rule Id="CA2151" Action="Warning" />
     <Rule Id="CA2200" Action="Warning" />
     <Rule Id="CA2202" Action="Warning" />
-    <Rule Id="CA2204" Action="Warning" />
     <Rule Id="CA2207" Action="Warning" />
     <Rule Id="CA2208" Action="Warning" />
-    <Rule Id="CA2210" Action="Warning" />
     <Rule Id="CA2211" Action="Warning" />
     <Rule Id="CA2212" Action="Warning" />
     <Rule Id="CA2213" Action="Warning" />
@@ -175,5 +171,8 @@
     <Rule Id="CA2242" Action="Warning" />
     <Rule Id="CA2243" Action="Warning" />
     <Rule Id="CA5122" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
+    <Rule Id="CS2002" Action="None" />
   </Rules>
 </RuleSet>

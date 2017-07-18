@@ -19,17 +19,21 @@ namespace Microsoft.ApplicationInsights.Metrics
         public SimpleDoubleDataSeriesAggregator(IMetricSeriesConfiguration configuration, MetricSeries dataSeries, MetricConsumerKind consumerKind)
             : base(configuration, dataSeries, consumerKind)
         {
-            RecycleUnsafe();
+            Reset();
         }
 
-        protected override bool RecycleUnsafe()
+        private void Reset()
         {
             _count = 0;
             _min = Double.MaxValue;
             _max = Double.MinValue;
             _sum = 0.0;
             _sumOfSquares = 0.0;
+        }
 
+        protected override bool RecycleUnsafe()
+        {
+            Reset();
             return true;
         }
 
