@@ -112,11 +112,11 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration SimpleDoubleMeasurement { get { return s_simpleUIntMeasurement; } }
+        public static IMetricConfiguration SimpleDoubleMeasurement { get { return s_simpleDoubleMeasurement; } }
 
         /// <summary>
         /// 
         /// </summary>
-        public static IMetricConfiguration SimpleUIntLifetimeCounter { get { return s_simpleUIntMeasurement; } }
+        public static IMetricConfiguration SimpleUIntLifetimeCounter { get { return s_simpleUIntLifetimeCounter; } }
     }
 }

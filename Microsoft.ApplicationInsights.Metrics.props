@@ -17,8 +17,8 @@
     
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.ruleset'))\Microsoft.ApplicationInsights.Metrics.ruleset</CodeAnalysisRuleSet>
-    
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    
     <StyleCopEnabled>True</StyleCopEnabled>
     <StyleCopTreatErrorsAsWarnings>True</StyleCopTreatErrorsAsWarnings>
     

@@ -8,7 +8,7 @@ namespace Microsoft.ApplicationInsights.Metrics
     /// <summary>
     /// 
     /// </summary>
-    public class Metric : IEquatable<Metric>, IComparable<Metric>
+    public class Metric : IEquatable<Metric>
     {
         private const string NullMetricObjectId = "null";
 
@@ -21,23 +21,23 @@ namespace Microsoft.ApplicationInsights.Metrics
             if (configuration.ValuesPerDimensionLimit < 1)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least one dimension-value per dimesion"
-                                         + $" (but {configuration.ValuesPerDimensionLimit} was specified).",
-                                            nameof(configuration.ValuesPerDimensionLimit));
+                                         + $" (but {configuration.ValuesPerDimensionLimit} was specified"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.ValuesPerDimensionLimit)}).");
             }
 
             if (configuration.SeriesCountLimit < 1)
             {
                 throw new ArgumentException("Metrics must allow at least one data series"
-                                         + $" (but { configuration.SeriesCountLimit } was specified).",
-                                            nameof(configuration.SeriesCountLimit));
+                                         + $" (but { configuration.SeriesCountLimit } was specified)"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
             }
 
             if (dimensionCount > 0 && configuration.SeriesCountLimit < 2)
             {
                 throw new ArgumentException("Multidimensional metrics must allow at least two data series:"
                                          + " 1 for the basic (zero-dimensional) series and 1 additional series"
-                                         + $" (but { configuration.SeriesCountLimit } was specified).",
-                                            nameof(configuration.SeriesCountLimit));
+                                         + $" (but { configuration.SeriesCountLimit } was specified)"
+                                         + $" in {nameof(configuration)}.{nameof(configuration.SeriesCountLimit)}).");
             }
         }
 
@@ -226,9 +226,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// 
         /// </summary>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024: Use properties where appropriate",
+                                                         Justification = "Completes with non-trivial effort. Method is approproiate.")]
         public IReadOnlyCollection<KeyValuePair<string[], MetricSeries>> GetAllSeries()
         {
-
             var series = new List<KeyValuePair<string[], MetricSeries>>(SeriesCount);
             series.Add(new KeyValuePair<string[], MetricSeries>(new string[0], _zeroDimSeries));
             _metricSeries.GetAllPoints(series);
@@ -468,16 +469,6 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
 
             return _objectId.Equals(other._objectId);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        int IComparable<Metric>.CompareTo(Metric other)
-        {
-            return _objectId.CompareTo(other?._objectId);
         }
 
         /// <summary>

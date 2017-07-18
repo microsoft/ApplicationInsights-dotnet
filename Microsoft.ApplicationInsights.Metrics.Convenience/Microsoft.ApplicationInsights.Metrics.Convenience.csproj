@@ -1,7 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- -->
     <TargetFrameworks>net45;netstandard1.5</TargetFrameworks>
+    <!-- -->
+    <!-- 
+    <TargetFramework>net45</TargetFramework>
+    -->
   </PropertyGroup>
 
   <ItemGroup>
