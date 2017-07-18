@@ -1,36 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.5</TargetFrameworks>
   </PropertyGroup>
-
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Global.props'))\Global.props" />
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3.0" />
   </ItemGroup>
   
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+  <PropertyGroup>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
+    <ProjectGuid>{B9938C09-9CB3-45CF-BA3C-847FF85EC750}</ProjectGuid>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.ruleset'))\Microsoft.ApplicationInsights.Metrics.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    <StyleCopEnabled>True</StyleCopEnabled>
-    <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Microsoft.ApplicationInsights.Metrics.props'))\Microsoft.ApplicationInsights.Metrics.props" />
+
+  <PropertyGroup>
+    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.AssemblyInfo.cs</AssemblyAttributesPath>
   </PropertyGroup>
-  
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Version.props'))\Version.props" />
-  
+
 </Project>
