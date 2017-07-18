@@ -9,18 +9,41 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
     /// </summary>
     public static class MetricManagerExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static bool StartAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter filter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             return metricManager.AggregationManager.StartAggregators(consumerKind, tactTimestamp, filter);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <returns></returns>
         public static AggregationPeriodSummary StopAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
             return metricManager.AggregationManager.StopAggregators(consumerKind, tactTimestamp);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricManager"></param>
+        /// <param name="consumerKind"></param>
+        /// <param name="tactTimestamp"></param>
+        /// <param name="updatedFilter"></param>
+        /// <returns></returns>
         public static AggregationPeriodSummary CycleAggregators(this MetricManager metricManager, MetricConsumerKind consumerKind, DateTimeOffset tactTimestamp, IMetricSeriesFilter updatedFilter)
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));
@@ -51,6 +74,13 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             return metricManager.AggregationCycle.StopAsync();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="metricManager"></param>
+        /// <param name="newCacheInstanceFactory"></param>
+        /// <returns></returns>
         public static T GetOrCreateCache<T>(this MetricManager metricManager, Func<MetricManager, T> newCacheInstanceFactory) where T : class
         {
             Util.ValidateNotNull(metricManager, nameof(metricManager));

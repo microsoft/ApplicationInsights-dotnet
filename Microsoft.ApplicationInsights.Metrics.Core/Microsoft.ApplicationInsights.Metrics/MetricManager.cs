@@ -7,6 +7,9 @@ using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class MetricManager
     {
         private readonly MetricAggregationManager _aggregationManager;
@@ -18,6 +21,10 @@ namespace Microsoft.ApplicationInsights.Metrics
         internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
         internal DefaultAggregationPeriodCycle AggregationCycle { get { return _aggregationCycle; } }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryPipeline"></param>
         public MetricManager(TelemetryConfiguration telemetryPipeline)
         {
             Util.ValidateNotNull(telemetryPipeline, nameof(telemetryPipeline));
@@ -29,11 +36,20 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregationCycle.Start();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         ~MetricManager()
         {
             var fireAndForget = this.StopAsync();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricId"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public MetricSeries CreateNewSeries(string metricId, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricId, nameof(metricId));
@@ -43,6 +59,9 @@ namespace Microsoft.ApplicationInsights.Metrics
             return dataSeries;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Flush()
         {
             DateTimeOffset now = DateTimeOffset.Now;

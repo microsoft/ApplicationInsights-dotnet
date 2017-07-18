@@ -9,6 +9,9 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class MetricSeries
     {
         private readonly MetricAggregationManager _aggregationManager;
@@ -26,10 +29,19 @@ namespace Microsoft.ApplicationInsights.Metrics
         private IMetricSeriesAggregator _aggregatorRecycleCacheQuickPulse;
         private IMetricSeriesAggregator _aggregatorRecycleCacheCustom;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IMetricSeriesConfiguration Configuration { get { return _configuration; } }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TelemetryContext Context { get { return _context; } }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string MetricId { get { return _metricId; } }
 
         internal MetricSeries(MetricAggregationManager aggregationManager, string metricId, IMetricSeriesConfiguration configuration)
@@ -50,6 +62,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             _aggregatorCustom = null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IMetricSeriesAggregator GetCurrentAggregator()
         {
             IMetricSeriesAggregator aggregator = _configuration.RequiresPersistentAggregation
@@ -58,6 +74,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             return aggregator;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(uint metricValue)
         {
             List<Exception> errors = null;
@@ -86,6 +106,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(double metricValue)
         {
             List<Exception> errors = null;
@@ -114,6 +138,10 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricValue"></param>
         public void TrackValue(object metricValue)
         {
             List<Exception> errors = null;
@@ -142,6 +170,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aggregator"></param>
+        /// <param name="metricValue"></param>
+        /// <param name="errors"></param>
         private void TrackValue(IMetricSeriesAggregator aggregator, uint metricValue, ref List<Exception> errors)
         {
             if (aggregator != null)

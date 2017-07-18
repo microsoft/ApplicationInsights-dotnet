@@ -5,6 +5,9 @@ using Microsoft.ApplicationInsights.Metrics.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SimpleMeasurementMetricSeriesConfiguration : IMetricSeriesConfiguration
     {
         private readonly bool _lifetimeCounter;
@@ -12,18 +15,29 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly int _hashCode;
 
         
+        /// <summary>
+        /// 
+        /// </summary>
         public bool RequiresPersistentAggregation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _lifetimeCounter; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool SupportDoubleValues
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _supportDoubleValues; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lifetimeCounter"></param>
+        /// <param name="supportDoubleValues"></param>
         public SimpleMeasurementMetricSeriesConfiguration(bool lifetimeCounter, bool supportDoubleValues)
         {
             _lifetimeCounter = lifetimeCounter;
@@ -35,6 +49,12 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataSeries"></param>
+        /// <param name="consumerKind"></param>
+        /// <returns></returns>
         public IMetricSeriesAggregator CreateNewAggregator(MetricSeries dataSeries, MetricConsumerKind consumerKind)
         {
             if (_supportDoubleValues)
@@ -49,6 +69,11 @@ namespace Microsoft.ApplicationInsights.Metrics
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public override bool Equals(object other)
         {
             if (other != null)
@@ -63,11 +88,21 @@ namespace Microsoft.ApplicationInsights.Metrics
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(IMetricSeriesConfiguration other)
         {
             return Equals((object) other);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(SimpleMeasurementMetricSeriesConfiguration other)
         {
             if (other == null)
@@ -84,6 +119,10 @@ namespace Microsoft.ApplicationInsights.Metrics
                 || (this.SupportDoubleValues == other.SupportDoubleValues);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return _hashCode;

@@ -6,11 +6,19 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class TelemetryConfigurationExtensions
     {
         private static MetricManager s_defaultMetricManager = null;
         private static ConditionalWeakTable<TelemetryConfiguration, MetricManager> s_metricManagers = null;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="telemetryPipeline"></param>
+        /// <returns></returns>
         public static MetricManager Metrics(this TelemetryConfiguration telemetryPipeline)
         {
             if (telemetryPipeline == null)
