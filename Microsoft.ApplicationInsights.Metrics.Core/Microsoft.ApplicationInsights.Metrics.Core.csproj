@@ -3,9 +3,7 @@
     <TargetFramework>netstandard1.5</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.4\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
-  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Global.props'))\Global.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3.0" />
@@ -16,8 +14,9 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -28,6 +27,9 @@
     <StyleCopTreatErrorsAsWarnings>False</StyleCopTreatErrorsAsWarnings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.xml</DocumentationFile>
   </PropertyGroup>
-
+  
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Version.props'))\Version.props" />
+  
 </Project>

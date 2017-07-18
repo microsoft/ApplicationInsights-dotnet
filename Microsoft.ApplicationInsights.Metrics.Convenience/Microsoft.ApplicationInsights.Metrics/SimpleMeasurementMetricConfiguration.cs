@@ -15,6 +15,8 @@ namespace Microsoft.ApplicationInsights.Metrics
 
         public IMetricSeriesConfiguration SeriesConfig { get; }
 
+        private readonly int _hashCode;
+
         public SimpleMeasurementMetricConfiguration(int seriesCountLimit, int valuesPerDimensionLimit, IMetricSeriesConfiguration seriesConfig)
             : this(seriesCountLimit,
                   valuesPerDimensionLimit,
@@ -57,6 +59,22 @@ namespace Microsoft.ApplicationInsights.Metrics
             NewSeriesCreationTimeout = NewSeriesCreationTimeout;
             NewSeriesCreationRetryDelay = newSeriesCreationRetryDelay;
             SeriesConfig = seriesConfig;
+
+            _hashCode = ComputeHashCode();
+        }
+
+        private int ComputeHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + SeriesCountLimit.GetHashCode();
+                hash = hash * 23 + ValuesPerDimensionLimit.GetHashCode();
+                hash = hash * 23 + NewSeriesCreationTimeout.GetHashCode();
+                hash = hash * 23 + NewSeriesCreationRetryDelay.GetHashCode();
+                hash = hash * 23 + SeriesConfig.GetHashCode();
+                return hash;
+            }
         }
 
         public override bool Equals(object other)
@@ -95,6 +113,11 @@ namespace Microsoft.ApplicationInsights.Metrics
                 && (this.NewSeriesCreationTimeout == other.NewSeriesCreationTimeout)
                 && (this.NewSeriesCreationRetryDelay == other.NewSeriesCreationRetryDelay)
                 && (this.SeriesConfig.Equals(other.SeriesConfig));
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
         }
     }
 }

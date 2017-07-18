@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- 
+      Semantic Version. See http://semver.org for full details. 
+      Update for every public release. 
+    -->
+    <SemanticVersionMajor>0</SemanticVersionMajor>
+    <SemanticVersionMinor>1</SemanticVersionMinor>
+    <SemanticVersionPatch>0</SemanticVersionPatch>
+
+    <!-- 
+      Date when Semantic Version was changed. 
+      Update for every public release.
+    -->
+    <SemanticVersionDate>2017-07-15</SemanticVersionDate>
+
+    <!-- 
+      Pre-release version is used to distinguish internally built NuGet packages.
+      Pre-release version = Minutes since semantic version was set, divided by 5 (to make it fit in a UInt16).
+    -->
+    <PreReleaseVersion>$([MSBuild]::Divide($([System.DateTime]::Now.Subtract($([System.DateTime]::Parse($(SemanticVersionDate)))).TotalHours), 6).ToString('F0'))</PreReleaseVersion>
+    
+    <AssemblyAttributesPath>$(IntermediateOutputPath)\$(TargetFramework)\Microsoft.ApplicationInsights.Metrics.Core.AssemblyInfo.cs</AssemblyAttributesPath>
+    
+  </PropertyGroup>
+  
+  <ItemGroup>
+  <AssemblyAttributes Include="AssemblyCompany">
+      <_Parameter1>Microsoft</_Parameter1>
+    </AssemblyAttributes>
+    
+    <AssemblyAttributes Include="AssemblyProduct">
+      <_Parameter1>Microsoft Application Insights - Metric Ingestion and Aggregation APIs</_Parameter1>
+    </AssemblyAttributes>
+  </ItemGroup>
+</Project>
