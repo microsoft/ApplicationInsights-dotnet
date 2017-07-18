@@ -2,7 +2,7 @@
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    public interface IMetricSeriesConfiguration
+    public interface IMetricSeriesConfiguration : IEquatable<IMetricSeriesConfiguration>
     {
         bool RequiresPersistentAggregation { get; }
 

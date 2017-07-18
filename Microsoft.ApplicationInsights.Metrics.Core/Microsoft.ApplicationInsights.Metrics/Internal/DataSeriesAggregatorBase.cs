@@ -136,7 +136,7 @@ namespace Microsoft.ApplicationInsights.Metrics
                     if (spinWait.Count % 100 == 0)
                     {
                         //Thread.Sleep(10);
-                        Task.Delay(10).GetAwaiter().GetResult();
+                        Task.Delay(10).ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().GetResult();
                     }
 
                     prevState = Interlocked.CompareExchange(ref _ongoingUpdates, InternalExecutionState_Completed, InternalExecutionState_Ready);
@@ -196,7 +196,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (_valueFilter != null)
             {
-                if (!_valueFilter.WillConsume(_dataSeries, metricValue))
+                if (! _valueFilter.WillConsume(_dataSeries, metricValue))
                 {
                     return;
                 }
@@ -239,7 +239,7 @@ namespace Microsoft.ApplicationInsights.Metrics
         {
             if (_valueFilter != null)
             {
-                if (!_valueFilter.WillConsume(_dataSeries, metricValue))
+                if (! _valueFilter.WillConsume(_dataSeries, metricValue))
                 {
                     return;
                 }

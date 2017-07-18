@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsigh
 		{B9938C09-9CB3-45CF-BA3C-847FF85EC750} = {B9938C09-9CB3-45CF-BA3C-847FF85EC750}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ApplicationInsights.Metrics.QuickPulse", "Microsoft.ApplicationInsights.Metrics.QuickPulse\Microsoft.ApplicationInsights.Metrics.QuickPulse.csproj", "{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{B8B5BCA5-6C7F-4178-B80D-0A781B463542}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8B5BCA5-6C7F-4178-B80D-0A781B463542}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8B5BCA5-6C7F-4178-B80D-0A781B463542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC2E960B-6353-4BA3-A6ED-769C45DB25A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

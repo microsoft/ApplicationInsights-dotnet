@@ -3,6 +3,7 @@
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Metrics.Extensibility;
+using System.Threading;
 
 namespace Microsoft.ApplicationInsights.Metrics
 {
@@ -11,6 +12,8 @@ namespace Microsoft.ApplicationInsights.Metrics
         private readonly MetricAggregationManager _aggregationManager;
         private readonly DefaultAggregationPeriodCycle _aggregationCycle;
         private readonly TelemetryClient _trackingClient;
+
+        private object _metricCache;
 
         internal MetricAggregationManager AggregationManager { get { return _aggregationManager; } }
         internal DefaultAggregationPeriodCycle AggregationCycle { get { return _aggregationCycle; } }
@@ -31,7 +34,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             var fireAndForget = this.StopAsync();
         }
 
-        public MetricSeries CreateNewDataSeries(string metricId, IMetricSeriesConfiguration config)
+        public MetricSeries CreateNewSeries(string metricId, IMetricSeriesConfiguration config)
         {
             Util.ValidateNotNull(metricId, nameof(metricId));
             Util.ValidateNotNull(config, nameof(config));
@@ -76,6 +79,36 @@ namespace Microsoft.ApplicationInsights.Metrics
                     }
                 }
             }
+        }
+
+        internal object GetOrCreateCacheUnsafe(Func<MetricManager, object> newCacheInstanceFactory)
+        {
+            object cache = _metricCache;
+
+            if (cache != null)
+            {
+                return cache;
+            }
+
+            Util.ValidateNotNull(newCacheInstanceFactory, nameof(newCacheInstanceFactory));
+
+            object newCache = null;
+            try
+            {
+                newCache = newCacheInstanceFactory(this);
+            }
+            catch
+            {
+                newCache = null;
+            }
+
+            if (newCache != null)
+            {
+                object prevCache = Interlocked.CompareExchange(ref _metricCache, newCache, null);
+                cache = prevCache ?? newCache;
+            }
+
+            return cache;
         }
     }
 }

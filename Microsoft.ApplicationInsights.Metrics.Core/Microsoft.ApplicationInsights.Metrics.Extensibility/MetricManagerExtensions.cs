@@ -50,5 +50,28 @@ namespace Microsoft.ApplicationInsights.Metrics.Extensibility
             metricManager.Flush();
             return metricManager.AggregationCycle.StopAsync();
         }
+
+        public static T GetOrCreateCache<T>(this MetricManager metricManager, Func<MetricManager, T> newCacheInstanceFactory) where T : class
+        {
+            Util.ValidateNotNull(metricManager, nameof(metricManager));
+
+            object cache =  metricManager.GetOrCreateCacheUnsafe(newCacheInstanceFactory);
+
+            if (cache == null)
+            {
+                return null;
+            }
+
+            T typedCache = cache as T;
+            if (typedCache == null)
+            {
+                throw new InvalidOperationException($"{nameof(MetricManagerExtensions)}.{nameof(GetOrCreateCache)}<T>(..) expected to find a"
+                                                  + $" cache of type {typeof(T).FullName}, but the present cache was of"
+                                                  + $" type {cache.GetType().FullName}. This indicates that multiple extensions attempt to use"
+                                                  + $" the \"Cache\" extension point of the {nameof(MetricManager)} in a conflicting manner.");
+            }
+
+            return typedCache;
+        }
     }
 }

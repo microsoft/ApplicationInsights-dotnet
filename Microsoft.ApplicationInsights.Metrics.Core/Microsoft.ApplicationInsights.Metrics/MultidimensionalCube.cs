@@ -254,7 +254,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             _totalPointsCountLimit = totalPointsCountLimit;
 
             _dimensionValuesCountLimits = dimensionValuesCountLimits;
-            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, dimensionValuesCountLimits[0]);
+            _points = new MultidimensionalCubeDimension<TDimensionValue, TPoint>(this, dimensionValuesCountLimits[0], dimensionValuesCountLimits.Length == 1);
             _pointsFactory = pointsFactory;
         }
 
@@ -294,6 +294,37 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        public IReadOnlyCollection<KeyValuePair<TDimensionValue[], TPoint>> GetAllPoints()
+        {
+            var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
+            GetAllPoints(vectors);
+            return vectors;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pointContainer"></param>
+        public void GetAllPoints(IList<KeyValuePair<TDimensionValue[], TPoint>> pointContainer)
+        {
+            var vectors = new List<KeyValuePair<TDimensionValue[], TPoint>>();
+
+            IReadOnlyCollection<KeyValuePair<IList<TDimensionValue>, TPoint>> reversedVectors = _points.GetAllPointsReversed();
+            foreach (KeyValuePair<IList<TDimensionValue>, TPoint> rv in reversedVectors)
+            {
+                var v = new KeyValuePair<TDimensionValue[], TPoint>(new TDimensionValue[rv.Key.Count], rv.Value);
+                int lastI = rv.Key.Count - 1;
+                for (int i = lastI; i >= 0; i--)
+                {
+                    v.Key[lastI - i] = rv.Key[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="coordinates"></param>
         /// <returns></returns>
         public MultidimensionalPointResult<TPoint> TryGetOrCreatePoint(params TDimensionValue[] coordinates)
@@ -325,14 +356,35 @@ namespace Microsoft.ApplicationInsights.Metrics
         /// <returns></returns>
         public async Task<MultidimensionalPointResult<TPoint>> TryGetOrCreatePointAsync(TimeSpan timeout, CancellationToken cancelToken, TimeSpan sleepDuration, params TDimensionValue[] coordinates)
         {
-            if (Math.Round(timeout.TotalMilliseconds) > (double) Int32.MaxValue)
+            MultidimensionalPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
+            if (result.IsSuccess)
             {
-                throw new ArgumentOutOfRangeException(nameof(timeout));
+                return result;
+            }
+
+            bool infiniteTimeout = (timeout == Timeout.InfiniteTimeSpan);
+
+            if (! infiniteTimeout)
+            { 
+                if (Math.Round(timeout.TotalMilliseconds) >= (double) Int32.MaxValue)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be smaller than {Int32.MaxValue} msec.");
+                }
+
+                if (Math.Round(timeout.TotalMilliseconds) < 1)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(timeout), $"{nameof(timeout)} must be positive or Infinite.");
+                }
             }
 
             if (Math.Round(sleepDuration.TotalMilliseconds) > (double) Int32.MaxValue)
             {
-                throw new ArgumentOutOfRangeException(nameof(sleepDuration));
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be smaller than {Int32.MaxValue} msec.");
+            }
+
+            if (Math.Round(sleepDuration.TotalMilliseconds) < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sleepDuration), $"{nameof(sleepDuration)} must be non-negative.");
             }
 
             int timeoutMillis = (int) Math.Round(timeout.TotalMilliseconds);
@@ -345,7 +397,7 @@ namespace Microsoft.ApplicationInsights.Metrics
             {
                 cancelToken.ThrowIfCancellationRequested();
 
-                MultidimensionalPointResult<TPoint> result = this.TryGetOrCreatePoint(coordinates);
+                result = this.TryGetOrCreatePoint(coordinates);
                 if (result.IsSuccess)
                 {
                     return result;
@@ -353,7 +405,9 @@ namespace Microsoft.ApplicationInsights.Metrics
 
                 int currentMillis = Environment.TickCount;
 
-                int delayMillis = Math.Min(stopMillis - currentMillis, sleepMillis);
+                int delayMillis = infiniteTimeout
+                                        ? sleepMillis
+                                        : Math.Min(stopMillis - currentMillis, sleepMillis);
 
                 if (delayMillis < 0)
                 {

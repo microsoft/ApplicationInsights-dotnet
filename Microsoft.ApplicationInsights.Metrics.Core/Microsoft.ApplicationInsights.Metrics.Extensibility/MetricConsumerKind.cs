@@ -2,7 +2,7 @@
 
 namespace Microsoft.ApplicationInsights.Metrics.Extensibility
 {
-    public enum MetricConsumerKind
+    public enum MetricConsumerKind : Int32
     {
         Default,
         QuickPulse,

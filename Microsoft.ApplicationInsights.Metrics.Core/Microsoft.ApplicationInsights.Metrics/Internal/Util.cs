@@ -30,41 +30,6 @@ namespace Microsoft.ApplicationInsights.Metrics
         }
 
         /// <summary>
-        /// String paramater check with a little more informative exception.
-        /// </summary>
-        /// <param name="value">Value to be checked.</param>
-        /// <param name="name">Name of the parameter being checked.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ValidateNotNullOrEmpty(string value, string name)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(name ?? Util.FallbackParemeterName);
-            }
-
-            if (value.Length == 0)
-            {
-                throw new ArgumentException($"{name ?? Util.FallbackParemeterName} may not be empty.");
-            }
-        }
-
-        /// <summary>
-        /// String paramater check with a little more informative exception.
-        /// </summary>
-        /// <param name="value">Value to be checked.</param>
-        /// <param name="name">Name of the parameter being checked.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ValidateNotNullOrWhitespace(string value, string name)
-        {
-            ValidateNotNullOrEmpty(value, name);
-
-            if (String.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException($"{name ?? Util.FallbackParemeterName} may not be whitespace only.");
-            }
-        }
-
-        /// <summary>
         /// We are working on adding a publically exposed method to a future version of the Core SDK so that the reflection employed here is not necesary.
         /// </summary>
         /// <param name="source"></param>
