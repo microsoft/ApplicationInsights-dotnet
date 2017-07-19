@@ -148,7 +148,6 @@
         {
             Debug.Assert(properties != null, "properties parameter should not be null");
             var other = new TelemetryContext(properties);
-            Utils.CopyDictionary(this.tags, other.tags);
             other.InstrumentationKey = this.InstrumentationKey;
             return other;
         }
