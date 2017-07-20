@@ -190,7 +190,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddApplicationInsightsTelemetryProcessor<T>(this IServiceCollection services) where T : ITelemetryProcessor
         {
-            return services.AddSingleton<ITelemetryProcessorFactory>(new TelemetryProcessorFactory<T>());
+            return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider => new TelemetryProcessorFactory<T>(serviceProvider));
         }
 
         /// <summary>
