@@ -359,6 +359,21 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.True(telemetryProcessor.IsInitialized);
             }
 
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithNullTelemetryProcessorTypeThrows()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Assert.Throws<ArgumentNullException>(() => services.AddApplicationInsightsTelemetryProcessor(null));
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithNonTelemetryProcessorTypeThrows()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(string)));
+                Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(ITelemetryProcessor)));
+            }
+
 #if NET451
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
