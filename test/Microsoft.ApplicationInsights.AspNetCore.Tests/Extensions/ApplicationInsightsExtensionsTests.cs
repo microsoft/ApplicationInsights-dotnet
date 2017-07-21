@@ -25,7 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Options;
 
-#if NET451
+#if NET451 || NET46
     using ApplicationInsights.Extensibility.PerfCounterCollector;
     using ApplicationInsights.WindowsServer.TelemetryChannel;
     using ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -329,7 +329,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 var modules = serviceProvider.GetServices<ITelemetryModule>();
                 Assert.NotNull(modules);
 
-#if NET451
+#if NET451 || NET46
                 Assert.Equal(2, modules.Count());
                 var perfCounterModule = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(PerformanceCollectorModule));
                 Assert.NotNull(perfCounterModule);
@@ -374,7 +374,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(ITelemetryProcessor)));
             }
 
-#if NET451
+#if NET451 || NET46
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
             {

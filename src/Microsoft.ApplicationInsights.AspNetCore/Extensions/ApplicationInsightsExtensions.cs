@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Options;
 
-#if NET451
+#if NET451 || NET46
     using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 #endif
 
@@ -153,7 +153,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     return module;
                 });
 
-#if NET451
+#if NET451 || NET46
                 services.AddSingleton<ITelemetryModule, PerformanceCollectorModule>();
 #endif
                 services.AddSingleton<TelemetryConfiguration>(provider => provider.GetService<IOptions<TelemetryConfiguration>>().Value);

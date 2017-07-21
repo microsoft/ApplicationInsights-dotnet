@@ -14,7 +14,7 @@
         [Fact]
         public void CorrelationInfoIsPropagatedToDependendedService()
         {
-#if !NET451 // Correlation is not supported in NET451. It works with NET46 and .Net core.
+#if netcoreapp1_0 // Correlation works on .Net core.
             InProcessServer server;
 
             using (server = new InProcessServer(assemblyName, InProcessServer.UseApplicationInsights))

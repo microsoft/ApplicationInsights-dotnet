@@ -18,7 +18,7 @@
         [Fact]
         public void TestIfPerformanceCountersAreCollected()
         {
-#if NET451
+#if NET451 || NET46
             ValidatePerformanceCountersAreCollected(assemblyName);
 #endif
         }
