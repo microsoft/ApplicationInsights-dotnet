@@ -374,6 +374,19 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(ITelemetryProcessor)));
             }
 
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithImportingConstructor()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddApplicationInsightsTelemetryProcessor<FakeTelemetryProcessorWithImportingConstructor>();
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
+                Assert.NotNull(telemetryProcessor);
+                Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
+            }
+
 #if NET451 || NET46
             [Fact]
             public static void AddsAddaptiveSamplingServiceToTheConfigurationInFullFrameworkByDefault()
