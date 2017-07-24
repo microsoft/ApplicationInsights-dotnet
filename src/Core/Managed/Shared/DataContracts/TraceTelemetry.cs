@@ -47,6 +47,19 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TraceTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="TraceTelemetry"/> to clone from.</param>
+        private TraceTelemetry(TraceTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+        }
+
+        /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
@@ -99,6 +112,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="TraceTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new TraceTelemetry(this);
         }
 
         /// <summary>

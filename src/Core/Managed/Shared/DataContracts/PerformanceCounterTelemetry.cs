@@ -41,6 +41,17 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceCounterTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="PerformanceCounterTelemetry"/> to clone from.</param>
+        private PerformanceCounterTelemetry(PerformanceCounterTelemetry source)
+        {
+            this.Data = (MetricTelemetry)source.Data.DeepClone();
+            this.categoryName = source.categoryName;
+            this.counterName = source.counterName;
+        }
+
+        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public DateTimeOffset Timestamp
@@ -161,6 +172,15 @@
         public IDictionary<string, string> Properties
         {
             get { return this.Data.Properties; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="PerformanceCounterTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new PerformanceCounterTelemetry(this);
         }
 
         /// <summary>

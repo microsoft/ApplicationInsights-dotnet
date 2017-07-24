@@ -91,7 +91,7 @@
 
                 Assert.True(timer.IsStarted);
 
-                actionStarted.Wait(50);
+                actionStarted.Wait(1000);
 
                 Assert.False(timer.IsStarted);
 
@@ -115,9 +115,8 @@
 
                     timer.Start(() => { actionInvoked.Set(); return null; });
 
-                    Assert.True(actionInvoked.Wait(50));
-                    Thread.Sleep(1000);
-
+                    Assert.True(actionInvoked.Wait(1000));
+                    // Listener will wait for up to 5 seconds for incoming messages so no need to delay/sleep here.
                     Assert.Null(listener.Messages.FirstOrDefault());
                 }
             }
@@ -132,7 +131,7 @@
                 timer.Start(() => Task.Factory.StartNew(actionInvoked.Set));
 
                 Assert.False(actionInvoked.IsSet);
-                Assert.True(actionInvoked.Wait(50));
+                Assert.True(actionInvoked.Wait(1000));
             }
 
             [TestMethod]
@@ -151,7 +150,7 @@
                             lastActionInvoked.Set();
                         }));
 
-                Assert.True(lastActionInvoked.Wait(50));
+                Assert.True(lastActionInvoked.Wait(1000));
                 Assert.Equal(1, invokationCount);
             }
 

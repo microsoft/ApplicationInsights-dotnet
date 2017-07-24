@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AsyncTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DeterministicTaskScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StubSynchronizationContext.cs" />

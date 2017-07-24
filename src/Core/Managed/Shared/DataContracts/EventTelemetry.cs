@@ -39,6 +39,15 @@
             this.Name = name;
         }
 
+        private EventTelemetry(EventTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+        }
+
         /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
@@ -92,6 +101,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="EventTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new EventTelemetry(this);
         }
 
         /// <summary>

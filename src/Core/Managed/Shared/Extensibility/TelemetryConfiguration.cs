@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.DataContracts;
-    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
 
@@ -24,7 +24,7 @@
         private static TelemetryConfiguration active;
 
         private readonly SnapshottingList<ITelemetryInitializer> telemetryInitializers = new SnapshottingList<ITelemetryInitializer>();
-        private ITelemetryChannel telemetryChannel = null;
+        private readonly TelemetrySinkCollection telemetrySinks = new TelemetrySinkCollection();
         private TelemetryProcessorChain telemetryProcessorChain;
         private string instrumentationKey = string.Empty;
         private bool disableTelemetry = false;
@@ -37,26 +37,19 @@
         private bool isDisposed = false;
 
         /// <summary>
-        /// Indicates if we created the telemetry channel and should therefore dispose of it.
-        /// </summary>
-        private bool shouldDisposeChannel = false;
-
-        /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public TelemetryConfiguration() : this(string.Empty, new InMemoryChannel())
+        public TelemetryConfiguration() : this(string.Empty, null)
         {
-            this.shouldDisposeChannel = true;
         }
 
         /// <summary>
         /// Initializes a new instance of the TelemetryConfiguration class.
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key this configuration instance will provide.</param>
-        public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, new InMemoryChannel())
+        public TelemetryConfiguration(string instrumentationKey) : this(instrumentationKey, null)
         {
-            this.shouldDisposeChannel = true;
         }
 
         /// <summary>
@@ -66,18 +59,14 @@
         /// <param name="channel">The telemetry channel to provide with this configuration instance.</param>
         public TelemetryConfiguration(string instrumentationKey, ITelemetryChannel channel)
         {
-            if (channel == null)
-            {
-                throw new ArgumentNullException("channel");
-            }
-
             if (instrumentationKey == null)
             {
                 throw new ArgumentNullException("instrumentationKey");
             }
 
             this.instrumentationKey = instrumentationKey;
-            this.telemetryChannel = channel;
+            var defaultSink = new TelemetrySink(this, channel);
+            this.telemetrySinks.Add(defaultSink);
         }
 
         /// <summary>
@@ -214,29 +203,34 @@
         }
 
         /// <summary>
-        /// Gets or sets the telemetry channel.
+        /// Gets or sets the telemetry channel for the default sink.
         /// </summary>
         public ITelemetryChannel TelemetryChannel
         {
             get
             {
-                return this.telemetryChannel;
+                // We do not ensure not disposed here because TelemetryChannel is accessed during configuration disposal.
+                return this.telemetrySinks.DefaultSink.TelemetryChannel;
             }
 
             set
             {
-                ITelemetryChannel oldChannel = this.telemetryChannel;
-                this.telemetryChannel = value;
-
-                // If we have a previously assigned channel which was created by us and is not the same one as the
-                // "new" value passed in then we need to dispose of the old channel to keep from leaking resources.
-                if (oldChannel != null && oldChannel != value && this.shouldDisposeChannel)
+                if (!this.isDisposed)
                 {
-                    oldChannel.Dispose();
-                    this.shouldDisposeChannel = false; // The new one wasn't created by us so it should be managed by whoever created it.
+                    this.telemetrySinks.DefaultSink.TelemetryChannel = value;
                 }
             }
         }
+
+        /// <summary>
+        /// Gets a list of telemetry sinks associated with the configuration.
+        /// </summary>
+        public IList<TelemetrySink> TelemetrySinks => this.telemetrySinks;
+
+        /// <summary>
+        /// Gets the default telemetry sink.
+        /// </summary>
+        public TelemetrySink DefaultTelemetrySink => this.telemetrySinks.DefaultSink;
 
         /// <summary>
         /// Gets the list of <see cref="IMetricProcessor"/> objects used for custom metric data processing        
@@ -323,17 +317,28 @@
                 this.isDisposed = true;
                 Interlocked.CompareExchange(ref active, null, this);
 
-                if (this.shouldDisposeChannel && this.telemetryChannel != null)
-                {
-                    this.telemetryChannel.Dispose();
-                    this.telemetryChannel = null;
-                }
-
                 if (this.telemetryProcessorChain != null)
                 {
                     // Not setting this.telemetryProcessorChain to null because calls to the property getter would reinitialize it.
                     this.telemetryProcessorChain.Dispose();
                 }
+
+                foreach (TelemetrySink sink in this.telemetrySinks)
+                {
+                    sink.Dispose();
+                    if (!object.ReferenceEquals(sink, this.telemetrySinks.DefaultSink))
+                    {
+                        this.telemetrySinks.Remove(sink);
+                    }
+                }
+            }
+        }
+
+        private void EnsureNotDisposed()
+        {
+            if (this.isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(TelemetryConfiguration));
             }
         }
     }

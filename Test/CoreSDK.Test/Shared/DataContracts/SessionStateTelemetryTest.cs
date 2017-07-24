@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.ApplicationInsights.DataContracts
 {
-    using Microsoft.ApplicationInsights.Channel;
     using AI;
+    using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+    using KellermanSoftware.CompareNetObjects;
 
     [TestClass]
     public class SessionStateTelemetryTest
@@ -53,6 +53,19 @@
             TelemetryItem<EventData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, EventData>(telemetry);
             Assert.Equal("Session ended", envelope.data.baseData.name);
             Assert.Equal(2, envelope.data.baseData.ver);
+        }
+
+        [TestMethod]
+        public void SessionStateTelemetryDeepCloneCopiesAllProperties()
+        {
+            var telemetry = new SessionStateTelemetry();
+            telemetry.State = SessionState.End;
+            var other = telemetry.DeepClone();
+
+            CompareLogic deepComparator = new CompareLogic();
+
+            var result = deepComparator.Compare(telemetry, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
 #pragma warning restore 618
     }

@@ -79,6 +79,19 @@ namespace Microsoft.ApplicationInsights.DataContracts
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DependencyTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="DependencyTelemetry"/> to clone from.</param>
+        private DependencyTelemetry(DependencyTelemetry source)
+        {
+            this.InternalData = source.InternalData.DeepClone();
+            this.context = source.context.DeepClone(this.InternalData.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+        }
+
+        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public override DateTimeOffset Timestamp { get; set; }
@@ -232,6 +245,15 @@ namespace Microsoft.ApplicationInsights.DataContracts
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="DependencyTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public override ITelemetry DeepClone()
+        {
+            return new DependencyTelemetry(this);
         }
 
         /// <summary>

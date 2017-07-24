@@ -35,6 +35,15 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="SessionStateTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="SessionStateTelemetry"/> to clone from.</param>
+        private SessionStateTelemetry(SessionStateTelemetry source)
+        {
+            this.Data = (EventTelemetry)source.Data.DeepClone();
+        }
+
+        /// <summary>
         /// Gets or sets the date and time the session state was recorded.
         /// </summary>
         public DateTimeOffset Timestamp
@@ -102,6 +111,15 @@
                     this.Data.Name = this.endEventName;
                 }
             }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="SessionStateTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new SessionStateTelemetry(this);
         }
 
         /// <summary>

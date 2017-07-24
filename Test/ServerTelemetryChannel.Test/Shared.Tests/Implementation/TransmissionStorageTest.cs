@@ -657,7 +657,7 @@
 
             // The test timeout must be large enough to account for potential conflicts in the storage dequeue that
             // cause small sleeps of up to 100 ms each plus the overhead of the test runner itself.
-            [TestMethod, Timeout(250)]
+            [TestMethod, Timeout(1000)]
             public void DoesNotEndlesslyTryToLoadFileTheProcessNoLongerHasAccessTo()
             {
                 StubPlatformFile inaccessibleFile = CreateFile("InaccessibleFile.trn");

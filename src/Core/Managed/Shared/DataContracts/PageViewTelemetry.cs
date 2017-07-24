@@ -48,6 +48,16 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PageViewTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="PageViewTelemetry"/> to clone from.</param>
+        private PageViewTelemetry(PageViewTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+        }
+
+        /// <summary>
         /// Gets or sets date and time when event was recorded.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
@@ -137,6 +147,15 @@
         {
             get { return this.samplingPercentage; }
             set { this.samplingPercentage = value; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="PageViewTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new PageViewTelemetry(this);
         }
 
         /// <summary>

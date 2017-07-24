@@ -6,6 +6,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using KellermanSoftware.CompareNetObjects;
 
     [TestClass]
     public class DependencyTelemetryTest
@@ -150,6 +151,19 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<DependencyTelemetry, AI.RemoteDependencyData>(telemetry);
 
             Assert.Equal(10, item.sampleRate);
+        }
+
+        [TestMethod]
+        public void DependencyTelemetryDeepCloneCopiesAllProperties()
+        {
+            DependencyTelemetry telemetry = CreateRemoteDependencyTelemetry();
+            DependencyTelemetry other = (DependencyTelemetry)telemetry.DeepClone();
+
+            ComparisonConfig comparisonConfig = new ComparisonConfig();
+            CompareLogic deepComparator = new CompareLogic(comparisonConfig);
+
+            ComparisonResult result = deepComparator.Compare(telemetry, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()

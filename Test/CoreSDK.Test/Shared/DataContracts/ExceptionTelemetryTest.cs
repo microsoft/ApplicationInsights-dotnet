@@ -14,7 +14,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
-    
+    using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
     [TestClass]
     public class ExceptionTelemetryTest
@@ -436,6 +436,18 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(telemetry);
 
             Assert.Equal(10, item.sampleRate);
+        }
+
+        [TestMethod]
+        public void ExceptionTelemetryDeepCloneCopiesAllProperties()
+        {
+            var telemetry = CreateExceptionTelemetry(CreateExceptionWithStackTrace());
+            var other = telemetry.DeepClone();
+
+            CompareLogic deepComparator = new CompareLogic();
+
+            var result = deepComparator.Compare(telemetry, other);
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
 
         private static Exception CreateExceptionWithStackTrace()

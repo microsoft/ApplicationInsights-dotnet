@@ -50,6 +50,20 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="ExceptionTelemetry"/> to clone from.</param>
+        private ExceptionTelemetry(ExceptionTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+            this.samplingPercentage = source.samplingPercentage;
+            this.Exception = source.Exception;
+        }
+
+        /// <summary>
         /// Gets or sets date and time when telemetry was recorded.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
@@ -188,6 +202,15 @@
         internal IList<ExceptionDetails> Exceptions
         {
             get { return this.Data.exceptions; }
+        }
+
+        /// <summary>
+        /// Deeply clones a <see cref="ExceptionTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new ExceptionTelemetry(this);
         }
 
 #if !NETSTANDARD1_3

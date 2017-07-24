@@ -46,6 +46,18 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AvailabilityTelemetry"/> class by cloning an existing instance.
+        /// </summary>
+        /// <param name="source">Source instance of <see cref="AvailabilityTelemetry"/> to clone from.</param>
+        private AvailabilityTelemetry(AvailabilityTelemetry source)
+        {
+            this.Data = source.Data.DeepClone();
+            this.context = source.context.DeepClone(this.Data.properties);
+            this.Sequence = source.Sequence;
+            this.Timestamp = source.Timestamp;
+        }
+
+        /// <summary>
         /// Gets or sets the test run id.
         /// </summary>
         public string Id
@@ -143,6 +155,15 @@
         public DateTimeOffset Timestamp
         {
             get; set;
+        }
+
+        /// <summary>
+        /// Deeply clones an  <see cref="AvailabilityTelemetry"/> object.
+        /// </summary>
+        /// <returns>A cloned instance.</returns>
+        public ITelemetry DeepClone()
+        {
+            return new AvailabilityTelemetry(this);
         }
 
         /// <summary>

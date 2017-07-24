@@ -7,6 +7,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+    using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
     [TestClass]
     public class MetricTelemetryTest
@@ -267,6 +268,28 @@
             MetricTelemetry telemetry = new MetricTelemetry();
 
             Assert.Equal(1, telemetry.Count);
+        }
+
+        [TestMethod]
+        public void MetricTelemetryDeepCloneCopiesAllProperties()
+        {
+            var metric = new MetricTelemetry();
+
+            metric.Name = "My Page";
+#pragma warning disable CS0618
+            metric.Value = 42;
+#pragma warning restore CS0618
+            metric.Count = 5;
+            metric.Min = 1.2;
+            metric.Max = 6.4;
+            metric.StandardDeviation = 0.5;
+            metric.Properties.Add("Property1", "Value1");
+
+            MetricTelemetry other = (MetricTelemetry)metric.DeepClone();
+
+            CompareLogic deepComparator = new CompareLogic();
+            var comparisonResult = deepComparator.Compare(metric, other);
+            Assert.True(comparisonResult.AreEqual, comparisonResult.DifferencesString);
         }
     }
 }

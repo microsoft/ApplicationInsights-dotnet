@@ -31,7 +31,7 @@
             var configuration = new TelemetryConfiguration("Test key", channel);
             var client = new TelemetryClient(configuration);
 
-            var transmissionProcessor = new TransmissionProcessor(configuration);
+            var transmissionProcessor = new TransmissionProcessor(configuration.TelemetryChannel);
 
             const int ItemsToGenerate = 100;
 
@@ -70,7 +70,7 @@
             };
             var configuration = new TelemetryConfiguration("Test key", channel);
             var client = new TelemetryClient(configuration);
-            var transmissionProcessor = new TransmissionProcessor(configuration);
+            var transmissionProcessor = new TransmissionProcessor(configuration.TelemetryChannel);
 
             const int ItemsToGenerate = 100;
             Random random = new Random();

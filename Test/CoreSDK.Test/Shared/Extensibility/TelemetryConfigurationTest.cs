@@ -28,20 +28,22 @@
         public void NewTelemetryConfigurationWithChannelUsesSpecifiedChannel()
         {
             StubTelemetryChannel stubChannel = new StubTelemetryChannel();
+            bool channelDisposed = false;
+            stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(string.Empty, stubChannel);
             Assert.Same(stubChannel, config.TelemetryChannel);
-            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-            Assert.False((bool)shouldDisposeChannelField.GetValue(config));
+            config.Dispose();
+            Assert.False(channelDisposed);
         }
 
         [TestMethod]
         public void NewTelemetryConfigurationWithoutChannelCreatesDefaultInMemoryChannel()
         {
             TelemetryConfiguration config = new TelemetryConfiguration();
-            Assert.NotNull(config.TelemetryChannel);
-            Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
-            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-            Assert.True((bool)shouldDisposeChannelField.GetValue(config));
+            var channel = config.TelemetryChannel as Channel.InMemoryChannel;
+            Assert.NotNull(channel);
+            config.Dispose();
+            Assert.True(channel.IsDisposed);
         }
 
         [TestMethod]
@@ -49,11 +51,13 @@
         {
             string expectedKey = "expected";
             StubTelemetryChannel stubChannel = new StubTelemetryChannel();
+            bool channelDisposed = false;
+            stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey, stubChannel);
             Assert.Equal(expectedKey, config.InstrumentationKey);
             Assert.Same(stubChannel, config.TelemetryChannel);
-            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-            Assert.False((bool)shouldDisposeChannelField.GetValue(config));
+            config.Dispose();
+            Assert.False(channelDisposed);
         }
 
         [TestMethod]
@@ -62,10 +66,10 @@
             string expectedKey = "expected";
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey);
             Assert.Equal(expectedKey, config.InstrumentationKey);
-            Assert.NotNull(config.TelemetryChannel);
-            Assert.Equal(typeof(Channel.InMemoryChannel), config.TelemetryChannel.GetType());
-            FieldInfo shouldDisposeChannelField = typeof(TelemetryConfiguration).GetField("shouldDisposeChannel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-            Assert.True((bool)shouldDisposeChannelField.GetValue(config));
+            var channel = config.TelemetryChannel as Channel.InMemoryChannel;
+            Assert.NotNull(channel);
+            config.Dispose();
+            Assert.True(channel.IsDisposed);
         }
 
         #region Active
@@ -295,6 +299,21 @@
             Assert.Same(customChannel, configuration.TelemetryChannel);
         }
 
+        [TestMethod]
+        public void CommonTelemetryChannelIsDefaultSinkTelemetryChannel()
+        {
+            var configuration = new TelemetryConfiguration();
+
+            var c1 = new StubTelemetryChannel();
+            var c2 = new StubTelemetryChannel();
+
+            configuration.TelemetryChannel = c1;
+            Assert.Same(c1, configuration.TelemetryChannel);
+
+            configuration.DefaultTelemetrySink.TelemetryChannel = c2;
+            Assert.Same(c2, configuration.TelemetryChannel);
+        }
+
         #endregion
 
         #region TelemetryProcessor
@@ -303,7 +322,7 @@
         public void TelemetryConfigurationAlwaysGetDefaultTransmissionProcessor()
         {
             var configuration = new TelemetryConfiguration();
-            var tp = configuration.TelemetryProcessorChain;
+            var tp = configuration.DefaultTelemetrySink.TelemetryProcessorChain;
 
             Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
         }

@@ -35,6 +35,11 @@
         {
         }
 
+        public ITelemetry DeepClone()
+        {
+            throw new NotImplementedException();
+        }
+
         public void SendEvent(object writer)
         {
             this.OnSendEvent(writer);

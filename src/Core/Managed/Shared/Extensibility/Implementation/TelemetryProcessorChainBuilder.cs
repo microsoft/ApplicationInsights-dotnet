@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
 
     /// <summary>
     /// Represents an object used to Build a TelemetryProcessorChain.
@@ -11,11 +13,12 @@
     {
         private readonly List<Func<ITelemetryProcessor, ITelemetryProcessor>> factories;
         private readonly TelemetryConfiguration configuration;
+        private readonly TelemetrySink telemetrySink;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
         /// </summary>
-        /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to. </param>        
+        /// <param name="configuration"> The <see cref="TelemetryConfiguration"/> instance to which the constructed processing chain should be set to.</param>        
         public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration)
         {
             if (configuration == null)
@@ -25,7 +28,25 @@
 
             this.configuration = configuration;
             this.factories = new List<Func<ITelemetryProcessor, ITelemetryProcessor>>();
+            this.telemetrySink = null;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetryProcessorChainBuilder" /> class.
+        /// </summary>
+        /// <param name="configuration">Configuration instance to use for constructing the processor chain.</param>
+        /// <param name="telemetrySink">Telemetry sink the processor chain will be assigned to.</param>
+        public TelemetryProcessorChainBuilder(TelemetryConfiguration configuration, TelemetrySink telemetrySink) : this(configuration)
+        {
+            if (telemetrySink == null)
+            {
+                throw new ArgumentNullException(nameof(telemetrySink));
+            }
+
+            this.telemetrySink = telemetrySink;
+        }
+
+        internal TelemetrySink TelemetrySink => this.telemetrySink;
 
         /// <summary>
         /// Uses given factory to add TelemetryProcessor to the chain of processors. The processors
@@ -47,9 +68,26 @@
         public void Build()
         {
             var telemetryProcessorsList = new List<ITelemetryProcessor>();
+            ITelemetryProcessor linkedTelemetryProcessor;
 
-            // TransmissionProcessor is always appended by default to the end of the chain.            
-            ITelemetryProcessor linkedTelemetryProcessor = new TransmissionProcessor(this.configuration);
+            if (this.telemetrySink == null)
+            {
+                // We are building the "common" telemetry processor chain.
+                if (this.configuration.TelemetrySinks.Count == 1)
+                {
+                    // We just need to pass the telemetry directly into the (single) sink.
+                    linkedTelemetryProcessor = new PassThroughProcessor(this.configuration.DefaultTelemetrySink);
+                }
+                else
+                {
+                    linkedTelemetryProcessor = new BroadcastProcessor(this.configuration.TelemetrySinks);
+                }
+            }
+            else
+            {
+                linkedTelemetryProcessor = new TransmissionProcessor(this.telemetrySink.TelemetryChannel);
+            }
+
             telemetryProcessorsList.Add(linkedTelemetryProcessor);
 
             foreach (var generator in this.factories.AsEnumerable().Reverse())
@@ -69,7 +107,14 @@
             }
 
             var telemetryProcessorChain = new TelemetryProcessorChain(telemetryProcessorsList.AsEnumerable().Reverse());
-            this.configuration.TelemetryProcessorChain = telemetryProcessorChain;
+            if (this.telemetrySink != null)
+            {
+                this.telemetrySink.TelemetryProcessorChain = telemetryProcessorChain;
+            }
+            else
+            {
+                this.configuration.TelemetryProcessorChain = telemetryProcessorChain;
+            }
         }
     }
 }

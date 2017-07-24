@@ -24,13 +24,22 @@
     {
         private TelemetryClient telemetryClient;
         private List<ITelemetry> sendItems;
+        private object sendItemsLock;
 
         [TestInitialize]
         public void TestInitialize()
         {
             var configuration = new TelemetryConfiguration();
             this.sendItems = new List<ITelemetry>();
-            configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
+            this.sendItemsLock = new object();
+            configuration.TelemetryChannel = new StubTelemetryChannel { OnSend = item =>
+            {
+                lock (this.sendItemsLock)
+                {
+                    this.sendItems.Add(item);
+                    Monitor.Pulse(this.sendItemsLock);
+                }
+            }};
             configuration.InstrumentationKey = Guid.NewGuid().ToString();
             configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
             this.telemetryClient = new TelemetryClient(configuration);
@@ -98,25 +107,26 @@
             int id2 = 0;
             this.telemetryClient.TrackTrace("trace1");
 
-            var result = TaskEx.Delay(TimeSpan.FromMilliseconds(50)).AsAsyncResult(
-                (r) =>
-                    {
-                        id2 = Thread.CurrentThread.ManagedThreadId;
-                        this.telemetryClient.TrackTrace("trace2");
-
-                        this.telemetryClient.StopOperation(op);
-                    },
-                null);
-
-            while (!result.IsCompleted)
+            var result = TaskEx.Delay(TimeSpan.FromMilliseconds(50)).ContinueWith((t) =>
             {
-                Thread.Sleep(10);
-            }
-            
-            Assert.NotEqual(id1, id2);
+                id2 = Thread.CurrentThread.ManagedThreadId;
+                this.telemetryClient.TrackTrace("trace2");
 
-            // Sleep some time to ensure items are sent.
-            Thread.Sleep(100);
+                this.telemetryClient.StopOperation(op);
+            });
+
+            do
+            {
+                lock (this.sendItemsLock)
+                {
+                    if (this.sendItems.Count < 3)
+                    {
+                        Monitor.Wait(this.sendItemsLock); // We will rely on the overall test timeout to break the wait in case of failure
+                    }
+                }
+            } while (this.sendItems.Count < 3);
+
+            Assert.NotEqual(id1, id2);
             Assert.Equal(3, this.sendItems.Count);
             var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
             Assert.False(string.IsNullOrEmpty(id));

@@ -6,9 +6,8 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Assert = Xunit.Assert;
-    
+    using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 
     [TestClass]
     public class TraceTelemetryTest
@@ -141,6 +140,23 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<TraceTelemetry, AI.MessageData>(telemetry);
 
             Assert.Equal(10, item.sampleRate);
+        }
+
+        [TestMethod]
+        public void TraceTelemetryDeepCloneCopiesAllProperties()
+        {
+            var trace = new TraceTelemetry();
+            trace.Message = "My Test";
+            trace.Properties.Add("Property2", "Value2");
+            trace.SeverityLevel = SeverityLevel.Warning;
+            trace.Sequence = "123456";
+            trace.Timestamp = DateTimeOffset.Now;
+            var other = trace.DeepClone();
+
+            var deepComparator = new CompareLogic();
+            var result = deepComparator.Compare(trace, other);
+
+            Assert.True(result.AreEqual, result.DifferencesString);
         }
     }
 }

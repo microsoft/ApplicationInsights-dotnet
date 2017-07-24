@@ -41,7 +41,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             }
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             lock (this.Collection)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             this.GetSnapshot().CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(TItem item)
+        public virtual bool Remove(TItem item)
         {
             lock (this.Collection)
             {
