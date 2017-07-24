@@ -165,7 +165,7 @@
         {
             // ARRANGE
             Environment.SetEnvironmentVariable(EnvironmentVariableName, null);
-            
+
             TelemetryConfiguration configuration = new TelemetryConfiguration();
 
             // ACT
@@ -425,8 +425,8 @@
             Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
             //validate the chain linking stub1->stub2->pass through->sink
-            var tp1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
-            var tp2 = (StubTelemetryProcessor2) tp1.next;
+            var tp1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
+            var tp2 = (StubTelemetryProcessor2)tp1.next;
             var passThroughProcessor = tp2.next as PassThroughProcessor;
             Assert.NotNull(passThroughProcessor);
 
@@ -484,7 +484,7 @@
             Assert.IsType<StubTelemetryProcessor>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
 
             // The next telemetry processor should be the PassThroughProcessor that terminates the common telemetry processor chain and feeds into the sink.
-            var stub1 = (StubTelemetryProcessor) configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
+            var stub1 = (StubTelemetryProcessor)configuration.TelemetryProcessorChain.FirstTelemetryProcessor;
             var passThroughProcessor = stub1.next as PassThroughProcessor;
             Assert.NotNull(passThroughProcessor);
 
@@ -501,7 +501,7 @@
         {
             string configFileContents = Configuration(
                 "<TelemetryProcessors>" +
-                  "<Add Type=\""+ typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />"+
+                  "<Add Type=\"" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + "\" />" +
                   "</TelemetryProcessors>");
 
             TelemetryConfiguration configuration = new TelemetryConfiguration();
@@ -509,7 +509,7 @@
 
             Assert.True(configuration.TelemetryProcessors != null);
             Assert.IsType<StubTelemetryProcessor2>(configuration.TelemetryProcessorChain.FirstTelemetryProcessor);
-            Assert.True(((StubTelemetryProcessor2) configuration.TelemetryProcessorChain.FirstTelemetryProcessor).initialized);
+            Assert.True(((StubTelemetryProcessor2)configuration.TelemetryProcessorChain.FirstTelemetryProcessor).Initialized);
         }
 
         [TestMethod]
@@ -687,7 +687,7 @@
         {
             string configFileContents = Configuration(
                 @"<TelemetryModules>
-                    <Add Type = """ + typeof (StubConfigurableWithProperties).AssemblyQualifiedName + @"""  />
+                    <Add Type = """ + typeof(StubConfigurableWithProperties).AssemblyQualifiedName + @"""  />
                   </TelemetryModules>"
                 );
 
@@ -702,7 +702,7 @@
             Assert.DoesNotThrow(
                 () =>
                     new TestableTelemetryConfigurationFactory().Initialize(
-                        new TelemetryConfiguration(), 
+                        new TelemetryConfiguration(),
                         modules,
                         configFileContents));
         }
@@ -929,6 +929,574 @@
 
         #endregion
 
+        #region TelemetrySinks
+
+        [TestMethod]
+        public void EmptyConfigurationCreatesDefaultSink()
+        {
+            string configFileContents = Configuration(string.Empty);
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has just a transmission processor feeding into InMemoryChannel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void NoSinkConfigurationWithCustomChannel()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+            ");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has just a transmission processor feeding into the custom channel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is StubTelemetryChannel);
+        }
+
+        [TestMethod]
+        public void NoSinkConfigurationWithCustomProcessor()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetryProcessors>
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                </TelemetryProcessors>
+            ");
+
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has the custom procesor and a PassThroughProcessor, feeding into the sink.
+            Assert.Equal(2, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(configuration.TelemetryProcessors[1] is PassThroughProcessor);
+
+            // The sink has just a transmission processor feeding into the custom channel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void EmptyDefaultSink()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""default"" />
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has just a transmission processor feeding into InMemoryChannel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void DefaultSinkWithCustomProcessors()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                            <Add Type=""" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has two processors feeding into InMemoryChannel (plus the transmission processor).
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(3, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(sinkTelemetryProcessors[1] is StubTelemetryProcessor2);
+            Assert.True(sinkTelemetryProcessors[2] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void DefaultSinkWithCustomChannel()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has just the transmission processor feeding into custom channel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is StubTelemetryChannel);
+        }
+
+        [TestMethod]
+        public void CommonProcessorsAndDefaultSinkProcessors()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetryProcessors>
+                    <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                </TelemetryProcessors>
+
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has the custom procesor and a PassThroughProcessor, feeding into the sink.
+            Assert.Equal(2, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(configuration.TelemetryProcessors[1] is PassThroughProcessor);
+
+            // The sink has one custom processor feeding into InMemoryChannel (plus the transmission processor).
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is StubTelemetryProcessor2);
+            Assert.True(sinkTelemetryProcessors[1] is TransmissionProcessor);
+
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void DefaultSinkChannelWinsOverCommonChannel()
+        {
+            // This is not really a useful, or supported, configuration, but we just want to verify that if the channel appears both at the common level,
+            // and at default sink level, the setting at the sink level wins and is applies successfully.
+
+            string configFileContents = Configuration(@"
+                <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel2).AssemblyQualifiedName + @""" />
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(1, configuration.TelemetrySinks.Count);
+
+            // Common telemetry processor chain has just one PassThroughProcessor.
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is PassThroughProcessor);
+
+            // The sink has just the transmission processor feeding into custom channel.
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+
+            // The sink configuration setting overrode the common level setting.
+            Assert.True(defaultSink.TelemetryChannel is StubTelemetryChannel2);
+        }
+
+        [TestMethod]
+        public void NonDefaultEmptySink()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""custom"" />
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(2, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+
+            var customSink = configuration.TelemetrySinks[1];
+            var customSinkTelemetryProcessors = customSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, customSinkTelemetryProcessors.Count);
+            Assert.True(customSinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(customSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void NonDefaultSinkWithCustomChannel()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""custom"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(2, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+
+            var customSink = configuration.TelemetrySinks[1];
+            var customSinkTelemetryProcessors = customSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, customSinkTelemetryProcessors.Count);
+            Assert.True(customSinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(customSink.TelemetryChannel is StubTelemetryChannel);
+        }
+
+        [TestMethod]
+        public void NonDefaultSinkWithCustomProcessors()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""custom"">
+                        <TelemetryProcessors>
+                            <Add Type = """ + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                       </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(2, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+
+            var customSink = configuration.TelemetrySinks[1];
+            var customSinkTelemetryProcessors = customSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, customSinkTelemetryProcessors.Count);
+            Assert.True(customSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(customSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(customSink.TelemetryChannel is InMemoryChannel);
+        }
+
+
+        [TestMethod]
+        public void NonDefaultSinkWithCustomChannelAndProcessors()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""custom"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type = """ + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                       </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(2, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+
+            var customSink = configuration.TelemetrySinks[1];
+            var customSinkTelemetryProcessors = customSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, customSinkTelemetryProcessors.Count);
+            Assert.True(customSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(customSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(customSink.TelemetryChannel is StubTelemetryChannel);
+        }
+
+        [TestMethod]
+        public void DefaultAndNonDefaultSink()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                    <Add Name=""custom"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel2).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type = """ + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                       </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(2, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(sinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is StubTelemetryChannel);
+
+            var customSink = configuration.TelemetrySinks[1];
+            var customSinkTelemetryProcessors = customSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, customSinkTelemetryProcessors.Count);
+            Assert.True(customSinkTelemetryProcessors[0] is StubTelemetryProcessor2);
+            Assert.True(customSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(customSink.TelemetryChannel is StubTelemetryChannel2);
+        }
+
+        [TestMethod]
+        public void MultipleCustomSinks()
+        {
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""alpha"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                    <Add Name=""bravo"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel2).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type = """ + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                       </TelemetryProcessors>
+                    </Add>
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            Assert.Equal(3, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var sinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, sinkTelemetryProcessors.Count);
+            Assert.True(sinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is InMemoryChannel);
+
+            var alphaSink = configuration.TelemetrySinks[1];
+            Assert.Equal("alpha", alphaSink.Name);
+            var alphaSinkTelemetryProcessors = alphaSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, alphaSinkTelemetryProcessors.Count);
+            Assert.True(alphaSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(alphaSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(alphaSink.TelemetryChannel is StubTelemetryChannel);
+
+            var bravoSink = configuration.TelemetrySinks[2];
+            Assert.Equal("bravo", bravoSink.Name);
+            var bravoSinkTelemetryProcessors = bravoSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, bravoSinkTelemetryProcessors.Count);
+            Assert.True(bravoSinkTelemetryProcessors[0] is StubTelemetryProcessor2);
+            Assert.True(bravoSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(bravoSink.TelemetryChannel is StubTelemetryChannel2);
+        }
+
+        [TestMethod]
+        public void NamedSinkConfigurationIsMerged()
+        {
+            // This is not an example of a configuration that we will support, but we need to adopt _some_ behavior
+            // when multiple sinks with the same name appear in configuration.
+            // The currently implemented behavior is:
+            //   1. Named sinks are created just once. Configuration is applied to them as it read from the XML doc.
+            //      a. TelemetryChannel is replaced each time (if present).
+            //      b. TelemetryProcessors are added.
+            //   2. <Add> elements without a name are assumed to represent unique sinks--new sink is created for each of them.
+
+            string configFileContents = Configuration(@"
+                <TelemetrySinks>
+                    <Add Name=""default"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                    <Add Name=""alpha"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                    <Add>
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+                    <Add Name=""default"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel2).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type = """ + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                       </TelemetryProcessors>
+                    </Add>
+                    <Add Name=""alpha"">
+                        <TelemetryChannel Type=""" + typeof(StubTelemetryChannel2).AssemblyQualifiedName + @""" />
+                        <TelemetryProcessors>
+                            <Add Type=""" + typeof(StubTelemetryProcessor2).AssemblyQualifiedName + @""" />
+                        </TelemetryProcessors>
+                    </Add>
+
+                    <!-- Custom sink with all properties set to default values. -->
+                    <Add />
+                </TelemetrySinks>
+            ");
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            new TestableTelemetryConfigurationFactory().Initialize(configuration, null, configFileContents);
+
+            // Default sink, "alpha" sink and two unnamed sinks.
+            Assert.Equal(4, configuration.TelemetrySinks.Count);
+
+            Assert.Equal(1, configuration.TelemetryProcessors.Count);
+            Assert.True(configuration.TelemetryProcessors[0] is BroadcastProcessor);
+
+            var defaultSink = configuration.DefaultTelemetrySink;
+            var defaultSinkTelemetryProcessors = defaultSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(3, defaultSinkTelemetryProcessors.Count);
+            Assert.True(defaultSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(defaultSinkTelemetryProcessors[1] is StubTelemetryProcessor2);
+            Assert.True(defaultSinkTelemetryProcessors[2] is TransmissionProcessor);
+            Assert.True(defaultSink.TelemetryChannel is StubTelemetryChannel2);
+
+            var alphaSink = configuration.TelemetrySinks[1];
+            Assert.Equal("alpha", alphaSink.Name);
+            var alphaSinkTelemetryProcessors = alphaSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(3, alphaSinkTelemetryProcessors.Count);
+            Assert.True(alphaSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(alphaSinkTelemetryProcessors[1] is StubTelemetryProcessor2);
+            Assert.True(alphaSinkTelemetryProcessors[2] is TransmissionProcessor);
+            Assert.True(alphaSink.TelemetryChannel is StubTelemetryChannel2);
+
+            var firstUnnamedSink = configuration.TelemetrySinks[2];
+            Assert.True(string.IsNullOrEmpty(firstUnnamedSink.Name));
+            var firstUnnamedSinkTelemetryProcessors = firstUnnamedSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(2, firstUnnamedSinkTelemetryProcessors.Count);
+            Assert.True(firstUnnamedSinkTelemetryProcessors[0] is StubTelemetryProcessor);
+            Assert.True(firstUnnamedSinkTelemetryProcessors[1] is TransmissionProcessor);
+            Assert.True(firstUnnamedSink.TelemetryChannel is StubTelemetryChannel);
+
+            var secondUnnamedSink = configuration.TelemetrySinks[3];
+            Assert.True(string.IsNullOrEmpty(secondUnnamedSink.Name));
+            var secondUnnamedSinkTelemetryProcessors = secondUnnamedSink.TelemetryProcessorChain.TelemetryProcessors;
+            Assert.Equal(1, secondUnnamedSinkTelemetryProcessors.Count);
+            Assert.True(secondUnnamedSinkTelemetryProcessors[0] is TransmissionProcessor);
+            Assert.True(secondUnnamedSink.TelemetryChannel is InMemoryChannel);
+        }
+
+        [TestMethod]
+        public void TelemetrySinkInitializesChannelAndAllProcessors()
+        {
+            TelemetryConfiguration configuration = new TelemetryConfiguration();
+            TelemetrySink sink = new TelemetrySink(configuration);
+            var channel = new StubTelemetryChannel2();
+            sink.TelemetryChannel = channel;
+            StubTelemetryProcessor2 processor = null;
+            sink.TelemetryProcessorChainBuilder.Use(next =>
+            {
+                processor = new StubTelemetryProcessor2(next);
+                return processor;
+            });
+            sink.Initialize(configuration);
+
+            Assert.True(channel.Initialized);
+            Assert.True(processor.Initialized);
+        }
+
+        #endregion 
+
         [TestMethod]
         public void InitializeIsMarkesAsInternalSdkOperation()
         {
@@ -1081,20 +1649,39 @@
             /// </summary>
             public ITelemetryProcessor next;
 
-            public bool initialized = false;
+            public bool Initialized { get; private set; } = false;
+
             public StubTelemetryProcessor2(ITelemetryProcessor next)
             {
                 this.next = next;
-            }            
-            public void Process(ITelemetry telemetry)
-            {
-
             }
+
+            public void Process(ITelemetry telemetry) {  }
 
             public void Initialize(TelemetryConfiguration config)
             {
-                this.initialized = true;
+                this.Initialized = true;
             }
+        }
+
+        private class StubTelemetryChannel2 : ITelemetryChannel, ITelemetryModule
+        {
+            public bool? DeveloperMode { get; set; }
+
+            public bool Initialized { get; private set; } = false;
+
+            public string EndpointAddress { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public void Dispose() { }
+
+            public void Flush() { }
+
+            public void Initialize(TelemetryConfiguration configuration)
+            {
+                this.Initialized = true;
+            }
+
+            public void Send(ITelemetry item) { }
         }
     }
 }

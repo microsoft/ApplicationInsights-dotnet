@@ -19,6 +19,7 @@
     {
         private const string AddElementName = "Add";
         private const string TypeAttributeName = "Type";
+        private const string NameAttributeName = "Name";
         private const string InstrumentationKeyWebSitesEnvironmentVariable = "APPINSIGHTS_INSTRUMENTATIONKEY";
         private static readonly MethodInfo LoadInstancesDefinition = typeof(TelemetryConfigurationFactory).GetRuntimeMethods().First(m => m.Name == "LoadInstances");
         private static readonly XNamespace XmlNamespace = "http://schemas.microsoft.com/ApplicationInsights/2013/Settings";
@@ -91,6 +92,8 @@
 
                 foreach (var telemetrySink in configuration.TelemetrySinks)
                 {
+                    telemetrySink.Initialize(configuration);
+
                     if (telemetrySink.TelemetryProcessorChain == null)
                     {
                         telemetrySink.TelemetryProcessorChainBuilder.Build();
@@ -162,14 +165,14 @@
                         instance = CreateInstance(expectedType, typeName.Value, constructorArgs);
                     }
                 }
-                else if (!definition.Elements().Any() && !definition.Attributes().Any())
+                else if (!definition.Elements().Any() && !definition.Attributes().Any() && constructorArgs == null)
                 {
-                    // Type attribute is not specified and no child elements or attributes exist, so this must be a scalar value
+                    // Neither type attribute nor constructor args are specified, and no child elements or attributes exist, so this must be a scalar value.
                     LoadInstanceFromValue(definition, expectedType, ref instance);
                 }
                 else if (instance == null && !expectedType.IsAbstract())
                 {
-                    instance = Activator.CreateInstance(expectedType);
+                    instance = constructorArgs != null ? Activator.CreateInstance(expectedType, constructorArgs) : Activator.CreateInstance(expectedType);
                 }
                 else if (instance == null)
                 {
@@ -191,9 +194,8 @@
             return instance;
         }
 
-        protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryConfiguration telemetryConfiguration)
+        protected static void BuildTelemetryProcessorChain(XElement definition, TelemetryProcessorChainBuilder builder)
         {
-            TelemetryProcessorChainBuilder builder = telemetryConfiguration.TelemetryProcessorChainBuilder;
             if (definition != null)
             {
                 IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);
@@ -202,12 +204,46 @@
                     builder = builder.Use(current =>
                     {
                         var constructorArgs = new object[] { current };
-                        return (ITelemetryProcessor)LoadInstance(addElement, typeof(ITelemetryProcessor), telemetryConfiguration, constructorArgs, null);
+                        return (ITelemetryProcessor)LoadInstance(addElement, typeof(ITelemetryProcessor), null, constructorArgs, null);
                     });
                 }
             }
 
             builder.Build();
+        }
+
+        protected static void LoadTelemetrySinks(XElement definition, TelemetryConfiguration telemetryConfiguration)
+        {
+            IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);
+            foreach (XElement addElement in elems)
+            {
+                XAttribute nameAttribute = addElement.Attribute(NameAttributeName);
+                if (!string.IsNullOrWhiteSpace(nameAttribute?.Value))
+                {
+                    if (TelemetrySink.DefaultSinkName.Equals(nameAttribute.Value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Just apply properties to the default sink.
+                        LoadProperties(addElement, telemetryConfiguration.DefaultTelemetrySink, null);
+                        continue;
+                    }
+                    else
+                    {
+                        var existingSink = telemetryConfiguration.TelemetrySinks.FirstOrDefault(s => string.Equals(s.Name, nameAttribute.Value, StringComparison.OrdinalIgnoreCase));
+                        if (existingSink != null)
+                        {
+                            LoadProperties(addElement, existingSink, null);
+                            continue;
+                        }
+                    }
+                }
+                
+                // Either name was not specified, or we have encountered it first time--need to create new sink instance.
+                var sink = LoadInstance(addElement, typeof(TelemetrySink), null, new object[] { telemetryConfiguration, null }, null) as TelemetrySink;
+                if (sink != null)
+                {
+                    telemetryConfiguration.TelemetrySinks.Add(sink);
+                }
+            }
         }
 
         protected static void LoadInstances<T>(XElement definition, ICollection<T> instances, TelemetryModules modules)
@@ -258,7 +294,16 @@
                     {
                         if (propertyName == "TelemetryProcessors")
                         {
-                            BuildTelemetryProcessorChain(propertyDefinition, (TelemetryConfiguration)instance);
+                            TelemetryProcessorChainBuilder builder = (instance as TelemetryConfiguration)?.TelemetryProcessorChainBuilder 
+                                                                  ?? (instance as TelemetrySink)?.TelemetryProcessorChainBuilder;
+                            if (builder != null)
+                            {
+                                BuildTelemetryProcessorChain(propertyDefinition, builder);
+                            }
+                        }
+                        else if (propertyName == "TelemetrySinks")
+                        {
+                            LoadTelemetrySinks(propertyDefinition, (TelemetryConfiguration)instance);
                         }
                         else
                         {
