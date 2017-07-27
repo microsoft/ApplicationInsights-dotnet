@@ -212,6 +212,19 @@
             builder.Build();
         }
 
+        /// <summary>
+        /// Loads a collection of <see cref="TelemetrySink"/> from configuration.
+        /// </summary>
+        /// <param name="definition">Configuration element representing a collection of <see cref="TelemetrySink"/> instances.</param>
+        /// <param name="telemetryConfiguration">Telemetry configuration to use for new sinks.</param>
+        /// <remarks>
+        /// There are a few of reasons why special handling for TelemetrySinks collection is necessary. 
+        /// 1. Just like for TelemetryProcessors, sinks have to be created using a constructor that takes parameters(telemetry configuration in the sink case).
+        /// 2. There is special logic involving default sink (always present, and designated by the name "default"). Default sink is never created from configuration.
+        /// 3. If the sink is referred to multiple times in the configuration (by the same name), we apply all the configuration to a single, named instance.
+        /// This part is somewhat arbitrary, but we had to choose some behavior in case we are facing repeated sink configuration with the same name,
+        /// and this is a reasonable choice.
+        /// </remarks>
         protected static void LoadTelemetrySinks(XElement definition, TelemetryConfiguration telemetryConfiguration)
         {
             IEnumerable<XElement> elems = definition.Elements(XmlNamespace + AddElementName);
