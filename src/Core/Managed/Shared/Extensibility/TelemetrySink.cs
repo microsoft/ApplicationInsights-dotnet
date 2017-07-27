@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility
 {
     using System;
-    using System.Diagnostics;
+    using System.Collections.ObjectModel;
     using System.Threading;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -9,13 +9,21 @@
     /// <summary>
     /// Represents a destination for telemetry, consisting of a set of telemetry processors and a channel.
     /// </summary>
-    public sealed class TelemetrySink : IDisposable
+    public sealed class TelemetrySink : IDisposable, ITelemetryModule
     {
+        /// <summary>
+        /// The name to use for the default telemetry sink when specifying its properties through configuration.
+        /// </summary>
+        /// <remarks>The name is not case-sensitive.</remarks>
+        public static readonly string DefaultSinkName = "default";
+
         private TelemetryConfiguration telemetryConfiguration;
         private ITelemetryChannel telemetryChannel;
         private bool shouldDisposeChannel;
         private TelemetryProcessorChain telemetryProcessorChain;
         private TelemetryProcessorChainBuilder telemetryProcessorChainBuilder;
+        private string name;
+        private bool isDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetrySink"/> class.
@@ -44,6 +52,15 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TelemetrySink"/> class. 
+        /// </summary>
+        public TelemetrySink()
+        {
+            this.telemetryChannel = new InMemoryChannel();
+            this.shouldDisposeChannel = true;
+        }
+
+        /// <summary>
         /// Gets or sets an instance of the <see cref="TelemetryProcessorChainBuilder"/> that this sink is using.
         /// </summary>
         public TelemetryProcessorChainBuilder TelemetryProcessorChainBuilder
@@ -59,6 +76,8 @@
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
+
+                this.EnsureNotDisposed();
 
                 if (!object.ReferenceEquals(value.TelemetrySink, this))
                 {
@@ -84,6 +103,8 @@
             get => this.telemetryChannel;
             set
             {
+                this.EnsureNotDisposed();
+
                 ITelemetryChannel oldChannel = this.telemetryChannel;
                 this.telemetryChannel = value;
 
@@ -97,11 +118,27 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the sink.
+        /// </summary>
+        public string Name { get => this.name; set => this.name = value; }
+
+        /// <summary>
+        /// Gets a readonly collection of TelemetryProcessors.
+        /// </summary>
+        public ReadOnlyCollection<ITelemetryProcessor> TelemetryProcessors
+        {
+            get
+            {
+                return new ReadOnlyCollection<ITelemetryProcessor>(this.TelemetryProcessorChain.TelemetryProcessors);
+            }
+        }
+
         internal TelemetryProcessorChain TelemetryProcessorChain
         {
             get
             {
-                if (this.telemetryProcessorChain == null)
+                if (this.telemetryProcessorChain == null && !this.isDisposed)
                 {
                     this.TelemetryProcessorChainBuilder.Build();
                 }
@@ -116,6 +153,8 @@
                     throw new ArgumentNullException(nameof(value));
                 }
 
+                this.EnsureNotDisposed();
+
                 this.telemetryProcessorChain = value;
             }
         }
@@ -125,6 +164,8 @@
         /// </summary>
         public void Dispose()
         {
+            this.isDisposed = true;
+
             if (this.shouldDisposeChannel)
             {
                 this.telemetryChannel?.Dispose();
@@ -137,12 +178,42 @@
         }
 
         /// <summary>
+        /// Initializes the sink.
+        /// </summary>
+        /// <param name="configuration">Telemetry configuration to be used during sink operation.</param>
+        public void Initialize(TelemetryConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            this.EnsureNotDisposed();
+
+            this.telemetryConfiguration = configuration;
+
+            (this.telemetryChannel as ITelemetryModule)?.Initialize(configuration);
+            foreach (var telemetryProcessor in this.TelemetryProcessorChain.TelemetryProcessors)
+            {
+                (telemetryProcessor as ITelemetryModule)?.Initialize(configuration);
+            }
+        }
+
+        /// <summary>
         /// Processes a collected telemetry item.
         /// </summary>
         /// <param name="item">Item to process.</param>
         public void Process(ITelemetry item)
         {
             this.TelemetryProcessorChain.Process(item);
+        }
+
+        private void EnsureNotDisposed()
+        {
+            if (this.isDisposed)
+            {
+                throw new ObjectDisposedException(this.Name);
+            }
         }
     }
 }

@@ -66,6 +66,7 @@
 
             this.instrumentationKey = instrumentationKey;
             var defaultSink = new TelemetrySink(this, channel);
+            defaultSink.Name = "default";
             this.telemetrySinks.Add(defaultSink);
         }
 
