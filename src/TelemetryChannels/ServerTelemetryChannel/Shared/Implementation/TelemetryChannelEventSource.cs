@@ -332,8 +332,8 @@
             this.WriteEvent(48, transmissionId ?? string.Empty, exception ?? string.Empty, this.ApplicationName);
         }
 
-        [Event(49, Message = "MovedFromSenderToBuffer.", Level = EventLevel.Verbose)]
-        public void MovedFromSenderToBuffer(string appDomainName = "Incorrect")
+        [Event(49, Message = "MovedFromBufferToSender.", Level = EventLevel.Verbose)]
+        public void MovedFromBufferToSender(string appDomainName = "Incorrect")
         {
             this.WriteEvent(49, this.ApplicationName);
         }

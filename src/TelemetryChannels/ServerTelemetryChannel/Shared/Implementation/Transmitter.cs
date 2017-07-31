@@ -205,7 +205,7 @@
             if (this.Sender.Capacity > 0)
             {
                 this.MoveTransmissions(this.Buffer.Dequeue, this.Sender.Enqueue);
-                TelemetryChannelEventSource.Log.MovedFromSenderToBuffer();
+                TelemetryChannelEventSource.Log.MovedFromBufferToSender();
             }
         }
 
