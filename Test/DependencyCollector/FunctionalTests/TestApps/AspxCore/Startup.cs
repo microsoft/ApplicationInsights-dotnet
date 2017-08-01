@@ -18,7 +18,7 @@ namespace AspxCore
 
             if (env.IsEnvironment("Development"))
             {
-                // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
+                // This will push telemetry data through Application Insights pipeline faster, allowing you to view the results immediately.
                 builder.AddApplicationInsightsSettings(developerMode: true);
             }
 
