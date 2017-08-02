@@ -109,6 +109,7 @@
         public void Initialize(TelemetryConfiguration configuration)
         {
             DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule");
+
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
             if (!this.isInitialized)
