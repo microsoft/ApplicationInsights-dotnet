@@ -401,7 +401,7 @@
                     {
                         Stream requestStream = getRequestStreamTask.Result;
                         return Task.Factory.FromAsync(
-                            (callback, o) => requestStream.BeginWrite(Content, 0, Content.Length, callback, o),
+                            (callback, o) => requestStream.BeginWrite(this.Content, 0, this.Content.Length, callback, o),
                             requestStream.EndWrite, 
                             null).ContinueWith(
                                 writeTask =>
@@ -418,7 +418,7 @@
                     {
                         using (WebResponse response = responseTask.Result)
                         {
-                            return CheckResponse(response);
+                            return this.CheckResponse(response);
                         }
                     });
         }

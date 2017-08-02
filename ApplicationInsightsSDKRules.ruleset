@@ -450,13 +450,31 @@
     <Rule Id="C6997" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SA1025" Action="None" />
+    <Rule Id="SA1028" Action="None" />
+    <Rule Id="SA1101" Action="None" />
     <Rule Id="SA1113" Action="None" />
+    <Rule Id="SA1114" Action="None" />
+    <Rule Id="SA1116" Action="None" />
+    <Rule Id="SA1117" Action="None" />
+    <Rule Id="SA1118" Action="None" />
+    <Rule Id="SA1121" Action="None" />
     <Rule Id="SA1124" Action="None" />
+    <Rule Id="SA1127" Action="None" />
+    <Rule Id="SA1128" Action="None" />
     <Rule Id="SA1129" Action="None" />
     <Rule Id="SA1131" Action="None" />
     <Rule Id="SA1132" Action="None" />
+    <Rule Id="SA1134" Action="None" />
+    <Rule Id="SA1401" Action="None" />
+    <Rule Id="SA1512" Action="None" />
+    <Rule Id="SA1515" Action="None" />
     <Rule Id="SA1600" Action="None" />
+    <Rule Id="SA1611" Action="None" />
     <Rule Id="SA1615" Action="None" />
+    <Rule Id="SA1618" Action="None" />
+    <Rule Id="SA1633" Action="None" />
+    <Rule Id="SA1636" Action="None" />
     <Rule Id="SA1642" Action="None" />
   </Rules>
 </RuleSet>

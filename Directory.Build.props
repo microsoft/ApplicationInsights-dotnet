@@ -78,9 +78,6 @@
         <!-- Enable NuGet package restore during build -->
         <RestorePackages>true</RestorePackages>
         <RequireRestoreConsent>false</RequireRestoreConsent>
-        
-        <!-- Disable StyleCop by default to prevent StyleCop.MSBuild package from slowing down the debug build -->
-        <StyleCopEnabled>false</StyleCopEnabled>
     </PropertyGroup>
     
   <!-- Generate AssemblyFileVersion and AssemblyVersion attributes. -->
