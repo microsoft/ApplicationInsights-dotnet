@@ -15,13 +15,7 @@ namespace AspxCore
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
-            if (env.IsEnvironment("Development"))
-            {
-                // This will push telemetry data through Application Insights pipeline faster, allowing you to view the results immediately.
-                //builder.AddApplicationInsightsSettings(developerMode: true);
-            }
-
+            
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -31,9 +25,7 @@ namespace AspxCore
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            //services.AddApplicationInsightsTelemetry(Configuration);
-
+            // Add framework services.            
             services.AddMvc();
         }
 
@@ -47,6 +39,8 @@ namespace AspxCore
 
             var teleConfig = TelemetryConfiguration.Active;
             teleConfig.TelemetryChannel.DeveloperMode = true;            
+
+            // Fake endpoint.
             teleConfig.TelemetryChannel.EndpointAddress = "http://localhost:8789/v2/track";
             teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
             
