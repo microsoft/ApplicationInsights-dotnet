@@ -45,6 +45,11 @@ namespace AspxCore
 
             app.UseMvc();
 
+            var teleConfig = TelemetryConfiguration.Active;
+            teleConfig.TelemetryChannel.DeveloperMode = true;            
+            teleConfig.TelemetryChannel.EndpointAddress = "http://localhost:8789/v2/track";
+            teleConfig.InstrumentationKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8";
+            
             new DependencyTrackingTelemetryModule().Initialize(TelemetryConfiguration.Active);
         }
     }
