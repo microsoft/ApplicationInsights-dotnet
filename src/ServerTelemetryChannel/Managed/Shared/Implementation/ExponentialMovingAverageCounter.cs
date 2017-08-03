@@ -1,4 +1,4 @@
-﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation
+﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
     using System.Threading;

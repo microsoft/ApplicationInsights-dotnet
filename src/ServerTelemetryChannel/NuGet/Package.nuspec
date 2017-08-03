@@ -33,14 +33,19 @@
     <file src="$configuration$\ServerTelemetryChannel\NuGet\net45\ApplicationInsights.config.install.xdt" target="content" />
     <file src="$configuration$\ServerTelemetryChannel\NuGet\net45\ApplicationInsights.config.uninstall.xdt" target="content" />
 
+    <!-- Binaries for .NET Standard 1.3 -->
+    <file src="$configuration$\ServerTelemetryChannel\Managed\netstandard1.3\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\netstandard1.3" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\netstandard1.3\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\netstandard1.3" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\netstandard1.3\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\netstandard1.3" />
+
     <!-- Binaries for .NET 4.0 projects -->
-    <file src="$configuration$\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net40" />
-    <file src="$configuration$\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net40" />
-    <file src="$configuration$\ServerTelemetryChannel\Net40\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net40" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net40\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net40" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net40\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net40" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net40\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net40" />
 
     <!-- Binaries for .NET 4.5 projects -->
-    <file src="$configuration$\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net45" />
-    <file src="$configuration$\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net45" />
-    <file src="$configuration$\ServerTelemetryChannel\Net45\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net45" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net45\Microsoft.AI.ServerTelemetryChannel.dll" target="lib\net45" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net45\Microsoft.AI.ServerTelemetryChannel.pdb" target="lib\net45" />
+    <file src="$configuration$\ServerTelemetryChannel\Managed\Net45\Microsoft.AI.ServerTelemetryChannel.xml" target="lib\net45" />
   </files>
 </package>

@@ -1,0 +1,54 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+
+  <PropertyGroup>
+    <Company>Microsoft</Company>
+    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+
+    <TargetFrameworks>net40;net45;netstandard1.3</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="shared\**\*.cs" />
+    <Compile Include="net40-net45\**\*.cs" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
+    <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
+    <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
+    <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Managed\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
+    <PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
+    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+    <PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+  <Import Project="..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets" Condition="Exists('..\..\..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.targets')" />
+  <Import Project="..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.1.28\build\Microsoft.Diagnostics.Tracing.EventRegister.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.1.28\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" />
+</Project>

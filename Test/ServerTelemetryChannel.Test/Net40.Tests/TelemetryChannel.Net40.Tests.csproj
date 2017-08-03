@@ -79,9 +79,9 @@
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
       <Name>Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Net40\TelemetryChannel.Net40.csproj">
-      <Project>{1ac957c0-e9a7-42bb-8820-ce2f6e5c937f}</Project>
-      <Name>TelemetryChannel.Net40</Name>
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj">
+      <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
+      <Name>TelemetryChannel</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
