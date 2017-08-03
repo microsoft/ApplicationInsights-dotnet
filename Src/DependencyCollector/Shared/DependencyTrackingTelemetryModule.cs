@@ -108,6 +108,8 @@
         /// </summary>
         public void Initialize(TelemetryConfiguration configuration)
         {
+            DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule");
+
             // Temporary fix to make sure that we initialize module once.
             // It should be removed when configuration reading logic is moved to Web SDK.
             if (!this.isInitialized)
@@ -118,7 +120,7 @@
                     {
                         try
                         {                            
-                            this.telemetryConfiguration = configuration;
+                            this.telemetryConfiguration = configuration;                            
 
 #if !NETCORE
                             // Net40 only supports runtime instrumentation
@@ -135,6 +137,7 @@
                                 this.ExcludeComponentCorrelationHttpHeadersOnDomains, 
                                 null);
 #endif
+                            DependencyCollectorEventSource.Log.RemoteDependencyModuleVerbose("Initializing DependencyTrackingModule completed successfully.");
                         }
                         catch (Exception exc)
                         {

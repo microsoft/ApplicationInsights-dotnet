@@ -117,7 +117,6 @@
         [TestMethod]
         [TestCategory(TestCategory.NetCore)]
         [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
-        [Ignore] //Temp ignore to unlock a release
         public void TestRddForSyncHttpAspxCore()
         {
             using (DotNetCoreTestSetup())
@@ -130,7 +129,6 @@
         [TestMethod]
         [TestCategory(TestCategory.NetCore)]
         [DeploymentItem(AspxCoreTestAppFolder, AspxCoreAppFolder)]
-        [Ignore] //Temp ignore to unlock a release
         public void TestRddForSyncHttpPostCallAspxCore()
         {
             using (DotNetCoreTestSetup())
