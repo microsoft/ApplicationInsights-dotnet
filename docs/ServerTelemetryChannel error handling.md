@@ -44,7 +44,7 @@ There is also another set of policies that subscribe to a different events and a
 }
 ```
 
-### [ErrorHandlingTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/TelemetryChannels/ServerTelemetryChannel/Shared/Implementation/ErrorHandlingTransmissionPolicy.cs)
+### [ErrorHandlingTransmissionPolicy](https://github.com/Microsoft/ApplicationInsights-dotnet/blob/master/src/ServerTelemetryChannel/Shared/Implementation/ErrorHandlingTransmissionPolicy.cs)
 
 Notes:
 * This policy handles failures with status codes 408, 500, 503
