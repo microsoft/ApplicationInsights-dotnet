@@ -5,6 +5,8 @@ This changelog will be used to generate documentation on [release notes page](ht
 ## Version 2.5.0-beta1
 - Method `Sanitize` on classes implementing `ITelemetry` no longer modifies the `TelemetryContext` fields. Serialized event json and ETW event will still have context tags sanitized.
 - Application Insights SDK supports multiple telemetry sinks. You can configure more than one channel for telemetry now.
+- New method `DeepClone` on `ITelemetry` interface. Implemented by all supported telemetry items.
+- Server telemetry channel NuGet support a netstandard1.3 target with fixed rate sampling and adaptive sampling telemetry processors.
 
 ## Version 2.4.0
 - Updated version of DiagnosticSource to 4.4.0 stable
