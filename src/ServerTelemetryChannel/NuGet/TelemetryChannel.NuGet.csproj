@@ -10,26 +10,10 @@
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
     <PackageVersionFile>$(BinRoot)\$(Configuration)\ServerTelemetryChannel\Managed\Net40\Microsoft.AI.ServerTelemetryChannel.dll</PackageVersionFile>
   </PropertyGroup>
-  <!--
+
   <ItemGroup>
-    <Content Include="ApplicationInsights.config.install.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="ApplicationInsights.config.uninstall.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <None Include="app.config" />
-    <None Include="ApplicationInsights.config.transform">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Package.nuspec">
-      <SubType>Designer</SubType>
-    </None>
+    <ProjectReference Include="..\Managed\TelemetryChannel.csproj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <None Update="ApplicationInsights.config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
