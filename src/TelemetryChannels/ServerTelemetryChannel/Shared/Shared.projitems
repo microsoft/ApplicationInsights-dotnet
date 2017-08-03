@@ -55,6 +55,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\XorshiftRandomBatchGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SamplingTelemetryProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerTelemetryChannel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TelemetryChannelBuilderExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TelemetryProcessorChainBuilderExtensions.cs" />
   </ItemGroup>
 </Project>
