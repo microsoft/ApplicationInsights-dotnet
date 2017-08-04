@@ -19,6 +19,7 @@
     
     <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
     <PackageId>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</PackageId>
     <!--PackageVersion is defined in GlobalStaticVersion.props-->
     <!--PackageVersion></PackageVersion-->
