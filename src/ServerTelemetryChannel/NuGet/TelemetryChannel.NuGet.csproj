@@ -1,6 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Common.props'))\Common.props" />
 
+  <!-- Temporary. Need to get rid of all Product.props-->
+  <PropertyGroup>
+    <!--Removing the SRC folder from the output directory-->
+    <CorePath>$(RelativeOutputPathBase.Substring(4))</CorePath>	
+    <OutputPath>$(BinRoot)\$(Configuration)\$(CorePath)</OutputPath>
+    <OutputPath>$([System.IO.Path]::GetFullPath( $(OutputPath) ))\</OutputPath>
+  </PropertyGroup>
+
   <PropertyGroup>
     <TargetFrameworks>net45</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
