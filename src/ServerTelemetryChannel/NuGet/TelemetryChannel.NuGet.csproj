@@ -10,12 +10,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net40;net45;netstandard1.3</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageSpecFile>$(MSBuildProjectDirectory)\Package.nuspec</PackageSpecFile>
-    <PackageVersionFile>$(BinRoot)\$(Configuration)\ServerTelemetryChannel\Managed\Net40\Microsoft.AI.ServerTelemetryChannel.dll</PackageVersionFile>
+    <PackageVersionFile>$(BinRoot)\$(Configuration)\ServerTelemetryChannel\Managed\Net45\Microsoft.AI.ServerTelemetryChannel.dll</PackageVersionFile>
   </PropertyGroup>
 
   <ItemGroup>
