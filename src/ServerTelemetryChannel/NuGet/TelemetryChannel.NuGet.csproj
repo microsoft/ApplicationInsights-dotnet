@@ -19,6 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Test\ServerTelemetryChannel.Test\Net40.Tests\TelemetryChannel.Net40.Tests.csproj" />
+    <ProjectReference Include="..\..\..\Test\ServerTelemetryChannel.Test\Net45.Tests\TelemetryChannel.Net45.Tests.csproj" />
     <ProjectReference Include="..\Managed\TelemetryChannel.csproj" />
   </ItemGroup>
   <ItemGroup>
