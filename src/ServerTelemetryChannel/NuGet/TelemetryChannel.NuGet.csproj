@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net45</TargetFrameworks>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
