@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{EE933574-C82B-4E59-A0D1-05328197B937}"
 EndProject
@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceListener.NuGet", "src\
 		{E3766DD1-F376-43F8-B242-6CF06E186179} = {E3766DD1-F376-43F8-B242-6CF06E186179}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourceListener.NuGet", "src\NuGet\EventSourceListener\EventSourceListener.NuGet.csproj", "{2881A618-8101-4C67-8CAC-1C776B23789E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourceListener.NuGet", "src\NuGet\EventSourceListener\EventSourceListener.NuGet.csproj", "{2881A618-8101-4C67-8CAC-1C776B23789E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4} = {A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}
 	EndProjectSection
@@ -91,7 +91,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\Adapter
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonTestShared", "src\Adapters.Tests\CommonTestShared\CommonTestShared.shproj", "{3B9AB7FA-562D-4E4E-86E3-3348426BC0D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSource.Netstandard13.Tests", "src\Adapters.Tests\EventSource.Netstandard13.Tests\EventSource.Netstandard13.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSource.Netstandard13.Tests", "src\Adapters.Tests\EventSource.Netstandard13.Tests\EventSource.Netstandard13.Tests.csproj", "{7030CAC6-4B94-4735-B146-C0FC3097ACA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Etw.Net451", "src\Adapters\Etw.Net451\Etw.Net451.csproj", "{9BECFB0F-4F6D-4A84-931F-70DA3E4E2813}"
 EndProject
@@ -103,14 +103,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtwCollector.NuGet", "src\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSource.Netstandard13", "src\Adapters\EventSource.Netstandard13\EventSource.Netstandard13.csproj", "{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiagnosticSource", "src\Adapters\DiagnosticSource\DiagnosticSource.csproj", "{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSource", "src\Adapters\DiagnosticSource\DiagnosticSource.csproj", "{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSourceListener.NuGet", "src\NuGet\DiagnosticSourceListener\DiagnosticSourceListener.NuGet.csproj", "{9748B531-F7A8-4F35-8C8A-2B2916C5582E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF} = {57F41D53-A8D1-42D6-AFBE-406436CFA7DF}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiagnosticSource.Tests", "src\Adapters.Tests\DiagnosticSource.Tests\DiagnosticSource.Tests.csproj", "{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiagnosticSource.Tests", "src\Adapters.Tests\DiagnosticSource.Tests\DiagnosticSource.Tests.csproj", "{A716D37C-B736-4CF0-8DF5-36BDE57DA2A5}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -236,10 +236,6 @@ Global
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E6F03762-6BD6-4B38-8798-42C189AAB18C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{7030CAC6-4B94-4735-B146-C0FC3097ACA6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -256,6 +252,10 @@ Global
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F371663D-99DB-4722-BC38-55EC178A84EB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A539BB1D-29FF-48E8-8D6E-DFCC543DC2B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{57F41D53-A8D1-42D6-AFBE-406436CFA7DF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
