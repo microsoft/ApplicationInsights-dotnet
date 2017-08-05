@@ -4,8 +4,8 @@
     using System.ComponentModel;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
     /// Extension methods for <see cref="TelemetryProcessorChainBuilder"/>.

@@ -156,8 +156,7 @@
                 else
                 {
                     //// See if we have already discovered the current dependency type:
-                    SucceessAndFailureMetrics typeMetrics;
-                    bool previouslyDiscovered = thisMetrics.ByType.TryGetValue(dependencyType, out typeMetrics);
+                    bool previouslyDiscovered = thisMetrics.ByType.TryGetValue(dependencyType, out SucceessAndFailureMetrics typeMetrics);
 
                     if (previouslyDiscovered)
                     {
@@ -245,7 +244,7 @@
                                     ? typeMetrics.Failure
                                     : typeMetrics.Success;
                         }
-                    }   // else OF if (previouslyDiscovered)
+                    }
                 }
             }
             
@@ -263,17 +262,19 @@
             MetricManager thisMetricManager = this.metricManager;
             if (thisMetricManager == null)
             {
-                MetricsCache newMetrics = new MetricsCache();
-                newMetrics.MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
+                MetricsCache newMetrics = new MetricsCache()
+                {
+                    MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount
+                };
                 this.metrics = newMetrics;
                 return;
             }
 
             if (maxDependencyTypesToDiscoverCount == 0)
             {
-                MetricsCache newMetrics = new MetricsCache();
-
-                newMetrics.Default = new SucceessAndFailureMetrics(
+                MetricsCache newMetrics = new MetricsCache()
+                {
+                    Default = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
@@ -287,21 +288,21 @@
                                 {
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
                                     [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
-                                }));
+                                })),
 
-                newMetrics.Unknown = null;
-                newMetrics.ByType = null;
-                newMetrics.MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
-                newMetrics.TypeDiscoveryLock = null;
-                newMetrics.DependencyTypesDiscoveredCount = 0;
-
+                    Unknown = null,
+                    ByType = null,
+                    MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount,
+                    TypeDiscoveryLock = null,
+                    DependencyTypesDiscoveredCount = 0
+                };
                 this.metrics = newMetrics;
             }
             else
             {
-                MetricsCache newMetrics = new MetricsCache();
-
-                newMetrics.Default = new SucceessAndFailureMetrics(
+                MetricsCache newMetrics = new MetricsCache()
+                {
+                    Default = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
@@ -317,9 +318,9 @@
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
                                     [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Other,
-                                }));
+                                })),
 
-                newMetrics.Unknown = new SucceessAndFailureMetrics(
+                    Unknown = new SucceessAndFailureMetrics(
                         thisMetricManager.CreateMetric(
                                 MetricTerms.Autocollection.Metric.DependencyCallDuration.Name,
                                 new Dictionary<string, string>()
@@ -335,13 +336,13 @@
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.Success] = Boolean.FalseString,     // FAILURE metric
                                     [MetricTerms.Autocollection.MetricId.Moniker.Key] = MetricTerms.Autocollection.Metric.DependencyCallDuration.Id,
                                     [MetricTerms.Autocollection.DependencyCall.PropertyNames.TypeName] = MetricTerms.Autocollection.DependencyCall.TypeNames.Unknown,
-                                }));
+                                })),
 
-                newMetrics.ByType = new ConcurrentDictionary<string, SucceessAndFailureMetrics>();
-                newMetrics.MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount;
-                newMetrics.TypeDiscoveryLock = new object();
-                newMetrics.DependencyTypesDiscoveredCount = 0;
-
+                    ByType = new ConcurrentDictionary<string, SucceessAndFailureMetrics>(),
+                    MaxDependencyTypesToDiscover = maxDependencyTypesToDiscoverCount,
+                    TypeDiscoveryLock = new object(),
+                    DependencyTypesDiscoveredCount = 0
+                };
                 this.metrics = newMetrics;
             }
         }
@@ -365,7 +366,7 @@
             public Metric Success { get; private set; }
 
             public Metric Failure { get; private set; }
-        }   // private class SucceessAndFailureMetrics
+        }
 
         /// <summary>
         /// This private data structure groups several privates of the outer class (DependencyMetricsExtractor).
@@ -379,6 +380,6 @@
             public int MaxDependencyTypesToDiscover = MaxDependenctTypesToDiscoverDefault;
             public int DependencyTypesDiscoveredCount = 0;
             public object TypeDiscoveryLock = null;
-        }   // private class MetricsCache
+        }
     }
 }

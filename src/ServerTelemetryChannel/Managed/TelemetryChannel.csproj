@@ -1,0 +1,97 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Product.props'))\Product.props" />
+
+  <PropertyGroup>
+    <Company>Microsoft</Company>
+    <Copyright>Copyright © Microsoft. All Rights Reserved.</Copyright>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+
+    <TargetFrameworks>net40;net45;netstandard1.3</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    
+    <!--This flag will skip BCL versions check-->
+    <SkipValidatePackageReferences>True</SkipValidatePackageReferences>
+    
+    <!--https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets-->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <PackageId>Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel</PackageId>
+    <!--PackageVersion is defined in GlobalStaticVersion.props-->
+    <!--PackageVersion></PackageVersion-->
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <Title>Application Insights Telemetry Channel for Windows Server Applications</Title>
+    <Description>This nuget provides a telemetry channel to Application Insights Windows Server SDK that will preserve telemetry in offline scenarios. This is a dependent package, for the best experience please install the platform specific package. Privacy statement: https://go.microsoft.com/fwlink/?LinkId=512156</Description>
+    <!--Copyright defined above-->
+    <!--Copyright></Copyright-->
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <LicenseUrl>http://go.microsoft.com/fwlink/?LinkID=510709</LicenseUrl>
+    <ProjectUrl>http://go.microsoft.com/fwlink/?LinkId=392727</ProjectUrl>
+    <IconUrl>http://appanacdn.blob.core.windows.net/cdn/icons/aic.png</IconUrl>
+    <Tags>Analytics ApplicationInsights Telemetry</Tags>
+    <ReleaseNotes>For the release notes please follow http://go.microsoft.com/fwlink/?LinkId=535037</ReleaseNotes>
+    <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageType>Dependency</PackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="shared\**\*.cs" />
+    <Compile Include="net40-net45\**\*.cs" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+    <Compile Include="net40\**\*.cs" Condition="'$(TargetFramework)' == 'net40'" />
+    <Compile Include="net45\**\*.cs" Condition="'$(TargetFramework)' == 'net45'" />
+    <Compile Include="net46\**\*.cs" Condition="'$(TargetFramework)' == 'net46'" />
+    <Compile Include="netstandard1.3\**\*.cs" Condition="'$(TargetFramework)' == 'netstandard1.3'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Desktop.Analyzers" Version="1.1.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventRegister" Version="1.1.28">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MicroBuild.Core" Version="0.2.0">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Managed\Core.csproj">
+      <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+    <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource.Redist" Version="1.1.28" />
+    <PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
+    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+    <PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21">
+      <IncludeAssets>All</IncludeAssets>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="ApplicationInsights.config.install.xdt" />
+    <Content Include="ApplicationInsights.config.transform" />
+    <Content Include="ApplicationInsights.config.uninstall.xdt" />
+  </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
+</Project>

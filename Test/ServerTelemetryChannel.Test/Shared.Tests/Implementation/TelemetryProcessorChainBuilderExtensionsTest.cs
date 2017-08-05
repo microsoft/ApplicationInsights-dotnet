@@ -8,6 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
     using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
     public class TelemetryProcessorChainBuilderExtensionsTest

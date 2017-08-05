@@ -4,7 +4,6 @@
 
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     /// <summary>
@@ -269,15 +268,12 @@
                 TelemetryChannelEventSource.Log.SamplingChanged(newSamplingPercentage);
             }
 
-            if (this.evaluationCallback != null)
-            {
-                this.evaluationCallback(
-                    afterSamplingTelemetryItemRatePerSecond,
-                    currentSamplingPercentage,
-                    newSamplingPercentage,
-                    isSamplingPercentageChanged,
-                    settings);
-            }
+            this.evaluationCallback?.Invoke(
+                afterSamplingTelemetryItemRatePerSecond,
+                currentSamplingPercentage,
+                newSamplingPercentage,
+                isSamplingPercentageChanged,
+                settings);
         }
     }
 }

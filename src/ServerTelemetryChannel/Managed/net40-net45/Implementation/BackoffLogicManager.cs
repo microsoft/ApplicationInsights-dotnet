@@ -140,8 +140,7 @@
         // http://en.wikipedia.org/wiki/Exponential_backoff
         protected virtual TimeSpan GetBackOffTime(string headerValue)
         {
-            TimeSpan retryAfterTimeSpan;
-            if (!this.TryParseRetryAfter(headerValue, out retryAfterTimeSpan))
+            if (!this.TryParseRetryAfter(headerValue, out TimeSpan retryAfterTimeSpan))
             {
                 double delayInSeconds;
 
@@ -176,8 +175,7 @@
             TelemetryChannelEventSource.Log.RetryAfterHeaderIsPresent(retryAfter);
 
             var now = DateTimeOffset.UtcNow;
-            DateTimeOffset retryAfterDate;
-            if (DateTimeOffset.TryParse(retryAfter, out retryAfterDate))
+            if (DateTimeOffset.TryParse(retryAfter, out DateTimeOffset retryAfterDate))
             {
                 if (retryAfterDate > now)
                 {
