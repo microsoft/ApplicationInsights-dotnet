@@ -48,7 +48,7 @@
                 }
                 catch (Exception)
                 {
-                    // CallContext may fail in partially trusted environment
+                    throw new InvalidOperationException("Please run this test in full trust environment");
                 }
             }
 
@@ -60,7 +60,7 @@
                 }
                 catch (Exception)
                 {
-                    // CallContext may fail in partially trusted environment
+                    throw new InvalidOperationException("Please run this test in full trust environment");
                 }
             }
         }
