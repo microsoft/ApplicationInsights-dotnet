@@ -160,7 +160,10 @@
 
         public override void Dispose()
         {
-            CurrentContextEvents.Exit();
+            if (listenForCurrentContext)
+            {
+                CurrentContextEvents.Exit();
+            }
             base.Dispose();
         }
     }
