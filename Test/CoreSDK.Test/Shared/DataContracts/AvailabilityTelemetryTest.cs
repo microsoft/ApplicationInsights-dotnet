@@ -55,11 +55,13 @@
             Assert.Equal(new string('Y', Property.MaxRunLocationLength), telemetry.RunLocation);
             Assert.Equal(new string('D', Property.MaxTestNameLength), telemetry.Name);
 
-            Assert.Equal(2, telemetry.Properties.Count); 
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", telemetry.Properties.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
+            Assert.Equal(2, telemetry.Properties.Count);
+            var t = new SortedList<string, string>(telemetry.Properties);
+
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
             Assert.Same(telemetry.Properties, telemetry.Properties);
         }
