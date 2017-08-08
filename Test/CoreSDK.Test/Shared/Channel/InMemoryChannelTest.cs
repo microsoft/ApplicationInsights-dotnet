@@ -37,6 +37,8 @@
             Assert.Same(sentTelemetry, telemetries.First());
         }
 
+#if !NETCOREAPP1_1
+
         [TestMethod]
         public void FlushCanBeAborted()
         {
@@ -61,5 +63,6 @@
                 Assert.Equal(24, expectedMessage.EventId);
             }
         }
+#endif
     }
 }
