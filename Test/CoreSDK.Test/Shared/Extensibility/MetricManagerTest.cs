@@ -207,7 +207,8 @@
 
             using (manager = new MetricManager()) { }
 
-            Assert.DoesNotThrow(() => { manager.Dispose(); });
+            //Assert.DoesNotThrow
+            manager.Dispose();
         }
 
         [TestMethod]

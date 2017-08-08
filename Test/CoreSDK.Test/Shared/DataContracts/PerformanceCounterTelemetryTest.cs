@@ -4,7 +4,9 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class PerformanceCounterTelemetryTest
@@ -34,6 +36,7 @@
             Assert.Equal("b", item.Properties["a"]);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void PerformanceCounterTelemetryDeepCloneCopiesAllProperties()
         {
@@ -48,6 +51,7 @@
             var result = deepComparator.Compare(item, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 #pragma warning restore 618
     }
 }

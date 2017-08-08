@@ -12,7 +12,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
 
     [TestClass]
@@ -135,6 +137,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void PageViewTelemetryDeepCloneCopiesAllProperties()
         {
@@ -150,5 +153,6 @@
             var result = deepComparator.Compare(pageView, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
     }
 }

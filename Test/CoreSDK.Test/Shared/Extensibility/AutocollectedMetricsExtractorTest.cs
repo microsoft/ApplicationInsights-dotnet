@@ -113,9 +113,20 @@
 
             Assert.Equal(10, telemetrySentToChannel.Count);
 
+            var t = new SortedList<string, MetricTelemetry>();
+
             Assert.NotNull(telemetrySentToChannel[8]);
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
-            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[8];
+            var m = (MetricTelemetry) telemetrySentToChannel[8];
+            t.Add(m.Properties["Request.Success"], m);
+
+            Assert.NotNull(telemetrySentToChannel[9]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
+            m = (MetricTelemetry)telemetrySentToChannel[9];
+            t.Add(m.Properties["Request.Success"], m);
+
+            var metricF = t.Values[0];
+            var metricT = t.Values[1];
 
             Assert.Equal("Server response time", metricT.Name);
             Assert.Equal(4, metricT.Count);
@@ -133,9 +144,6 @@
             Assert.Equal(true, metricT.Properties.ContainsKey("Request.Success"));
             Assert.Equal(Boolean.TrueString, metricT.Properties["Request.Success"]);
 
-            Assert.NotNull(telemetrySentToChannel[9]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
-            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[9];
 
             Assert.Equal("Server response time", metricF.Name);
             Assert.Equal(3, metricF.Count);
@@ -195,9 +203,20 @@
 
             Assert.Equal(5, telemetrySentToChannel.Count);
 
+            var t = new SortedList<string, MetricTelemetry>();
+
             Assert.NotNull(telemetrySentToChannel[3]);
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
-            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[3];
+            var m = (MetricTelemetry)telemetrySentToChannel[3];
+            t.Add(m.Properties["Request.Success"], m);
+
+            Assert.NotNull(telemetrySentToChannel[4]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
+            m = (MetricTelemetry)telemetrySentToChannel[4];
+            t.Add(m.Properties["Request.Success"], m);
+
+            var metricF = t.Values[0];
+            var metricT = t.Values[1];
 
             Assert.Equal("Server response time", metricT.Name);
             Assert.Equal(2, metricT.Count);
@@ -206,10 +225,6 @@
             Assert.Equal(20, metricT.Sum);
             Assert.Equal(true, metricT.Properties.ContainsKey("Request.Success"));
             Assert.Equal(Boolean.TrueString, metricT.Properties["Request.Success"]);
-
-            Assert.NotNull(telemetrySentToChannel[4]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
-            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[4];
 
             Assert.Equal("Server response time", metricF.Name);
             Assert.Equal(1, metricF.Count);
@@ -377,9 +392,20 @@
 
             Assert.Equal(10, telemetrySentToChannel.Count);
 
+            var t = new SortedList<string, MetricTelemetry>();
+
             Assert.NotNull(telemetrySentToChannel[8]);
             Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
-            MetricTelemetry metricT = (MetricTelemetry) telemetrySentToChannel[8];
+            var m = (MetricTelemetry) telemetrySentToChannel[8];
+            t.Add(m.Properties["Dependency.Success"], m);
+
+            Assert.NotNull(telemetrySentToChannel[9]);
+            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
+            m = (MetricTelemetry)telemetrySentToChannel[9];
+            t.Add(m.Properties["Dependency.Success"], m);
+
+            var metricF = t.Values[0];
+            var metricT = t.Values[1];
 
             Assert.Equal("Dependency duration", metricT.Name);
             Assert.Equal(4, metricT.Count);
@@ -396,10 +422,6 @@
             Assert.Equal("dependencies/duration", metricT.Properties["_MS.MetricId"]);
             Assert.Equal(true, metricT.Properties.ContainsKey("Dependency.Success"));
             Assert.Equal(Boolean.TrueString, metricT.Properties["Dependency.Success"]);
-
-            Assert.NotNull(telemetrySentToChannel[9]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
-            MetricTelemetry metricF = (MetricTelemetry) telemetrySentToChannel[9];
 
             Assert.Equal("Dependency duration", metricF.Name);
             Assert.Equal(3, metricF.Count);

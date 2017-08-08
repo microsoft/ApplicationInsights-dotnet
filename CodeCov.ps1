@@ -1,5 +1,37 @@
 #Run code coverage tests to generate report
-..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:..\bin\Release\Test\CoreSDK.Test\Net40\Microsoft.ApplicationInsights.Core.Net40.Tests.dll ..\bin\Release\Test\CoreSDK.Test\Net45\Microsoft.ApplicationInsights.Core.Net45.Tests.dll ..\bin\Release\Test\CoreSDK.Test\Net46\Microsoft.ApplicationInsights.Core.Net46.Tests.dll ..\bin\Release\Test\ServerTelemetryChannel.Test\TelemetryChannel.Nuget.Tests\TelemetryChannel.Nuget.Tests.dll ..\bin\Release\Test\ServerTelemetryChannel.Test\Net40.Tests\Microsoft.ApplicationInsights.TelemetryChannel.Net40.Tests.dll ..\bin\Release\Test\ServerTelemetryChannel.Test\Net45.Tests\Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests.dll /logger:trx" "-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" -hideskipped:All -output:.\coverage.xml
+.\nuget.exe install "OpenCover" -Version "4.6.519"
+$assemblies = "";
+
+get-childitem "..\bin\Release" -Filter *Tests.dll -recurse | foreach-object { $assemblies += $_.FullName + " " }
+
+echo $assemblies
+
+
+..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
+	-register:user `
+	"-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" `
+	"-targetargs:$assemblies /logger:trx" `
+	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
+	-hideskipped:All `
+	-output:.\coverage.xml
+
+$netcoreassemblies = "";
+
+get-childitem "..\bin\Release" -Filter *netcoreapp11.Tests.dll -recurse | foreach-object { $netcoreassemblies += $_.FullName + " " }
+
+echo $netcoreassemblies
+
+
+..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
+	-register:user `
+	"-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
+	"-targetargs:$netcoreassemblies /logger:trx" `
+	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
+	-hideskipped:All `
+	-output:.\coverage.xml
+	-mergeoutput
+
+exit 0
 
 #Download report uploader
 (New-Object System.Net.WebClient).DownloadFile("https://codecov.io/bash", ".\CodecovUploader.sh")

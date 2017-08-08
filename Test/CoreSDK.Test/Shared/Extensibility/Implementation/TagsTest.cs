@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
-#if NET40 || NET45 || NET46
+#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -57,7 +57,8 @@
         {
             var tags = new Dictionary<string, string>();
 
-            Assert.DoesNotThrow(() => tags.SetStringValueOrRemove("testKey", null));
+            //Assert.DoesNotThrow
+            tags.SetStringValueOrRemove("testKey", null);
         }
 
         [TestMethod]

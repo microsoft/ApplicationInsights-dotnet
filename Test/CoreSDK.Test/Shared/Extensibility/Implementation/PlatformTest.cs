@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 {
+#if !NETCOREAPP1_1
     using System;
     using System.IO;
     using System.Reflection;
@@ -86,4 +87,5 @@
             return File.OpenWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config"));
         }
     }
+#endif
 }

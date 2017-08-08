@@ -14,7 +14,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class ExceptionTelemetryTest
@@ -348,7 +350,14 @@
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions)
             {
-                Assert.Equal(expectedSequence[counter], details.message);
+                if (details.typeName == "System.AggregateException")
+                {
+                    Assert.StartsWith(expectedSequence[counter], details.message);
+                }
+                else
+                {
+                    Assert.Equal(expectedSequence[counter], details.message);
+                }
                 counter++;
             }
         }
@@ -371,7 +380,14 @@
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions.Take(Constants.MaxExceptionCountToSave))
             {
-                Assert.Equal(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                if (details.typeName == "System.AggregateException")
+                {
+                    Assert.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                }
+                else
+                {
+                    Assert.Equal(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                }
                 counter++;
             }
 
@@ -398,10 +414,12 @@
             ((ITelemetry)telemetry).Sanitize();
 
             Assert.Equal(2, telemetry.Properties.Count);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", telemetry.Properties.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
+            var t = new SortedList<string, string>(telemetry.Properties);
+
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
         }
 
         [TestMethod]
@@ -438,6 +456,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void ExceptionTelemetryDeepCloneCopiesAllProperties()
         {
@@ -449,6 +468,7 @@
             var result = deepComparator.Compare(telemetry, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         private static Exception CreateExceptionWithStackTrace()
         {

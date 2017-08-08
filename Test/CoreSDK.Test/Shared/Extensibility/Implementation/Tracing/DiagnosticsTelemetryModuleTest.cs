@@ -98,7 +98,8 @@
 
                     taskStarted.WaitOne(TimeSpan.FromSeconds(5));
 
-                    Assert.DoesNotThrow(() => module.Initialize(new TelemetryConfiguration()));
+                    //Assert.DoesNotThrow
+                    module.Initialize(new TelemetryConfiguration());
 
                     cancellationTokenSource.Cancel();
                 }
