@@ -2,134 +2,43 @@
 namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
     using System;
-    using System.Collections;
     using System.Globalization;
-    using System.IO;
     using System.Net;
     using System.Net.NetworkInformation;
-    using System.Security;
-    using System.Threading;
 
-    using Microsoft.ApplicationInsights.Extensibility;
-    using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing;
-    
+
     /// <summary>
-    /// The .NET 4.0 and 4.5 implementation of the <see cref="IPlatform"/> interface.
+    /// The .NET 4.0, 4.5 and 4.6 implementation of the <see cref="IPlatform"/> interface.
     /// </summary>
-    internal class PlatformImplementation : IPlatform
+    internal sealed class PlatformImplementation : PlatformImplementationBase
     {
-        private readonly IDictionary environmentVariables;
-
-        private IDebugOutput debugOutput = null;
-        private string hostName;
-
         /// <summary>
-        /// Initializes a new instance of the PlatformImplementation class.
+        /// The directory where the configuration file might be found.
         /// </summary>
-        public PlatformImplementation()
+        protected override string ConfigurationXmlDirectory
         {
-            try
+            get
             {
-                this.environmentVariables = Environment.GetEnvironmentVariables();
+                return AppDomain.CurrentDomain.BaseDirectory;
             }
-            catch (SecurityException e)
-            {
-                CoreEventSource.Log.FailedToLoadEnvironmentVariables(e.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Returns contents of the ApplicationInsights.config file in the application directory.
-        /// </summary>
-        public string ReadConfigurationXml()
-        {
-            // Config file should be in the base directory of the app domain
-            string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ApplicationInsights.config");
-
-            try
-            {
-                // Ensure config file actually exists
-                if (File.Exists(configFilePath))
-                {
-                    return File.ReadAllText(configFilePath);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                // For cases when file was deleted/modified while reading
-                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                // For cases when file was deleted/modified while reading
-                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            }
-            catch (IOException)
-            {
-                // For cases when file was deleted/modified while reading
-                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            }
-            catch (SecurityException)
-            {
-                CoreEventSource.Log.ApplicationInsightsConfigNotFoundWarning(configFilePath);
-            }
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Returns the platform specific Debugger writer to the VS output console.
-        /// </summary>
-        public IDebugOutput GetDebugOutput()
-        {
-            return this.debugOutput ?? (this.debugOutput = new TelemetryDebugWriter());
-        }
-
-        public string GetEnvironmentVariable(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentNullException();
-            }
-
-            object resultObj = this.environmentVariables?[name];
-            return resultObj != null ? resultObj.ToString() : null;
         }
 
         /// <summary>
         /// Returns the machine name.
         /// </summary>
         /// <returns>The machine name.</returns>
-        public string GetMachineName()
+        protected override string GetHostNameCore()
         {
-            return LazyInitializer.EnsureInitialized(ref this.hostName, this.GetHostName);
-        }
+            string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            string hostName = Dns.GetHostName();
 
-        private string GetHostName()
-        {
-            try
+            if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
             {
-                string domainName = IPGlobalProperties.GetIPGlobalProperties().DomainName;
-                string hostName = Dns.GetHostName();
-
-                if (!hostName.EndsWith(domainName, StringComparison.OrdinalIgnoreCase))
-                {
-                    hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
-                }
-
-                return hostName;
-            }
-            catch (Exception ex)
-            {
-                CoreEventSource.Log.FailedToGetMachineName(ex.Message);
+                hostName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", hostName, domainName);
             }
 
-            return string.Empty;
+            return hostName;
         }
     }
 }
