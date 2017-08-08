@@ -6,7 +6,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
+#endif
 
     [TestClass]
     public class DependencyTelemetryTest
@@ -153,6 +155,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
         {
@@ -165,6 +168,7 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {

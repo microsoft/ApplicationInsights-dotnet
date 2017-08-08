@@ -7,7 +7,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class TraceTelemetryTest
@@ -142,6 +144,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void TraceTelemetryDeepCloneCopiesAllProperties()
         {
@@ -158,5 +161,6 @@
 
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
     }
 }

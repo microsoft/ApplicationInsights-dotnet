@@ -31,7 +31,11 @@
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.11" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.11" />
-    <PackageReference Include="CompareNETObjects" Version="3.08.0.0" />
+    <!-- 
+    commented out due to the error: https://github.com/GregFinzer/Compare-Net-Objects/issues/52 
+    Once uncommented - re-enable all DeepClone test cases
+    <PackageReference Include="CompareNETObjects" Version="3.9.0.0" />
+    -->
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
     <PackageReference Include="xunit.assert" Version="2.2.0" />

@@ -7,7 +7,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class MetricTelemetryTest
@@ -270,6 +272,7 @@
             Assert.Equal(1, telemetry.Count);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void MetricTelemetryDeepCloneCopiesAllProperties()
         {
@@ -291,5 +294,6 @@
             var comparisonResult = deepComparator.Compare(metric, other);
             Assert.True(comparisonResult.AreEqual, comparisonResult.DifferencesString);
         }
+#endif
     }
 }

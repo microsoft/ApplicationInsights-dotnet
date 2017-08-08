@@ -14,7 +14,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class ExceptionTelemetryTest
@@ -438,6 +440,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void ExceptionTelemetryDeepCloneCopiesAllProperties()
         {
@@ -449,6 +452,7 @@
             var result = deepComparator.Compare(telemetry, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         private static Exception CreateExceptionWithStackTrace()
         {

@@ -10,7 +10,9 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
+#endif
 
     [TestClass]
     public class AvailabilityTelemetryTest
@@ -112,6 +114,7 @@
             Assert.Equal(telemetry.Data.success, false);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void AvailabilityTelemetryDeepCloneCopiesAllProperties()
         {
@@ -124,6 +127,7 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);            
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         private AvailabilityTelemetry CreateAvailabilityTelemetry()
         {

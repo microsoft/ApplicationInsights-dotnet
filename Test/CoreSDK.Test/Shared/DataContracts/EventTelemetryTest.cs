@@ -7,7 +7,9 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
+#endif
 
     [TestClass]
     public class EventTelemetryTest
@@ -123,6 +125,7 @@
             Assert.NotNull(telemetry as ISupportSampling);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void EventTelemetryDeepCloneCopiesAllProperties()
         {
@@ -137,6 +140,7 @@
             var result = deepComparator.Compare(eventTelemetry, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         [TestMethod]
         public void EventTelemetryHasCorrectValueOfSamplingPercentageAfterSerialization()
