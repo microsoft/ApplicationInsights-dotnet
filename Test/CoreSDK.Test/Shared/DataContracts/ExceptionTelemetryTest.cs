@@ -350,7 +350,14 @@
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions)
             {
-                Assert.Equal(expectedSequence[counter], details.message);
+                if (details.typeName == "System.AggregateException")
+                {
+                    Assert.StartsWith(expectedSequence[counter], details.message);
+                }
+                else
+                {
+                    Assert.Equal(expectedSequence[counter], details.message);
+                }
                 counter++;
             }
         }
@@ -373,7 +380,14 @@
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions.Take(Constants.MaxExceptionCountToSave))
             {
-                Assert.Equal(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                if (details.typeName == "System.AggregateException")
+                {
+                    Assert.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                }
+                else
+                {
+                    Assert.Equal(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                }
                 counter++;
             }
 
