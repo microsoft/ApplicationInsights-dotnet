@@ -4,8 +4,6 @@ $assemblies = "";
 
 get-childitem "..\bin\Release" -Filter *Tests.dll -recurse | foreach-object { $assemblies += $_.FullName + " " }
 
-$assemblies += "/logger:trx"
-
 echo $assemblies
 
 
@@ -16,6 +14,24 @@ echo $assemblies
 	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
 	-hideskipped:All `
 	-output:.\coverage.xml
+
+$netcoreassemblies = "";
+
+get-childitem "..\bin\Release" -Filter *netcoreapp11.Tests.dll -recurse | foreach-object { $netcoreassemblies += $_.FullName + " " }
+
+echo $netcoreassemblies
+
+
+..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
+	-register:user `
+	"-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
+	"-targetargs:$netcoreassemblies /logger:trx" `
+	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
+	-hideskipped:All `
+	-output:.\coverage.xml
+	-mergeoutput
+
+exit 0
 
 #Download report uploader
 (New-Object System.Net.WebClient).DownloadFile("https://codecov.io/bash", ".\CodecovUploader.sh")

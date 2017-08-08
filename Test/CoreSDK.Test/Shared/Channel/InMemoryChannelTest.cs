@@ -55,7 +55,7 @@
             using (TestEventListener listener = new TestEventListener())
             {
                 listener.EnableEvents(CoreEventSource.Log, EventLevel.Warning);
-                channel.Flush(TimeSpan.FromTicks(1));
+                channel.Flush(TimeSpan.FromSeconds(1));
 
                 var expectedMessage = listener.Messages.First();
                 Assert.Equal(24, expectedMessage.EventId);
