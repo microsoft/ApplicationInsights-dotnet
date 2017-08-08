@@ -66,8 +66,11 @@ namespace Microsoft.ApplicationInsights.TestFramework
             {
                 return "Test String";
             }
-
+#if NET40
             if (parameter.ParameterType.IsValueType)
+#else
+            if (parameter.ParameterType.GetTypeInfo().IsValueType)
+#endif
             {
                 return Activator.CreateInstance(parameter.ParameterType);
             }
@@ -98,7 +101,11 @@ namespace Microsoft.ApplicationInsights.TestFramework
 
         private static void VerifyEventApplicationName(MethodInfo eventMethod, EventWrittenEventArgs actualEvent)
         {
+#if !NETSTANDARD1_3 && !NETCOREAPP1_1
             string expectedApplicationName = AppDomain.CurrentDomain.FriendlyName;
+#else
+            string expectedApplicationName = "";
+#endif
             string actualApplicationName = actualEvent.Payload.Last().ToString();
             AssertEqual(expectedApplicationName, actualApplicationName, "Application Name");
         }

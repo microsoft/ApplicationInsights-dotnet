@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Tracing
 {
+#if !NETCOREAPP1_1
     using System;
     using System.Globalization;
     using System.Threading;
@@ -44,4 +45,5 @@
             }
         }
     }
+#endif
 }
