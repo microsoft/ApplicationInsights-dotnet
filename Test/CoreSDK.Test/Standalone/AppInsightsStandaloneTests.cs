@@ -7,15 +7,18 @@
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
 
     [TestClass]
     public class AppInsightsStandaloneTests
     {
-        private static string tempPath = Path.GetTempPath();
+        private string tempPath;
 
         [TestInitialize]
         public void Initialize()
         {
+            this.tempPath = Path.Combine(Path.GetTempPath(), "ApplicationInsightsTests", Guid.NewGuid().ToString());
+            Directory.CreateDirectory(this.tempPath);
             File.Copy("Microsoft.ApplicationInsights.dll", $"{tempPath}\\Microsoft.ApplicationInsights.dll", true);
             File.Delete($"{tempPath}\\System.Diagnostics.DiagnosticSource.dll");
         }
@@ -23,8 +26,7 @@
         [TestCleanup]
         public void Cleanup()
         {
-            File.Delete($"{tempPath}\\Microsoft.ApplicationInsights.dll");
-            File.Delete($"{tempPath}\\System.Diagnostics.DiagnosticSource.dll");
+            Directory.Delete(this.tempPath, true);
         }
 
         [TestMethod]
@@ -41,14 +43,14 @@
             Assert.True(dependencyId.StartsWith("|guid."));
         }
 
-        private static string RunTestApplication(bool withDiagnosticSource, string operationId)
+        private string RunTestApplication(bool withDiagnosticSource, string operationId)
         {
             if (withDiagnosticSource)
             {
-                File.Copy("System.Diagnostics.DiagnosticSource.dll", $"{tempPath}\\System.Diagnostics.DiagnosticSource.dll");
+                File.Copy("System.Diagnostics.DiagnosticSource.dll", $"{this.tempPath}\\System.Diagnostics.DiagnosticSource.dll");
             }
 
-            var fileName = $"{tempPath}\\ActivityTest.exe";
+            var fileName = $"{this.tempPath}\\ActivityTest.exe";
 
             Assert.True(CreateTestApplication(fileName));
 
@@ -58,14 +60,15 @@
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     FileName = fileName,
                     Arguments = operationId
                 }
             };
-
+            
             p.Start();
 
-            Assert.True(p.WaitForExit(1000));
+            Assert.True(p.WaitForExit(10000));
             Assert.Equal(0, p.ExitCode);
 
             return p.StandardOutput.ReadToEnd();

@@ -26,11 +26,11 @@
     </PackageReference>
     <PackageReference Include="Bond.CSharp" Version="6.0.0" Condition="'$(TargetFramework)' != 'net40'">
       <IncludeAssets>All</IncludeAssets>
-      <PrivateAssets>All</PrivateAssets>
+      <PrivateAssets>build</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Bond.CSharp" Version="4.2.1" Condition="'$(TargetFramework)' == 'net40'">
       <IncludeAssets>All</IncludeAssets>
-      <PrivateAssets>All</PrivateAssets>
+      <PrivateAssets>build</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

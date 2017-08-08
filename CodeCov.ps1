@@ -17,6 +17,8 @@ echo $assemblies
 	-hideskipped:All `
 	-output:.\coverage.xml
 
+exit 0
+
 #Download report uploader
 (New-Object System.Net.WebClient).DownloadFile("https://codecov.io/bash", ".\CodecovUploader.sh")
 
