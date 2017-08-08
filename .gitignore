@@ -166,3 +166,5 @@ $RECYCLE.BIN/
 *.vsix
 Web/PerformanceTests_Instrumented/
 [Ss]tyle[Cc]op.*
+
+coverage.xml
