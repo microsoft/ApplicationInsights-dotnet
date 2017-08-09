@@ -24,7 +24,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.11" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.11" />
@@ -40,10 +40,13 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj">
+      <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>
+      <Name>TelemetryChannel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
-  <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Core.Shared" />
-
+  <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 
 </Project>

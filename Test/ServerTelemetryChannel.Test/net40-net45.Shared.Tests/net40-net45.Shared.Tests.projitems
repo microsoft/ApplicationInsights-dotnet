@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>C5A3F18F-1426-4941-9D81-D21062A2B8F2</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.WindowsServer.Channel</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\BackendResponseHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\DirectoryAccessDenier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\FileAccessDenier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubApplicationFolderProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubApplicationLifecycle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubPlatformFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubPlatformFolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmission.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionScheduledPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\TelemetryBufferWhichDoesNothingOnFlush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTelemetrySerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmissionStorage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\StubTransmitter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\TestableBackoffLogicManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationFolderProviderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ApplicationLifecycleTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\CurrentThreadTaskSchedulerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ErrorHandlingTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ExponentialMovingAverageCounterTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\FileSystemTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\NetworkAvailabilityTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PartialSuccessTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFileTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PlatformFolderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingPercentageEstimatorSettingsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\SamplingScoreGeneratorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryBufferTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryChannelEventSourceTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetryProcessorChainBuilderExtensionsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TelemetrySerializerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\ThrottlingTransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionBufferTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\BackoffLogicManagerTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionPolicyTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionProcessedEventArgsTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionSenderTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmissionStorageTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmitterTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WeakConcurrentRandomTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebApplicationLifecycleTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SamplingTelemetryProcessorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerTelemetryChannelTest.cs" />
+  </ItemGroup>
+</Project>
