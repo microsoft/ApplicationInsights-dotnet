@@ -28,7 +28,7 @@ echo $netcoreassemblies
 	"-targetargs:$netcoreassemblies /logger:trx /Framework:FrameworkCore10" `
 	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
 	-hideskipped:All `
-	-output:.\coverage.xml '
+	-output:.\coverage.xml `
 	-mergeoutput
 
 #Download report uploader
