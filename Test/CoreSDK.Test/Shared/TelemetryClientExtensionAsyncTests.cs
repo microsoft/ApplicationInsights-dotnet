@@ -99,7 +99,7 @@
         /// <summary>
         /// Ensure that context being propagated via Begin/End.
         /// </summary>
-        [TestMethod, Timeout(500)]
+        [TestMethod, Timeout(2000)]
         public void ContextPropagatesThroughBeginEnd()
         {
             var op = this.telemetryClient.StartOperation<RequestTelemetry>("request");
@@ -121,7 +121,7 @@
                 {
                     if (this.sendItems.Count < 3)
                     {
-                        Monitor.Wait(this.sendItemsLock); // We will rely on the overall test timeout to break the wait in case of failure
+                        Monitor.Wait(this.sendItemsLock, 50); // We will rely on the overall test timeout to break the wait in case of failure
                     }
                 }
             } while (this.sendItems.Count < 3);

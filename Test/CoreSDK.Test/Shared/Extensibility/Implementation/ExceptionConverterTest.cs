@@ -60,6 +60,8 @@
             Assert.Equal("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException", expDetails.parsedStack[expDetails.parsedStack.Count - 1].method);
         }
 
+#if !NETCOREAPP1_1
+
         [TestMethod]
         public void CheckThatFileNameAndLineAreCorrectIfAvailable()
         {
@@ -84,6 +86,9 @@
                 Assert.Null(stack[0].fileName);
             }
         }
+#endif
+
+#if !NETCOREAPP1_1
 
         [TestMethod]
         public void CheckThatAssemblyNameHasCorrectValue()
@@ -99,6 +104,7 @@
                 Assert.Equal(assemblyFullName.ToLowerInvariant(), stackFrame.assembly.ToLowerInvariant());
             }
         }
+#endif
 
         [TestMethod]
         public void CheckLevelCorrespondsToFrameForLongStack()

@@ -85,6 +85,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared.Tests\Shared.Tests.projitems" Label="Shared" />
+  <Import Project="..\net40-net45.Shared.Tests\net40-net45.Shared.Tests.projitems" Label="net40-net45.Shared" />
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

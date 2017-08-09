@@ -6,7 +6,10 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Assert = Xunit.Assert;
+#if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
+#endif
+    using System.Collections.Generic;
 
     [TestClass]
     public class DependencyTelemetryTest
@@ -126,10 +129,12 @@
             Assert.Equal(new string('D', Property.MaxDependencyTypeLength), telemetry.Type);
 
             Assert.Equal(2, telemetry.Properties.Count);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), telemetry.Properties.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", telemetry.Properties.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), telemetry.Properties.Values.ToArray()[1]);
+            var t = new SortedList<string, string>(telemetry.Properties);
+
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
             Assert.Same(telemetry.Properties, telemetry.Properties);
         }
@@ -153,6 +158,7 @@
             Assert.Equal(10, item.sampleRate);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void DependencyTelemetryDeepCloneCopiesAllProperties()
         {
@@ -165,6 +171,7 @@
             ComparisonResult result = deepComparator.Compare(telemetry, other);
             Assert.True(result.AreEqual, result.DifferencesString);
         }
+#endif
 
         private DependencyTelemetry CreateRemoteDependencyTelemetry()
         {

@@ -78,19 +78,15 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         internal void Flush(TimeSpan timeout)
         {
-#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
-#endif
                 this.DequeueAndSend(timeout);
-#if !NETSTANDARD1_3
             }
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
             }
-#endif
         }
 
         /// <summary>
@@ -99,11 +95,9 @@ namespace Microsoft.ApplicationInsights.Channel
         /// </summary>
         private void Runner()
         {
-#if !NETSTANDARD1_3
             SdkInternalOperationsMonitor.Enter();
             try
             {
-#endif
                 using (this.startRunnerEvent = new AutoResetEvent(false))
                 {
                     while (this.enabled)
@@ -115,13 +109,11 @@ namespace Microsoft.ApplicationInsights.Channel
                         this.startRunnerEvent.WaitOne(this.sendingInterval);
                     }
                 }
-#if !NETSTANDARD1_3
             }
             finally
             {
                 SdkInternalOperationsMonitor.Exit();
             }
-#endif
         }
 
         /// <summary>

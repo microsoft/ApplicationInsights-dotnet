@@ -15,6 +15,8 @@
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
+#if !NETCOREAPP1_1
+
     public class TransmissionTest : AsyncTest
     {
         private static Stream CreateStream(string text)
@@ -310,4 +312,5 @@
             }
         }
     }
+#endif
 }

@@ -24,7 +24,7 @@
 #if NET40
     using Microsoft.Diagnostics.Tracing;
 #endif
-#if NET40 || NET45 || NET46
+#if NET40 || NET45 || NET46 || NETCOREAPP1_1
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -566,7 +566,8 @@
         {
             var channel = new StubTelemetryChannel { ThrowError = true };
             TelemetryConfiguration.Active = new TelemetryConfiguration(string.Empty, channel);
-            Assert.DoesNotThrow(() => new TelemetryClient().Track(new StubTelemetry()));
+            //Assert.DoesNotThrow
+            new TelemetryClient().Track(new StubTelemetry());
         }
 
         [TestMethod]
@@ -593,7 +594,8 @@
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", environmentKey); // Set via the environment variable.
 
             client.Context.InstrumentationKey = expectedKey;
-            Assert.DoesNotThrow(() => client.TrackTrace(message));
+            //Assert.DoesNotThrow
+            client.TrackTrace(message);
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
@@ -614,7 +616,9 @@
             string expectedKey = Guid.NewGuid().ToString();
             configuration.InstrumentationKey = expectedKey; // Set in config
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null); // Not set via env. variable
-            Assert.DoesNotThrow(() => client.TrackTrace("Test Message"));
+            
+            //Assert.DoesNotThrow
+            client.TrackTrace("Test Message");
 
             Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
@@ -708,7 +712,8 @@
             telemetryInitializer.OnInitialize = item => { throw new Exception(); };
             configuration.TelemetryInitializers.Add(telemetryInitializer);
             var client = new TelemetryClient(configuration);
-            Assert.DoesNotThrow(() => client.Track(new StubTelemetry()));
+            //Assert.DoesNotThrow
+            client.Track(new StubTelemetry());
         }
 
         [TestMethod]
@@ -776,7 +781,8 @@
             var client = new TelemetryClient(configuration);
 
 #pragma warning disable 618
-            Assert.DoesNotThrow(() => client.Track(new SessionStateTelemetry()));
+            //Assert.DoesNotThrow
+            client.Track(new SessionStateTelemetry());
 #pragma warning disable 618
         }
 
@@ -908,6 +914,7 @@
             Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
+#if !NETCOREAPP1_1
         [TestMethod]
         public void TrackAddsSdkVerionByDefault()
         {
@@ -933,6 +940,8 @@
 
             Assert.Equal(expected, eventTelemetry.Context.Internal.SdkVersion);
         }
+
+#endif
 
         [TestMethod]
         public void TrackDoesNotOverrideSdkVersion()
@@ -1068,7 +1077,7 @@
         [TestMethod]
         public void SerailizeRemovesEmptyPropertiesAndProducesValidJson()
         {
-            var telemetryIn = new ExceptionTelemetry(new ApplicationException());
+            var telemetryIn = new ExceptionTelemetry(new InvalidOperationException());
             telemetryIn.Properties.Add("MyKey", null);
 
             string json = JsonSerializer.SerializeAsString(telemetryIn);

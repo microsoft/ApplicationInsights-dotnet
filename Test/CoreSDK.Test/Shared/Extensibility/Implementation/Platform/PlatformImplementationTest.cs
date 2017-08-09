@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.ApplicationInsights.Extensibility.Implementation.Platform
 {
+#if !NETCOREAPP1_1
     using System;
     using System.IO;
     using System.Security.Permissions;
@@ -90,4 +91,6 @@
             return File.OpenWrite(Path.Combine(Environment.CurrentDirectory, "ApplicationInsights.config"));
         }
     }
+
+#endif
 }
