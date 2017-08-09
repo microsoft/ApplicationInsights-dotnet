@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AdaptiveSamplingTelemetryProcessorTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SamplingTelemetryProcessorTest.cs" />
   </ItemGroup>
 </Project>

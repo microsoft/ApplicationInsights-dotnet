@@ -54,7 +54,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\TransmitterTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WeakConcurrentRandomTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implementation\WebApplicationLifecycleTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SamplingTelemetryProcessorTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerTelemetryChannelTest.cs" />
   </ItemGroup>
 </Project>
