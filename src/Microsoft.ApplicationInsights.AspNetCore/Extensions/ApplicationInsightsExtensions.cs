@@ -4,6 +4,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using AspNetCore.Builder;
     using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.AspNetCore;
@@ -178,6 +179,44 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<IConfigureOptions<TelemetryConfiguration>, TelemetryConfigurationOptionsSetup>();
             }
             return services;
+        }
+
+        /// <summary>
+        /// Adds an Application Insights Telemetry Processor into a service collection via a <see cref="ITelemetryProcessorFactory"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the telemetry processor to add.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        public static IServiceCollection AddApplicationInsightsTelemetryProcessor<T>(this IServiceCollection services) where T : ITelemetryProcessor
+        {
+            return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider => new TelemetryProcessorFactory(serviceProvider, typeof(T)));
+        }
+
+        /// <summary>
+        /// Adds an Application Insights Telemetry Processor into a service collection via a <see cref="ITelemetryProcessorFactory"/>.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> instance.</param>
+        /// <param name="telemetryProcessorType">Type of the telemetry processor to add.</param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">The <paramref name="telemetryProcessorType"/> argument is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="telemetryProcessorType"/> type does not implement <see cref="ITelemetryProcessor"/>.</exception>
+        public static IServiceCollection AddApplicationInsightsTelemetryProcessor(this IServiceCollection services, Type telemetryProcessorType)
+        {
+            if (telemetryProcessorType == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryProcessorType));
+            }
+
+            if (!telemetryProcessorType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ITelemetryProcessor)))
+            {
+                throw new ArgumentException(nameof(telemetryProcessorType));
+            }
+
+            return services.AddSingleton<ITelemetryProcessorFactory>(serviceProvider => new TelemetryProcessorFactory(serviceProvider, telemetryProcessorType));
         }
 
         /// <summary>

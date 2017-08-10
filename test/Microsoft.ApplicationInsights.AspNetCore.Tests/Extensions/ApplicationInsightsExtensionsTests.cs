@@ -348,7 +348,7 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public static void RegistersTelemetryConfigurationFactoryMethodThatPopulatesItWithTelemetryProcessorFactoriesFromContainer()
             {
                 var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
-                services.AddSingleton<ITelemetryProcessorFactory>(new MockTelemetryProcessorFactory((next) => new FakeTelemetryProcessor(next)));
+                services.AddApplicationInsightsTelemetryProcessor<FakeTelemetryProcessor>();
 
                 services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
 
@@ -357,6 +357,34 @@ namespace Microsoft.Extensions.DependencyInjection.Test
                 FakeTelemetryProcessor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessor>().FirstOrDefault();
                 Assert.NotNull(telemetryProcessor);
                 Assert.True(telemetryProcessor.IsInitialized);
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithNullTelemetryProcessorTypeThrows()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Assert.Throws<ArgumentNullException>(() => services.AddApplicationInsightsTelemetryProcessor(null));
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithNonTelemetryProcessorTypeThrows()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(string)));
+                Assert.Throws<ArgumentException>(() => services.AddApplicationInsightsTelemetryProcessor(typeof(ITelemetryProcessor)));
+            }
+
+            [Fact]
+            public static void AddApplicationInsightsTelemetryProcessorWithImportingConstructor()
+            {
+                var services = ApplicationInsightsExtensionsTests.GetServiceCollectionWithContextAccessor();
+                services.AddApplicationInsightsTelemetryProcessor<FakeTelemetryProcessorWithImportingConstructor>();
+                services.AddApplicationInsightsTelemetry(new ConfigurationBuilder().Build());
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                var telemetryConfiguration = serviceProvider.GetTelemetryConfiguration();
+                FakeTelemetryProcessorWithImportingConstructor telemetryProcessor = telemetryConfiguration.TelemetryProcessors.OfType<FakeTelemetryProcessorWithImportingConstructor>().FirstOrDefault();
+                Assert.NotNull(telemetryProcessor);
+                Assert.Same(serviceProvider.GetService<IHostingEnvironment>(), telemetryProcessor.HostingEnvironment);
             }
 
 #if NET451 || NET46
@@ -589,18 +617,6 @@ namespace Microsoft.Extensions.DependencyInjection.Test
             public void AddProvider(ILoggerProvider provider)
             {
             }
-        }
-
-        private class MockTelemetryProcessorFactory: ITelemetryProcessorFactory
-        {
-            public Func<ITelemetryProcessor, ITelemetryProcessor> Factory { get; set; }
-
-            public MockTelemetryProcessorFactory(Func<ITelemetryProcessor, ITelemetryProcessor> factory)
-            {
-                this.Factory = factory;
-            }
-
-            public ITelemetryProcessor Create(ITelemetryProcessor next) => Factory(next);
         }
     }
 }
