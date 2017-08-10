@@ -255,6 +255,16 @@
 
             if (item != null)
             {
+                if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
+                {
+                    if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
+                    {
+                        TelemetryChannelEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
+                    }
+
+                    return;
+                }
+
                 if (TelemetryChannelEventSource.Log.IsVerboseEnabled)
                 {
                     TelemetryChannelEventSource.Log.TelemetryChannelSend(

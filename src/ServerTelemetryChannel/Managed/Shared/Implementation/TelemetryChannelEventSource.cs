@@ -1,12 +1,11 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation
 {
     using System;
-#if NET40  
     using System.Net;
+#if NET40  
     using Microsoft.Diagnostics.Tracing;
 #else
     using System.Diagnostics.Tracing;
-    using System.Net;
 #endif
 
     [EventSource(Name = "Microsoft-ApplicationInsights-WindowsServer-TelemetryChannel")]
@@ -479,6 +478,12 @@
                 66,
                 msg ?? string.Empty,
                 this.ApplicationName);
+        }
+
+        [Event(67, Message = "Item was rejected because it has no instrumentation key set. Item: {0}", Level = EventLevel.Verbose)]
+        public void ItemRejectedNoInstrumentationKey(string item, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(67, item ?? string.Empty, this.ApplicationName);
         }
 
         private string GetApplicationName()

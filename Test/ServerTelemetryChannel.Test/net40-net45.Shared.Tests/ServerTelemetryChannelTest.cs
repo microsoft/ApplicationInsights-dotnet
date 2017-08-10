@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.ApplicationInsights.WindowsServer.Channel
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.Channel;
@@ -16,7 +17,10 @@
     using System.Collections.Generic;
     using Extensibility.Implementation;
 
-#if !NET40
+#if NET40  
+    using Microsoft.Diagnostics.Tracing;
+#else
+    using System.Diagnostics.Tracing;
     using TaskEx = System.Threading.Tasks.Task;
 #endif
 
@@ -345,9 +349,33 @@
                 channel.TelemetryProcessor = new StubTelemetryProcessor(null) { OnProcess = (t) => sentTelemetry = t };
 
                 var telemetry = new StubTelemetry();
+                telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 channel.Send(telemetry);
 
                 Assert.Equal(telemetry, sentTelemetry);
+            }
+
+            [TestMethod]
+            public void DropsTelemetryWithNoInstrumentationKey()
+            {
+                ITelemetry sentTelemetry = null;
+                var channel = new ServerTelemetryChannel();
+                channel.Initialize(TelemetryConfiguration.CreateDefault());
+                channel.TelemetryProcessor = new StubTelemetryProcessor(null) { OnProcess = (t) => sentTelemetry = t };
+
+                var telemetry = new StubTelemetry();
+                // No instrumentation key
+
+                using (TestEventListener listener = new TestEventListener())
+                {
+                    listener.EnableEvents(TelemetryChannelEventSource.Log, EventLevel.Verbose);
+
+                    channel.Send(telemetry);
+
+                    Assert.Null(sentTelemetry);
+                    var expectedMessage = listener.Messages.First();
+                    Assert.Equal(67, expectedMessage.EventId);
+                }
             }
         }
 
@@ -394,6 +422,7 @@
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
 
                 var telemetry = new StubTelemetry();
+                telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 channel.Send(telemetry);
                 Thread.Sleep(TimeSpan.FromSeconds(1));
 

@@ -23,7 +23,7 @@
         [TestMethod]
         public void CommonTelemetryProcessorsAreInvoked()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
 
             var sentTelemetry = new List<ITelemetry>(1);
             var channel = new StubTelemetryChannel();
@@ -56,7 +56,7 @@
         [TestMethod]
         public void SinkProcessorsAreInvoked()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
 
             var sentTelemetry = new List<ITelemetry>(1);
             var channel = new StubTelemetryChannel();
@@ -90,7 +90,7 @@
         [TestMethod]
         public void CommonAndSinkProcessorsAreInvoked()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
 
             var sentTelemetry = new List<ITelemetry>(1);
             var channel = new StubTelemetryChannel();
@@ -126,7 +126,7 @@
         [TestMethod]
         public void TelemetryIsDeliveredToMultipleSinks()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
 
             var firstChannelTelemetry = new List<ITelemetry>();
             var firstChannel = new StubTelemetryChannel();
@@ -161,7 +161,7 @@
         [TestMethod]
         public void MultipleSinkTelemetryProcessorsAreInvoked()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
 
             var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
             configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
@@ -218,7 +218,7 @@
         [TestMethod]
         public void ConfigurationDisposesAllSinks()
         {
-            var configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
+            var configuration = new TelemetryConfiguration();
             var commonChainBuilder = new TelemetryProcessorChainBuilder(configuration);
             configuration.TelemetryProcessorChainBuilder = commonChainBuilder;
 
