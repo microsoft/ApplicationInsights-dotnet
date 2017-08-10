@@ -411,11 +411,6 @@
             {
                 this.Initialize(telemetry);
 
-                if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
-                {
-                    TelemetryDebugWriter.WriteTelemetry(telemetry);
-                }
-
                 // invokes the Process in the first processor in the chain
                 this.configuration.TelemetryProcessorChain.Process(telemetry);
 
