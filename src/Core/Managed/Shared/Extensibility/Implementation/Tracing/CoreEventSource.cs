@@ -419,6 +419,12 @@
             this.WriteEvent(34, this.nameProvider.Name);
         }
 
+        [Event(35, Message = "Item was rejected because it has no instrumentation key set. Item: {0}", Level = EventLevel.Verbose)]
+        public void ItemRejectedNoInstrumentationKey(string item, string appDomainName = "Incorrect")
+        {
+            this.WriteEvent(35, item ?? string.Empty, this.nameProvider.Name);
+        }
+
         /// <summary>
         /// Keywords for the PlatformEventSource.
         /// </summary>

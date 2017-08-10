@@ -562,15 +562,6 @@
         }
 
         [TestMethod]
-        public void TrackMethodDoesNotThrowWhenInstrumentationKeyIsEmptyAndNotSendingTheTelemetryItem()
-        {
-            var channel = new StubTelemetryChannel { ThrowError = true };
-            TelemetryConfiguration.Active = new TelemetryConfiguration(string.Empty, channel);
-            //Assert.DoesNotThrow
-            new TelemetryClient().Track(new StubTelemetry());
-        }
-
-        [TestMethod]
         public void DefaultChannelInConfigurationIsCreatedByConstructorWhenNotSpecified()
         {
             TelemetryConfiguration configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());

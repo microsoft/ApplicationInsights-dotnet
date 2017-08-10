@@ -133,6 +133,16 @@
                 return;
             }
 
+            if (string.IsNullOrEmpty(item.Context.InstrumentationKey))
+            {
+                if (CoreEventSource.Log.IsVerboseEnabled)
+                {
+                    CoreEventSource.Log.ItemRejectedNoInstrumentationKey(item.ToString());
+                }
+
+                return;
+            }
+
             try
             {
                 this.buffer.Enqueue(item);
