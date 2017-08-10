@@ -1,7 +1,7 @@
 ![Build](https://mseng.visualstudio.com/DefaultCollection/_apis/public/build/definitions/96a62c4a-58c2-4dbb-94b6-5979ebc7f2af/2637/badge) 
 [![codecov.io](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet-logging/coverage.svg?branch=develop)](https://codecov.io/github/Microsoft/ApplicationInsights-dotnet-logging?branch=develop)
 
-##Nuget packages
+## Nuget packages
 
 - [For NLog](http://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/).
 [![NLog Nuget](https://img.shields.io/nuget/vpre/Microsoft.ApplicationInsights.NLogTarget.svg)](https://www.nuget.org/packages/Microsoft.ApplicationInsights.NLogTarget/)
@@ -17,7 +17,7 @@ If you use NLog, log4Net or System.Diagnostics.Trace for diagnostic tracing in y
 
 [Application Insights Documentation](https://azure.microsoft.com/en-us/documentation/articles/app-insights-search-diagnostic-logs/#trace).
 
-#NLog
+# NLog
 Application Insights NLog Target nuget package adds ApplicationInsights target in your web.config (If you use application type that does not have web.config you can install the package but you need to configure ApplicationInsights programmatically; see below). 
 
 - If you configure NLog though web config then you just need do the following:
@@ -52,7 +52,7 @@ logger.Trace("trace log message");
 
 [NLog Documentation](https://github.com/nlog/NLog/wiki/Configuration-API) 
 
-#Log4Net
+# Log4Net
 
 Application Insights Log4Net adapter nuget modifies web.config and adds Application Insights Appender.
 
@@ -68,7 +68,7 @@ logger.Warn("A warning message");
 logger.Error("An error message");
 ```
 
-#System.Diagnostics
+# System.Diagnostics
 
 Microsoft.ApplicationInsights.TraceListener nuget package modifies web.config and adds application insights listener. (If your application type does not have web.config, add listener programmatically or in the configuration file appropriate to your application type)
 

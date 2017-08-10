@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3" />
     <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
     <PackageReference Include="Microbuild.Core" Version="0.2.0" />
     <PackageReference Include="StyleCop.MSBuild" Version="4.7.55" />

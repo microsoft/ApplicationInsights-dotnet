@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0-beta3" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.3" />
     <PackageReference Include="Microbuild.Core" Version="0.2.0" />
   </ItemGroup>
 
