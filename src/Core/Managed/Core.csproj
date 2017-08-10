@@ -38,6 +38,9 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
@@ -50,6 +53,15 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+      <Link>PublicAPI.Shipped.txt</Link>
+    </AdditionalFiles>
+    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.ApplicationInsights.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+      <Link>PublicAPI.Unshipped.txt</Link>
+    </AdditionalFiles>
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />

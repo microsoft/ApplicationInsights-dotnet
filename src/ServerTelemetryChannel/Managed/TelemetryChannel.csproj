@@ -65,6 +65,9 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-alpha001">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -92,6 +95,15 @@
     <Content Include="ApplicationInsights.config.install.xdt" />
     <Content Include="ApplicationInsights.config.transform" />
     <Content Include="ApplicationInsights.config.uninstall.xdt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Shipped.txt">
+      <Link>PublicAPI.Shipped.txt</Link>
+    </AdditionalFiles>
+    <AdditionalFiles Include="..\..\..\PublicAPI\Microsoft.AI.ServerTelemetryChannel.dll\$(TargetFramework)\PublicAPI.Unshipped.txt">
+      <Link>PublicAPI.Unshipped.txt</Link>
+    </AdditionalFiles>
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
