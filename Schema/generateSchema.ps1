@@ -118,9 +118,9 @@ dir "$currentDir\obj\gbc" | ForEach-Object {
 ## COPY GENERATED FILES TO THE REPOSITORY
 #####################################################################
 
-del "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\*_types.cs"
+del "$currentDir\..\src\Microsoft.ApplicationInsights\Managed\Shared\Extensibility\Implementation\External\*_types.cs"
 
 dir "$currentDir\obj\gbc\*_types.cs" | ForEach-Object { 
     $fileName = $_
-    copy $fileName "$currentDir\..\src\Core\Managed\Shared\Extensibility\Implementation\External\"
+    copy $fileName "$currentDir\..\src\Microsoft.ApplicationInsights\Managed\Shared\Extensibility\Implementation\External\"
 }

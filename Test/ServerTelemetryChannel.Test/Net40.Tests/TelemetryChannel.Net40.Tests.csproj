@@ -75,9 +75,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Core.csproj">
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Core</Name>
+      <Name>Microsoft.ApplicationInsights</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\ServerTelemetryChannel\Managed\TelemetryChannel.csproj">
       <Project>{3273d899-d9b3-44fe-b3ab-578e18b2ef90}</Project>

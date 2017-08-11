@@ -6,6 +6,6 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <AssemblyName>Microsoft.ApplicationInsights.$(MSBuildProjectName)</AssemblyName>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
 </Project>

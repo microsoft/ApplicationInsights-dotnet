@@ -57,9 +57,9 @@
     <Compile Include="FailOnAssertSetup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Core\Managed\Core.csproj">
+    <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Core</Name>
+      <Name>Microsoft.ApplicationInsights</Name>
     </ProjectReference>
     <ProjectReference Include="..\ApplicationInsightsTypes\ApplicationInsightsTypes.csproj">
       <Project>{4b0bc3b7-c7fc-4333-9e28-5790d9153f07}</Project>
@@ -75,7 +75,7 @@
   <ItemGroup>
     <Folder Include="Extensibility\Implementation\Tracing\" />
   </ItemGroup>
-  <Import Project="..\Shared\Core.Shared.Tests.projitems" Label="Shared" />
+  <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Shared" />
   <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
