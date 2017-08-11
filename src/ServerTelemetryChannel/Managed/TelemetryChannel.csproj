@@ -71,9 +71,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Managed\Core.csproj">
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Core</Name>
+      <Name>Microsoft.ApplicationInsights</Name>
     </ProjectReference>
     <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />
     <Reference Include="System.Web.Extensions" Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'" />

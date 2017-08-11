@@ -35,9 +35,9 @@
     <Analyzer Include="..\..\..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Managed\Core.csproj">
+    <ProjectReference Include="..\..\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">
       <Project>{e9ecee96-dd50-42f6-9f33-0978cdfa15ed}</Project>
-      <Name>Core</Name>
+      <Name>Microsoft.ApplicationInsights</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
