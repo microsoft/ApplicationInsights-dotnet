@@ -17,12 +17,12 @@
     <tags>Analytics ApplicationInsights Telemetry ASP.NET ASMX Web Azure Server Services ASPX Websites Role Logging Log Tracing DiagnosticSource DiagnosticSourceListener</tags>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Microsoft.ApplicationInsights" version="2.3" />
-        <dependency id="System.Diagnostics.DiagnosticSource" version="4.3.0" />
+        <dependency id="Microsoft.ApplicationInsights" version="$coresdkversion$" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="4.4.0" />
       </group>
       <group targetFramework="netstandard13">
-        <dependency id="Microsoft.ApplicationInsights" version="2.3" />
-        <dependency id="System.Diagnostics.DiagnosticSource" version="4.3.0" />
+        <dependency id="Microsoft.ApplicationInsights" version="$coresdkversion$" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="4.4.0" />
       </group>
     </dependencies>
   </metadata>
