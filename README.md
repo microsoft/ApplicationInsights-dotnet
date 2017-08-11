@@ -7,11 +7,12 @@
 This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
 
 
-| SDK                | ItemsSent  | NumberOfApps |
+| SDK                | Extensibility  |
 |--------------------|------------|--------------|
-| ![first](docs/1.png) | 22,718,473 | 20           |
-| ![first](docs/2.png) | 2,192      | 2            |
-
+| ![first](docs/1.png) | pick modules / manually instrument |
+| ![first](docs/2.png) | pick telemetry initializers      |
+| ![first](docs/2.png) | pick telemetry initializers      |
+| ![first](docs/2.png) | pick telemetry initializers      |
 
 ![first](docs/1.png)
 
