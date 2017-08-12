@@ -74,7 +74,7 @@
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url);
 
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]

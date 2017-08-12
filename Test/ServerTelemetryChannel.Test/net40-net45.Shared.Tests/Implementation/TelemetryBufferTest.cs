@@ -31,13 +31,13 @@
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenSerializerIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
+                AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
             }
 
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenApplicationLifecycleIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TelemetryBuffer(new StubTelemetrySerializer(), null));
+                AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(new StubTelemetrySerializer(), null));
             }
         }
 
@@ -89,10 +89,10 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 1111;
-                Assert.Throws<ArgumentException>(() => buffer.BacklogSize = 1110);
+                AssertEx.Throws<ArgumentException>(() => buffer.BacklogSize = 1110);
 
                 buffer.BacklogSize = 8000;
-                Assert.Throws<ArgumentException>(() => buffer.Capacity = 8001);
+                AssertEx.Throws<ArgumentException>(() => buffer.Capacity = 8001);
 
             }
 
@@ -100,9 +100,9 @@
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsLessThanMinimum()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 1000); // 1001 is minimum anything low would throw.
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 0);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 1000); // 1001 is minimum anything low would throw.
 
                 bool exceptionThrown = false;
                 try
@@ -126,7 +126,7 @@
             public void ThrowsArgumentNullExceptionWhenTelemetryIsNull()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Throws<ArgumentNullException>(() => buffer.Process((ITelemetry)null));
+                AssertEx.Throws<ArgumentNullException>(() => buffer.Process((ITelemetry)null));
             }
 
             [TestMethod]
@@ -186,7 +186,7 @@
                 }
 
                 Assert.IsTrue(bufferFlushed.Wait(30));
-                Assert.AreEqual(sentTelemetry, flushedTelemetry);
+                AssertEx.AreEqual(sentTelemetry, flushedTelemetry);
             }
 
             [TestMethod]
@@ -282,7 +282,7 @@
         
                 telemetryBuffer.FlushAsync().GetAwaiter().GetResult();
         
-                Assert.Same(expectedTelemetry, serializedTelemetry.Single());
+                Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
             }
 
             [TestMethod]

@@ -26,7 +26,7 @@
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
-            Assert.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
+            AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
             Assert.AreEqual(typeof(AI.AvailabilityData).Name, item.data.baseType);
 
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
@@ -36,7 +36,7 @@
             Assert.AreEqual(expected.Name, item.data.baseData.name);
             Assert.AreEqual(expected.Id.ToString(), item.data.baseData.id);
 
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@
             Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
             Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
-            Assert.Same(telemetry.Properties, telemetry.Properties);
+            Assert.AreSame(telemetry.Properties, telemetry.Properties);
         }
 
         [TestMethod]

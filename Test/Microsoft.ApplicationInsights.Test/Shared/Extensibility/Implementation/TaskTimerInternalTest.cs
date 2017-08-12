@@ -53,14 +53,14 @@
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsZeroOrLess()
             {
                 var timer = new TaskTimerInternal();
-                Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.Zero);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.Zero);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsMoreThanMaxIntMilliseconds()
             {
                 var timer = new TaskTimerInternal();
-                Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.FromMilliseconds((double)int.MaxValue + 1));
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.FromMilliseconds((double)int.MaxValue + 1));
             }
         }
 

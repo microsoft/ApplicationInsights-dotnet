@@ -42,7 +42,7 @@
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
             }
 
             [TestMethod]
@@ -50,13 +50,13 @@
             {
                 var expectedContent = new byte[42];
                 var transmission = new Transmission(new Uri("http://address"), expectedContent, "content/type", "content/encoding");
-                Assert.Same(expectedContent, transmission.Content);
+                Assert.AreSame(expectedContent, transmission.Content);
             }
 
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenContentIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
             }
 
             [TestMethod]
@@ -64,13 +64,13 @@
             {
                 string expectedContentType = "TestContentType123";
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], expectedContentType, "content/encoding");
-                Assert.Same(expectedContentType, transmission.ContentType);
+                Assert.AreSame(expectedContentType, transmission.ContentType);
             }
 
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenContentTypeIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
             }
 
             [TestMethod]
@@ -78,7 +78,7 @@
             {
                 string expectedContentEncoding = "gzip";
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], "any/content", expectedContentEncoding);
-                Assert.Same(expectedContentEncoding, transmission.ContentEncoding);
+                Assert.AreSame(expectedContentEncoding, transmission.ContentEncoding);
             }
 
             [TestMethod]
@@ -166,7 +166,7 @@
                     var transmission = new TestableTransmission();
                     FieldInfo isSendingField = typeof(Transmission).GetField("isSending", BindingFlags.NonPublic | BindingFlags.Instance);
                     isSendingField.SetValue(transmission, 1, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, null);
-                    await Assert.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
+                    await AssertEx.ThrowsAsync<InvalidOperationException>(() => transmission.SendAsync());
                 });
             }
 
@@ -207,7 +207,7 @@
         
                     await transmission.SendAsync();
         
-                    Assert.AreEqual(transmissionContent, requestStream.ToArray());
+                    AssertEx.AreEqual(transmissionContent, requestStream.ToArray());
                 });
             }
 

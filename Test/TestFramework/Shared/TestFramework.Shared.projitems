@@ -10,6 +10,7 @@
     <Import_RootNamespace>Microsoft.ApplicationInsights.TestFramework</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssertExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AsyncTest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeterministicTaskScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventSourceTest.cs" />

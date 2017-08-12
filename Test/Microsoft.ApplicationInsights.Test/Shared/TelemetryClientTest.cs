@@ -247,7 +247,7 @@
 #pragma warning disable CS0618
             Assert.AreEqual(4.2, metric.Value);
 #pragma warning restore CS0618
-            Assert.Empty(metric.Properties);
+            AssertEx.IsEmpty(metric.Properties);
         }
 
         #endregion
@@ -316,7 +316,7 @@
             client.TrackException(ex);
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.Same(ex, exceptionTelemetry.Exception);
+            Assert.AreSame(ex, exceptionTelemetry.Exception);
         }
 
         [TestMethod]
@@ -342,7 +342,7 @@
             client.TrackException(new ExceptionTelemetry(ex));
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.Same(ex, exceptionTelemetry.Exception);
+            Assert.AreSame(ex, exceptionTelemetry.Exception);
         }
 
         [TestMethod]
@@ -395,7 +395,7 @@
             client.TrackPageView(pageViewTelemetry);
 
             var channelPageView = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.Same(pageViewTelemetry, channelPageView);
+            Assert.AreSame(pageViewTelemetry, channelPageView);
         }
 
         #endregion
@@ -430,7 +430,7 @@
             client.TrackRequest(clientRequest);
 
             var channelRequest = (RequestTelemetry)sentTelemetry.Single();
-            Assert.Same(clientRequest, channelRequest);
+            Assert.AreSame(clientRequest, channelRequest);
         }
 
         #endregion
@@ -465,7 +465,7 @@
             client.TrackDependency(clientDependency);
 
             var channelDependency = (DependencyTelemetry)sentTelemetry.Single();
-            Assert.Same(clientDependency, channelDependency);
+            Assert.AreSame(clientDependency, channelDependency);
         }
 
         #endregion
@@ -541,7 +541,7 @@
             client.TrackAvailability(clientAvailability);
 
             var channelAvailability = (AvailabilityTelemetry)sentTelemetry.Single();
-            Assert.Same(clientAvailability, channelAvailability);
+            Assert.AreSame(clientAvailability, channelAvailability);
         }
 
         #endregion
@@ -725,8 +725,8 @@
 
                 var exceptionExplanation = "Exception while initializing " + typeof(StubTelemetryInitializer).FullName;
                 var diagnosticsMessage = (string)listener.Messages.First().Payload[0];
-                Assert.Contains(exceptionExplanation, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(exceptionMessage, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains(exceptionExplanation, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains(exceptionMessage, diagnosticsMessage, StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -868,7 +868,7 @@
             var telemetry = new StubTelemetry();
             client.Track(telemetry);
 
-            Assert.AreEqual(client.Context.Properties.ToArray(), telemetry.Properties.ToArray());
+            AssertEx.AreEqual(client.Context.Properties.ToArray(), telemetry.Properties.ToArray());
         }
 
         [TestMethod]

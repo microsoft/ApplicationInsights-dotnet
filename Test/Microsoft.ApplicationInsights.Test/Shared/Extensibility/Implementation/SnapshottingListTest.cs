@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var input = new List<object> { item };
                 IList<object> output = target.CreateSnapshot(input);
 
-                Assert.Same(item, output[0]);
+                Assert.AreSame(item, output[0]);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Insert(0, item);
 
-                Assert.Same(item, target.Collection[0]);
+                Assert.AreSame(item, target.Collection[0]);
             }
 
             [TestMethod]
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var item = new object();
                 target.Snapshot = new List<object> { item };
 
-                Assert.Same(item, target[0]);
+                Assert.AreSame(item, target[0]);
             }
 
             [TestMethod]
@@ -178,7 +178,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target[0] = item;
 
-                Assert.Same(item, target.Collection[0]);
+                Assert.AreSame(item, target.Collection[0]);
             }
 
             [TestMethod]

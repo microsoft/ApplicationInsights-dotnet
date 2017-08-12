@@ -40,8 +40,8 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <Import Project="..\..\..\Test\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
-  <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Microsoft.ApplicationInsights.Shared" />
+  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
+  <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Shared" />
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />
 

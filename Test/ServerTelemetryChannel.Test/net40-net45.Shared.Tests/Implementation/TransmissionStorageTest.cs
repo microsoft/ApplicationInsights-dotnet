@@ -56,7 +56,7 @@
             public void InitializeThrowsArgumentNullExceptionToPreventUsageErrors()
             {
                 var transmitter = new TransmissionStorage();
-                Assert.Throws<ArgumentNullException>(() => transmitter.Initialize(null));
+                AssertEx.Throws<ArgumentNullException>(() => transmitter.Initialize(null));
             }
 
             // Uncomment this integration test only during investigations.
@@ -128,7 +128,7 @@
                 var storage = new TransmissionStorage();
                 storage.Initialize(new StubApplicationFolderProvider());
 
-                Assert.Throws<ArgumentOutOfRangeException>(() => storage.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => storage.Capacity = -1);
             }
         }
 
@@ -199,7 +199,7 @@
                 storage.Enqueue(() => transmission);
                 
                 string encodedContent = writtenContents.Split(Environment.NewLine.ToCharArray()).Last();
-                Assert.AreEqual(contents, Convert.FromBase64String(encodedContent));
+                AssertEx.AreEqual(contents, Convert.FromBase64String(encodedContent));
             }
 
             [TestMethod]

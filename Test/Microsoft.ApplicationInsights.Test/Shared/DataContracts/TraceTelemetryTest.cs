@@ -11,6 +11,7 @@
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class TraceTelemetryTest
@@ -34,7 +35,7 @@
             var item = new TraceTelemetry();
             Assert.IsNotNull(item.Context);
             Assert.IsNotNull(item.Properties);
-            Assert.Empty(item.Message);
+            AssertEx.IsEmpty(item.Message);
             Assert.IsNull(item.SeverityLevel);
         }
 
@@ -72,7 +73,7 @@
             Assert.AreEqual(typeof(AI.MessageData).Name, item.data.baseType);
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Message, item.data.baseData.message);
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]

@@ -69,23 +69,23 @@
 
             Assert.AreEqual(4, telemetrySentToChannel.Count);
 
-            Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[0]);
+            AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[0]);
             Assert.AreEqual("Test Event", ((EventTelemetry) telemetrySentToChannel[0]).Name);
             Assert.AreEqual(false, ((EventTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
 
-            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[1]);
+            AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Request 1", ((RequestTelemetry) telemetrySentToChannel[1]).Name);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[2]);
+            AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Request 2", ((RequestTelemetry) telemetrySentToChannel[2]).Name);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
         }
 
         [TestMethod]
@@ -116,12 +116,12 @@
             var t = new SortedList<string, MetricTelemetry>();
 
             Assert.IsNotNull(telemetrySentToChannel[8]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[8]);
             var m = (MetricTelemetry) telemetrySentToChannel[8];
             t.Add(m.Properties["Request.Success"], m);
 
             Assert.IsNotNull(telemetrySentToChannel[9]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[9]);
             m = (MetricTelemetry)telemetrySentToChannel[9];
             t.Add(m.Properties["Request.Success"], m);
 
@@ -206,12 +206,12 @@
             var t = new SortedList<string, MetricTelemetry>();
 
             Assert.IsNotNull(telemetrySentToChannel[3]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[3]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[3]);
             var m = (MetricTelemetry)telemetrySentToChannel[3];
             t.Add(m.Properties["Request.Success"], m);
 
             Assert.IsNotNull(telemetrySentToChannel[4]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[4]);
             m = (MetricTelemetry)telemetrySentToChannel[4];
             t.Add(m.Properties["Request.Success"], m);
 
@@ -264,30 +264,30 @@
 
             Assert.AreEqual(6, telemetrySentToChannel.Count);
             
-            Assert.IsType(typeof(RequestTelemetry), telemetrySentToChannel[0]);
+            AssertEx.IsType<RequestTelemetry>(telemetrySentToChannel[0]);
             Assert.AreEqual(true, ((RequestTelemetry) telemetrySentToChannel[0]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Requests', Ver:'1.0')",
                          ((RequestTelemetry) telemetrySentToChannel[0]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[1]);
+            AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[1]);
             Assert.AreEqual("Test Dependency Call 1", ((DependencyTelemetry) telemetrySentToChannel[1]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[1]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
                          ((DependencyTelemetry) telemetrySentToChannel[1]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[2]);
+            AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[2]);
             Assert.AreEqual("Test Dependency Call 2", ((DependencyTelemetry) telemetrySentToChannel[2]).Name);
             Assert.AreEqual(true, ((DependencyTelemetry) telemetrySentToChannel[2]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
             Assert.AreEqual("(Name:'Dependencies', Ver:'1.0')",
                          ((DependencyTelemetry) telemetrySentToChannel[2]).Properties["_MS.ProcessedByMetricExtractors"]);
 
-            Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[3]);
+            AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[3]);
             Assert.AreEqual("Test Event", ((EventTelemetry) telemetrySentToChannel[3]).Name);
             Assert.AreEqual(false, ((EventTelemetry) telemetrySentToChannel[3]).Properties.ContainsKey("_MS.ProcessedByMetricExtractors"));
 
 
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[4]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[5]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[4]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[5]);
 
             Assert.AreEqual(1, telemetrySentToChannel.Where( (t) => "Server response time".Equals((t as MetricTelemetry)?.Name) ).Count());
             Assert.AreEqual(1, telemetrySentToChannel.Where( (t) => "Dependency duration".Equals((t as MetricTelemetry)?.Name) ).Count());
@@ -395,12 +395,12 @@
             var t = new SortedList<string, MetricTelemetry>();
 
             Assert.IsNotNull(telemetrySentToChannel[8]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[8]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[8]);
             var m = (MetricTelemetry) telemetrySentToChannel[8];
             t.Add(m.Properties["Dependency.Success"], m);
 
             Assert.IsNotNull(telemetrySentToChannel[9]);
-            Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[9]);
+            AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[9]);
             m = (MetricTelemetry)telemetrySentToChannel[9];
             t.Add(m.Properties["Dependency.Success"], m);
 
@@ -512,15 +512,15 @@
                 Assert.IsNotNull(telemetrySentToChannel[i]);
                 if (i == 0 || i == 14)
                 {
-                    Assert.IsType(typeof(EventTelemetry), telemetrySentToChannel[i]);
+                    AssertEx.IsType<EventTelemetry>(telemetrySentToChannel[i]);
                 }
                 else if (i <= 26)
                 {
-                    Assert.IsType(typeof(DependencyTelemetry), telemetrySentToChannel[i]);
+                    AssertEx.IsType<DependencyTelemetry>(telemetrySentToChannel[i]);
                 }
                 else
                 {
-                    Assert.IsType(typeof(MetricTelemetry), telemetrySentToChannel[i]);
+                    AssertEx.IsType<MetricTelemetry>(telemetrySentToChannel[i]);
                     MetricTelemetry metric = (MetricTelemetry) telemetrySentToChannel[i];
 
                     Assert.AreEqual("Dependency duration", metric.Name);

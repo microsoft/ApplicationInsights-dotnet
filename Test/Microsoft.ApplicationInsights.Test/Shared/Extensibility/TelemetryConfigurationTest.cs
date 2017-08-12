@@ -31,7 +31,7 @@
             bool channelDisposed = false;
             stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(string.Empty, stubChannel);
-            Assert.Same(stubChannel, config.TelemetryChannel);
+            Assert.AreSame(stubChannel, config.TelemetryChannel);
             config.Dispose();
             Assert.IsFalse(channelDisposed);
         }
@@ -55,7 +55,7 @@
             stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey, stubChannel);
             Assert.AreEqual(expectedKey, config.InstrumentationKey);
-            Assert.Same(stubChannel, config.TelemetryChannel);
+            Assert.AreSame(stubChannel, config.TelemetryChannel);
             config.Dispose();
             Assert.IsFalse(channelDisposed);
         }
@@ -115,7 +115,7 @@
             TelemetryConfiguration.Active = null;
             Assert.IsNotNull(TelemetryConfiguration.Active);
 
-            Assert.Same(modules, TelemetryModules.Instance);
+            Assert.AreSame(modules, TelemetryModules.Instance);
         }
 
         [TestMethod]
@@ -224,7 +224,7 @@
             {
                 var defaultConfiguration = TelemetryConfiguration.CreateDefault();
                 Assert.IsNotNull(defaultConfiguration);
-                Assert.Same(defaultConfiguration, initializedConfiguration);
+                Assert.AreSame(defaultConfiguration, initializedConfiguration);
             }
             finally
             {
@@ -255,7 +255,7 @@
         public void InstrumentationKeyThrowsArgumentNullExceptionWhenNewValueIsNullToAvoidNullReferenceExceptionWhenAccessingPropertyValue()
         {
             var configuration = new TelemetryConfiguration();
-            Assert.Throws<ArgumentNullException>(() => configuration.InstrumentationKey = null);
+            AssertEx.Throws<ArgumentNullException>(() => configuration.InstrumentationKey = null);
         }
 
         [TestMethod]
@@ -296,7 +296,7 @@
             var customChannel = new StubTelemetryChannel();
             configuration.TelemetryChannel = customChannel;
 
-            Assert.Same(customChannel, configuration.TelemetryChannel);
+            Assert.AreSame(customChannel, configuration.TelemetryChannel);
         }
 
         [TestMethod]
@@ -308,10 +308,10 @@
             var c2 = new StubTelemetryChannel();
 
             configuration.TelemetryChannel = c1;
-            Assert.Same(c1, configuration.TelemetryChannel);
+            Assert.AreSame(c1, configuration.TelemetryChannel);
 
             configuration.DefaultTelemetrySink.TelemetryChannel = c2;
-            Assert.Same(c2, configuration.TelemetryChannel);
+            Assert.AreSame(c2, configuration.TelemetryChannel);
         }
 
         #endregion
@@ -324,7 +324,7 @@
             var configuration = new TelemetryConfiguration();
             var tp = configuration.DefaultTelemetrySink.TelemetryProcessorChain;
 
-            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
+            AssertEx.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -332,7 +332,7 @@
         {
             var configuration = new TelemetryConfiguration();
             
-            Assert.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
+            AssertEx.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
         }
 
         #endregion
@@ -359,7 +359,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsNull()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
              {
                  TelemetryConfiguration.CreateFromConfiguration(null);
              });
@@ -368,7 +368,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsEmpty()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
             {
                 TelemetryConfiguration.CreateFromConfiguration(String.Empty);
             });
@@ -377,7 +377,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsWhitespace()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
             {
                 TelemetryConfiguration.CreateFromConfiguration(" ");
             });

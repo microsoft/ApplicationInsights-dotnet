@@ -105,10 +105,10 @@
             Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
             Assert.AreEqual(expected.Success, item.data.baseData.success);
             Assert.AreEqual(expected.ResponseCode, item.data.baseData.responseCode);
-            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString(), StringComparer.OrdinalIgnoreCase);
+            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
 
             Assert.AreEqual(1, item.data.baseData.measurements.Count);
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -194,8 +194,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);  
   
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
-            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
-            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // AssertEx.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // AssertEx.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
         }
 
         [TestMethod]

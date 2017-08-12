@@ -150,7 +150,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 object[] array = new object[50];
                 target.CopyTo(array, 42);
 
-                Assert.Same(item, array[42]);
+                Assert.AreSame(item, array[42]);
             }
         }
 
@@ -181,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 IEnumerator<object> enumerator = target.GetEnumerator();
 
                 enumerator.MoveNext();
-                Assert.Same(item, enumerator.Current);
+                Assert.AreSame(item, enumerator.Current);
             }
 
             [TestMethod]
@@ -194,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 IEnumerator enumerator = ((IEnumerable)target).GetEnumerator();
 
                 enumerator.MoveNext();
-                Assert.Same(item, enumerator.Current);
+                Assert.AreSame(item, enumerator.Current);
             }
         }
 
@@ -255,7 +255,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Remove(new object());
 
-                Assert.Same(oldSnapshot, target.Snapshot);
+                Assert.AreSame(oldSnapshot, target.Snapshot);
             }
 
             [TestMethod]
@@ -291,7 +291,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var dummy = target.GetSnapshot();
 
-                Assert.Same(expectedCollection, actualCollection);
+                Assert.AreSame(expectedCollection, actualCollection);
             }
 
             [TestMethod]
@@ -303,7 +303,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var returnedSnapshot = target.GetSnapshot();
 
-                Assert.Same(previouslyCreatedSnapshot, returnedSnapshot);
+                Assert.AreSame(previouslyCreatedSnapshot, returnedSnapshot);
             }
 
 #if !NET40 // .Net 4.0 doesn't support Monitor.IsEntered

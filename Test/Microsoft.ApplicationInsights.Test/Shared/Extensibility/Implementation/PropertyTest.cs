@@ -11,6 +11,7 @@
     
     using DataContracts;
     using External;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class PropertyTest
@@ -144,7 +145,7 @@
             original.SanitizeProperties();
 
             string sanitizedKey = OriginalKey.Trim();
-            Assert.AreEqual(new[] { new KeyValuePair<string, string>(sanitizedKey, OriginalValue) }, original);
+            AssertEx.AreEqual(new[] { new KeyValuePair<string, string>(sanitizedKey, OriginalValue) }, original);
         }
 
         [TestMethod]
@@ -195,7 +196,7 @@
             original.SanitizeProperties();
 
             string sanitizedValue = originalValue.Substring(0, Property.MaxValueLength);
-            Assert.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
+            AssertEx.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
         }
 
         [TestMethod]
@@ -208,7 +209,7 @@
             original.SanitizeProperties();
 
             string sanitizedValue = OriginalValue.Trim();
-            Assert.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
+            AssertEx.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
         }
 
         [TestMethod]
@@ -221,7 +222,7 @@
             original.SanitizeMeasurements();
 
             string sanitizedKey = OriginalKey.Trim();
-            Assert.AreEqual(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
+            AssertEx.AreEqual(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
         }
 
         [TestMethod]

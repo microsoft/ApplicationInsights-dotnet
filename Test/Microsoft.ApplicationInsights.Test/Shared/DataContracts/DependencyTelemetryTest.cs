@@ -10,6 +10,7 @@
     using KellermanSoftware.CompareNetObjects;
 #endif
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class DependencyTelemetryTest
@@ -23,7 +24,7 @@
             Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
             Assert.AreEqual(expected.Sequence, item.seq);
             Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
-            Assert.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
+            AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
             Assert.AreEqual(typeof(AI.RemoteDependencyData).Name, item.data.baseType);
 
             Assert.AreEqual(expected.Id, item.data.baseData.id);
@@ -33,7 +34,7 @@
             Assert.AreEqual(expected.Type, item.data.baseData.type);
 
             Assert.AreEqual(expected.Success, item.data.baseData.success);
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -93,10 +94,10 @@
 #pragma warning disable 618
             var dependency = new DependencyTelemetry("name", "command name", DateTimeOffset.Now, TimeSpan.FromSeconds(42), false);
 
-            Assert.Empty(dependency.DependencyKind);
+            AssertEx.IsEmpty(dependency.DependencyKind);
 #pragma warning restore 618
 
-            Assert.Empty(dependency.Type);
+            AssertEx.IsEmpty(dependency.Type);
         }
 
         [TestMethod]
@@ -136,7 +137,7 @@
             Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
             Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
-            Assert.Same(telemetry.Properties, telemetry.Properties);
+            Assert.AreSame(telemetry.Properties, telemetry.Properties);
         }
 
         [TestMethod]

@@ -4,7 +4,8 @@
     using System.Threading.Tasks;
     using System.Web.Hosting;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -49,7 +50,7 @@
             IRegisteredObject registeredObject = null;
             StubHostingEnvironment.OnRegisterObject = obj => registeredObject = obj;
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
-            Assert.Same(service, registeredObject);
+            Assert.AreSame(service, registeredObject);
         }
 
         [TestMethod]
@@ -59,7 +60,7 @@
             StubHostingEnvironment.OnUnregisterObject = obj => unregisteredObject = obj;
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
             service.Dispose();
-            Assert.Same(service, unregisteredObject);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         [TestMethod]
@@ -114,7 +115,7 @@
 
             service.Stop(false);
 
-            Assert.IsType<CurrentThreadTaskScheduler>(stoppingTaskScheduler);
+            AssertEx.IsType<CurrentThreadTaskScheduler>(stoppingTaskScheduler);
         }
 
         [TestMethod]
@@ -149,7 +150,7 @@
             service.Stop(false);
 
             Assert.IsNull(objectUnregisteredWhileRunningAsyncMethods);
-            Assert.Same(service, unregisteredObject);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         [TestMethod]
@@ -161,7 +162,7 @@
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
             service.Stop(true);
 
-            Assert.Same(service, unregisteredObject);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         private static class StubHostingEnvironment

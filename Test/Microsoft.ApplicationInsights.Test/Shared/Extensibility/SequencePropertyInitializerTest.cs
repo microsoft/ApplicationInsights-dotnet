@@ -26,7 +26,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.NotEmpty(telemetry.Sequence);
+            Assert.AreNotEqual(string.Empty, telemetry.Sequence);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.Contains(":", telemetry.Sequence, StringComparison.Ordinal);
+            AssertEx.Contains(":", telemetry.Sequence, StringComparison.Ordinal);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.DoesNotContain("=", telemetry.Sequence, StringComparison.Ordinal);
+            AssertEx.DoesNotContain("=", telemetry.Sequence, StringComparison.Ordinal);
         }
     }
 }

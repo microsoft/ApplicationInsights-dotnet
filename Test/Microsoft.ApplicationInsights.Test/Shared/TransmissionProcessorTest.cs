@@ -46,7 +46,7 @@
         [TestMethod]
         public void TransmissionProcessorThrowsWhenNullConfigurationIsPassedToContructor()
         {
-            Assert.Throws<ArgumentNullException>(() => new TransmissionProcessor(null));
+            AssertEx.Throws<ArgumentNullException>(() => new TransmissionProcessor(null));
         }
 
         [TestMethod]

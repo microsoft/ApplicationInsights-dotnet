@@ -10,6 +10,7 @@
 #if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class EventTelemetryTest
@@ -64,8 +65,8 @@
             Assert.AreEqual(typeof(AI.EventData).Name, item.data.baseType);
             Assert.AreEqual(2, item.data.baseData.ver);
             Assert.AreEqual(expected.Name, item.data.baseData.name);
-            Assert.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]

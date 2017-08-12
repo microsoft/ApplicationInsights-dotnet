@@ -97,7 +97,7 @@
                 var failedTransmission = new StubTransmission();
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
 
-                Assert.Same(failedTransmission, enqueuedTransmission);
+                Assert.AreSame(failedTransmission, enqueuedTransmission);
             }
 
             [TestMethod]
@@ -118,7 +118,7 @@
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
-                Assert.Same(failedTransmission, enqueuedTransmission);
+                Assert.AreSame(failedTransmission, enqueuedTransmission);
             }
 
             [TestMethod]
@@ -227,7 +227,7 @@
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
 
                     EventWrittenEventArgs error = listener.Messages.First(args => args.EventId == 23);
-                    Assert.Contains(exception.Message, (string)error.Payload[1], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[1], StringComparison.Ordinal);
                 }
             }
             

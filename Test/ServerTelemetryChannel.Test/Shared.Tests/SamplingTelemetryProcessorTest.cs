@@ -18,7 +18,7 @@
         [TestMethod]
         public void ThrowsAgrumentNullExceptionWithoutNextPocessor()
         {
-            Assert.Throws<ArgumentNullException>(() => new SamplingTelemetryProcessor(null));
+            AssertEx.Throws<ArgumentNullException>(() => new SamplingTelemetryProcessor(null));
         }
 
         [TestMethod]

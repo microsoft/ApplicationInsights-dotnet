@@ -104,7 +104,7 @@
                     policy.Initialize(new StubTransmitter());
 
                     EventWrittenEventArgs error = listener.Messages.First(arg => arg.EventId == 38);
-                    Assert.Contains(exception.Message, (string)error.Payload[0], StringComparison.CurrentCulture);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.CurrentCulture);
                 }
             }
         }
@@ -177,7 +177,7 @@
                     network.OnStatusChanged(EventArgs.Empty);
 
                     EventWrittenEventArgs error = listener.Messages.First();
-                    Assert.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[0], StringComparison.Ordinal);
                 }
             }
         }

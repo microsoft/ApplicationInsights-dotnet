@@ -7,7 +7,8 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
     /// <summary>
     /// Tests of exception stack serialization.
@@ -18,7 +19,7 @@
         [TestMethod]
         public void CallingConvertToExceptionDetailsWithNullExceptionThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ExceptionConverter.ConvertToExceptionDetails(null, null));
+            AssertEx.Throws<ArgumentNullException>(() => ExceptionConverter.ConvertToExceptionDetails(null, null));
         }
 
         [TestMethod]

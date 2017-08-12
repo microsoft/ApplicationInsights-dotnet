@@ -15,7 +15,7 @@
         {
             Transmission transmission = new StubTransmission();
             var args = new TransmissionProcessedEventArgs(transmission);
-            Assert.Same(transmission, args.Transmission);
+            Assert.AreSame(transmission, args.Transmission);
         }
 
         [TestMethod]
@@ -23,7 +23,7 @@
         {
             Exception exception = new Exception();
             var args = new TransmissionProcessedEventArgs(new StubTransmission(), exception);
-            Assert.Same(exception, args.Exception);
+            Assert.AreSame(exception, args.Exception);
         }
     }
 }

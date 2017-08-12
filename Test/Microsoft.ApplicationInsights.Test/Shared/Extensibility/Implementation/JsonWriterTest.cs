@@ -7,7 +7,8 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
+
     [TestClass]
     public class JsonWriterTest
     {
@@ -165,7 +166,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 var writer = new JsonWriter(stringWriter);
-                Assert.Throws<ArgumentNullException>(() => writer.WriteProperty(null, "value"));
+                AssertEx.Throws<ArgumentNullException>(() => writer.WriteProperty(null, "value"));
             }
         }
 
@@ -267,8 +268,8 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, double> { { "key1", 1 } });
-                Assert.StartsWith("\"name\":{", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
-                Assert.EndsWith("}", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.StartsWith("\"name\":{", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.EndsWith("}", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -279,7 +280,7 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, double> { { "key1", 1 } });
-                Assert.Contains("\"key1\":1", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("\"key1\":1", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -314,8 +315,8 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, string> { { "key1", "1" } });
-                Assert.StartsWith("\"name\":{", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
-                Assert.EndsWith("}", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.StartsWith("\"name\":{", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.EndsWith("}", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -326,7 +327,7 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, string> { { "key1", "1" } });
-                Assert.Contains("\"key1\":\"1\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("\"key1\":\"1\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -372,7 +373,7 @@
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WritePropertyName("Property1");
                 jsonWriter.WritePropertyName("Property2");
-                Assert.Contains(",\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains(",\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -385,7 +386,7 @@
                 jsonWriter.WritePropertyName("Property1");
                 jsonWriter.WriteStartObject();
                 jsonWriter.WritePropertyName("Property2");
-                Assert.Contains("{\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("{\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -395,7 +396,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 var jsonWriter = new JsonWriter(stringWriter);
-                Assert.Throws<ArgumentException>(() => jsonWriter.WritePropertyName(string.Empty));
+                AssertEx.Throws<ArgumentException>(() => jsonWriter.WritePropertyName(string.Empty));
             }
         }
 
@@ -410,7 +411,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\"Value");
-                Assert.Contains("Test\\\"Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\\"Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -421,7 +422,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\\Value");
-                Assert.Contains("Test\\\\Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\\\Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -432,7 +433,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\bValue");
-                Assert.Contains("Test\\bValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\bValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }            
         }
 
@@ -443,7 +444,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\fValue");
-                Assert.Contains("Test\\fValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\fValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }            
         }
 
@@ -454,7 +455,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\nValue");
-                Assert.Contains("Test\\nValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\nValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -465,7 +466,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\rValue");
-                Assert.Contains("Test\\rValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\rValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -476,7 +477,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\tValue");
-                Assert.Contains("Test\\tValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\tValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 

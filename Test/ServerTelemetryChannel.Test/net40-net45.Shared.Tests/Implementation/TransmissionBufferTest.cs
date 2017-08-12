@@ -61,7 +61,7 @@
             public void ThrowsArgumentOutOfRangeExceptionWhenValueIsLessThanZero()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = -1);
             }
         }
 
@@ -160,8 +160,8 @@
                 Transmission transmission2 = new StubTransmission();
                 buffer.Enqueue(() => transmission2);
 
-                Assert.Same(transmission1, buffer.Dequeue());
-                Assert.Same(transmission2, buffer.Dequeue());
+                Assert.AreSame(transmission1, buffer.Dequeue());
+                Assert.AreSame(transmission2, buffer.Dequeue());
             }
 
             [TestMethod]
@@ -241,8 +241,8 @@
 
                 Transmission dequeuedTransmission = buffer.Dequeue();
 
-                Assert.Same(buffer, eventSender);
-                Assert.Same(dequeuedTransmission, eventArgs.Transmission);
+                Assert.AreSame(buffer, eventSender);
+                Assert.AreSame(dequeuedTransmission, eventArgs.Transmission);
             }
 
             [TestMethod]
@@ -259,8 +259,8 @@
 
                 buffer.Dequeue();
 
-                Assert.Same(buffer, eventSender);
-                Assert.Same(null, eventArgs.Transmission);
+                Assert.AreSame(buffer, eventSender);
+                Assert.AreSame(null, eventArgs.Transmission);
             }
         }
     }

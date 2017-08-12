@@ -43,7 +43,7 @@
             builder.Build();
 
             Assert.AreEqual(3, configuration.TelemetryProcessors.Count); // Transmission is added by default
-            Assert.Same(((StubTelemetryProcessor)configuration.TelemetryProcessors[0]).next, ((StubTelemetryProcessor)configuration.TelemetryProcessors[1]));
+            Assert.AreSame(((StubTelemetryProcessor)configuration.TelemetryProcessors[0]).next, ((StubTelemetryProcessor)configuration.TelemetryProcessors[1]));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@
             var config = new TelemetryConfiguration();
             var builder = new TelemetryProcessorChainBuilder(config);            
             builder.Build();
-            Assert.IsType<TransmissionProcessor>(config.DefaultTelemetrySink.TelemetryProcessorChain.FirstTelemetryProcessor);
+            AssertEx.IsType<TransmissionProcessor>(config.DefaultTelemetrySink.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@
             var builder = new TelemetryProcessorChainBuilder(config);
             builder.Use(next => new StubTelemetryProcessor(next));                    
             builder.Build();
-            Assert.IsType<StubTelemetryProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
+            AssertEx.IsType<StubTelemetryProcessor>(config.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@
             builder2.Use((next) => new StubTelemetryProcessor(next));
             builder2.Build();
             
-            Assert.NotSame(tc1.TelemetryProcessors, tc2.TelemetryProcessors);
+            Assert.AreNotSame(tc1.TelemetryProcessors, tc2.TelemetryProcessors);
         }
 
         [TestMethod]

@@ -4,10 +4,11 @@
     using System.Threading.Tasks;
 #if NET40 || NET45
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.TestFramework;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    
+
 
     [TestClass]
     public class CurrentThreadTaskSchedulerTest
@@ -17,7 +18,7 @@
         {
             TaskScheduler instance = CurrentThreadTaskScheduler.Instance;
             Assert.IsNotNull(instance);
-            Assert.IsType(typeof(CurrentThreadTaskScheduler), instance);
+            AssertEx.IsType<CurrentThreadTaskScheduler>(instance);
         }
 
         [TestMethod]

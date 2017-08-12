@@ -35,7 +35,7 @@
             IEnumerable<ITelemetry> telemetries = telemetryBuffer.Dequeue();
 
             Assert.AreEqual(1, telemetries.Count());
-            Assert.Same(sentTelemetry, telemetries.First());
+            Assert.AreSame(sentTelemetry, telemetries.First());
         }
 
         [TestMethod]

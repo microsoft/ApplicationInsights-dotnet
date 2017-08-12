@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class TelemetryContextTest
@@ -36,7 +36,7 @@
         public void InstrumentationKeySetterThrowsArgumentNullExceptionWhenValueIsNullToPreventNullReferenceExceptionsLater()
         {
             var context = new TelemetryContext();
-            Assert.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
+            AssertEx.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
         }
         
         [TestMethod]
@@ -127,7 +127,7 @@
             var context = new TelemetryContext();
             context.Device.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.DeviceId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.DeviceId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@
             var context = new TelemetryContext();
             context.Component.Version = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.ApplicationVersion + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.ApplicationVersion + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -145,7 +145,7 @@
             var context = new TelemetryContext();
             context.Location.Ip = "1.2.3.4";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.LocationIp + "\":\"1.2.3.4\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.LocationIp + "\":\"1.2.3.4\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@
             var context = new TelemetryContext();
             context.User.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.UserId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.UserId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@
             var context = new TelemetryContext();
             context.Operation.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.OperationId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.OperationId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -172,7 +172,7 @@
             var context = new TelemetryContext();
             context.Session.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string CopyAndSerialize(TelemetryContext source)

@@ -6,7 +6,8 @@
 
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -36,7 +37,7 @@
         public void ApplyThrowsInvalidOperationExceptionWhenPolicyWasNotInitializedToPreventUsageErrors()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Throws<InvalidOperationException>(() => policy.Apply());
+            AssertEx.Throws<InvalidOperationException>(() => policy.Apply());
         }
 
         [TestMethod]
@@ -47,14 +48,14 @@
 
             policy.Initialize(transmitter);
 
-            Assert.Same(transmitter, policy.Transmitter);
+            Assert.AreSame(transmitter, policy.Transmitter);
         }
 
         [TestMethod]
         public void InitializeThrowsArgumentNullExceptionWhenTransmitterIsNullToPreventUsageErrors()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Throws<ArgumentNullException>(() => policy.Initialize(null));
+            AssertEx.Throws<ArgumentNullException>(() => policy.Initialize(null));
         }
 
         [TestMethod]

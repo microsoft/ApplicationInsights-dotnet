@@ -25,7 +25,7 @@
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionIfTransmitterIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TelemetrySerializer(null));
+                AssertEx.Throws<ArgumentNullException>(() => new TelemetrySerializer(null));
             }
         }
 
@@ -43,7 +43,7 @@
             public void SetterThrowsArgumentNullExceptionToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.Throws<ArgumentNullException>(() => serializer.EndpointAddress = null);
+                AssertEx.Throws<ArgumentNullException>(() => serializer.EndpointAddress = null);
             }
 
             [TestMethod]
@@ -63,14 +63,14 @@
             public void ThrowsArgumentNullExceptionWhenTelemetryIsNullToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.Throws<ArgumentNullException>(() => serializer.Serialize(null));
+                AssertEx.Throws<ArgumentNullException>(() => serializer.Serialize(null));
             }
 
             [TestMethod]
             public void ThrowsArgumentExceptionWhenTelemetryIsEmptyToPreventUsageErrors()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.Throws<ArgumentException>(() => serializer.Serialize(new List<ITelemetry>()));
+                AssertEx.Throws<ArgumentException>(() => serializer.Serialize(new List<ITelemetry>()));
             }
 
             [TestMethod]

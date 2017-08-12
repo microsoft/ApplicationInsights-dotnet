@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class TaskExTests
@@ -21,7 +21,8 @@ namespace Microsoft.ApplicationInsights
 
             task.Wait();
 
-            Assert.DoesNotThrow(() => task.RethrowIfFaulted());
+            //Assert.DoesNotThrow
+            task.RethrowIfFaulted();
         }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace Microsoft.ApplicationInsights
         {
             Task task = TaskEx.Delay(TimeSpan.FromMilliseconds(100));
 
-            Assert.Throws<ArgumentException>(() => task.RethrowIfFaulted());
+            AssertEx.Throws<ArgumentException>(() => task.RethrowIfFaulted());
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Microsoft.ApplicationInsights
                 // ignore
             }
 
-            Assert.Throws<AggregateException>(() => task.RethrowIfFaulted());
+            AssertEx.Throws<AggregateException>(() => task.RethrowIfFaulted());
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace Microsoft.ApplicationInsights
 
             cancellationTokenSource.Cancel();
 
-            AggregateException aggregateException = Assert.Throws<AggregateException>(() => task.Wait());
+            AggregateException aggregateException = AssertEx.Throws<AggregateException>(() => task.Wait());
             Assert.IsTrue(aggregateException.InnerExceptions.Single() is TaskCanceledException);
         }
 
@@ -161,7 +162,7 @@ namespace Microsoft.ApplicationInsights
         [TestMethod]
         public void WhenAnyThrowsForNoTasks()
         {
-            Assert.Throws<ArgumentException>(() => { TaskEx.WhenAny(); });
+            AssertEx.Throws<ArgumentException>(() => { TaskEx.WhenAny(); });
         }
 
         /// <summary>

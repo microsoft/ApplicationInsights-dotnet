@@ -119,7 +119,7 @@
 
                 manager.GetBackOffTimeInterval(string.Empty);
 
-                Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
+                AssertEx.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3600));
             }
 
             [TestMethod]
@@ -128,7 +128,7 @@
                 var manager = new BackoffLogicManager(TimeSpan.Zero);
                 manager.GetBackOffTimeInterval(DateTimeOffset.UtcNow.AddSeconds(30).ToString("O"));
 
-                Assert.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
+                AssertEx.InRange(manager.CurrentDelay, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
             }
 
             [TestMethod]

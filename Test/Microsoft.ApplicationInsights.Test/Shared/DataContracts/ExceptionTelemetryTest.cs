@@ -53,7 +53,7 @@
             Exception constructorException = new Exception("ConstructorException");
             var testExceptionTelemetry = new ExceptionTelemetry(constructorException);
 
-            Assert.Same(constructorException, testExceptionTelemetry.Exception);
+            Assert.AreSame(constructorException, testExceptionTelemetry.Exception);
             Assert.AreEqual(constructorException.Message, testExceptionTelemetry.Exceptions.First().message);
         }
 
@@ -66,7 +66,7 @@
             Exception nextException = new Exception("NextException");
             testExceptionTelemetry.Exception = nextException;
 
-            Assert.Same(nextException, testExceptionTelemetry.Exception);
+            Assert.AreSame(nextException, testExceptionTelemetry.Exception);
             Assert.AreEqual(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
         }
 
@@ -212,7 +212,7 @@
                 byte[] serializedTelemetryAsBytes = JsonSerializer.Serialize(original, compress: false);
                 string serializedTelemetry = Encoding.UTF8.GetString(serializedTelemetryAsBytes, 0, serializedTelemetryAsBytes.Length);
 
-                Assert.DoesNotContain("\"outerId\":", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.DoesNotContain("\"outerId\":", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -296,7 +296,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -307,7 +307,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
+            AssertEx.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
         }
 
         [TestMethod]
@@ -352,7 +352,7 @@
             {
                 if (details.typeName == "System.AggregateException")
                 {
-                    Assert.StartsWith(expectedSequence[counter], details.message);
+                    AssertEx.StartsWith(expectedSequence[counter], details.message);
                 }
                 else
                 {
@@ -382,7 +382,7 @@
             {
                 if (details.typeName == "System.AggregateException")
                 {
-                    Assert.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                    AssertEx.StartsWith(counter.ToString(CultureInfo.InvariantCulture), details.message);
                 }
                 else
                 {

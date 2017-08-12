@@ -292,9 +292,9 @@
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
 
-                var actualException = Assert.Throws<Exception>(() => channel.Flush());
+                var actualException = AssertEx.Throws<Exception>(() => channel.Flush());
 
-                Assert.Same(expectedException, actualException);
+                Assert.AreSame(expectedException, actualException);
             }
         }
 

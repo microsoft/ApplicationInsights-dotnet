@@ -34,7 +34,7 @@
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueLessThanZero()
             {
                 var sender = new TransmissionSender();
-                Assert.Throws<ArgumentOutOfRangeException>(() => sender.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => sender.Capacity = -1);
             }
         }
 
@@ -181,8 +181,8 @@
                 sender.Enqueue(() => transmission);
 
                 Assert.IsTrue(eventIsRaised.Wait(50));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
             }
 
             [TestMethod]
@@ -205,9 +205,9 @@
                 sender.Enqueue(() => transmission);
 
                 Assert.IsTrue(eventIsRaised.Wait(5000));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Same(exception, eventArgs.Exception);
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
+                Assert.AreSame(exception, eventArgs.Exception);
             }
 
             [TestMethod]
@@ -230,9 +230,9 @@
                 sender.Enqueue(() => transmission);
 
                 Assert.IsTrue(eventIsRaised.Wait(50));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Same(wrapper, eventArgs.Response);
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
+                Assert.AreSame(wrapper, eventArgs.Response);
             }
 
             [TestMethod]
@@ -268,7 +268,7 @@
                 Assert.AreEqual(2, firedCount);
                 Assert.AreEqual(429, eventArgs[0].Response.StatusCode);
                 Assert.AreEqual("Internally Throttled", eventArgs[0].Response.StatusDescription);
-                Assert.Same(wrapper, eventArgs[1].Response);
+                Assert.AreSame(wrapper, eventArgs[1].Response);
                 Assert.AreEqual(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
                 Assert.AreEqual(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
             }
@@ -306,7 +306,7 @@
                 Assert.AreEqual(2, firedCount);
                 Assert.AreEqual(429, eventArgs[0].Response.StatusCode);
                 Assert.AreEqual("Internally Throttled", eventArgs[0].Response.StatusDescription);
-                Assert.Same(wrapper, eventArgs[1].Response);
+                Assert.AreSame(wrapper, eventArgs[1].Response);
                 Assert.AreEqual(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
                 Assert.AreEqual(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
             }

@@ -11,6 +11,7 @@
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
     using System.Collections.Generic;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class MetricTelemetryTest
@@ -94,7 +95,7 @@
             Assert.AreEqual(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
             Assert.AreEqual(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
 
-            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]

@@ -61,7 +61,7 @@
 
                 Transmitter transmitter = CreateTransmitter(policies: new[] { policy });
 
-                Assert.Same(transmitter, policyTransmitter);
+                Assert.AreSame(transmitter, policyTransmitter);
             }
         }
 
@@ -496,7 +496,7 @@
                 Transmitter transmitter = CreateTransmitter(sender, buffer, storage);
                 transmitter.ApplyPolicies();
 
-                Assert.Contains(storedTransmission, sentTransmissions);
+                AssertEx.Contains(storedTransmission, sentTransmissions);
             }
 
             [TestMethod]
@@ -514,7 +514,7 @@
                 Transmitter transmitter = CreateTransmitter(sender, buffer, storage);
                 transmitter.ApplyPolicies();
 
-                Assert.DoesNotContain(storedTransmission, sentTransmissions);                
+                AssertEx.DoesNotContain(storedTransmission, sentTransmissions);                
             }
 
             [TestMethod]
@@ -579,7 +579,7 @@
                 policy.Apply();
 
                 Transmission bufferedTransmission = buffer.Dequeue();
-                Assert.Same(storedTransmission, bufferedTransmission);
+                Assert.AreSame(storedTransmission, bufferedTransmission);
             }
 
             [TestMethod]
@@ -600,7 +600,7 @@
                 policy.Apply();
 
                 Transmission storedTransmission = storage.Dequeue();
-                Assert.Same(bufferedTransmission, storedTransmission);
+                Assert.AreSame(bufferedTransmission, storedTransmission);
             }
 
             [TestMethod]
@@ -625,7 +625,7 @@
                 policy.MaxSenderCapacity = 1;
                 policy.Apply();
 
-                Assert.Same(bufferedTransmission, sentTransmission);
+                Assert.AreSame(bufferedTransmission, sentTransmission);
             }
         }
 
@@ -650,7 +650,7 @@
                 var transmission = new StubTransmission();
                 transmitter.Enqueue(transmission);
 
-                Assert.Same(transmission, sentTransmission);
+                Assert.AreSame(transmission, sentTransmission);
             }
 
             [TestMethod]
@@ -673,7 +673,7 @@
                 var transmission = new StubTransmission();
                 transmitter.Enqueue(transmission);
 
-                Assert.Same(transmission, bufferedTransmission);
+                Assert.AreSame(transmission, bufferedTransmission);
             }
 
             [TestMethod]
@@ -696,7 +696,7 @@
                 var enqueuedTransmission = new StubTransmission();
                 transmitter.Enqueue(enqueuedTransmission);
 
-                Assert.Same(enqueuedTransmission, storedTransmission);
+                Assert.AreSame(enqueuedTransmission, storedTransmission);
             }
 
             [TestMethod]
@@ -764,7 +764,7 @@
 
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission()));
 
-                Assert.Same(bufferedTransmission, sentTransmission);
+                Assert.AreSame(bufferedTransmission, sentTransmission);
             }
 
             [TestMethod]
@@ -785,9 +785,9 @@
                 var exception = new Exception();
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, exception));
 
-                Assert.Same(queue, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Same(exception, eventArgs.Exception);
+                Assert.AreSame(queue, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
+                Assert.AreSame(exception, eventArgs.Exception);
             }
 
             [TestMethod]
@@ -804,7 +804,7 @@
                     sender.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission()));
 
                     EventWrittenEventArgs message = listener.Messages.First();
-                    Assert.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
                 }
             }
         }
@@ -852,7 +852,7 @@
 
                 buffer.OnTransmissionDequeued(new TransmissionProcessedEventArgs(null));
 
-                Assert.AreEqual(previouslyStoredTransmissions, newlyBufferedTransmissions);
+                AssertEx.AreEqual(previouslyStoredTransmissions, newlyBufferedTransmissions);
             }
 
             [TestMethod]
@@ -877,7 +877,7 @@
                     buffer.OnTransmissionDequeued(new TransmissionProcessedEventArgs(new StubTransmission()));
 
                     EventWrittenEventArgs message = listener.Messages.First();
-                    Assert.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)message.Payload[0], StringComparison.Ordinal);
                 }
             }
         }

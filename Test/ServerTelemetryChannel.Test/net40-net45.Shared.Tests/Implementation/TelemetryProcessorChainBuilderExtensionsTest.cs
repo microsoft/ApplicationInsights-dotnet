@@ -16,7 +16,7 @@
         [TestMethod]
         public void UseSamplingThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseSampling(null, 5));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseSampling(null, 5));
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@
         [TestMethod]
         public void UseSamplingWithExcluedTypesParameterThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseSampling(null, 5, "request"));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseSampling(null, 5, "request"));
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null));
         }
 
         [TestMethod]
@@ -62,13 +62,13 @@
             channelBuilder.UseAdaptiveSampling();
             channelBuilder.Build();
 
-            Assert.IsType<AdaptiveSamplingTelemetryProcessor>(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
+            AssertEx.IsType<AdaptiveSamplingTelemetryProcessor>(tc.TelemetryProcessorChain.FirstTelemetryProcessor);
         }
 
         [TestMethod]
         public void UseAdaptiveSamplingWithExcludedTypesThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, "request"));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, "request"));
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingWithMaxItemsParameterThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, 5));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, 5));
         }
 
         [TestMethod]
@@ -102,7 +102,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingWithMaxItemsAndExcludedTypesParametersThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, 5, "request"));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, 5, "request"));
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingWithSettingsParameterThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null));
         }
 
         [TestMethod]
@@ -129,7 +129,7 @@
             var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
             var channelBuilder = new TelemetryProcessorChainBuilder(tc);
 
-            Assert.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(default(SamplingPercentageEstimatorSettings), null));
+            AssertEx.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(default(SamplingPercentageEstimatorSettings), null));
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@
         [TestMethod]
         public void UseAdaptiveSamplingWithSettingsParameterAndExcludedTypesThrowsArgumentNullExceptionBuilderIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, null, null, "request"));
+            AssertEx.Throws<ArgumentNullException>(() => TelemetryProcessorChainBuilderExtensions.UseAdaptiveSampling(null, null, null, "request"));
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@
             var tc = new TelemetryConfiguration { TelemetryChannel = new StubTelemetryChannel() };
             var channelBuilder = new TelemetryProcessorChainBuilder(tc);
 
-            Assert.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(null, null, "request"));
+            AssertEx.Throws<ArgumentNullException>(() => channelBuilder.UseAdaptiveSampling(null, null, "request"));
         }
 
         [TestMethod]
