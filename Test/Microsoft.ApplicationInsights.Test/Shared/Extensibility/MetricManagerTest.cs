@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class MetricManagerTest
@@ -30,13 +30,13 @@
             // Assert (single metric aggregation exists in the output)
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", aggregatedMetric.Name);
+            Assert.AreEqual("Test Metric", aggregatedMetric.Name);
 
-            Assert.Equal(1, aggregatedMetric.Count);
-            Assert.Equal(42, aggregatedMetric.Sum);
+            Assert.AreEqual(1, aggregatedMetric.Count);
+            Assert.AreEqual(42, aggregatedMetric.Sum);
 
             // note: interval duration property is auto-generated
-            Assert.Equal(1, aggregatedMetric.Properties.Count);
+            Assert.AreEqual(1, aggregatedMetric.Properties.Count);
         }
 
         [TestMethod]
@@ -57,13 +57,13 @@
             // Assert
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", aggregatedMetric.Name);
+            Assert.AreEqual("Test Metric", aggregatedMetric.Name);
 
-            Assert.Equal(1, aggregatedMetric.Count);
-            Assert.Equal(42, aggregatedMetric.Sum);
+            Assert.AreEqual(1, aggregatedMetric.Count);
+            Assert.AreEqual(42, aggregatedMetric.Sum);
 
             // note: interval duration property is auto-generated
-            Assert.Equal(1, aggregatedMetric.Properties.Count);
+            Assert.AreEqual(1, aggregatedMetric.Properties.Count);
         }
 
         [TestMethod]
@@ -89,16 +89,16 @@
             // Assert
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", aggregatedMetric.Name);
+            Assert.AreEqual("Test Metric", aggregatedMetric.Name);
 
-            Assert.Equal(1, aggregatedMetric.Count);
-            Assert.Equal(42, aggregatedMetric.Sum);
+            Assert.AreEqual(1, aggregatedMetric.Count);
+            Assert.AreEqual(42, aggregatedMetric.Sum);
 
             // note: interval duration property is auto-generated
-            Assert.Equal(3, aggregatedMetric.Properties.Count);
+            Assert.AreEqual(3, aggregatedMetric.Properties.Count);
 
-            Assert.Equal("Value1", aggregatedMetric.Properties["Dim1"]);
-            Assert.Equal("Value2", aggregatedMetric.Properties["Dim2"]);
+            Assert.AreEqual("Value1", aggregatedMetric.Properties["Dim1"]);
+            Assert.AreEqual("Value2", aggregatedMetric.Properties["Dim2"]);
         }
 
         [TestMethod]
@@ -119,12 +119,12 @@
             // Assert
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", aggregatedMetric.Name);
+            Assert.AreEqual("Test Metric", aggregatedMetric.Name);
 
-            Assert.Equal(1, aggregatedMetric.Count);
-            Assert.Equal(1, aggregatedMetric.Properties.Count);
+            Assert.AreEqual(1, aggregatedMetric.Count);
+            Assert.AreEqual(1, aggregatedMetric.Properties.Count);
 
-            Assert.True(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+            Assert.IsTrue(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
         }
 
         [TestMethod]
@@ -145,13 +145,13 @@
             // Assert
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", aggregatedMetric.Name);
+            Assert.AreEqual("Test Metric", aggregatedMetric.Name);
 
-            Assert.Equal(1, aggregatedMetric.Count);
-            Assert.Equal(1, aggregatedMetric.Properties.Count);
+            Assert.AreEqual(1, aggregatedMetric.Count);
+            Assert.AreEqual(1, aggregatedMetric.Properties.Count);
 
-            Assert.True(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
-            Assert.True(long.Parse(aggregatedMetric.Properties["_MS.AggregationIntervalMs"]) > 0);
+            Assert.IsTrue(aggregatedMetric.Properties.ContainsKey("_MS.AggregationIntervalMs"));
+            Assert.IsTrue(long.Parse(aggregatedMetric.Properties["_MS.AggregationIntervalMs"]) > 0);
         }
 
         [TestMethod]
@@ -192,12 +192,12 @@
             }
 
             // Assert
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
 
             var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal(2, aggregatedMetric.Count);
-            Assert.Equal(15, aggregatedMetric.Sum);
+            Assert.AreEqual(2, aggregatedMetric.Count);
+            Assert.AreEqual(15, aggregatedMetric.Sum);
         }
 
         [TestMethod]
@@ -228,10 +228,10 @@
                 manager.Flush();
 
                 // Assert
-                Assert.Equal(1, sentTelemetry.Count);
+                Assert.AreEqual(1, sentTelemetry.Count);
 
                 var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
-                Assert.NotNull(aggregatedMetric);
+                Assert.IsNotNull(aggregatedMetric);
             }
         }
 
@@ -252,10 +252,10 @@
                 manager.Dispose();
 
                 // Assert
-                Assert.Equal(1, sentTelemetry.Count);
+                Assert.AreEqual(1, sentTelemetry.Count);
 
                 var aggregatedMetric = (MetricTelemetry)sentTelemetry.Single();
-                Assert.NotNull(aggregatedMetric);
+                Assert.IsNotNull(aggregatedMetric);
             }
         }
 

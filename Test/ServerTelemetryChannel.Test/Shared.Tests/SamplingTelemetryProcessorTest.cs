@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using System.Linq;
 
     [TestClass]
@@ -26,7 +26,7 @@
         {
             var processor = new SamplingTelemetryProcessor(new StubTelemetryProcessor(null));
 
-            Assert.Equal(processor.SamplingPercentage, 100.0, 12);
+            Assert.AreEqual(processor.SamplingPercentage, 100.0, 12);
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@
                 processor.Process(new RequestTelemetry());
             }
 
-            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
+            Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@
             }
             while (sentTelemetry.Count == 0);
 
-            Assert.Equal(20, ((ISupportSampling)sentTelemetry[0]).SamplingPercentage);
+            Assert.AreEqual(20, ((ISupportSampling)sentTelemetry[0]).SamplingPercentage);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@
             ((ISupportSampling)requestTelemetry).SamplingPercentage = 100;
             processor.Process(requestTelemetry);
 
-            Assert.Equal(1, sentTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -382,7 +382,7 @@
                 generatedCount += sendAction.Invoke(telemetryProcessorChainWithSampling);
             }
 
-            Assert.Equal(generatedCount, sentTelemetry.Count);
+            Assert.AreEqual(generatedCount, sentTelemetry.Count);
         }
 
         private static void TelemetryTypeSupportsSampling(Action<TelemetryProcessorChain> sendAction,
@@ -413,18 +413,18 @@
                 generatedCount += sendAction.Invoke(telemetryProcessorChainWithSampling);
             }
 
-            Assert.NotNull(sentTelemetry[0] as ISupportSampling);
-            Assert.True(sentTelemetry.Count > 0);
+            Assert.IsNotNull(sentTelemetry[0] as ISupportSampling);
+            Assert.IsTrue(sentTelemetry.Count > 0);
             
             if (samplingPercentage == 100)
             {
-                Assert.True(sentTelemetry.Count == generatedCount);
-                Assert.Equal(null, ((ISupportSampling) sentTelemetry[0]).SamplingPercentage);
+                Assert.IsTrue(sentTelemetry.Count == generatedCount);
+                Assert.AreEqual(null, ((ISupportSampling) sentTelemetry[0]).SamplingPercentage);
             }
             else
             {
-                Assert.True(sentTelemetry.Count < generatedCount);
-                Assert.Equal(samplingPercentage, ((ISupportSampling) sentTelemetry[0]).SamplingPercentage);
+                Assert.IsTrue(sentTelemetry.Count < generatedCount);
+                Assert.AreEqual(samplingPercentage, ((ISupportSampling) sentTelemetry[0]).SamplingPercentage);
             }
             
             telemetryProcessorChainWithSampling.Dispose();

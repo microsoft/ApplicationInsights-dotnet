@@ -8,7 +8,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
     using DataContracts;
     using External;
 
@@ -22,7 +22,7 @@
 
             string sanitized = Original.SanitizeName();
 
-            Assert.Equal(Original.Trim(), sanitized);
+            Assert.AreEqual(Original.Trim(), sanitized);
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@
             string original = new string('A', Property.MaxNameLength + 1);
             string sanitized = original.SanitizeName();
 
-            Assert.Equal(Property.MaxNameLength, sanitized.Length);
+            Assert.AreEqual(Property.MaxNameLength, sanitized.Length);
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@
             string original = new string('c', ValueLength);
             string sanitized = original.SanitizeName();
 
-            Assert.Equal(ValueLength, sanitized.Length);
+            Assert.AreEqual(ValueLength, sanitized.Length);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@
             string original = new string('A', Property.MaxValueLength + 10);
             string sanitized = original.SanitizeValue();
 
-            Assert.Equal(Property.MaxValueLength, sanitized.Length);
+            Assert.AreEqual(Property.MaxValueLength, sanitized.Length);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@
             string original = new string('c', ValueLength);
             string sanitized = original.SanitizeValue();
 
-            Assert.Equal(ValueLength, sanitized.Length);
+            Assert.AreEqual(ValueLength, sanitized.Length);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@
             const string Original = " name with spaces ";
             string sanitized = Original.SanitizeValue();
 
-            Assert.Equal(Original.Trim(), sanitized);
+            Assert.AreEqual(Original.Trim(), sanitized);
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@
             string original = new string('M', MaxMessageLength + 10);
             string sanitized = original.SanitizeMessage();
 
-            Assert.Equal(MaxMessageLength, sanitized.Length);
+            Assert.AreEqual(MaxMessageLength, sanitized.Length);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@
             string original = new string('m', MessageLength);
             string sanitized = original.SanitizeMessage();
 
-            Assert.Equal(MessageLength, sanitized.Length);
+            Assert.AreEqual(MessageLength, sanitized.Length);
         }
         
         [TestMethod]
@@ -102,7 +102,7 @@
             const string Original = " name with   spaces    ";
             string sanitized = Original.SanitizeMessage();
 
-            Assert.Equal(Original.Trim(), sanitized);
+            Assert.AreEqual(Original.Trim(), sanitized);
         }
 
         [TestMethod]
@@ -116,7 +116,7 @@
             Uri originalUri = new Uri(original);
             Uri sanitized = originalUri.SanitizeUri();
 
-            Assert.Equal(MaxUrlLength, sanitized.ToString().Length);
+            Assert.AreEqual(MaxUrlLength, sanitized.ToString().Length);
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@
             Uri originalUri = new Uri(original);
             Uri sanitized = originalUri.SanitizeUri();
 
-            Assert.Equal(originalUriLength, sanitized.ToString().Length);
+            Assert.AreEqual(originalUriLength, sanitized.ToString().Length);
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@
             original.SanitizeProperties();
 
             string sanitizedKey = OriginalKey.Trim();
-            Assert.Equal(new[] { new KeyValuePair<string, string>(sanitizedKey, OriginalValue) }, original);
+            Assert.AreEqual(new[] { new KeyValuePair<string, string>(sanitizedKey, OriginalValue) }, original);
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@
         {
             var dictionary = new Dictionary<string, string> { { string.Empty, "value" } };
             dictionary.SanitizeProperties();
-            Assert.Equal("required", dictionary.Single().Key);
+            Assert.AreEqual("required", dictionary.Single().Key);
         }
 
         [TestMethod]
@@ -164,7 +164,7 @@
 
             original.SanitizeProperties();
 
-            Assert.Equal(Property.MaxDictionaryNameLength, original.First().Key.Length);
+            Assert.AreEqual(Property.MaxDictionaryNameLength, original.First().Key.Length);
         }
 
         [TestMethod]
@@ -181,8 +181,8 @@
 
             original.SanitizeProperties();
 
-            Assert.Equal(3, original.Count);
-            Assert.Equal(Property.MaxDictionaryNameLength, original.Keys.Max(key => key.Length));
+            Assert.AreEqual(3, original.Count);
+            Assert.AreEqual(Property.MaxDictionaryNameLength, original.Keys.Max(key => key.Length));
         }
 
         [TestMethod]
@@ -195,7 +195,7 @@
             original.SanitizeProperties();
 
             string sanitizedValue = originalValue.Substring(0, Property.MaxValueLength);
-            Assert.Equal(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
+            Assert.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
         }
 
         [TestMethod]
@@ -208,7 +208,7 @@
             original.SanitizeProperties();
 
             string sanitizedValue = OriginalValue.Trim();
-            Assert.Equal(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
+            Assert.AreEqual(new[] { new KeyValuePair<string, string>(OriginalKey, sanitizedValue) }, original);
         }
 
         [TestMethod]
@@ -221,7 +221,7 @@
             original.SanitizeMeasurements();
 
             string sanitizedKey = OriginalKey.Trim();
-            Assert.Equal(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
+            Assert.AreEqual(new[] { new KeyValuePair<string, double>(sanitizedKey, OriginalValue) }, original);
         }
 
         [TestMethod]
@@ -233,7 +233,7 @@
 
             original.SanitizeMeasurements();
 
-            Assert.Equal(Property.MaxDictionaryNameLength, original.First().Key.Length);
+            Assert.AreEqual(Property.MaxDictionaryNameLength, original.First().Key.Length);
         }
 
         [TestMethod]
@@ -250,8 +250,8 @@
 
             original.SanitizeMeasurements();
 
-            Assert.Equal(3, original.Count);
-            Assert.Equal(Property.MaxDictionaryNameLength, original.Keys.Max(key => key.Length));
+            Assert.AreEqual(3, original.Count);
+            Assert.AreEqual(Property.MaxDictionaryNameLength, original.Keys.Max(key => key.Length));
         }
 
         [TestMethod]
@@ -264,7 +264,7 @@
 
             original.SanitizeMeasurements();
 
-            Assert.Equal(0, original["Key"]);
+            Assert.AreEqual(0, original["Key"]);
         }
 
         [TestMethod]
@@ -277,7 +277,7 @@
 
             original.SanitizeMeasurements();
 
-            Assert.Equal(0, original["Key"]);
+            Assert.AreEqual(0, original["Key"]);
         }
 
         [TestMethod]
@@ -290,7 +290,7 @@
 
             original.SanitizeMeasurements();
 
-            Assert.Equal(0, original["Key"]);
+            Assert.AreEqual(0, original["Key"]);
         }
 
         [TestMethod]
@@ -338,35 +338,35 @@
 
             var tags = telemetryContext.SanitizedTags;
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.ApplicationVersion]), tags[ContextTagKeys.Keys.ApplicationVersion]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.ApplicationVersion]), tags[ContextTagKeys.Keys.ApplicationVersion]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceId]), tags[ContextTagKeys.Keys.DeviceId]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceModel]), tags[ContextTagKeys.Keys.DeviceModel]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOEMName]), tags[ContextTagKeys.Keys.DeviceOEMName]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOSVersion]), tags[ContextTagKeys.Keys.DeviceOSVersion]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceType]), tags[ContextTagKeys.Keys.DeviceType]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceId]), tags[ContextTagKeys.Keys.DeviceId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceModel]), tags[ContextTagKeys.Keys.DeviceModel]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOEMName]), tags[ContextTagKeys.Keys.DeviceOEMName]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceOSVersion]), tags[ContextTagKeys.Keys.DeviceOSVersion]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.DeviceType]), tags[ContextTagKeys.Keys.DeviceType]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.LocationIp]), tags[ContextTagKeys.Keys.LocationIp]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.LocationIp]), tags[ContextTagKeys.Keys.LocationIp]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationId]), tags[ContextTagKeys.Keys.OperationId]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationName]), tags[ContextTagKeys.Keys.OperationName]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationParentId]), tags[ContextTagKeys.Keys.OperationParentId]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationSyntheticSource]), tags[ContextTagKeys.Keys.OperationSyntheticSource]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationCorrelationVector]), tags[ContextTagKeys.Keys.OperationCorrelationVector]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationId]), tags[ContextTagKeys.Keys.OperationId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationName]), tags[ContextTagKeys.Keys.OperationName]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationParentId]), tags[ContextTagKeys.Keys.OperationParentId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationSyntheticSource]), tags[ContextTagKeys.Keys.OperationSyntheticSource]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.OperationCorrelationVector]), tags[ContextTagKeys.Keys.OperationCorrelationVector]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.SessionId]), tags[ContextTagKeys.Keys.SessionId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.SessionId]), tags[ContextTagKeys.Keys.SessionId]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId]), tags[ContextTagKeys.Keys.UserId]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId]), tags[ContextTagKeys.Keys.UserAccountId]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent]), tags[ContextTagKeys.Keys.UserAgent]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId]), tags[ContextTagKeys.Keys.UserAuthUserId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserId]), tags[ContextTagKeys.Keys.UserId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAccountId]), tags[ContextTagKeys.Keys.UserAccountId]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAgent]), tags[ContextTagKeys.Keys.UserAgent]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.UserAuthUserId]), tags[ContextTagKeys.Keys.UserAuthUserId]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRole]), tags[ContextTagKeys.Keys.CloudRole]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRoleInstance]), tags[ContextTagKeys.Keys.CloudRoleInstance]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRole]), tags[ContextTagKeys.Keys.CloudRole]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.CloudRoleInstance]), tags[ContextTagKeys.Keys.CloudRoleInstance]);
 
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalSdkVersion]), tags[ContextTagKeys.Keys.InternalSdkVersion]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalAgentVersion]), tags[ContextTagKeys.Keys.InternalAgentVersion]);
-            Assert.Equal(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalNodeName]), tags[ContextTagKeys.Keys.InternalNodeName]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalSdkVersion]), tags[ContextTagKeys.Keys.InternalSdkVersion]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalAgentVersion]), tags[ContextTagKeys.Keys.InternalAgentVersion]);
+            Assert.AreEqual(new string('Z', Property.TagSizeLimits[ContextTagKeys.Keys.InternalNodeName]), tags[ContextTagKeys.Keys.InternalNodeName]);
         }
     }
 }

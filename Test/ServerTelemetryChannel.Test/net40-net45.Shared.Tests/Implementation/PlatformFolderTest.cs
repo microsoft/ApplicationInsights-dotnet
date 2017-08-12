@@ -8,7 +8,7 @@
     using System.Security.AccessControl;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     /// <summary>
     /// We use these tests to understand actual behavior of <see cref="DirectoryInfo"/> and ensure that 
@@ -62,7 +62,7 @@
             [TestMethod]
             public void ImplementsIFileSystemFolderInterfaceExpectedByIPlatform()
             {
-                Assert.True(typeof(IPlatformFolder).IsAssignableFrom(typeof(PlatformFolder)));
+                Assert.IsTrue(typeof(IPlatformFolder).IsAssignableFrom(typeof(PlatformFolder)));
             }
         }
 
@@ -74,7 +74,7 @@
             {
                 var folder = new PlatformFolder(this.storageFolder);
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.NotNull(files);
+                Assert.IsNotNull(files);
                 Assert.Empty(files);
             }
 
@@ -84,7 +84,7 @@
                 var folder = new PlatformFolder(this.storageFolder);
                 FileSystemTest.DeletePlatformItem(this.storageFolder);
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.NotNull(files);
+                Assert.IsNotNull(files);
                 Assert.Empty(files);
             }
 
@@ -100,7 +100,7 @@
                 var folder = new PlatformFolder(this.storageFolder);
 
                 IEnumerable<IPlatformFile> files = folder.GetFiles();
-                Assert.Equal(expectedFileNames.OrderBy(name => name), files.Select(f => f.Name).OrderBy(name => name));
+                Assert.AreEqual(expectedFileNames.OrderBy(name => name), files.Select(f => f.Name).OrderBy(name => name));
             }
 
             [TestMethod]
@@ -125,7 +125,7 @@
                 string fileName = GetUniqueFileName();
                 IPlatformFile file = folder.CreateFile(fileName);
 
-                Assert.Equal(fileName, file.Name);
+                Assert.AreEqual(fileName, file.Name);
             }
 
             [TestMethod]
@@ -137,7 +137,7 @@
                 IPlatformFile file = folder.CreateFile(fileName);
 
                 var storageFile = FileSystemTest.GetPlatformFile(fileName, this.storageFolder);
-                Assert.NotNull(storageFile);
+                Assert.IsNotNull(storageFile);
             }
 
             [TestMethod]
@@ -188,7 +188,7 @@
                 FileSystemTest.DeletePlatformItem(this.storageFolder);
                 string fileName = GetUniqueFileName();
                 folder.CreateFile(fileName);
-                Assert.NotNull(FileSystemTest.GetPlatformFile(fileName, this.storageFolder));
+                Assert.IsNotNull(FileSystemTest.GetPlatformFile(fileName, this.storageFolder));
             }
         }
 
@@ -202,7 +202,7 @@
 
                 folder.Delete();
 
-                Assert.False(folder.Exists());
+                Assert.IsFalse(folder.Exists());
             }
 
             [TestMethod]
@@ -225,7 +225,7 @@
 
                 bool folderExists = folder.Exists();
 
-                Assert.True(folderExists);
+                Assert.IsTrue(folderExists);
             }
 
             [TestMethod]
@@ -236,7 +236,7 @@
 
                 bool folderExists = folder.Exists();
 
-                Assert.False(folderExists);
+                Assert.IsFalse(folderExists);
             }
         }
     }

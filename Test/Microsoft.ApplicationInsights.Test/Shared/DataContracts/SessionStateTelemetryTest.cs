@@ -3,7 +3,7 @@
     using AI;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
 #endif
@@ -23,21 +23,21 @@
         public void ConstructorInitializesStateWithSpecifiedValue()
         {
             var telemetry = new SessionStateTelemetry(SessionState.End);
-            Assert.Equal(SessionState.End, telemetry.State);
+            Assert.AreEqual(SessionState.End, telemetry.State);
         }
 
         [TestMethod]
         public void ParameterizedConstructorPerformsDefaultInitialization()
         {
             var telemetry = new SessionStateTelemetry(SessionState.Start);
-            Assert.NotNull(telemetry.Context);
+            Assert.IsNotNull(telemetry.Context);
         }
 
         [TestMethod]
         public void SessionStateIsStartByDefault()
         {
             var telemetry = new SessionStateTelemetry();
-            Assert.Equal(SessionState.Start, telemetry.State);
+            Assert.AreEqual(SessionState.Start, telemetry.State);
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@
         {
             var telemetry = new SessionStateTelemetry();
             telemetry.State = SessionState.End;
-            Assert.Equal(SessionState.End, telemetry.State);
+            Assert.AreEqual(SessionState.End, telemetry.State);
         }
 
         [TestMethod]
@@ -53,8 +53,8 @@
         {
             var telemetry = new SessionStateTelemetry { State = SessionState.End };
             TelemetryItem<EventData> envelope = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<SessionStateTelemetry, EventData>(telemetry);
-            Assert.Equal("Session ended", envelope.data.baseData.name);
-            Assert.Equal(2, envelope.data.baseData.ver);
+            Assert.AreEqual("Session ended", envelope.data.baseData.name);
+            Assert.AreEqual(2, envelope.data.baseData.ver);
         }
 
 #if !NETCOREAPP1_1
@@ -68,7 +68,7 @@
             CompareLogic deepComparator = new CompareLogic();
 
             var result = deepComparator.Compare(telemetry, other);
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
 #pragma warning restore 618

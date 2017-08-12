@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using System.Web.Hosting;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -22,25 +22,25 @@
         [TestMethod]
         public void ClassIsInternalAndNotMeantForUseByCustomers()
         {
-            Assert.False(typeof(WebApplicationLifecycle).IsPublic);
+            Assert.IsFalse(typeof(WebApplicationLifecycle).IsPublic);
         }
 
         [TestMethod]
         public void ClassImplementsIApplicationLifecycleInterfaceToGetConsumedByCore()
         {
-            Assert.True(typeof(IApplicationLifecycle).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IApplicationLifecycle).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
         public void ClassImplementsIRegisteredObjectInterfaceToGetConsumedByWebHostingEnvironment()
         {
-            Assert.True(typeof(IRegisteredObject).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IRegisteredObject).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
         public void ClassImplementsIDisposableInterfaceToUnhookInstanceFromStaticEnvironment()
         {
-            Assert.True(typeof(IDisposable).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IDisposable).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
@@ -77,8 +77,8 @@
 
             service.Stop(false);
 
-            Assert.NotNull(stoppingSender);
-            Assert.NotNull(stoppingArgs);
+            Assert.IsNotNull(stoppingSender);
+            Assert.IsNotNull(stoppingArgs);
         }
 
         [TestMethod]
@@ -95,7 +95,7 @@
                 exception = ex;
             }
 
-            Assert.Null(exception);
+            Assert.IsNull(exception);
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@
 
             service.Stop(true);
 
-            Assert.False(eventFired);
+            Assert.IsFalse(eventFired);
         }
 
         [TestMethod]
@@ -148,7 +148,7 @@
 
             service.Stop(false);
 
-            Assert.Null(objectUnregisteredWhileRunningAsyncMethods);
+            Assert.IsNull(objectUnregisteredWhileRunningAsyncMethods);
             Assert.Same(service, unregisteredObject);
         }
 

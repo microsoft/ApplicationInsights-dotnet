@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -36,7 +36,7 @@
             public void DefaultValuePointsToModernEndpointInProductionEnvironment()
             {
                 var serializer = new TelemetrySerializer(new StubTransmitter());
-                Assert.Equal("https://dc.services.visualstudio.com/v2/track", serializer.EndpointAddress.ToString());
+                Assert.AreEqual("https://dc.services.visualstudio.com/v2/track", serializer.EndpointAddress.ToString());
             }
 
             [TestMethod]
@@ -52,7 +52,7 @@
                 var serializer = new TelemetrySerializer(new StubTransmitter());
                 var expectedValue = new Uri("int://environment");
                 serializer.EndpointAddress = expectedValue;
-                Assert.Equal(expectedValue, serializer.EndpointAddress);
+                Assert.AreEqual(expectedValue, serializer.EndpointAddress);
             }
         }
 
@@ -86,7 +86,7 @@
                 var serializer = new TelemetrySerializer(transmitter);
                 serializer.Serialize(new[] { new StubTelemetry() });
 
-                Assert.Equal(serializationThreadId, Thread.CurrentThread.ManagedThreadId);
+                Assert.AreEqual(serializationThreadId, Thread.CurrentThread.ManagedThreadId);
             }
 
             [TestMethod]
@@ -102,10 +102,10 @@
                 var serializer = new TelemetrySerializer(transmitter) { EndpointAddress = new Uri("http://expected.uri") };
                 serializer.Serialize(new[] { new StubTelemetry() });
         
-                Assert.Equal(serializer.EndpointAddress, transmission.EndpointAddress);
-                Assert.Equal("application/x-json-stream", transmission.ContentType);
-                Assert.Equal("gzip", transmission.ContentEncoding);
-                Assert.Equal(string.Empty, Unzip(transmission.Content));
+                Assert.AreEqual(serializer.EndpointAddress, transmission.EndpointAddress);
+                Assert.AreEqual("application/x-json-stream", transmission.ContentType);
+                Assert.AreEqual("gzip", transmission.ContentEncoding);
+                Assert.AreEqual(string.Empty, Unzip(transmission.Content));
             }
 
             [TestMethod]
@@ -126,7 +126,7 @@
                     serializer.Serialize(new[] { new StubTelemetry() });
                 }
 
-                Assert.False(postedBack);
+                Assert.IsFalse(postedBack);
             }
 
             private static string Unzip(byte[] content)

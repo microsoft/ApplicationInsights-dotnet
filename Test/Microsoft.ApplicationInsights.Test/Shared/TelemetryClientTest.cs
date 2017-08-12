@@ -29,7 +29,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class TelemetryClientTest
@@ -40,7 +40,7 @@
             var configuration = new TelemetryConfiguration { DisableTelemetry = false };
             var client = new TelemetryClient(configuration);
 
-            Assert.True(client.IsEnabled());
+            Assert.IsTrue(client.IsEnabled());
         }
         
         #region TrackEvent
@@ -54,7 +54,7 @@
             client.TrackEvent("TestEvent");
 
             var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Equal("TestEvent", eventTelemetry.Name);
+            Assert.AreEqual("TestEvent", eventTelemetry.Name);
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@
             client.TrackEvent(new EventTelemetry("TestEvent"));
 
             var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Equal("TestEvent", eventTelemetry.Name);
+            Assert.AreEqual("TestEvent", eventTelemetry.Name);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@
             client.TrackEvent("Test", new Dictionary<string, string> { { "blah", "yoyo" } });
 
             var eventTelemetry = (EventTelemetry)sentTelemetry.Single();
-            Assert.Equal("yoyo", eventTelemetry.Properties["blah"]);
+            Assert.AreEqual("yoyo", eventTelemetry.Properties["blah"]);
         }
 
         #endregion
@@ -92,7 +92,7 @@
 
             new TelemetryClient().Initialize(telemetry);
 
-            Assert.True(telemetry.Timestamp != default(DateTimeOffset));
+            Assert.IsTrue(telemetry.Timestamp != default(DateTimeOffset));
         }
 
         [TestMethod]
@@ -103,8 +103,8 @@
             EventTelemetry telemetry = new EventTelemetry("TestEvent");
             new TelemetryClient().Initialize(telemetry);
 
-            Assert.Equal("TestMachine", telemetry.Context.Cloud.RoleInstance);
-            Assert.Null(telemetry.Context.Internal.NodeName);
+            Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
+            Assert.IsNull(telemetry.Context.Internal.NodeName);
 
             PlatformSingleton.Current = null;
         }
@@ -119,8 +119,8 @@
 
             new TelemetryClient().Initialize(telemetry);
 
-            Assert.Equal("MyMachineImplementation", telemetry.Context.Cloud.RoleInstance);
-            Assert.Equal("TestMachine", telemetry.Context.Internal.NodeName);
+            Assert.AreEqual("MyMachineImplementation", telemetry.Context.Cloud.RoleInstance);
+            Assert.AreEqual("TestMachine", telemetry.Context.Internal.NodeName);
 
             PlatformSingleton.Current = null;
         }
@@ -135,8 +135,8 @@
 
             new TelemetryClient().Initialize(telemetry);
 
-            Assert.Equal("TestMachine", telemetry.Context.Cloud.RoleInstance);
-            Assert.Equal("MyMachineImplementation", telemetry.Context.Internal.NodeName);
+            Assert.AreEqual("TestMachine", telemetry.Context.Cloud.RoleInstance);
+            Assert.AreEqual("MyMachineImplementation", telemetry.Context.Internal.NodeName);
 
             PlatformSingleton.Current = null;
         }
@@ -164,12 +164,12 @@
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("Test Metric", metric.Name);
-            Assert.Equal(5, metric.Count);
-            Assert.Equal(40, metric.Sum);
-            Assert.Equal(3.0, metric.Min);
-            Assert.Equal(4.0, metric.Max);
-            Assert.Equal(1.0, metric.StandardDeviation);
+            Assert.AreEqual("Test Metric", metric.Name);
+            Assert.AreEqual(5, metric.Count);
+            Assert.AreEqual(40, metric.Sum);
+            Assert.AreEqual(3.0, metric.Min);
+            Assert.AreEqual(4.0, metric.Max);
+            Assert.AreEqual(1.0, metric.StandardDeviation);
         }
 
         [TestMethod]
@@ -184,10 +184,10 @@
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("TestMetric", metric.Name);
+            Assert.AreEqual("TestMetric", metric.Name);
 
 #pragma warning disable CS0618
-            Assert.Equal(42, metric.Value);
+            Assert.AreEqual(42, metric.Value);
 #pragma warning restore CS0618
         }
 
@@ -203,10 +203,10 @@
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("TestMetric", metric.Name);
+            Assert.AreEqual("TestMetric", metric.Name);
 
 #pragma warning disable CS0618
-            Assert.Equal(42, metric.Value);
+            Assert.AreEqual(42, metric.Value);
 #pragma warning restore CS0618
         }
 
@@ -222,13 +222,13 @@
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("TestMetric", metric.Name);
+            Assert.AreEqual("TestMetric", metric.Name);
 
 #pragma warning disable CS0618
-            Assert.Equal(4.2, metric.Value);
+            Assert.AreEqual(4.2, metric.Value);
 #pragma warning restore CS0618
 
-            Assert.Equal("yoyo", metric.Properties["blah"]);
+            Assert.AreEqual("yoyo", metric.Properties["blah"]);
         }
 
         [TestMethod]
@@ -243,9 +243,9 @@
 
             var metric = (MetricTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("TestMetric", metric.Name);
+            Assert.AreEqual("TestMetric", metric.Name);
 #pragma warning disable CS0618
-            Assert.Equal(4.2, metric.Value);
+            Assert.AreEqual(4.2, metric.Value);
 #pragma warning restore CS0618
             Assert.Empty(metric.Properties);
         }
@@ -263,7 +263,7 @@
             client.TrackTrace("TestTrace");
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Equal("TestTrace", trace.Message);
+            Assert.AreEqual("TestTrace", trace.Message);
         }
 
         [TestMethod]
@@ -275,7 +275,7 @@
             client.TrackTrace(new TraceTelemetry { Message = "TestTrace" });
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Equal("TestTrace", trace.Message);
+            Assert.AreEqual("TestTrace", trace.Message);
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@
             client.TrackTrace("Test", SeverityLevel.Error);
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Equal(SeverityLevel.Error, trace.SeverityLevel);
+            Assert.AreEqual(SeverityLevel.Error, trace.SeverityLevel);
         }
 
         [TestMethod]
@@ -299,7 +299,7 @@
             client.TrackTrace("Test");
 
             var trace = (TraceTelemetry)sentTelemetry.Single();
-            Assert.Equal(null, trace.SeverityLevel);
+            Assert.AreEqual(null, trace.SeverityLevel);
         }
 
         #endregion
@@ -328,8 +328,8 @@
             client.TrackException((Exception)null);
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.NotNull(exceptionTelemetry.Exception);
-            Assert.Equal("n/a", exceptionTelemetry.Exception.Message);
+            Assert.IsNotNull(exceptionTelemetry.Exception);
+            Assert.AreEqual("n/a", exceptionTelemetry.Exception.Message);
         }
 
         [TestMethod]
@@ -354,7 +354,7 @@
             client.TrackException((ExceptionTelemetry)null);
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.NotNull(exceptionTelemetry.Exception);
+            Assert.IsNotNull(exceptionTelemetry.Exception);
         }
 
         [TestMethod]
@@ -366,7 +366,7 @@
             client.TrackException(new Exception());
 
             var exceptionTelemetry = (ExceptionTelemetry)sentTelemetry.Single();
-            Assert.Equal(null, exceptionTelemetry.SeverityLevel);
+            Assert.AreEqual(null, exceptionTelemetry.SeverityLevel);
         }
 
         #endregion
@@ -382,7 +382,7 @@
             client.TrackPageView("TestName");
 
             var pageView = (PageViewTelemetry)sentTelemetry.Single();
-            Assert.Equal("TestName", pageView.Name);
+            Assert.AreEqual("TestName", pageView.Name);
         }
 
         [TestMethod]
@@ -413,11 +413,11 @@
 
             var request = (RequestTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("name", request.Name);
-            Assert.Equal(timestamp, request.Timestamp);
-            Assert.Equal("500", request.ResponseCode);
-            Assert.Equal(TimeSpan.FromSeconds(42), request.Duration);
-            Assert.Equal(false, request.Success);
+            Assert.AreEqual("name", request.Name);
+            Assert.AreEqual(timestamp, request.Timestamp);
+            Assert.AreEqual("500", request.ResponseCode);
+            Assert.AreEqual(TimeSpan.FromSeconds(42), request.Duration);
+            Assert.AreEqual(false, request.Success);
         }
 
         [TestMethod]
@@ -448,11 +448,11 @@
 
             var dependency = (DependencyTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("name", dependency.Name);
-            Assert.Equal("command name", dependency.Data);
-            Assert.Equal(timestamp, dependency.Timestamp);
-            Assert.Equal(TimeSpan.FromSeconds(42), dependency.Duration);
-            Assert.Equal(false, dependency.Success);
+            Assert.AreEqual("name", dependency.Name);
+            Assert.AreEqual("command name", dependency.Data);
+            Assert.AreEqual(timestamp, dependency.Timestamp);
+            Assert.AreEqual(TimeSpan.FromSeconds(42), dependency.Duration);
+            Assert.AreEqual(false, dependency.Success);
         }
 
         [TestMethod]
@@ -483,11 +483,11 @@
 
             var availability = (AvailabilityTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("test name", availability.Name);
-            Assert.Equal("test location", availability.RunLocation);
-            Assert.Equal(timestamp, availability.Timestamp);
-            Assert.Equal(TimeSpan.FromSeconds(42), availability.Duration);
-            Assert.Equal(true, availability.Success);
+            Assert.AreEqual("test name", availability.Name);
+            Assert.AreEqual("test location", availability.RunLocation);
+            Assert.AreEqual(timestamp, availability.Timestamp);
+            Assert.AreEqual(TimeSpan.FromSeconds(42), availability.Duration);
+            Assert.AreEqual(true, availability.Success);
         }
 
         [TestMethod]
@@ -506,8 +506,8 @@
 
             var availability = (AvailabilityTelemetry)sentTelemetry.Single();
 
-            Assert.Equal("yoyo", availability.Properties["Blah"]);
-            Assert.Equal(0, availability.Metrics.Count);
+            Assert.AreEqual("yoyo", availability.Properties["Blah"]);
+            Assert.AreEqual(0, availability.Metrics.Count);
         }
 
         [TestMethod]
@@ -527,8 +527,8 @@
 
             var availability = (AvailabilityTelemetry)sentTelemetry.Single();
 
-            Assert.Equal(0, availability.Properties.Count);
-            Assert.Equal(10, availability.Metrics["QueueLength"]);
+            Assert.AreEqual(0, availability.Properties.Count);
+            Assert.AreEqual(10, availability.Metrics["QueueLength"]);
         }
 
         [TestMethod]
@@ -551,21 +551,21 @@
         [TestMethod]
         public void TrackMethodIsPublicToAllowDefiningTelemetryTypesOutsideOfCore()
         {
-            Assert.True(typeof(TelemetryClient).GetTypeInfo().GetDeclaredMethod("Track").IsPublic);
+            Assert.IsTrue(typeof(TelemetryClient).GetTypeInfo().GetDeclaredMethod("Track").IsPublic);
         }
 
         [TestMethod]
         public void TrackMethodIsInvisibleThroughIntelliSenseSoThatCustomersDontGetConfused()
         {
             var attribute = typeof(TelemetryClient).GetTypeInfo().GetDeclaredMethod("Track").GetCustomAttributes(false).OfType<EditorBrowsableAttribute>().Single();
-            Assert.Equal(EditorBrowsableState.Never, attribute.State);
+            Assert.AreEqual(EditorBrowsableState.Never, attribute.State);
         }
 
         [TestMethod]
         public void DefaultChannelInConfigurationIsCreatedByConstructorWhenNotSpecified()
         {
             TelemetryConfiguration configuration = new TelemetryConfiguration(Guid.NewGuid().ToString());
-            Assert.NotNull(configuration.TelemetryChannel);
+            Assert.IsNotNull(configuration.TelemetryChannel);
         }
 
         [TestMethod]
@@ -587,7 +587,7 @@
             client.Context.InstrumentationKey = expectedKey;
             //Assert.DoesNotThrow
             client.TrackTrace(message);
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+            Assert.AreEqual(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             Environment.SetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY", null);
 
@@ -611,7 +611,7 @@
             //Assert.DoesNotThrow
             client.TrackTrace("Test Message");
 
-            Assert.Equal(expectedKey, sentTelemetry.Context.InstrumentationKey);
+            Assert.AreEqual(expectedKey, sentTelemetry.Context.InstrumentationKey);
 
             PlatformSingleton.Current = null;
         }
@@ -626,7 +626,7 @@
             client.Context.InstrumentationKey = expectedKey;
             client.TrackTrace("Test Message");
 
-            Assert.Equal(expectedKey, client.Context.InstrumentationKey);
+            Assert.AreEqual(expectedKey, client.Context.InstrumentationKey);
         }
 
         [TestMethod]
@@ -640,7 +640,7 @@
 
             client.Track(new StubTelemetry());
 
-            Assert.Equal(0, sentTelemetry.Count);
+            Assert.AreEqual(0, sentTelemetry.Count);
         }
 
         [TestMethod]
@@ -663,8 +663,8 @@
             telemetry.Context.InstrumentationKey = "Foo";
             client.Track( telemetry );
 
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.Equal(1, initializedTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
+            Assert.AreEqual(1, initializedTelemetry.Count);
         }
 
         [TestMethod]
@@ -691,8 +691,8 @@
             var telemetry = new StubTelemetry();
             client.Track(telemetry);
 
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.Equal(1, initializedTelemetry.Count);
+            Assert.AreEqual(1, sentTelemetry.Count);
+            Assert.AreEqual(1, initializedTelemetry.Count);
         }
 
         [TestMethod]
@@ -744,7 +744,7 @@
 
             client.Track(new StubTelemetry());
 
-            Assert.False(((ISupportProperties)sentTelemetry).Properties.ContainsKey("DeveloperMode"));
+            Assert.IsFalse(((ISupportProperties)sentTelemetry).Properties.ContainsKey("DeveloperMode"));
         }
 
         [TestMethod]
@@ -761,7 +761,7 @@
 
             client.Track(new StubTelemetry());
 
-            Assert.Equal("true", ((ISupportProperties)sentTelemetry).Properties["DeveloperMode"]);
+            Assert.AreEqual("true", ((ISupportProperties)sentTelemetry).Properties["DeveloperMode"]);
         }
 
         [TestMethod]
@@ -790,7 +790,7 @@
 
             client.Track(new StubTelemetry());
 
-            Assert.NotEqual(DateTimeOffset.MinValue, sentTelemetry.Timestamp);
+            Assert.AreNotEqual(DateTimeOffset.MinValue, sentTelemetry.Timestamp);
         }
 
         [TestMethod]
@@ -815,7 +815,7 @@
 
             client.Track(new StubTelemetry());
             
-            Assert.True(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
+            Assert.IsTrue(actualMessage.StartsWith("Application Insights Telemetry (unconfigured): "));
             PlatformSingleton.Current = null;
         }
 
@@ -836,7 +836,7 @@
 
             client.Track(new StubTelemetry());
             
-            Assert.True(actualMessage.StartsWith("Application Insights Telemetry: "));
+            Assert.IsTrue(actualMessage.StartsWith("Application Insights Telemetry: "));
             PlatformSingleton.Current = null;
         }
 
@@ -854,7 +854,7 @@
 
             client.Track(new StubTelemetry());
             PlatformSingleton.Current = null;
-            Assert.Null(actualMessage);
+            Assert.IsNull(actualMessage);
         }
 
         [TestMethod]
@@ -868,7 +868,7 @@
             var telemetry = new StubTelemetry();
             client.Track(telemetry);
 
-            Assert.Equal(client.Context.Properties.ToArray(), telemetry.Properties.ToArray());
+            Assert.AreEqual(client.Context.Properties.ToArray(), telemetry.Properties.ToArray());
         }
 
         [TestMethod]
@@ -882,7 +882,7 @@
             var telemetry = new StubTelemetry { Properties = { { "TestProperty", "TelemetryValue" } } };
             client.Track(telemetry);
 
-            Assert.Equal("TelemetryValue", telemetry.Properties["TestProperty"]);
+            Assert.AreEqual("TelemetryValue", telemetry.Properties["TestProperty"]);
         }
 
         [TestMethod]
@@ -902,7 +902,7 @@
 
             client.Track(new StubTelemetry());
 
-            Assert.Equal(client.Context.Properties[PropertyName], valueInInitializer);
+            Assert.AreEqual(client.Context.Properties[PropertyName], valueInInitializer);
         }
 
 #if !NETCOREAPP1_1
@@ -929,7 +929,7 @@
             expected += "-fw4";
 #endif
 
-            Assert.Equal(expected, eventTelemetry.Context.Internal.SdkVersion);
+            Assert.AreEqual(expected, eventTelemetry.Context.Internal.SdkVersion);
         }
 
 #endif
@@ -945,7 +945,7 @@
             eventTelemetry.Context.Internal.SdkVersion = "test";
             client.Track(eventTelemetry);
 
-            Assert.Equal("test", eventTelemetry.Context.Internal.SdkVersion);
+            Assert.AreEqual("test", eventTelemetry.Context.Internal.SdkVersion);
         }
 
         #endregion
@@ -967,7 +967,7 @@
                 client.TrackRequest(new RequestTelemetry());
             }
 
-            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
+            Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
         }
 
         #endregion
@@ -1062,7 +1062,7 @@
             }
 #endif
 
-            Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         }
 
         [TestMethod]
@@ -1073,7 +1073,7 @@
 
             string json = JsonSerializer.SerializeAsString(telemetryIn);
             ExceptionTelemetry telemetryOut = Newtonsoft.Json.JsonConvert.DeserializeObject<ExceptionTelemetry>(json);
-            Assert.Equal(0, telemetryOut.Properties.Count);
+            Assert.AreEqual(0, telemetryOut.Properties.Count);
         }
 
         #endregion

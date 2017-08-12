@@ -4,7 +4,7 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     /// <summary>
     /// Portable tests for <see cref="ComponentContext"/>.
@@ -15,14 +15,14 @@
         [TestMethod]
         public void ClassIsPublicToEnableInstantiatingItInSdkAndUserCode()
         {
-            Assert.True(typeof(ComponentContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(ComponentContext).GetTypeInfo().IsPublic);
         }
         
         [TestMethod]
         public void VersionIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var component = new ComponentContext();
-            Assert.Null(component.Version);
+            Assert.IsNull(component.Version);
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@
         {
             var component = new ComponentContext();
             component.Version = "4.2";
-            Assert.Equal("4.2", component.Version);
+            Assert.AreEqual("4.2", component.Version);
         }
         
         [TestMethod]
@@ -43,7 +43,7 @@
             component.Version = componentVersion;
 
             component.UpdateTags(tags);
-            Assert.True(tags.Contains(new KeyValuePair<string, string>(ContextTagKeys.Keys.ApplicationVersion, componentVersion)));
+            Assert.IsTrue(tags.Contains(new KeyValuePair<string, string>(ContextTagKeys.Keys.ApplicationVersion, componentVersion)));
         }
     }
 }

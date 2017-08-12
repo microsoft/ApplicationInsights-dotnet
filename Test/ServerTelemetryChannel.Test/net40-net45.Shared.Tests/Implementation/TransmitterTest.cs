@@ -17,7 +17,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -86,7 +86,7 @@
 
                     transmitter.Enqueue(new StubTransmission());
 
-                    Assert.Equal(1, testDirectory.EnumerateFiles().Count());
+                    Assert.AreEqual(1, testDirectory.EnumerateFiles().Count());
                 }
                 finally
                 {
@@ -103,7 +103,7 @@
             {
                 var buffer = new StubTransmissionBuffer { Capacity = 42 };
                 Transmitter transmitter = CreateTransmitter(buffer: buffer);
-                Assert.Equal(42, transmitter.MaxBufferCapacity);
+                Assert.AreEqual(42, transmitter.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -111,7 +111,7 @@
             {
                 Transmitter transmitter = CreateTransmitter();
                 transmitter.MaxBufferCapacity = 42;
-                Assert.Equal(42, transmitter.MaxBufferCapacity);
+                Assert.AreEqual(42, transmitter.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -123,7 +123,7 @@
 
                 policy.Apply();
 
-                Assert.Equal(42, transmitter.MaxBufferCapacity);
+                Assert.AreEqual(42, transmitter.MaxBufferCapacity);
             }
 
             [TestMethod]
@@ -135,7 +135,7 @@
 
                 transmitter.MaxBufferCapacity = 42;
 
-                Assert.Equal(42, buffer.Capacity);
+                Assert.AreEqual(42, buffer.Capacity);
             }
 
             [TestMethod]
@@ -148,7 +148,7 @@
 
                 transmitter.MaxBufferCapacity = 42;
 
-                Assert.Equal(0, buffer.Capacity);
+                Assert.AreEqual(0, buffer.Capacity);
             }
         }
 
@@ -160,7 +160,7 @@
             {
                 var sender = new StubTransmissionSender { Capacity = 42 };
                 Transmitter transmitter = CreateTransmitter(sender: sender);
-                Assert.Equal(42, transmitter.MaxSenderCapacity);
+                Assert.AreEqual(42, transmitter.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -168,7 +168,7 @@
             {
                 Transmitter transmitter = CreateTransmitter();
                 transmitter.MaxSenderCapacity = 42;
-                Assert.Equal(42, transmitter.MaxSenderCapacity);
+                Assert.AreEqual(42, transmitter.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -180,7 +180,7 @@
 
                 policy.Apply();
 
-                Assert.Equal(42, transmitter.MaxSenderCapacity);
+                Assert.AreEqual(42, transmitter.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -192,7 +192,7 @@
 
                 transmitter.MaxSenderCapacity = 42;
 
-                Assert.Equal(42, sender.Capacity);
+                Assert.AreEqual(42, sender.Capacity);
             }
 
             [TestMethod]
@@ -205,7 +205,7 @@
 
                 transmitter.MaxSenderCapacity = 42;
 
-                Assert.Equal(0, sender.Capacity);
+                Assert.AreEqual(0, sender.Capacity);
             }
         }
 
@@ -217,7 +217,7 @@
             {
                 var storage = new StubTransmissionStorage { Capacity = 42 };
                 Transmitter transmitter = CreateTransmitter(storage: storage);
-                Assert.Equal(42, transmitter.MaxStorageCapacity);
+                Assert.AreEqual(42, transmitter.MaxStorageCapacity);
             }
 
             [TestMethod]
@@ -225,7 +225,7 @@
             {
                 Transmitter transmitter = CreateTransmitter();
                 transmitter.MaxStorageCapacity = 42;
-                Assert.Equal(42, transmitter.MaxStorageCapacity);
+                Assert.AreEqual(42, transmitter.MaxStorageCapacity);
             }
 
             [TestMethod]
@@ -237,7 +237,7 @@
 
                 policy.Apply();
 
-                Assert.Equal(42, transmitter.MaxStorageCapacity);
+                Assert.AreEqual(42, transmitter.MaxStorageCapacity);
             }
 
             [TestMethod]
@@ -249,7 +249,7 @@
 
                 transmitter.MaxStorageCapacity = 42;
 
-                Assert.Equal(42, storage.Capacity);
+                Assert.AreEqual(42, storage.Capacity);
             }
 
             [TestMethod]
@@ -262,7 +262,7 @@
 
                 transmitter.MaxStorageCapacity = 42;
 
-                Assert.Equal(0, storage.Capacity);
+                Assert.AreEqual(0, storage.Capacity);
             }
         }
 
@@ -279,7 +279,7 @@
                 Transmitter transmitter = CreateTransmitter(null, null, storage);
                 transmitter.Initialize();
 
-                Assert.NotNull(provider);
+                Assert.IsNotNull(provider);
             }
         }
 
@@ -301,7 +301,7 @@
                 Transmitter transmitter = CreateTransmitter(sender: sender, policies: policies);
                 transmitter.ApplyPolicies();
 
-                Assert.Equal(2, sender.Capacity);
+                Assert.AreEqual(2, sender.Capacity);
             }
 
             [TestMethod]
@@ -317,7 +317,7 @@
                 Transmitter transmitter = CreateTransmitter(buffer: buffer, policies: policies);
                 transmitter.ApplyPolicies();
 
-                Assert.Equal(2, buffer.Capacity);
+                Assert.AreEqual(2, buffer.Capacity);
             }
 
             [TestMethod]
@@ -333,7 +333,7 @@
                 Transmitter transmitter = CreateTransmitter(storage: storage, policies: policies);
                 transmitter.ApplyPolicies();
 
-                Assert.Equal(2, storage.Capacity);
+                Assert.AreEqual(2, storage.Capacity);
             }
 
             [TestMethod]
@@ -346,9 +346,9 @@
 
                 Transmitter transmitter = CreateTransmitter(sender, buffer, storage, policies: policies);
                     
-                Assert.Equal(1, sender.Capacity);
-                Assert.Equal(10, buffer.Capacity);
-                Assert.Equal(100, storage.Capacity);
+                Assert.AreEqual(1, sender.Capacity);
+                Assert.AreEqual(10, buffer.Capacity);
+                Assert.AreEqual(100, storage.Capacity);
             }
 
             [TestMethod]
@@ -371,9 +371,9 @@
                 policy.MaxStorageCapacity = null;
                 policy.Apply();
 
-                Assert.Equal(1, sender.Capacity);
-                Assert.Equal(10, buffer.Capacity);
-                Assert.Equal(100, storage.Capacity);
+                Assert.AreEqual(1, sender.Capacity);
+                Assert.AreEqual(10, buffer.Capacity);
+                Assert.AreEqual(100, storage.Capacity);
             }
 
             [TestMethod]
@@ -404,11 +404,11 @@
 
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-                Assert.True(policies[0].ActionInvoked.Wait(3000));
-                Assert.True(policies[1].ActionInvoked.Wait(3000));
+                Assert.IsTrue(policies[0].ActionInvoked.Wait(3000));
+                Assert.IsTrue(policies[1].ActionInvoked.Wait(3000));
 
-                Assert.NotEqual(0, sender.Capacity);
-                Assert.NotEqual(0, buffer.Capacity);
+                Assert.AreNotEqual(0, sender.Capacity);
+                Assert.AreNotEqual(0, buffer.Capacity);
             }
 
             [TestMethod]
@@ -439,10 +439,10 @@
 
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-                Assert.True(policies[0].ActionInvoked.Wait(3000));
+                Assert.IsTrue(policies[0].ActionInvoked.Wait(3000));
 
-                Assert.NotEqual(0, sender.Capacity);
-                Assert.NotEqual(0, buffer.Capacity);
+                Assert.AreNotEqual(0, sender.Capacity);
+                Assert.AreNotEqual(0, buffer.Capacity);
             }
 
             [TestMethod]
@@ -475,10 +475,10 @@
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
                 sender.OnTransmissionSent(new TransmissionProcessedEventArgs(transmission, null, wrapper));
 
-                Assert.True(policies[0].ActionInvoked.Wait(3000));
+                Assert.IsTrue(policies[0].ActionInvoked.Wait(3000));
 
-                Assert.NotEqual(0, sender.Capacity);
-                Assert.NotEqual(0, buffer.Capacity);
+                Assert.AreNotEqual(0, sender.Capacity);
+                Assert.AreNotEqual(0, buffer.Capacity);
             }
 
             [TestMethod]
@@ -535,7 +535,7 @@
 
                 policy.Apply();
 
-                Assert.Equal(0, storage.Queue.Count);
+                Assert.AreEqual(0, storage.Queue.Count);
             }
 
             [TestMethod]
@@ -557,7 +557,7 @@
 
                 policy.Apply();
 
-                Assert.Equal(0, storage.Queue.Count);
+                Assert.AreEqual(0, storage.Queue.Count);
             }
             
             [TestMethod]
@@ -708,7 +708,7 @@
 
                 transmitter.Enqueue(new StubTransmission());
 
-                Assert.Equal(senderPolicy.MaxSenderCapacity, sender.Capacity);
+                Assert.AreEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
             }
 
             [TestMethod]
@@ -722,7 +722,7 @@
 
                 transmitter.Enqueue(new StubTransmission());
 
-                Assert.NotEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
+                Assert.AreNotEqual(senderPolicy.MaxSenderCapacity, sender.Capacity);
             }
 
             [TestMethod]
@@ -737,7 +737,7 @@
                     transmitter.Enqueue(new StubTransmission());
 
                     EventWrittenEventArgs trace = listener.Messages.First();
-                    Assert.Equal(21, trace.EventId);
+                    Assert.AreEqual(21, trace.EventId);
                 }
             }
         }
@@ -852,7 +852,7 @@
 
                 buffer.OnTransmissionDequeued(new TransmissionProcessedEventArgs(null));
 
-                Assert.Equal(previouslyStoredTransmissions, newlyBufferedTransmissions);
+                Assert.AreEqual(previouslyStoredTransmissions, newlyBufferedTransmissions);
             }
 
             [TestMethod]

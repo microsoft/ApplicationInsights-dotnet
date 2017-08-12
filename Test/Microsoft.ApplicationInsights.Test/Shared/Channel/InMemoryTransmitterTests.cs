@@ -7,7 +7,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
     using Extensibility;
 #if !NET40
     using System.Net.Http;
@@ -23,7 +23,7 @@
             public void DefaultValueIsAppropriateForProductionEnvironmentAndUnitTests()
             {
                 var transmitter = new InMemoryTransmitter(new TelemetryBuffer());
-                Assert.Equal(TimeSpan.FromSeconds(30), transmitter.SendingInterval);
+                Assert.AreEqual(TimeSpan.FromSeconds(30), transmitter.SendingInterval);
             }
 
             [TestMethod]
@@ -34,7 +34,7 @@
                 var expectedValue = TimeSpan.FromSeconds(42);
                 transmitter.SendingInterval = expectedValue;
 
-                Assert.Equal(expectedValue, transmitter.SendingInterval);
+                Assert.AreEqual(expectedValue, transmitter.SendingInterval);
             }
 
 #if !NET40
@@ -44,9 +44,9 @@
 
                 public override IEnumerable<ITelemetry> Dequeue()
                 {
-                    Assert.True(SdkInternalOperationsMonitor.IsEntered());
+                    Assert.IsTrue(SdkInternalOperationsMonitor.IsEntered());
                     HttpClient client = new HttpClient();
-                    var task = client.GetStringAsync("http://bing.com").ContinueWith((result) => { Assert.True(SdkInternalOperationsMonitor.IsEntered()); });
+                    var task = client.GetStringAsync("http://bing.com").ContinueWith((result) => { Assert.IsTrue(SdkInternalOperationsMonitor.IsEntered()); });
 
                     task.Wait();
 
@@ -72,7 +72,7 @@
                     Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
 
-                Assert.True(buffer.WasCalled);
+                Assert.IsTrue(buffer.WasCalled);
             }
 
             [TestMethod]
@@ -92,7 +92,7 @@
                     Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
 
-                Assert.True(buffer.WasCalled);
+                Assert.IsTrue(buffer.WasCalled);
             }
 #endif
         }

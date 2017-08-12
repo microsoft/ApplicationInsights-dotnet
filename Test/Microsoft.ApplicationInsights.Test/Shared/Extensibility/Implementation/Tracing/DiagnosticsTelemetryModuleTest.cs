@@ -11,7 +11,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -26,11 +26,11 @@
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
-                Assert.True(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
-                Assert.Equal("Error", initializedModule.Severity);
+                Assert.IsTrue(string.IsNullOrEmpty(initializedModule.DiagnosticsInstrumentationKey));
+                Assert.AreEqual("Error", initializedModule.Severity);
 
-                Assert.Equal(1, initializedModule.Senders.Count);
-                Assert.Equal(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
+                Assert.AreEqual(1, initializedModule.Senders.Count);
+                Assert.AreEqual(1, initializedModule.Senders.OfType<PortalDiagnosticsSender>().Count());
             }
         }
 
@@ -43,9 +43,9 @@
                 initializedModule.Initialize(new TelemetryConfiguration());
                 initializedModule.DiagnosticsInstrumentationKey = diagnosticsInstrumentationKey;
 
-                Assert.Equal(diagnosticsInstrumentationKey, initializedModule.DiagnosticsInstrumentationKey);
+                Assert.AreEqual(diagnosticsInstrumentationKey, initializedModule.DiagnosticsInstrumentationKey);
 
-                Assert.Equal(
+                Assert.AreEqual(
                     diagnosticsInstrumentationKey,
                     initializedModule.Senders.OfType<PortalDiagnosticsSender>().First().DiagnosticsInstrumentationKey);
             }
@@ -58,11 +58,11 @@
             {
                 initializedModule.Initialize(new TelemetryConfiguration());
                 
-                Assert.Equal(EventLevel.Error.ToString(), initializedModule.Severity);
+                Assert.AreEqual(EventLevel.Error.ToString(), initializedModule.Severity);
 
                 initializedModule.Severity = "Informational";
 
-                Assert.Equal(EventLevel.Informational, initializedModule.EventListener.LogLevel);
+                Assert.AreEqual(EventLevel.Informational, initializedModule.EventListener.LogLevel);
             }
         }
 

@@ -6,7 +6,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     public class ExtensionsTest
     {

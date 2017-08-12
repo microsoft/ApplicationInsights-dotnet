@@ -5,8 +5,6 @@
     using System.Reflection;
     using System.Threading.Tasks;
 
-    using Xunit.Sdk;
-
     internal class AssertEx
     {
         /// <summary>

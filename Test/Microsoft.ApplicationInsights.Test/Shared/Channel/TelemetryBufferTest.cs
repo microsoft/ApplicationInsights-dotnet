@@ -16,7 +16,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class TelemetryBufferTest
@@ -25,8 +25,8 @@
         public void DefaultValueIsAppropriateForProductionEnvironmentAndUnitTests()
         {
             var buffer = new TelemetryBuffer();
-            Assert.Equal(500, buffer.Capacity);
-            Assert.Equal(1000000, buffer.BacklogSize);
+            Assert.AreEqual(500, buffer.Capacity);
+            Assert.AreEqual(1000000, buffer.BacklogSize);
         }
 
         [TestMethod]
@@ -35,8 +35,8 @@
             var buffer = new TelemetryBuffer();
             buffer.Capacity = 42;
             buffer.BacklogSize = 9999;
-            Assert.Equal(42, buffer.Capacity);
-            Assert.Equal(9999, buffer.BacklogSize);
+            Assert.AreEqual(42, buffer.Capacity);
+            Assert.AreEqual(9999, buffer.BacklogSize);
         }
 
         [TestMethod]
@@ -46,8 +46,8 @@
             buffer.Capacity = 0;
             buffer.BacklogSize = 1000; //1001 is the minimum, setting to anything low should be overruled with minimum allowed.
 
-            Assert.Equal(500,buffer.Capacity);
-            Assert.Equal(1001, buffer.BacklogSize);
+            Assert.AreEqual(500,buffer.Capacity);
+            Assert.AreEqual(1001, buffer.BacklogSize);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@
             buffer.BacklogSize = buffer.Capacity - 1;
 
             // Validate that MaximumBacklogSize will be set to Capacity
-            Assert.Equal(buffer.Capacity, buffer.BacklogSize);
+            Assert.AreEqual(buffer.Capacity, buffer.BacklogSize);
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@
             buffer.Capacity = buffer.BacklogSize + 1;
 
             // Validate that Capacity will be set to MaxBacklogSize
-            Assert.Equal(buffer.Capacity, buffer.BacklogSize);
+            Assert.AreEqual(buffer.Capacity, buffer.BacklogSize);
         }
 
         [TestMethod]
@@ -86,8 +86,8 @@
             buffer.Enqueue(new EventTelemetry("Event1"));
             buffer.Enqueue(new EventTelemetry("Event2"));
 
-            Assert.NotNull(items);
-            Assert.Equal(2, items.Count());
+            Assert.IsNotNull(items);
+            Assert.AreEqual(2, items.Count());
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@
             // validate that items are not added after maxunsentbacklogsize is reached.
             // this also validate that items can still be added after Capacity is reached as it is only a soft limit.
             int bufferItemCount = buffer.Dequeue().Count();
-            Assert.Equal(1002, bufferItemCount);
+            Assert.AreEqual(1002, bufferItemCount);
 
         }
     }

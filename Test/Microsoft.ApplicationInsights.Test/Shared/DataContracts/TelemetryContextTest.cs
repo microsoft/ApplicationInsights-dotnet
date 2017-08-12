@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class TelemetryContextTest
@@ -16,20 +16,20 @@
         [TestMethod]
         public void TelemetryContextIsPublicAndMeantToBeUsedByCustomers()
         {
-            Assert.True(typeof(TelemetryContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(TelemetryContext).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
         public void TelemetryContextIsSealedToSupportCompilationAsWinmd()
         {
-            Assert.True(typeof(TelemetryContext).GetTypeInfo().IsSealed);
+            Assert.IsTrue(typeof(TelemetryContext).GetTypeInfo().IsSealed);
         }
 
         [TestMethod]
         public void InstrumentationKeyIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.InstrumentationKey);
+            Assert.IsNotNull(context.InstrumentationKey);
         }
 
         [TestMethod]
@@ -43,49 +43,49 @@
         public void ComponentIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Component);
+            Assert.IsNotNull(context.Component);
         }
 
         [TestMethod]
         public void DeviceIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Device);
+            Assert.IsNotNull(context.Device);
         }
 
         [TestMethod]
         public void SessionIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Session);
+            Assert.IsNotNull(context.Session);
         }
 
         [TestMethod]
         public void UserIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.User);
+            Assert.IsNotNull(context.User);
         }
 
         [TestMethod]
         public void OperationIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Operation);
+            Assert.IsNotNull(context.Operation);
         }
 
         [TestMethod]
         public void LocationIsNotNullByDefaultToPreventNullReferenceExceptionInUserCode()
         {
             TelemetryContext context = new TelemetryContext();
-            Assert.NotNull(context.Location);
+            Assert.IsNotNull(context.Location);
         }
 
         [TestMethod]
         public void InternalIsNotNullByDefaultToPreventNullReferenceExceptionInUserCode()
         {
             TelemetryContext context = new TelemetryContext();
-            Assert.NotNull(context.Internal);
+            Assert.IsNotNull(context.Internal);
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@
 
             target.Initialize(source, source.InstrumentationKey);
 
-            Assert.Equal("TestValue", target.InstrumentationKey);
+            Assert.AreEqual("TestValue", target.InstrumentationKey);
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@
 
             target.Initialize(source, "OtherTestValue");
 
-            Assert.Equal("OtherTestValue", target.InstrumentationKey);
+            Assert.AreEqual("OtherTestValue", target.InstrumentationKey);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@
 
             target.Initialize(source, source.InstrumentationKey);
 
-            Assert.Equal("TargetValue", target.InstrumentationKey);
+            Assert.AreEqual("TargetValue", target.InstrumentationKey);
         }
 
         [TestMethod]

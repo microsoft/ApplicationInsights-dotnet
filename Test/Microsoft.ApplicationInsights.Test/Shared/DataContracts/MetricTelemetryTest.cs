@@ -6,7 +6,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
@@ -18,7 +18,7 @@
         [TestMethod]
         public void MetricTelemetryIsPublic()
         {
-            Assert.True(typeof(MetricTelemetry).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(MetricTelemetry).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@
         public void EventTelemetryReturnsNonNullContext()
         {
             MetricTelemetry item = new MetricTelemetry();
-            Assert.NotNull(item.Context);
+            Assert.IsNotNull(item.Context);
         }
 
 #pragma warning disable CS0618
@@ -41,8 +41,8 @@
         {
             var instance = new MetricTelemetry("Test Metric", 4.2);
 
-            Assert.Equal("Test Metric", instance.Name);
-            Assert.Equal(4.2, instance.Value);
+            Assert.AreEqual("Test Metric", instance.Name);
+            Assert.AreEqual(4.2, instance.Value);
         }
 #pragma warning restore CS0618
 
@@ -57,10 +57,10 @@
             instance.Min = 1.2;
             instance.Max = 6.4;
             instance.StandardDeviation = 0.5;
-            Assert.Equal(5, instance.Count);
-            Assert.Equal(1.2, instance.Min);
-            Assert.Equal(6.4, instance.Max);
-            Assert.Equal(0.5, instance.StandardDeviation);
+            Assert.AreEqual(5, instance.Count);
+            Assert.AreEqual(1.2, instance.Min);
+            Assert.AreEqual(6.4, instance.Max);
+            Assert.AreEqual(0.5, instance.StandardDeviation);
         }
 
         [TestMethod]
@@ -80,21 +80,21 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(expected);
 
-            Assert.Equal(typeof(AI.MetricData).Name, item.data.baseType);
+            Assert.AreEqual(typeof(AI.MetricData).Name, item.data.baseType);
 
-            Assert.Equal(2, item.data.baseData.ver);
-            Assert.Equal(1, item.data.baseData.metrics.Count);
-            Assert.Equal(expected.Name, item.data.baseData.metrics[0].name);
-            Assert.Equal(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(1, item.data.baseData.metrics.Count);
+            Assert.AreEqual(expected.Name, item.data.baseData.metrics[0].name);
+            Assert.AreEqual(AI.DataPointType.Aggregation, item.data.baseData.metrics[0].kind);
 #pragma warning disable CS0618
-            Assert.Equal(expected.Value, item.data.baseData.metrics[0].value);
+            Assert.AreEqual(expected.Value, item.data.baseData.metrics[0].value);
 #pragma warning restore CS0618
-            Assert.Equal(expected.Count.Value, item.data.baseData.metrics[0].count.Value);
-            Assert.Equal(expected.Min.Value, item.data.baseData.metrics[0].min.Value);
-            Assert.Equal(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
-            Assert.Equal(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
+            Assert.AreEqual(expected.Count.Value, item.data.baseData.metrics[0].count.Value);
+            Assert.AreEqual(expected.Min.Value, item.data.baseData.metrics[0].min.Value);
+            Assert.AreEqual(expected.Max.Value, item.data.baseData.metrics[0].max.Value);
+            Assert.AreEqual(expected.StandardDeviation.Value, item.data.baseData.metrics[0].stdDev.Value);
 
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -108,12 +108,12 @@
                 max: 15, 
                 standardDeviation: 4.2);
 
-            Assert.Equal("Test Metric", instance.Name);
-            Assert.Equal(4, instance.Count);
-            Assert.Equal(40, instance.Sum);
-            Assert.Equal(5, instance.Min);
-            Assert.Equal(15, instance.Max);
-            Assert.Equal(4.2, instance.StandardDeviation);
+            Assert.AreEqual("Test Metric", instance.Name);
+            Assert.AreEqual(4, instance.Count);
+            Assert.AreEqual(40, instance.Sum);
+            Assert.AreEqual(5, instance.Min);
+            Assert.AreEqual(15, instance.Max);
+            Assert.AreEqual(4.2, instance.StandardDeviation);
         }
 
         [TestMethod]
@@ -128,12 +128,12 @@
             instance.Max = 15.0;
             instance.StandardDeviation = 4.2;
 
-            Assert.Equal("Test Metric", instance.Name);
-            Assert.Equal(4, instance.Count);
-            Assert.Equal(40, instance.Sum);
-            Assert.Equal(5, instance.Min);
-            Assert.Equal(15, instance.Max);
-            Assert.Equal(4.2, instance.StandardDeviation);
+            Assert.AreEqual("Test Metric", instance.Name);
+            Assert.AreEqual(4, instance.Count);
+            Assert.AreEqual(40, instance.Sum);
+            Assert.AreEqual(5, instance.Min);
+            Assert.AreEqual(15, instance.Max);
+            Assert.AreEqual(4.2, instance.StandardDeviation);
         }
 
         [TestMethod]
@@ -145,7 +145,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(metricTelemetry);
 
-            Assert.Equal(metricTelemetry.Context.InstrumentationKey, item.iKey);
+            Assert.AreEqual(metricTelemetry.Context.InstrumentationKey, item.iKey);
         }
 
         [TestMethod]
@@ -158,15 +158,15 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
+            Assert.AreEqual(new string('Z', Property.MaxNameLength), telemetry.Name);
 
-            Assert.Equal(2, telemetry.Properties.Count);
+            Assert.AreEqual(2, telemetry.Properties.Count);
             var t = new SortedList<string, string>(telemetry.Properties);
 
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
         }
 
         [TestMethod]
@@ -176,7 +176,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal("n/a", telemetry.Name);
+            Assert.AreEqual("n/a", telemetry.Name);
         }
 
         [TestMethod]
@@ -191,7 +191,7 @@
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<MetricTelemetry, AI.MetricData>(original);
 
-            Assert.Equal(2, item.data.baseData.ver);
+            Assert.AreEqual(2, item.data.baseData.ver);
         }
 
 #pragma warning disable CS0618
@@ -201,7 +201,7 @@
             MetricTelemetry original = new MetricTelemetry("test", double.NaN);
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.Value);
+            Assert.AreEqual(0, original.Value);
         }
 #pragma warning restore CS0618
 
@@ -211,7 +211,7 @@
             MetricTelemetry original = new MetricTelemetry { Min = double.NaN };
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.Min.Value);
+            Assert.AreEqual(0, original.Min.Value);
         }
 
         [TestMethod]
@@ -220,7 +220,7 @@
             MetricTelemetry original = new MetricTelemetry { Max = double.NaN };
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.Max.Value);
+            Assert.AreEqual(0, original.Max.Value);
         }
 
         [TestMethod]
@@ -229,7 +229,7 @@
             MetricTelemetry original = new MetricTelemetry { StandardDeviation = double.NaN };
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.StandardDeviation.Value);
+            Assert.AreEqual(0, original.StandardDeviation.Value);
         }
 
         [TestMethod]
@@ -241,7 +241,7 @@
 
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(0, original.Sum);
+            Assert.AreEqual(0, original.Sum);
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@
 
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(1, original.Count);
+            Assert.AreEqual(1, original.Count);
         }
 
         [TestMethod]
@@ -264,7 +264,7 @@
 
             ((ITelemetry)original).Sanitize();
 
-            Assert.Equal(1, original.Count);
+            Assert.AreEqual(1, original.Count);
         }
 
         [TestMethod]
@@ -272,7 +272,7 @@
         {
             MetricTelemetry telemetry = new MetricTelemetry();
 
-            Assert.Equal(1, telemetry.Count);
+            Assert.AreEqual(1, telemetry.Count);
         }
 
 #if !NETCOREAPP1_1
@@ -295,7 +295,7 @@
 
             CompareLogic deepComparator = new CompareLogic();
             var comparisonResult = deepComparator.Compare(metric, other);
-            Assert.True(comparisonResult.AreEqual, comparisonResult.DifferencesString);
+            Assert.IsTrue(comparisonResult.AreEqual, comparisonResult.DifferencesString);
         }
 #endif
     }

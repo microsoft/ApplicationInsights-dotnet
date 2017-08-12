@@ -13,7 +13,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
@@ -24,7 +24,7 @@
         [TestMethod]
         public void ClassIsPublicAndCanBeUsedByCustomersDirectly()
         {
-            Assert.True(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(ExceptionTelemetry).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
@@ -38,13 +38,13 @@
         public void ExceptionTelemetryReturnsNonNullContext()
         {
             ExceptionTelemetry item = new ExceptionTelemetry();
-            Assert.NotNull(item.Context);
+            Assert.IsNotNull(item.Context);
         }
 
         [TestMethod]
         public void ExceptionsPropertyIsInternalUntilWeSortOutPublicInterface()
         {
-            Assert.False(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
+            Assert.IsFalse(typeof(ExceptionTelemetry).GetTypeInfo().GetDeclaredProperty("Exceptions").GetGetMethod(true).IsPublic);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@
             var testExceptionTelemetry = new ExceptionTelemetry(constructorException);
 
             Assert.Same(constructorException, testExceptionTelemetry.Exception);
-            Assert.Equal(constructorException.Message, testExceptionTelemetry.Exceptions.First().message);
+            Assert.AreEqual(constructorException.Message, testExceptionTelemetry.Exceptions.First().message);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@
             testExceptionTelemetry.Exception = nextException;
 
             Assert.Same(nextException, testExceptionTelemetry.Exception);
-            Assert.Equal(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
+            Assert.AreEqual(nextException.Message, testExceptionTelemetry.Exceptions.First().message);
         }
 
 #pragma warning disable 618
@@ -75,7 +75,7 @@
         public void HandledAtReturnsUnhandledByDefault()
         {
             var telemetry = new ExceptionTelemetry();
-            Assert.Equal(ExceptionHandledAt.Unhandled, telemetry.HandledAt);
+            Assert.AreEqual(ExceptionHandledAt.Unhandled, telemetry.HandledAt);
         }
 #pragma warning restore 618
 
@@ -83,7 +83,7 @@
         public void ConstructorDoesNotSetSeverityLevel()
         {
             var telemetry = new ExceptionTelemetry();
-            Assert.Equal(null, telemetry.SeverityLevel);
+            Assert.AreEqual(null, telemetry.SeverityLevel);
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@
         {
             var @exception = new ExceptionTelemetry(new Exception());
             var measurements = @exception.Metrics;
-            Assert.NotNull(measurements);
+            Assert.IsNotNull(measurements);
         }
 
         [TestMethod]
@@ -102,7 +102,7 @@
             original.SeverityLevel = null;
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal(2, item.data.baseData.ver);
+            Assert.AreEqual(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -111,7 +111,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal(2, item.data.baseData.ver);
+            Assert.AreEqual(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry(new ArgumentException("Test"));
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal("Test", item.data.baseData.exceptions[0].message);
+            Assert.AreEqual("Test", item.data.baseData.exceptions[0].message);
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@
             original.Message = "Custom";
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal("Custom", item.data.baseData.exceptions[0].message);
+            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
         }
 
         [TestMethod]
@@ -142,8 +142,8 @@
             original.Message = "Custom";
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal("Custom", item.data.baseData.exceptions[0].message);
-            Assert.Equal("Inner", item.data.baseData.exceptions[1].message);
+            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
+            Assert.AreEqual("Inner", item.data.baseData.exceptions[1].message);
         }
 
         [TestMethod]
@@ -159,9 +159,9 @@
             original.Message = "Custom";
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal("Custom", item.data.baseData.exceptions[0].message);
-            Assert.Equal("Inner1", item.data.baseData.exceptions[1].message);
-            Assert.Equal("Inner2", item.data.baseData.exceptions[2].message);
+            Assert.AreEqual("Custom", item.data.baseData.exceptions[0].message);
+            Assert.AreEqual("Inner1", item.data.baseData.exceptions[1].message);
+            Assert.AreEqual("Inner2", item.data.baseData.exceptions[2].message);
         }
 
         [TestMethod]
@@ -171,7 +171,7 @@
             original.SeverityLevel = SeverityLevel.Information;
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
+            Assert.AreEqual(AI.SeverityLevel.Information, item.data.baseData.severityLevel.Value);
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry(exception);
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal(exception.GetType().FullName, item.data.baseData.exceptions[0].typeName);
+            Assert.AreEqual(exception.GetType().FullName, item.data.baseData.exceptions[0].typeName);
         }
 
         [TestMethod]
@@ -191,7 +191,7 @@
             ExceptionTelemetry original = CreateExceptionTelemetry(exception);
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
 
-            Assert.Equal(exception.Message, item.data.baseData.exceptions[0].message);
+            Assert.AreEqual(exception.Message, item.data.baseData.exceptions[0].message);
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@
         {
             ExceptionTelemetry original = CreateExceptionTelemetry();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(original);
-            Assert.Equal(typeof(AI.ExceptionData).Name, item.data.baseType);
+            Assert.AreEqual(typeof(AI.ExceptionData).Name, item.data.baseType);
         }
 
         [TestMethod]
@@ -225,7 +225,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(innerException.Message, item.data.baseData.exceptions[1].message);
+            Assert.AreEqual(innerException.Message, item.data.baseData.exceptions[1].message);
         }
 
         [TestMethod]
@@ -237,7 +237,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
+            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
         }
 
         [TestMethod]
@@ -248,7 +248,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(1, item.data.baseData.exceptions.Count);
+            Assert.AreEqual(1, item.data.baseData.exceptions.Count);
         }
 
         [TestMethod]
@@ -259,8 +259,8 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
-            Assert.Equal(exception.GetHashCode(), item.data.baseData.exceptions[2].outerId);
+            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[1].outerId);
+            Assert.AreEqual(exception.GetHashCode(), item.data.baseData.exceptions[2].outerId);
         }
 
         [TestMethod]
@@ -273,7 +273,7 @@
 
                 var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-                Assert.True(item.data.baseData.exceptions[0].hasFullStack);
+                Assert.IsTrue(item.data.baseData.exceptions[0].hasFullStack);
             }
         }
 
@@ -285,7 +285,7 @@
             ExceptionTelemetry expected = CreateExceptionTelemetry(exception);
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(2, item.data.baseData.exceptions.Count);
+            Assert.AreEqual(2, item.data.baseData.exceptions.Count);
         }
 
         [TestMethod]
@@ -296,7 +296,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            Assert.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -307,7 +307,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(expected);
 
-            Assert.Equal(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
+            Assert.AreEqual(expected.Metrics.ToArray(), item.data.baseData.measurements.ToArray());
         }
 
         [TestMethod]
@@ -317,9 +317,9 @@
             exceptionTelemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(exceptionTelemetry);
 
-            Assert.Equal(2, item.data.baseData.ver);
-            Assert.NotNull(item.data.baseData.exceptions);
-            Assert.Equal(0, item.data.baseData.exceptions.Count); // constructor without parameters does not initialize exception object
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.IsNotNull(item.data.baseData.exceptions);
+            Assert.AreEqual(0, item.data.baseData.exceptions.Count); // constructor without parameters does not initialize exception object
         }
 
         [TestMethod]
@@ -346,7 +346,7 @@
                                                 "1.2.1"
                                             };
 
-            Assert.Equal(expectedSequence.Length, telemetry.Exceptions.Count);
+            Assert.AreEqual(expectedSequence.Length, telemetry.Exceptions.Count);
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions)
             {
@@ -356,7 +356,7 @@
                 }
                 else
                 {
-                    Assert.Equal(expectedSequence[counter], details.message);
+                    Assert.AreEqual(expectedSequence[counter], details.message);
                 }
                 counter++;
             }
@@ -376,7 +376,7 @@
 
             ExceptionTelemetry telemetry = new ExceptionTelemetry { Exception = rootLevelException };
 
-            Assert.Equal(Constants.MaxExceptionCountToSave + 1, telemetry.Exceptions.Count);
+            Assert.AreEqual(Constants.MaxExceptionCountToSave + 1, telemetry.Exceptions.Count);
             int counter = 0;
             foreach (ExceptionDetails details in telemetry.Exceptions.Take(Constants.MaxExceptionCountToSave))
             {
@@ -386,16 +386,16 @@
                 }
                 else
                 {
-                    Assert.Equal(counter.ToString(CultureInfo.InvariantCulture), details.message);
+                    Assert.AreEqual(counter.ToString(CultureInfo.InvariantCulture), details.message);
                 }
                 counter++;
             }
 
             ExceptionDetails first = telemetry.Exceptions.First();
             ExceptionDetails last = telemetry.Exceptions.Last();
-            Assert.Equal(first.id, last.outerId);
-            Assert.Equal(typeof(InnerExceptionCountExceededException).FullName, last.typeName);
-            Assert.Equal(
+            Assert.AreEqual(first.id, last.outerId);
+            Assert.AreEqual(typeof(InnerExceptionCountExceededException).FullName, last.typeName);
+            Assert.AreEqual(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "The number of inner exceptions was {0} which is larger than {1}, the maximum number allowed during transmission. All but the first {1} have been dropped.",
@@ -413,13 +413,13 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(2, telemetry.Properties.Count);
+            Assert.AreEqual(2, telemetry.Properties.Count);
             var t = new SortedList<string, string>(telemetry.Properties);
 
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
         }
 
         [TestMethod]
@@ -431,10 +431,10 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(2, telemetry.Metrics.Count);
+            Assert.AreEqual(2, telemetry.Metrics.Count);
             string[] keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
         }
 
         [TestMethod]
@@ -442,7 +442,7 @@
         {
             var telemetry = new ExceptionTelemetry();
 
-            Assert.NotNull(telemetry as ISupportSampling);
+            Assert.IsNotNull(telemetry as ISupportSampling);
         }
 
         [TestMethod]
@@ -453,7 +453,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<ExceptionTelemetry, AI.ExceptionData>(telemetry);
 
-            Assert.Equal(10, item.sampleRate);
+            Assert.AreEqual(10, item.sampleRate);
         }
 
 #if !NETCOREAPP1_1
@@ -466,7 +466,7 @@
             CompareLogic deepComparator = new CompareLogic();
 
             var result = deepComparator.Compare(telemetry, other);
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
 

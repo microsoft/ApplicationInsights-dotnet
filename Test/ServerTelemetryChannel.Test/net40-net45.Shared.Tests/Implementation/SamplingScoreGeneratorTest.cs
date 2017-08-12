@@ -6,7 +6,7 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
@@ -30,7 +30,7 @@
             var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
             var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
 
-            Assert.Equal(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
+            Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@
             var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
             var requestTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(requestTelemetry);
 
-            Assert.Equal(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
+            Assert.AreEqual(eventTelemetrySamplingScore, requestTelemetrySamplingScore, 12);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@
             var eventTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(eventTelemetry);
             var traceTelemetrySamplingScore = SamplingScoreGenerator.GetSamplingScore(traceTelemetry);
 
-            Assert.NotEqual(eventTelemetrySamplingScore, traceTelemetrySamplingScore);
+            Assert.AreNotEqual(eventTelemetrySamplingScore, traceTelemetrySamplingScore);
         }
 
         [TestMethod]
@@ -116,7 +116,7 @@
             {
                 int calculatedHash = input.GetSamplingHashCode();
 
-                Assert.Equal(stringHash[input], calculatedHash);
+                Assert.AreEqual(stringHash[input], calculatedHash);
             }
         }
 

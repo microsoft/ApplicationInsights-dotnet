@@ -3,7 +3,7 @@ namespace Microsoft.ApplicationInsights
 {
     using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class ActivityExtensionsTests
@@ -11,14 +11,14 @@ namespace Microsoft.ApplicationInsights
         [TestMethod]
         public void CanLoadDiagnosticSourceAssembly()
         {
-            Assert.True(ActivityExtensions.TryRun(() => Assert.Null(Activity.Current)));
+            Assert.IsTrue(ActivityExtensions.TryRun(() => Assert.IsNull(Activity.Current)));
         }
 
         [TestMethod]
         public void GetOperationNameReturnsNullIfThereIsNoOperationName()
         {
             var activity = new Activity("test me");
-            Assert.Null(activity.GetOperationName());
+            Assert.IsNull(activity.GetOperationName());
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace Microsoft.ApplicationInsights
         {
             var activity = new Activity("test");
             activity.SetOperationName("test me");
-            Assert.Equal("test me", activity.GetOperationName());
+            Assert.AreEqual("test me", activity.GetOperationName());
         }
 
         [TestMethod]
@@ -36,7 +36,7 @@ namespace Microsoft.ApplicationInsights
             activity.AddTag("OperationName", "test me 1");
             activity.AddTag("OperationName", "test me 2");
 
-            Assert.Equal("test me 2", activity.GetOperationName());
+            Assert.AreEqual("test me 2", activity.GetOperationName());
         }
     }
 }

@@ -5,7 +5,7 @@
     using System.Security.AccessControl;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     /// <summary>
     /// We use these tests to understand actual behavior of <see cref="FileInfo"/> and ensure that 
@@ -73,7 +73,7 @@
             [TestMethod]
             public void ImplementsIFileSystemFileInterfaceForCompatibilityWithIPlatform()
             {
-                Assert.True(typeof(IPlatformFile).IsAssignableFrom(typeof(PlatformFile)));
+                Assert.IsTrue(typeof(IPlatformFile).IsAssignableFrom(typeof(PlatformFile)));
             }
         }
 
@@ -84,7 +84,7 @@
             public void ReturnsNameOfGivenPlatformFile()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Equal(FileSystemTest.GetPlatformFileName(this.platformFile), file.Name);
+                Assert.AreEqual(FileSystemTest.GetPlatformFileName(this.platformFile), file.Name);
             }
         }
 
@@ -95,7 +95,7 @@
             public void ReturnsDateCreatedOfGivenPlatformFile()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Equal(FileSystemTest.GetPlatformFileDateCreated(this.platformFile), file.DateCreated);
+                Assert.AreEqual(FileSystemTest.GetPlatformFileDateCreated(this.platformFile), file.DateCreated);
             }
         }
 
@@ -143,7 +143,7 @@
                 var file = new PlatformFile(this.platformFile);
                 byte[] readBytes = ReadBytesAndDispose(file.Open());
 
-                Assert.Equal(writtenBytes, readBytes);
+                Assert.AreEqual(writtenBytes, readBytes);
             }
 
             [TestMethod]
@@ -155,7 +155,7 @@
                 PlatformFileTest.WriteBytesAndDispose(file.Open(), writtenBytes);
 
                 byte[] readBytes = ReadBytesAndDispose(FileSystemTest.OpenPlatformFile(this.platformFile));
-                Assert.Equal(writtenBytes, readBytes);
+                Assert.AreEqual(writtenBytes, readBytes);
             }
 
             [TestMethod]
@@ -207,7 +207,7 @@
                 file.Rename(newName);
 
                 Assert.Throws<FileNotFoundException>(() => FileSystemTest.GetPlatformFile(oldName));
-                Assert.NotNull(FileSystemTest.GetPlatformFile(newName));
+                Assert.IsNotNull(FileSystemTest.GetPlatformFile(newName));
             }
 
             [TestMethod]
@@ -218,7 +218,7 @@
                 string newName = GetUniqueFileName();
                 file.Rename(newName);
 
-                Assert.Equal(newName, file.Name);
+                Assert.AreEqual(newName, file.Name);
             }
 
             [TestMethod]

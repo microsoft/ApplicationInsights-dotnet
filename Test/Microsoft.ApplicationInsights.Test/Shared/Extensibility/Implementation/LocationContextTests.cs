@@ -4,7 +4,7 @@
     using System.Reflection;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-    using Assert = Xunit.Assert;
+    
     
     [TestClass]
     public class LocationContextTests
@@ -12,14 +12,14 @@
         [TestMethod]
         public void ClassIsPublicToAllowSpecifyingCustomLocationContextPropertiesInUserCode()
         {
-            Assert.True(typeof(LocationContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(LocationContext).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
         public void IpIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var context = new LocationContext();
-            Assert.Null(context.Ip);
+            Assert.IsNull(context.Ip);
         }
 
         [TestMethod]
@@ -27,7 +27,7 @@
         {
             var context = new LocationContext();
             context.Ip = "192.168.1.1";
-            Assert.Equal("192.168.1.1", context.Ip);
+            Assert.AreEqual("192.168.1.1", context.Ip);
         }
     }
 }

@@ -14,7 +14,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -58,9 +58,9 @@
                         new StubTransmission(),
                     CreateThrottledResponse(ResponseCodePaymentRequired, 1)));
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
-                Assert.Null(policy.MaxStorageCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxStorageCapacity);
             }
 
             [TestMethod]
@@ -80,9 +80,9 @@
                         new StubTransmission(),
                     CreateThrottledResponse(ResponseCodeUnsupported, 1)));
 
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
-                Assert.Null(policy.MaxStorageCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxStorageCapacity);
             }
 
             [TestMethod]
@@ -105,7 +105,7 @@
                         CreateThrottledResponse(ResponseCodeTooManyRequests, UnparsableDate)));
 
                     EventWrittenEventArgs trace = listener.Messages.First(args => args.EventId == 24);
-                    Assert.Equal(UnparsableDate, (string)trace.Payload[0]);
+                    Assert.AreEqual(UnparsableDate, (string)trace.Payload[0]);
                 }
             }
 
@@ -152,18 +152,18 @@
                         new StubTransmission(),
                     CreateThrottledResponse(responseCode, retryAfter)));
 
-                Assert.True(policyApplied.WaitOne(WaitForTheFirstApplyAsync));
+                Assert.IsTrue(policyApplied.WaitOne(WaitForTheFirstApplyAsync));
                 
-                Assert.Equal(expectedSenderCapacity, policy.MaxSenderCapacity);
-                Assert.Equal(expectedBufferCapacity, policy.MaxBufferCapacity);
-                Assert.Equal(expectedStorageCapacity, policy.MaxStorageCapacity);
+                Assert.AreEqual(expectedSenderCapacity, policy.MaxSenderCapacity);
+                Assert.AreEqual(expectedBufferCapacity, policy.MaxBufferCapacity);
+                Assert.AreEqual(expectedStorageCapacity, policy.MaxStorageCapacity);
 
-                Assert.True(policyApplied.WaitOne(waitForTheSecondApplyAsync));
+                Assert.IsTrue(policyApplied.WaitOne(waitForTheSecondApplyAsync));
 
                 // Check that it resets after retry-after interval
-                Assert.Null(policy.MaxSenderCapacity);
-                Assert.Null(policy.MaxBufferCapacity);
-                Assert.Null(policy.MaxStorageCapacity);
+                Assert.IsNull(policy.MaxSenderCapacity);
+                Assert.IsNull(policy.MaxBufferCapacity);
+                Assert.IsNull(policy.MaxStorageCapacity);
             }
         }
     }

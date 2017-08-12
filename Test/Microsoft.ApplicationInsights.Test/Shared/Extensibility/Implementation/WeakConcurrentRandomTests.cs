@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class WeakConcurrentRandomTests
@@ -21,7 +21,7 @@
             {
                 ulong randomNumber = rng.Next();
 
-                Assert.False(previouslyGeneratedNumbers.Contains(randomNumber));
+                Assert.IsFalse(previouslyGeneratedNumbers.Contains(randomNumber));
 
                 previouslyGeneratedNumbers.Add(randomNumber);
             }

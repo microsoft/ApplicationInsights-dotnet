@@ -7,7 +7,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     
-    using Assert = Xunit.Assert;
+    
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
     [TestClass]
@@ -27,7 +27,7 @@
             channelBuilder.UseSampling(5);
             channelBuilder.Build();
 
-            Assert.Equal(5, ((SamplingTelemetryProcessor) tc.TelemetryProcessorChain.FirstTelemetryProcessor).SamplingPercentage);
+            Assert.AreEqual(5, ((SamplingTelemetryProcessor) tc.TelemetryProcessorChain.FirstTelemetryProcessor).SamplingPercentage);
         }
 
         [TestMethod]
@@ -44,8 +44,8 @@
             channelBuilder.UseSampling(5, "request");
             channelBuilder.Build();
 
-            Assert.Equal(5, ((SamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).SamplingPercentage);
-            Assert.Equal("request", ((SamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
+            Assert.AreEqual(5, ((SamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).SamplingPercentage);
+            Assert.AreEqual("request", ((SamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@
             channelBuilder.UseAdaptiveSampling("request");
             channelBuilder.Build();
 
-            Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
+            Assert.AreEqual("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@
             channelBuilder.UseAdaptiveSampling(5);
             channelBuilder.Build();
 
-            Assert.Equal(5, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxTelemetryItemsPerSecond);
+            Assert.AreEqual(5, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxTelemetryItemsPerSecond);
         }
 
         [TestMethod]
@@ -113,8 +113,8 @@
             channelBuilder.UseAdaptiveSampling(5, "request");
             channelBuilder.Build();
 
-            Assert.Equal(5, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxTelemetryItemsPerSecond);
-            Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
+            Assert.AreEqual(5, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxTelemetryItemsPerSecond);
+            Assert.AreEqual("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@
             channelBuilder.UseAdaptiveSampling(settings, callback);
             channelBuilder.Build();
 
-            Assert.Equal(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
+            Assert.AreEqual(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
         }
 
         [TestMethod]
@@ -178,8 +178,8 @@
             channelBuilder.UseAdaptiveSampling(settings, callback, "request");
             channelBuilder.Build();
 
-            Assert.Equal(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
-            Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
+            Assert.AreEqual(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
+            Assert.AreEqual("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).ExcludedTypes);
         }
 
         [TestMethod]
@@ -196,8 +196,8 @@
             channelBuilder.UseAdaptiveSampling(settings, callback, null, "request");
             channelBuilder.Build();
 
-            Assert.Equal(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
-            Assert.Equal("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).IncludedTypes);
+            Assert.AreEqual(13, ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).MaxSamplingPercentage);
+            Assert.AreEqual("request", ((AdaptiveSamplingTelemetryProcessor)tc.TelemetryProcessorChain.FirstTelemetryProcessor).IncludedTypes);
         }
     }
 }

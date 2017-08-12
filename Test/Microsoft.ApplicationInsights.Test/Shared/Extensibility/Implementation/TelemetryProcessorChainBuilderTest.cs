@@ -11,7 +11,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class TelemetryProcessorChainBuilderTest
@@ -27,7 +27,7 @@
 
             builder.Build();
             
-            Assert.Equal(1, configuration.TelemetryProcessors.Count); // Transmission is added by default
+            Assert.AreEqual(1, configuration.TelemetryProcessors.Count); // Transmission is added by default
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@
 
             builder.Build();
 
-            Assert.Equal(3, configuration.TelemetryProcessors.Count); // Transmission is added by default
+            Assert.AreEqual(3, configuration.TelemetryProcessors.Count); // Transmission is added by default
             Assert.Same(((StubTelemetryProcessor)configuration.TelemetryProcessors[0]).next, ((StubTelemetryProcessor)configuration.TelemetryProcessors[1]));
         }
 
@@ -92,7 +92,7 @@
            builder.Build();
            config.TelemetryProcessorChain.Process(new StubTelemetry());            
 
-           Assert.Equal("processor1processor2", outputCollector.ToString());
+           Assert.AreEqual("processor1processor2", outputCollector.ToString());
         }
     }
 }

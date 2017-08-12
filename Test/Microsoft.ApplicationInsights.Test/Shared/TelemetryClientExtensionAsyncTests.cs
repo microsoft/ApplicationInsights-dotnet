@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Extensibility.Implementation;
     using TestFramework;
 #if !NET40
@@ -73,25 +73,25 @@
                 var id2 = Thread.CurrentThread.ManagedThreadId;
                 this.telemetryClient.TrackTrace("trace2");
 
-                Assert.NotEqual(id1, id2);
+                Assert.AreNotEqual(id1, id2);
             }
 
-            Assert.Equal(3, this.sendItems.Count);
+            Assert.AreEqual(3, this.sendItems.Count);
             var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
-            Assert.False(string.IsNullOrEmpty(id));
+            Assert.IsFalse(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.AreEqual(id, item.Context.Operation.ParentId);
+                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
                 }
                 else
                 {
-                    Assert.Equal(id, ((RequestTelemetry)item).Id);
-                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
-                    Assert.Null(item.Context.Operation.ParentId);
+                    Assert.AreEqual(id, ((RequestTelemetry)item).Id);
+                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.IsNull(item.Context.Operation.ParentId);
                 }
             }
         }
@@ -126,23 +126,23 @@
                 }
             } while (this.sendItems.Count < 3);
 
-            Assert.NotEqual(id1, id2);
-            Assert.Equal(3, this.sendItems.Count);
+            Assert.AreNotEqual(id1, id2);
+            Assert.AreEqual(3, this.sendItems.Count);
             var id = ((RequestTelemetry)this.sendItems[this.sendItems.Count - 1]).Id;
-            Assert.False(string.IsNullOrEmpty(id));
+            Assert.IsFalse(string.IsNullOrEmpty(id));
 
             foreach (var item in this.sendItems)
             {
                 if (item is TraceTelemetry)
                 {
-                    Assert.Equal(id, item.Context.Operation.ParentId);
-                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.AreEqual(id, item.Context.Operation.ParentId);
+                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
                 }
                 else
                 {
-                    Assert.Equal(id, ((RequestTelemetry)item).Id);
-                    Assert.Equal(GetRootOperationId(id), item.Context.Operation.Id);
-                    Assert.Null(item.Context.Operation.ParentId);
+                    Assert.AreEqual(id, ((RequestTelemetry)item).Id);
+                    Assert.AreEqual(GetRootOperationId(id), item.Context.Operation.Id);
+                    Assert.IsNull(item.Context.Operation.ParentId);
 
                 }
             }
@@ -153,7 +153,7 @@
 #if NET40
             return operationId;
 #else
-            Assert.True(operationId.StartsWith("|"));
+            Assert.IsTrue(operationId.StartsWith("|"));
             return operationId.Substring(1, operationId.IndexOf('.') - 1);
 #endif
         }
