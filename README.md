@@ -6,6 +6,16 @@
 
 This repository has code for the core .NET SDK for Application Insights. [Application Insights][AILandingPage] is a service that allows developers ensure their application are available, performing, and succeeding. This SDK provides the core ability to send all Application Insights types from any .NET project. 
 
+
+| SDK                | Extensibility  |
+|--------------------|------------|--------------|
+| ![first](docs/1.png) | pick modules / manually instrument |
+| ![first](docs/2.png) | pick telemetry initializers      |
+| ![first](docs/2.png) | pick telemetry initializers      |
+| ![first](docs/2.png) | pick telemetry initializers      |
+
+![first](docs/1.png)
+
 ## Getting Started
 
 If developing for a .Net project that is supported by one of our platform specific packages, [Web][WebGetStarted] or [Windows Apps][WinAppGetStarted], we strongly recommend to use one of those packages instead of this core library. If your project does not fall into one of those platforms you can use this library for any .Net code. This library should have no dependencies outside of the .Net framework. If you are building a [Desktop][DesktopGetStarted] or any other .Net project type this library will enable you to utilize Application Insights.
