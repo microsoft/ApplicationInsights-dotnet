@@ -9,8 +9,7 @@
     using System.Threading.Tasks;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
-    using AssertEx = Xunit.AssertEx;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -43,7 +42,7 @@
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenEndpointAddressIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(null, new byte[1], "content/type", "content/encoding"));
             }
 
             [TestMethod]
@@ -51,13 +50,13 @@
             {
                 var expectedContent = new byte[42];
                 var transmission = new Transmission(new Uri("http://address"), expectedContent, "content/type", "content/encoding");
-                Assert.Same(expectedContent, transmission.Content);
+                Assert.AreSame(expectedContent, transmission.Content);
             }
 
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenContentIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), (byte[])null, "content/type", "content/encoding"));
             }
 
             [TestMethod]
@@ -65,13 +64,13 @@
             {
                 string expectedContentType = "TestContentType123";
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], expectedContentType, "content/encoding");
-                Assert.Same(expectedContentType, transmission.ContentType);
+                Assert.AreSame(expectedContentType, transmission.ContentType);
             }
 
             [TestMethod]
             public void ThrowsArgumentNullExceptionWhenContentTypeIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
+                AssertEx.Throws<ArgumentNullException>(() => new Transmission(new Uri("http://address"), new byte[1], null, "content/encoding"));
             }
 
             [TestMethod]
@@ -79,14 +78,14 @@
             {
                 string expectedContentEncoding = "gzip";
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], "any/content", expectedContentEncoding);
-                Assert.Same(expectedContentEncoding, transmission.ContentEncoding);
+                Assert.AreSame(expectedContentEncoding, transmission.ContentEncoding);
             }
 
             [TestMethod]
             public void SetsTimeoutTo100SecondsByDefaultToMatchHttpWebRequest()
             {
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding");
-                Assert.Equal(TimeSpan.FromSeconds(100), transmission.Timeout);
+                Assert.AreEqual(TimeSpan.FromSeconds(100), transmission.Timeout);
             }
 
             [TestMethod]
@@ -94,7 +93,7 @@
             {
                 var expectedValue = TimeSpan.FromSeconds(42);
                 var transmission = new Transmission(new Uri("http://address"), new byte[1], "content/type", "content/encoding", expectedValue);
-                Assert.Equal(expectedValue, transmission.Timeout);
+                Assert.AreEqual(expectedValue, transmission.Timeout);
             }
         }
 
@@ -109,7 +108,7 @@
                 var expectedUri = new Uri("http://custom.uri");
                 WebRequest request = transmission.TestableCreateRequest(expectedUri);
 
-                Assert.Equal(expectedUri, request.RequestUri);
+                Assert.AreEqual(expectedUri, request.RequestUri);
             }
 
             [TestMethod]
@@ -117,7 +116,7 @@
             {
                 var transmission = new TestableTransmission();
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.Equal("POST", request.Method);
+                Assert.AreEqual("POST", request.Method);
             }
 
             [TestMethod]
@@ -125,7 +124,7 @@
             {
                 var transmission = new TestableTransmission(contentType: "TestContentType");
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.Equal(transmission.ContentType, request.ContentType);
+                Assert.AreEqual(transmission.ContentType, request.ContentType);
             }
 
             [TestMethod]
@@ -133,7 +132,7 @@
             {
                 var transmission = new TestableTransmission(contentType: string.Empty);
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.Null(request.ContentType);
+                Assert.IsNull(request.ContentType);
             }
 
             [TestMethod]
@@ -141,7 +140,7 @@
             {
                 var transmission = new TestableTransmission(contentEncoding: "TestContentEncoding");
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.Equal(transmission.ContentEncoding, request.Headers[HttpRequestHeader.ContentEncoding]);
+                Assert.AreEqual(transmission.ContentEncoding, request.Headers[HttpRequestHeader.ContentEncoding]);
             }
 
 #if NET40
@@ -151,7 +150,7 @@
                 byte[] content = Encoding.UTF8.GetBytes("custom data");
                 var transmission = new TestableTransmission(new Uri("http://test.uri"), content);
                 WebRequest request = transmission.TestableCreateRequest(new Uri("http://uri"));
-                Assert.Equal(content.Length, request.ContentLength);
+                Assert.AreEqual(content.Length, request.ContentLength);
             }
 #endif
         }
@@ -188,7 +187,7 @@
         
                     await transmission.SendAsync();
         
-                    Assert.Equal(1, beginGetRequestStreamCount);
+                    Assert.AreEqual(1, beginGetRequestStreamCount);
                 });
             }
 
@@ -208,7 +207,7 @@
         
                     await transmission.SendAsync();
         
-                    Assert.Equal(transmissionContent, requestStream.ToArray());
+                    AssertEx.AreEqual(transmissionContent, requestStream.ToArray());
                 });
             }
 
@@ -229,7 +228,7 @@
         
                     await transmission.SendAsync();
         
-                    Assert.Equal(1, endGetResponseCount);
+                    Assert.AreEqual(1, endGetResponseCount);
                 });
             }
 
@@ -245,7 +244,7 @@
         
                     await transmission.SendAsync();
         
-                    Assert.True(responseDisposed);
+                    Assert.IsTrue(responseDisposed);
                 });
             }
 
@@ -262,7 +261,7 @@
 
                 Task sendAsync = transmission.SendAsync();
 
-                Assert.True(requestAborted.Wait(1000));
+                Assert.IsTrue(requestAborted.Wait(1000));
                 finishBeginGetRequestStream.Set();
             }
             
@@ -281,7 +280,7 @@
         
                     await TaskEx.Delay(TimeSpan.FromMilliseconds(50)); // Let timout detector finish
         
-                    Assert.False(requestAborted);
+                    Assert.IsFalse(requestAborted);
                 });
             }
         }

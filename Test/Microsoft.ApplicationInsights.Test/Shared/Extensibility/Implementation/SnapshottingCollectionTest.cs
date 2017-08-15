@@ -16,7 +16,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -30,13 +30,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             [TestMethod]
             public void IsInternalAndNotMeantForDirectPublicConsumption()
             {
-                Assert.False(typeof(SnapshottingCollection<,>).GetTypeInfo().IsPublic);
+                Assert.IsFalse(typeof(SnapshottingCollection<,>).GetTypeInfo().IsPublic);
             }
 
             [TestMethod]
             public void ImplementsICollectionInterfaceExposedInPublicProperties()
             {
-                Assert.True(typeof(ICollection<object>).IsAssignableFrom(typeof(SnapshottingCollection<object, ICollection<object>>)));
+                Assert.IsTrue(typeof(ICollection<object>).IsAssignableFrom(typeof(SnapshottingCollection<object, ICollection<object>>)));
             }
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Add(item);
 
-                Assert.True(collection.Contains(item));
+                Assert.IsTrue(collection.Contains(item));
             }
 
             [TestMethod]
@@ -63,7 +63,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Add(new object());
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -75,10 +75,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (collection)
                 {
                     anotherThread = TaskEx.Run(() => target.Add(new object()));
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Clear();
 
-                Assert.Equal(0, collection.Count);
+                Assert.AreEqual(0, collection.Count);
             }
 
             [TestMethod]
@@ -104,7 +104,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Clear();
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -116,10 +116,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (collection)
                 {
                     anotherThread = TaskEx.Run(() => target.Clear());
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 
@@ -133,7 +133,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var item = new object();
                 target.OnCreateSnapshot = c => new List<object> { item };
 
-                Assert.True(target.Contains(item));
+                Assert.IsTrue(target.Contains(item));
             }
         }
 
@@ -150,7 +150,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 object[] array = new object[50];
                 target.CopyTo(array, 42);
 
-                Assert.Same(item, array[42]);
+                Assert.AreSame(item, array[42]);
             }
         }
 
@@ -164,7 +164,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var snapshot = new List<object> { new object() };
                 target.OnCreateSnapshot = c => snapshot;
 
-                Assert.Equal(snapshot.Count, target.Count);
+                Assert.AreEqual(snapshot.Count, target.Count);
             }
         }
 
@@ -181,7 +181,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 IEnumerator<object> enumerator = target.GetEnumerator();
 
                 enumerator.MoveNext();
-                Assert.Same(item, enumerator.Current);
+                Assert.AreSame(item, enumerator.Current);
             }
 
             [TestMethod]
@@ -194,7 +194,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 IEnumerator enumerator = ((IEnumerable)target).GetEnumerator();
 
                 enumerator.MoveNext();
-                Assert.Same(item, enumerator.Current);
+                Assert.AreSame(item, enumerator.Current);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             public void ReturnsFalseForConsistencyWithBuiltInCollectionTypes()
             {
                 var target = new TestableSnapshottingCollection<object>(new List<object>());
-                Assert.False(target.IsReadOnly);
+                Assert.IsFalse(target.IsReadOnly);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Remove(item);
 
-                Assert.Equal(0, collection.Count);
+                Assert.AreEqual(0, collection.Count);
             }
 
             [TestMethod]
@@ -233,7 +233,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 bool result = target.Remove(item);
 
-                Assert.True(result);
+                Assert.IsTrue(result);
             }
 
             [TestMethod]
@@ -244,7 +244,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Remove(null);
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -255,7 +255,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Remove(new object());
 
-                Assert.Same(oldSnapshot, target.Snapshot);
+                Assert.AreSame(oldSnapshot, target.Snapshot);
             }
 
             [TestMethod]
@@ -267,10 +267,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (collection)
                 {
                     anotherThread = TaskEx.Run(() => target.Remove(null));
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 
@@ -291,7 +291,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var dummy = target.GetSnapshot();
 
-                Assert.Same(expectedCollection, actualCollection);
+                Assert.AreSame(expectedCollection, actualCollection);
             }
 
             [TestMethod]
@@ -303,7 +303,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var returnedSnapshot = target.GetSnapshot();
 
-                Assert.Same(previouslyCreatedSnapshot, returnedSnapshot);
+                Assert.AreSame(previouslyCreatedSnapshot, returnedSnapshot);
             }
 
 #if !NET40 // .Net 4.0 doesn't support Monitor.IsEntered
@@ -320,7 +320,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var dummy = target.GetSnapshot();
 
-                Assert.True(isCollectionLocked);
+                Assert.IsTrue(isCollectionLocked);
             }
 
             [TestMethod]
@@ -331,7 +331,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 var dummy = target.GetSnapshot();
 
-                Assert.False(Monitor.IsEntered(collection));
+                Assert.IsFalse(Monitor.IsEntered(collection));
             }
 #endif
         }

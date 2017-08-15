@@ -13,7 +13,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -27,13 +27,13 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             [TestMethod]
             public void IsInternalAndNotMeantForPublicConsumption()
             {
-                Assert.False(typeof(SnapshottingList<>).GetTypeInfo().IsPublic);
+                Assert.IsFalse(typeof(SnapshottingList<>).GetTypeInfo().IsPublic);
             }
 
             [TestMethod]
             public void ClassImplementsIListForCompatibilityWithPublicApis()
             {
-                Assert.True(typeof(IList<object>).IsAssignableFrom(typeof(SnapshottingList<object>)));
+                Assert.IsTrue(typeof(IList<object>).IsAssignableFrom(typeof(SnapshottingList<object>)));
             }
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
             public void CreatesNewList()
             {
                 var target = new TestableSnapshottingList<object>();
-                Assert.NotNull(target.Collection);
+                Assert.IsNotNull(target.Collection);
             }
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var input = new List<object> { item };
                 IList<object> output = target.CreateSnapshot(input);
 
-                Assert.Same(item, output[0]);
+                Assert.AreSame(item, output[0]);
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var item = new object();
                 target.Snapshot = new List<object> { item };
 
-                Assert.Equal(0, target.IndexOf(item));
+                Assert.AreEqual(0, target.IndexOf(item));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Insert(0, item);
 
-                Assert.Same(item, target.Collection[0]);
+                Assert.AreSame(item, target.Collection[0]);
             }
 
             [TestMethod]
@@ -100,7 +100,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.Insert(0, null);
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -111,10 +111,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (target.Collection)
                 {
                     anotherThread = TaskEx.Run(() => target.Insert(0, new object()));
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 
@@ -128,7 +128,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.RemoveAt(0);
 
-                Assert.Equal(0, target.Collection.Count);
+                Assert.AreEqual(0, target.Collection.Count);
             }
 
             [TestMethod]
@@ -139,7 +139,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target.RemoveAt(0);
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -150,10 +150,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (target.Collection)
                 {
                     anotherThread = TaskEx.Run(() => target.RemoveAt(0));
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 
@@ -167,7 +167,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 var item = new object();
                 target.Snapshot = new List<object> { item };
 
-                Assert.Same(item, target[0]);
+                Assert.AreSame(item, target[0]);
             }
 
             [TestMethod]
@@ -178,7 +178,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target[0] = item;
 
-                Assert.Same(item, target.Collection[0]);
+                Assert.AreSame(item, target.Collection[0]);
             }
 
             [TestMethod]
@@ -189,7 +189,7 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
 
                 target[0] = new object();
 
-                Assert.Null(target.Snapshot);
+                Assert.IsNull(target.Snapshot);
             }
 
             [TestMethod]
@@ -200,10 +200,10 @@ namespace Microsoft.ApplicationInsights.Extensibility.Implementation
                 lock (target.Collection)
                 {
                     anotherThread = TaskEx.Run(() => target[0] = new object());
-                    Assert.False(anotherThread.Wait(20));
+                    Assert.IsFalse(anotherThread.Wait(20));
                 }
 
-                Assert.True(anotherThread.Wait(20));
+                Assert.IsTrue(anotherThread.Wait(20));
             }
         }
 

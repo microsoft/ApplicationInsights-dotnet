@@ -3,7 +3,7 @@
     using System;
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
@@ -23,7 +23,7 @@
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PerformanceCounterTelemetry, AI.MetricData>(original);
 
-            Assert.Equal(2, item.data.baseData.ver);
+            Assert.AreEqual(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@
 
             item.Context.Properties["a"] = "b";
 
-            Assert.Equal("b", item.Properties["a"]);
+            Assert.AreEqual("b", item.Properties["a"]);
         }
 
 #if !NETCOREAPP1_1
@@ -49,7 +49,7 @@
             CompareLogic deepComparator = new CompareLogic();
 
             var result = deepComparator.Compare(item, other);
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
 #pragma warning restore 618

@@ -17,7 +17,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Assert = Xunit.Assert;
+    
     using DataContracts;
 
     [TestClass]
@@ -34,8 +34,8 @@
             channel.Send(sentTelemetry);
             IEnumerable<ITelemetry> telemetries = telemetryBuffer.Dequeue();
 
-            Assert.Equal(1, telemetries.Count());
-            Assert.Same(sentTelemetry, telemetries.First());
+            Assert.AreEqual(1, telemetries.Count());
+            Assert.AreSame(sentTelemetry, telemetries.First());
         }
 
         [TestMethod]
@@ -53,10 +53,10 @@
                 channel.Send(sentTelemetry);
                 IEnumerable<ITelemetry> telemetries = telemetryBuffer.Dequeue();
 
-                Assert.Null(telemetries);
+                Assert.IsNull(telemetries);
 
                 var expectedMessage = listener.Messages.First();
-                Assert.Equal(35, expectedMessage.EventId);
+                Assert.AreEqual(35, expectedMessage.EventId);
             }
         }
 
@@ -87,7 +87,7 @@
                 channel.Flush(TimeSpan.FromSeconds(1));
 
                 var expectedMessage = listener.Messages.First();
-                Assert.Equal(24, expectedMessage.EventId);
+                Assert.AreEqual(24, expectedMessage.EventId);
             }
         }
 #endif

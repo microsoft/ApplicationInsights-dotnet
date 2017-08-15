@@ -18,7 +18,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using System.Text;
     using System.IO;
 
@@ -42,8 +42,8 @@
 
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
                 
-                Assert.True(policyApplied.WaitOne(100));
-                Assert.Equal(0, policy.MaxSenderCapacity);
+                Assert.IsTrue(policyApplied.WaitOne(100));
+                Assert.AreEqual(0, policy.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -61,9 +61,9 @@
                 
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
                 
-                Assert.True(policyApplied.WaitOne(100));
-                Assert.True(policyApplied.WaitOne(100));
-                Assert.Null(policy.MaxSenderCapacity);
+                Assert.IsTrue(policyApplied.WaitOne(100));
+                Assert.IsTrue(policyApplied.WaitOne(100));
+                Assert.IsNull(policy.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -78,7 +78,7 @@
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(30));
 
-                Assert.Equal(0, policy.MaxSenderCapacity);
+                Assert.AreEqual(0, policy.MaxSenderCapacity);
             }
 
             [TestMethod]
@@ -97,7 +97,7 @@
                 var failedTransmission = new StubTransmission();
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
 
-                Assert.Same(failedTransmission, enqueuedTransmission);
+                Assert.AreSame(failedTransmission, enqueuedTransmission);
             }
 
             [TestMethod]
@@ -118,7 +118,7 @@
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(failedTransmission, CreateException(statusCode: 408)));
-                Assert.Same(failedTransmission, enqueuedTransmission);
+                Assert.AreSame(failedTransmission, enqueuedTransmission);
             }
 
             [TestMethod]
@@ -137,8 +137,8 @@
                 var successfulTransmission = new StubTransmission();
                 transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(successfulTransmission));
 
-                Assert.Null(enqueuedTransmission);
-                Assert.Equal(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
+                Assert.IsNull(enqueuedTransmission);
+                Assert.AreEqual(0, transmitter.BackoffLogicManager.ConsecutiveErrors);
             }
 
             [TestMethod]
@@ -201,10 +201,10 @@
 
                     // Assert:
                     var traces = listener.Messages.Where(item => item.Level == EventLevel.Warning).ToList();
-                    Assert.Equal(2, traces.Count);
-                    Assert.Equal(23, traces[0].EventId); // failed to send
-                    Assert.Equal(7, traces[1].EventId); // additional trace
-                    Assert.Equal("Explanation", traces[1].Payload[0]);
+                    Assert.AreEqual(2, traces.Count);
+                    Assert.AreEqual(23, traces[0].EventId); // failed to send
+                    Assert.AreEqual(7, traces[1].EventId); // additional trace
+                    Assert.AreEqual("Explanation", traces[1].Payload[0]);
                 }
             }
 
@@ -227,7 +227,7 @@
                     transmitter.OnTransmissionSent(new TransmissionProcessedEventArgs(new StubTransmission(), CreateException(statusCode: 408)));
 
                     EventWrittenEventArgs error = listener.Messages.First(args => args.EventId == 23);
-                    Assert.Contains(exception.Message, (string)error.Payload[1], StringComparison.Ordinal);
+                    AssertEx.Contains(exception.Message, (string)error.Payload[1], StringComparison.Ordinal);
                 }
             }
             

@@ -109,9 +109,6 @@
     <Reference Include="System.Xml.XPath.XDocument, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\System.Xml.XPath.XDocument.4.3.0\lib\net46\System.Xml.XPath.XDocument.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.assert, Version=2.0.0.2650, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\xunit.assert.2.0.0-beta-build2650\lib\portable-net45+win+wpa81+wp80\xunit.assert.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.ApplicationInsights\Managed\Microsoft.ApplicationInsights.csproj">

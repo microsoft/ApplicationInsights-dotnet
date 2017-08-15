@@ -5,7 +5,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     /// <summary>
     /// Tests corresponding to OperationExtension methods.
@@ -20,9 +20,9 @@
         public void OperationTelemetryStartInitializesTimeStampAndStartTimeToTelemetry()
         {
             var telemetry = new DependencyTelemetry();
-            Assert.Equal(DateTimeOffset.MinValue, telemetry.Timestamp);
+            Assert.AreEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
             telemetry.Start();
-            Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
+            Assert.AreNotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@
             telemetry.Start();
             DateTimeOffset actualTime = telemetry.Timestamp;
             telemetry.Stop();
-            Assert.Equal(telemetry.Timestamp, actualTime);
+            Assert.AreEqual(telemetry.Timestamp, actualTime);
         }
 
         /// <summary>
@@ -47,9 +47,9 @@
             var telemetry = new DependencyTelemetry();
             telemetry.Start();
             Thread.Sleep(2000);
-            Assert.Equal(TimeSpan.Zero, telemetry.Duration);
+            Assert.AreEqual(TimeSpan.Zero, telemetry.Duration);
             telemetry.Stop();
-            Assert.True(telemetry.Duration.TotalMilliseconds > 0);
+            Assert.IsTrue(telemetry.Duration.TotalMilliseconds > 0);
         }
 
         /// <summary>
@@ -60,8 +60,8 @@
         {
             var telemetry = new DependencyTelemetry();
             telemetry.Stop();
-            Assert.NotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
-            Assert.Equal(telemetry.Duration, TimeSpan.Zero);
+            Assert.AreNotEqual(DateTimeOffset.MinValue, telemetry.Timestamp);
+            Assert.AreEqual(telemetry.Duration, TimeSpan.Zero);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@
             telemetry.Start(timestamp: startTime);
             telemetry.Stop(timestamp: stopTime);
 
-            Assert.Equal(TimeSpan.FromSeconds(1), telemetry.Duration);
+            Assert.AreEqual(TimeSpan.FromSeconds(1), telemetry.Duration);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@
             var telemetry = new DependencyTelemetry();
             telemetry.Stop(timestamp: 123456789012345L); // timestamp is ignored because Start was not called
 
-            Assert.Equal(TimeSpan.Zero, telemetry.Duration);
+            Assert.AreEqual(TimeSpan.Zero, telemetry.Duration);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@
             var expectedDuration = TimeSpan.Parse("00:00:00.1234560");
 
             // Ensure we choose a time that has a fractional (non-integral) number of milliseconds
-            Assert.NotEqual(Math.Round(expectedDuration.TotalMilliseconds), expectedDuration.TotalMilliseconds);
+            Assert.AreNotEqual(Math.Round(expectedDuration.TotalMilliseconds), expectedDuration.TotalMilliseconds);
 
             double durationInStopwatchTicks = Stopwatch.Frequency * expectedDuration.TotalSeconds;
 
@@ -119,14 +119,14 @@
             if (Stopwatch.Frequency == TimeSpan.TicksPerSecond)
             {
                 // In this case, the times should match exactly.
-                Assert.Equal(expectedDuration, telemetry.Duration);
+                Assert.AreEqual(expectedDuration, telemetry.Duration);
             }
             else
             {
                 // There will be a difference, but it should be less than
                 // 1 microsecond (10 ticks)
                 var difference = (telemetry.Duration - expectedDuration).Duration();
-                Assert.True(difference.Ticks < 10);
+                Assert.IsTrue(difference.Ticks < 10);
             }
         }
     }

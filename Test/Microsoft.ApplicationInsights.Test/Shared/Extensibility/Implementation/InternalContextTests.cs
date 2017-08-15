@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class InternalContextTests
@@ -12,7 +12,7 @@
         public void SdkVersionIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var context = new InternalContext();
-            Assert.Null(context.SdkVersion);
+            Assert.IsNull(context.SdkVersion);
         }
 
         [TestMethod]
@@ -20,7 +20,7 @@
         {
             var context = new InternalContext();
             context.SdkVersion = "0.0.11.00.1";
-            Assert.Equal("0.0.11.00.1", context.SdkVersion);
+            Assert.AreEqual("0.0.11.00.1", context.SdkVersion);
         }
     }
 }

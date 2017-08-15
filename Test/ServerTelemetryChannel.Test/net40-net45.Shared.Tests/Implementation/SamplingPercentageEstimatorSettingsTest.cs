@@ -6,7 +6,7 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
@@ -19,7 +19,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.MaxTelemetryItemsPerSecond = -10;
 
-            Xunit.Assert.Equal(1E-12, settings.EffectiveMaxTelemetryItemsPerSecond, 12);
+            Assert.AreEqual(1E-12, settings.EffectiveMaxTelemetryItemsPerSecond, 12);
         }
 
         [TestMethod]
@@ -28,10 +28,10 @@
             var settings = new SamplingPercentageEstimatorSettings();
 
             settings.MaxSamplingPercentage = 200;
-            Assert.Equal(1, settings.EffectiveMinSamplingRate);
+            Assert.AreEqual(1, settings.EffectiveMinSamplingRate);
 
             settings.MaxSamplingPercentage = -1;
-            Assert.Equal(1E8, settings.EffectiveMinSamplingRate);
+            Assert.AreEqual(1E8, settings.EffectiveMinSamplingRate);
         }
 
         [TestMethod]
@@ -40,10 +40,10 @@
             var settings = new SamplingPercentageEstimatorSettings();
 
             settings.MinSamplingPercentage = 200;
-            Assert.Equal(1, settings.EffectiveMaxSamplingRate);
+            Assert.AreEqual(1, settings.EffectiveMaxSamplingRate);
 
             settings.MinSamplingPercentage = -1;
-            Assert.Equal(1E8, settings.EffectiveMaxSamplingRate);
+            Assert.AreEqual(1E8, settings.EffectiveMaxSamplingRate);
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.EvaluationInterval = TimeSpan.Zero;
 
-            Assert.Equal(TimeSpan.FromSeconds(15), settings.EffectiveEvaluationInterval);
+            Assert.AreEqual(TimeSpan.FromSeconds(15), settings.EffectiveEvaluationInterval);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.SamplingPercentageDecreaseTimeout = TimeSpan.Zero;
 
-            Assert.Equal(TimeSpan.FromMinutes(2), settings.EffectiveSamplingPercentageDecreaseTimeout);
+            Assert.AreEqual(TimeSpan.FromMinutes(2), settings.EffectiveSamplingPercentageDecreaseTimeout);
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.SamplingPercentageIncreaseTimeout = TimeSpan.Zero;
 
-            Assert.Equal(TimeSpan.FromMinutes(15), settings.EffectiveSamplingPercentageIncreaseTimeout);
+            Assert.AreEqual(TimeSpan.FromMinutes(15), settings.EffectiveSamplingPercentageIncreaseTimeout);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@
             var settings = new SamplingPercentageEstimatorSettings();
             settings.MovingAverageRatio = -3;
 
-            Xunit.Assert.Equal(0.25, settings.EffectiveMovingAverageRatio, 12);
+            Assert.AreEqual(0.25, settings.EffectiveMovingAverageRatio, 12);
         }
     }
 }

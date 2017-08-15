@@ -12,7 +12,7 @@
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Assert = Xunit.Assert;
+    
     using Helpers;
     using System.Collections.Generic;
     using Extensibility.Implementation;
@@ -56,7 +56,7 @@
                 channel.Initialize(new TelemetryConfiguration());
                 Thread.Sleep(50);
 
-                Assert.Equal(0, channel.Transmitter.Sender.Capacity);
+                Assert.AreEqual(0, channel.Transmitter.Sender.Capacity);
             }
         }
 
@@ -71,7 +71,7 @@
                     DefaultBackoffEnabledReportingInterval = TimeSpan.FromHours(42)
                 };
 
-                Assert.Equal(channel.Transmitter.BackoffLogicManager.DefaultBackoffEnabledReportingInterval, TimeSpan.FromHours(42));
+                Assert.AreEqual(channel.Transmitter.BackoffLogicManager.DefaultBackoffEnabledReportingInterval, TimeSpan.FromHours(42));
             }
         }
 
@@ -82,7 +82,7 @@
             public void DeveloperModeIsNullByDefault()
             {
                 var channel = new ServerTelemetryChannel();
-                Assert.Null(channel.DeveloperMode);
+                Assert.IsNull(channel.DeveloperMode);
             }
 
             [TestMethod]
@@ -90,7 +90,7 @@
             {
                 var channel = new ServerTelemetryChannel();             
                 channel.DeveloperMode = true;
-                Assert.True(channel.DeveloperMode.Value);
+                Assert.IsTrue(channel.DeveloperMode.Value);
             }
 
             [TestMethod]
@@ -98,7 +98,7 @@
             {
                 var channel = new ServerTelemetryChannel();
                 channel.DeveloperMode = true;
-                Assert.Equal(1, channel.TelemetryBuffer.Capacity);
+                Assert.AreEqual(1, channel.TelemetryBuffer.Capacity);
             }
 
             [TestMethod]
@@ -110,7 +110,7 @@
                 channel.DeveloperMode = true;
                 channel.DeveloperMode = false;
 
-                Assert.Equal(originalTelemetryBufferSize, channel.TelemetryBuffer.Capacity);
+                Assert.AreEqual(originalTelemetryBufferSize, channel.TelemetryBuffer.Capacity);
             }
 
             [TestMethod]
@@ -121,7 +121,7 @@
 
                 channel.DeveloperMode = false;
 
-                Assert.Equal(oldTelemetryBufferSize, channel.TelemetryBuffer.Capacity);
+                Assert.AreEqual(oldTelemetryBufferSize, channel.TelemetryBuffer.Capacity);
             }
         }
 
@@ -136,7 +136,7 @@
                 Uri expectedEndpoint = new Uri("http://abc.com");
                 channel.EndpointAddress = expectedEndpoint.AbsoluteUri;
 
-                Assert.Equal(expectedEndpoint, new Uri(channel.EndpointAddress));
+                Assert.AreEqual(expectedEndpoint, new Uri(channel.EndpointAddress));
             }
 
             [TestMethod]
@@ -147,7 +147,7 @@
                 Uri expectedEndpoint = new Uri("http://abc.com");
                 channel.EndpointAddress = expectedEndpoint.AbsoluteUri;
                 
-                Assert.Equal(expectedEndpoint, channel.TelemetrySerializer.EndpointAddress);
+                Assert.AreEqual(expectedEndpoint, channel.TelemetrySerializer.EndpointAddress);
             }
         }
 
@@ -162,7 +162,7 @@
                 TimeSpan expectedUploadInterval = TimeSpan.FromSeconds(42);
                 channel.MaxTelemetryBufferDelay = expectedUploadInterval;
 
-                Assert.Equal(expectedUploadInterval, channel.MaxTelemetryBufferDelay);
+                Assert.AreEqual(expectedUploadInterval, channel.MaxTelemetryBufferDelay);
             }
         }
 
@@ -174,7 +174,7 @@
             {
                 var channel = new ServerTelemetryChannel();
                 channel.TelemetryBuffer.Capacity = 42;
-                Assert.Equal(42, channel.MaxTelemetryBufferCapacity);
+                Assert.AreEqual(42, channel.MaxTelemetryBufferCapacity);
             }
 
             [TestMethod]
@@ -182,7 +182,7 @@
             {
                 var channel = new ServerTelemetryChannel();
                 channel.MaxTelemetryBufferCapacity = 42;
-                Assert.Equal(42, channel.TelemetryBuffer.Capacity);
+                Assert.AreEqual(42, channel.TelemetryBuffer.Capacity);
             }
         }
 
@@ -194,7 +194,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.Transmitter.MaxBufferCapacity = 42;
-                Assert.Equal(42, channel.MaxTransmissionBufferCapacity);
+                Assert.AreEqual(42, channel.MaxTransmissionBufferCapacity);
             }
 
             [TestMethod]
@@ -202,7 +202,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.MaxTransmissionBufferCapacity = 42;
-                Assert.Equal(42, channel.Transmitter.MaxBufferCapacity);
+                Assert.AreEqual(42, channel.Transmitter.MaxBufferCapacity);
             }
         }
 
@@ -214,7 +214,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.Transmitter.MaxSenderCapacity = 42;
-                Assert.Equal(42, channel.MaxTransmissionSenderCapacity);
+                Assert.AreEqual(42, channel.MaxTransmissionSenderCapacity);
             }
 
             [TestMethod]
@@ -222,7 +222,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.MaxTransmissionSenderCapacity = 42;
-                Assert.Equal(42, channel.Transmitter.MaxSenderCapacity);
+                Assert.AreEqual(42, channel.Transmitter.MaxSenderCapacity);
             }
         }
 
@@ -234,7 +234,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.Transmitter.MaxStorageCapacity = 42000;
-                Assert.Equal(42000, channel.MaxTransmissionStorageCapacity);
+                Assert.AreEqual(42000, channel.MaxTransmissionStorageCapacity);
             }
 
             [TestMethod]
@@ -242,7 +242,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.MaxTransmissionStorageCapacity = 42000;
-                Assert.Equal(42000, channel.Transmitter.MaxStorageCapacity);
+                Assert.AreEqual(42000, channel.Transmitter.MaxStorageCapacity);
             }
         }
 
@@ -254,7 +254,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.Transmitter.StorageFolder = "test";
-                Assert.Equal("test", channel.StorageFolder);
+                Assert.AreEqual("test", channel.StorageFolder);
             }
 
             [TestMethod]
@@ -262,7 +262,7 @@
             {
                 var channel = new ServerTelemetryChannel { Transmitter = new StubTransmitter() };
                 channel.StorageFolder = "test";
-                Assert.Equal("test", channel.Transmitter.StorageFolder);
+                Assert.AreEqual("test", channel.Transmitter.StorageFolder);
             }
         }
 
@@ -292,9 +292,9 @@
                 var channel = new ServerTelemetryChannel { TelemetryBuffer = mockTelemetryBuffer.Object };
                 channel.Initialize(TelemetryConfiguration.CreateDefault());
 
-                var actualException = Assert.Throws<Exception>(() => channel.Flush());
+                var actualException = AssertEx.Throws<Exception>(() => channel.Flush());
 
-                Assert.Same(expectedException, actualException);
+                Assert.AreSame(expectedException, actualException);
             }
         }
 
@@ -316,7 +316,7 @@
                 var initializedConfiguration = new TelemetryConfiguration();
                 channel.Initialize(initializedConfiguration);
 
-                Assert.True(transmissionPoliciesApplied.WaitOne(1000));
+                Assert.IsTrue(transmissionPoliciesApplied.WaitOne(1000));
             }
 
             [TestMethod]
@@ -333,7 +333,7 @@
                 var initializedConfiguration = new TelemetryConfiguration();
                 channel.Initialize(initializedConfiguration);
 
-                Assert.True(transmitterInitialized.WaitOne(1000));
+                Assert.IsTrue(transmitterInitialized.WaitOne(1000));
             }
         }
 
@@ -352,7 +352,7 @@
                 telemetry.Context.InstrumentationKey = Guid.NewGuid().ToString();
                 channel.Send(telemetry);
 
-                Assert.Equal(telemetry, sentTelemetry);
+                Assert.AreEqual(telemetry, sentTelemetry);
             }
 
             [TestMethod]
@@ -372,9 +372,9 @@
 
                     channel.Send(telemetry);
 
-                    Assert.Null(sentTelemetry);
+                    Assert.IsNull(sentTelemetry);
                     var expectedMessage = listener.Messages.First();
-                    Assert.Equal(67, expectedMessage.EventId);
+                    Assert.AreEqual(67, expectedMessage.EventId);
                 }
             }
         }
@@ -388,7 +388,7 @@
 
                 public override Task<HttpWebResponseWrapper> SendAsync()
                 {
-                    Assert.True(SdkInternalOperationsMonitor.IsEntered());
+                    Assert.IsTrue(SdkInternalOperationsMonitor.IsEntered());
                     this.WasCalled(true);
                     return base.SendAsync();
                 }
@@ -426,7 +426,7 @@
                 channel.Send(telemetry);
                 Thread.Sleep(TimeSpan.FromSeconds(1));
 
-                Assert.True(wasCalled);
+                Assert.IsTrue(wasCalled);
             }
         }
 

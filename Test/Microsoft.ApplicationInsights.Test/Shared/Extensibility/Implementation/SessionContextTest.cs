@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class SessionContextTest
@@ -11,14 +11,14 @@
         [TestMethod]
         public void ClassIsPublicToAllowInstantiationInSdkAndSessionCode()
         {
-            Assert.True(typeof(SessionContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(SessionContext).GetTypeInfo().IsPublic);
         }
         
         [TestMethod]
         public void IdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var session = new SessionContext();
-            Assert.Null(session.Id);
+            Assert.IsNull(session.Id);
         }
 
         [TestMethod]
@@ -26,14 +26,14 @@
         {
             var session = new SessionContext();
             session.Id = "42";
-            Assert.Equal("42", session.Id);
+            Assert.AreEqual("42", session.Id);
         }
         
         [TestMethod]
         public void IsFirstIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var session = new SessionContext();
-            Assert.Null(session.IsFirst);
+            Assert.IsNull(session.IsFirst);
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@
         {
             var session = new SessionContext();
             session.IsFirst = true;
-            Assert.Equal(true, session.IsFirst);
+            Assert.AreEqual(true, session.IsFirst);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@
         {
             var session = new SessionContext() { IsFirst = true };
             session.IsFirst = null;
-            Assert.Null(session.IsFirst);
+            Assert.IsNull(session.IsFirst);
         }
     }
 }

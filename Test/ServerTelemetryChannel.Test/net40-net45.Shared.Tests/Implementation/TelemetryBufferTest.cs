@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using ITelemetry = Microsoft.ApplicationInsights.Channel.ITelemetry;
     using Channel.Helpers;
 
@@ -25,19 +25,19 @@
             public void ImplementsIEnumerableToAllowInspectingBufferContentsInTests()
             {
                 TelemetryBuffer instance = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.True(instance is IEnumerable<ITelemetry>);
+                Assert.IsTrue(instance is IEnumerable<ITelemetry>);
             }
 
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenSerializerIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
+                AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(null, new StubApplicationLifecycle()));
             }
 
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionWhenApplicationLifecycleIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TelemetryBuffer(new StubTelemetrySerializer(), null));
+                AssertEx.Throws<ArgumentNullException>(() => new TelemetryBuffer(new StubTelemetrySerializer(), null));
             }
         }
 
@@ -48,7 +48,7 @@
             public void DefaultValueIsAppropriateForProductionEnvironmentAndUnitTests()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Equal(TimeSpan.FromSeconds(30), buffer.MaxTransmissionDelay);
+                Assert.AreEqual(TimeSpan.FromSeconds(30), buffer.MaxTransmissionDelay);
             }
 
             [TestMethod]
@@ -59,7 +59,7 @@
                 var expectedValue = TimeSpan.FromSeconds(42);
                 buffer.MaxTransmissionDelay = expectedValue;
 
-                Assert.Equal(expectedValue, buffer.MaxTransmissionDelay);
+                Assert.AreEqual(expectedValue, buffer.MaxTransmissionDelay);
             }
         }
 
@@ -70,8 +70,8 @@
             public void DefaultValueIsAppropriateForProductionEnvironmentAndUnitTests()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Equal(500, buffer.Capacity);
-                Assert.Equal(1000000, buffer.BacklogSize);
+                Assert.AreEqual(500, buffer.Capacity);
+                Assert.AreEqual(1000000, buffer.BacklogSize);
             }
 
             [TestMethod]
@@ -80,8 +80,8 @@
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 42;
                 buffer.BacklogSize = 3900;
-                Assert.Equal(42, buffer.Capacity);
-                Assert.Equal(3900, buffer.BacklogSize);
+                Assert.AreEqual(42, buffer.Capacity);
+                Assert.AreEqual(3900, buffer.BacklogSize);
             }
 
             [TestMethod]
@@ -89,10 +89,10 @@
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
                 buffer.Capacity = 1111;
-                Assert.Throws<ArgumentException>(() => buffer.BacklogSize = 1110);
+                AssertEx.Throws<ArgumentException>(() => buffer.BacklogSize = 1110);
 
                 buffer.BacklogSize = 8000;
-                Assert.Throws<ArgumentException>(() => buffer.Capacity = 8001);
+                AssertEx.Throws<ArgumentException>(() => buffer.Capacity = 8001);
 
             }
 
@@ -100,9 +100,9 @@
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsLessThanMinimum()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 0);
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 1000); // 1001 is minimum anything low would throw.
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = 0);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 0);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.BacklogSize = 1000); // 1001 is minimum anything low would throw.
 
                 bool exceptionThrown = false;
                 try
@@ -114,7 +114,7 @@
                     exceptionThrown = true;
                 }
 
-                Assert.True(exceptionThrown == false, "No exception should be thrown when trying to set backlog size to 1001");                
+                Assert.IsTrue(exceptionThrown == false, "No exception should be thrown when trying to set backlog size to 1001");                
             }
         }
 
@@ -126,7 +126,7 @@
             public void ThrowsArgumentNullExceptionWhenTelemetryIsNull()
             {
                 var buffer = new TelemetryBuffer(new StubTelemetrySerializer(), new StubApplicationLifecycle());
-                Assert.Throws<ArgumentNullException>(() => buffer.Process((ITelemetry)null));
+                AssertEx.Throws<ArgumentNullException>(() => buffer.Process((ITelemetry)null));
             }
 
             [TestMethod]
@@ -137,7 +137,7 @@
 
                 buffer.Process(new StubTelemetry());
 
-                Assert.Equal(1, buffer.Count());
+                Assert.AreEqual(1, buffer.Count());
             }
 
             [TestMethod]
@@ -159,7 +159,7 @@
                 // validate that items are not added after maxunsentbacklogsize is reached.
                 // this also validate that items can still be added after Capacity is reached as it is only a soft limit.
                 int bufferItemCount = buffer.Count();
-                Assert.Equal(1002, bufferItemCount);
+                Assert.AreEqual(1002, bufferItemCount);
             }
 
             [TestMethod]
@@ -185,8 +185,8 @@
                     telemetryBuffer.Process(item);
                 }
 
-                Assert.True(bufferFlushed.Wait(30));
-                Assert.Equal(sentTelemetry, flushedTelemetry);
+                Assert.IsTrue(bufferFlushed.Wait(30));
+                AssertEx.AreEqual(sentTelemetry, flushedTelemetry);
             }
 
             [TestMethod]
@@ -199,10 +199,10 @@
                 lock (buffer)
                 {
                     anotherThread = TaskEx.Run(() => buffer.Process(new StubTelemetry()));
-                    Assert.False(anotherThread.Wait(10));
+                    Assert.IsFalse(anotherThread.Wait(10));
                 }
 
-                Assert.True(anotherThread.Wait(50));
+                Assert.IsTrue(anotherThread.Wait(50));
             }
 
             [TestMethod]
@@ -220,7 +220,7 @@
                 buffer.MaxTransmissionDelay = TimeSpan.FromMilliseconds(1);
                 buffer.Process(new StubTelemetry());
 
-                Assert.True(telemetrySerialized.Wait(1000));
+                Assert.IsTrue(telemetrySerialized.Wait(1000));
             }
 
             [TestMethod]
@@ -240,7 +240,7 @@
                 buffer.MaxTransmissionDelay = TimeSpan.FromSeconds(42);
                 buffer.Process(new StubTelemetry());
 
-                Assert.True(telemetrySerialized.Wait(TimeSpan.FromMilliseconds(100)));
+                Assert.IsTrue(telemetrySerialized.Wait(TimeSpan.FromMilliseconds(100)));
             }
         }
 
@@ -261,7 +261,7 @@
 
                 telemetryBuffer.FlushAsync().GetAwaiter().GetResult();
         
-                Assert.False(telemetrySerialized);
+                Assert.IsFalse(telemetrySerialized);
             }
 
             [TestMethod]
@@ -282,7 +282,7 @@
         
                 telemetryBuffer.FlushAsync().GetAwaiter().GetResult();
         
-                Assert.Same(expectedTelemetry, serializedTelemetry.Single());
+                Assert.AreSame(expectedTelemetry, serializedTelemetry.Single());
             }
 
             [TestMethod]
@@ -302,8 +302,8 @@
 
                 Task dontWait = telemetryBuffer.FlushAsync();
 
-                Assert.True(serializerInvoked.Wait(100));
-                Assert.NotEqual(serializerThreadId, Thread.CurrentThread.ManagedThreadId);
+                Assert.IsTrue(serializerInvoked.Wait(100));
+                Assert.AreNotEqual(serializerThreadId, Thread.CurrentThread.ManagedThreadId);
             }
 
             [TestMethod]
@@ -316,7 +316,7 @@
 
                 buffer.FlushAsync().GetAwaiter().GetResult();
         
-                Assert.Equal(0, buffer.Count());
+                Assert.AreEqual(0, buffer.Count());
             }
 
             [TestMethod]
@@ -329,10 +329,10 @@
                 lock (telemetryBuffer)
                 {
                     anotherThread = TaskEx.Run(() => telemetryBuffer.FlushAsync());
-                    Assert.False(anotherThread.Wait(10));
+                    Assert.IsFalse(anotherThread.Wait(10));
                 }
 
-                Assert.True(anotherThread.Wait(50));
+                Assert.IsTrue(anotherThread.Wait(50));
             }
 
             [TestMethod]
@@ -355,7 +355,7 @@
                 };
                 buffer.Process(new StubTelemetry());
         
-                Assert.False(autoFlushed.Wait(30));
+                Assert.IsFalse(autoFlushed.Wait(30));
             }
 
             [TestMethod]
@@ -376,7 +376,7 @@
 
                     buffer.FlushAsync().GetAwaiter().GetResult();
         
-                    Assert.False(postedBack);
+                    Assert.IsFalse(postedBack);
                 }
             }
         }
@@ -399,7 +399,7 @@
 
                 applicationLifecycle.OnStopping(ApplicationStoppingEventArgs.Empty);
 
-                Assert.True(telemetrySerialized.Wait(50));
+                Assert.IsTrue(telemetrySerialized.Wait(50));
             }
 
             [TestMethod]
@@ -417,7 +417,7 @@
                 };
                 applicationLifecycle.OnStopping(new ApplicationStoppingEventArgs(asyncTaskRunner));
 
-                Assert.True(deferralAcquired);
+                Assert.IsTrue(deferralAcquired);
             }
         }
     }

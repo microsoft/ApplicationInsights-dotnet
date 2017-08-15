@@ -4,7 +4,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using Assert = Xunit.Assert;
+    
 
     /// <summary>
     /// Tests for <see cref="JsonSerializer"/>
@@ -23,8 +23,8 @@
             JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
 
             // Validates 2 random properties
-            Assert.NotNull(exceptionAsJson);
-            Assert.Equal("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
+            Assert.IsNotNull(exceptionAsJson);
+            Assert.AreEqual("Microsoft.ApplicationInsights.Exception", obj["name"].ToString());
         }
 
         [TestMethod]
@@ -37,7 +37,7 @@
 
             JObject obj = JsonConvert.DeserializeObject<JObject>(exceptionAsJson);
             
-            Assert.Equal(512, obj["data"]["baseData"]["name"].ToString().Length);
+            Assert.AreEqual(512, obj["data"]["baseData"]["name"].ToString().Length);
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@
             
             string json = JsonSerializer.SerializeAsString(t);
 
-            Assert.True(json.Contains("\"time\":\"0001-01-01T00:00:00.0000000Z\""));
+            Assert.IsTrue(json.Contains("\"time\":\"0001-01-01T00:00:00.0000000Z\""));
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@
             byte[] array = JsonSerializer.ConvertToByteArray("test");
             string result = JsonSerializer.Deserialize(array);
 
-            Assert.Equal("test", result);
+            Assert.AreEqual("test", result);
         }
     }
 }

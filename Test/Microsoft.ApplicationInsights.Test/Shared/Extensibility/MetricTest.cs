@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class MetricTest
@@ -38,12 +38,12 @@
             // Assert
             var sample = (MetricSample)sentSamples.Single();
 
-            Assert.Equal("Test Metric", sample.Name);
+            Assert.AreEqual("Test Metric", sample.Name);
 
-            Assert.Equal(42, sample.Value);
+            Assert.AreEqual(42, sample.Value);
 
-            Assert.Equal("Value1", sample.Dimensions["Dim1"]);
-            Assert.Equal("Value2", sample.Dimensions["Dim2"]);
+            Assert.AreEqual("Value1", sample.Dimensions["Dim1"]);
+            Assert.AreEqual("Value2", sample.Dimensions["Dim2"]);
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@
                     return (metric == null) || (!metric.Count.HasValue) ? 0 : metric.Count.Value;
                 });
 
-            Assert.Equal(testValues.Length, sentSampleCount);
+            Assert.AreEqual(testValues.Length, sentSampleCount);
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@
                     return metric == null ? 0 : metric.Sum;
                 });
 
-            Assert.Equal(testValues.Sum(), sentSampleSum);
+            Assert.AreEqual(testValues.Sum(), sentSampleSum);
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@
                     return (metric == null) || (!metric.Min.HasValue) ? 0 : metric.Min.Value;
                 });
 
-            Assert.Equal(testValues.Min(), sentSampleSum);
+            Assert.AreEqual(testValues.Min(), sentSampleSum);
         }
 
         [TestMethod]
@@ -171,7 +171,7 @@
                     return (metric == null) || (!metric.Max.HasValue) ? 0 : metric.Max.Value;
                 });
 
-            Assert.Equal(testValues.Max(), sentSampleMax);
+            Assert.AreEqual(testValues.Max(), sentSampleMax);
         }
 
         [TestMethod]
@@ -220,7 +220,7 @@
 
             double stddev = Math.Sqrt(sumOfSquares / count - Math.Pow(sum / count, 2));
 
-            Assert.Equal(testValues.StdDev(), stddev);
+            Assert.AreEqual(testValues.StdDev(), stddev);
         }
 
         #region Equitable<T> implementation tests
@@ -233,7 +233,7 @@
                 Metric metric = manager.CreateMetric("My metric");
                 object other = null;
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -244,7 +244,7 @@
             {
                 Metric metric = manager.CreateMetric("My metric");
 
-                Assert.True(metric.Equals(metric));
+                Assert.IsTrue(metric.Equals(metric));
             }
         }
 
@@ -256,7 +256,7 @@
                 Metric metric = manager.CreateMetric("My metric");
                 var other = new object();
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -268,7 +268,7 @@
                 Metric metric = manager.CreateMetric("My metric");
                 Metric other = manager.CreateMetric("My metric");
 
-                Assert.True(metric.Equals(other));
+                Assert.IsTrue(metric.Equals(other));
             }
         }
 
@@ -280,7 +280,7 @@
                 Metric metric = manager.CreateMetric("My metric");
                 Metric other = manager.CreateMetric("My Metric");
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -292,7 +292,7 @@
                 Metric metric = manager.CreateMetric("My metric");
                 Metric other = manager.CreateMetric("My métric");
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -304,7 +304,7 @@
                 Metric metric = manager.CreateMetric("My metric", null);
                 Metric other = manager.CreateMetric("My metric");
 
-                Assert.True(metric.Equals(other));
+                Assert.IsTrue(metric.Equals(other));
             }
         }
 
@@ -316,7 +316,7 @@
                 Metric metric = manager.CreateMetric("My metric", new Dictionary<string, string>());
                 Metric other = manager.CreateMetric("My metric");
 
-                Assert.True(metric.Equals(other));
+                Assert.IsTrue(metric.Equals(other));
             }
         }
 
@@ -338,7 +338,7 @@
                 Metric metric = manager.CreateMetric("My metric", dimensionSet1);
                 Metric other = manager.CreateMetric("My metric", dimensionSet2);
 
-                Assert.True(metric.Equals(other));
+                Assert.IsTrue(metric.Equals(other));
             }
         }
 
@@ -353,7 +353,7 @@
                 Metric metric = manager.CreateMetric("My metric", dimensionSet1);
                 Metric other = manager.CreateMetric("My metric", dimensionSet2);
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -368,7 +368,7 @@
                 Metric metric = manager.CreateMetric("My metric", dimensionSet1);
                 Metric other = manager.CreateMetric("My metric", dimensionSet2);
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -383,7 +383,7 @@
                 Metric metric = manager.CreateMetric("My metric", dimensionSet1);
                 Metric other = manager.CreateMetric("My metric", dimensionSet2);
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 
@@ -398,7 +398,7 @@
                 Metric metric = manager.CreateMetric("My metric", dimensionSet1);
                 Metric other = manager.CreateMetric("My metric", dimensionSet2);
 
-                Assert.False(metric.Equals(other));
+                Assert.IsFalse(metric.Equals(other));
             }
         }
 

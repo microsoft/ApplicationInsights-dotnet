@@ -36,7 +36,6 @@
     -->
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.0" />
-    <PackageReference Include="xunit.assert" Version="2.2.0" />
     <PackageReference Include="MicroBuild.Core" Version="0.2.0">
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>All</PrivateAssets>

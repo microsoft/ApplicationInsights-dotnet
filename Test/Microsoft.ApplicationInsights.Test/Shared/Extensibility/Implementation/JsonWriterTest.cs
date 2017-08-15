@@ -7,8 +7,7 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
-    using AssertEx = Xunit.AssertEx;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class JsonWriterTest
@@ -16,7 +15,7 @@
         [TestMethod]
         public void ClassIsInternalAndNotMeantToBeAccessedByCustomers()
         {
-            Assert.False(typeof(JsonWriter).GetTypeInfo().IsPublic);
+            Assert.IsFalse(typeof(JsonWriter).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
@@ -25,7 +24,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteStartArray();
-                Assert.Equal("[", stringWriter.ToString());
+                Assert.AreEqual("[", stringWriter.ToString());
             }
         }
 
@@ -35,7 +34,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteStartObject();
-                Assert.Equal("{", stringWriter.ToString());
+                Assert.AreEqual("{", stringWriter.ToString());
             }
         }
 
@@ -45,7 +44,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteEndArray();
-                Assert.Equal("]", stringWriter.ToString());
+                Assert.AreEqual("]", stringWriter.ToString());
             }
         }
 
@@ -55,7 +54,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteEndObject();
-                Assert.Equal("}", stringWriter.ToString());
+                Assert.AreEqual("}", stringWriter.ToString());
             }        
         }
 
@@ -65,7 +64,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteRawValue(@"Test\Name");
-                Assert.Equal(@"Test\Name", stringWriter.ToString());
+                Assert.AreEqual(@"Test\Name", stringWriter.ToString());
             }
         }
 
@@ -79,7 +78,7 @@
                 const string Name = "name";
                 const int Value = 42;
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
-                Assert.Equal("\"" + Name + "\":" + Value, stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":" + Value, stringWriter.ToString());
             }
         }
 
@@ -89,7 +88,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (int?)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -105,7 +104,7 @@
                 const string Name = "name";
                 const double Value = 42.3;
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
-                Assert.Equal("\"" + Name + "\":" + Value.ToString(CultureInfo.InvariantCulture), stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":" + Value.ToString(CultureInfo.InvariantCulture), stringWriter.ToString());
             }
         }
 
@@ -115,7 +114,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (double?)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -131,7 +130,7 @@
                 const string Name = "name";
                 TimeSpan value = TimeSpan.FromSeconds(123);
                 new JsonWriter(stringWriter).WriteProperty(Name, value);
-                Assert.Equal("\"" + Name + "\":\"" + value + "\"", stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":\"" + value + "\"", stringWriter.ToString());
             }
         }
 
@@ -141,7 +140,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (TimeSpan?)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -157,7 +156,7 @@
                 const string Name = "name";
                 const string Value = "value";
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
-                Assert.Equal("\"" + Name + "\":\"" + Value + "\"", stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":\"" + Value + "\"", stringWriter.ToString());
             }
         }
 
@@ -167,7 +166,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 var writer = new JsonWriter(stringWriter);
-                Assert.Throws<ArgumentNullException>(() => writer.WriteProperty(null, "value"));
+                AssertEx.Throws<ArgumentNullException>(() => writer.WriteProperty(null, "value"));
             }
         }
 
@@ -177,7 +176,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (string)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -187,7 +186,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", string.Empty);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -204,7 +203,7 @@
                 const bool Value = true;
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
                 string expectedValue = Value.ToString().ToLowerInvariant();
-                Assert.Equal("\"" + Name + "\":" + expectedValue, stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":" + expectedValue, stringWriter.ToString());
             }
         }
 
@@ -214,7 +213,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (bool?)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -227,7 +226,7 @@
                 const bool Value = false;
                 new JsonWriter(stringWriter).WriteProperty(Name, Value);
                 string expectedValue = Value.ToString().ToLowerInvariant();
-                Assert.Equal("\"" + Name + "\":" + expectedValue, stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":" + expectedValue, stringWriter.ToString());
             }
         }
 
@@ -244,7 +243,7 @@
                 DateTimeOffset value = DateTimeOffset.UtcNow;
                 new JsonWriter(stringWriter).WriteProperty(Name, value);
                 string expectedValue = value.ToString("o", CultureInfo.InvariantCulture);
-                Assert.Equal("\"" + Name + "\":\"" + expectedValue + "\"", stringWriter.ToString());
+                Assert.AreEqual("\"" + Name + "\":\"" + expectedValue + "\"", stringWriter.ToString());
             }
         }
 
@@ -254,7 +253,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (DateTimeOffset?)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -281,7 +280,7 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, double> { { "key1", 1 } });
-                Assert.Contains("\"key1\":1", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("\"key1\":1", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -291,7 +290,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (IDictionary<string, double>)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -301,7 +300,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", new Dictionary<string, double>());
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -328,7 +327,7 @@
             {
                 var writer = new JsonWriter(stringWriter);
                 writer.WriteProperty("name", new Dictionary<string, string> { { "key1", "1" } });
-                Assert.Contains("\"key1\":\"1\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("\"key1\":\"1\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -338,7 +337,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", (IDictionary<string, string>)null);
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -348,7 +347,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new JsonWriter(stringWriter).WriteProperty("name", new Dictionary<string, string>());
-                Assert.Equal(string.Empty, stringWriter.ToString());
+                Assert.AreEqual(string.Empty, stringWriter.ToString());
             }
         }
 
@@ -362,7 +361,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 new TestableJsonWriter(stringWriter).WritePropertyName("TestProperty");
-                Assert.Equal("\"TestProperty\":", stringWriter.ToString());
+                Assert.AreEqual("\"TestProperty\":", stringWriter.ToString());
             }
         }
 
@@ -374,7 +373,7 @@
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WritePropertyName("Property1");
                 jsonWriter.WritePropertyName("Property2");
-                Assert.Contains(",\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains(",\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -387,7 +386,7 @@
                 jsonWriter.WritePropertyName("Property1");
                 jsonWriter.WriteStartObject();
                 jsonWriter.WritePropertyName("Property2");
-                Assert.Contains("{\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("{\"Property2\"", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -397,7 +396,7 @@
             using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
             {
                 var jsonWriter = new JsonWriter(stringWriter);
-                Assert.Throws<ArgumentException>(() => jsonWriter.WritePropertyName(string.Empty));
+                AssertEx.Throws<ArgumentException>(() => jsonWriter.WritePropertyName(string.Empty));
             }
         }
 
@@ -412,7 +411,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\"Value");
-                Assert.Contains("Test\\\"Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\\"Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -423,7 +422,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\\Value");
-                Assert.Contains("Test\\\\Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\\\Value", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -434,7 +433,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\bValue");
-                Assert.Contains("Test\\bValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\bValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }            
         }
 
@@ -445,7 +444,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteString("Test\fValue");
-                Assert.Contains("Test\\fValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\fValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }            
         }
 
@@ -456,7 +455,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\nValue");
-                Assert.Contains("Test\\nValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\nValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -467,7 +466,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\rValue");
-                Assert.Contains("Test\\rValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\rValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -478,7 +477,7 @@
             {
                 var jsonWriter = new TestableJsonWriter(stringWriter);
                 jsonWriter.WriteProperty("name", "Test\tValue");
-                Assert.Contains("Test\\tValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+                AssertEx.Contains("Test\\tValue", stringWriter.ToString(), StringComparison.OrdinalIgnoreCase);
             }
         }
 

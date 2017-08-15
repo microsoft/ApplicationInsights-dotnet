@@ -6,7 +6,7 @@
     using Microsoft.ApplicationInsights.Channel;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -47,21 +47,21 @@
             public void DefaultValueIsAppropriateForMostApps()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.Equal(1024 * 1024, buffer.Capacity);
+                Assert.AreEqual(1024 * 1024, buffer.Capacity);
             }
 
             [TestMethod]
             public void CanBeSetToZeroToDsiableBufferingOfTransmissions()
             {
                 var buffer = new TransmissionBuffer { Capacity = 0 };
-                Assert.Equal(0, buffer.Capacity);
+                Assert.AreEqual(0, buffer.Capacity);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenValueIsLessThanZero()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => buffer.Capacity = -1);
             }
         }
 
@@ -72,14 +72,14 @@
             public void ReturnsTrueWhenNewTransmissionLengthDoesNotExceedBufferCapacity()
             {
                 var buffer = new TransmissionBuffer { Capacity = 1 };
-                Assert.True(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+                Assert.IsTrue(buffer.Enqueue(() => new StubTransmission(new byte[1])));
             }
 
             [TestMethod]
             public void ReturnsFalseWhenNewTransmissionLengthExceedsBufferCapacity()
             {
                 var buffer = new TransmissionBuffer { Capacity = 0 };
-                Assert.False(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+                Assert.IsFalse(buffer.Enqueue(() => new StubTransmission(new byte[1])));
             }
 
             [TestMethod]
@@ -90,7 +90,7 @@
 
                 buffer.Capacity = 1;
 
-                Assert.True(buffer.Enqueue(() => new StubTransmission(new byte[1])));
+                Assert.IsTrue(buffer.Enqueue(() => new StubTransmission(new byte[1])));
             }
 
             [TestMethod]
@@ -106,14 +106,14 @@
 
                 buffer.Enqueue(transmissionGetter);
 
-                Assert.False(transmissionGetterInvoked);
+                Assert.IsFalse(transmissionGetterInvoked);
             }
 
             [TestMethod]
             public void ReturnsFalseWhenTransmissionGetterReturedNullIndicatingEmptyStorage()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.False(buffer.Enqueue(() => null));
+                Assert.IsFalse(buffer.Enqueue(() => null));
             }
 
             [TestMethod]
@@ -123,7 +123,7 @@
                 buffer.Enqueue(() => null);
 
                 Transmission transmission2 = new StubTransmission();
-                Assert.True(buffer.Enqueue(() => transmission2));
+                Assert.IsTrue(buffer.Enqueue(() => transmission2));
             }
 
             [TestMethod]
@@ -142,7 +142,7 @@
                     buffer.Enqueue(() => new StubTransmission());
                 }
 
-                Assert.False(postedBack);
+                Assert.IsFalse(postedBack);
             }
         }
 
@@ -160,15 +160,15 @@
                 Transmission transmission2 = new StubTransmission();
                 buffer.Enqueue(() => transmission2);
 
-                Assert.Same(transmission1, buffer.Dequeue());
-                Assert.Same(transmission2, buffer.Dequeue());
+                Assert.AreSame(transmission1, buffer.Dequeue());
+                Assert.AreSame(transmission2, buffer.Dequeue());
             }
 
             [TestMethod]
             public void ReturnsNullWhenBufferIsEmpty()
             {
                 var buffer = new TransmissionBuffer();
-                Assert.Null(buffer.Dequeue());
+                Assert.IsNull(buffer.Dequeue());
             }
 
             [TestMethod]
@@ -177,7 +177,7 @@
                 var buffer = new TransmissionBuffer { Capacity = 1 };
                 buffer.Enqueue(() => new StubTransmission());
                 buffer.Dequeue();
-                Assert.True(buffer.Enqueue(() => new StubTransmission()));
+                Assert.IsTrue(buffer.Enqueue(() => new StubTransmission()));
             }
 
             [TestMethod]
@@ -185,7 +185,7 @@
             {
                 var buffer = new TransmissionBuffer { Capacity = 0 };
                 buffer.Dequeue();
-                Assert.False(buffer.Enqueue(() => new StubTransmission()));
+                Assert.IsFalse(buffer.Enqueue(() => new StubTransmission()));
             }
         }
 
@@ -196,7 +196,7 @@
             public void StartsAtZero()
             {
                 var buffer = new TransmissionBuffer();                
-                Assert.Equal(0, buffer.Size);
+                Assert.AreEqual(0, buffer.Size);
             }
 
             [TestMethod]
@@ -207,7 +207,7 @@
 
                 buffer.Enqueue(() => transmission);
 
-                Assert.Equal(transmission.Content.Length, buffer.Size);
+                Assert.AreEqual(transmission.Content.Length, buffer.Size);
             }
 
             [TestMethod]
@@ -218,7 +218,7 @@
                 buffer.Enqueue(() => new StubTransmission(new byte[10]));
                 buffer.Dequeue();
 
-                Assert.Equal(0, buffer.Size);
+                Assert.AreEqual(0, buffer.Size);
             }
         }
 
@@ -241,8 +241,8 @@
 
                 Transmission dequeuedTransmission = buffer.Dequeue();
 
-                Assert.Same(buffer, eventSender);
-                Assert.Same(dequeuedTransmission, eventArgs.Transmission);
+                Assert.AreSame(buffer, eventSender);
+                Assert.AreSame(dequeuedTransmission, eventArgs.Transmission);
             }
 
             [TestMethod]
@@ -259,8 +259,8 @@
 
                 buffer.Dequeue();
 
-                Assert.Same(buffer, eventSender);
-                Assert.Same(null, eventArgs.Transmission);
+                Assert.AreSame(buffer, eventSender);
+                Assert.AreSame(null, eventArgs.Transmission);
             }
         }
     }

@@ -10,7 +10,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
 #endif
@@ -28,7 +28,7 @@
         public void ParameterlessConstructorInitializesRequiredFields()
         {
             var request = new RequestTelemetry();
-            Assert.False(string.IsNullOrEmpty(request.Id));
+            Assert.IsFalse(string.IsNullOrEmpty(request.Id));
         }
 
         [TestMethod]
@@ -36,11 +36,11 @@
         {
             var start = DateTimeOffset.Now;
             var request = new RequestTelemetry("name", start, TimeSpan.FromSeconds(42), "404", true);
-            Assert.Equal("name", request.Name);
-            Assert.Equal("404", request.ResponseCode);
-            Assert.Equal(TimeSpan.FromSeconds(42), request.Duration);
-            Assert.Equal(true, request.Success);
-            Assert.Equal(start, request.Timestamp);
+            Assert.AreEqual("name", request.Name);
+            Assert.AreEqual("404", request.ResponseCode);
+            Assert.AreEqual(TimeSpan.FromSeconds(42), request.Duration);
+            Assert.AreEqual(true, request.Success);
+            Assert.AreEqual(start, request.Timestamp);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@
 #pragma warning disable 618
             var request = new RequestTelemetry();
             request.HttpMethod = "POST";
-            Assert.Equal("POST", request.HttpMethod);
+            Assert.AreEqual("POST", request.HttpMethod);
 #pragma warning restore 618
         }
 
@@ -57,14 +57,14 @@
         public void RequestTelemetryReturnsDefaultDurationAsTimespanZero()
         {
             RequestTelemetry item = new RequestTelemetry();
-            Assert.Equal(TimeSpan.Zero, item.Duration);
+            Assert.AreEqual(TimeSpan.Zero, item.Duration);
         }
 
         [TestMethod]
         public void RequestTelemetryReturnsDefaultTimeStampAsDateTimeOffsetMinValue()
         {
             RequestTelemetry item = new RequestTelemetry();
-            Assert.Equal(DateTimeOffset.MinValue, item.Timestamp);
+            Assert.AreEqual(DateTimeOffset.MinValue, item.Timestamp);
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@
             ((ITelemetry)original).Sanitize();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(original);
 
-            Assert.Equal(2, item.data.baseData.ver);
+            Assert.AreEqual(2, item.data.baseData.ver);
         }
 
         [TestMethod]
@@ -94,21 +94,21 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.name, AI.ItemType.Request);
+            Assert.AreEqual(item.name, AI.ItemType.Request);
 
-            Assert.Equal(typeof(AI.RequestData).Name, item.data.baseType);
+            Assert.AreEqual(typeof(AI.RequestData).Name, item.data.baseType);
 
-            Assert.Equal(2, item.data.baseData.ver);
-            Assert.Equal(expected.Id, item.data.baseData.id);
-            Assert.Equal(expected.Name, item.data.baseData.name);
-            Assert.Equal(expected.Timestamp, DateTimeOffset.Parse(item.time));
-            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
-            Assert.Equal(expected.Success, item.data.baseData.success);
-            Assert.Equal(expected.ResponseCode, item.data.baseData.responseCode);
-            Assert.Equal(expected.Url.ToString(), item.data.baseData.url.ToString(), StringComparer.OrdinalIgnoreCase);
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(expected.Id, item.data.baseData.id);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Timestamp, DateTimeOffset.Parse(item.time));
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Success, item.data.baseData.success);
+            Assert.AreEqual(expected.ResponseCode, item.data.baseData.responseCode);
+            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url.ToString());
 
-            Assert.Equal(1, item.data.baseData.measurements.Count);
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            Assert.AreEqual(1, item.data.baseData.measurements.Count);
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -121,12 +121,12 @@
                 ((ITelemetry)requestTelemetry).Sanitize();
                 var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(requestTelemetry);
 
-                Assert.Equal(2, item.data.baseData.ver);
-                Assert.NotNull(item.data.baseData.id);
-                Assert.NotNull(item.time);
-                Assert.Equal("200", item.data.baseData.responseCode);
-                Assert.Equal(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
-                Assert.True(item.data.baseData.success);
+                Assert.AreEqual(2, item.data.baseData.ver);
+                Assert.IsNotNull(item.data.baseData.id);
+                Assert.IsNotNull(item.time);
+                Assert.AreEqual("200", item.data.baseData.responseCode);
+                Assert.AreEqual(new TimeSpan(), TimeSpan.Parse(item.data.baseData.duration));
+                Assert.IsTrue(item.data.baseData.success);
             }
         }
 
@@ -144,24 +144,24 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
+            Assert.AreEqual(new string('Z', Property.MaxNameLength), telemetry.Name);
 
-            Assert.Equal(2, telemetry.Properties.Count);
+            Assert.AreEqual(2, telemetry.Properties.Count);
             string[] keys = telemetry.Properties.Keys.OrderBy(s => s).ToArray();
             string[] values = telemetry.Properties.Values.OrderBy(s => s).ToArray();
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), values[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), values[0]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), values[1]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), values[0]);
 
-            Assert.Equal(2, telemetry.Metrics.Count);
+            Assert.AreEqual(2, telemetry.Metrics.Count);
             keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
 
-            Assert.Equal(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
+            Assert.AreEqual(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
 
-            Assert.Equal(new string('1', Property.MaxNameLength), telemetry.Id);
+            Assert.AreEqual(new string('1', Property.MaxNameLength), telemetry.Id);
         }
 
         [TestMethod]
@@ -171,7 +171,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal("200", telemetry.ResponseCode);
+            Assert.AreEqual("200", telemetry.ResponseCode);
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.True(telemetry.Success.Value);
+            Assert.IsTrue(telemetry.Success.Value);
         }
 
         [TestMethod]  
@@ -194,8 +194,8 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);  
   
             // RequestTelemetry.Id is deprecated and you cannot access it. Method above will validate that all required fields would be populated  
-            // Assert.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
-            // Assert.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // AssertEx.Contains("id", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
+            // AssertEx.Contains("required", telemetry.Id, StringComparison.OrdinalIgnoreCase);  
         }
 
         [TestMethod]
@@ -203,7 +203,7 @@
         {
             var telemetry = new RequestTelemetry();
 
-            Assert.NotNull(telemetry as ISupportSampling);
+            Assert.IsNotNull(telemetry as ISupportSampling);
         }
 
         [TestMethod]
@@ -215,7 +215,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<RequestTelemetry, AI.RequestData>(telemetry);
 
-            Assert.Equal(10, item.sampleRate);
+            Assert.AreEqual(10, item.sampleRate);
         }
 
 #if !NETCOREAPP1_1
@@ -230,7 +230,7 @@
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             var result = deepComparator.Compare(request, other);
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
 

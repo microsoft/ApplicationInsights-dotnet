@@ -13,7 +13,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
     using Extensibility.Implementation.Platform;
     using System.Threading.Tasks;
     using System.Linq;
@@ -40,13 +40,13 @@
                 transmissionProcessor.Process(new RequestTelemetry());
             }
 
-            Assert.Equal(ItemsToGenerate, sentTelemetry.Count);
+            Assert.AreEqual(ItemsToGenerate, sentTelemetry.Count);
         }
 
         [TestMethod]
         public void TransmissionProcessorThrowsWhenNullConfigurationIsPassedToContructor()
         {
-            Assert.Throws<ArgumentNullException>(() => new TransmissionProcessor(null));
+            AssertEx.Throws<ArgumentNullException>(() => new TransmissionProcessor(null));
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@
 
             // There were a bug that causes Sanitize call from DebugOutput tracer conflict with Sanitize call from Channel
             // If no exceptions here - everything fine
-            Assert.True(true);
+            Assert.IsTrue(true);
         }
 
         #endregion       

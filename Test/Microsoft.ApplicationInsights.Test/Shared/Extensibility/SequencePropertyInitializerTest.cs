@@ -4,7 +4,7 @@
     using System.Reflection;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class SequencePropertyInitializerTest
@@ -12,13 +12,13 @@
         [TestMethod]
         public void ClassIsPublicToAllowMicrosoftApplicationDevelopersToSendTelemetryToVortex()
         {
-            Assert.True(typeof(SequencePropertyInitializer).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(SequencePropertyInitializer).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
         public void ClassImplementsITelemetryInitializerBecauseSequenceChangesForEachTelemetry()
         {
-            Assert.True(typeof(ITelemetryInitializer).GetTypeInfo().IsAssignableFrom(typeof(SequencePropertyInitializer).GetTypeInfo()));
+            Assert.IsTrue(typeof(ITelemetryInitializer).GetTypeInfo().IsAssignableFrom(typeof(SequencePropertyInitializer).GetTypeInfo()));
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.NotEmpty(telemetry.Sequence);
+            Assert.AreNotEqual(string.Empty, telemetry.Sequence);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@
             string originalValue = Guid.NewGuid().ToString();
             var telemetry = new StubTelemetry { Sequence = originalValue };
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.Equal(originalValue, telemetry.Sequence);
+            Assert.AreEqual(originalValue, telemetry.Sequence);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@
             var telemetry2 = new StubTelemetry();
             initializer.Initialize(telemetry2);
 
-            Assert.NotEqual(telemetry1.Sequence, telemetry2.Sequence);
+            Assert.AreNotEqual(telemetry1.Sequence, telemetry2.Sequence);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@
             var telemetry2 = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry2);
 
-            Assert.NotEqual(telemetry1.Sequence, telemetry2.Sequence);
+            Assert.AreNotEqual(telemetry1.Sequence, telemetry2.Sequence);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.Contains(":", telemetry.Sequence, StringComparison.Ordinal);
+            AssertEx.Contains(":", telemetry.Sequence, StringComparison.Ordinal);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@
         {
             var telemetry = new StubTelemetry();
             new SequencePropertyInitializer().Initialize(telemetry);
-            Assert.DoesNotContain("=", telemetry.Sequence, StringComparison.Ordinal);
+            AssertEx.DoesNotContain("=", telemetry.Sequence, StringComparison.Ordinal);
         }
     }
 }

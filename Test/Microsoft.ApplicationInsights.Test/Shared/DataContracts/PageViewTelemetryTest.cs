@@ -11,7 +11,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using CompareLogic = KellermanSoftware.CompareNetObjects.CompareLogic;
 #endif
@@ -29,14 +29,14 @@
         [TestMethod]
         public void PageViewTelemetryIsPublic()
         {
-            Assert.True(typeof(PageViewTelemetry).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(PageViewTelemetry).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
         public void PageViewTelemetryReturnsNonNullContext()
         {
             PageViewTelemetry item = new PageViewTelemetry();
-            Assert.NotNull(item.Context);
+            Assert.IsNotNull(item.Context);
         }
 
         [TestMethod]
@@ -44,14 +44,14 @@
         {
             string expectedPageName = "My page view";
             var instance = new PageViewTelemetry(expectedPageName);
-            Assert.Equal(expectedPageName, instance.Name);
+            Assert.AreEqual(expectedPageName, instance.Name);
         }
 
         [TestMethod]
         public void PageViewTelemetryReturnsDefaultDurationAsTimespanZero()
         {
             PageViewTelemetry item = new PageViewTelemetry();
-            Assert.Equal(TimeSpan.Zero, item.Duration);
+            Assert.AreEqual(TimeSpan.Zero, item.Duration);
         }
 
         [TestMethod]
@@ -66,15 +66,15 @@
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(expected);
 
             // NOTE: It's correct that we use the v1 name here, and therefore we test against it.
-            Assert.Equal(item.name, AI.ItemType.PageView);
+            Assert.AreEqual(item.name, AI.ItemType.PageView);
 
-            Assert.Equal(typeof(AI.PageViewData).Name, item.data.baseType);
-            Assert.Equal(2, item.data.baseData.ver);
-            Assert.Equal(expected.Name, item.data.baseData.name);
-            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
-            Assert.Equal(expected.Url.ToString(), item.data.baseData.url);
+            Assert.AreEqual(typeof(AI.PageViewData).Name, item.data.baseType);
+            Assert.AreEqual(2, item.data.baseData.ver);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Url.ToString(), item.data.baseData.url);
 
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -90,22 +90,22 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(new string('Z', Property.MaxNameLength), telemetry.Name);
+            Assert.AreEqual(new string('Z', Property.MaxNameLength), telemetry.Name);
 
-            Assert.Equal(2, telemetry.Properties.Count);
+            Assert.AreEqual(2, telemetry.Properties.Count);
             string[] keys = telemetry.Properties.Keys.OrderBy(s => s).ToArray();
             string[] values = telemetry.Properties.Values.OrderBy(s => s).ToArray();
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), values[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), values[0]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), values[1]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), values[0]);
 
-            Assert.Equal(2, telemetry.Metrics.Count);
+            Assert.AreEqual(2, telemetry.Metrics.Count);
             keys = telemetry.Metrics.Keys.OrderBy(s => s).ToArray();
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
-            Assert.Equal(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength), keys[1]);
+            Assert.AreEqual(new string('Y', Property.MaxDictionaryNameLength - 3) + "1", keys[0]);
 
-            Assert.Equal(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
+            Assert.AreEqual(new Uri("http://foo.com/" + new string('Y', Property.MaxUrlLength - 15)), telemetry.Url);
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal("n/a", telemetry.Name);
+            Assert.AreEqual("n/a", telemetry.Name);
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@
         {
             var telemetry = new PageViewTelemetry();
 
-            Assert.NotNull(telemetry as ISupportSampling);
+            Assert.IsNotNull(telemetry as ISupportSampling);
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@
 
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<PageViewTelemetry, AI.PageViewData>(telemetry);
 
-            Assert.Equal(10, item.sampleRate);
+            Assert.AreEqual(10, item.sampleRate);
         }
 
 #if !NETCOREAPP1_1
@@ -151,7 +151,7 @@
 
             CompareLogic deepComparator = new CompareLogic();
             var result = deepComparator.Compare(pageView, other);
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
     }

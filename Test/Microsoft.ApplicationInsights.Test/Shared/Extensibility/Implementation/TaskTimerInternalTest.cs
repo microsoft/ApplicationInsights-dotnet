@@ -15,7 +15,7 @@
     using Microsoft.Diagnostics.Tracing;
 #endif
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -30,7 +30,7 @@
             public void DefaultValueIsOneMinuteBecauseItHasToBeSomethingValid()
             {
                 var timer = new TaskTimerInternal();
-                Assert.Equal(TimeSpan.FromMinutes(1), timer.Delay);
+                Assert.AreEqual(TimeSpan.FromMinutes(1), timer.Delay);
             }
 
             [TestMethod]
@@ -38,7 +38,7 @@
             {
                 var timer = new TaskTimerInternal();
                 timer.Delay = TimeSpan.FromSeconds(42);
-                Assert.Equal(42, timer.Delay.TotalSeconds);
+                Assert.AreEqual(42, timer.Delay.TotalSeconds);
             }
 
             [TestMethod]
@@ -46,21 +46,21 @@
             {
                 var timer = new TaskTimerInternal();
                 timer.Delay = new TimeSpan(0, 0, 0, 0, -1);
-                Assert.Equal(new TimeSpan(0, 0, 0, 0, -1), timer.Delay);
+                Assert.AreEqual(new TimeSpan(0, 0, 0, 0, -1), timer.Delay);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsZeroOrLess()
             {
                 var timer = new TaskTimerInternal();
-                Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.Zero);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.Zero);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueIsMoreThanMaxIntMilliseconds()
             {
                 var timer = new TaskTimerInternal();
-                Assert.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.FromMilliseconds((double)int.MaxValue + 1));
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => timer.Delay = TimeSpan.FromMilliseconds((double)int.MaxValue + 1));
             }
         }
 
@@ -71,7 +71,7 @@
             public void ReturnsFalseIfTimerWasNeverStarted()
             {
                 var timer = new TaskTimerInternal();
-                Assert.False(timer.IsStarted);
+                Assert.IsFalse(timer.IsStarted);
             }
 
             [TestMethod]
@@ -89,11 +89,11 @@
                             actionCanFinish.Wait();
                         }));
 
-                Assert.True(timer.IsStarted);
+                Assert.IsTrue(timer.IsStarted);
 
                 actionStarted.Wait(1000);
 
-                Assert.False(timer.IsStarted);
+                Assert.IsFalse(timer.IsStarted);
 
                 actionCanFinish.Set();
             }
@@ -115,9 +115,9 @@
 
                     timer.Start(() => { actionInvoked.Set(); return null; });
 
-                    Assert.True(actionInvoked.Wait(1000));
+                    Assert.IsTrue(actionInvoked.Wait(1000));
                     // Listener will wait for up to 5 seconds for incoming messages so no need to delay/sleep here.
-                    Assert.Null(listener.Messages.FirstOrDefault());
+                    Assert.IsNull(listener.Messages.FirstOrDefault());
                 }
             }
 #endif
@@ -130,8 +130,8 @@
                 var actionInvoked = new ManualResetEventSlim();
                 timer.Start(() => Task.Factory.StartNew(actionInvoked.Set));
 
-                Assert.False(actionInvoked.IsSet);
-                Assert.True(actionInvoked.Wait(1000));
+                Assert.IsFalse(actionInvoked.IsSet);
+                Assert.IsTrue(actionInvoked.Wait(1000));
             }
 
             [TestMethod]
@@ -150,8 +150,8 @@
                             lastActionInvoked.Set();
                         }));
 
-                Assert.True(lastActionInvoked.Wait(1000));
-                Assert.Equal(1, invokationCount);
+                Assert.IsTrue(lastActionInvoked.Wait(1000));
+                Assert.AreEqual(1, invokationCount);
             }
 
             [TestMethod]
@@ -166,7 +166,7 @@
 
                     timer.Start(() => Task.Factory.StartNew(() => { throw new Exception(); }));
 
-                    Assert.NotNull(listener.Messages.FirstOrDefault());
+                    Assert.IsNotNull(listener.Messages.FirstOrDefault());
                 }
             }
 
@@ -181,7 +181,7 @@
                     listener.EnableEvents(CoreEventSource.Log, EventLevel.LogAlways);
                     timer.Start(() => { throw new Exception(); });
 
-                    Assert.NotNull(listener.Messages.FirstOrDefault());
+                    Assert.IsNotNull(listener.Messages.FirstOrDefault());
                 }
             }
         }
@@ -202,7 +202,7 @@
         
                     await TaskEx.Delay(TimeSpan.FromMilliseconds(20));
         
-                    Assert.False(actionInvoked);
+                    Assert.IsFalse(actionInvoked);
                 });
             }
         }

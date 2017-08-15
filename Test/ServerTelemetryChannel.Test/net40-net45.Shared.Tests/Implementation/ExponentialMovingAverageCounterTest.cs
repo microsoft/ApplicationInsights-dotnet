@@ -6,7 +6,7 @@
 
     using Microsoft.ApplicationInsights.DataContracts;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Implementation;
 
@@ -21,7 +21,7 @@
         {
             var counter = new ExponentialMovingAverageCounter(.1);
 
-            Assert.Equal(0, counter.Average);
+            Assert.AreEqual(0, counter.Average);
         }
 
         [TestMethod]
@@ -36,7 +36,7 @@
                 counter.Increment();
             }
 
-            Assert.Equal(IncrementCount, counter.Average);
+            Assert.AreEqual(IncrementCount, counter.Average);
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@
 
             counter.StartNewInterval();
 
-            Assert.Equal(IncrementCount, counter.Average);
+            Assert.AreEqual(IncrementCount, counter.Average);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@
 
             counter.StartNewInterval();
 
-            Xunit.Assert.Equal(Increment1Count * .9 + Increment2Count * .1, counter.Average, 10);
+            Assert.AreEqual(Increment1Count * .9 + Increment2Count * .1, counter.Average, 10);
         }
     }
 }

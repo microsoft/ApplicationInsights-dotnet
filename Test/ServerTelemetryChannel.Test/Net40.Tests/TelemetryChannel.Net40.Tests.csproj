@@ -64,9 +64,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="xunit">
-      <HintPath>..\..\..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

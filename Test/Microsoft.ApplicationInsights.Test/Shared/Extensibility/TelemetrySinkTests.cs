@@ -12,7 +12,7 @@
     using Microsoft.ApplicationInsights.Shared.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
 #endif
@@ -48,9 +48,9 @@
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
 
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
+            Assert.AreEqual(1, sentTelemetry.Count);
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
         }
 
         [TestMethod]
@@ -81,10 +81,10 @@
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
 
-            Assert.False(configuration.TelemetryProcessors.OfType<StubTelemetryProcessor>().Any()); // Both processors belong to the sink, not to the common chain.
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
+            Assert.IsFalse(configuration.TelemetryProcessors.OfType<StubTelemetryProcessor>().Any()); // Both processors belong to the sink, not to the common chain.
+            Assert.AreEqual(1, sentTelemetry.Count);
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByFirst"));
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySecond"));
         }
 
         [TestMethod]
@@ -118,9 +118,9 @@
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
 
-            Assert.Equal(1, sentTelemetry.Count);
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.True(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySinkProcessor"));
+            Assert.AreEqual(1, sentTelemetry.Count);
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsTrue(sentTelemetry[0].Context.Properties.ContainsKey("SeenBySinkProcessor"));
         }
 
         [TestMethod]
@@ -150,12 +150,12 @@
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
 
-            Assert.Equal(1, firstChannelTelemetry.Count);
-            Assert.Equal("t1", ((TraceTelemetry)firstChannelTelemetry[0]).Message);
-            Assert.Equal(1, secondChannelTelemetry.Count);
-            Assert.Equal("t1", ((TraceTelemetry)secondChannelTelemetry[0]).Message);
-            Assert.Equal(1, thirdChannelTelemetry.Count);
-            Assert.Equal("t1", ((TraceTelemetry)thirdChannelTelemetry[0]).Message);
+            Assert.AreEqual(1, firstChannelTelemetry.Count);
+            Assert.AreEqual("t1", ((TraceTelemetry)firstChannelTelemetry[0]).Message);
+            Assert.AreEqual(1, secondChannelTelemetry.Count);
+            Assert.AreEqual("t1", ((TraceTelemetry)secondChannelTelemetry[0]).Message);
+            Assert.AreEqual(1, thirdChannelTelemetry.Count);
+            Assert.AreEqual("t1", ((TraceTelemetry)thirdChannelTelemetry[0]).Message);
         }
 
         [TestMethod]
@@ -204,15 +204,15 @@
             var client = new TelemetryClient(configuration);
             client.TrackTrace("t1");
 
-            Assert.Equal(1, firstChannelTelemetry.Count);
-            Assert.True(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.True(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
-            Assert.False(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
+            Assert.AreEqual(1, firstChannelTelemetry.Count);
+            Assert.IsTrue(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsTrue(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
+            Assert.IsFalse(firstChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
 
-            Assert.Equal(1, secondChannelTelemetry.Count);
-            Assert.True(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
-            Assert.False(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
-            Assert.True(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
+            Assert.AreEqual(1, secondChannelTelemetry.Count);
+            Assert.IsTrue(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByCommonProcessor"));
+            Assert.IsFalse(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenByFirstSinkProcessor"));
+            Assert.IsTrue(secondChannelTelemetry[0].Context.Properties.ContainsKey("SeenBySecondSinkProcessor"));
         }
 
         [TestMethod]
@@ -256,10 +256,10 @@
             configuration.Dispose();
 
             // We expect the channels to not be disposed (because they were created externally to sinks), but the processors should be disposed.
-            Assert.True(firstSinkTelemetryProcessorDisposed);
-            Assert.True(secondSinkTelemetryProcessorDisposed);
-            Assert.False(firstChannelDisposed);
-            Assert.False(secondChannelDisposed);
+            Assert.IsTrue(firstSinkTelemetryProcessorDisposed);
+            Assert.IsTrue(secondSinkTelemetryProcessorDisposed);
+            Assert.IsFalse(firstChannelDisposed);
+            Assert.IsFalse(secondChannelDisposed);
         }
     }
 }

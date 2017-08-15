@@ -9,7 +9,7 @@
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class TagsTest
@@ -26,7 +26,7 @@
 
             string tagValue = tags.GetTagValueOrNull(testKey);
 
-            Assert.Equal(testValue, tagValue);
+            Assert.AreEqual(testValue, tagValue);
         }
 
         [TestMethod]
@@ -36,7 +36,7 @@
 
             string tagValue = tags.GetTagValueOrNull("testKey");
 
-            Assert.Null(tagValue);
+            Assert.IsNull(tagValue);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@
 
             tags.SetStringValueOrRemove(testKey, testValue);
 
-            Assert.Equal(testValue, tags[testKey]);
+            Assert.AreEqual(testValue, tags[testKey]);
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@
 
             tags.SetTagValueOrRemove<bool?>(testKey, null);
 
-            Assert.False(tags.ContainsKey(testKey));
+            Assert.IsFalse(tags.ContainsKey(testKey));
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@
 
             tags.SetTagValueOrRemove<bool?>(testKey, true);
 
-            Assert.Equal(testValue, tags[testKey]);
+            Assert.AreEqual(testValue, tags[testKey]);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@
 
             tags.SetTagValueOrRemove<int?>(testKey, 5);
 
-            Assert.Equal(testValue, tags[testKey]);
+            Assert.AreEqual(testValue, tags[testKey]);
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@
 
             tags.SetTagValueOrRemove<string>(testKey, testValue);
 
-            Assert.Equal(testValue, tags[testKey]);
+            Assert.AreEqual(testValue, tags[testKey]);
         }        
     }
 }

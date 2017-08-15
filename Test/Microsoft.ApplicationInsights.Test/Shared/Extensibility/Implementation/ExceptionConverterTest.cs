@@ -7,7 +7,8 @@
 
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
     /// <summary>
     /// Tests of exception stack serialization.
@@ -18,7 +19,7 @@
         [TestMethod]
         public void CallingConvertToExceptionDetailsWithNullExceptionThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => ExceptionConverter.ConvertToExceptionDetails(null, null));
+            AssertEx.Throws<ArgumentNullException>(() => ExceptionConverter.ConvertToExceptionDetails(null, null));
         }
 
         [TestMethod]
@@ -28,11 +29,11 @@
 
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
 
-            Assert.Equal(string.Empty, expDetails.stack);
-            Assert.Equal(0, expDetails.parsedStack.Count);
+            Assert.AreEqual(string.Empty, expDetails.stack);
+            Assert.AreEqual(0, expDetails.parsedStack.Count);
 
             // hasFullStack defaults to true.
-            Assert.True(expDetails.hasFullStack);
+            Assert.IsTrue(expDetails.hasFullStack);
         }
 
         [TestMethod]
@@ -41,8 +42,8 @@
             var exp = this.CreateException(42);
 
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
-            Assert.Equal(43, expDetails.parsedStack.Count);
-            Assert.True(expDetails.hasFullStack);
+            Assert.AreEqual(43, expDetails.parsedStack.Count);
+            Assert.IsTrue(expDetails.hasFullStack);
         }
 
         [TestMethod]
@@ -52,12 +53,12 @@
 
             ExceptionDetails expDetails = ExceptionConverter.ConvertToExceptionDetails(exp, null);
             
-            Assert.False(expDetails.hasFullStack);
-            Assert.True(expDetails.parsedStack.Count < 300);
+            Assert.IsFalse(expDetails.hasFullStack);
+            Assert.IsTrue(expDetails.parsedStack.Count < 300);
 
             // We should keep top of stack, and end of stack hence CreateException function should be present
-            Assert.Equal("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.FailedFunction", expDetails.parsedStack[0].method);
-            Assert.Equal("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException", expDetails.parsedStack[expDetails.parsedStack.Count - 1].method);
+            Assert.AreEqual("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.FailedFunction", expDetails.parsedStack[0].method);
+            Assert.AreEqual("Microsoft.ApplicationInsights.Extensibility.Implementation.ExceptionConverterTest.CreateException", expDetails.parsedStack[expDetails.parsedStack.Count - 1].method);
         }
 
 #if !NETCOREAPP1_1
@@ -77,13 +78,13 @@
 
             if (line != 0)
             {
-                Assert.Equal(line, stack[0].line);
-                Assert.Equal(fileName, stack[0].fileName);
+                Assert.AreEqual(line, stack[0].line);
+                Assert.AreEqual(fileName, stack[0].fileName);
             }
             else
             {
-                Assert.Equal(0, stack[0].line);
-                Assert.Null(stack[0].fileName);
+                Assert.AreEqual(0, stack[0].line);
+                Assert.IsNull(stack[0].fileName);
             }
         }
 #endif
@@ -101,7 +102,7 @@
 
             foreach (var stackFrame in expDetails.parsedStack)
             {
-                Assert.Equal(assemblyFullName.ToLowerInvariant(), stackFrame.assembly.ToLowerInvariant());
+                Assert.AreEqual(assemblyFullName.ToLowerInvariant(), stackFrame.assembly.ToLowerInvariant());
             }
         }
 #endif
@@ -119,12 +120,12 @@
             // Checking levels for first few and last few.
             for (int i = 0; i < 10; ++i)
             {
-                Assert.Equal(i, stack[i].level);
+                Assert.AreEqual(i, stack[i].level);
             }
 
             for (int j = NumberOfStackFrames - 1, i = 0; j > NumberOfStackFrames - 10; --j, i++)
             {
-                Assert.Equal(j, stack[stack.Count - 1 - i].level);
+                Assert.AreEqual(j, stack[stack.Count - 1 - i].level);
             }
         }
 
@@ -143,7 +144,7 @@
                                      + (stack[i].assembly == null ? 0 : stack[i].assembly.Length)
                                      + (stack[i].fileName == null ? 0 : stack[i].fileName.Length);
             }
-            Assert.True(parsedStackLength <= ExceptionConverter.MaxParsedStackLength);
+            Assert.IsTrue(parsedStackLength <= ExceptionConverter.MaxParsedStackLength);
         }
 
         [MethodImplAttribute(MethodImplOptions.NoInlining)]

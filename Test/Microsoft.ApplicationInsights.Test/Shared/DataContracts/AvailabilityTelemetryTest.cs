@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 #if !NETCOREAPP1_1
     using KellermanSoftware.CompareNetObjects;
 #endif
@@ -23,20 +23,20 @@
             AvailabilityTelemetry expected = this.CreateAvailabilityTelemetry();
             var item = TelemetryItemTestHelper.SerializeDeserializeTelemetryItem<AvailabilityTelemetry, AI.AvailabilityData>(expected);
 
-            Assert.Equal<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
-            Assert.Equal(expected.Sequence, item.seq);
-            Assert.Equal(expected.Context.InstrumentationKey, item.iKey);
-            Assert.Equal(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
-            Assert.Equal(typeof(AI.AvailabilityData).Name, item.data.baseType);
+            Assert.AreEqual<DateTimeOffset>(expected.Timestamp, DateTimeOffset.Parse(item.time, null, System.Globalization.DateTimeStyles.AssumeUniversal));
+            Assert.AreEqual(expected.Sequence, item.seq);
+            Assert.AreEqual(expected.Context.InstrumentationKey, item.iKey);
+            AssertEx.AreEqual(expected.Context.SanitizedTags.ToArray(), item.tags.ToArray());
+            Assert.AreEqual(typeof(AI.AvailabilityData).Name, item.data.baseType);
 
-            Assert.Equal(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
-            Assert.Equal(expected.Message, item.data.baseData.message);
-            Assert.Equal(expected.Success, item.data.baseData.success);
-            Assert.Equal(expected.RunLocation, item.data.baseData.runLocation);
-            Assert.Equal(expected.Name, item.data.baseData.name);
-            Assert.Equal(expected.Id.ToString(), item.data.baseData.id);
+            Assert.AreEqual(expected.Duration, TimeSpan.Parse(item.data.baseData.duration));
+            Assert.AreEqual(expected.Message, item.data.baseData.message);
+            Assert.AreEqual(expected.Success, item.data.baseData.success);
+            Assert.AreEqual(expected.RunLocation, item.data.baseData.runLocation);
+            Assert.AreEqual(expected.Name, item.data.baseData.name);
+            Assert.AreEqual(expected.Id.ToString(), item.data.baseData.id);
 
-            Assert.Equal(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
+            AssertEx.AreEqual(expected.Properties.ToArray(), item.data.baseData.properties.ToArray());
         }
 
         [TestMethod]
@@ -51,19 +51,19 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(new string('Z', Property.MaxAvailabilityMessageLength), telemetry.Message);
-            Assert.Equal(new string('Y', Property.MaxRunLocationLength), telemetry.RunLocation);
-            Assert.Equal(new string('D', Property.MaxTestNameLength), telemetry.Name);
+            Assert.AreEqual(new string('Z', Property.MaxAvailabilityMessageLength), telemetry.Message);
+            Assert.AreEqual(new string('Y', Property.MaxRunLocationLength), telemetry.RunLocation);
+            Assert.AreEqual(new string('D', Property.MaxTestNameLength), telemetry.Name);
 
-            Assert.Equal(2, telemetry.Properties.Count);
+            Assert.AreEqual(2, telemetry.Properties.Count);
             var t = new SortedList<string, string>(telemetry.Properties);
 
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
-            Assert.Equal(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
-            Assert.Equal(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength), t.Keys.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[1]);
+            Assert.AreEqual(new string('X', Property.MaxDictionaryNameLength - 3) + "1", t.Keys.ToArray()[0]);
+            Assert.AreEqual(new string('X', Property.MaxValueLength), t.Values.ToArray()[0]);
 
-            Assert.Same(telemetry.Properties, telemetry.Properties);
+            Assert.AreSame(telemetry.Properties, telemetry.Properties);
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(telemetry.Data.message, "Test Message");
+            Assert.AreEqual(telemetry.Data.message, "Test Message");
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(telemetry.Data.message, "Failed");
+            Assert.AreEqual(telemetry.Data.message, "Failed");
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@
 
             ((ITelemetry)telemetry).Sanitize();
 
-            Assert.Equal(telemetry.Data.message, "Passed");
+            Assert.AreEqual(telemetry.Data.message, "Passed");
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@
         {
             AvailabilityTelemetry telemetry = new AvailabilityTelemetry();
 
-            Assert.Equal(telemetry.Data.success, true);
+            Assert.AreEqual(telemetry.Data.success, true);
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@
             AvailabilityTelemetry telemetry = new AvailabilityTelemetry();
             telemetry.Success = false;
 
-            Assert.Equal(telemetry.Data.success, false);
+            Assert.AreEqual(telemetry.Data.success, false);
         }
 
 #if !NETCOREAPP1_1
@@ -127,7 +127,7 @@
             CompareLogic deepComparator = new CompareLogic(comparisonConfig);
 
             ComparisonResult result = deepComparator.Compare(telemetry, other);            
-            Assert.True(result.AreEqual, result.DifferencesString);
+            Assert.IsTrue(result.AreEqual, result.DifferencesString);
         }
 #endif
 

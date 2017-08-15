@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     [TestClass]
     public class OperationContextTest
@@ -11,49 +11,49 @@
         [TestMethod]
         public void ClassIsPublicToAllowInstantiationInSdkAndUserCode()
         {
-            Assert.True(typeof(OperationContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(OperationContext).GetTypeInfo().IsPublic);
         }
         
         [TestMethod]
         public void IdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.Id);
+            Assert.IsNull(operation.Id);
         }
 
         [TestMethod]
         public void NameIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.Name);
+            Assert.IsNull(operation.Name);
         }
 
         [TestMethod]
         public void SyntheticSourceIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.SyntheticSource);
+            Assert.IsNull(operation.SyntheticSource);
         }
 
         [TestMethod]
         public void ParentIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.ParentId);
+            Assert.IsNull(operation.ParentId);
         }
 
         [TestMethod]
         public void RootIdIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.Id);
+            Assert.IsNull(operation.Id);
         }
 
         [TestMethod]
         public void CorrelationVectorIsNullByDefaultToAvoidSendingItToEndpointUnnecessarily()
         {
             var operation = new OperationContext();
-            Assert.Null(operation.CorrelationVector);
+            Assert.IsNull(operation.CorrelationVector);
         }
 
 
@@ -62,7 +62,7 @@
         {
             var operation = new OperationContext();
             operation.Id = "42";
-            Assert.Equal("42", operation.Id);
+            Assert.AreEqual("42", operation.Id);
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@
         {
             var operation = new OperationContext();
             operation.Name = "SampleOperationName";
-            Assert.Equal("SampleOperationName", operation.Name);
+            Assert.AreEqual("SampleOperationName", operation.Name);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@
         {
             var operation = new OperationContext();
             operation.SyntheticSource = "Sample";
-            Assert.Equal("Sample", operation.SyntheticSource);
+            Assert.AreEqual("Sample", operation.SyntheticSource);
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@
         {
             var operation = new OperationContext();
             operation.ParentId = "ParentId";
-            Assert.Equal("ParentId", operation.ParentId);
+            Assert.AreEqual("ParentId", operation.ParentId);
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@
         {
             var operation = new OperationContext();
             operation.CorrelationVector = "CorrelationVector";
-            Assert.Equal("CorrelationVector", operation.CorrelationVector);
+            Assert.AreEqual("CorrelationVector", operation.CorrelationVector);
         }
     }
 }

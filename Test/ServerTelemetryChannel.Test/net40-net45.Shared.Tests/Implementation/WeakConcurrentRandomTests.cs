@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using System.Reflection;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
     [TestClass]
@@ -24,7 +24,7 @@
             {
                 ulong randomNumber = rng.Next();
 
-                Assert.False(previouslyGeneratedNumbers.Contains(randomNumber));
+                Assert.IsFalse(previouslyGeneratedNumbers.Contains(randomNumber));
 
                 previouslyGeneratedNumbers.Add(randomNumber);
             }

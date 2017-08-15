@@ -5,7 +5,8 @@
     using System.Security.AccessControl;
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
     /// <summary>
     /// We use these tests to understand actual behavior of <see cref="FileInfo"/> and ensure that 
@@ -67,13 +68,13 @@
             [TestMethod]
             public void ConstructorThrowsArgumentNullExceptionGivenNullStorageFileToPreventUsageErrors()
             {
-                Assert.Throws<ArgumentNullException>(() => new PlatformFile(null));
+                AssertEx.Throws<ArgumentNullException>(() => new PlatformFile(null));
             }
 
             [TestMethod]
             public void ImplementsIFileSystemFileInterfaceForCompatibilityWithIPlatform()
             {
-                Assert.True(typeof(IPlatformFile).IsAssignableFrom(typeof(PlatformFile)));
+                Assert.IsTrue(typeof(IPlatformFile).IsAssignableFrom(typeof(PlatformFile)));
             }
         }
 
@@ -84,7 +85,7 @@
             public void ReturnsNameOfGivenPlatformFile()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Equal(FileSystemTest.GetPlatformFileName(this.platformFile), file.Name);
+                Assert.AreEqual(FileSystemTest.GetPlatformFileName(this.platformFile), file.Name);
             }
         }
 
@@ -95,7 +96,7 @@
             public void ReturnsDateCreatedOfGivenPlatformFile()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Equal(FileSystemTest.GetPlatformFileDateCreated(this.platformFile), file.DateCreated);
+                Assert.AreEqual(FileSystemTest.GetPlatformFileDateCreated(this.platformFile), file.DateCreated);
             }
         }
 
@@ -107,7 +108,7 @@
             {
                 var file = new PlatformFile(this.platformFile);
                 file.Delete();
-                Assert.Throws<FileNotFoundException>(() => FileSystemTest.GetPlatformFile(FileSystemTest.GetPlatformFileName(this.platformFile)));
+                AssertEx.Throws<FileNotFoundException>(() => FileSystemTest.GetPlatformFile(FileSystemTest.GetPlatformFileName(this.platformFile)));
             }
 
             [TestMethod]
@@ -115,7 +116,7 @@
             {
                 var file = new PlatformFile(this.platformFile);
                 FileSystemTest.DeletePlatformItem(this.platformFile);
-                Assert.Throws<FileNotFoundException>(() => file.Delete());
+                AssertEx.Throws<FileNotFoundException>(() => file.Delete());
             }
         }
 
@@ -127,7 +128,7 @@
             {
                 var file = new PlatformFile(this.platformFile);
                 FileSystemTest.DeletePlatformItem(this.platformFile);
-                Assert.Throws<FileNotFoundException>(() => file.Length);
+                AssertEx.Throws<FileNotFoundException>(() => { var length = file.Length; });
             }
         }
 
@@ -143,7 +144,7 @@
                 var file = new PlatformFile(this.platformFile);
                 byte[] readBytes = ReadBytesAndDispose(file.Open());
 
-                Assert.Equal(writtenBytes, readBytes);
+                AssertEx.AreEqual(writtenBytes, readBytes);
             }
 
             [TestMethod]
@@ -155,7 +156,7 @@
                 PlatformFileTest.WriteBytesAndDispose(file.Open(), writtenBytes);
 
                 byte[] readBytes = ReadBytesAndDispose(FileSystemTest.OpenPlatformFile(this.platformFile));
-                Assert.Equal(writtenBytes, readBytes);
+                AssertEx.AreEqual(writtenBytes, readBytes);
             }
 
             [TestMethod]
@@ -163,7 +164,7 @@
             {
                 var file = new PlatformFile(this.platformFile);
                 FileSystemTest.DeletePlatformItem(this.platformFile);
-                Assert.Throws<FileNotFoundException>(() => file.Open());
+                AssertEx.Throws<FileNotFoundException>(() => file.Open());
             }
 
             [TestMethod]
@@ -172,7 +173,7 @@
                 var file = new PlatformFile(this.platformFile);
                 using (Stream previouslyOpenedStream = FileSystemTest.OpenPlatformFile(this.platformFile))
                 {
-                    Assert.Throws<IOException>(() => file.Open());
+                    AssertEx.Throws<IOException>(() => file.Open());
                 }
             }
 
@@ -182,7 +183,7 @@
                 using (new FileAccessDenier(this.platformFile, FileSystemRights.Write))
                 { 
                     var file = new PlatformFile(this.platformFile);
-                    Assert.Throws<UnauthorizedAccessException>(() => file.Open());
+                    AssertEx.Throws<UnauthorizedAccessException>(() => file.Open());
                 }
             }
         }
@@ -194,7 +195,7 @@
             public void ThrowsArgumentNullExceptionWhenDesiredNameIsNull()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Throws<ArgumentNullException>(() => file.Rename(null));
+                AssertEx.Throws<ArgumentNullException>(() => file.Rename(null));
             }
 
             [TestMethod]
@@ -206,8 +207,8 @@
 
                 file.Rename(newName);
 
-                Assert.Throws<FileNotFoundException>(() => FileSystemTest.GetPlatformFile(oldName));
-                Assert.NotNull(FileSystemTest.GetPlatformFile(newName));
+                AssertEx.Throws<FileNotFoundException>(() => FileSystemTest.GetPlatformFile(oldName));
+                Assert.IsNotNull(FileSystemTest.GetPlatformFile(newName));
             }
 
             [TestMethod]
@@ -218,7 +219,7 @@
                 string newName = GetUniqueFileName();
                 file.Rename(newName);
 
-                Assert.Equal(newName, file.Name);
+                Assert.AreEqual(newName, file.Name);
             }
 
             [TestMethod]
@@ -229,7 +230,7 @@
                 FileSystemTest.DeletePlatformItem(this.platformFile);
 
                 string newName = GetUniqueFileName();
-                Assert.Throws<FileNotFoundException>(() => file.Rename(newName));
+                AssertEx.Throws<FileNotFoundException>(() => file.Rename(newName));
             }
 
             [TestMethod]
@@ -240,7 +241,7 @@
                 string newName = GetUniqueFileName();
                 var conflictingFile = FileSystemTest.CreatePlatformFile(newName);
 
-                Assert.Throws<IOException>(() => file.Rename(newName));
+                AssertEx.Throws<IOException>(() => file.Rename(newName));
 
                 FileSystemTest.DeletePlatformItem(conflictingFile);
             }
@@ -249,14 +250,14 @@
             public void ThrowsIOExceptionWhenDesiredFileNameIsTooLong()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Throws<PathTooLongException>(() => file.Rename(new string('F', 1024)));
+                AssertEx.Throws<PathTooLongException>(() => file.Rename(new string('F', 1024)));
             }
 
             [TestMethod]
             public void ThrowsArgumentExceptionWhenDesiredFileNameIsEmpty()
             {
                 var file = new PlatformFile(this.platformFile);
-                Assert.Throws<ArgumentException>(() => file.Rename(string.Empty));
+                AssertEx.Throws<ArgumentException>(() => file.Rename(string.Empty));
             }
         }
     }

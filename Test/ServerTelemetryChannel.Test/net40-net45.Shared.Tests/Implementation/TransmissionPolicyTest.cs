@@ -6,7 +6,8 @@
 
     using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.Helpers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -29,14 +30,14 @@
 
             policy.Apply();
 
-            Assert.True(policiesApplied);
+            Assert.IsTrue(policiesApplied);
         }
 
         [TestMethod]
         public void ApplyThrowsInvalidOperationExceptionWhenPolicyWasNotInitializedToPreventUsageErrors()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Throws<InvalidOperationException>(() => policy.Apply());
+            AssertEx.Throws<InvalidOperationException>(() => policy.Apply());
         }
 
         [TestMethod]
@@ -47,21 +48,21 @@
 
             policy.Initialize(transmitter);
 
-            Assert.Same(transmitter, policy.Transmitter);
+            Assert.AreSame(transmitter, policy.Transmitter);
         }
 
         [TestMethod]
         public void InitializeThrowsArgumentNullExceptionWhenTransmitterIsNullToPreventUsageErrors()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Throws<ArgumentNullException>(() => policy.Initialize(null));
+            AssertEx.Throws<ArgumentNullException>(() => policy.Initialize(null));
         }
 
         [TestMethod]
         public void MaxSenderCapacityIsNullByDefaultToIndicateThatPolicyIsNotApplicable()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Null(policy.MaxSenderCapacity);
+            Assert.IsNull(policy.MaxSenderCapacity);
         }
 
         [TestMethod]
@@ -69,14 +70,14 @@
         {
             var policy = new StubTransmissionPolicy();
             policy.MaxSenderCapacity = 42;
-            Assert.Equal(42, policy.MaxSenderCapacity);
+            Assert.AreEqual(42, policy.MaxSenderCapacity);
         }
 
         [TestMethod]
         public void MaxBufferCapacityIsNullByDefaultToIndicateThatPolicyIsNotApplicable()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Null(policy.MaxBufferCapacity);
+            Assert.IsNull(policy.MaxBufferCapacity);
         }
 
         [TestMethod]
@@ -84,14 +85,14 @@
         {
             var policy = new StubTransmissionPolicy();
             policy.MaxBufferCapacity = 42;
-            Assert.Equal(42, policy.MaxBufferCapacity);
+            Assert.AreEqual(42, policy.MaxBufferCapacity);
         }
 
         [TestMethod]
         public void MaxStorageCapacityIsNullByDefaultToIndicateThatPolicyIsNotApplicable()
         {
             var policy = new StubTransmissionPolicy();
-            Assert.Null(policy.MaxStorageCapacity);
+            Assert.IsNull(policy.MaxStorageCapacity);
         }
 
         [TestMethod]
@@ -99,7 +100,7 @@
         {
             var policy = new StubTransmissionPolicy();
             policy.MaxStorageCapacity = 42;
-            Assert.Equal(42, policy.MaxStorageCapacity);
+            Assert.AreEqual(42, policy.MaxStorageCapacity);
         }
 
         private class TestableTransmissionPolicy : TransmissionPolicy

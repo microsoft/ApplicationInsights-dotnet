@@ -6,7 +6,7 @@ namespace Microsoft.ApplicationInsights
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class TaskExTests
@@ -21,7 +21,8 @@ namespace Microsoft.ApplicationInsights
 
             task.Wait();
 
-            Assert.DoesNotThrow(() => task.RethrowIfFaulted());
+            //Assert.DoesNotThrow
+            task.RethrowIfFaulted();
         }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace Microsoft.ApplicationInsights
         {
             Task task = TaskEx.Delay(TimeSpan.FromMilliseconds(100));
 
-            Assert.Throws<ArgumentException>(() => task.RethrowIfFaulted());
+            AssertEx.Throws<ArgumentException>(() => task.RethrowIfFaulted());
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Microsoft.ApplicationInsights
                 // ignore
             }
 
-            Assert.Throws<AggregateException>(() => task.RethrowIfFaulted());
+            AssertEx.Throws<AggregateException>(() => task.RethrowIfFaulted());
         }
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace Microsoft.ApplicationInsights
             Task task = TaskEx.Delay(TimeSpan.Zero);
             task.Wait();
 
-            Assert.Equal(task.Status, TaskStatus.RanToCompletion);
+            Assert.AreEqual(task.Status, TaskStatus.RanToCompletion);
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Microsoft.ApplicationInsights
             task.Wait();
             TimeSpan spent = DateTime.UtcNow - time;
 
-            Assert.True(spent >= timeout);
+            Assert.IsTrue(spent >= timeout);
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Microsoft.ApplicationInsights
 
             cancellationTokenSource.Cancel();
 
-            Assert.True(task.IsCanceled);
+            Assert.IsTrue(task.IsCanceled);
         }
 
         /// <summary>
@@ -110,8 +111,8 @@ namespace Microsoft.ApplicationInsights
 
             cancellationTokenSource.Cancel();
 
-            AggregateException aggregateException = Assert.Throws<AggregateException>(() => task.Wait());
-            Assert.True(aggregateException.InnerExceptions.Single() is TaskCanceledException);
+            AggregateException aggregateException = AssertEx.Throws<AggregateException>(() => task.Wait());
+            Assert.IsTrue(aggregateException.InnerExceptions.Single() is TaskCanceledException);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace Microsoft.ApplicationInsights
 
             TimeSpan spent = DateTime.UtcNow - time;
 
-            Assert.True(spent >= cancelTimeout && spent < timeout);
+            Assert.IsTrue(spent >= cancelTimeout && spent < timeout);
         }
 
         /// <summary>
@@ -152,7 +153,7 @@ namespace Microsoft.ApplicationInsights
 
             task.Wait();
 
-            Assert.True(result == task.Result);
+            Assert.IsTrue(result == task.Result);
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace Microsoft.ApplicationInsights
         [TestMethod]
         public void WhenAnyThrowsForNoTasks()
         {
-            Assert.Throws<ArgumentException>(() => { TaskEx.WhenAny(); });
+            AssertEx.Throws<ArgumentException>(() => { TaskEx.WhenAny(); });
         }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace Microsoft.ApplicationInsights
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();
 
-            Assert.True(task1 == completedTask.Result);
+            Assert.IsTrue(task1 == completedTask.Result);
         }
 
         /// <summary>
@@ -191,7 +192,7 @@ namespace Microsoft.ApplicationInsights
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();
 
-            Assert.True(task2 == completedTask.Result);
+            Assert.IsTrue(task2 == completedTask.Result);
         }
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace Microsoft.ApplicationInsights
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();
 
-            Assert.True(task2 == completedTask.Result);
+            Assert.IsTrue(task2 == completedTask.Result);
         }
 
         /// <summary>
@@ -223,7 +224,7 @@ namespace Microsoft.ApplicationInsights
             Task<Task> completedTask = TaskEx.WhenAny(task1, task2);
             completedTask.Wait();
 
-            Assert.True(task2 == completedTask.Result);
+            Assert.IsTrue(task2 == completedTask.Result);
         }
     }
 }

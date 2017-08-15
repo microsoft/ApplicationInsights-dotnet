@@ -4,10 +4,11 @@
     using System.Threading.Tasks;
 #if NET40 || NET45
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Microsoft.ApplicationInsights.TestFramework;
 #else
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #endif
-    using Assert = Xunit.Assert;
+
 
     [TestClass]
     public class CurrentThreadTaskSchedulerTest
@@ -16,15 +17,15 @@
         public void InstanceReturnsSingletonThatCanBeReusedToImprovePerformance()
         {
             TaskScheduler instance = CurrentThreadTaskScheduler.Instance;
-            Assert.NotNull(instance);
-            Assert.IsType(typeof(CurrentThreadTaskScheduler), instance);
+            Assert.IsNotNull(instance);
+            AssertEx.IsType<CurrentThreadTaskScheduler>(instance);
         }
 
         [TestMethod]
         public void MaximumConcurrencyLevelReturnsOneBecauseSchedulerExecutesTasksSynchronously()
         {
             var scheduler = new CurrentThreadTaskScheduler();
-            Assert.Equal(1, scheduler.MaximumConcurrencyLevel);
+            Assert.AreEqual(1, scheduler.MaximumConcurrencyLevel);
         }
 
         [TestMethod]
@@ -35,7 +36,7 @@
 
             task.Start(new CurrentThreadTaskScheduler());
 
-            Assert.Equal(Thread.CurrentThread.ManagedThreadId, taskThreadId);
+            Assert.AreEqual(Thread.CurrentThread.ManagedThreadId, taskThreadId);
         }
 
         [TestMethod]
@@ -46,7 +47,7 @@
 
             task.RunSynchronously(new CurrentThreadTaskScheduler());
 
-            Assert.Equal(Thread.CurrentThread.ManagedThreadId, taskThreadId);
+            Assert.AreEqual(Thread.CurrentThread.ManagedThreadId, taskThreadId);
         }
     }
 }

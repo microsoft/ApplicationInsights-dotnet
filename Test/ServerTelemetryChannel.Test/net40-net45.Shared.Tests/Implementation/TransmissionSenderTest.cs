@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.TestFramework;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     public class TransmissionSenderTest
     {
@@ -19,7 +19,7 @@
             public void DefaultValueIsAppropriateForMostApps()
             {
                 var sender = new TransmissionSender();
-                Assert.Equal(3, sender.Capacity);
+                Assert.AreEqual(3, sender.Capacity);
             }
 
             [TestMethod]
@@ -27,14 +27,14 @@
             {
                 var sender = new TransmissionSender();
                 sender.Capacity = 0;
-                Assert.Equal(0, sender.Capacity);
+                Assert.AreEqual(0, sender.Capacity);
             }
 
             [TestMethod]
             public void ThrowsArgumentOutOfRangeExceptionWhenNewValueLessThanZero()
             {
                 var sender = new TransmissionSender();
-                Assert.Throws<ArgumentOutOfRangeException>(() => sender.Capacity = -1);
+                AssertEx.Throws<ArgumentOutOfRangeException>(() => sender.Capacity = -1);
             }
         }
 
@@ -58,7 +58,7 @@
             {
                 var sender = new TransmissionSender { Capacity = 1 };
                 bool result = sender.Enqueue(() => new StubTransmission());
-                Assert.True(result);
+                Assert.IsTrue(result);
             }
 
             [TestMethod]
@@ -66,7 +66,7 @@
             {
                 var sender = new TransmissionSender { Capacity = 0 };
                 bool transmissionSent = sender.Enqueue(() => new StubTransmission());
-                Assert.False(transmissionSent);
+                Assert.IsFalse(transmissionSent);
             }
 
             [TestMethod]
@@ -79,7 +79,7 @@
                 sender.Capacity = 1;
 
                 Transmission transmission2 = new StubTransmission();
-                Assert.True(sender.Enqueue(() => transmission2));
+                Assert.IsTrue(sender.Enqueue(() => transmission2));
             }
 
             [TestMethod]
@@ -88,7 +88,7 @@
                 var sender = new TransmissionSender { Capacity = 1 };
                 sender.Enqueue(() => new StubTransmission());
                 Thread.Sleep(50);
-                Assert.True(sender.Enqueue(() => new StubTransmission()));
+                Assert.IsTrue(sender.Enqueue(() => new StubTransmission()));
             }
 
             [TestMethod]
@@ -104,14 +104,14 @@
 
                 sender.Enqueue(transmissionGetter);
 
-                Assert.False(transmissionGetterInvoked);
+                Assert.IsFalse(transmissionGetterInvoked);
             }
 
             [TestMethod]
             public void ReturnsFalseWhenTransmissionGetterReturnedNullIndicatingEmptyBuffer()
             {
                 var sender = new TransmissionSender();
-                Assert.False(sender.Enqueue(() => null));
+                Assert.IsFalse(sender.Enqueue(() => null));
             }
 
             [TestMethod]
@@ -121,7 +121,7 @@
                 sender.Enqueue(() => null);
 
                 Transmission transmission2 = new StubTransmission();
-                Assert.True(sender.Enqueue(() => transmission2));
+                Assert.IsTrue(sender.Enqueue(() => transmission2));
             }
 
             [TestMethod]
@@ -136,7 +136,7 @@
                 Transmission transmission2 = new StubTransmission();
                 bool transmission2Sent = sender.Enqueue(() => transmission2);
 
-                Assert.True(transmission2Sent);
+                Assert.IsTrue(transmission2Sent);
             }
 
             [TestMethod]
@@ -155,7 +155,7 @@
                     buffer.Enqueue(() => new StubTransmission());
                 }
 
-                Assert.False(postedBack);
+                Assert.IsFalse(postedBack);
             }
         }
 
@@ -180,9 +180,9 @@
                 Transmission transmission = new StubTransmission();
                 sender.Enqueue(() => transmission);
 
-                Assert.True(eventIsRaised.Wait(50));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
+                Assert.IsTrue(eventIsRaised.Wait(50));
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
             }
 
             [TestMethod]
@@ -204,10 +204,10 @@
                 Transmission transmission = new StubTransmission { OnSend = () => { throw exception; } };
                 sender.Enqueue(() => transmission);
 
-                Assert.True(eventIsRaised.Wait(5000));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Same(exception, eventArgs.Exception);
+                Assert.IsTrue(eventIsRaised.Wait(5000));
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
+                Assert.AreSame(exception, eventArgs.Exception);
             }
 
             [TestMethod]
@@ -229,10 +229,10 @@
                 Transmission transmission = new StubTransmission { OnSend = () => wrapper };
                 sender.Enqueue(() => transmission);
 
-                Assert.True(eventIsRaised.Wait(50));
-                Assert.Same(sender, eventSender);
-                Assert.Same(transmission, eventArgs.Transmission);
-                Assert.Same(wrapper, eventArgs.Response);
+                Assert.IsTrue(eventIsRaised.Wait(50));
+                Assert.AreSame(sender, eventSender);
+                Assert.AreSame(transmission, eventArgs.Transmission);
+                Assert.AreSame(wrapper, eventArgs.Response);
             }
 
             [TestMethod]
@@ -264,13 +264,13 @@
                 Transmission transmission = new StubTransmission(telemetryItems) { OnSend = () => wrapper };
                 sender.Enqueue(() => transmission);
 
-                Assert.True(eventIsRaised.Wait(50));
-                Assert.Equal(2, firedCount);
-                Assert.Equal(429, eventArgs[0].Response.StatusCode);
-                Assert.Equal("Internally Throttled", eventArgs[0].Response.StatusDescription);
-                Assert.Same(wrapper, eventArgs[1].Response);
-                Assert.Equal(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
-                Assert.Equal(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
+                Assert.IsTrue(eventIsRaised.Wait(50));
+                Assert.AreEqual(2, firedCount);
+                Assert.AreEqual(429, eventArgs[0].Response.StatusCode);
+                Assert.AreEqual("Internally Throttled", eventArgs[0].Response.StatusDescription);
+                Assert.AreSame(wrapper, eventArgs[1].Response);
+                Assert.AreEqual(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
+                Assert.AreEqual(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
             }
 
             [TestMethod]
@@ -302,13 +302,13 @@
                 Transmission transmission = new StubTransmission(JsonSerializer.Serialize(telemetryItems, false)) { OnSend = () => wrapper };
                 sender.Enqueue(() => transmission);
 
-                Assert.True(eventIsRaised.Wait(50));
-                Assert.Equal(2, firedCount);
-                Assert.Equal(429, eventArgs[0].Response.StatusCode);
-                Assert.Equal("Internally Throttled", eventArgs[0].Response.StatusDescription);
-                Assert.Same(wrapper, eventArgs[1].Response);
-                Assert.Equal(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
-                Assert.Equal(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
+                Assert.IsTrue(eventIsRaised.Wait(50));
+                Assert.AreEqual(2, firedCount);
+                Assert.AreEqual(429, eventArgs[0].Response.StatusCode);
+                Assert.AreEqual("Internally Throttled", eventArgs[0].Response.StatusDescription);
+                Assert.AreSame(wrapper, eventArgs[1].Response);
+                Assert.AreEqual(sender.ThrottleLimit, ((StubTransmission)eventArgs[0].Transmission).CountOfItems());
+                Assert.AreEqual(10, ((StubTransmission)eventArgs[1].Transmission).CountOfItems());
             }
         }
     }

@@ -6,7 +6,7 @@
     using System.Threading;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
     public class ExtensionsTest
     {
@@ -34,14 +34,14 @@
 
                 Extensions.ToInvariantString(exception);
 
-                Assert.Same(CultureInfo.InvariantCulture, stackTraceCulture);
+                Assert.AreSame(CultureInfo.InvariantCulture, stackTraceCulture);
             }
 
             [TestMethod]
             public void RestoresOriginalUICultureToPreserveGlobalStateOfApplication()
             {
                 Extensions.ToInvariantString(new Exception());
-                Assert.Same(this.originalUICulture, Thread.CurrentThread.CurrentUICulture);
+                Assert.AreSame(this.originalUICulture, Thread.CurrentThread.CurrentUICulture);
             }
         }
     }

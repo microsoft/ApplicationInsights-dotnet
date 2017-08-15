@@ -8,7 +8,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.Extensibility.Implementation.External;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
 
     [TestClass]
     public class TelemetryContextTest
@@ -16,76 +16,76 @@
         [TestMethod]
         public void TelemetryContextIsPublicAndMeantToBeUsedByCustomers()
         {
-            Assert.True(typeof(TelemetryContext).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(TelemetryContext).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
         public void TelemetryContextIsSealedToSupportCompilationAsWinmd()
         {
-            Assert.True(typeof(TelemetryContext).GetTypeInfo().IsSealed);
+            Assert.IsTrue(typeof(TelemetryContext).GetTypeInfo().IsSealed);
         }
 
         [TestMethod]
         public void InstrumentationKeyIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.InstrumentationKey);
+            Assert.IsNotNull(context.InstrumentationKey);
         }
 
         [TestMethod]
         public void InstrumentationKeySetterThrowsArgumentNullExceptionWhenValueIsNullToPreventNullReferenceExceptionsLater()
         {
             var context = new TelemetryContext();
-            Assert.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
+            AssertEx.Throws<ArgumentNullException>(() => context.InstrumentationKey = null);
         }
         
         [TestMethod]
         public void ComponentIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Component);
+            Assert.IsNotNull(context.Component);
         }
 
         [TestMethod]
         public void DeviceIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Device);
+            Assert.IsNotNull(context.Device);
         }
 
         [TestMethod]
         public void SessionIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Session);
+            Assert.IsNotNull(context.Session);
         }
 
         [TestMethod]
         public void UserIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.User);
+            Assert.IsNotNull(context.User);
         }
 
         [TestMethod]
         public void OperationIsNotNullByDefaultToPreventNullReferenceExceptionsInUserCode()
         {
             var context = new TelemetryContext();
-            Assert.NotNull(context.Operation);
+            Assert.IsNotNull(context.Operation);
         }
 
         [TestMethod]
         public void LocationIsNotNullByDefaultToPreventNullReferenceExceptionInUserCode()
         {
             TelemetryContext context = new TelemetryContext();
-            Assert.NotNull(context.Location);
+            Assert.IsNotNull(context.Location);
         }
 
         [TestMethod]
         public void InternalIsNotNullByDefaultToPreventNullReferenceExceptionInUserCode()
         {
             TelemetryContext context = new TelemetryContext();
-            Assert.NotNull(context.Internal);
+            Assert.IsNotNull(context.Internal);
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@
 
             target.Initialize(source, source.InstrumentationKey);
 
-            Assert.Equal("TestValue", target.InstrumentationKey);
+            Assert.AreEqual("TestValue", target.InstrumentationKey);
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@
 
             target.Initialize(source, "OtherTestValue");
 
-            Assert.Equal("OtherTestValue", target.InstrumentationKey);
+            Assert.AreEqual("OtherTestValue", target.InstrumentationKey);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@
 
             target.Initialize(source, source.InstrumentationKey);
 
-            Assert.Equal("TargetValue", target.InstrumentationKey);
+            Assert.AreEqual("TargetValue", target.InstrumentationKey);
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@
             var context = new TelemetryContext();
             context.Device.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.DeviceId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.DeviceId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@
             var context = new TelemetryContext();
             context.Component.Version = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.ApplicationVersion + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.ApplicationVersion + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -145,7 +145,7 @@
             var context = new TelemetryContext();
             context.Location.Ip = "1.2.3.4";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.LocationIp + "\":\"1.2.3.4\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.LocationIp + "\":\"1.2.3.4\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@
             var context = new TelemetryContext();
             context.User.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.UserId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.UserId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@
             var context = new TelemetryContext();
             context.Operation.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.OperationId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.OperationId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         [TestMethod]
@@ -172,7 +172,7 @@
             var context = new TelemetryContext();
             context.Session.Id = "Test Value";
             string json = CopyAndSerialize(context);
-            Assert.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
+            AssertEx.Contains("\"" + ContextTagKeys.Keys.SessionId + "\":\"Test Value\"", json, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string CopyAndSerialize(TelemetryContext source)

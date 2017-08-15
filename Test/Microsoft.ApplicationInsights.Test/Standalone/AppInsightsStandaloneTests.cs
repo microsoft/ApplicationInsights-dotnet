@@ -3,7 +3,7 @@
     using System.Diagnostics;
     using System.IO;
 
-    using Assert = Xunit.Assert;
+    
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,14 +33,14 @@
         public void AppInsightsDllCouldRunStandalone()
         {
             var dependencyId = RunTestApplication(false, "guid");
-            Assert.False(dependencyId.Contains("guid"));
+            Assert.IsFalse(dependencyId.Contains("guid"));
         }
 
         [TestMethod]
         public void AppInsightsUsesActivityWhenDiagnosticSourceIsAvailable()
         {
             var dependencyId = RunTestApplication(true, "guid");
-            Assert.True(dependencyId.StartsWith("|guid."));
+            Assert.IsTrue(dependencyId.StartsWith("|guid."));
         }
 
         private string RunTestApplication(bool withDiagnosticSource, string operationId)
@@ -52,7 +52,7 @@
 
             var fileName = $"{this.tempPath}\\ActivityTest.exe";
 
-            Assert.True(CreateTestApplication(fileName));
+            Assert.IsTrue(CreateTestApplication(fileName));
 
             Process p = new Process
             {
@@ -68,8 +68,8 @@
             
             p.Start();
 
-            Assert.True(p.WaitForExit(10000));
-            Assert.Equal(0, p.ExitCode);
+            Assert.IsTrue(p.WaitForExit(10000));
+            Assert.AreEqual(0, p.ExitCode);
 
             return p.StandardOutput.ReadToEnd();
         }

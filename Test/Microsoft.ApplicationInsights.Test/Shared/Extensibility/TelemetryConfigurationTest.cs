@@ -9,7 +9,7 @@
     using Microsoft.ApplicationInsights.Extensibility.Implementation;
     using Microsoft.ApplicationInsights.TestFramework;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -21,7 +21,7 @@
         [TestMethod]
         public void TelemetryConfigurationIsPublicToAllowUsersManipulateConfigurationProgrammatically()
         {
-            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().IsPublic);
+            Assert.IsTrue(typeof(TelemetryConfiguration).GetTypeInfo().IsPublic);
         }
 
         [TestMethod]
@@ -31,9 +31,9 @@
             bool channelDisposed = false;
             stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(string.Empty, stubChannel);
-            Assert.Same(stubChannel, config.TelemetryChannel);
+            Assert.AreSame(stubChannel, config.TelemetryChannel);
             config.Dispose();
-            Assert.False(channelDisposed);
+            Assert.IsFalse(channelDisposed);
         }
 
         [TestMethod]
@@ -41,9 +41,9 @@
         {
             TelemetryConfiguration config = new TelemetryConfiguration();
             var channel = config.TelemetryChannel as Channel.InMemoryChannel;
-            Assert.NotNull(channel);
+            Assert.IsNotNull(channel);
             config.Dispose();
-            Assert.True(channel.IsDisposed);
+            Assert.IsTrue(channel.IsDisposed);
         }
 
         [TestMethod]
@@ -54,10 +54,10 @@
             bool channelDisposed = false;
             stubChannel.OnDispose += () => { channelDisposed = true; };
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey, stubChannel);
-            Assert.Equal(expectedKey, config.InstrumentationKey);
-            Assert.Same(stubChannel, config.TelemetryChannel);
+            Assert.AreEqual(expectedKey, config.InstrumentationKey);
+            Assert.AreSame(stubChannel, config.TelemetryChannel);
             config.Dispose();
-            Assert.False(channelDisposed);
+            Assert.IsFalse(channelDisposed);
         }
 
         [TestMethod]
@@ -65,11 +65,11 @@
         {
             string expectedKey = "expected";
             TelemetryConfiguration config = new TelemetryConfiguration(expectedKey);
-            Assert.Equal(expectedKey, config.InstrumentationKey);
+            Assert.AreEqual(expectedKey, config.InstrumentationKey);
             var channel = config.TelemetryChannel as Channel.InMemoryChannel;
-            Assert.NotNull(channel);
+            Assert.IsNotNull(channel);
             config.Dispose();
-            Assert.True(channel.IsDisposed);
+            Assert.IsTrue(channel.IsDisposed);
         }
 
         #region Active
@@ -77,13 +77,13 @@
         [TestMethod]
         public void ActiveIsPublicToAllowUsersToAccessActiveTelemetryConfigurationInAdvancedScenarios()
         {
-            Assert.True(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetGetMethod(true).IsPublic);
+            Assert.IsTrue(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetGetMethod(true).IsPublic);
         }
 
         [TestMethod]
         public void ActiveSetterIsInternalAndNotMeantToBeUsedByOurCustomers()
         {
-            Assert.False(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
+            Assert.IsFalse(typeof(TelemetryConfiguration).GetTypeInfo().GetDeclaredProperty("Active").GetSetMethod(true).IsPublic);
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@
             try
             {
                 TelemetryConfiguration.Active = null;
-                Assert.NotNull(TelemetryConfiguration.Active);
+                Assert.IsNotNull(TelemetryConfiguration.Active);
             }
             finally
             {
@@ -113,9 +113,9 @@
             };
 
             TelemetryConfiguration.Active = null;
-            Assert.NotNull(TelemetryConfiguration.Active);
+            Assert.IsNotNull(TelemetryConfiguration.Active);
 
-            Assert.Same(modules, TelemetryModules.Instance);
+            Assert.AreSame(modules, TelemetryModules.Instance);
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@
             try
             {
                 var dummy = TelemetryConfiguration.Active;
-                Assert.True(factoryInvoked);
+                Assert.IsTrue(factoryInvoked);
             }
             finally
             {
@@ -157,7 +157,7 @@
                 }
 
                 Task.WaitAll(tasks);
-                Assert.Equal(1, numberOfInstancesInitialized);
+                Assert.AreEqual(1, numberOfInstancesInitialized);
             }
             finally
             {
@@ -183,7 +183,7 @@
             try
             {
                 var dummy = TelemetryConfiguration.Active;
-                Assert.Equal(1, numberOfInstancesInitialized);
+                Assert.AreEqual(1, numberOfInstancesInitialized);
             }
             finally
             {
@@ -208,8 +208,8 @@
                 },
             };
 
-            Assert.NotNull(TelemetryConfiguration.CreateDefault());
-            Assert.Null(modules);
+            Assert.IsNotNull(TelemetryConfiguration.CreateDefault());
+            Assert.IsNull(modules);
         }
 
         [TestMethod]
@@ -223,8 +223,8 @@
             try
             {
                 var defaultConfiguration = TelemetryConfiguration.CreateDefault();
-                Assert.NotNull(defaultConfiguration);
-                Assert.Same(defaultConfiguration, initializedConfiguration);
+                Assert.IsNotNull(defaultConfiguration);
+                Assert.AreSame(defaultConfiguration, initializedConfiguration);
             }
             finally
             {
@@ -239,7 +239,7 @@
         {
             var configuration = new TelemetryConfiguration();
 
-            Assert.False(configuration.DisableTelemetry);
+            Assert.IsFalse(configuration.DisableTelemetry);
         }
 
         #region InstrumentationKey
@@ -248,14 +248,14 @@
         public void InstrumentationKeyIsEmptyStringByDefaultToAvoidNullReferenceExceptionWhenAccessingPropertyValue()
         {
             var configuration = new TelemetryConfiguration();
-            Assert.Equal(0, configuration.InstrumentationKey.Length);
+            Assert.AreEqual(0, configuration.InstrumentationKey.Length);
         }
 
         [TestMethod]
         public void InstrumentationKeyThrowsArgumentNullExceptionWhenNewValueIsNullToAvoidNullReferenceExceptionWhenAccessingPropertyValue()
         {
             var configuration = new TelemetryConfiguration();
-            Xunit.Assert.Throws<ArgumentNullException>(() => configuration.InstrumentationKey = null);
+            AssertEx.Throws<ArgumentNullException>(() => configuration.InstrumentationKey = null);
         }
 
         [TestMethod]
@@ -263,7 +263,7 @@
         {
             var configuration = new TelemetryConfiguration();
             configuration.InstrumentationKey = "99C6A712-B2B5-46E3-97F4-F83F69999324";
-            Assert.Equal("99C6A712-B2B5-46E3-97F4-F83F69999324", configuration.InstrumentationKey);
+            Assert.AreEqual("99C6A712-B2B5-46E3-97F4-F83F69999324", configuration.InstrumentationKey);
         }
 
         #endregion
@@ -274,14 +274,14 @@
         public void TelemetryInitializersReturnsAnEmptyListByDefaultToAvoidNullReferenceExceptionsInUserCode()
         {
             var configuration = new TelemetryConfiguration();
-            Assert.Equal(0, configuration.TelemetryInitializers.Count);
+            Assert.AreEqual(0, configuration.TelemetryInitializers.Count);
         }
 
         [TestMethod]
         public void TelemetryInitializersReturnsThreadSafeList()
         {
             var configuration = new TelemetryConfiguration();
-            Assert.Equal(typeof(SnapshottingList<ITelemetryInitializer>), configuration.TelemetryInitializers.GetType());
+            Assert.AreEqual(typeof(SnapshottingList<ITelemetryInitializer>), configuration.TelemetryInitializers.GetType());
         }
 
         #endregion
@@ -296,7 +296,7 @@
             var customChannel = new StubTelemetryChannel();
             configuration.TelemetryChannel = customChannel;
 
-            Assert.Same(customChannel, configuration.TelemetryChannel);
+            Assert.AreSame(customChannel, configuration.TelemetryChannel);
         }
 
         [TestMethod]
@@ -308,10 +308,10 @@
             var c2 = new StubTelemetryChannel();
 
             configuration.TelemetryChannel = c1;
-            Assert.Same(c1, configuration.TelemetryChannel);
+            Assert.AreSame(c1, configuration.TelemetryChannel);
 
             configuration.DefaultTelemetrySink.TelemetryChannel = c2;
-            Assert.Same(c2, configuration.TelemetryChannel);
+            Assert.AreSame(c2, configuration.TelemetryChannel);
         }
 
         #endregion
@@ -324,7 +324,7 @@
             var configuration = new TelemetryConfiguration();
             var tp = configuration.DefaultTelemetrySink.TelemetryProcessorChain;
 
-            Assert.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
+            AssertEx.IsType<TransmissionProcessor>(tp.FirstTelemetryProcessor);
         }
 
         [TestMethod]
@@ -332,7 +332,7 @@
         {
             var configuration = new TelemetryConfiguration();
             
-            Assert.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
+            AssertEx.IsType<ReadOnlyCollection<ITelemetryProcessor>>(configuration.TelemetryProcessors);
         }
 
         #endregion
@@ -343,14 +343,14 @@
         public void MetricProcessorsReturnsAnEmptyListByDefaultToAvoidNullReferenceExceptionsInUserCode()
         {		
             var configuration = new TelemetryConfiguration();		
-            Assert.Equal(0, configuration.MetricProcessors.Count);		
+            Assert.AreEqual(0, configuration.MetricProcessors.Count);		
         }		
 		
         [TestMethod]		
         public void MetricPrcessorsReturnsThreadSafeList()
         {		
             var configuration = new TelemetryConfiguration();		
-            Assert.Equal(typeof(SnapshottingList<IMetricProcessor>), configuration.MetricProcessors.GetType());		
+            Assert.AreEqual(typeof(SnapshottingList<IMetricProcessor>), configuration.MetricProcessors.GetType());		
         }		
 		
         #endregion
@@ -359,7 +359,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsNull()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
              {
                  TelemetryConfiguration.CreateFromConfiguration(null);
              });
@@ -368,7 +368,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsEmpty()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
             {
                 TelemetryConfiguration.CreateFromConfiguration(String.Empty);
             });
@@ -377,7 +377,7 @@
         [TestMethod]
         public void TelemetryConfigThrowsIfSerializedConfigIsWhitespace()
         {
-            Assert.Throws(typeof(ArgumentNullException), () =>
+            AssertEx.Throws<ArgumentNullException>(() =>
             {
                 TelemetryConfiguration.CreateFromConfiguration(" ");
             });

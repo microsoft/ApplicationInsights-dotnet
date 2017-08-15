@@ -4,7 +4,8 @@
     using System.Threading.Tasks;
     using System.Web.Hosting;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = Xunit.Assert;
+    using Microsoft.ApplicationInsights.TestFramework;
+
 
 #if !NET40
     using TaskEx = System.Threading.Tasks.Task;
@@ -22,25 +23,25 @@
         [TestMethod]
         public void ClassIsInternalAndNotMeantForUseByCustomers()
         {
-            Assert.False(typeof(WebApplicationLifecycle).IsPublic);
+            Assert.IsFalse(typeof(WebApplicationLifecycle).IsPublic);
         }
 
         [TestMethod]
         public void ClassImplementsIApplicationLifecycleInterfaceToGetConsumedByCore()
         {
-            Assert.True(typeof(IApplicationLifecycle).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IApplicationLifecycle).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
         public void ClassImplementsIRegisteredObjectInterfaceToGetConsumedByWebHostingEnvironment()
         {
-            Assert.True(typeof(IRegisteredObject).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IRegisteredObject).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
         public void ClassImplementsIDisposableInterfaceToUnhookInstanceFromStaticEnvironment()
         {
-            Assert.True(typeof(IDisposable).IsAssignableFrom(typeof(WebApplicationLifecycle)));
+            Assert.IsTrue(typeof(IDisposable).IsAssignableFrom(typeof(WebApplicationLifecycle)));
         }
 
         [TestMethod]
@@ -49,7 +50,7 @@
             IRegisteredObject registeredObject = null;
             StubHostingEnvironment.OnRegisterObject = obj => registeredObject = obj;
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
-            Assert.Same(service, registeredObject);
+            Assert.AreSame(service, registeredObject);
         }
 
         [TestMethod]
@@ -59,7 +60,7 @@
             StubHostingEnvironment.OnUnregisterObject = obj => unregisteredObject = obj;
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
             service.Dispose();
-            Assert.Same(service, unregisteredObject);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         [TestMethod]
@@ -77,8 +78,8 @@
 
             service.Stop(false);
 
-            Assert.NotNull(stoppingSender);
-            Assert.NotNull(stoppingArgs);
+            Assert.IsNotNull(stoppingSender);
+            Assert.IsNotNull(stoppingArgs);
         }
 
         [TestMethod]
@@ -95,7 +96,7 @@
                 exception = ex;
             }
 
-            Assert.Null(exception);
+            Assert.IsNull(exception);
         }
 
         [TestMethod]
@@ -114,7 +115,7 @@
 
             service.Stop(false);
 
-            Assert.IsType<CurrentThreadTaskScheduler>(stoppingTaskScheduler);
+            AssertEx.IsType<CurrentThreadTaskScheduler>(stoppingTaskScheduler);
         }
 
         [TestMethod]
@@ -127,7 +128,7 @@
 
             service.Stop(true);
 
-            Assert.False(eventFired);
+            Assert.IsFalse(eventFired);
         }
 
         [TestMethod]
@@ -148,8 +149,8 @@
 
             service.Stop(false);
 
-            Assert.Null(objectUnregisteredWhileRunningAsyncMethods);
-            Assert.Same(service, unregisteredObject);
+            Assert.IsNull(objectUnregisteredWhileRunningAsyncMethods);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         [TestMethod]
@@ -161,7 +162,7 @@
             var service = new TestableWebApplicationLifecycle(typeof(StubHostingEnvironment));
             service.Stop(true);
 
-            Assert.Same(service, unregisteredObject);
+            Assert.AreSame(service, unregisteredObject);
         }
 
         private static class StubHostingEnvironment
