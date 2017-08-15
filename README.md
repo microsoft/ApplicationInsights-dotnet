@@ -59,6 +59,16 @@ This library makes use of the InMemoryChannel to send telemetry data. This is a 
 
 Read about [how to use the API and see the results in the portal][api-overview].
 
+## SDK layering
+
+| SDK                											| Extensibility                                 |
+|---------------------------------------------------------------|-----------------------------------------------|
+| ![collection](docs/images/pipeline-01-collection.png) 		| pick [modules](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-modules-aspnet) <br> manually instrument code |
+| ![public-api](docs/images/pipeline-02-public-api.png) 		| track [custom operations](https://docs.microsoft.com/azure/application-insights/application-insights-custom-operations-tracking) <br> and other [telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics) |
+| ![initialization](docs/images/pipeline-03-initialization.png) | pick telemetry initializers <br> create your own [initializer](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#add-properties-itelemetryinitializer) |
+| ![pipeline](docs/images/pipeline-04-pipeline.png) 			| build pipeline: <br> configure [sampling](https://docs.microsoft.com/azure/application-insights/app-insights-sampling) <br> [filter telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#filtering-itelemetryprocessor)     				|
+| ![sink](docs/images/pipeline-05-sink.png) 					| use built in channel <br> [Server channel](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/) for reliable delivery <br> use [EventFlow](https://github.com/Azure/diagnostics-eventflow) to upload telemetry to ElasticSearch and more |
+
 ## Branches
 
 - [master][master] contains the *latest* published release located on [NuGet][NuGetCore].
