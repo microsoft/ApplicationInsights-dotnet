@@ -61,13 +61,19 @@ Read about [how to use the API and see the results in the portal][api-overview].
 
 ## SDK layering
 
-| SDK                											| Extensibility                                 |
+This repository builds two packages - `Microsoft.ApplicationInsights` and `Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel`. These packages define Public API, reliable channel to Application Insights backend and [data reduction code](https://msdn.microsoft.com/magazine/mt808502) like metrics pre-aggregation and sampling. Data collection, enrichment and filtering implemented as extensions for SDK.
+
+Here is the layering and extensibility points of Application Insights SDK.
+
+| Layer                											| Description/Extensibility   					|
 |---------------------------------------------------------------|-----------------------------------------------|
-| ![collection](docs/images/pipeline-01-collection.png) 		| pick [modules](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-modules-aspnet) <br> manually instrument code |
-| ![public-api](docs/images/pipeline-02-public-api.png) 		| track [custom operations](https://docs.microsoft.com/azure/application-insights/application-insights-custom-operations-tracking) <br> and other [telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics) |
-| ![initialization](docs/images/pipeline-03-initialization.png) | pick telemetry initializers <br> create your own [initializer](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#add-properties-itelemetryinitializer) |
-| ![pipeline](docs/images/pipeline-04-pipeline.png) 			| build pipeline: <br> configure [sampling](https://docs.microsoft.com/azure/application-insights/app-insights-sampling) <br> [filter telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#filtering-itelemetryprocessor)     				|
-| ![sink](docs/images/pipeline-05-sink.png) 					| use built in channel <br> [Server channel](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/) for reliable delivery <br> use [EventFlow](https://github.com/Azure/diagnostics-eventflow) to upload telemetry to ElasticSearch and more |
+| ![collection](docs/images/pipeline-01-collection.png) 		| Various telemetry modules - officially supported and community created - convert events exposed by platform like ASP.NET into Application Insights data model. <br> Pick one of existing [modules](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-modules-aspnet) <br> Manually instrument code |
+| ![public-api](docs/images/pipeline-02-public-api.png) 		| Track [custom operations](https://docs.microsoft.com/azure/application-insights/application-insights-custom-operations-tracking) and other [telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics) |
+| ![initialization](docs/images/pipeline-03-initialization.png) | Set of telemetry initializers called synchrnonously for every telemetry item. So extra properties can be added to the item. <br> Pick [telemetry initializers](https://docs.microsoft.com/azure/application-insights/app-insights-configuration-with-applicationinsights-config#telemetry-initializers-aspnet) or create your own [initializer](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#add-properties-itelemetryinitializer) |
+| ![pipeline](docs/images/pipeline-04-pipeline.png) 			| By this time item is fully initialized. Build pipeline to aggregate or filter telemetry. <br> Configure [sampling](https://docs.microsoft.com/azure/application-insights/app-insights-sampling) or create telemetry processor to [filter telemetry](https://docs.microsoft.com/azure/application-insights/app-insights-api-filtering-sampling#filtering-itelemetryprocessor) |
+| ![sink](docs/images/pipeline-05-sink.png) 					| Set of telemetry sinks to upload data in various backens. <br> For the default sink: <br> Use built-in channel or <br> use [server channel](https://www.nuget.org/packages/Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel/) for reliable delivery. <br> Configure [EventFlow](https://github.com/Azure/diagnostics-eventflow) to upload telemetry to ElasticSearch and more |
+
+
 
 ## Branches
 
