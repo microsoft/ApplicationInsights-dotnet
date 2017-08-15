@@ -4,9 +4,14 @@
   <ItemGroup>
     <Solution Include="Src\Microsoft.ApplicationInsights.Web.sln" />
     <Solution Include="Test\DependencyCollector\FunctionalTests.sln" />
-    <Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
-    <Solution Include="Test\Web\FunctionalTests.sln" />
+    <!--<Solution Include="Test\PerformanceCollector\FunctionalTests.sln" />
+    <Solution Include="Test\Web\FunctionalTests.sln" /> -->
   </ItemGroup>
+  
+  <PropertyGroup>
+  <BinRoot>D:\repos\ApplicationInsights-dotnet-server\bin</BinRoot>
+  </PropertyGroup>
+  
   <Target Name="Build">
     <Exec Command='IF EXIST "%(Solution.FullPath)" nuget.exe restore "%(Solution.FullPath)" -NonInteractive' 
           ContinueOnError="ErrorAndStop"/>
@@ -14,6 +19,7 @@
     <MSBuild Projects="@(Solution)" ContinueOnError="ErrorAndStop" Properties="PreReleaseVersion=$(PreReleaseVersion)"/> 
     
     <Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\AspxCore.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore\netcoreapp1.0\publish /property:DoNotSign=true" />
+	<Exec Command="dotnet publish Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\AspxCore20.csproj -c $(Configuration) -o $(BinRoot)\$(Configuration)\Test\DependencyCollector\FunctionalTests\TestApps\AspxCore20\netcoreapp2.0\publish /property:DoNotSign=true" />
 
   </Target>
   <Target Name="Clean">
