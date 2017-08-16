@@ -193,7 +193,7 @@
             {
                 var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 Trace.WriteLine("ERROR! Backend Response: " + response);
-                this.FailureDetected = true;
+                //this.FailureDetected = true;
             }
             else
             {
