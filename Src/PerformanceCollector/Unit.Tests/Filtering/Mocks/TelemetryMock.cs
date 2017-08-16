@@ -53,7 +53,12 @@
         {
             throw new NotImplementedException();
         }
-        
+
+        public ITelemetry DeepClone()
+        {
+            return this;
+        }
+
         public class TelemetryContextMock
         {
             public OperationContextMock Operation { get; set; }
