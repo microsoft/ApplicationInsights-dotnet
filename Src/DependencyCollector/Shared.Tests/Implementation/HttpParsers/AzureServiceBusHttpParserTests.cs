@@ -1,8 +1,10 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
     using System;
     using System.Collections.Generic;
     using DataContracts;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation;
+    using Microsoft.ApplicationInsights.DependencyCollector.Implementation.HttpParsers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
