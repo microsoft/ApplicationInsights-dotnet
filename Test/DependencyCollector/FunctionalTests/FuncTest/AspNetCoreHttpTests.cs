@@ -53,8 +53,7 @@
 
         [TestCleanup]
         public void MyTestCleanup()
-        {
-            Assert.IsFalse(DeploymentAndValidationTools.SdkEventListener.FailureDetected, "Failure is detected. Please read test output logs.");
+        {            
             DeploymentAndValidationTools.SdkEventListener.Stop();
         }               
 
