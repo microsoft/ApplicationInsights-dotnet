@@ -38,7 +38,15 @@
                     IKey = "fafa4b10-03d3-4bb0-98f4-364f0bdf5df8",
                 });
 
-            base.LaunchAndVerifyApplication();
+            try
+            {
+                base.LaunchAndVerifyApplication();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Exception occured while verifying application, exception:" + ex.Message);
+                this.StopWebAppHost();
+            }
         }
 
         [TestCleanup]
