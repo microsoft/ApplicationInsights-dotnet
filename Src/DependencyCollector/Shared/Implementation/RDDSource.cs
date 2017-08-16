@@ -6,5 +6,6 @@
         internal static string Framework = "f";
         internal static string DiagnosticSourceDesktop = "dsd";
         internal static string DiagnosticSourceCore = "dsc";
+        internal static string DiagnosticSourceExtensibility = "dse";
     }
 }

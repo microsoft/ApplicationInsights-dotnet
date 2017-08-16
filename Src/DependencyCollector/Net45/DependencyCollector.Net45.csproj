@@ -58,6 +58,9 @@
     <Compile Include="..\Shared\Implementation\PropertyFetcher.cs">
       <Link>PropertyFetcher.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\Implementation\DependencyDiagnosticSourceListener.cs">
+      <Link>DependencyDiagnosticSourceListener.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TestFramework\Net45\TestFramework.Net45.csproj">
