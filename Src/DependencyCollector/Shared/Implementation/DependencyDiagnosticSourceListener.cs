@@ -53,7 +53,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
         public void OnNext(KeyValuePair<string, object> evnt)
         {
-            if (evnt.Key.EndsWith(ActivityStopNameSuffix))
+            if (evnt.Key.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 this.OnActivityStop(evnt.Value);
             }
@@ -256,9 +256,11 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 if (value != null)
                 {
-                    if (value.Name.EndsWith(ActivityNameSuffix))
+                    if (value.Name.EndsWith(ActivityNameSuffix, StringComparison.OrdinalIgnoreCase))
                     {
-                        IDisposable eventSubscription = value.Subscribe(this.rddDiagnosticListener, (evnt, r, _) => evnt.EndsWith(ActivityStopNameSuffix));
+                        IDisposable eventSubscription = value.Subscribe(
+                            this.rddDiagnosticListener, 
+                            (evnt, r, _) => evnt.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase));
 
                         if (this.eventSubscriptions == null)
                         {
