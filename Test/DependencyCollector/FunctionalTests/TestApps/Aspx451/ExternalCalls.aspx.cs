@@ -1,8 +1,15 @@
-﻿namespace Aspx451
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ExternalCalls.aspx.cs" company="Microsoft Corporation">
+//   Copyright (c) Microsoft Corporation.  All rights reserved
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Aspx451
 {
     using System;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Runtime.InteropServices;
     using FW40Shared;
@@ -30,8 +37,9 @@
         private const string InvalidAccountConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=RDDTestDatabase;User ID = AiUser;Password=Some";        
 
         /// <summary>
-        /// Valid SQL Query. The wait for delay of 6msec is used to prevent access time of less than 1msec. SQL is not accurate below 3, so used 6 msec delay.
+        /// Valid SQL Query. The wait for delay of 6 ms is used to prevent access time of less than 1 ms. SQL is not accurate below 3, so used 6 ms delay.
         /// </summary> 
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed.")]
         private const string ValidSqlQueryToApmDatabase = "WAITFOR DELAY '00:00:00:006'; select * from dbo.Messages";
 
         /// <summary>
@@ -229,6 +237,12 @@
             }
         }
 
+        /// <summary>
+        /// Returns connection string.
+        /// </summary>        
+        /// <param name="success">Success flag.</param>        
+        /// <param name="exceptionType">Exception type.</param>        
+        /// <returns>Connection string.</returns>
         private string GetConnectionString(bool success, string exceptionType)
         {
             string result = ConnectionString;
@@ -260,6 +274,9 @@
             }
         }
 
+        /// <summary>
+        /// Executes reader stored procedure.
+        /// </summary>        
         private void ExecuteReaderStoredProcedureAsync()
         {
             var storedProcedureName = this.Request.QueryString["storedProcedureName"];
