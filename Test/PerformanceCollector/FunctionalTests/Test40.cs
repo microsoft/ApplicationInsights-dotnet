@@ -7,6 +7,7 @@
     using Functional.IisExpress;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using PerfCounterCollector.FunctionalTests;
+    using System;
 
     [TestClass]
     public class Test40 : SingleWebHostTestBase
