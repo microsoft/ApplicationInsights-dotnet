@@ -3,6 +3,7 @@
 ## Version 2.2.0-beta1
 
 - Project is upgraded to work with Visual Studio 2017. Also projects are modified to use csproj instead of project.json.
+- Adaptive sampling enabled for both - full framework and .NET Core applications.
 
 ## Version 2.1.1
 
