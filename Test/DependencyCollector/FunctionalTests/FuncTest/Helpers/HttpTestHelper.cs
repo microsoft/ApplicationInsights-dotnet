@@ -12,7 +12,7 @@ namespace FuncTest.Helpers
         /// <summary>
         /// Resource Name for bing.
         /// </summary>
-        private static Uri ResourceNameHttpToBing = new Uri("http://www.bing.com");
+        private static Uri ResourceNameHttpToBing = new Uri("https://www.bing.com");
 
         /// <summary>
         /// Resource Name for failed request.
