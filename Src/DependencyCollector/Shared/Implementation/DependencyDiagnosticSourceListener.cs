@@ -11,8 +11,9 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
 
     internal class DependencyDiagnosticSourceListener : IObserver<KeyValuePair<string, object>>, IDisposable
     {
+        private const string DataSourceNameSuffix = ".Monitoring";
         private const string ActivityNameSuffix = ".OutboundCall";
-        private const string ActivityStopNameSuffix = ".OutboundCall.Stop";
+        private const string ActivityStopNameSuffix = ActivityNameSuffix + ".Stop";
 
         private readonly TelemetryClient client;
         private readonly TelemetryConfiguration configuration;
@@ -102,7 +103,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             this.client.Initialize(telemetry);
 
             // get the Uri from event payload
-            object uriObject = this.dependencyCallRequestUriFetcher.Fetch(payload);
+            object uriObject = payload != null ? this.dependencyCallRequestUriFetcher.Fetch(payload) : null;
             Uri requestUri = uriObject as Uri;
             if (requestUri == null)
             {
@@ -256,11 +257,12 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
             {
                 if (value != null)
                 {
-                    if (value.Name.EndsWith(ActivityNameSuffix, StringComparison.OrdinalIgnoreCase))
+                    if (value.Name.EndsWith(DataSourceNameSuffix, StringComparison.OrdinalIgnoreCase))
                     {
                         IDisposable eventSubscription = value.Subscribe(
-                            this.rddDiagnosticListener, 
-                            (evnt, r, _) => evnt.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase));
+                            this.rddDiagnosticListener,
+                            (evnt, r, _) => evnt.EndsWith(ActivityNameSuffix, StringComparison.OrdinalIgnoreCase)
+                                || evnt.EndsWith(ActivityStopNameSuffix, StringComparison.OrdinalIgnoreCase));
 
                         if (this.eventSubscriptions == null)
                         {
