@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a78f50d4-f518-4dcb-878b-526fd54cca35</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\IPerformanceCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCollectorEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterStructure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\PerformanceCounterUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\Clock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\IQuickPulseModuleScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\IQuickPulseModuleSchedulerHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCollectionTimeSlotManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseCounter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseDefaults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseQuotaTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseTaskModuleScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseThreadState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Helpers\QuickPulseTimings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseDataAccumulatorManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\IQuickPulseServiceClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\IQuickPulsePerfLib.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\IQuickPulseProcessProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\IQuickPulseTopCpuCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\CategorySample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\CounterDefinitionSample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\PerfLib\PerfLib.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseProcess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Process\QuickPulseProcessProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseCollectionStateManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulator.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataAccumulatorManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseDataSample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\QuickPulseEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MetricPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\MonitoringDataPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\ProcessCpuData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\DependencyTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\EventTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\ExceptionTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\ITelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\RequestTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TelemetryDocumentType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implementation\QuickPulse\Service contract\TelemetryDocument\TraceTelemetryDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IQuickPulseTelemetryProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryModule.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)QuickPulseTelemetryProcessor.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -14,19 +14,12 @@
     using FunctionalTests.Helpers;
 
     public class TelemetryHttpListenerObservable : HttpListenerObservableBase<Envelope>
-    {
-        private int validatedPackages;
+    {        
         public bool FailureDetected { get; set; }
 
         public TelemetryHttpListenerObservable(string url) : base(url)
         {
-        }
-
-        protected override void OnStart()
-        {
-            validatedPackages = 0;
-            FailureDetected = false;
-        }
+        }        
 
         protected override IEnumerable<Envelope> CreateNewItemsFromContext(HttpListenerContext context)
         {
@@ -44,19 +37,7 @@
 
                 Trace.WriteLine("=>");
                 Trace.WriteLine("Item received: " + content);
-                Trace.WriteLine("<=");
-
-                // Validating each package takes too much time, check only first one that have dependency data
-                if (this.validatedPackages == 0 && (content.Contains("Request") || content.Contains("Exception")))
-                {
-                    try
-                    {
-                        this.ValidateItems(content);
-                        ++this.validatedPackages;
-                    }
-                    catch (TaskCanceledException)
-                    { }
-                }
+                Trace.WriteLine("<=");                
 
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }
@@ -94,25 +75,6 @@
                     return Encoding.UTF8.GetString(outputStream.ToArray());
                 }
             }
-        }
-
-        private void ValidateItems(string items)
-        {
-            HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-            var result = client.PostAsync(
-                "https://dc.services.visualstudio.com/v2/validate",
-                new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
-
-            if (result.StatusCode != HttpStatusCode.OK)
-            {
-                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                Trace.WriteLine("ERROR! Backend Response: " + response);
-                this.FailureDetected = true;
-            }
-            else
-            {
-                Trace.WriteLine("Check agains 'Validate' endpoint is done.");
-            }
-        }
+        }        
     }
 }

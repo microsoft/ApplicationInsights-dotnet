@@ -1,5 +1,6 @@
-﻿namespace Microsoft.ApplicationInsights.DependencyCollector
+﻿namespace Microsoft.ApplicationInsights.Tests
 {
+    using Microsoft.ApplicationInsights.DependencyCollector;
     using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
