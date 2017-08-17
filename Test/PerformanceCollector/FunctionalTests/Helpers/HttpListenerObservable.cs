@@ -18,21 +18,16 @@
     public class HttpListenerObservable : IObservable<Envelope>, IDisposable
     {
         private readonly HttpListener listener;
-        private IObservable<Envelope> stream;
-        private int validatedPackages;
+        private IObservable<Envelope> stream;        
 
         public HttpListenerObservable(string url)
         {
             this.listener = new HttpListener();
             this.listener.Prefixes.Add(url);
-        }
-
-        public bool FailureDetected { get; set; }
+        }        
 
         public void Start()
-        {
-            this.FailureDetected = false;
-            this.validatedPackages = 0;
+        {            
 
             if (this.stream != null)
             {
@@ -109,18 +104,6 @@
                 Trace.WriteLine("Item received: " + content);
                 Trace.WriteLine("<=");
 
-                // Validating each package takes too much time, check only first one that have dependency data
-                if (this.validatedPackages == 0 && (content.Contains("PerformanceCounter") || content.Contains("Metric")))
-                {
-                    try
-                    {
-                        this.ValidateItems(content);
-                        ++this.validatedPackages;
-                    }
-                    catch (TaskCanceledException)
-                    { }
-                }
-
                 return TelemetryItemFactory.GetTelemetryItems(content);
             }
             finally
@@ -158,24 +141,6 @@
                 }
             }
         }
-
-        private void ValidateItems(string items)
-        {
-            HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-            var result = client.PostAsync(
-                "https://dc.services.visualstudio.com/v2/validate",
-                new ByteArrayContent(Encoding.UTF8.GetBytes(items))).GetAwaiter().GetResult();
-
-            if (result.StatusCode != HttpStatusCode.OK)
-            {
-                var response = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                Trace.WriteLine("ERROR! Backend Response: " + response);
-                this.FailureDetected = true;
-            }
-            else
-            {
-                Trace.WriteLine("Check against 'Validate' endpoint is done.");
-            }
-        }
+       
     }
 }
