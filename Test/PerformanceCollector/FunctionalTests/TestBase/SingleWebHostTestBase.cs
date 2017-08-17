@@ -95,7 +95,7 @@ namespace Functional.Helpers
             this.Server.Stop();
             this.HttpClient.Dispose();
 
-            if (treatTraceErrorsAsFailures && this.EtwSession.FailureDetected || this.Listener.FailureDetected)
+            if (treatTraceErrorsAsFailures && this.EtwSession.FailureDetected)
             {
                 Assert.Fail("Read test output. There are errors found in application trace.");
             }
