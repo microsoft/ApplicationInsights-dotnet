@@ -80,8 +80,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 return;
             }
 
-            // TODO define dedicated log event
-            DependencyCollectorEventSource.Log.HttpCoreDiagnosticSourceListenerStop(currentActivity.Id);
+            DependencyCollectorEventSource.Log.DependencyDiagnosticSourceListenerActivityStopped(currentActivity.Id, currentActivity.OperationName);
 
             DependencyTelemetry telemetry = new DependencyTelemetry();
 
@@ -238,8 +237,7 @@ namespace Microsoft.ApplicationInsights.DependencyCollector.Implementation
                 }
                 catch (Exception ex)
                 {
-                    // TODO define dedicated log event
-                    DependencyCollectorEventSource.Log.HttpCoreDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
+                    DependencyCollectorEventSource.Log.DependencyDiagnosticSubscriberFailedToSubscribe(ex.ToInvariantString());
                 }
             }
 
