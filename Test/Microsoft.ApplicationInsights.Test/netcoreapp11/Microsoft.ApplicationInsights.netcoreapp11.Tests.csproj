@@ -10,6 +10,8 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <TargetFrameworks>netcoreapp1.1</TargetFrameworks>
+    <DebugType>pdbonly</DebugType> 
+    <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,7 +42,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="Shared" />
+  <Import Project="..\..\TestFramework\Shared\TestFramework.Shared.projitems" Label="TestFramework.Shared" />
   <Import Project="..\Shared\Microsoft.ApplicationInsights.Shared.Tests.projitems" Label="Shared" />
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Common.targets'))\Common.targets" />

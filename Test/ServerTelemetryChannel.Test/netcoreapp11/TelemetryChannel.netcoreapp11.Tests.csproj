@@ -11,6 +11,8 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <TargetFrameworks>netcoreapp1.1</TargetFrameworks>
     <AssemblyName>Microsoft.ApplicationInsights.TelemetryChannel.Net45.Tests</AssemblyName>
+    <DebugType>pdbonly</DebugType> 
+    <DebugSymbols>true</DebugSymbols> 
   </PropertyGroup>
 
   <ItemGroup>

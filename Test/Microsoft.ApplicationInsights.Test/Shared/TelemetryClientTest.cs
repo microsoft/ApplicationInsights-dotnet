@@ -1010,8 +1010,8 @@
                 telemetry11
             };
 
-            // ChuckNorrisTeamUnitTests resource in Prototypes5
-            var config = new TelemetryConfiguration("fafa4b10-03d3-4bb0-98f4-364f0bdf5df8");
+            // ChuckNorrisTeamUnitTests resource in Prototypes1
+            var config = new TelemetryConfiguration("687218b9-2250-4eaa-8946-2dd5cc35eff8");
             var telemetryClient = new TelemetryClient(config);
             telemetryClient.Context.Properties.Add(unicodeString, unicodeString);
             
