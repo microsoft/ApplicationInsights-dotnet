@@ -49,6 +49,9 @@
             {
                 Trace.WriteLine("Exception occured while verifying application, exception:" + ex.Message);                
                 this.StopWebAppHost();
+                
+                // Throwing to prevent tests from continuing to execute.
+                throw ex;
             }
         }
 
