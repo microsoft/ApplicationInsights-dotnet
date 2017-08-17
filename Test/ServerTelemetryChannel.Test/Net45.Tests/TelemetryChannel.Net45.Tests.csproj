@@ -29,10 +29,13 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+    <!--
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.11" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.11" />
+    -->
     <!-- 
     commented out due to the error: https://github.com/GregFinzer/Compare-Net-Objects/issues/52 
     Once uncommented - re-enable all DeepClone test cases
