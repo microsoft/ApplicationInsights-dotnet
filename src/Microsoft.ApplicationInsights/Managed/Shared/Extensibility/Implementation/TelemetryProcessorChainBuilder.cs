@@ -85,7 +85,7 @@
             }
             else
             {
-                linkedTelemetryProcessor = new TransmissionProcessor(this.telemetrySink.TelemetryChannel);
+                linkedTelemetryProcessor = new TransmissionProcessor(this.telemetrySink);
             }
 
             telemetryProcessorsList.Add(linkedTelemetryProcessor);

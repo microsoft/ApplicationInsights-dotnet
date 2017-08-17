@@ -11,21 +11,21 @@
     /// </summary>
     internal class TransmissionProcessor : ITelemetryProcessor
     {        
-        private readonly ITelemetryChannel channel;
+        private readonly TelemetrySink sink;
         private readonly IDebugOutput debugOutput;     
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransmissionProcessor"/> class.
         /// </summary>        
-        /// <param name="channel">The <see cref="ITelemetryChannel"/> to use for sending telemetry.</param>
-        internal TransmissionProcessor(ITelemetryChannel channel)
+        /// <param name="sink">The <see cref="TelemetrySink"/> holding to the telemetry channel to use for sending telemetry.</param>
+        internal TransmissionProcessor(TelemetrySink sink)
         {
-            if (channel == null)
+            if (sink == null)
             {
-                throw new ArgumentNullException(nameof(channel));
+                throw new ArgumentNullException(nameof(sink));
             }
 
-            this.channel = channel;
+            this.sink = sink;
             this.debugOutput = PlatformSingleton.Current.GetDebugOutput();
         }
 
@@ -36,7 +36,7 @@
         {
             TelemetryDebugWriter.WriteTelemetry(item);
 
-            this.channel.Send(item);
+            this.sink.TelemetryChannel.Send(item);
         }
     }
 }
