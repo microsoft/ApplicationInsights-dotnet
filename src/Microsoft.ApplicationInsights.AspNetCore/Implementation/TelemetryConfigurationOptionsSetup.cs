@@ -59,7 +59,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.TelemetryProcessorChainBuilder.Build();
             }
 
-            this.AddTelemetryChannelAndProcessorsForFullFramework(configuration);
+            this.AddTelemetryChannelAndProcessors(configuration);
+            (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
+
+            configuration.TelemetryProcessorChainBuilder.Build();
+
 
             configuration.TelemetryChannel = this.telemetryChannel ?? configuration.TelemetryChannel;
 
@@ -91,15 +95,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     module.Initialize(configuration);
                 }
             }
-
-            (configuration.TelemetryChannel as ITelemetryModule)?.Initialize(configuration);
-
-            configuration.TelemetryProcessorChainBuilder.Build();
         }
 
-        private void AddTelemetryChannelAndProcessorsForFullFramework(TelemetryConfiguration configuration)
+        private void AddTelemetryChannelAndProcessors(TelemetryConfiguration configuration)
         {
 #if NET451 || NET46
+            configuration.TelemetryChannel = this.telemetryChannel ?? new ServerTelemetryChannel();
+
             if (configuration.TelemetryChannel is ServerTelemetryChannel)
             {
                 // Enabling Quick Pulse Metric Stream
