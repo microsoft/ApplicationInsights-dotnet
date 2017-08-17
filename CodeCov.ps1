@@ -14,7 +14,7 @@ foreach ($assembly in $assemblies)
         "-targetargs:$assembly /logger:trx" `
         "-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
         -hideskipped:All `
-        -output:.\coverage.xml
+        -output:.\coverage.xml `
         -mergeoutput
 }
 
