@@ -39,6 +39,7 @@
     <RepositoryUrl>https://github.com/Microsoft/ApplicationInsights-dotnet</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageType>Dependency</PackageType>
+    <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
 
   <ItemGroup>
