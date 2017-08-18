@@ -4,6 +4,7 @@
     using FunctionalTestUtils;
     using Microsoft.ApplicationInsights.DataContracts;
     using Xunit;
+    using Microsoft.ApplicationInsights.Extensibility;
 
     public class ExceptionTelemetryWebApiTests : TelemetryTestsBase
     {
