@@ -124,6 +124,32 @@
         }
 
         [TestMethod]
+        public void ReplacingTelemetryChannelOnConfiguraitonReplacesItForDefaultSink()
+        {
+            var configuration = new TelemetryConfiguration();
+
+            var firstSentTelemetry = new List<ITelemetry>(1);
+            var firstChannel = new StubTelemetryChannel();
+            firstChannel.OnSend = (telemetry) => firstSentTelemetry.Add(telemetry);
+            configuration.TelemetryChannel = firstChannel;
+
+            var client = new TelemetryClient(configuration);
+            client.TrackTrace("t1");
+
+            Assert.AreEqual(1, firstSentTelemetry.Count);
+
+            var secondSentTelemetry = new List<ITelemetry>(1);
+            var secondChannel = new StubTelemetryChannel();
+            secondChannel.OnSend = (telemetry) => secondSentTelemetry.Add(telemetry);
+            configuration.TelemetryChannel = secondChannel;
+
+            client.TrackTrace("t1");
+
+            Assert.AreEqual(1, firstSentTelemetry.Count);
+            Assert.AreEqual(1, secondSentTelemetry.Count);
+        }
+
+        [TestMethod]
         public void TelemetryIsDeliveredToMultipleSinks()
         {
             var configuration = new TelemetryConfiguration();

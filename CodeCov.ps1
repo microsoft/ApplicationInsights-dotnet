@@ -1,35 +1,40 @@
 #Run code coverage tests to generate report
 .\nuget.exe install "OpenCover" -Version "4.6.519"
-$assemblies = "";
 
-get-childitem "..\bin\Release" -Filter *Tests.dll -recurse | foreach-object { $assemblies += $_.FullName + " " }
+$assemblies = get-childitem "..\bin\Release" -Filter *Tests.dll -Exclude *netcoreapp11.Tests.dll -recurse | foreach-object { $_.FullName }
 
-echo $assemblies
+foreach ($assembly in $assemblies)
+{
+    Write-Host "==========================================="
+    Write-Host "Running tests for $assembly"
+    Write-Host "==========================================="
+    ..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
+        -register:user `
+        "-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" `
+        "-targetargs:$assembly /logger:trx" `
+        "-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
+        -hideskipped:All `
+        -output:.\coverage.xml `
+        -mergeoutput
+}
 
+$netcoreassemblies = get-childitem "..\bin\Release" -Filter *netcoreapp11.Tests.dll -recurse | foreach-object { $_.FullName }
 
-..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
-	-register:user `
-	"-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" `
-	"-targetargs:$assemblies /logger:trx" `
-	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
-	-hideskipped:All `
-	-output:.\coverage.xml
-
-$netcoreassemblies = "";
-
-get-childitem "..\bin\Release" -Filter *netcoreapp11.Tests.dll -recurse | foreach-object { $netcoreassemblies += $_.FullName + " " }
-
-echo $netcoreassemblies
-
-
-..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
-	-register:user `
-	"-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
-	"-targetargs:$netcoreassemblies /logger:trx /Framework:FrameworkCore10" `
-	"-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
-	-hideskipped:All `
-	-output:.\coverage.xml `
-	-mergeoutput
+foreach ($assembly in $netcoreassemblies)
+{
+    Write-Host "==========================================="
+    Write-Host "Running tests for $assembly"
+    Write-Host "==========================================="
+    # Net Core tests should be run by a different version of vstest.console.exe
+    ..\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe `
+        -register:user `
+        "-target:${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\Extensions\TestPlatform\vstest.console.exe" `
+        "-targetargs:$assembly /logger:trx /Framework:FrameworkCore10" `
+        "-filter:+[Microsoft.ApplicationInsights*]* +[Microsoft.AI*]* -[*Tests]* -[*TestFramework*]*" `
+        -hideskipped:All `
+        -output:.\coverage.xml `
+        -mergeoutput
+}
 
 #Download report uploader
 (New-Object System.Net.WebClient).DownloadFile("https://codecov.io/bash", ".\CodecovUploader.sh")
