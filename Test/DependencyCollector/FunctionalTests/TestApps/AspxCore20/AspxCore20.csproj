@@ -6,7 +6,7 @@
     <AssemblyName>AspxCore20</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>AspxCore</PackageId>
-    <RuntimeFrameworkVersion>2.0.0-preview2-006497</RuntimeFrameworkVersion>    
+    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>    
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <DoNotSign>true</DoNotSign>
