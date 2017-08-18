@@ -25,9 +25,8 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
     {
         private TelemetryClient client;
         private bool initialized; // Relying on the fact that default value in .NET Framework is false
-        // The following does not really need to be a ConcurrentQueue, but the ConcurrentQueue has a very convenient-to-use TryDequeue method.
         private ConcurrentQueue<EventSource> appDomainEventSources;
-        private List<EventSource> enabledEventSources;
+        private ConcurrentQueue<EventSource> enabledEventSources;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventSourceTelemetryModule"/> class.
@@ -35,7 +34,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
         public EventSourceTelemetryModule()
         {
             this.Sources = new List<EventSourceListeningRequest>();
-            this.enabledEventSources = new List<EventSource>();
+            this.enabledEventSources = new ConcurrentQueue<EventSource>();
         }
 
         /// <summary>
@@ -63,39 +62,30 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 return;
             }
 
-            // See OnEventSourceCreated() for the reason why we are locking on 'this' here.
-            lock (this)
+            try
             {
                 if (this.initialized)
                 {
                     // Source listening requests might have changed between initializations. Let's start from a clean slate
-                    foreach (EventSource eventSource in this.enabledEventSources)
+                    EventSource enabledEventSource = null;
+                    while (this.enabledEventSources.TryDequeue(out enabledEventSource))
                     {
-                        this.DisableEvents(eventSource);
-                    }
-                    this.enabledEventSources.Clear();
-                }
-
-                try
-                {
-                    if (this.appDomainEventSources != null)
-                    {
-                        EventSource eventSource;
-                        ConcurrentQueue<EventSource> futureIntializationSources = new ConcurrentQueue<EventSource>();
-
-                        while (this.appDomainEventSources.TryDequeue(out eventSource))
-                        {
-                            this.EnableAsNecessary(eventSource);
-                            futureIntializationSources.Enqueue(eventSource);
-                        }
-
-                        this.appDomainEventSources = futureIntializationSources;
+                        this.DisableEvents(enabledEventSource);
                     }
                 }
-                finally
+
+                if (this.appDomainEventSources != null)
                 {
-                    this.initialized = true;
+                    // Enumeration over concurrent queue is thread-safe.
+                    foreach (EventSource eventSourceToEnable in this.appDomainEventSources)
+                    {
+                        this.EnableAsNecessary(eventSourceToEnable);
+                    }
                 }
+            }
+            finally
+            {
+                this.initialized = true;
             }
         }
 
@@ -128,9 +118,6 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             // Locking on 'this' is generally a bad practice because someone from outside could put a lock on us, and this is outside of our control.
             // But in the case of this class it is an unlikely scenario, and because of the bug described above,
             // we cannot rely on construction to prepare a private lock object for us.
-
-            // Also note that we are using a queue to cover the case when EnableEvents() called from Initialize()
-            // may result in reentrant call into OnEventSourceCreated().
             lock (this)
             {
                 if (this.appDomainEventSources == null)
@@ -139,11 +126,16 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                 }
 
                 this.appDomainEventSources.Enqueue(eventSource);
+            }
 
-                if (this.initialized)
-                {
-                    this.EnableAsNecessary(eventSource);
-                }
+            // Do not call EnableAsNecessary() directly while processing OnEventSourceCreated() and holding the lock.
+            // Enabling an EventSource tries to take a lock on EventListener list.
+            // (part of EventSource implementation). If another EventSource is created on a different thread, 
+            // the same lock will be taken before the call to OnEventSourceCreated() comes in and deadlock may result.
+            // Reference: https://github.com/Microsoft/ApplicationInsights-dotnet-logging/issues/109
+            if (this.initialized)
+            {
+                this.EnableAsNecessary(eventSource);
             }
         }
 
@@ -157,7 +149,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
             if (eventSource.Guid == TplActivities.TplEventSourceGuid)
             {
                 this.EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)TplActivities.TaskFlowActivityIdsKeyword);
-                this.enabledEventSources.Add(eventSource);
+                this.enabledEventSources.Enqueue(eventSource);
             }
             else if (eventSource.Name == EventSourceListenerEventSource.ProviderName)
             {
@@ -186,7 +178,7 @@ namespace Microsoft.ApplicationInsights.EventSourceListener
                     }
 
                     this.EnableEvents(eventSource, listeningRequest.Level, keywords);
-                    this.enabledEventSources.Add(eventSource);
+                    this.enabledEventSources.Enqueue(eventSource);
                 }
             }
         }
